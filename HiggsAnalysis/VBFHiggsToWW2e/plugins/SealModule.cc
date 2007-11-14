@@ -1,3 +1,9 @@
-// $Id: SealModule.cc,v 1.2 2007/11/14 17:34:43 govoni Exp $
+// $Id: SealModule.cc,v 1.3 2007/11/14 18:25:17 govoni Exp $
 
-#include "PluginManager/ModuleDef.h"#include "FWCore/Framework/interface/InputSourceMacros.h"#include "FWCore/Framework/interface/MakerMacros.h"#include "Configuration/CSA06Skimming/interface/VBFMCProcessFilter.h"DEFINE_SEAL_MODULE () ;DEFINE_ANOTHER_FWK_MODULE (VBFMCProcessFilter) ;
+#include "PluginManager/ModuleDef.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "HiggsAnalysis/VBFHiggsToWW2e/plugins/VBFMCProcessFilter.h"
+
+DEFINE_SEAL_MODULE () ;
+DEFINE_ANOTHER_FWK_MODULE (VBFMCProcessFilter) ;
