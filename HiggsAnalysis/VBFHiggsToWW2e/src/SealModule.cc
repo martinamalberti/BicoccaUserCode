@@ -9,5 +9,5 @@
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFHiggsToWW2e.h"
 
 //define this as a plug-in
-DEFINE_FWK_MODULE () ;
+DEFINE_SEAL_MODULE () ;
 DEFINE_ANOTHER_FWK_MODULE (VBFHiggsToWW2e) ;
