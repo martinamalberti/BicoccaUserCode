@@ -1,9 +1,37 @@
-// $Id: VBFMCProcessFilter.cc,v 1.2 2007/11/14 17:34:43 govoni Exp $
+// $Id: VBFMCProcessFilter.cc,v 1.3 2007/11/14 17:43:27 govoni Exp $
 
-#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCProcessFilter.h"#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"#include <iostream>//using namespace edm;//using namespace std;VBFMCProcessFilter::VBFMCProcessFilter(const edm::ParameterSet& iConfig) :  label_ (iConfig.getUntrackedParameter ("moduleLabel",std::string ("source"))){   //here do whatever other initialization is needed   vector<int> defproc ;   defproc.push_back(0) ;   processID = iConfig.getUntrackedParameter< vector<int> > ("ProcessID",defproc);     vector<double> defpthatmin ;   defpthatmin.push_back(0.);   pthatMin = iConfig.getUntrackedParameter< vector<double> > ("MinPthat", defpthatmin);   vector<double> defpthatmax ;   defpthatmax.push_back(10000.);   pthatMax = iConfig.getUntrackedParameter< vector<double> > ("MaxPthat", defpthatmax);    // checkin size of phthat vectors -- default is allowed    if (pthatMin.size() > 1 &&  processID.size() != pthatMin.size()      || pthatMax.size() > 1 && processID.size() != pthatMax.size()) {      cout << "WARNING: VBFMCProcessFilter : size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;    }    // if pthatMin size smaller than processID , fill up further with defaults     if (processID.size() > pthatMin.size() ){        vector<double> defpthatmin2 ;       for (unsigned int i = 0; i < processID.size(); i++){ defpthatmin2.push_back(0.);}       pthatMin = defpthatmin2;    }         // if pthatMax size smaller than processID , fill up further with defaults     if (processID.size() > pthatMax.size() ){       vector<double> defpthatmax2 ;       for (unsigned int i = 0; i < processID.size(); i++){ defpthatmax2.push_back(10000.);}       pthatMax = defpthatmax2;       }}VBFMCProcessFilter::~VBFMCProcessFilter(){    // do anything here that needs to be done at desctruction time   // (e.g. close files, deallocate resources etc.)}// ------------ method called to skim the data  ------------bool VBFMCProcessFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){   using namespace edm;   bool accepted = false;   Handle<HepMCProduct> evt;   iEvent.getByLabel(label_, evt);    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));        // do the selection -- processID 0 is always accepted    for (unsigned int i = 0; i < processID.size () ; i++)
-      {        if (processID[i] == myGenEvent->signal_process_id () || processID[i] == 0) 
-          {                  if ( myGenEvent->event_scale () > pthatMin[i] &&  
-                   myGenEvent->event_scale() < pthatMax[i] ) 
-              {                   accepted = true;               }              }       }    delete myGenEvent;    if (accepted) { return true; } 
-   else { return false; }}	
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCProcessFilter.h"#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"#include <iostream>//! ctor
+VBFMCProcessFilter::VBFMCProcessFilter(const edm::ParameterSet& iConfig) :  label_ (iConfig.getUntrackedParameter ("moduleLabel",std::string ("source"))){}
+
+// ------------------------------------------------------------------------------------
+
+//! dtor
+VBFMCProcessFilter::~VBFMCProcessFilter(){}
+
+// ------------------------------------------------------------------------------------
+
+//! filtering method
+bool 
+VBFMCProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup){
+  Handle<HepMCProduct> evtMC;  event.getByLabel(label_,evtMC);
+
+ //PG loop over the generated particles
+ for (HepMC::GenEvent::particle_const_iterator part = Evt->particles_begin(); 
+       part != Evt->particles_end () ; 
+       ++part) 
+    {
+       if (abs((*part)->pdg_id()) == 25 && 
+          (*part)->production_vertex ()->particles_in_size () == 2 ) //PG this is an higgs boson
+         {
+           int pdgID_1 = (*part)->production_vertex ()->particles_in_const_begin ()->pdg_id () ;
+           int pdgID_2 = ((*part)->production_vertex ()->particles_in_const_begin ()+1)->pdg_id () ;
+           if ( ( abs (pdgID_1) == 23 &&
+                  abs (pdgID_2) == 23 ) ||
+                ( abs (pdgID_1) == 24 &&
+                  abs (pdgID_2) == 24 ) )
+             {
+               return true ;
+             }  
+         }
+    } //PG loop over the generated particles  return false ;}	
 
