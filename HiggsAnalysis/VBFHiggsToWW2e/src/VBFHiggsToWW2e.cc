@@ -59,5 +59,3 @@ void
 VBFHiggsToWW2e::endJob() {
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(VBFHiggsToWW2e);
