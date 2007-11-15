@@ -1,4 +1,0 @@
-<use name=HiggsAnalysis/VBFHiggsToWW2e>
-<library file="*.cc" name=HiggsAnalysisVBFHiggsToWW2ePlugins>
-<flags EDM_PLUGIN=1>
-</library>
