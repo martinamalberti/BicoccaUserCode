@@ -1,3 +1,4 @@
+<<<<<<< VBFMCProcessFilter.cc
 // $Id: VBFMCProcessFilter.cc,v 1.4 2007/11/14 18:17:55 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/plugins/VBFMCProcessFilter.h"
@@ -10,6 +11,20 @@
 VBFMCProcessFilter::VBFMCProcessFilter(const edm::ParameterSet& iConfig) :
   label_ (iConfig.getUntrackedParameter ("moduleLabel",std::string ("source")))
 {}
+=======
+// $Id: VBFMCProcessFilter.cc,v 1.5 2007/11/15 16:16:19 tancini Exp $
+
+#include "HiggsAnalysis/VBFHiggsToWW2e/plugins/VBFMCProcessFilter.h"
+
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include <iostream>
+
+
+//! ctor
+VBFMCProcessFilter::VBFMCProcessFilter(const edm::ParameterSet& iConfig) :
+  label_ (iConfig.getUntrackedParameter ("moduleLabel",std::string ("source")))
+{}
+>>>>>>> 1.5
 
 
 // ------------------------------------------------------------------------------------
@@ -40,6 +55,18 @@ VBFMCProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
        if (abs((*part)->pdg_id()) == 25 && 
           (*part)->production_vertex ()->particles_in_size () == 2 ) //PG this is an higgs boson
          {
+<<<<<<< VBFMCProcessFilter.cc
+           HepMC::GenParticle* motherA = (*((*part)->production_vertex()->particles_in_const_begin())); 
+           HepMC::GenParticle* motherB = (*((*part)->production_vertex()->particles_in_const_begin())+1);
+             
+           int pdgID_A =  motherA->pdg_id () ;
+           int pdgID_B =  motherB->pdg_id () ;
+  
+           if ( ( abs (pdgID_A) == 23 &&
+                  abs (pdgID_B) == 23 ) ||
+                ( abs (pdgID_A) == 24 &&
+                  abs (pdgID_B) == 24 ) )
+=======
            HepMC::GenParticle* motherA = (*((*part)->production_vertex()->particles_in_const_begin())); 
            HepMC::GenParticle* motherB = (*((*part)->production_vertex()->particles_in_const_begin()+1));
              
@@ -50,6 +77,7 @@ VBFMCProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
                   abs (pdgID_2) == 23 ) ||
                 ( abs (pdgID_1) == 24 &&
                   abs (pdgID_2) == 24 ) )
+>>>>>>> 1.5
              {
                return true ;
              }  
