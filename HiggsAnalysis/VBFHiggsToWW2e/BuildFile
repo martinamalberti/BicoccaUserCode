@@ -3,11 +3,13 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
 <use name=clhep>
 <use name=hepmc>
 <use name=heppdt>
-<flags EDM_PLUGIN=1>
+#<flags EDM_PLUGIN=1>
 <export>
+   <use name=FWCore/Utilities>
    <lib name=HiggsAnalysisVBFHiggsToWW2e>
    <use name=SimDataFormats/HepMCProduct>
    <use name=SimGeneral/HepPDTRecord> 

@@ -5,9 +5,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFHiggsToWW2e.h"
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCProcessFilter.h"
 
 //define this as a plug-in
 DEFINE_SEAL_MODULE () ;
 DEFINE_ANOTHER_FWK_MODULE (VBFHiggsToWW2e) ;
+DEFINE_ANOTHER_FWK_MODULE (VBFMCProcessFilter) ; 
+
