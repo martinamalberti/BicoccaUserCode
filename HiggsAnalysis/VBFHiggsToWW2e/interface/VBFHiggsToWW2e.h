@@ -6,14 +6,14 @@
 /**\class VBFHiggsToWW2e VBFHiggsToWW2e.cc HiggsAnalysis/VBFHiggsToWW2e/src/VBFHiggsToWW2e.cc
 
  Description: <one line class summary>
-
+ 
  Implementation:
      <Notes on implementation>
 */
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFHiggsToWW2e.cc,v 1.1 2007/11/14 16:34:19 govoni Exp $
+// $Id: VBFHiggsToWW2e.h,v 1.2 2007/11/14 16:42:40 govoni Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 //
 
 class VBFHiggsToWW2e : public edm::EDAnalyzer {
-   public:
+public:
       explicit VBFHiggsToWW2e(const edm::ParameterSet&);
       ~VBFHiggsToWW2e();
 
@@ -47,6 +47,6 @@ class VBFHiggsToWW2e : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-};
+} ;
 
 #endif
