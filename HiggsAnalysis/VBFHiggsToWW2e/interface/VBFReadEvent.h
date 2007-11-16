@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.3 2007/11/15 16:21:30 govoni Exp $
+// $Id: VBFReadEvent.h,v 1.1 2007/11/16 09:07:08 govoni Exp $
 //
 //
 
@@ -51,13 +51,14 @@ class VBFReadEvent : public edm::EDAnalyzer {
 
    private:
 
-      std::string m_metColletion ;
-      std::string m_genMetColletion ;
-      std::string m_jetColletion ;
-      std::string m_genJetColletion ;
-      std::string m_eleColletion ;
-      std::string m_MCtruthColletion ;
-      std::string m_muColletion ;
+      std::string m_metInputTag ;
+      std::string m_genMetInputTag ;
+      std::string m_jetInputTag ;
+      std::string m_genJetInputTag ;
+      std::string m_GSFInputTag ;
+      std::string m_electronIDInputTag ;
+      std::string m_MCtruthInputTag ;
+      std::string m_muInputTag ;
 
 } ;
 
