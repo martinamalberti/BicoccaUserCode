@@ -1,6 +1,6 @@
-// $Id: VBFReadEvent.cc,v 1.2 2007/11/16 09:44:03 govoni Exp $
+// $Id: VBFReadEvent.cc,v 1.3 2007/11/16 10:09:55 govoni Exp $
 
-#include "HiggsAnalysis/VBFReadEvent/interface/VBFReadEvent.h"
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
@@ -41,7 +41,7 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_genJetInputTag (iConfig.getParameter<edm::InputTag> ("genJetInputTag")) ,
       m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
       m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
-      m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag"))
+      m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")) ,
       m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag"))
 // il resto del MC
 // il trigger
@@ -105,8 +105,6 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
 //  const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
 //  bool cutBasedID = electronIDref->cutBasedDecision () ;
-  
-  } //PG loop on the raw collection
  
 }
 
