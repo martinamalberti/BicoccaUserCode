@@ -1,4 +1,27 @@
+// $Id: VBFReadEvent.h,v 1.1 2007/11/16 09:07:08 govoni Exp $
+
 #include "HiggsAnalysis/VBFReadEvent/interface/VBFReadEvent.h"
+
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "CLHEP/HepMC/GenEvent.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 
 VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
@@ -38,10 +61,20 @@ void
 VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-//   edm::Handle<ExampleData> pIn ;
-//   iEvent.getByLabel ("example",pIn) ;
+  edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
+  iEvent.getByLabel (m_metColletion, metCollectionHandle) ;
 
-   
+//PG FIXME quale dei due?
+  edm::Handle<reco::CandidateCollection> genMetCollectionHandle ;
+//  edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
+  iEvent.getByLabel (m_genMetColletion, genMetCollectionHandle) ;
+
+  edm::Handle<reco::CandidateCollection> jetCollectionHandle ;
+  iEvent.getByLabel (m_jetColletion, jetCollectionHandle) ;
+ 
+  edm::Handle<reco::CandidateCollection> genJetCollectionHandle ;
+  iEvent.getByLabel (m_genJetColletion, genJetCollectionHandle) ;
+ 
 }
 
 
