@@ -1,4 +1,4 @@
-// $Id: VBFMCProcessFilter.cc,v 1.6 2007/11/15 16:22:11 tancini Exp $
+// $Id: VBFMCProcessFilter.cc,v 1.1 2007/11/15 17:28:15 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCProcessFilter.h"
 
@@ -37,24 +37,12 @@ VBFMCProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
        part != Evt->particles_end () ; 
        ++part) 
     {
-       if (abs((*part)->pdg_id()) == 25 && 
-          (*part)->production_vertex ()->particles_in_size () == 2 ) //PG this is an higgs boson
-         {
-           HepMC::GenParticle* motherA = (*((*part)->production_vertex()->particles_in_const_begin())); 
-           HepMC::GenParticle* motherB = (*((*part)->production_vertex()->particles_in_const_begin())+1);
-             
-           int pdgID_A =  motherA->pdg_id () ;
-           int pdgID_B =  motherB->pdg_id () ;
-  
-           if ( ( abs (pdgID_A) == 23 &&
-                  abs (pdgID_B) == 23 ) ||
-                ( abs (pdgID_A) == 24 &&
-                  abs (pdgID_B) == 24 ) )
+        int processID = Evt->signal_process_id() ;
+        if (processID == 123 || processID == 124)
              {
                return true ;
              }  
-         }
-    } //PG loop over the generated particles
+         }//PG loop over the generated particles
 
   return false ;
 
