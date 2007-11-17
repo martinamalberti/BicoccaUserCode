@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.4 2007/11/16 10:39:21 govoni Exp $
+// $Id: VBFReadEvent.cc,v 1.5 2007/11/17 16:14:24 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -50,15 +50,6 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
 
 {
    //now do what ever initialization is needed
-    m_genTree = new TTree("genTree","generatedParticles") ;
-    
-    m_genTree->Branch ("genLepPlus","LorentzVector",&m_genLepPlus) ;
-    m_genTree->Branch ("genLepMinus","LorentzVector",&m_genLepMinus) ;
-    m_genTree->Branch ("genMetPlus","LorentzVector",&m_genMetPlus) ;
-    m_genTree->Branch ("genMetMinus","LorentzVector",&m_genMetMinus) ;
-    m_genTree->Branch ("genqTagF","LorentzVector",&m_genqTagF) ;
-    m_genTree->Branch ("genqTagB","LorentzVector",&m_genqTagB) ;
-     
 }
 
 
@@ -152,59 +143,31 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
         int mumSTATUS = p->status() ;    
             if (mumPDG == -24 &&  mumSTATUS ==3) 
                 {
-                    std::cout << " ecco un W con mumPDG="<< mumPDG
-                                   << " con # figlie " << p->numberOfDaughters() << std::endl ; 
+                    std::cout << " ecco un W con mumPDG="<< mumPDG << " con # figlie " << p->numberOfDaughters() << std::endl ; 
                     
                     for( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                         {
                         const Candidate * daughter = p->daughter( i );
                         int PDG = daughter-> pdgId() ;    
-                        std::cout << PDG << std::endl ;
                         if (PDG==11) 
                             {
                                 std::cout << "ecco un elettrone"<< std::endl ; 
-                                m_genLepMinus->setPx (daughter->px());
-                                m_genLepMinus->setPy (daughter->py());
-                                m_genLepMinus->setPz (daughter->pz());
-                                m_genLepMinus->setE (daughter->e());
+                                m_genLepMinus->SetPx (daughter->px());
+                                m_genLepMinus->SetPy (daughter->py());
+                                m_genLepMinus->SetPz (daughter->pz());
+                                m_genLepMinus->SetE (daughter->energy());
                                 }
-                        else if (PDG==-12) 
-                            {
+                         else if (PDG==-12) 
+                                {
                                 std::cout << "ecco un neutrino"<< std::endl ; 
-                                m_genMetMinus->setPx (daughter->px());
-                                m_genMetMinus->setPy (daughter->py());
-                                m_genMetMinus->setPz (daughter->pz());
-                                m_genMetMinus->setE (daughter->e());
-                                
-                            }
+                                m_genMetMinus->SetPx (daughter->px());
+                                m_genMetMinus->SetPy (daughter->py());
+                                m_genMetMinus->SetPz (daughter->pz());
+                                m_genMetMinus->SetE (daughter->energy());
+                              }
                         }
-
-                    
                 }
-            /*
-            if ((PDG == 11 || PDG == 13) && p->status() == 1)         //my electron or muon 
-            {
-               std::cout <<"# mamme " << p->numberOfMothers() << std::endl ; //controllare numero mamme
-               const Candidate * mum = p->mother();      
-                
-                int mumPDG =  mum->pdgId() ;
-                std::cout << "mumPDG " << mumPDG << " e' mamma di PDG " << PDG << std::endl ;
-                std::cout << "px particle = " << p->px () << " its mum px = " << mum->px () << std::endl ;
-                if (mumPDG == -24) 
-                    {
-                        //HepMC::GenParticle *myPart = (*part);
-                        std::cout << "elettrone figlio di con px=" << std::endl ;   
-                    }
-                }
-             */
-        }
-               
-    
-/*
-    for (HepMC::GenEvent::particle_const_iterator part = Evt->particles_begin(); 
-         part != Evt->particles_end () ; 
-         ++part)
-        {
+            }
             
             //11 ele-
             //12 nu_ele
@@ -214,40 +177,35 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             //W+ 24
             //W- -24
             //h 25
-            
-        int PDG = ((*part)->pdg_id()) ;
-///////////////////////////////////////////////////////////////////////
-            
-        //my electron or muon 
-        if ((PDG == 11 || PDG == 13) && (*part)->status() == 1) 
-            {//controllare numero mamme
-                std::cout << "trovato elettrone con PDG=" << PDG << std::endl ;
-                std::cout << "numero mamme " << (*part)->production_vertex()->particles_in_size() << std::endl;
-                
-                for (HepMC::GenVertex::particles_in_const_iterator mother =(*part)->production_vertex()->particles_in_const_begin();
-                     mother != (*part)->production_vertex()->particles_in_const_end();
-                     ++mother)                    
-                    {
-                        int motherPDG =  (*mother)->pdg_id() ;
-                        std::cout << "motherPDG " << motherPDG << std::endl ;
-                        if (motherPDG == -24) 
-                            {
-                                //HepMC::GenParticle *myPart = (*part);
-                                HepMC::FourVector myLorentz_leptonMinus = ((*part)->momentum());
-                                std::cout << "elettrone figlio di con px=" << myLorentz_leptonMinus.px() << std::endl ;   
-                            }
-                    }//closes loop over mothers
-                 
-            }//closes if
-///////////////////////////////////////////////////////////////////////
-  */
+
+     m_genTree->Fill () ;
 }
 // --------------------------------------------------------------------
 
 
 void 
 VBFReadEvent::beginJob (const edm::EventSetup&)
-{}
+{
+    m_outfile  = new TFile ("prova.root", "RECREATE");
+    m_genTree = new TTree("genTree","generatedParticles") ;
+    std::cout << "files ok" << std::endl ;
+    
+    m_genLepPlus = new TLorentzVector (0.,0.,0.,0.) ;
+    m_genLepMinus = new TLorentzVector (0.,0.,0.,0.) ;
+    m_genMetPlus = new TLorentzVector (0.,0.,0.,0.) ;
+    m_genMetMinus = new TLorentzVector (0.,0.,0.,0.) ;
+    m_genqTagF = new TLorentzVector (0.,0.,0.,0.) ;
+    m_genqTagF = new TLorentzVector (0.,0.,0.,0.) ;
+    
+    m_genTree->Branch ("genLepPlus","TLorentzVector",&m_genLepPlus) ;
+    m_genTree->Branch ("genLepMinus","TLorentzVector",&m_genLepMinus) ;
+    m_genTree->Branch ("genMetPlus","TLorentzVector",&m_genMetPlus) ;
+    m_genTree->Branch ("genMetMinus","TLorentzVector",&m_genMetMinus) ;
+    m_genTree->Branch ("genqTagF","TLorentzVector",&m_genqTagF) ;
+    m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB) ;
+    std::cout << "beginned job" << std::endl ;
+    
+}
 
 
 // --------------------------------------------------------------------
@@ -255,5 +213,7 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
 
 void 
 VBFReadEvent::endJob () 
-{}
+{
+    m_genTree->Write () ;
+}
 

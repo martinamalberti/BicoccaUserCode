@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.3 2007/11/16 10:39:20 govoni Exp $
+// $Id: VBFReadEvent.h,v 1.4 2007/11/17 16:14:25 tancini Exp $
 //
 //
 
@@ -32,18 +32,17 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
-//#include "Math/LorentzVector.h"
+//#include <CLHEP/Vector/LorentzVector.h>
 
 //root include
 #include <TTree.h>
+#include <TFile.h>
+#include <TLorentzVector.h>
 
 
 class VBFReadEvent : public edm::EDAnalyzer {
 
   public:
-
-      //typedef math::XYZTLorentzVector LorentzVector;
     
       //! ctor
       explicit VBFReadEvent (const edm::ParameterSet&) ;
@@ -68,13 +67,14 @@ class VBFReadEvent : public edm::EDAnalyzer {
       edm::InputTag m_MC ;
       edm::InputTag m_muInputTag ;
     
+      TFile *m_outfile;
       TTree* m_genTree;
-      CLHEP::HepLorentzVector *m_genLepPlus;
-      CLHEP::HepLorentzVector *m_genLepMinus;
-      CLHEP::HepLorentzVector *m_genMetPlus;
-      CLHEP::HepLorentzVector *m_genMetMinus;
-      CLHEP::HepLorentzVector *m_genqTagF;
-      CLHEP::HepLorentzVector *m_genqTagB;
+      TLorentzVector *m_genLepPlus;
+      TLorentzVector *m_genLepMinus;
+      TLorentzVector *m_genMetPlus;
+      TLorentzVector *m_genMetMinus;
+      TLorentzVector *m_genqTagF;
+      TLorentzVector *m_genqTagB;
 
 } ;
 
