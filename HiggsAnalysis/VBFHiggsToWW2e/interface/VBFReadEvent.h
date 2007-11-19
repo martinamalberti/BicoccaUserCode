@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.4 2007/11/17 16:14:25 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.5 2007/11/17 17:04:42 tancini Exp $
 //
 //
 
@@ -75,7 +75,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
       TLorentzVector *m_genMetMinus;
       TLorentzVector *m_genqTagF;
       TLorentzVector *m_genqTagB;
-
+      int m_LepPlusFlavour;
+      int m_LepMinusFlavour;
 } ;
 
 #endif

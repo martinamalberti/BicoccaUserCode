@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.5 2007/11/17 16:14:24 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.6 2007/11/17 17:04:40 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -48,9 +48,7 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
 // il trigger
 // gli elettroni, guarda il codice ftto con roberto
 
-{
-   //now do what ever initialization is needed
-}
+{}
 
 
 // --------------------------------------------------------------------
@@ -113,62 +111,115 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  bool cutBasedID = electronIDref->cutBasedDecision () ;
  
     const HepMC::GenEvent * Evt = evtMC->GetEvent();
-    std::cout << "process id ------>"<< Evt->signal_process_id() << std::endl;
-    /*
-    std::vector<const reco::Candidate*>::const_iterator iGenPart;
-    for (iGenPart = mcCollection_->begin(); 
-           iGenPart != mcCollection_->end(); 
-           iGenPart ++){    
-        
-        if ((*iGenPart)->numberOfMothers() > 0 ) 
-            {
-            if ( (*iGenPart)->mother()->status()==3 &&  (*iGenPart)->mother()->pdgId()==-24) //W-
-                {
-                if ( (*iGenPart)->status()==1 && abs((*iGenPart)->pdgId())==11) //e-
-                {
-                    std::cout << "px particle = " << (*iGenPart)->px () << std::endl ;
-                    (*iGenPart); 
-                }
-            }
-        }
-    }
-    */
-    
-    
+     
     for (CandidateCollection::const_iterator p = genParticles->begin(); 
         p != genParticles->end(); 
         ++ p) 
         {
         int mumPDG = p -> pdgId();
-        int mumSTATUS = p->status() ;    
-            if (mumPDG == -24 &&  mumSTATUS ==3) 
+        int mumSTATUS = p->status() ;
+            
+        if (mumPDG > 0 && mumPDG < 6 && mumSTATUS ==3)
+            {
+            std::cout << "un quark mamma di con pid " <<  mumPDG << std::endl ;
+            std::cout << "numro figli " << p->numberOfDaughters() << std::endl ;
+            int haUnfiglioW = 0;
+            int haUnFiglioQ = 0 ;    
+            for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                 {
-                    std::cout << " ecco un W con mumPDG="<< mumPDG << " con # figlie " << p->numberOfDaughters() << std::endl ; 
-                    
-                    for( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    const Candidate * daughter = p->daughter( i );
+                    int PDG = daughter-> pdgId() ;
+                    std::cout << "un figlio e'  " << PDG << std::endl ;
+                    if () haUnfiglioW = 1;
+                    if () haUnFiglioQ = 1 ;
+                }
+            }
+          
+        /*    
+            ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
+            if (mumPDG == -24 &&  mumSTATUS ==3) //W-
+                {                    
+                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                         {
                         const Candidate * daughter = p->daughter( i );
                         int PDG = daughter-> pdgId() ;    
-                        if (PDG==11) 
+                        if (PDG==11) //e-
                             {
-                                std::cout << "ecco un elettrone"<< std::endl ; 
                                 m_genLepMinus->SetPx (daughter->px());
                                 m_genLepMinus->SetPy (daughter->py());
                                 m_genLepMinus->SetPz (daughter->pz());
                                 m_genLepMinus->SetE (daughter->energy());
+                                m_LepMinusFlavour = 11 ;
                                 }
-                         else if (PDG==-12) 
+                         else if (PDG==-12) //nu_e_bar
                                 {
-                                std::cout << "ecco un neutrino"<< std::endl ; 
                                 m_genMetMinus->SetPx (daughter->px());
                                 m_genMetMinus->SetPy (daughter->py());
                                 m_genMetMinus->SetPz (daughter->pz());
                                 m_genMetMinus->SetE (daughter->energy());
                               }
+                         else if (PDG==13) //mu-
+                            {
+                                m_genLepMinus->SetPx (daughter->px());
+                                m_genLepMinus->SetPy (daughter->py());
+                                m_genLepMinus->SetPz (daughter->pz());
+                                m_genLepMinus->SetE (daughter->energy());
+                                m_LepMinusFlavour = 13 ;
+                            }
+                        else if (PDG==-14) //nu_mu_bar
+                            {
+                                m_genMetMinus->SetPx (daughter->px());
+                                m_genMetMinus->SetPy (daughter->py());
+                                m_genMetMinus->SetPz (daughter->pz());
+                                m_genMetMinus->SetE (daughter->energy());
+                            }
+                            
                         }
                 }
-            }
             
+            ///////////////////////////////////////////////// W+ /////////////////////////////////////////////////
+            else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
+                {                    
+                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                        {
+                            const Candidate * daughter = p->daughter( i );
+                            int PDG = daughter-> pdgId() ;    
+                            if (PDG==-11) //e+
+                                {
+                                    m_genLepPlus->SetPx (daughter->px());
+                                    m_genLepPlus->SetPy (daughter->py());
+                                    m_genLepPlus->SetPz (daughter->pz());
+                                    m_genLepPlus->SetE (daughter->energy());
+                                    m_LepPlusFlavour = 11 ;
+                                }
+                            else if (PDG==12) //nu_e
+                                {
+                                    m_genMetPlus->SetPx (daughter->px());
+                                    m_genMetPlus->SetPy (daughter->py());
+                                    m_genMetPlus->SetPz (daughter->pz());
+                                    m_genMetPlus->SetE (daughter->energy());
+                                }
+                            else if (PDG==-13) //mu+
+                                {
+                                    m_genLepPlus->SetPx (daughter->px());
+                                    m_genLepPlus->SetPy (daughter->py());
+                                    m_genLepPlus->SetPz (daughter->pz());
+                                    m_genLepPlus->SetE (daughter->energy());
+                                    m_LepPlusFlavour = 13 ;
+                                }
+                            else if (PDG==14) //nu_mu
+                                {
+                                    m_genMetPlus->SetPx (daughter->px());
+                                    m_genMetPlus->SetPy (daughter->py());
+                                    m_genMetPlus->SetPz (daughter->pz());
+                                    m_genMetPlus->SetE (daughter->energy());
+                                }
+                            
+                        }
+                }
+           */ 
+            }
+           
             //11 ele-
             //12 nu_ele
             //13 mu-
@@ -177,6 +228,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             //W+ 24
             //W- -24
             //h 25
+            //g 21 ... nella WW fusion i vertici coinvolgono solo q...
 
      m_genTree->Fill () ;
 }
@@ -187,24 +239,25 @@ void
 VBFReadEvent::beginJob (const edm::EventSetup&)
 {
     m_outfile  = new TFile ("prova.root", "RECREATE");
-    m_genTree = new TTree("genTree","generatedParticles") ;
-    std::cout << "files ok" << std::endl ;
+    m_genTree = new TTree ("genTree","generatedParticles") ;
     
-    m_genLepPlus = new TLorentzVector (0.,0.,0.,0.) ;
-    m_genLepMinus = new TLorentzVector (0.,0.,0.,0.) ;
-    m_genMetPlus = new TLorentzVector (0.,0.,0.,0.) ;
-    m_genMetMinus = new TLorentzVector (0.,0.,0.,0.) ;
-    m_genqTagF = new TLorentzVector (0.,0.,0.,0.) ;
-    m_genqTagF = new TLorentzVector (0.,0.,0.,0.) ;
+    m_genLepPlus = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_genLepMinus = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_genMetPlus = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_genMetMinus = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_genqTagF = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_genqTagB = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_LepPlusFlavour = 0 ;
+    m_LepMinusFlavour = 0 ;
     
-    m_genTree->Branch ("genLepPlus","TLorentzVector",&m_genLepPlus) ;
-    m_genTree->Branch ("genLepMinus","TLorentzVector",&m_genLepMinus) ;
-    m_genTree->Branch ("genMetPlus","TLorentzVector",&m_genMetPlus) ;
-    m_genTree->Branch ("genMetMinus","TLorentzVector",&m_genMetMinus) ;
-    m_genTree->Branch ("genqTagF","TLorentzVector",&m_genqTagF) ;
-    m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB) ;
-    std::cout << "beginned job" << std::endl ;
-    
+    m_genTree->Branch ("LepPlusFlavour", &m_LepPlusFlavour, "m_LepPlusFlavour/I");
+    m_genTree->Branch ("LepMinusFlavour", &m_LepMinusFlavour, "m_LepMinusFlavour/I");
+    m_genTree->Branch ("genLepPlus","TLorentzVector",&m_genLepPlus,6400,99) ;
+    m_genTree->Branch ("genLepMinus","TLorentzVector",&m_genLepMinus,6400,99) ;
+    m_genTree->Branch ("genMetPlus","TLorentzVector",&m_genMetPlus,6400,99) ;
+    m_genTree->Branch ("genMetMinus","TLorentzVector",&m_genMetMinus,6400,99) ;
+    m_genTree->Branch ("genqTagF","TLorentzVector",&m_genqTagF,6400,99) ;
+    m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB,6400,99) ;    
 }
 
 
@@ -215,5 +268,7 @@ void
 VBFReadEvent::endJob () 
 {
     m_genTree->Write () ;
+    m_outfile->Write () ; 
+    m_outfile->Close () ;
 }
 
