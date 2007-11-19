@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.7 2007/11/19 09:42:25 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.8 2007/11/19 13:24:17 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -128,8 +128,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
         p != genParticles->end(); 
         ++ p) 
         {
-        int mumPDG = p -> pdgId();
-        int mumSTATUS = p->status() ;
+        int mumPDG = (p)->pdgId();
+        int mumSTATUS = (p)->status() ;
 
 ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
             
@@ -137,10 +137,10 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             {
             int haUnFiglioW = 0;
             int haUnFiglioQ = 0 ;
-            const Candidate *myTag = p->daughter (0) ; // tanto per inizializzare senno si incazza
-            for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+            const Candidate *myTag = (p)->daughter (0) ; // tanto per inizializzare senno si incazza
+            for ( size_t i = 0; i < (p)->numberOfDaughters(); ++ i ) 
                 {
-                    const Candidate * daughter = p->daughter( i );
+                    const Candidate * daughter = (p)->daughter( i );
                     int PDG = daughter-> pdgId() ;
                     if (abs(PDG) == 24 || abs(PDG)==25) haUnFiglioW = 1;
                     if (abs(PDG) > 0 && abs(PDG) < 6) 
@@ -152,21 +152,21 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (haUnFiglioW==1 &&  haUnFiglioQ==1) tags.push_back (myTag) ;       
             }
             
-            if (tags.at(0)->eta () > tags.at(1)->eta () ){ 
+            if (tags.at(0)->theta () > tags.at(1)->theta () ){
                 setMomentum (*m_genqTagF, *tags.at(0)) ;
                 setMomentum (*m_genqTagB, *tags.at(1)) ;}
             else {
                 setMomentum (*m_genqTagB, *tags.at(0)) ;
                 setMomentum (*m_genqTagF, *tags.at(1)) ; }
-            
+           
 ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
-                        
+             /*           
              if (mumPDG == -24 &&  mumSTATUS ==3) //W-
                 {                    
-                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    for ( size_t i = 0; i < (p)->numberOfDaughters(); ++ i ) 
                         {
-                        const Candidate * daughter = p->daughter ( i );
-                        int PDG = daughter-> pdgId() ;    
+                        const Candidate * daughter = (p)->daughter ( i );
+                        int PDG = daughter -> pdgId() ;    
                         if (PDG==11) { // e-
                                 setMomentum (*m_genLepMinus, *daughter) ;
                                 m_LepMinusFlavour = 11 ;}
@@ -184,9 +184,9 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
              else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
                 {                    
-                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    for ( size_t i = 0; i < (p)->numberOfDaughters(); ++ i ) 
                         {
-                            const Candidate * daughter = p->daughter ( i );
+                            const Candidate *daughter = (p)->daughter ( i );
                             int PDG = daughter-> pdgId() ;    
                             if (PDG==-11) {//e+
                                     setMomentum (*m_genLepPlus, *daughter) ;
@@ -200,7 +200,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                    setMomentum (*m_genMetPlus, *daughter) ;}
                         }
                 }
-           
+           */
             } // loop sulle particelle generate
            
      m_genTree->Fill () ;
