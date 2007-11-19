@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.5 2007/11/17 17:04:42 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.6 2007/11/19 09:42:45 tancini Exp $
 //
 //
 
@@ -28,11 +28,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include <CLHEP/Vector/LorentzVector.h>
 
 //root include
 #include <TTree.h>
@@ -54,6 +56,7 @@ class VBFReadEvent : public edm::EDAnalyzer {
       virtual void beginJob (const edm::EventSetup&) ;
       virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
       virtual void endJob () ;
+      void setMomentum (TLorentzVector & vector, const reco::Candidate & gen) ;
 
    private:
 

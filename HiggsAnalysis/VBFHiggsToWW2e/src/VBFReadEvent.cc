@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.6 2007/11/17 17:04:40 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.7 2007/11/19 09:42:25 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -103,133 +103,106 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //iEvent.getByLabel (m_electronIDInputTag, electronIDAssocHandle);
     
 
-  //PG check the result of the electron ID on a given ref
+//  PG check the result of the electron ID on a given ref
 //  reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
 //  electronIDAssocItr = electronIDTightAssocHandle->find (ref) ;
 //  if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
 //  const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
 //  bool cutBasedID = electronIDref->cutBasedDecision () ;
+    
+    //11 ele-
+    //12 nu_ele
+    //13 mu-
+    //14 nu_mu
+    //1-6 quarks
+    //W+ 24
+    //W- -24
+    //h 25
+    //g 21 ... nella WW fusion i vertici coinvolgono solo q...    
  
     const HepMC::GenEvent * Evt = evtMC->GetEvent();
-     
+    
+    std::vector<const Candidate *> tags;
+    
     for (CandidateCollection::const_iterator p = genParticles->begin(); 
         p != genParticles->end(); 
         ++ p) 
         {
         int mumPDG = p -> pdgId();
         int mumSTATUS = p->status() ;
+
+///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
             
-        if (mumPDG > 0 && mumPDG < 6 && mumSTATUS ==3)
+        if (abs(mumPDG) > 0 && abs(mumPDG) < 6 && mumSTATUS ==3)
             {
-            std::cout << "un quark mamma di con pid " <<  mumPDG << std::endl ;
-            std::cout << "numro figli " << p->numberOfDaughters() << std::endl ;
-            int haUnfiglioW = 0;
-            int haUnFiglioQ = 0 ;    
+            int haUnFiglioW = 0;
+            int haUnFiglioQ = 0 ;
+            const Candidate *myTag = p->daughter (0) ; // tanto per inizializzare senno si incazza
             for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                 {
                     const Candidate * daughter = p->daughter( i );
                     int PDG = daughter-> pdgId() ;
-                    std::cout << "un figlio e'  " << PDG << std::endl ;
-                    if () haUnfiglioW = 1;
-                    if () haUnFiglioQ = 1 ;
+                    if (abs(PDG) == 24 || abs(PDG)==25) haUnFiglioW = 1;
+                    if (abs(PDG) > 0 && abs(PDG) < 6) 
+                        {
+                        haUnFiglioQ = 1 ;
+                        myTag = daughter ;
+                        }    
                 }
+            if (haUnFiglioW==1 &&  haUnFiglioQ==1) tags.push_back (myTag) ;       
             }
-          
-        /*    
-            ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
-            if (mumPDG == -24 &&  mumSTATUS ==3) //W-
+            
+            if (tags.at(0)->eta () > tags.at(1)->eta () ){ 
+                setMomentum (*m_genqTagF, *tags.at(0)) ;
+                setMomentum (*m_genqTagB, *tags.at(1)) ;}
+            else {
+                setMomentum (*m_genqTagB, *tags.at(0)) ;
+                setMomentum (*m_genqTagF, *tags.at(1)) ; }
+            
+///////////////////////////////////////////////// W- /////////////////////////////////////////////////
+                        
+             if (mumPDG == -24 &&  mumSTATUS ==3) //W-
                 {                    
                     for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                         {
-                        const Candidate * daughter = p->daughter( i );
+                        const Candidate * daughter = p->daughter ( i );
                         int PDG = daughter-> pdgId() ;    
-                        if (PDG==11) //e-
-                            {
-                                m_genLepMinus->SetPx (daughter->px());
-                                m_genLepMinus->SetPy (daughter->py());
-                                m_genLepMinus->SetPz (daughter->pz());
-                                m_genLepMinus->SetE (daughter->energy());
-                                m_LepMinusFlavour = 11 ;
-                                }
-                         else if (PDG==-12) //nu_e_bar
-                                {
-                                m_genMetMinus->SetPx (daughter->px());
-                                m_genMetMinus->SetPy (daughter->py());
-                                m_genMetMinus->SetPz (daughter->pz());
-                                m_genMetMinus->SetE (daughter->energy());
-                              }
-                         else if (PDG==13) //mu-
-                            {
-                                m_genLepMinus->SetPx (daughter->px());
-                                m_genLepMinus->SetPy (daughter->py());
-                                m_genLepMinus->SetPz (daughter->pz());
-                                m_genLepMinus->SetE (daughter->energy());
-                                m_LepMinusFlavour = 13 ;
-                            }
-                        else if (PDG==-14) //nu_mu_bar
-                            {
-                                m_genMetMinus->SetPx (daughter->px());
-                                m_genMetMinus->SetPy (daughter->py());
-                                m_genMetMinus->SetPz (daughter->pz());
-                                m_genMetMinus->SetE (daughter->energy());
-                            }
-                            
+                        if (PDG==11) { // e-
+                                setMomentum (*m_genLepMinus, *daughter) ;
+                                m_LepMinusFlavour = 11 ;}
+                         else if (PDG==-12) {//nu_e_bar
+                                setMomentum (*m_genMetMinus, *daughter) ;}
+                         else if (PDG==13) {//mu-
+                                setMomentum (*m_genLepMinus, *daughter) ;
+                                m_LepMinusFlavour = 13 ;}
+                        else if (PDG==-14) {//nu_mu_bar
+                                setMomentum (*m_genMetMinus, *daughter) ;}
                         }
                 }
             
-            ///////////////////////////////////////////////// W+ /////////////////////////////////////////////////
-            else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
+///////////////////////////////////////////////// W+ /////////////////////////////////////////////////
+
+             else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
                 {                    
                     for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                         {
-                            const Candidate * daughter = p->daughter( i );
+                            const Candidate * daughter = p->daughter ( i );
                             int PDG = daughter-> pdgId() ;    
-                            if (PDG==-11) //e+
-                                {
-                                    m_genLepPlus->SetPx (daughter->px());
-                                    m_genLepPlus->SetPy (daughter->py());
-                                    m_genLepPlus->SetPz (daughter->pz());
-                                    m_genLepPlus->SetE (daughter->energy());
-                                    m_LepPlusFlavour = 11 ;
-                                }
-                            else if (PDG==12) //nu_e
-                                {
-                                    m_genMetPlus->SetPx (daughter->px());
-                                    m_genMetPlus->SetPy (daughter->py());
-                                    m_genMetPlus->SetPz (daughter->pz());
-                                    m_genMetPlus->SetE (daughter->energy());
-                                }
-                            else if (PDG==-13) //mu+
-                                {
-                                    m_genLepPlus->SetPx (daughter->px());
-                                    m_genLepPlus->SetPy (daughter->py());
-                                    m_genLepPlus->SetPz (daughter->pz());
-                                    m_genLepPlus->SetE (daughter->energy());
-                                    m_LepPlusFlavour = 13 ;
-                                }
-                            else if (PDG==14) //nu_mu
-                                {
-                                    m_genMetPlus->SetPx (daughter->px());
-                                    m_genMetPlus->SetPy (daughter->py());
-                                    m_genMetPlus->SetPz (daughter->pz());
-                                    m_genMetPlus->SetE (daughter->energy());
-                                }
-                            
+                            if (PDG==-11) {//e+
+                                    setMomentum (*m_genLepPlus, *daughter) ;
+                                    m_LepPlusFlavour = 11 ;}
+                            else if (PDG==12) {//nu_e
+                                    setMomentum (*m_genMetPlus, *daughter) ;}
+                            else if (PDG==-13) {//mu+
+                                    setMomentum (*m_genLepPlus, *daughter) ;
+                                    m_LepPlusFlavour = 13 ;}
+                            else if (PDG==14) {//nu_mu
+                                   setMomentum (*m_genMetPlus, *daughter) ;}
                         }
                 }
-           */ 
-            }
            
-            //11 ele-
-            //12 nu_ele
-            //13 mu-
-            //14 nu_mu
-            //1-6 quarks
-            //W+ 24
-            //W- -24
-            //h 25
-            //g 21 ... nella WW fusion i vertici coinvolgono solo q...
-
+            } // loop sulle particelle generate
+           
      m_genTree->Fill () ;
 }
 // --------------------------------------------------------------------
@@ -272,3 +245,12 @@ VBFReadEvent::endJob ()
     m_outfile->Close () ;
 }
 
+// --------------------------------------------------------------------
+
+void VBFReadEvent::setMomentum (TLorentzVector & myvector, const Candidate & gen)
+{
+    myvector.SetPx (gen.px());
+    myvector.SetPy (gen.py());
+    myvector.SetPz (gen.pz());
+    myvector.SetE (gen.energy());
+}
