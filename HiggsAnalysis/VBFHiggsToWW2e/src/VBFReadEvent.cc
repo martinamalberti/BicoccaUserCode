@@ -47,7 +47,6 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
 // il resto del MC
 // il trigger
 // gli elettroni, guarda il codice ftto con roberto
-
 {}
 
 
@@ -123,49 +122,52 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     const HepMC::GenEvent * Evt = evtMC->GetEvent();
     
     std::vector<const Candidate *> tags;
-    
+
     for (CandidateCollection::const_iterator p = genParticles->begin(); 
         p != genParticles->end(); 
         ++ p) 
         {
-        int mumPDG = (p)->pdgId();
-        int mumSTATUS = (p)->status() ;
+        int mumPDG = p->pdgId();
+        int mumSTATUS = p->status() ;
 
 ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
             
-        if (abs(mumPDG) > 0 && abs(mumPDG) < 6 && mumSTATUS ==3)
+        if ((abs(mumPDG) > 0) && (abs(mumPDG) < 6) && (mumSTATUS ==3))
             {
             int haUnFiglioW = 0;
             int haUnFiglioQ = 0 ;
-            const Candidate *myTag = (p)->daughter (0) ; // tanto per inizializzare senno si incazza
-            for ( size_t i = 0; i < (p)->numberOfDaughters(); ++ i ) 
+            const Candidate *myTag = p->daughter (0) ; // tanto per inizializzare senno si incazza
+            for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                 {
-                    const Candidate * daughter = (p)->daughter( i );
+                    const Candidate * daughter = p->daughter( i );
                     int PDG = daughter-> pdgId() ;
                     if (abs(PDG) == 24 || abs(PDG)==25) haUnFiglioW = 1;
                     if (abs(PDG) > 0 && abs(PDG) < 6) 
                         {
                         haUnFiglioQ = 1 ;
                         myTag = daughter ;
-                        }    
+                        }   
+                    if (haUnFiglioW==1 &&  haUnFiglioQ==1) tags.push_back (myTag) ;       
                 }
-            if (haUnFiglioW==1 &&  haUnFiglioQ==1) tags.push_back (myTag) ;       
+            if (tags.size() >1)
+                {
+                if (tags.at(0)->theta () > tags.at(1)->theta () ){
+                    setMomentum (*m_genqTagF, *tags.at(0)) ;
+                    setMomentum (*m_genqTagB, *tags.at(1)) ;}
+                else {
+                    setMomentum (*m_genqTagB, *tags.at(0)) ;
+                    setMomentum (*m_genqTagF, *tags.at(1)) ; }
+                }
+                
             }
             
-            if (tags.at(0)->theta () > tags.at(1)->theta () ){
-                setMomentum (*m_genqTagF, *tags.at(0)) ;
-                setMomentum (*m_genqTagB, *tags.at(1)) ;}
-            else {
-                setMomentum (*m_genqTagB, *tags.at(0)) ;
-                setMomentum (*m_genqTagF, *tags.at(1)) ; }
-           
 ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
-             /*           
+                        
              if (mumPDG == -24 &&  mumSTATUS ==3) //W-
-                {                    
-                    for ( size_t i = 0; i < (p)->numberOfDaughters(); ++ i ) 
+                {
+                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                         {
-                        const Candidate * daughter = (p)->daughter ( i );
+                        const Candidate * daughter = p->daughter ( i );
                         int PDG = daughter -> pdgId() ;    
                         if (PDG==11) { // e-
                                 setMomentum (*m_genLepMinus, *daughter) ;
@@ -184,9 +186,9 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
              else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
                 {                    
-                    for ( size_t i = 0; i < (p)->numberOfDaughters(); ++ i ) 
+                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                         {
-                            const Candidate *daughter = (p)->daughter ( i );
+                            const Candidate *daughter = p->daughter ( i );
                             int PDG = daughter-> pdgId() ;    
                             if (PDG==-11) {//e+
                                     setMomentum (*m_genLepPlus, *daughter) ;
@@ -200,7 +202,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                    setMomentum (*m_genMetPlus, *daughter) ;}
                         }
                 }
-           */
+           
             } // loop sulle particelle generate
            
      m_genTree->Fill () ;
@@ -211,6 +213,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 VBFReadEvent::beginJob (const edm::EventSetup&)
 {
+
     m_outfile  = new TFile ("prova.root", "RECREATE");
     m_genTree = new TTree ("genTree","generatedParticles") ;
     
