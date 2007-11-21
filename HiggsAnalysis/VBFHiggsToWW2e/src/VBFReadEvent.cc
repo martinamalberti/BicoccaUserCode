@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.8 2007/11/19 13:24:17 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.10 2007/11/19 14:30:07 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -116,51 +116,33 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //1-6 quarks
     //W+ 24
     //W- -24
+    //Z 23
     //h 25
     //g 21 ... nella WW fusion i vertici coinvolgono solo q...    
  
     const HepMC::GenEvent * Evt = evtMC->GetEvent();
-    
     std::vector<const Candidate *> tags;
-
-    for (CandidateCollection::const_iterator p = genParticles->begin(); 
-        p != genParticles->end(); 
-        ++ p) 
+    //int counter = 0;
+    
+    for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
         {
         int mumPDG = p->pdgId();
         int mumSTATUS = p->status() ;
 
 ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
-            
-        if ((abs(mumPDG) > 0) && (abs(mumPDG) < 6) && (mumSTATUS ==3))
-            {
-            int haUnFiglioW = 0;
-            int haUnFiglioQ = 0 ;
-            const Candidate *myTag = p->daughter (0) ; // tanto per inizializzare senno si incazza
-            for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+//misteriosamente i tag sono i fratelli dell'higgs
+//quindi parto dall'higgs e ne prendo le mamme e quindi riguardo i figli
+        if ((abs(mumPDG)==25) && (mumSTATUS ==3))
                 {
-                    const Candidate * daughter = p->daughter( i );
-                    int PDG = daughter-> pdgId() ;
-                    if (abs(PDG) == 24 || abs(PDG)==25) haUnFiglioW = 1;
-                    if (abs(PDG) > 0 && abs(PDG) < 6) 
-                        {
-                        haUnFiglioQ = 1 ;
-                        myTag = daughter ;
-                        }   
-                    if (haUnFiglioW==1 &&  haUnFiglioQ==1) tags.push_back (myTag) ;       
-                }
-            if (tags.size() >1)
-                {
-                if (tags.at(0)->theta () > tags.at(1)->theta () ){
-                    setMomentum (*m_genqTagF, *tags.at(0)) ;
-                    setMomentum (*m_genqTagB, *tags.at(1)) ;}
-                else {
-                    setMomentum (*m_genqTagB, *tags.at(0)) ;
-                    setMomentum (*m_genqTagF, *tags.at(1)) ; }
+                    const Candidate * interact0 = p->mother(0) ;
+                    if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
+                    setMomentum (*m_genqTagF, *(interact0->daughter(1))) ;
+                    setMomentum (*m_genqTagB, *(interact0->daughter(0))) ;}
+                    else {
+                    setMomentum (*m_genqTagB, *(interact0->daughter(1))) ;
+                    setMomentum (*m_genqTagF, *(interact0->daughter(0))) ;}
                 }
                 
-            }
-            
 ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
                         
              if (mumPDG == -24 &&  mumSTATUS ==3) //W-
@@ -185,7 +167,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 ///////////////////////////////////////////////// W+ /////////////////////////////////////////////////
 
              else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
-                {                    
+                {  
                     for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
                         {
                             const Candidate *daughter = p->daughter ( i );
