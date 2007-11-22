@@ -1,8 +1,8 @@
-// $Id: VBFReadEvent.cc,v 1.13 2007/11/22 16:40:15 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.14 2007/11/22 17:53:55 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"                                                                   
+//#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"    
+#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"                                                              
 
 VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) ,
@@ -67,7 +67,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   edm::Handle<TrackCollection> tracksCollectionHandle;
   iEvent.getByLabel(m_trackInputTag, tracksCollectionHandle); 
-
+  const TrackCollection * trackCollection = tracksCollectionHandle.product () ;
+  
   //PG MC thruth collection  
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByLabel(m_MC, evtMC);
@@ -95,13 +96,13 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
                       *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
     
     std::cout << "# ele GSF " << std::endl ;
-    ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, tracksCollectionHandle) ; 
-    for( PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin(); 
-        ele != GSFHandle->end(); 
-        ++ ele ) 
+    ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
+    for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
+         ele != GSFHandle->end () ; 
+         ++ele ) 
         {
-            std::cout<<"*** ele loop begin,  pt= "<<ele->pt()<< std::endl;
-            double isoValue = myTkIsolation.getPtTracks(ele);
+            std::cout << "*** ele loop begin,  pt= " << ele->pt () << std::endl ;
+            double isoValue = myTkIsolation.getPtTracks (&(*ele)) ;
             std::cout<<"isoValue="<< isoValue << std::endl;
                  
             /*
