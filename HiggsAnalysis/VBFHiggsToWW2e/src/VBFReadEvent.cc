@@ -1,38 +1,6 @@
-// $Id: VBFReadEvent.cc,v 1.11 2007/11/21 15:16:41 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.12 2007/11/22 13:17:59 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
-
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "CLHEP/HepMC/GenEvent.h"
-
-#include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-
 
 VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) ,
@@ -108,88 +76,12 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
 //  const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
 //  bool cutBasedID = electronIDref->cutBasedDecision () ;
-    
-    //11 ele-
-    //12 nu_ele
-    //13 mu-
-    //14 nu_mu
-    //1-6 quarks
-    //W+ 24
-    //W- -24
-    //Z 23
-    //h 25
-    //g 21 ... nella WW fusion i vertici coinvolgono solo q...    
  
     const HepMC::GenEvent * Evt = evtMC->GetEvent();
-    std::vector<const Candidate *> tags;
-    //int counter = 0;
     
-    for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
-        {
-        int mumPDG = p->pdgId();
-        int mumSTATUS = p->status() ;
-
-///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
-//misteriosamente i tag sono i fratelli dell'higgs
-//quindi parto dall'higgs e ne prendo le mamme e quindi riguardo i figli
-        if ((abs(mumPDG)==25) && (mumSTATUS ==3))
-                {
-                    setMomentum (*m_genHiggs, *p) ; 
-                    const Candidate * interact0 = p->mother(0) ;
-                    if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
-                    setMomentum (*m_genqTagF, *(interact0->daughter(1))) ;
-                    setMomentum (*m_genqTagB, *(interact0->daughter(0))) ;}
-                    else {
-                    setMomentum (*m_genqTagB, *(interact0->daughter(1))) ;
-                    setMomentum (*m_genqTagF, *(interact0->daughter(0))) ;}
-                }
-                
-///////////////////////////////////////////////// W- /////////////////////////////////////////////////
-                        
-         else if (mumPDG == -24 &&  mumSTATUS ==3) //W-
-            {
-                setMomentum (*m_genWm, *p) ; 
-                for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
-                    {
-                    const Candidate * daughter = p->daughter ( i );
-                    int PDG = daughter -> pdgId() ;    
-                    if (PDG==11) { // e-
-                            setMomentum (*m_genLepMinus, *daughter) ;
-                            m_LepMinusFlavour = 11 ;}
-                     else if (PDG==-12) {//nu_e_bar
-                            setMomentum (*m_genMetMinus, *daughter) ;}
-                     else if (PDG==13) {//mu-
-                            setMomentum (*m_genLepMinus, *daughter) ;
-                            m_LepMinusFlavour = 13 ;}
-                    else if (PDG==-14) {//nu_mu_bar
-                            setMomentum (*m_genMetMinus, *daughter) ;}
-                    }
-            }
-        
-///////////////////////////////////////////////// W+ /////////////////////////////////////////////////
-
-         else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
-            {  
-                setMomentum (*m_genWp, *p) ; 
-                for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
-                    {
-                        const Candidate *daughter = p->daughter ( i );
-                        int PDG = daughter-> pdgId() ;    
-                        if (PDG==-11) {//e+
-                                setMomentum (*m_genLepPlus, *daughter) ;
-                                m_LepPlusFlavour = 11 ;}
-                        else if (PDG==12) {//nu_e
-                                setMomentum (*m_genMetPlus, *daughter) ;}
-                        else if (PDG==-13) {//mu+
-                                setMomentum (*m_genLepPlus, *daughter) ;
-                                m_LepPlusFlavour = 13 ;}
-                        else if (PDG==14) {//nu_mu
-                               setMomentum (*m_genMetPlus, *daughter) ;}
-                    }
-            }
-           
-            } // loop sulle particelle generate
-           
+    findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
+                      *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
+    
      m_genTree->Fill () ;
 }
 // --------------------------------------------------------------------
@@ -247,4 +139,93 @@ void VBFReadEvent::setMomentum (TLorentzVector & myvector, const Candidate & gen
     myvector.SetPy (gen.py());
     myvector.SetPz (gen.pz());
     myvector.SetE (gen.energy());
+}
+
+// --------------------------------------------------------------------
+//11 ele-
+//12 nu_ele
+//13 mu-
+//14 nu_mu
+//1-6 quarks
+//W+ 24
+//W- -24
+//Z 23
+//h 25
+//g 21 ... nella WW fusion i vertici coinvolgono solo q...    
+void VBFReadEvent::findGenParticles (edm::Handle<CandidateCollection> &genParticles,
+                                                             TLorentzVector &m_genHiggs,
+                                                             TLorentzVector &m_genWm,
+                                                             TLorentzVector &m_genWp,
+                                                             TLorentzVector &m_genLepPlus,
+                                                             TLorentzVector &m_genLepMinus,
+                                                             TLorentzVector &m_genMetPlus,
+                                                             TLorentzVector &m_genMetMinus,
+                                                             TLorentzVector &m_genqTagF,
+                                                             TLorentzVector &m_genqTagB)
+{
+    for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
+    {
+        int mumPDG = p->pdgId();
+        int mumSTATUS = p->status() ;
+
+        ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
+        //misteriosamente i tag sono i fratelli dell'higgs
+        //quindi parto dall'higgs e ne prendo le mamme e quindi riguardo i figli
+        if ((abs(mumPDG)==25) && (mumSTATUS ==3))
+            {
+                setMomentum (m_genHiggs, *p) ; 
+                const Candidate * interact0 = p->mother(0) ;
+                if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
+                    setMomentum (m_genqTagF, *(interact0->daughter(1))) ;
+                setMomentum (m_genqTagB, *(interact0->daughter(0))) ;}
+                else {
+                    setMomentum (m_genqTagB, *(interact0->daughter(1))) ;
+                setMomentum (m_genqTagF, *(interact0->daughter(0))) ;}
+            }
+        
+        ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
+        
+        else if (mumPDG == -24 &&  mumSTATUS ==3) //W-
+            {
+                setMomentum (m_genWm, *p) ; 
+                for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    {
+                        const Candidate * daughter = p->daughter ( i );
+                        int PDG = daughter -> pdgId() ;    
+                        if (PDG==11) { // e-
+                            setMomentum (m_genLepMinus, *daughter) ;
+                        m_LepMinusFlavour = 11 ;}
+                        else if (PDG==-12) {//nu_e_bar
+                        setMomentum (m_genMetMinus, *daughter) ;}
+                        else if (PDG==13) {//mu-
+                            setMomentum (m_genLepMinus, *daughter) ;
+                        m_LepMinusFlavour = 13 ;}
+                        else if (PDG==-14) {//nu_mu_bar
+                        setMomentum (m_genMetMinus, *daughter) ;}
+                    }
+            }
+        
+        ///////////////////////////////////////////////// W+ /////////////////////////////////////////////////
+        
+        else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
+            {  
+                setMomentum (m_genWp, *p) ; 
+                for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    {
+                        const Candidate *daughter = p->daughter ( i );
+                        int PDG = daughter-> pdgId() ;    
+                        if (PDG==-11) {//e+
+                            setMomentum (m_genLepPlus, *daughter) ;
+                        m_LepPlusFlavour = 11 ;}
+                        else if (PDG==12) {//nu_e
+                        setMomentum (m_genMetPlus, *daughter) ;}
+                        else if (PDG==-13) {//mu+
+                            setMomentum (m_genLepPlus, *daughter) ;
+                        m_LepPlusFlavour = 13 ;}
+                        else if (PDG==14) {//nu_mu
+                        setMomentum (m_genMetPlus, *daughter) ;}
+                    }
+            }
+        
+    }
 }

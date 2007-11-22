@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.7 2007/11/19 13:24:26 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.8 2007/11/22 13:18:00 tancini Exp $
 //
 //
 
@@ -28,8 +28,37 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "CLHEP/HepMC/GenEvent.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,6 +86,17 @@ class VBFReadEvent : public edm::EDAnalyzer {
       virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
       virtual void endJob () ;
       void setMomentum (TLorentzVector & vector, const reco::Candidate & gen) ;
+      void findGenParticles (edm::Handle<CandidateCollection> &genParticles,
+                                         TLorentzVector &m_genHiggs,
+                                         TLorentzVector &m_genWm,
+                                         TLorentzVector &m_genWp,
+                                         TLorentzVector &m_genLepPlus,
+                                         TLorentzVector &m_genLepMinus,
+                                         TLorentzVector &m_genMetPlus,
+                                         TLorentzVector &m_genMetMinus,
+                                         TLorentzVector &m_genqTagF,
+                                         TLorentzVector &m_genqTagB) ;
+    
 
    private:
 
