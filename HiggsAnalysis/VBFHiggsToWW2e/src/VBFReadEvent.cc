@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.10 2007/11/19 14:30:07 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.11 2007/11/21 15:16:41 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -134,6 +134,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //quindi parto dall'higgs e ne prendo le mamme e quindi riguardo i figli
         if ((abs(mumPDG)==25) && (mumSTATUS ==3))
                 {
+                    setMomentum (*m_genHiggs, *p) ; 
                     const Candidate * interact0 = p->mother(0) ;
                     if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
                     setMomentum (*m_genqTagF, *(interact0->daughter(1))) ;
@@ -145,45 +146,47 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 
 ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
                         
-             if (mumPDG == -24 &&  mumSTATUS ==3) //W-
-                {
-                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
-                        {
-                        const Candidate * daughter = p->daughter ( i );
-                        int PDG = daughter -> pdgId() ;    
-                        if (PDG==11) { // e-
-                                setMomentum (*m_genLepMinus, *daughter) ;
-                                m_LepMinusFlavour = 11 ;}
-                         else if (PDG==-12) {//nu_e_bar
-                                setMomentum (*m_genMetMinus, *daughter) ;}
-                         else if (PDG==13) {//mu-
-                                setMomentum (*m_genLepMinus, *daughter) ;
-                                m_LepMinusFlavour = 13 ;}
-                        else if (PDG==-14) {//nu_mu_bar
-                                setMomentum (*m_genMetMinus, *daughter) ;}
-                        }
-                }
-            
+         else if (mumPDG == -24 &&  mumSTATUS ==3) //W-
+            {
+                setMomentum (*m_genWm, *p) ; 
+                for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    {
+                    const Candidate * daughter = p->daughter ( i );
+                    int PDG = daughter -> pdgId() ;    
+                    if (PDG==11) { // e-
+                            setMomentum (*m_genLepMinus, *daughter) ;
+                            m_LepMinusFlavour = 11 ;}
+                     else if (PDG==-12) {//nu_e_bar
+                            setMomentum (*m_genMetMinus, *daughter) ;}
+                     else if (PDG==13) {//mu-
+                            setMomentum (*m_genLepMinus, *daughter) ;
+                            m_LepMinusFlavour = 13 ;}
+                    else if (PDG==-14) {//nu_mu_bar
+                            setMomentum (*m_genMetMinus, *daughter) ;}
+                    }
+            }
+        
 ///////////////////////////////////////////////// W+ /////////////////////////////////////////////////
 
-             else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
-                {  
-                    for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
-                        {
-                            const Candidate *daughter = p->daughter ( i );
-                            int PDG = daughter-> pdgId() ;    
-                            if (PDG==-11) {//e+
-                                    setMomentum (*m_genLepPlus, *daughter) ;
-                                    m_LepPlusFlavour = 11 ;}
-                            else if (PDG==12) {//nu_e
-                                    setMomentum (*m_genMetPlus, *daughter) ;}
-                            else if (PDG==-13) {//mu+
-                                    setMomentum (*m_genLepPlus, *daughter) ;
-                                    m_LepPlusFlavour = 13 ;}
-                            else if (PDG==14) {//nu_mu
-                                   setMomentum (*m_genMetPlus, *daughter) ;}
-                        }
-                }
+         else if (mumPDG == 24 &&  mumSTATUS ==3) //W+
+            {  
+                setMomentum (*m_genWp, *p) ; 
+                for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    {
+                        const Candidate *daughter = p->daughter ( i );
+                        int PDG = daughter-> pdgId() ;    
+                        if (PDG==-11) {//e+
+                                setMomentum (*m_genLepPlus, *daughter) ;
+                                m_LepPlusFlavour = 11 ;}
+                        else if (PDG==12) {//nu_e
+                                setMomentum (*m_genMetPlus, *daughter) ;}
+                        else if (PDG==-13) {//mu+
+                                setMomentum (*m_genLepPlus, *daughter) ;
+                                m_LepPlusFlavour = 13 ;}
+                        else if (PDG==14) {//nu_mu
+                               setMomentum (*m_genMetPlus, *daughter) ;}
+                    }
+            }
            
             } // loop sulle particelle generate
            
@@ -199,6 +202,9 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_outfile  = new TFile ("prova.root", "RECREATE");
     m_genTree = new TTree ("genTree","generatedParticles") ;
     
+    m_genHiggs = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_genWp = new TLorentzVector (0.0,0.0,0.0,0.0) ;
+    m_genWm = new TLorentzVector (0.0,0.0,0.0,0.0) ;
     m_genLepPlus = new TLorentzVector (0.0,0.0,0.0,0.0) ;
     m_genLepMinus = new TLorentzVector (0.0,0.0,0.0,0.0) ;
     m_genMetPlus = new TLorentzVector (0.0,0.0,0.0,0.0) ;
@@ -210,6 +216,9 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     
     m_genTree->Branch ("LepPlusFlavour", &m_LepPlusFlavour, "m_LepPlusFlavour/I");
     m_genTree->Branch ("LepMinusFlavour", &m_LepMinusFlavour, "m_LepMinusFlavour/I");
+    m_genTree->Branch ("genHiggs","TLorentzVector",&m_genHiggs,6400,99) ;
+    m_genTree->Branch ("genWp","TLorentzVector",&m_genWp,6400,99) ;
+    m_genTree->Branch ("genWm","TLorentzVector",&m_genWm,6400,99) ;
     m_genTree->Branch ("genLepPlus","TLorentzVector",&m_genLepPlus,6400,99) ;
     m_genTree->Branch ("genLepMinus","TLorentzVector",&m_genLepMinus,6400,99) ;
     m_genTree->Branch ("genMetPlus","TLorentzVector",&m_genMetPlus,6400,99) ;

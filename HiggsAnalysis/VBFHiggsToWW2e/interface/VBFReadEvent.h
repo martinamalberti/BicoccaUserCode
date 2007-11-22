@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.6 2007/11/19 09:42:45 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.7 2007/11/19 13:24:26 tancini Exp $
 //
 //
 
@@ -72,6 +72,9 @@ class VBFReadEvent : public edm::EDAnalyzer {
     
       TFile *m_outfile;
       TTree* m_genTree;
+      TLorentzVector *m_genHiggs;
+      TLorentzVector *m_genWm;
+      TLorentzVector *m_genWp;
       TLorentzVector *m_genLepPlus;
       TLorentzVector *m_genLepMinus;
       TLorentzVector *m_genMetPlus;
