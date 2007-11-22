@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.8 2007/11/22 13:18:00 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.9 2007/11/22 16:40:15 tancini Exp $
 //
 //
 
@@ -109,6 +109,13 @@ class VBFReadEvent : public edm::EDAnalyzer {
       edm::InputTag m_MCtruthInputTag ;
       edm::InputTag m_MC ;
       edm::InputTag m_muInputTag ;
+      edm::InputTag m_trackInputTag ;
+    
+      double m_ptMin ;
+      double m_intRadius ;
+      double m_extRadius ;
+      double m_maxVtxDist ;
+      bool m_absolut ;
     
       TFile *m_outfile;
       TTree* m_genTree;

@@ -1,6 +1,8 @@
-// $Id: VBFReadEvent.cc,v 1.12 2007/11/22 13:17:59 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.13 2007/11/22 16:40:15 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
+
+#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"                                                                   
 
 VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) ,
@@ -11,7 +13,14 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       //m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
       m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")) ,
       m_MC (iConfig.getParameter<edm::InputTag> ("MC")) ,
-      m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag"))
+      m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")),
+      m_trackInputTag (iConfig.getParameter<edm::InputTag> ("trackInputTag")),
+      //trak isolation 
+      m_ptMin  (iConfig.getParameter<double>("ptMin")),
+      m_intRadius  (iConfig.getParameter<double>("intRadius")),
+      m_extRadius  (iConfig.getParameter<double>("extRadius")),
+      m_maxVtxDist  (iConfig.getParameter<double>("maxVtxDist")),
+      m_absolut (iConfig.getParameter<bool>("absolut"))
 // il resto del MC
 // il trigger
 // gli elettroni, guarda il codice ftto con roberto
@@ -55,14 +64,17 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //PG get the GSF electrons collection
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
   iEvent.getByLabel (m_GSFInputTag,GSFHandle) ; 
+    
+  edm::Handle<TrackCollection> tracksCollectionHandle;
+  iEvent.getByLabel(m_trackInputTag, tracksCollectionHandle); 
 
-    //PG MC thruth collection  
-    edm::Handle<edm::HepMCProduct> evtMC;
-    iEvent.getByLabel(m_MC, evtMC);
+  //PG MC thruth collection  
+  edm::Handle<edm::HepMCProduct> evtMC;
+  iEvent.getByLabel(m_MC, evtMC);
   
-    //PG MC thruth candidates collection  
-    edm::Handle<CandidateCollection> genParticles;
-    iEvent.getByLabel(m_MCtruthInputTag, genParticles);
+  //PG MC thruth candidates collection  
+  edm::Handle<CandidateCollection> genParticles;
+  iEvent.getByLabel(m_MCtruthInputTag, genParticles);
     
    
     //PG get the electron ID collection
@@ -81,6 +93,33 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
                       *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
+    
+    std::cout << "# ele GSF " << std::endl ;
+    ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, tracksCollectionHandle) ; 
+    for( PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin(); 
+        ele != GSFHandle->end(); 
+        ++ ele ) 
+        {
+            std::cout<<"*** ele loop begin,  pt= "<<ele->pt()<< std::endl;
+            double isoValue = myTkIsolation.getPtTracks(ele);
+            std::cout<<"isoValue="<< isoValue << std::endl;
+                 
+            /*
+             cosi in h->zz
+            TkIsolation myTkIsolation(&(*ele),tracksCollectionHandle) ;
+            
+            //   myTkIsolation.setExtRadius (radiusConeExt_) ; 
+            myTkIsolation.setIntRadius (radiusConeIntTr_) ;
+            myTkIsolation.setPtLow (pTMinTr_) ;
+            myTkIsolation.setLip (lip_) ;
+            
+            HadIsolation myHadIsolation(theCaloGeom_,&mhbhe,&(*ele)) ;
+            myHadIsolation.setEtLow (eTMinHad_) ;
+            //myElHadIsolation.setIntRadius(0.);
+            */
+        }
+                
+        
     
      m_genTree->Fill () ;
 }
