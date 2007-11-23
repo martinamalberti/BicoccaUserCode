@@ -1,8 +1,42 @@
-// $Id: VBFReadEvent.cc,v 1.14 2007/11/22 17:53:55 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.15 2007/11/22 18:49:25 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
-//#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"    
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"                                                              
+#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+
 
 VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) ,
@@ -15,12 +49,18 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_MC (iConfig.getParameter<edm::InputTag> ("MC")) ,
       m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")),
       m_trackInputTag (iConfig.getParameter<edm::InputTag> ("trackInputTag")),
-      //trak isolation 
+      // trak isolation 
       m_ptMin  (iConfig.getParameter<double>("ptMin")),
       m_intRadius  (iConfig.getParameter<double>("intRadius")),
       m_extRadius  (iConfig.getParameter<double>("extRadius")),
       m_maxVtxDist  (iConfig.getParameter<double>("maxVtxDist")),
-      m_absolut (iConfig.getParameter<bool>("absolut"))
+      //cal isolation
+      m_hcalRecHitProducer (iConfig.getParameter<edm::InputTag>("hcalRecHitProducer")),
+      m_emObjectProducer (iConfig.getParameter<edm::InputTag>("emObjectProducer")),
+      m_egHcalIsoPtMin  (iConfig.getParameter<double>("etMinHI")),
+      m_egHcalIsoConeSizeIn  (iConfig.getParameter<double>("intRadiusHI")), 
+      m_egHcalIsoConeSizeOut  (iConfig.getParameter<double>("extRadiusHI")) 
+
 // il resto del MC
 // il trigger
 // gli elettroni, guarda il codice ftto con roberto
@@ -65,9 +105,25 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
   iEvent.getByLabel (m_GSFInputTag,GSFHandle) ; 
     
+  // VT get the traks   
   edm::Handle<TrackCollection> tracksCollectionHandle;
   iEvent.getByLabel(m_trackInputTag, tracksCollectionHandle); 
   const TrackCollection * trackCollection = tracksCollectionHandle.product () ;
+    
+  // Get Calo Geometry
+  edm::ESHandle<CaloGeometry> caloGeometryHandle ;
+  iSetup.get<IdealGeometryRecord>().get(caloGeometryHandle); 
+  const CaloGeometry* caloGeom = caloGeometryHandle.product();  
+    
+  // Get the barrel hcal hits
+  edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
+  iEvent.getByLabel(m_hcalRecHitProducer, hcalRecHitHandle);
+    
+  HBHERecHitMetaCollection mhbhe =  HBHERecHitMetaCollection(*hcalRecHitHandle);      
+    
+  // Get the  filtered objects
+  edm::Handle< edm::View<reco::Candidate> > emObjectHandle;
+  iEvent.getByLabel(m_emObjectProducer, emObjectHandle);   
   
   //PG MC thruth collection  
   edm::Handle<edm::HepMCProduct> evtMC;
@@ -95,8 +151,9 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
                       *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
     
-    std::cout << "# ele GSF " << std::endl ;
     ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
+    std::cout << "# ele GSF " << GSFHandle->size () << std::endl ;
+
     for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
          ele != GSFHandle->end () ; 
          ++ele ) 
@@ -105,21 +162,17 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             double isoValue = myTkIsolation.getPtTracks (&(*ele)) ;
             std::cout<<"isoValue="<< isoValue << std::endl;
                  
-            /*
-             cosi in h->zz
-            TkIsolation myTkIsolation(&(*ele),tracksCollectionHandle) ;
-            
-            //   myTkIsolation.setExtRadius (radiusConeExt_) ; 
-            myTkIsolation.setIntRadius (radiusConeIntTr_) ;
-            myTkIsolation.setPtLow (pTMinTr_) ;
-            myTkIsolation.setLip (lip_) ;
-            
-            HadIsolation myHadIsolation(theCaloGeom_,&mhbhe,&(*ele)) ;
-            myHadIsolation.setEtLow (eTMinHad_) ;
-            //myElHadIsolation.setIntRadius(0.);
-            */
+         } // end loop over PixelMatchGsfElectronCollection
+
+    EgammaHcalIsolation myHadIsolation (m_egHcalIsoConeSizeOut, m_egHcalIsoConeSizeIn, m_egHcalIsoPtMin, caloGeom, &mhbhe) ;        
+    std::cout << "*** emObjectHandle->size()=" << emObjectHandle->size() << std::endl ;
+    
+    for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
+        {
+            double isoValue = myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i)));
+            std::cout<<"isoValue="<< isoValue << std::endl;
         }
-                
+        
         
     
      m_genTree->Fill () ;

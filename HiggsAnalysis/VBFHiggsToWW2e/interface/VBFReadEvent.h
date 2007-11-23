@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.9 2007/11/22 16:40:15 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.10 2007/11/22 17:53:56 tancini Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
@@ -110,12 +111,17 @@ class VBFReadEvent : public edm::EDAnalyzer {
       edm::InputTag m_MC ;
       edm::InputTag m_muInputTag ;
       edm::InputTag m_trackInputTag ;
+      edm::InputTag m_hcalRecHitProducer ;
+      edm::InputTag m_emObjectProducer ;
     
       double m_ptMin ;
       double m_intRadius ;
       double m_extRadius ;
       double m_maxVtxDist ;
-      bool m_absolut ;
+
+      double m_egHcalIsoPtMin ;
+      double m_egHcalIsoConeSizeIn ; 
+      double m_egHcalIsoConeSizeOut ;
     
       TFile *m_outfile;
       TTree* m_genTree;
