@@ -8,8 +8,8 @@
 <use name=clhep>
 <use name=hepmc>
 <use name=heppdt>
-#<use name=root>
-#<use name=rootcore>  
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>   
 <use name=rootmath>
 <use name = DataFormats/Candidate>
 <flags EDM_PLUGIN=1>
@@ -25,8 +25,8 @@
    <use name=clhep>
    <use name=hepmc>
    <use name=heppdt>
-   #<use name=root>
-   #<use name=rootcore>
+   <use name=Geometry/CaloEventSetup>
+   <use name=Geometry/CaloGeometry>   
    <use name=rootmath> 
    <use name = DataFormats/Candidate>
 </export>
