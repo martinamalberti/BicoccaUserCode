@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.16 2007/11/23 11:40:18 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.17 2007/11/23 15:56:02 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -44,7 +44,7 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_jetInputTag (iConfig.getParameter<edm::InputTag> ("jetInputTag")) ,
       m_genJetInputTag (iConfig.getParameter<edm::InputTag> ("genJetInputTag")) ,
       m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
-      //m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
+      m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
       m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")) ,
       m_MC (iConfig.getParameter<edm::InputTag> ("MC")) ,
       m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")),
@@ -119,11 +119,11 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
   iEvent.getByLabel(m_hcalRecHitProducer, hcalRecHitHandle);
     
-  HBHERecHitMetaCollection mhbhe =  HBHERecHitMetaCollection(*hcalRecHitHandle);      
+  HBHERecHitMetaCollection mhbhe =  HBHERecHitMetaCollection (*hcalRecHitHandle) ;      
     
   // Get the  filtered objects
-  edm::Handle< edm::View<reco::Candidate> > emObjectHandle;
-  iEvent.getByLabel(m_emObjectProducer, emObjectHandle);   
+  edm::Handle<edm::View<reco::Candidate> > emObjectHandle ;
+  iEvent.getByLabel (m_emObjectProducer, emObjectHandle) ;   
   
   //PG MC thruth collection  
   edm::Handle<edm::HepMCProduct> evtMC;
@@ -132,8 +132,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //PG MC thruth candidates collection  
   edm::Handle<CandidateCollection> genParticles;
   iEvent.getByLabel(m_MCtruthInputTag, genParticles);
-    
-   
+       
   //PG get the electron ID collection
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
   iEvent.getByLabel (m_electronIDInputTag, electronIDAssocHandle);
