@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.15 2007/11/22 18:49:25 govoni Exp $
+// $Id: VBFReadEvent.cc,v 1.16 2007/11/23 11:40:18 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -134,48 +134,67 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(m_MCtruthInputTag, genParticles);
     
    
-    //PG get the electron ID collection
-    //edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
-    //iEvent.getByLabel (m_electronIDInputTag, electronIDAssocHandle);
+  //PG get the electron ID collection
+  edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
+  iEvent.getByLabel (m_electronIDInputTag, electronIDAssocHandle);
     
 
 //  PG check the result of the electron ID on a given ref
-//  reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
-//  electronIDAssocItr = electronIDTightAssocHandle->find (ref) ;
-//  if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
-//  const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
-//  bool cutBasedID = electronIDref->cutBasedDecision () ;
- 
-    const HepMC::GenEvent * Evt = evtMC->GetEvent();
-    
-    findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
-                      *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
-    
-    ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
-    std::cout << "# ele GSF " << GSFHandle->size () << std::endl ;
+  reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
 
-    for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
-         ele != GSFHandle->end () ; 
-         ++ele ) 
-        {
-            std::cout << "*** ele loop begin,  pt= " << ele->pt () << std::endl ;
-            double isoValue = myTkIsolation.getPtTracks (&(*ele)) ;
-            std::cout<<"isoValue="<< isoValue << std::endl;
-                 
-         } // end loop over PixelMatchGsfElectronCollection
+  //PG loop over GSF electrons
+  for (int i = 0 ; i < GSFHandle->size () ; ++i) 
+    {
+      //PG get the track
+      const reco::GsfTrack* gsfTrack = 
+                    & (*((*GSFHandle)[i].gsfTrack ())) ;
+      //PG select according the to the hits number       
+      //for the bug not fixed in CMSSW < 15X       
+      if (gsfTrack->numberOfValidHits () < 5 && i > 9)  continue ; 
+      //PG get some electron kinmatic vars
+      double  elePT  =  gsfTrack->pt () ; 
+      double  eleEta =  (*GSFHandle)[i].eta () ;
+      double  elePhi =  (*GSFHandle)[i].phi () ;
+      reco::PixelMatchGsfElectronRef GSFref (GSFHandle, i) ;
 
-    EgammaHcalIsolation myHadIsolation (m_egHcalIsoConeSizeOut, m_egHcalIsoConeSizeIn, m_egHcalIsoPtMin, caloGeom, &mhbhe) ;        
-    std::cout << "*** emObjectHandle->size()=" << emObjectHandle->size() << std::endl ;
-    
-    for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
-        {
-            double isoValue = myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i)));
-            std::cout<<"isoValue="<< isoValue << std::endl;
-        }
-        
-        
-    
-     m_genTree->Fill () ;
+      electronIDAssocItr = electronIDAssocHandle->find (GSFref) ;
+      if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
+      const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
+      bool cutBasedID = electronIDref->cutBasedDecision () ;
+    } //PG loop over GSF electrons
+
+  //PG fetch the MC information
+  const HepMC::GenEvent * Evt = evtMC->GetEvent();
+  
+  findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
+                    *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
+  
+  //PG get the isolation
+  ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
+  std::cout << "# ele GSF " << GSFHandle->size () << std::endl ;
+
+  for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
+       ele != GSFHandle->end () ; 
+       ++ele ) 
+      {
+          std::cout << "*** ele loop begin,  pt= " << ele->pt () << std::endl ;
+          double isoValue = myTkIsolation.getPtTracks (&(*ele)) ;
+          std::cout<<"isoValue="<< isoValue << std::endl;
+               
+       } // end loop over PixelMatchGsfElectronCollection
+
+  EgammaHcalIsolation myHadIsolation (m_egHcalIsoConeSizeOut, m_egHcalIsoConeSizeIn, m_egHcalIsoPtMin, caloGeom, &mhbhe) ;        
+  std::cout << "*** emObjectHandle->size()=" << emObjectHandle->size() << std::endl ;
+  
+  for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
+      {
+          double isoValue = myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i)));
+          std::cout<<"isoValue="<< isoValue << std::endl;
+      }
+      
+      
+  
+   m_genTree->Fill () ;
 }
 // --------------------------------------------------------------------
 
