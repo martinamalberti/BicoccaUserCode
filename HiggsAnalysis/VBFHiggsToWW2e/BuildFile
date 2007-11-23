@@ -12,6 +12,9 @@
 <use name=Geometry/CaloGeometry>   
 <use name=rootmath>
 <use name = DataFormats/Candidate>
+<use name=AnalysisDataFormats/Egamma>
+<use name=PhysicsTools/UtilAlgos>
+<use name=DataFormats/EgammaCandidates>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Utilities>
@@ -29,4 +32,7 @@
    <use name=Geometry/CaloGeometry>   
    <use name=rootmath> 
    <use name = DataFormats/Candidate>
+   <use name=AnalysisDataFormats/Egamma>
+   <use name=PhysicsTools/UtilAlgos>
+   <use name=DataFormats/EgammaCandidates>
 </export>
