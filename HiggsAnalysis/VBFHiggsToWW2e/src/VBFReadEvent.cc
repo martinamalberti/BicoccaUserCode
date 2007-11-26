@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.24 2007/11/26 14:56:32 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.25 2007/11/26 15:14:42 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -216,7 +216,31 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             new (genJetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
             counter++;
         }   
-            
+    
+    // looking for met
+    TClonesArray &metPart4Mom = *m_recoMet4Momentum;
+    counter = 0;
+    m_numberMet =  metCollectionHandle->size () ;
+    for (CaloMETCollection::const_iterator met = metCollectionHandle->begin () ; 
+         met != metCollectionHandle->end () ; 
+         ++met ) 
+        {
+            new (metPart4Mom[counter]) TLorentzVector (get4momentum (*met));
+            counter++;
+        }   
+    
+    // looking for gen met
+    TClonesArray &genMetPart4Mom = *m_genMet4Momentum;
+    counter = 0;
+    m_numberGenMet =  genMetCollectionHandle->size () ;
+    for (GenMETCollection::const_iterator met = genMetCollectionHandle->begin () ; 
+         met != genMetCollectionHandle->end () ; 
+         ++met ) 
+        {
+            new (genMetPart4Mom[counter]) TLorentzVector (get4momentum (*met));
+            counter++;
+        }   
+    
   
    m_genTree->Fill () ;
    
@@ -268,6 +292,14 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_numberJet = 0;
     m_recoJet4Momentum = new TClonesArray ("TLorentzVector");    
     
+    // gen met
+    m_numberGenMet = 0;
+    m_genMet4Momentum = new TClonesArray ("TLorentzVector");    
+    
+    // reco met
+    m_numberMet = 0;
+    m_recoMet4Momentum = new TClonesArray ("TLorentzVector");    
+    
     m_genTree->Branch ("LepPlusFlavour", &m_LepPlusFlavour, "m_LepPlusFlavour/I");
     m_genTree->Branch ("LepMinusFlavour", &m_LepMinusFlavour, "m_LepMinusFlavour/I");
     m_genTree->Branch ("genHiggs","TLorentzVector",&m_genHiggs,6400,99) ;
@@ -295,6 +327,13 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
     m_genTree->Branch("recoJet4Momentum", "TClonesArray", &m_recoJet4Momentum, 256000,0); 
+    
+    m_genTree->Branch ("numberGenMet", &m_numberGenMet, "m_numberGenMet/I");
+    m_genTree->Branch("genMet4Momentum", "TClonesArray", &m_genMet4Momentum, 256000,0); 
+    
+    m_genTree->Branch ("numberMet", &m_numberMet, "m_numberMet/I");
+    m_genTree->Branch("recoMet4Momentum", "TClonesArray", &m_recoMet4Momentum, 256000,0); 
+    
 
 }
 

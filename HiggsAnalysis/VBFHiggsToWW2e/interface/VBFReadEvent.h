@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.16 2007/11/26 14:56:32 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.17 2007/11/26 15:14:43 tancini Exp $
 //
 //
 
@@ -158,6 +158,12 @@ class VBFReadEvent : public edm::EDAnalyzer {
     
       int m_numberJet;
       TClonesArray *m_recoJet4Momentum;    
+    
+      int m_numberGenMet;
+      TClonesArray *m_genMet4Momentum;    
+    
+      int m_numberMet;
+      TClonesArray *m_recoMet4Momentum;    
     
 } ;
 
