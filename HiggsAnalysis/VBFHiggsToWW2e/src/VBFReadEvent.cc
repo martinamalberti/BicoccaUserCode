@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.18 2007/11/23 18:15:09 govoni Exp $
+// $Id: VBFReadEvent.cc,v 1.19 2007/11/26 11:10:15 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -140,6 +140,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  PG check the result of the electron ID on a given ref
   reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
     
+   m_numberGSF = GSFHandle->size () ; 
   //PG loop over GSF electrons
   for (int i = 0 ; i < GSFHandle->size () ; ++i) 
     {
@@ -167,9 +168,10 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
                     *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
   
-  //PG get the isolation
-  TClonesArray &elePart = *m_recoEleTrkMomentumAtVtx;
-    
+  TClonesArray &elePartMom = *m_recoEleTrkMomentumAtVtx;
+  TClonesArray &elePartPos = *m_recoEleTrkPositionAtVtx;
+
+  //PG get the isolation  
   ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
   std::cout << "# ele GSF " << GSFHandle->size () << std::endl ;
 
@@ -178,8 +180,10 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
        ele != GSFHandle->end () ; 
        ++ele ) 
       {
-          new(elePart[counter]) TVector3(getTrackMomentumAtVtx(*ele));     
-          m_recoEleTrkIsoVal->push_back (myTkIsolation.getPtTracks (&(*ele)));     
+          new(elePartMom[counter]) TVector3(getTrackMomentumAtVtx(*ele)); 
+          new(elePartPos[counter]) TVector3(getTrackPositionAtVtx(*ele)); 
+          m_recoEleTrkIsoVal->push_back (myTkIsolation.getPtTracks (&(*ele)));
+          m_recoEleEcalEnergy->push_back (ele->caloEnergy()) ;
           counter++;
                
        } // end loop over PixelMatchGsfElectronCollection
@@ -189,13 +193,17 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
       {
-          m_recoEleTrkIsoVal->push_back (myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i))));     
+          m_recoEleCalIsoVal->push_back (myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i))));     
 
       }
       
       
   
    m_genTree->Fill () ;
+   
+   m_recoEleEcalEnergy->clear ();
+   m_recoEleTrkIsoVal->clear ();
+   m_recoEleCalIsoVal->clear ();
 }
 // --------------------------------------------------------------------
 
@@ -207,6 +215,7 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_outfile  = new TFile ("prova.root", "RECREATE");
     m_genTree = new TTree ("genTree","generatedParticles") ;
     
+    //generated particles 
     m_genHiggs = new TLorentzVector (0.0,0.0,0.0,0.0) ;
     m_genWp = new TLorentzVector (0.0,0.0,0.0,0.0) ;
     m_genWm = new TLorentzVector (0.0,0.0,0.0,0.0) ;
@@ -219,7 +228,11 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_LepPlusFlavour = 0 ;
     m_LepMinusFlavour = 0 ;
     
+    //reco electrons
+    m_numberGSF = 0;
     m_recoEleTrkMomentumAtVtx = new TClonesArray ("TVector3");
+    m_recoEleTrkPositionAtVtx = new TClonesArray ("TVector3");
+    m_recoEleEcalEnergy = new std::vector<double>; 
     m_recoEleTrkIsoVal = new std::vector<double>;
     m_recoEleCalIsoVal = new std::vector<double>;
     
@@ -235,7 +248,10 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("genqTagF","TLorentzVector",&m_genqTagF,6400,99) ;
     m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB,6400,99) ;
 
+    m_genTree->Branch ("numberGSF", &m_numberGSF, "m_numberGSF/I");
     m_genTree->Branch("recoEleTrkMomentumAtVtx", "TClonesArray", &m_recoEleTrkMomentumAtVtx, 256000,0); 
+    m_genTree->Branch("recoEleTrkPositionAtVtx", "TClonesArray", &m_recoEleTrkPositionAtVtx, 256000,0);
+    m_genTree->Branch("recoEleEcalEnergy",  &m_recoEleEcalEnergy); 
     m_genTree->Branch("recoEleTrkIsoVal",  &m_recoEleTrkIsoVal); 
     m_genTree->Branch("recoEleCalIsoVal",  &m_recoEleCalIsoVal); 
 
@@ -269,6 +285,15 @@ TVector3 VBFReadEvent::getTrackMomentumAtVtx (const PixelMatchGsfElectron & ele)
 {
     TVector3 myVect;
     myVect.	SetXYZ ((ele.trackMomentumAtVtx()).x(), (ele.trackMomentumAtVtx()).y(), (ele.trackMomentumAtVtx()).z()) ;
+    return myVect;
+}
+
+// --------------------------------------------------------------------
+
+TVector3 VBFReadEvent::getTrackPositionAtVtx (const PixelMatchGsfElectron & ele)
+{
+    TVector3 myVect;
+    myVect.	SetXYZ ((ele.TrackPositionAtVtx()).x(), (ele.TrackPositionAtVtx()).y(), (ele.TrackPositionAtVtx()).z()) ;
     return myVect;
 }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.11 2007/11/23 11:40:19 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.12 2007/11/26 11:10:14 tancini Exp $
 //
 //
 
@@ -90,6 +90,7 @@ class VBFReadEvent : public edm::EDAnalyzer {
       virtual void endJob () ;
       void setMomentum (TLorentzVector & vector, const reco::Candidate & gen) ;
       TVector3 getTrackMomentumAtVtx (const reco::PixelMatchGsfElectron & ele) ;
+      TVector3 getTrackPositionAtVtx (const reco::PixelMatchGsfElectron & ele) ;
       void findGenParticles (edm::Handle<CandidateCollection> &genParticles,
                                          TLorentzVector &m_genHiggs,
                                          TLorentzVector &m_genWm,
@@ -140,9 +141,13 @@ class VBFReadEvent : public edm::EDAnalyzer {
       int m_LepPlusFlavour;
       int m_LepMinusFlavour;
     
+      int m_numberGSF;
       TClonesArray *m_recoEleTrkMomentumAtVtx ;
+      TClonesArray *m_recoEleTrkPositionAtVtx ;
+      std::vector<double> *m_recoEleEcalEnergy ;
       std::vector<double> *m_recoEleTrkIsoVal ;
       std::vector<double> *m_recoEleCalIsoVal ;
+    
 } ;
 
 #endif
