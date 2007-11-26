@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.22 2007/11/26 13:55:09 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.24 2007/11/26 14:56:32 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -85,8 +85,6 @@ VBFReadEvent::~VBFReadEvent ()
 void
 VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    std::cout << "inizio analyze" << std::endl;
-
   //PG get the calo MET
   edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
@@ -154,7 +152,6 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
 
-    std::cout << "******loop GSF"<< std::endl ;
   m_numberGSF = GSFHandle->size () ;   
   int counter = 0; 
   for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
@@ -189,24 +186,34 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
        } // end loop over PixelMatchGsfElectronCollection
     
   EgammaHcalIsolation myHadIsolation (m_egHcalIsoConeSizeOut, m_egHcalIsoConeSizeIn, m_egHcalIsoPtMin, caloGeom, &mhbhe) ;        
-    std::cout << "******loop cal iso"<< std::endl ;
  
   for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
       {
           m_recoEleCalIsoVal->push_back (myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i))));     
       }
-      
-     // looking for jets
+    
+    // looking for jets
     TClonesArray &jetPart4Mom = *m_recoJet4Momentum;
     counter = 0;
     m_numberJet =  jetCollectionHandle->size () ;
-    std::cout << "******loop jet # " << m_numberJet << std::endl ;
-
     for (CaloJetCollection::const_iterator jet = jetCollectionHandle->begin () ; 
          jet != jetCollectionHandle->end () ; 
          ++jet ) 
         {
             new (jetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
+            counter++;
+        }   
+    
+    
+     // looking for genjets
+    TClonesArray &genJetPart4Mom = *m_genJet4Momentum;
+    counter = 0;
+    m_numberGenJet =  genJetCollectionHandle->size () ;
+    for (GenJetCollection::const_iterator jet = genJetCollectionHandle->begin () ; 
+         jet != genJetCollectionHandle->end () ; 
+         ++jet ) 
+        {
+            new (genJetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
             counter++;
         }   
             
@@ -225,7 +232,6 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 VBFReadEvent::beginJob (const edm::EventSetup&)
 {
-    std::cout << "inizio job" << std::endl;
 
     m_outfile  = new TFile ("prova.root", "RECREATE");
     m_genTree = new TTree ("genTree","generatedParticles") ;
@@ -254,6 +260,10 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_recoEleClass = new std::vector<int>;
     m_recoEleCutBasedID = new std::vector<int>;
 
+    // gen jets
+    m_numberGenJet = 0;
+    m_genJet4Momentum = new TClonesArray ("TLorentzVector");    
+    
     // reco jets
     m_numberJet = 0;
     m_recoJet4Momentum = new TClonesArray ("TLorentzVector");    
@@ -279,6 +289,9 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch("recoEleCalIsoVal",  &m_recoEleCalIsoVal); 
     m_genTree->Branch("recoEleClass",  &m_recoEleClass);
     m_genTree->Branch("recoEleCutBasedID",  &m_recoEleCutBasedID);
+    
+    m_genTree->Branch ("numberGenJet", &m_numberGenJet, "m_numberGenJet/I");
+    m_genTree->Branch("genJet4Momentum", "TClonesArray", &m_genJet4Momentum, 256000,0); 
     
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
     m_genTree->Branch("recoJet4Momentum", "TClonesArray", &m_recoJet4Momentum, 256000,0); 
@@ -334,7 +347,6 @@ TLorentzVector VBFReadEvent::get4momentum (const Candidate & gen)
     myvector.SetPy (gen.py());
     myvector.SetPz (gen.pz());
     myvector.SetE (gen.energy());
-    std::cout << "settato 4 momento"<<  std::endl ;
     return myvector;
 }
 

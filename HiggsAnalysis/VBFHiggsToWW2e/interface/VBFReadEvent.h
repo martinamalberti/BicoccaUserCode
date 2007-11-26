@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.14 2007/11/26 13:20:41 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.16 2007/11/26 14:56:32 tancini Exp $
 //
 //
 
@@ -153,8 +153,11 @@ class VBFReadEvent : public edm::EDAnalyzer {
       std::vector<int> *m_recoEleClass ;
       std::vector<int> *m_recoEleCutBasedID ;
     
-       int m_numberJet;
-       TClonesArray *m_recoJet4Momentum;    
+       int m_numberGenJet;
+       TClonesArray *m_genJet4Momentum;    
+    
+      int m_numberJet;
+      TClonesArray *m_recoJet4Momentum;    
     
 } ;
 
