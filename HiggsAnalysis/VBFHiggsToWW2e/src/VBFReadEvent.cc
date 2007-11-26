@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.17 2007/11/23 15:56:02 govoni Exp $
+// $Id: VBFReadEvent.cc,v 1.18 2007/11/23 18:15:09 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -137,10 +137,9 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
   iEvent.getByLabel (m_electronIDInputTag, electronIDAssocHandle);
     
-
 //  PG check the result of the electron ID on a given ref
   reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
-
+    
   //PG loop over GSF electrons
   for (int i = 0 ; i < GSFHandle->size () ; ++i) 
     {
@@ -169,26 +168,29 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
   
   //PG get the isolation
+  TClonesArray &elePart = *m_recoEleTrkMomentumAtVtx;
+    
   ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
   std::cout << "# ele GSF " << GSFHandle->size () << std::endl ;
 
+  int counter = 0; 
   for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
        ele != GSFHandle->end () ; 
        ++ele ) 
       {
-          std::cout << "*** ele loop begin,  pt= " << ele->pt () << std::endl ;
-          double isoValue = myTkIsolation.getPtTracks (&(*ele)) ;
-          std::cout<<"isoValue="<< isoValue << std::endl;
+          new(elePart[counter]) TVector3(getTrackMomentumAtVtx(*ele));     
+          m_recoEleTrkIsoVal->push_back (myTkIsolation.getPtTracks (&(*ele)));     
+          counter++;
                
        } // end loop over PixelMatchGsfElectronCollection
-
+    
   EgammaHcalIsolation myHadIsolation (m_egHcalIsoConeSizeOut, m_egHcalIsoConeSizeIn, m_egHcalIsoPtMin, caloGeom, &mhbhe) ;        
   std::cout << "*** emObjectHandle->size()=" << emObjectHandle->size() << std::endl ;
   
   for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
       {
-          double isoValue = myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i)));
-          std::cout<<"isoValue="<< isoValue << std::endl;
+          m_recoEleTrkIsoVal->push_back (myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i))));     
+
       }
       
       
@@ -217,6 +219,10 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_LepPlusFlavour = 0 ;
     m_LepMinusFlavour = 0 ;
     
+    m_recoEleTrkMomentumAtVtx = new TClonesArray ("TVector3");
+    m_recoEleTrkIsoVal = new std::vector<double>;
+    m_recoEleCalIsoVal = new std::vector<double>;
+    
     m_genTree->Branch ("LepPlusFlavour", &m_LepPlusFlavour, "m_LepPlusFlavour/I");
     m_genTree->Branch ("LepMinusFlavour", &m_LepMinusFlavour, "m_LepMinusFlavour/I");
     m_genTree->Branch ("genHiggs","TLorentzVector",&m_genHiggs,6400,99) ;
@@ -227,7 +233,12 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("genMetPlus","TLorentzVector",&m_genMetPlus,6400,99) ;
     m_genTree->Branch ("genMetMinus","TLorentzVector",&m_genMetMinus,6400,99) ;
     m_genTree->Branch ("genqTagF","TLorentzVector",&m_genqTagF,6400,99) ;
-    m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB,6400,99) ;    
+    m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB,6400,99) ;
+
+    m_genTree->Branch("recoEleTrkMomentumAtVtx", "TClonesArray", &m_recoEleTrkMomentumAtVtx, 256000,0); 
+    m_genTree->Branch("recoEleTrkIsoVal",  &m_recoEleTrkIsoVal); 
+    m_genTree->Branch("recoEleCalIsoVal",  &m_recoEleCalIsoVal); 
+
 }
 
 
@@ -253,6 +264,15 @@ void VBFReadEvent::setMomentum (TLorentzVector & myvector, const Candidate & gen
 }
 
 // --------------------------------------------------------------------
+
+TVector3 VBFReadEvent::getTrackMomentumAtVtx (const PixelMatchGsfElectron & ele)
+{
+    TVector3 myVect;
+    myVect.	SetXYZ ((ele.trackMomentumAtVtx()).x(), (ele.trackMomentumAtVtx()).y(), (ele.trackMomentumAtVtx()).z()) ;
+    return myVect;
+}
+
+
 //11 ele-
 //12 nu_ele
 //13 mu-
