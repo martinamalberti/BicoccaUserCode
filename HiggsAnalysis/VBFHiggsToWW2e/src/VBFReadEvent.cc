@@ -1,42 +1,6 @@
-// $Id: VBFReadEvent.cc,v 1.25 2007/11/26 15:14:42 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.26 2007/11/26 15:29:15 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-
 
 VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) ,
@@ -61,9 +25,6 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_egHcalIsoConeSizeIn  (iConfig.getParameter<double>("intRadiusHI")), 
       m_egHcalIsoConeSizeOut  (iConfig.getParameter<double>("extRadiusHI")) 
 
-// il resto del MC
-// il trigger
-// gli elettroni, guarda il codice ftto con roberto
 {}
 
 
@@ -88,10 +49,14 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //PG get the calo MET
   edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
+  const CaloMETCollection *calometcol = metCollectionHandle.product();
+  const CaloMET *calomet = &(calometcol->front());  
     
   //PG get the gen MET
   edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
   iEvent.getByLabel (m_genMetInputTag, genMetCollectionHandle) ;
+  const GenMETCollection *genmetcol = genMetCollectionHandle.product();
+  const GenMET *genmet = &(genmetcol->front());
 
   //PG get the jet collection
   edm::Handle<reco::CaloJetCollection> jetCollectionHandle ;
@@ -218,30 +183,11 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }   
     
     // looking for met
-    TClonesArray &metPart4Mom = *m_recoMet4Momentum;
-    counter = 0;
-    m_numberMet =  metCollectionHandle->size () ;
-    for (CaloMETCollection::const_iterator met = metCollectionHandle->begin () ; 
-         met != metCollectionHandle->end () ; 
-         ++met ) 
-        {
-            new (metPart4Mom[counter]) TLorentzVector (get4momentum (*met));
-            counter++;
-        }   
+    setMomentum (*m_recoMet4Momentum, *calomet) ;
     
     // looking for gen met
-    TClonesArray &genMetPart4Mom = *m_genMet4Momentum;
-    counter = 0;
-    m_numberGenMet =  genMetCollectionHandle->size () ;
-    for (GenMETCollection::const_iterator met = genMetCollectionHandle->begin () ; 
-         met != genMetCollectionHandle->end () ; 
-         ++met ) 
-        {
-            new (genMetPart4Mom[counter]) TLorentzVector (get4momentum (*met));
-            counter++;
-        }   
+    setMomentum (*m_genMet4Momentum, *genmet) ;
     
-  
    m_genTree->Fill () ;
    
    m_recoEleEcalEnergy->clear ();
@@ -293,12 +239,10 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_recoJet4Momentum = new TClonesArray ("TLorentzVector");    
     
     // gen met
-    m_numberGenMet = 0;
-    m_genMet4Momentum = new TClonesArray ("TLorentzVector");    
+    m_genMet4Momentum= new TLorentzVector (0.0,0.0,0.0,0.0) ;   
     
     // reco met
-    m_numberMet = 0;
-    m_recoMet4Momentum = new TClonesArray ("TLorentzVector");    
+    m_recoMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0) ; 
     
     m_genTree->Branch ("LepPlusFlavour", &m_LepPlusFlavour, "m_LepPlusFlavour/I");
     m_genTree->Branch ("LepMinusFlavour", &m_LepMinusFlavour, "m_LepMinusFlavour/I");
@@ -328,11 +272,9 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
     m_genTree->Branch("recoJet4Momentum", "TClonesArray", &m_recoJet4Momentum, 256000,0); 
     
-    m_genTree->Branch ("numberGenMet", &m_numberGenMet, "m_numberGenMet/I");
-    m_genTree->Branch("genMet4Momentum", "TClonesArray", &m_genMet4Momentum, 256000,0); 
+    m_genTree->Branch("genMet4Momentum", "TLorentzVector", &m_genMet4Momentum, 6400,99); 
     
-    m_genTree->Branch ("numberMet", &m_numberMet, "m_numberMet/I");
-    m_genTree->Branch("recoMet4Momentum", "TClonesArray", &m_recoMet4Momentum, 256000,0); 
+    m_genTree->Branch("recoMet4Momentum", "TLorentzVector", &m_recoMet4Momentum, 6400,99); 
     
 
 }

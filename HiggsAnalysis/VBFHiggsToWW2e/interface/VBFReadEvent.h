@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.17 2007/11/26 15:14:43 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.18 2007/11/26 15:29:16 tancini Exp $
 //
 //
 
@@ -65,6 +65,43 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+
 
 //root include
 #include <TTree.h>
@@ -159,11 +196,9 @@ class VBFReadEvent : public edm::EDAnalyzer {
       int m_numberJet;
       TClonesArray *m_recoJet4Momentum;    
     
-      int m_numberGenMet;
-      TClonesArray *m_genMet4Momentum;    
+      TLorentzVector *m_genMet4Momentum;    
     
-      int m_numberMet;
-      TClonesArray *m_recoMet4Momentum;    
+      TLorentzVector *m_recoMet4Momentum;    
     
 } ;
 
