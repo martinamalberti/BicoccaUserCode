@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.12 2007/11/26 11:10:14 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.13 2007/11/26 12:39:20 tancini Exp $
 //
 //
 
@@ -147,6 +147,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
       std::vector<double> *m_recoEleEcalEnergy ;
       std::vector<double> *m_recoEleTrkIsoVal ;
       std::vector<double> *m_recoEleCalIsoVal ;
+      std::vector<int> *m_recoEleClass ;
+      std::vector<int> *m_recoEleCutBasedID ;
     
 } ;
 

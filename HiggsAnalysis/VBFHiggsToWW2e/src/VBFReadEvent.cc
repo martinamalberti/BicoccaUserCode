@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.19 2007/11/26 11:10:15 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.20 2007/11/26 12:39:19 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -151,15 +151,18 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //for the bug not fixed in CMSSW < 15X       
       if (gsfTrack->numberOfValidHits () < 5 && i > 9)  continue ; 
       //PG get some electron kinmatic vars
-      double  elePT  =  gsfTrack->pt () ; 
-      double  eleEta =  (*GSFHandle)[i].eta () ;
-      double  elePhi =  (*GSFHandle)[i].phi () ;
+      //double  elePT  =  gsfTrack->pt () ; 
+      //double  eleEta =  (*GSFHandle)[i].eta () ;
+      //double  elePhi =  (*GSFHandle)[i].phi () ;
       reco::PixelMatchGsfElectronRef GSFref (GSFHandle, i) ;
-
       electronIDAssocItr = electronIDAssocHandle->find (GSFref) ;
       if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
       const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
       bool cutBasedID = electronIDref->cutBasedDecision () ;
+      std::cout << cutBasedID << std::endl; 
+      m_recoEleCutBasedID -> push_back (int(cutBasedID)) ;
+
+        
     } //PG loop over GSF electrons
 
   //PG fetch the MC information
@@ -173,23 +176,22 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //PG get the isolation  
   ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
-  std::cout << "# ele GSF " << GSFHandle->size () << std::endl ;
 
   int counter = 0; 
   for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
        ele != GSFHandle->end () ; 
        ++ele ) 
       {
-          new(elePartMom[counter]) TVector3(getTrackMomentumAtVtx(*ele)); 
-          new(elePartPos[counter]) TVector3(getTrackPositionAtVtx(*ele)); 
-          m_recoEleTrkIsoVal->push_back (myTkIsolation.getPtTracks (&(*ele)));
-          m_recoEleEcalEnergy->push_back (ele->caloEnergy()) ;
+          new(elePartMom[counter]) TVector3 (getTrackMomentumAtVtx(*ele)); 
+          new(elePartPos[counter]) TVector3 (getTrackPositionAtVtx(*ele)); 
+          m_recoEleTrkIsoVal -> push_back (myTkIsolation.getPtTracks (&(*ele)));
+          m_recoEleEcalEnergy -> push_back (ele->caloEnergy()) ;
+          m_recoEleClass -> push_back (ele->classification()) ;
           counter++;
                
        } // end loop over PixelMatchGsfElectronCollection
     
   EgammaHcalIsolation myHadIsolation (m_egHcalIsoConeSizeOut, m_egHcalIsoConeSizeIn, m_egHcalIsoPtMin, caloGeom, &mhbhe) ;        
-  std::cout << "*** emObjectHandle->size()=" << emObjectHandle->size() << std::endl ;
   
   for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
       {
@@ -197,13 +199,21 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       }
       
-      
+   /*// looking for jets   
+    for (PixelMatchGsfElectronCollection::const_iterator jet = jetCollectionHandle->begin () ; 
+         jet != jetCollectionHandle->end () ; 
+         ++jet ) 
+        {
+        }   
+      */      
   
    m_genTree->Fill () ;
    
    m_recoEleEcalEnergy->clear ();
    m_recoEleTrkIsoVal->clear ();
    m_recoEleCalIsoVal->clear ();
+   m_recoEleClass->clear ();
+   m_recoEleCutBasedID->clear ();         
 }
 // --------------------------------------------------------------------
 
@@ -235,6 +245,8 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_recoEleEcalEnergy = new std::vector<double>; 
     m_recoEleTrkIsoVal = new std::vector<double>;
     m_recoEleCalIsoVal = new std::vector<double>;
+    m_recoEleClass = new std::vector<int>;
+    m_recoEleCutBasedID = new std::vector<int>;
     
     m_genTree->Branch ("LepPlusFlavour", &m_LepPlusFlavour, "m_LepPlusFlavour/I");
     m_genTree->Branch ("LepMinusFlavour", &m_LepMinusFlavour, "m_LepMinusFlavour/I");
@@ -254,6 +266,8 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch("recoEleEcalEnergy",  &m_recoEleEcalEnergy); 
     m_genTree->Branch("recoEleTrkIsoVal",  &m_recoEleTrkIsoVal); 
     m_genTree->Branch("recoEleCalIsoVal",  &m_recoEleCalIsoVal); 
+    m_genTree->Branch("recoEleClass",  &m_recoEleClass);
+    m_genTree->Branch("recoEleCutBasedID",  &m_recoEleCutBasedID);
 
 }
 
