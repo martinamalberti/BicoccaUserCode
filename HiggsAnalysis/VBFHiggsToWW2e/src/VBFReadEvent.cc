@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.21 2007/11/26 13:20:40 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.22 2007/11/26 13:55:09 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -145,7 +145,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
                     *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
-  
+
+  TClonesArray &elePart4Mom = *m_recoEle4Momentum;
   TClonesArray &elePartMom = *m_recoEleTrkMomentumAtVtx;
   TClonesArray &elePartPos = *m_recoEleTrkPositionAtVtx;
 
@@ -157,6 +158,9 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
        ele != GSFHandle->end () ; 
        ++ele ) 
       {
+          std::cout << "ele: px=" << ele->px() << " py=" << ele->py() << " pz=" << ele->pz() << " energy=" << ele->energy() << std::endl ;
+
+          new(elePart4Mom[counter]) TLorentzVector (get4momentum (*ele));
           new(elePartMom[counter]) TVector3 (getTrackMomentumAtVtx(*ele)); 
           new(elePartPos[counter]) TVector3 (getTrackPositionAtVtx(*ele)); 
           m_recoEleTrkIsoVal -> push_back (myTkIsolation.getPtTracks (&(*ele)));
@@ -191,13 +195,14 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
           m_recoEleCalIsoVal->push_back (myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i))));     
       }
       
-   /*// looking for jets   
-    for (PixelMatchGsfElectronCollection::const_iterator jet = jetCollectionHandle->begin () ; 
+     // looking for jets   
+    for (CaloJetCollection::const_iterator jet = jetCollectionHandle->begin () ; 
          jet != jetCollectionHandle->end () ; 
          ++jet ) 
         {
+            std::cout << "px=" << jet->px() << " py=" << jet->py() << " pz=" << jet->pz() << " energy=" << jet->energy() << std::endl ;
         }   
-      */      
+            
   
    m_genTree->Fill () ;
    
@@ -232,6 +237,7 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     
     //reco electrons
     m_numberGSF = 0;
+    m_recoEle4Momentum = new TClonesArray ("TLorentzVector");
     m_recoEleTrkMomentumAtVtx = new TClonesArray ("TVector3");
     m_recoEleTrkPositionAtVtx = new TClonesArray ("TVector3");
     m_recoEleEcalEnergy = new std::vector<double>; 
@@ -253,6 +259,7 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB,6400,99) ;
 
     m_genTree->Branch ("numberGSF", &m_numberGSF, "m_numberGSF/I");
+    m_genTree->Branch("recoEle4Momentum", "TClonesArray", &m_recoEle4Momentum, 256000,0); 
     m_genTree->Branch("recoEleTrkMomentumAtVtx", "TClonesArray", &m_recoEleTrkMomentumAtVtx, 256000,0); 
     m_genTree->Branch("recoEleTrkPositionAtVtx", "TClonesArray", &m_recoEleTrkPositionAtVtx, 256000,0);
     m_genTree->Branch("recoEleEcalEnergy",  &m_recoEleEcalEnergy); 
@@ -301,6 +308,18 @@ TVector3 VBFReadEvent::getTrackPositionAtVtx (const PixelMatchGsfElectron & ele)
     TVector3 myVect;
     myVect.	SetXYZ ((ele.TrackPositionAtVtx()).x(), (ele.TrackPositionAtVtx()).y(), (ele.TrackPositionAtVtx()).z()) ;
     return myVect;
+}
+
+// --------------------------------------------------------------------
+
+TLorentzVector VBFReadEvent::get4momentum (const Candidate & gen)
+{
+    TLorentzVector myvector;
+    myvector.SetPx (gen.px());
+    myvector.SetPy (gen.py());
+    myvector.SetPz (gen.pz());
+    myvector.SetE (gen.energy());
+    return myvector;
 }
 
 

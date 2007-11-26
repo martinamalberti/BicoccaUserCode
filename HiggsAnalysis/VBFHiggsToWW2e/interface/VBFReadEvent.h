@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.13 2007/11/26 12:39:20 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.14 2007/11/26 13:20:41 tancini Exp $
 //
 //
 
@@ -89,6 +89,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
       virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
       virtual void endJob () ;
       void setMomentum (TLorentzVector & vector, const reco::Candidate & gen) ;
+      TLorentzVector get4momentum (const Candidate & gen) ;
+    
       TVector3 getTrackMomentumAtVtx (const reco::PixelMatchGsfElectron & ele) ;
       TVector3 getTrackPositionAtVtx (const reco::PixelMatchGsfElectron & ele) ;
       void findGenParticles (edm::Handle<CandidateCollection> &genParticles,
@@ -142,6 +144,7 @@ class VBFReadEvent : public edm::EDAnalyzer {
       int m_LepMinusFlavour;
     
       int m_numberGSF;
+      TClonesArray *m_recoEle4Momentum;
       TClonesArray *m_recoEleTrkMomentumAtVtx ;
       TClonesArray *m_recoEleTrkPositionAtVtx ;
       std::vector<double> *m_recoEleEcalEnergy ;
@@ -149,6 +152,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
       std::vector<double> *m_recoEleCalIsoVal ;
       std::vector<int> *m_recoEleClass ;
       std::vector<int> *m_recoEleCutBasedID ;
+    
+      TClonesArray *m_recoJet4Momentum;    
     
 } ;
 
