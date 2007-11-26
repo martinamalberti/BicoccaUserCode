@@ -225,9 +225,8 @@ InvMatrixLooper::duringLoop (const edm::Event& iEvent,
       iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
       endcapHitsCollection = endcapRecHitsHandle.product () ;
     }
-
  catch (std::exception& ce) {
-        edm::LogError ("reading") << "[InvMatrixLooper] caught std::exception " 
+       edm::LogError ("reading") << "[InvMatrixLooper] caught std::exception" 
                      << " in retrieving " << m_endcapAlCa << "\t"
                      << ce.what () << std::endl ;
         return kContinue;
@@ -246,7 +245,7 @@ InvMatrixLooper::duringLoop (const edm::Event& iEvent,
  //Continues if the findMaxHit doesn't find anything
        if (Max.det()==0) continue; 
        if (m_maxSelectedNumPerXtal > 0 && 
-           m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue ;
+          m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue;
        ++m_xtalNumOfHits[Max.rawId()];
        std::map<int , double> xtlMap;
        int blockIndex =  m_xtalRegionId[Max.rawId ()] ;
@@ -711,8 +710,6 @@ void InvMatrixLooper::fillEEMap (EEDetId EEmax,
   {
      curr_x=EEmax.ix ()-m_recoWindowSide/2+ii;
      curr_y=EEmax.iy ()-m_recoWindowSide/2+ij;
-     if (curr_x>100 || curr_x<=0) continue;
-     if (curr_y>100 || curr_y<=0) continue;
      if (EEDetId::validDetId (curr_x,curr_y,EEmax.zside ()))
      {
       EEDetId det = EEDetId (curr_x,curr_y,ecalZone,EEDetId::XYMODE);
