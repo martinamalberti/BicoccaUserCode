@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.20 2007/11/26 12:39:19 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.21 2007/11/26 13:20:40 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -140,31 +140,6 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  PG check the result of the electron ID on a given ref
   reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
     
-   m_numberGSF = GSFHandle->size () ; 
-  //PG loop over GSF electrons
-  for (int i = 0 ; i < GSFHandle->size () ; ++i) 
-    {
-      //PG get the track
-      const reco::GsfTrack* gsfTrack = 
-                    & (*((*GSFHandle)[i].gsfTrack ())) ;
-      //PG select according the to the hits number       
-      //for the bug not fixed in CMSSW < 15X       
-      if (gsfTrack->numberOfValidHits () < 5 && i > 9)  continue ; 
-      //PG get some electron kinmatic vars
-      //double  elePT  =  gsfTrack->pt () ; 
-      //double  eleEta =  (*GSFHandle)[i].eta () ;
-      //double  elePhi =  (*GSFHandle)[i].phi () ;
-      reco::PixelMatchGsfElectronRef GSFref (GSFHandle, i) ;
-      electronIDAssocItr = electronIDAssocHandle->find (GSFref) ;
-      if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
-      const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
-      bool cutBasedID = electronIDref->cutBasedDecision () ;
-      std::cout << cutBasedID << std::endl; 
-      m_recoEleCutBasedID -> push_back (int(cutBasedID)) ;
-
-        
-    } //PG loop over GSF electrons
-
   //PG fetch the MC information
   const HepMC::GenEvent * Evt = evtMC->GetEvent();
   
@@ -174,9 +149,9 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   TClonesArray &elePartMom = *m_recoEleTrkMomentumAtVtx;
   TClonesArray &elePartPos = *m_recoEleTrkPositionAtVtx;
 
-  //PG get the isolation  
   ElectronTkIsolation myTkIsolation (m_extRadius, m_intRadius, m_ptMin, m_maxVtxDist, trackCollection) ; 
 
+  m_numberGSF = GSFHandle->size () ;   
   int counter = 0; 
   for (PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
        ele != GSFHandle->end () ; 
@@ -187,6 +162,24 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
           m_recoEleTrkIsoVal -> push_back (myTkIsolation.getPtTracks (&(*ele)));
           m_recoEleEcalEnergy -> push_back (ele->caloEnergy()) ;
           m_recoEleClass -> push_back (ele->classification()) ;
+
+          const reco::GsfTrack* gsfTrack =  & (*((*GSFHandle)[counter].gsfTrack ())) ;
+          //PG select according the to the hits number       
+          //for the bug not fixed in CMSSW < 15X       
+          //if (gsfTrack->numberOfValidHits () < 5) ; 
+          //PG get some electron kinmatic vars
+          //double  elePT  =  gsfTrack->pt () ; 
+          //double  eleEta =  (*GSFHandle)[i].eta () ;
+          //double  elePhi =  (*GSFHandle)[i].phi () ;
+          bool cutBasedID = 0;
+          reco::PixelMatchGsfElectronRef GSFref (GSFHandle, counter) ;
+          electronIDAssocItr = electronIDAssocHandle->find (GSFref) ;
+          if (electronIDAssocItr != electronIDAssocHandle->end ())
+              {
+              const reco::ElectronIDRef& electronIDref = electronIDAssocItr->val ;
+              cutBasedID = electronIDref->cutBasedDecision () ;
+              }
+          m_recoEleCutBasedID -> push_back (int(cutBasedID)) ;
           counter++;
                
        } // end loop over PixelMatchGsfElectronCollection
@@ -196,7 +189,6 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for( size_t i = 0 ; i < emObjectHandle->size(); ++i) 
       {
           m_recoEleCalIsoVal->push_back (myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i))));     
-
       }
       
    /*// looking for jets   
