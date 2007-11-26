@@ -153,7 +153,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
       std::vector<int> *m_recoEleClass ;
       std::vector<int> *m_recoEleCutBasedID ;
     
-      TClonesArray *m_recoJet4Momentum;    
+       int m_numberJet;
+       TClonesArray *m_recoJet4Momentum;    
     
 } ;
 
