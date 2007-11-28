@@ -17,6 +17,7 @@
 #include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TLorentzVector.h"
 
 class testReferences : public edm::EDAnalyzer
 {
@@ -65,8 +66,8 @@ class testReferences : public edm::EDAnalyzer
    TFile * m_outfile;
    TTree * m_minitree;
    std::string m_rootfile;
-   double m_genMET[10] ;  
-   double m_MET[10] ;  
+   TLorentzVector * m_genMet4Momentum ; 
+   TLorentzVector * m_recoMet4Momentum ; 
    double m_elePT[10] ;  
    double m_eleEta[10] ; 
    double m_elePhi[10] ; 

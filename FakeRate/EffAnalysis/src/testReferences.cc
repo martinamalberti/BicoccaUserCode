@@ -88,8 +88,11 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_outfile  = new TFile(m_rootfile.c_str(), "RECREATE");
     m_minitree = new TTree("elminitree","elminitree");
 
-    m_minitree->Branch("genMET" ,m_genMET  ,"genMET[10]/D" ); 
-    m_minitree->Branch("MET" ,m_MET  ,"MET[10]/D" ); 
+    m_genMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0) ;   
+    m_recoMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0) ; 
+    
+    m_minitree->Branch ("genMet4Momentum", "TLorentzVector", &m_genMet4Momentum, 6400,99); 
+    m_minitree->Branch ("recoMet4Momentum", "TLorentzVector", &m_recoMet4Momentum, 6400,99); 
     m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
     m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
     m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
@@ -143,6 +146,9 @@ void testReferences::analyze (const edm::Event& iEvent,
                               const edm::EventSetup& iSetup)
 {
 
+
+    *m_genMet4Momentum = TLorentzVector (0.0,0.0,0.0,0.0) ;   
+    *m_recoMet4Momentum = TLorentzVector (0.0,0.0,0.0,0.0) ; 
    //PG reset the variables
    for (int ii = 0 ; ii < 10 ; ++ii)
      { 
@@ -261,11 +267,25 @@ void testReferences::analyze (const edm::Event& iEvent,
 
    edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
    iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
+   const CaloMETCollection *calometcol = metCollectionHandle.product();
+   const CaloMET *calomet = &(calometcol->front());  
    edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
    iEvent.getByLabel (m_genMetInputTag, genMetCollectionHandle) ;
    const GenMETCollection *genmetcol = genMetCollectionHandle.product () ;
    const GenMET *genmet = &(genmetcol->front ()) ;
    
+   //PG get the MET
+   m_genMet4Momentum->SetPx (genmet->px ()) ;
+   m_genMet4Momentum->SetPy (genmet->py ()) ;
+   m_genMet4Momentum->SetPz (genmet->pz ()) ;
+   m_genMet4Momentum->SetE  (genmet->energy ()) ;
+   //PG get the MET
+   m_recoMet4Momentum->SetPx (calomet->px ()) ;
+   m_recoMet4Momentum->SetPy (calomet->py ()) ;
+   m_recoMet4Momentum->SetPz (calomet->pz ()) ;
+   m_recoMet4Momentum->SetE  (calomet->energy ()) ;
+
+
    typedef reco::PixelMatchGsfElectron Object ;
    typedef reco::PixelMatchGsfElectronRef Ref ;
   
