@@ -1,0 +1,3 @@
+<use name=FakeRate/EffAnalysis>
+<library file="*.cc" name=FakeRateEffAnalysisPlugins>
+</library>

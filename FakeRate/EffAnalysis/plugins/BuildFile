@@ -1,0 +1,4 @@
+<use name=FakeRate/EffAnalysis>
+<library file="*.cc" name=FakeRateEffAnalysisPlugins>
+<flags EDM_PLUGIN=1>
+</library>
