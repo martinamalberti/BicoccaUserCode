@@ -20,6 +20,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
@@ -42,7 +47,7 @@ using namespace edm;
 using namespace HepMC;
 
 testReferences::testReferences(const edm::ParameterSet& conf) :
-   m_rawGSFInputTag (conf.getParameter<edm::InputTag>("rawGSF")) ,
+   m_genMetInputTag (conf.getParameter<edm::InputTag> ("genMetInputTag")) ,   m_metInputTag (conf.getParameter<edm::InputTag> ("metInputTag")) ,   m_rawGSFInputTag (conf.getParameter<edm::InputTag>("rawGSF")) ,
    m_ambiguityInputTag (conf.getParameter<edm::InputTag>("ambiguity")) ,
    m_tkIsoInputTag (conf.getParameter<edm::InputTag>("tkIso")) ,
    m_hadIsoInputTag (conf.getParameter<edm::InputTag>("hadIso")) ,
@@ -81,32 +86,34 @@ testReferences::~testReferences()
 void testReferences::beginJob(edm::EventSetup const&iSetup)
 {
     m_outfile  = new TFile(m_rootfile.c_str(), "RECREATE");
-	m_minitree = new TTree("elminitree","elminitree");
+    m_minitree = new TTree("elminitree","elminitree");
 
-  m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
-  m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
-	m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
-	m_minitree->Branch("eleCharge",m_eleCharge ,"eleCharge[10]/I");
-	m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[10]/D" ); 
-	m_minitree->Branch("jetEta",m_jetEta ,"jetEta[10]/D");
-	m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[10]/D");
-	m_minitree->Branch("jetmaxPT" ,m_jetmaxPT  ,"jetmaxPT[10]/D" ); 
-	m_minitree->Branch("jetmaxEta",m_jetmaxEta ,"jetmaxEta[10]/D");
-	m_minitree->Branch("jetmaxPhi",m_jetmaxPhi ,"jetmaxPhi[10]/D");
-	m_minitree->Branch("EMjetCompon",m_EMjetCompon ,"EMjetCompon[10]/D");
-	m_minitree->Branch("bremFraction",m_bremFraction ,"bremFraction[10]/D");
-	m_minitree->Branch("jetFlavour"    ,m_jetFlavour,   "jetFlavour[10]/I") ;   
-	m_minitree->Branch("jetmaxFlavour" ,m_jetmaxFlavour,"jetmaxFlavour[10]/I") ;   
-	m_minitree->Branch("rawBit"        ,m_rawBit,       "rawBit[10]/I") ;	
-	m_minitree->Branch("ambiguityBit"  ,m_ambiguityBit, "ambiguityBit[10]/I") ; 
-	m_minitree->Branch("tkIsoBit"      ,m_tkIsoBit,     "tkIsoBit[10]/I") ;	  
-	m_minitree->Branch("hadIsoBit"     ,m_hadIsoBit,    "hadIsoBit[10]/I") ;    
-	m_minitree->Branch("eleIdBit"      ,m_eleIdBit,     "eleIdBit[10]/I") ;	  
-	m_minitree->Branch("eleIdLooseBit" ,m_eleIdLooseBit,"eleIdLooseBit[10]/I") ;
-	m_minitree->Branch("eleIdTightBit" ,m_eleIdTightBit,"eleIdTightBit[10]/I") ;
-	m_minitree->Branch("eleClass" ,m_eleClass,"eleClass[10]/I") ;
-	m_minitree->Branch("ptHat" ,&m_ptHat,"ptHat/I") ;
-	m_minitree->Branch("eleNum" ,&m_eleNum,"eleNum/I") ;
+    m_minitree->Branch("genMET" ,m_genMET  ,"genMET[10]/D" ); 
+    m_minitree->Branch("MET" ,m_MET  ,"MET[10]/D" ); 
+    m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
+    m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
+    m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
+    m_minitree->Branch("eleCharge",m_eleCharge ,"eleCharge[10]/I");
+    m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[10]/D" ); 
+    m_minitree->Branch("jetEta",m_jetEta ,"jetEta[10]/D");
+    m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[10]/D");
+    m_minitree->Branch("jetmaxPT" ,m_jetmaxPT  ,"jetmaxPT[10]/D" ); 
+    m_minitree->Branch("jetmaxEta",m_jetmaxEta ,"jetmaxEta[10]/D");
+    m_minitree->Branch("jetmaxPhi",m_jetmaxPhi ,"jetmaxPhi[10]/D");
+    m_minitree->Branch("EMjetCompon",m_EMjetCompon ,"EMjetCompon[10]/D");
+    m_minitree->Branch("bremFraction",m_bremFraction ,"bremFraction[10]/D");
+    m_minitree->Branch("jetFlavour"    ,m_jetFlavour,   "jetFlavour[10]/I") ;   
+    m_minitree->Branch("jetmaxFlavour" ,m_jetmaxFlavour,"jetmaxFlavour[10]/I") ;   
+    m_minitree->Branch("rawBit"        ,m_rawBit,       "rawBit[10]/I") ;    
+    m_minitree->Branch("ambiguityBit"  ,m_ambiguityBit, "ambiguityBit[10]/I") ; 
+    m_minitree->Branch("tkIsoBit"      ,m_tkIsoBit,     "tkIsoBit[10]/I") ;      
+    m_minitree->Branch("hadIsoBit"     ,m_hadIsoBit,    "hadIsoBit[10]/I") ;    
+    m_minitree->Branch("eleIdBit"      ,m_eleIdBit,     "eleIdBit[10]/I") ;      
+    m_minitree->Branch("eleIdLooseBit" ,m_eleIdLooseBit,"eleIdLooseBit[10]/I") ;
+    m_minitree->Branch("eleIdTightBit" ,m_eleIdTightBit,"eleIdTightBit[10]/I") ;
+    m_minitree->Branch("eleClass" ,m_eleClass,"eleClass[10]/I") ;
+    m_minitree->Branch("ptHat" ,&m_ptHat,"ptHat/I") ;
+    m_minitree->Branch("eleNum" ,&m_eleNum,"eleNum/I") ;
 }     
 
 
@@ -178,6 +185,7 @@ void testReferences::analyze (const edm::Event& iEvent,
    edm::Handle<reco::CaloJetCollection> jetHandle;
    edm::Handle<HepMCProduct> evtHandle;
 
+   //PG FIXME togliere i try and catch
    try {
      iEvent.getByLabel (m_rawGSFInputTag,rawGSFHandle) ; 
    } catch ( cms::Exception& ex )
@@ -250,7 +258,14 @@ void testReferences::analyze (const edm::Event& iEvent,
      std::cerr << "DEBUG skip evt because " << m_evtInputTag << " " << std::endl ;
      return ;           
    }
-  
+
+   edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
+   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
+   edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
+   iEvent.getByLabel (m_genMetInputTag, genMetCollectionHandle) ;
+   const GenMETCollection *genmetcol = genMetCollectionHandle.product () ;
+   const GenMET *genmet = &(genmetcol->front ()) ;
+   
    typedef reco::PixelMatchGsfElectron Object ;
    typedef reco::PixelMatchGsfElectronRef Ref ;
   
@@ -324,8 +339,8 @@ void testReferences::analyze (const edm::Event& iEvent,
                 highestJet = iterJet ;
               }
           
-	  
-	  } //end fo the match
+      
+      } //end fo the match
 
      m_jetPT[i]  = jetPT ;
      m_jetEta[i] = jetEta ;

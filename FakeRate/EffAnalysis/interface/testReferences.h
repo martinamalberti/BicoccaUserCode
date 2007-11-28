@@ -38,7 +38,7 @@ class testReferences : public edm::EDAnalyzer
    double getEMMCComponent (reco::CaloJetCollection::const_iterator iterJet,
                             HepMC::GenEvent * generated_event, double deltaCone = 0.2);
   
-   edm::InputTag m_rawGSFInputTag ;
+   edm::InputTag m_genMetInputTag ;   edm::InputTag m_metInputTag ;   edm::InputTag m_rawGSFInputTag ;
    edm::InputTag m_ambiguityInputTag ;
    edm::InputTag m_tkIsoInputTag ; 
    edm::InputTag m_hadIsoInputTag ; 
@@ -65,6 +65,8 @@ class testReferences : public edm::EDAnalyzer
    TFile * m_outfile;
    TTree * m_minitree;
    std::string m_rootfile;
+   double m_genMET[10] ;  
+   double m_MET[10] ;  
    double m_elePT[10] ;  
    double m_eleEta[10] ; 
    double m_elePhi[10] ; 
