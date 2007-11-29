@@ -23,7 +23,9 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_emObjectProducer (iConfig.getParameter<edm::InputTag>("emObjectProducer")),
       m_egHcalIsoPtMin  (iConfig.getParameter<double>("etMinHI")),
       m_egHcalIsoConeSizeIn  (iConfig.getParameter<double>("intRadiusHI")), 
-      m_egHcalIsoConeSizeOut  (iConfig.getParameter<double>("extRadiusHI")) 
+      m_egHcalIsoConeSizeOut  (iConfig.getParameter<double>("extRadiusHI")),
+      // get flavour
+      m_jfi (iConfig.getParameter<edm::ParameterSet>("jetIdParameters")) 
 
 {}
 
@@ -109,7 +111,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   const HepMC::GenEvent * Evt = evtMC->GetEvent();
   
   findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
-                    *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
+                                                             *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
 
   TClonesArray &elePart4Mom = *m_recoEle4Momentum;
   TClonesArray &elePartMom = *m_recoEleTrkMomentumAtVtx;

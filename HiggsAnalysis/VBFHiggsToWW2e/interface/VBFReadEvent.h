@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.18 2007/11/26 15:29:16 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.19 2007/11/26 16:02:09 tancini Exp $
 //
 //
 
@@ -102,6 +102,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
+#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
 //root include
 #include <TTree.h>
@@ -198,7 +199,10 @@ class VBFReadEvent : public edm::EDAnalyzer {
     
       TLorentzVector *m_genMet4Momentum;    
     
-      TLorentzVector *m_recoMet4Momentum;    
+      TLorentzVector *m_recoMet4Momentum; 
+      
+      //Jet Flavour Identifier from BTau
+      JetFlavourIdentifier m_jfi ;   
     
 } ;
 

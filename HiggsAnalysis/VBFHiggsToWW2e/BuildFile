@@ -15,6 +15,7 @@
 <use name=AnalysisDataFormats/Egamma>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/EgammaCandidates>
+<use name=RecoBTag/MCTools>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Utilities>
@@ -35,4 +36,5 @@
    <use name=AnalysisDataFormats/Egamma>
    <use name=PhysicsTools/UtilAlgos>
    <use name=DataFormats/EgammaCandidates>
+   <use name=RecoBTag/MCTools>
 </export>
