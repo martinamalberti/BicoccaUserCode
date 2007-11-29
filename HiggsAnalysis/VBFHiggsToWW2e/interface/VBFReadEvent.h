@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.19 2007/11/26 16:02:09 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.20 2007/11/29 13:28:14 tancini Exp $
 //
 //
 
@@ -140,7 +140,9 @@ class VBFReadEvent : public edm::EDAnalyzer {
                                          TLorentzVector &m_genMetPlus,
                                          TLorentzVector &m_genMetMinus,
                                          TLorentzVector &m_genqTagF,
-                                         TLorentzVector &m_genqTagB) ;
+                                         TLorentzVector &m_genqTagB,
+					 int & m_genqTagF_Flavour,
+				         int & m_genqTagB_Flavour) ;
     
 
    private:
@@ -180,6 +182,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
       TLorentzVector *m_genqTagB;
       int m_LepPlusFlavour;
       int m_LepMinusFlavour;
+      int m_genqTagF_Flavour;
+      int m_genqTagB_Flavour;
     
       int m_numberGSF;
       TClonesArray *m_recoEle4Momentum;
@@ -191,11 +195,13 @@ class VBFReadEvent : public edm::EDAnalyzer {
       std::vector<int> *m_recoEleClass ;
       std::vector<int> *m_recoEleCutBasedID ;
     
-       int m_numberGenJet;
-       TClonesArray *m_genJet4Momentum;    
+      int m_numberGenJet;
+      TClonesArray *m_genJet4Momentum;
+      std::vector<int> *m_genJetFlavour ;    
     
       int m_numberJet;
-      TClonesArray *m_recoJet4Momentum;    
+      TClonesArray *m_recoJet4Momentum;
+      std::vector<int> *m_recoJetFlavour ;     
     
       TLorentzVector *m_genMet4Momentum;    
     

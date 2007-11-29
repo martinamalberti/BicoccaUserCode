@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.28 2007/11/29 13:28:13 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.29 2007/11/29 14:00:29 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -111,7 +111,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   const HepMC::GenEvent * Evt = evtMC->GetEvent();
   
   findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
-                                                             *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB) ;
+                                                             *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB,
+							      m_genqTagF_Flavour, m_genqTagB_Flavour) ;
 
   TClonesArray &elePart4Mom = *m_recoEle4Momentum;
   TClonesArray &elePartMom = *m_recoEleTrkMomentumAtVtx;
@@ -171,7 +172,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             new (jetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
             counter++;
 	    JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
-	    std::cout << "sapore jet ______"<< jetFlavour.flavour () << std::endl;
+	    int myflav = jetFlavour.flavour ();
+	    m_recoJetFlavour -> push_back (myflav);
         }   
     
     
@@ -186,7 +188,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
             new (genJetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
             counter++;
 	    JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
-	    std::cout << "sapore gen jet ______"<< jetFlavour.flavour () << std::endl;
+	    int myflav = jetFlavour.flavour ();
+	    m_genJetFlavour -> push_back (myflav);
         }   
     
     // looking for met
@@ -201,7 +204,9 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
    m_recoEleTrkIsoVal->clear ();
    m_recoEleCalIsoVal->clear ();
    m_recoEleClass->clear ();
-   m_recoEleCutBasedID->clear ();         
+   m_recoEleCutBasedID->clear ();
+   m_genJetFlavour->clear ();
+   m_recoJetFlavour->clear ();         
 }
 // --------------------------------------------------------------------
 
@@ -225,6 +230,8 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genqTagB = new TLorentzVector (0.0,0.0,0.0,0.0) ;
     m_LepPlusFlavour = 0 ;
     m_LepMinusFlavour = 0 ;
+    m_genqTagF_Flavour = 0 ;
+    m_genqTagB_Flavour = 0 ;
     
     //reco electrons
     m_numberGSF = 0;
@@ -236,14 +243,16 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_recoEleCalIsoVal = new std::vector<double>;
     m_recoEleClass = new std::vector<int>;
     m_recoEleCutBasedID = new std::vector<int>;
-
+  
     // gen jets
     m_numberGenJet = 0;
-    m_genJet4Momentum = new TClonesArray ("TLorentzVector");    
+    m_genJet4Momentum = new TClonesArray ("TLorentzVector");
+    m_genJetFlavour = new std::vector<int>;    
     
     // reco jets
     m_numberJet = 0;
     m_recoJet4Momentum = new TClonesArray ("TLorentzVector");    
+    m_recoJetFlavour = new std::vector<int>;  
     
     // gen met
     m_genMet4Momentum= new TLorentzVector (0.0,0.0,0.0,0.0) ;   
@@ -262,6 +271,8 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("genMetMinus","TLorentzVector",&m_genMetMinus,6400,99) ;
     m_genTree->Branch ("genqTagF","TLorentzVector",&m_genqTagF,6400,99) ;
     m_genTree->Branch ("genqTagB","TLorentzVector",&m_genqTagB,6400,99) ;
+    m_genTree->Branch ("genqTagF_Flavour", &m_genqTagF_Flavour, "m_genqTagF_Flavour/I") ;
+    m_genTree->Branch ("genqTagB_Flavour", &m_genqTagB_Flavour, "m_genqTagB_Flavour/I") ;
 
     m_genTree->Branch ("numberGSF", &m_numberGSF, "m_numberGSF/I");
     m_genTree->Branch("recoEle4Momentum", "TClonesArray", &m_recoEle4Momentum, 256000,0); 
@@ -275,10 +286,11 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     
     m_genTree->Branch ("numberGenJet", &m_numberGenJet, "m_numberGenJet/I");
     m_genTree->Branch("genJet4Momentum", "TClonesArray", &m_genJet4Momentum, 256000,0); 
+    m_genTree->Branch("genJetFlavour",  &m_genJetFlavour);
     
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
     m_genTree->Branch("recoJet4Momentum", "TClonesArray", &m_recoJet4Momentum, 256000,0); 
-    //m_genTree->Branch("recoJetFlavor",  &m_recoJetFlavor);
+    m_genTree->Branch("recoJetFlavour",  &m_recoJetFlavour);
     
     m_genTree->Branch("genMet4Momentum", "TLorentzVector", &m_genMet4Momentum, 6400,99); 
     
@@ -359,7 +371,9 @@ void VBFReadEvent::findGenParticles (edm::Handle<CandidateCollection> &genPartic
                                                              TLorentzVector &m_genMetPlus,
                                                              TLorentzVector &m_genMetMinus,
                                                              TLorentzVector &m_genqTagF,
-                                                             TLorentzVector &m_genqTagB)
+                                                             TLorentzVector &m_genqTagB,
+							     int & m_genqTagF_Flavour,
+							     int & m_genqTagB_Flavour)
 {
     for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
     {
@@ -375,10 +389,14 @@ void VBFReadEvent::findGenParticles (edm::Handle<CandidateCollection> &genPartic
                 const Candidate * interact0 = p->mother(0) ;
                 if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
                     setMomentum (m_genqTagF, *(interact0->daughter(1))) ;
-                setMomentum (m_genqTagB, *(interact0->daughter(0))) ;}
+                    setMomentum (m_genqTagB, *(interact0->daughter(0))) ;
+		    m_genqTagF_Flavour = interact0->daughter (1)->pdgId ();
+                    m_genqTagB_Flavour = interact0->daughter (0)->pdgId ();}
                 else {
                     setMomentum (m_genqTagB, *(interact0->daughter(1))) ;
-                setMomentum (m_genqTagF, *(interact0->daughter(0))) ;}
+                    setMomentum (m_genqTagF, *(interact0->daughter(0))) ;
+		    m_genqTagF_Flavour = interact0->daughter (0)->pdgId ();
+                    m_genqTagB_Flavour = interact0->daughter (1)->pdgId ();}
             }
         
         ///////////////////////////////////////////////// W- /////////////////////////////////////////////////
