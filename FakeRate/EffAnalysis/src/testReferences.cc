@@ -54,6 +54,7 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_eleIdInputTag (conf.getParameter<edm::InputTag>("eleId")) ,
    m_eleIdLooseInputTag (conf.getParameter<edm::InputTag>("eleIdLoose")) ,
    m_eleIdTightInputTag (conf.getParameter<edm::InputTag>("eleIdTight")) ,
+   m_eleIdRobustInputTag (conf.getParameter<edm::InputTag>("eleIdRobust")) ,
    m_jetInputTag (conf.getParameter<edm::InputTag>("jet")) ,
    m_evtInputTag (conf.getParameter<edm::InputTag>("evt")) ,
    m_rawCounter (0) ,
@@ -265,25 +266,38 @@ void testReferences::analyze (const edm::Event& iEvent,
      return ;           
    }
 
-   edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
-   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
-   const CaloMETCollection *calometcol = metCollectionHandle.product();
-   const CaloMET *calomet = &(calometcol->front());  
-   edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
-   iEvent.getByLabel (m_genMetInputTag, genMetCollectionHandle) ;
-   const GenMETCollection *genmetcol = genMetCollectionHandle.product () ;
-   const GenMET *genmet = &(genmetcol->front ()) ;
-   
    //PG get the MET
-   m_genMet4Momentum->SetPx (genmet->px ()) ;
-   m_genMet4Momentum->SetPy (genmet->py ()) ;
-   m_genMet4Momentum->SetPz (genmet->pz ()) ;
-   m_genMet4Momentum->SetE  (genmet->energy ()) ;
-   //PG get the MET
-   m_recoMet4Momentum->SetPx (calomet->px ()) ;
-   m_recoMet4Momentum->SetPy (calomet->py ()) ;
-   m_recoMet4Momentum->SetPz (calomet->pz ()) ;
-   m_recoMet4Momentum->SetE  (calomet->energy ()) ;
+   try {
+     edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
+     iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
+     const CaloMETCollection *calometcol = metCollectionHandle.product();
+     const CaloMET *calomet = &(calometcol->front());  
+     m_recoMet4Momentum->SetPx (calomet->px ()) ;
+     m_recoMet4Momentum->SetPy (calomet->py ()) ;
+     m_recoMet4Momentum->SetPz (calomet->pz ()) ;
+     m_recoMet4Momentum->SetE  (calomet->energy ()) ;
+   } catch ( cms::Exception& ex )
+   {
+     std::cerr << ex.what () << std::endl ; 
+     std::cerr << "DEBUG skip evt because " << m_evtInputTag << " " << std::endl ;
+     return ;           
+   }
+
+   try {
+     edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
+     iEvent.getByLabel (m_genMetInputTag, genMetCollectionHandle) ;
+     const GenMETCollection *genmetcol = genMetCollectionHandle.product () ;
+     const GenMET *genmet = &(genmetcol->front ()) ;
+     m_genMet4Momentum->SetPx (genmet->px ()) ;
+     m_genMet4Momentum->SetPy (genmet->py ()) ;
+     m_genMet4Momentum->SetPz (genmet->pz ()) ;
+     m_genMet4Momentum->SetE  (genmet->energy ()) ;
+   } catch ( cms::Exception& ex )
+   {
+     std::cerr << ex.what () << std::endl ; 
+     std::cerr << "DEBUG skip evt because " << m_evtInputTag << " " << std::endl ;
+     return ;           
+   }
 
    typedef reco::PixelMatchGsfElectron Object ;
    typedef reco::PixelMatchGsfElectronRef Ref ;

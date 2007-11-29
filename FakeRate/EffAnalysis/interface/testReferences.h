@@ -46,6 +46,7 @@ class testReferences : public edm::EDAnalyzer
    edm::InputTag m_eleIdInputTag ; 
    edm::InputTag m_eleIdLooseInputTag ; 
    edm::InputTag m_eleIdTightInputTag ; 
+   edm::InputTag m_eleIdRobustInputTag ; 
    edm::InputTag m_jetInputTag ;
    edm::InputTag m_evtInputTag ;
    int m_rawCounter ;
