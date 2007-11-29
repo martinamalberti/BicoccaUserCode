@@ -285,7 +285,6 @@ void testReferences::analyze (const edm::Event& iEvent,
    m_recoMet4Momentum->SetPz (calomet->pz ()) ;
    m_recoMet4Momentum->SetE  (calomet->energy ()) ;
 
-
    typedef reco::PixelMatchGsfElectron Object ;
    typedef reco::PixelMatchGsfElectronRef Ref ;
   
