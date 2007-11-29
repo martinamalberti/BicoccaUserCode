@@ -25,20 +25,26 @@ void elePlots ()
     tree->SetBranchAddress("recoEleEcalEnergy",  &recoEleEcalEnergy); //vettore
     tree->SetBranchAddress("recoEleTrkIsoVal",  &recoEleTrkIsoVal); //vettore
     tree->SetBranchAddress("recoEleCalIsoVal",  &recoEleCalIsoVal); //vettore
-    //tree->SetBranchAddress("recoEleClass",  &recoEleClass);//vettore
+    tree->SetBranchAddress("recoEleClass",  &recoEleClass);//vettore
     //tree->SetBranchAddress("recoEleCutBasedID",  &recoEleCutBasedID);//vettore
 
     TH1F *histo_recLep_e = new TH1F("histo_recLep_e", "GSF electrons energy",100,0,500) ;
     histo_recLep_e->GetXaxis ()->SetTitle ("Energy (GeV)") ;
     histo_recLep_e->SetFillColor (94);
     
+    
+    TH1F *histo_recLep_class = new TH1F("histo_recLep_class", "GSF electrons class",140,0,140) ;
+    histo_recLep_class->GetXaxis ()->SetTitle ("Electron class") ;
+    histo_recLep_class->SetFillColor (94);
+    
     TH1F *histo_trkIso = new TH1F("histo_trkIso", "GSF electrons trk isolation value",100,0,500) ;
     histo_trkIso->GetXaxis ()->SetTitle ("Trk Isolation") ;
     histo_trkIso->SetFillColor (94);
     
-    TH1F *histo_calIso = new TH1F("histo_trkIso", "GSF electrons cal isolation value",100,0,50) ;
+    TH1F *histo_calIso = new TH1F("histo_calIso", "GSF electrons cal isolation value",100,0,50) ;
     histo_calIso->GetXaxis ()->SetTitle ("Cal Isolation") ;
     histo_calIso->SetFillColor (94);
+    
     
 
     int nentries = (int) tree->GetEntries();
@@ -51,6 +57,7 @@ void elePlots ()
                 histo_recLep_e -> Fill (((TLorentzVector*)(recoEle4Momentum->At(j)))->Energy()) ;
 		histo_trkIso -> Fill (recoEleTrkIsoVal->at(j)) ;
 		histo_calIso -> Fill (recoEleCalIsoVal->at(j)) ;
+		histo_recLep_class -> Fill (recoEleClass->at(j)) ;
                //cout<< "Px "<< (((TLorentzVector*)(recoEle4Momentum->At(j)))->Px()) << endl ;
                //cout<< (((TVector3*)(recoEleTrkMomentumAtVtx->At(j)))->Px()) << endl ;
                //cout << "**recoEleEcalEnergy " << j << " " << (recoEleEcalEnergy->at(j)) << endl ;
@@ -65,7 +72,9 @@ void elePlots ()
     p->cd (2);
     histo_trkIso->Draw () ;
     p->cd (3);
-    histo_calIso->Draw () ;  
+    histo_calIso->Draw () ; 
+    p->cd (4);
+    histo_recLep_class->Draw () ;  
 }
 
 
