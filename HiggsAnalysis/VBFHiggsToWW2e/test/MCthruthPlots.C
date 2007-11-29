@@ -1,9 +1,84 @@
+void elePlots ()
+{
+    TFile *f = new TFile("prova.root") ;
+    
+    TTree *tree = (TTree*)gDirectory->Get("genTree");  
+    
+    //GSF //////////////////////////////////////////////////////////
+    
+    //reco electrons
+    int numberGSF;
+    TClonesArray *recoEle4Momentum = new TClonesArray ("TLorentzVector");
+    TClonesArray *recoEleTrkMomentumAtVtx = new TClonesArray ("TVector3");
+    TClonesArray *recoEleTrkPositionAtVtx = new TClonesArray ("TVector3");
+    std::vector<double> *recoEleEcalEnergy = new std::vector<double>(); 
+    std::vector<double> *recoEleTrkIsoVal = new std::vector<double>();
+    std::vector<double> *recoEleCalIsoVal = new std::vector<double>();
+    std::vector<int> *recoEleClass = new std::vector<int>();
+    std::vector<int> *recoEleCutBasedID = new std::vector<int>();
+    
+    tree->SetBranchAddress("numberGSF", &numberGSF);
+    tree->SetBranchAddress("recoEle4Momentum",  &recoEle4Momentum); 
+    tree->SetBranchAddress("recoEleTrkMomentumAtVtx", &recoEleTrkMomentumAtVtx); 
+    tree->SetBranchAddress("recoEleTrkPositionAtVtx", &recoEleTrkPositionAtVtx);
+    tree->SetBranchAddress("recoEleEcalEnergy",  &recoEleEcalEnergy); //vettore
+    tree->SetBranchAddress("recoEleTrkIsoVal",  &recoEleTrkIsoVal); //vettore
+    tree->SetBranchAddress("recoEleCalIsoVal",  &recoEleCalIsoVal); //vettore
+    //tree->SetBranchAddress("recoEleClass",  &recoEleClass);//vettore
+    //tree->SetBranchAddress("recoEleCutBasedID",  &recoEleCutBasedID);//vettore
+
+    TH1F *histo_recLep_e = new TH1F("histo_recLep_e", "GSF electrons energy",100,0,500) ;
+    histo_recLep_e->GetXaxis ()->SetTitle ("Energy (GeV)") ;
+    histo_recLep_e->SetFillColor (94);
+        
+    tree->GetEntry(7);
+    cout << "ev 7 prima loop num ele " << numberGSF<< endl ; 
+    cout << "**prima loop  ciccia 0="<< recoEleEcalEnergy->at(0) << " cicciona "<< endl ;
+    cout << "**prima loop  ciccia 1="<< recoEleEcalEnergy->at(1) << " cicciona "<< endl ;    
+    
+    for(int j=0; j<numberGSF ; j++)
+        {
+            double pippo =  double(recoEleEcalEnergy->at(0)) ;
+            cout << "**dentro il loop ciccia " << j << " " <<pippo<< " cicciona "<< endl ;
+        }   
+    
+    tree->GetEntry(8);
+    cout << "ev 8 prima loop num ele " << numberGSF<< endl ; 
+    cout << "**prima loop  ciccia 0="<< recoEleEcalEnergy->at(0) << " cicciona "<< endl ;
+    cout << "**prima loop  ciccia 1="<< recoEleEcalEnergy->at(1) << " cicciona "<< endl ;    
+
+    int nentries = (int) tree->GetEntries();
+    for(int i=0; i<nentries; i++)
+        {
+            cout << "evento "<< i << endl ;
+            tree->GetEntry(i);
+            cout << "numberGSF="<< numberGSF << endl ;
+            for(int j=0; j<numberGSF ; j++)
+            {
+                cout << "loop " << endl ;
+               //histo_recLep_e->Fill (((TLorentzVector*)(recoEle4Momentum->At(j)))->Energy()) ;
+               //cout<< "Px "<< (((TLorentzVector*)(recoEle4Momentum->At(j)))->Px()) << endl ;
+               //cout<< (((TVector3*)(recoEleTrkMomentumAtVtx->At(j)))->Px()) << endl ;
+                cout << "**ciccia " << j << " " << (recoEleEcalEnergy->at(0)) << " cicciona "<< endl ;
+            }   
+            cout << "brutta " << endl;
+        }
+ 
+    //TCanvas *p=new TCanvas () ;
+    //histo_recLep_e->Draw () ;
+ 
+}
+
+
+void MCtruthPlots ()
 {
     gROOT->SetStyle("Plain") ;
     
     TFile f ("prova.root") ;
 
     TTree *tree = (TTree*)gDirectory->Get("genTree");  
+    
+    //verita' MC //////////////////////////////////////////////////////////
     TLorentzVector *genLepPlus = new TLorentzVector();
     TLorentzVector *genLepMinus = new TLorentzVector();
     TLorentzVector *genMetPlus = new TLorentzVector();
@@ -27,7 +102,6 @@
     tree->SetBranchAddress("genHiggs", &genHiggs);
     tree->SetBranchAddress("genWp", &genWp);
     tree->SetBranchAddress("genWm", &genWm);
-
     
     //leptons
     TH1F *histo_genLep_e = new TH1F("histo_genLep_e", "l+ and l- energy",100,0,1000) ;
@@ -111,7 +185,13 @@
     TLorentzVector wp;
     TLorentzVector wm;
     TLorentzVector higgs;
+    
+    int counter_ee = 0 ;
+    int counter_mumu = 0 ;
+    int counter_emu = 0 ;    
+    
     Int_t nentries = (Int_t) tree->GetEntries();
+    
     for(Int_t i=0; i<nentries; i++)
     {
         tree->GetEntry(i);
@@ -129,6 +209,11 @@
         if (LepPlusFlavour == 13 && LepMinusFlavour == 11) histo_genLep_deta_emu->Fill (fabs(genLepMinus->Eta()-genLepPlus->Eta())) ;
         if (LepPlusFlavour == 13 && LepMinusFlavour == 11) histo_genLep_dphi_emu->Fill (fabs(genLepMinus->Phi()-genLepPlus->Phi())) ;
 
+         if (LepPlusFlavour == 11 && LepMinusFlavour == 11) counter_ee++;
+         if (LepPlusFlavour == 13 && LepMinusFlavour == 13) counter_mumu++;
+         if (LepPlusFlavour == 13 && LepMinusFlavour == 11) counter_emu++;
+         if (LepPlusFlavour == 11 && LepMinusFlavour == 13) counter_emu++;
+        
         // neutrinos    
         histo_genMet_e->Fill (genMetPlus->E()) ;
         histo_genMet_e->Fill (genMetMinus->E()) ;
@@ -163,9 +248,8 @@
         sommaTutto = higgs + sommaTag;
         histo_genTutto_mass->Fill (sommaTutto.M()) ;
         
-
-  }
-    
+}
+    /*
     TCanvas *pippo = new TCanvas () ;
     pippo->Divide (3,2) ;
     pippo->cd (1);
@@ -186,7 +270,7 @@
     histo_genMet_e->Draw ();
     pippo->cd (6);
     histo_genMet_pt->Draw ();
-    
+    /*
     TCanvas *pippo3 = new TCanvas () ;
     pippo3->Divide (2,2) ;
     pippo3->cd (1);
@@ -213,4 +297,28 @@
     histo_genTag_mass->Draw () ;
     pippo2->cd (6);
     histo_genTutto_mass->Draw () ;
+    
+    TCanvas *pippo4 = new TCanvas () ;
+    pippo4->SetLogy() ;
+    histo_genTutto_mass->Draw () ;
+*/
+    
+    TCanvas *pippo = new TCanvas () ;
+    pippo->Divide (1,2) ;
+    pippo->SetLogy() ;
+    pippo->cd (1);
+    histo_genLep_deta_emu->Draw () ;
+    histo_genLep_deta_ee->Draw ("same") ;
+    histo_genLep_deta_mumu->Draw ("same") ;
+    tleg->Draw("same");
+    pippo->cd (2);
+    histo_genLep_dphi_emu->Draw () ;
+    histo_genLep_dphi_ee->Draw ("same") ;
+    histo_genLep_dphi_mumu->Draw ("same") ;
+    tleg->Draw("same");
+    
+    cout << "#ee " << counter_ee << endl ;
+    cout << "#mumu " << counter_mumu << endl ;
+    cout << "#emu " << counter_emu << endl ;  
+    
 }
