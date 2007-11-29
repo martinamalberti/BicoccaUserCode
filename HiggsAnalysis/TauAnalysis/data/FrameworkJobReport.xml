@@ -1,0 +1,28 @@
+<FrameworkJobReport>
+
+
+<InputFile>
+<State  Value="closed"/>
+<LFN>/store/mc/2007/5/2/Spring07-ggToA180_2tau-1140/0001/5AB2A10E-DD0A-DC11-A876-0015170AE45C.root</LFN>
+<PFN>rfio:/castor/cern.ch/cms/store/mc/2007/5/2/Spring07-ggToA180_2tau-1140/0001/5AB2A10E-DD0A-DC11-A876-0015170AE45C.root</PFN>
+<Catalog>trivialcatalog_file:/afs/cern.ch/cms/SITECONF/local/PhEDEx/storage.xml?protocol=rfio</Catalog>
+<ModuleLabel>source</ModuleLabel>
+<GUID></GUID>
+<Runs>
+  <Run>50000119</Run>
+</Runs>
+<Branches>
+</Branches>
+<InputSourceClass>PoolSource</InputSourceClass>
+<EventsRead>100</EventsRead>
+</InputFile>
+<StorageStatistics>
+
+Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
+Storage statistics: rfio/close=1/1/0MB/82.7655ms/82.7655ms/82.7655ms; rfio/destruct=1/1/0MB/0.310612ms/0.310612ms/0.310612ms; rfio/open=2/2/0MB/57817.8ms/7724.93ms/50092.9ms; rfio/position=456/456/0MB/25.8139ms/0.006904ms/2.67727ms; rfio/read=632/632/16.6111MB/9686.3ms/1.71424ms/2793.87ms; rfio/write=0/0/0MB/0ms/100000ms/0ms; tstoragefile/close=1/1/0MB/83.2301ms/83.2301ms/83.2301ms; tstoragefile/construct=2/2/0MB/177664ms/11727.9ms/165936ms; tstoragefile/read=632/632/16.6111MB/9718.37ms/1.743ms/2794.01ms; tstoragefile/readu=0/0/0MB/0ms/100000ms/0ms; tstoragefile/readx=632/632/16.6111MB/9690.84ms/1.71941ms/2793.89ms; tstoragefile/seek=632/632/0MB/6.46984ms/0.00294ms/0.04866ms; tstoragefile/seekx=440/440/0MB/19.0838ms/0.012916ms/0.190944ms; tstoragefile/stat=4/4/0MB/8.71253ms/1.71774ms/2.72531ms; tfile/read=?/?/16.6111MB/?ms/?ms/?ms; tfile/write=?/?/0.0753164MB/?ms/?ms/?ms
+
+</StorageStatistics>
+
+<GeneratorInfo>
+</GeneratorInfo>
+</FrameworkJobReport>
