@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.26 2007/11/26 15:29:15 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.28 2007/11/29 13:28:13 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -160,6 +160,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     
     // looking for jets
+    m_jfi.readEvent (iEvent) ; // for the flavour
     TClonesArray &jetPart4Mom = *m_recoJet4Momentum;
     counter = 0;
     m_numberJet =  jetCollectionHandle->size () ;
@@ -169,6 +170,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             new (jetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
             counter++;
+	    JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
+	    std::cout << "sapore jet ______"<< jetFlavour.flavour () << std::endl;
         }   
     
     
@@ -182,6 +185,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             new (genJetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
             counter++;
+	    JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
+	    std::cout << "sapore gen jet ______"<< jetFlavour.flavour () << std::endl;
         }   
     
     // looking for met
@@ -273,6 +278,7 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
     m_genTree->Branch("recoJet4Momentum", "TClonesArray", &m_recoJet4Momentum, 256000,0); 
+    //m_genTree->Branch("recoJetFlavor",  &m_recoJetFlavor);
     
     m_genTree->Branch("genMet4Momentum", "TLorentzVector", &m_genMet4Momentum, 6400,99); 
     
