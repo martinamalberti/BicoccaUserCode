@@ -1,6 +1,7 @@
 void elePlots ()
 {
-    TFile *f = new TFile("prova.root") ;
+    gROOT->SetStyle("Plain") ;
+    TFile *f = new TFile("/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/prova.root") ;
     
     TTree *tree = (TTree*)gDirectory->Get("genTree");  
     
@@ -30,43 +31,41 @@ void elePlots ()
     TH1F *histo_recLep_e = new TH1F("histo_recLep_e", "GSF electrons energy",100,0,500) ;
     histo_recLep_e->GetXaxis ()->SetTitle ("Energy (GeV)") ;
     histo_recLep_e->SetFillColor (94);
-        
-    tree->GetEntry(7);
-    cout << "ev 7 prima loop num ele " << numberGSF<< endl ; 
-    cout << "**prima loop  ciccia 0="<< recoEleEcalEnergy->at(0) << " cicciona "<< endl ;
-    cout << "**prima loop  ciccia 1="<< recoEleEcalEnergy->at(1) << " cicciona "<< endl ;    
     
-    for(int j=0; j<numberGSF ; j++)
-        {
-            double pippo =  double(recoEleEcalEnergy->at(0)) ;
-            cout << "**dentro il loop ciccia " << j << " " <<pippo<< " cicciona "<< endl ;
-        }   
+    TH1F *histo_trkIso = new TH1F("histo_trkIso", "GSF electrons trk isolation value",100,0,500) ;
+    histo_trkIso->GetXaxis ()->SetTitle ("Trk Isolation") ;
+    histo_trkIso->SetFillColor (94);
     
-    tree->GetEntry(8);
-    cout << "ev 8 prima loop num ele " << numberGSF<< endl ; 
-    cout << "**prima loop  ciccia 0="<< recoEleEcalEnergy->at(0) << " cicciona "<< endl ;
-    cout << "**prima loop  ciccia 1="<< recoEleEcalEnergy->at(1) << " cicciona "<< endl ;    
+    TH1F *histo_calIso = new TH1F("histo_trkIso", "GSF electrons cal isolation value",100,0,50) ;
+    histo_calIso->GetXaxis ()->SetTitle ("Cal Isolation") ;
+    histo_calIso->SetFillColor (94);
+    
 
     int nentries = (int) tree->GetEntries();
     for(int i=0; i<nentries; i++)
         {
-            cout << "evento "<< i << endl ;
             tree->GetEntry(i);
-            cout << "numberGSF="<< numberGSF << endl ;
+            //cout << "numberGSF="<< numberGSF << endl ;
             for(int j=0; j<numberGSF ; j++)
             {
-                cout << "loop " << endl ;
-               //histo_recLep_e->Fill (((TLorentzVector*)(recoEle4Momentum->At(j)))->Energy()) ;
+                histo_recLep_e -> Fill (((TLorentzVector*)(recoEle4Momentum->At(j)))->Energy()) ;
+		histo_trkIso -> Fill (recoEleTrkIsoVal->at(j)) ;
+		histo_calIso -> Fill (recoEleCalIsoVal->at(j)) ;
                //cout<< "Px "<< (((TLorentzVector*)(recoEle4Momentum->At(j)))->Px()) << endl ;
                //cout<< (((TVector3*)(recoEleTrkMomentumAtVtx->At(j)))->Px()) << endl ;
-                cout << "**ciccia " << j << " " << (recoEleEcalEnergy->at(0)) << " cicciona "<< endl ;
+               //cout << "**recoEleEcalEnergy " << j << " " << (recoEleEcalEnergy->at(j)) << endl ;
+	       //histo_recLep_e->Fill ((recoEleEcalEnergy->at(j))) ;
             }   
-            cout << "brutta " << endl;
         }
  
-    //TCanvas *p=new TCanvas () ;
-    //histo_recLep_e->Draw () ;
- 
+    TCanvas *p=new TCanvas () ;
+    p->Divide (2,2);
+    p->cd (1);
+    histo_recLep_e->Draw () ;
+    p->cd (2);
+    histo_trkIso->Draw () ;
+    p->cd (3);
+    histo_calIso->Draw () ;  
 }
 
 
