@@ -12,8 +12,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-
+#include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
 using namespace std;
 
@@ -69,19 +68,18 @@ void HadIsolation::setEtLow (double etLow)
 
 double HadIsolation::getEtHadClusters () const
 {
-
   double hcalEt = 0.;
   if (mhbhe_) 
    {
       //Take the SC position
       const CaloGeometry* caloGeom = theCaloGeom_.product();
-      CaloConeSelector sel(extRadius_ , caloGeom, DetId::Hcal);
+      CaloDualConeSelector * sel = new CaloDualConeSelector(intRadius_ ,extRadius_, caloGeom, DetId::Hcal);
       math::XYZPoint theCaloPosition = electron_->caloPosition () ;
       GlobalPoint pclu (theCaloPosition.x () ,
                 	theCaloPosition.y () ,
 			theCaloPosition.z () );
       //Compute the HCAL energy behind ECAL
-      std::auto_ptr<CaloRecHitMetaCollectionV> chosen = sel.select(pclu,*mhbhe_);
+      std::auto_ptr<CaloRecHitMetaCollectionV> chosen = sel->select(pclu,*mhbhe_);
       for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
                                                      i!= chosen->end () ; 
 						     ++i) 
@@ -89,7 +87,7 @@ double HadIsolation::getEtHadClusters () const
 	 double hcalHit_eta = caloGeom->getPosition(i->detid()).eta();
 	 double hcalHit_Et = i->energy()*sin(2*atan(exp(-hcalHit_eta)));
 	 if ( hcalHit_Et > etLow_)
-	      hcalEt += hcalHit_Et;
+	   hcalEt += hcalHit_Et;
        }
     } 
   return hcalEt ;
@@ -97,20 +95,19 @@ double HadIsolation::getEtHadClusters () const
 
 double HadIsolation::getHoE () const
 {
-
-  double HoE ;
+  double HoE = 0 ;
   if (mhbhe_) 
    {
      //Take the SC position
      const CaloGeometry* caloGeom = theCaloGeom_.product();
-     CaloConeSelector sel(extRadius_ , caloGeom, DetId::Hcal);
+     CaloDualConeSelector * sel = new CaloDualConeSelector(intRadius_ ,extRadius_, caloGeom, DetId::Hcal);
      math::XYZPoint theCaloPosition = electron_->caloPosition () ;
      GlobalPoint pclu (theCaloPosition.x () ,
                        theCaloPosition.y () ,
 		       theCaloPosition.z () );
      //Compute the HCAL energy behind ECAL
      double hcalEnergy = 0. ;
-     std::auto_ptr<CaloRecHitMetaCollectionV> chosen = sel.select(pclu,*mhbhe_);
+     std::auto_ptr<CaloRecHitMetaCollectionV> chosen = sel->select(pclu,*mhbhe_);
      for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
                                                     i!= chosen->end () ; 
 						    ++i) 
@@ -122,8 +119,6 @@ double HadIsolation::getHoE () const
      //Compute HoE
      HoE = hcalEnergy/ecalEnergy ;
    } 
-  else HoE = 0. ;
-
   return HoE ;
 }
 
