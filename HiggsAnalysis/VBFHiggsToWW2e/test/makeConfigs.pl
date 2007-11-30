@@ -1,6 +1,6 @@
 #### filtra i dati H->WW via VBF a partire da sample H->WW
 #### i dati di partenza sono in $DATASETPATH
-#### i dati filtrati sono e vanno copiati in /castor
+#### i dati filtrati sono in $OUTROOT e vanno copiati in /castor
 
 $SAMPLE = "WWf_higgsMass160" ;
 $OUTROOT =  $SAMPLE.".root" ;
@@ -8,7 +8,7 @@ $DATASETPATH = "/H160_WW_2l/CMSSW_1_6_0-CSA07-2745/GEN-SIM-DIGI-RAW" ;
 $CONFIG = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE.".cfg";
 #### per crab
 $CONFIGCRAB = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_crab.cfg";
-$OUTDIR = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/prova" ;
+$OUTDIR = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/out_".$SAMPLE."/"" ;
 
 ################################################################################
 
@@ -96,6 +96,8 @@ print CONFIGNAMECRAB "\n";
 #system ("source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh\n") ; 
 #system ("eval \`scramv1 runtime -sh\`\n") ;  
 #system ("source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh\n") ; 
+system("rm -rf ".$OUTDIR) ;
+mkdir($OUTDIR, 0755) || die "Cannot mkdir newdir: $!";     
 print ("command: crab -create -cfg ".$CONFIGCRAB."\n") ;
 system ("crab -create -cfg ".$CONFIGCRAB) ;
 print ("command: crab -submit -c ".$OUTDIR."\n") ;
