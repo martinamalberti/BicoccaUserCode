@@ -2,13 +2,13 @@
 #### i dati di partenza sono in $DATASETPATH
 #### i dati filtrati sono in $OUTROOT e vanno copiati in /castor
 
-$SAMPLE = "WWf_higgsMass160" ;
+$SAMPLE = $ARGV[0] ;
 $OUTROOT =  $SAMPLE.".root" ;
-$DATASETPATH = "/H160_WW_2l/CMSSW_1_6_0-CSA07-2745/GEN-SIM-DIGI-RAW" ;
+$DATASETPATH = $ARGV[1] ;
 $CONFIG = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE.".cfg";
 #### per crab
 $CONFIGCRAB = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_crab.cfg";
-$OUTDIR = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/out_".$SAMPLE."/"" ;
+$OUTDIR = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/out_".$SAMPLE."/" ;
 
 ################################################################################
 
@@ -75,7 +75,7 @@ print CONFIGNAMECRAB "output_file = $OUTROOT\n";
 
 print CONFIGNAMECRAB "[USER]\n";
 print CONFIGNAMECRAB "publish_data = 0\n";
-print CONFIGNAMECRAB "return_data = 1\n";
+#print CONFIGNAMECRAB "return_data = 1\n";
 print CONFIGNAMECRAB "use_central_bossDB = 0\n";
 print CONFIGNAMECRAB "use_boss_rt = 1\n";
 print CONFIGNAMECRAB "ui_working_dir = $OUTDIR\n";
