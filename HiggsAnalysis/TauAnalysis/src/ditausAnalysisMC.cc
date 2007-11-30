@@ -206,14 +206,6 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        }
    }
 	       
-
-
-
-
-
-
-
-
 //    nMCPar=0;
 //    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
 //    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
