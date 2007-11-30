@@ -64,7 +64,7 @@ open (CONFIGNAMECRAB,">>".$CONFIGCRAB) or die "Cannot open ".$CONFIGCRAB." to wr
 print CONFIGNAMECRAB "[CRAB]\n";
 print CONFIGNAMECRAB "jobtype = cmssw\n";
 print CONFIGNAMECRAB "scheduler = glitecoll\n"; 
-print CONFIGNAMECRAB "\n";
+
 print CONFIGNAMECRAB "[CMSSW]\n";
 print CONFIGNAMECRAB "datasetpath = $DATASETPATH\n";
 print CONFIGNAMECRAB "pset = $CONFIG\n";
@@ -72,14 +72,17 @@ print CONFIGNAMECRAB "pset = $CONFIG\n";
 print CONFIGNAMECRAB "events_per_job = 1000\n";
 print CONFIGNAMECRAB "number_of_jobs = 10\n";
 print CONFIGNAMECRAB "output_file = $OUTROOT\n";
-print CONFIGNAMECRAB "\n";
+
 print CONFIGNAMECRAB "[USER]\n";
 print CONFIGNAMECRAB "publish_data = 0\n";
 print CONFIGNAMECRAB "return_data = 1\n";
 print CONFIGNAMECRAB "use_central_bossDB = 0\n";
 print CONFIGNAMECRAB "use_boss_rt = 1\n";
 print CONFIGNAMECRAB "ui_working_dir = $OUTDIR\n";
-print CONFIGNAMECRAB "\n";
+print CONFIGNAMECRAB "copy_data = 1\n"; 
+print CONFIGNAMECRAB "storage_element = srm.cern.ch\n"; 
+print CONFIGNAMECRAB "storage_path = /castor/cern.ch/user/t/tancini/crab\n"; 
+
 print CONFIGNAMECRAB "[EDG]\n";
 print CONFIGNAMECRAB "lcg_version = 2\n";
 print CONFIGNAMECRAB "proxy_server = myproxy.cern.ch\n"; 
@@ -88,7 +91,6 @@ print CONFIGNAMECRAB "retry_count = 2\n";
 print CONFIGNAMECRAB "lcg_catalog_type = lfc\n";
 print CONFIGNAMECRAB "lfc_host = lfc-cms-test.cern.ch\n";
 print CONFIGNAMECRAB "lfc_home = /grid/cms\n";
-print CONFIGNAMECRAB "\n";
 
 
 ################################################################################
