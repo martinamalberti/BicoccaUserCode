@@ -672,7 +672,7 @@ void InvMatrixLooper::fillEBMap (EBDetId EBmax,
          else curr_eta++; 
        }
      if (curr_phi < 1) curr_phi += 360;
-     if (curr_phi > 360) curr_phi -= 360;
+     if (curr_phi >= 360) curr_phi -= 360;
      if (EBDetId::validDetId (curr_eta,curr_phi))
       {
        EBDetId det = EBDetId (curr_eta,curr_phi,EBDetId::ETAPHIMODE);

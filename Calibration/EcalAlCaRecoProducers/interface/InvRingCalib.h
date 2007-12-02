@@ -2,8 +2,8 @@
   * \file InvRingCalib.h
   * \class InvRingCalib
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2007/11/20 17:23:42 $
-  * $Revision: 1.14 $
+  * $Date: 2007/11/26 14:23:15 $
+  * $Revision: 1.2 $
   * \author 
   *
 */
@@ -49,59 +49,21 @@ class InvRingCalib : public edm::EDLooper {
 
   private:
 
-    //! write on plain text file the results
-    int makeReport (std::string baseName="output") ;
-    //! Tells in which region you are.
-    int EBRingCheck (const int eta, const int phi) const ;
-/*    //! fill a TH12F from a vector
-    TH1F * fillTrend (std::vector<double> const & vettore, 
-                      const int & index) ;
-*/
-    //! reset arrays
-    template <class Type>
-    void
-    resetEB (Type Barrel[170][360], const Type val) 
-      {
-        for (int e = 0 ; e < SCMaxEta ; ++e)
-          for (int p = 0 ; p < SCMaxPhi ; ++p)
-            {         
-              Barrel[e][p] = val ;
-            }
-      }
-
-    template <class Type>
-    void
-    resetEE (Type Endcap[100][100], const Type val) 
-      {
-        for (int e = 0 ; e < 100 ; ++e)
-          for (int p = 0 ; p < 100 ; ++p)
-            {         
-              Endcap[e][p] = val ;
-            }
-      }
-   
-  //!LP numero delle regioni lungo il raggio (onion rings) (da fare divisione lungo phi)
+  //!The number of regions in EE
   inline int EERegionNum () const ;
-  //!LP numero delle regioni in EB
+  //!Number of regions in EB
   inline int EBRegionNum () const ;
-  //!LP checks if the values of ics and ips are in EE or not
-//  int isMyRegion (const int , const int , const int, const int ) ;
-
-  //!LP Defines the regions in the barrel
+  //!Defines the regions in the barrel
   void EBRegionDef () ;
-  //!LP Defines the rins in the endcap
+  //!Defines the rins in the endcap
   void EERingDef (const edm::EventSetup&);
-  //!LP Defines the regions in the endcap
+  //!Defines the regions in the endcap
   void EERegionDef ();
-//!LP reset the intercalibration coefficients
-void resetEB(double *,double);
-  void resetEE(double *,double);
-  //!LP Gives back in which region you are:
+  //!Gives back in which region you are:
   int EBRegId(const int) const;
-  //!LP is zero if the region you want to calibrate is inside the limits given by the cfg file
-  int EBRegionCheck (const int, const int) const;
-  //!gives back in which region of the endcap you are. Doesn't it?
+  //!gives back in which region of the endcap you are.
   int EERegId ( int) ;
+
   typedef reco::PixelMatchGsfElectronCollection::const_iterator eleIterator;
   //! fills the barrel energy map to be sent to the CalibBlock
     void fillEBMap (EBDetId, const EcalRecHitCollection *, std::map<int, double> &, int, double &);
@@ -126,27 +88,13 @@ void resetEB(double *,double);
     //! maximum energy per crystal cut
     double m_maxEnergyPerCrystal ;
     //! eta start of the zone of interest
-    int m_etaStart ;   //PG ECAL region to be calibrated
+    int m_etaStart ;   
     //! eta end of the zone of interest
     int m_etaEnd ;
     //! eta size of the regions 
-    int m_etaWidth ;   //PG sub matrix size and borders
+    int m_etaWidth ;
     //! maximum number of events per crystal
 //    int m_maxSelectedNumPerXtal ; //FIXME not yet used
-    //! for statistical studies
-//    int m_smallestFraction ; //FIXME not yet usedq
-    //! for statistical studies
-//    int m_howManyFractions ; //FIXME not yet usedq
-    //! for statistical studies
-//    smartSelector m_eventSelector ; //FIXME not yet usedq
-    //! for statistical studies
-//    int halfSelecting ; //FIXME not yet usedq
-    //! for statistical studies
-//    int takeOdd ; //FIXME not yet usedq
-
-    //! name of the statistics matrix to be saved
-//    std::string m_statisticsMatrixFileName ; //FIXME not yet usedq
-
     //! single blocks calibrators
     std::vector<EcalCalibBlock> m_ecalCalibBlocks ;
     //! minimum coefficient accepted (RAW)
@@ -155,39 +103,21 @@ void resetEB(double *,double);
     double m_maxCoeff ;
     //! to exclude the blocksolver 
     int m_usingBlockSolver ;
-    //! calibration factor
-    //!LP Intercalibration Coeff between the xtals in the same ring
-//    double m_EBRingRecalibFactor[170][360];
-//    double m_EEPRingRecalibFactor[100][100];
-//    double m_EEMRingRecalibFactor[100][100];
-    //!LP position of the cell, borders, coords etc...
+    //!position of the cell, borders, coords etc...
     std::map<int,GlobalPoint> m_cellPos;
     std::map<int,int> m_cellPhi;
-    
-    //!LP Intercalibration Coeff between the rings
-    std::vector <double> m_InterRings;
-    //!Temporary coeffs, one per xtal
-    std::map <int, double> m_fakeCoeffs;//FIXME
-    //! delta eta of the region of interest
-//    int m_Deta ;
-    //! evolution graphs 
-//    std::vector<std::vector<double> > m_etaSliceCoeff ;
+    //!association map between coeff and ring 
+    std::map <int,double> m_InterRings;
     //! LP sets the number of loops to do
     int m_loops ;
     //! LP define the EE region to calibrate
     int m_startRing;
     int m_endRing;
-    //!The number of the ring in which the XY xtal is
-//    int m_EEXtlRing[100][100];
-    //!The number of the region in which the XY xtal is
-//    int m_EEXtlReg[100][100];
-    //! The number of the ring in which the xtal in the region frame
-//    int m_EERingNum[100][100];
-    //!The same as before but for the barrel;
-//    int m_EBXtlReg[170][360];
-//    int m_EBRingNum[170];
+    //!association map between Raw detIds and Rings
     std::map<int,int> m_xtalRing;
+    //!association map between  raw detIds and Region
     std::map<int,int> m_xtalRegionId;
+    //!association map between raw detIds and the number of the ring inside the region
     std::map<int,int> m_RinginRegion;
     //! geometry things used all over the file
     std::vector<DetId> m_barrelCells;

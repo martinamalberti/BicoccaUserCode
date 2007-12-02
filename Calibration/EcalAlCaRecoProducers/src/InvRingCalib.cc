@@ -44,7 +44,7 @@ InvRingCalib::InvRingCalib (const edm::ParameterSet& iConfig) :
 {
  //controls if the parameters inputed are correct
  assert (m_etaStart >=-85 && m_etaStart <= 85);
- assert (m_etaEnd >= m_etaStart && m_etaEnd <= 85);
+ assert (m_etaEnd >= m_etaStart && m_etaEnd <= 86);
  assert (m_startRing>-1 && m_startRing<= 40);
  assert (m_endRing>=m_startRing && m_endRing<=40);
  assert(!((m_endRing - m_startRing)%m_etaWidth));
@@ -58,9 +58,7 @@ InvRingCalib::InvRingCalib (const edm::ParameterSet& iConfig) :
  	m_ecalCalibBlocks.push_back (EcalCalibBlock (m_etaWidth));
  for (int i=0; i<EERegionNum();++i)
  	m_ecalCalibBlocks.push_back (EcalCalibBlock (m_etaWidth));
- for (int i=0; i<(EBRegionNum()+2*EERegionNum());++i)
-	for(int j=0;j<m_etaWidth;++j)
-  	m_InterRings.push_back(1);
+ edm::LogInfo ("IML") <<" [InvRingCalib][ctor] end of creator";
 }
 
 //---------------------------------------------------------------------------end ctor
@@ -81,17 +79,25 @@ InvRingCalib::beginOfJob (const edm::EventSetup& iSetup)
  edm::ESHandle<CaloGeometry> geoHandle;
  iSetup.get<IdealGeometryRecord>().get(geoHandle);
  const CaloGeometry& geometry = *geoHandle;
+ edm::LogInfo ("IML") <<"[InvRingCalib] Event Setup read";
  //fills a vector with all the cells
  m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
  m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
  //Defines the EB regions
+ edm::LogInfo ("IML") <<"[InvRingCalib] Defining Barrel Regions";
  EBRegionDef();
  //Defines what is a ring in the EE
+ edm::LogInfo ("IML") <<"[InvRingCalib] Defining endcap Rings";
  EERingDef(iSetup);
  //Defines the regions in the EE
+ edm::LogInfo ("IML") <<"[InvRingCalib] Defining endcap Regions";
  EERegionDef();
-
-//Graphs to check ring, regions and so on, not needed in the final version
+ edm::LogInfo ("IML") <<"[InvRingCalib] Initializing the coeffs";
+ //Sets the initial coefficients to 1.
+ for (std::map<int,int>::const_iterator ring= m_xtalRing.begin();
+ 	ring!=m_xtalRing.end();++ring)
+           m_InterRings[ring->second]=1.;	
+ //Graphs to check ring, regions and so on, not needed in the final version
   TH2F EBRegion ("EBRegion","EBRegion",171,-85,86,360,1,361);
   TH2F EBRing ("EBRing","EBRing",171,-85,86,360,1,361);
   for (std::vector<DetId>::const_iterator it= m_barrelCells.begin();
@@ -99,7 +105,6 @@ InvRingCalib::beginOfJob (const edm::EventSetup& iSetup)
 	EBDetId eb (*it);
         EBRing.Fill(eb.ieta(),eb.iphi(),m_RinginRegion[it->rawId()]);
 	EBRegion.Fill(eb.ieta(),eb.iphi(),m_xtalRegionId[it->rawId()]);
-	m_fakeCoeffs[it->rawId()]=1;
       }
  TH2F EEPRegion ("EEPRegion", "EEPRegion",100,1,101,100,1,101);
  TH2F EEPRing ("EEPRing", "EEPRing",100,1,101,100,1,101);
@@ -115,12 +120,11 @@ InvRingCalib::beginOfJob (const edm::EventSetup& iSetup)
        EEPRegion.Fill(ee.ix(),ee.iy(),m_xtalRegionId[ee.rawId()]);
        EEPRing.Fill(ee.ix(),ee.iy(),m_xtalRing[ee.rawId()]);
        EEPRingReg.Fill(ee.ix(),ee.iy(),m_RinginRegion[ee.rawId()]);
-       m_fakeCoeffs[it->rawId()]=1;
      }
      if (ee.zside()<0){
        EEMRegion.Fill(ee.ix(),ee.iy(),m_xtalRegionId[ee.rawId()]);
        EEMRing.Fill(ee.ix(),ee.iy(),m_xtalRing[ee.rawId()]);
-       m_fakeCoeffs[it->rawId()]=1; EEMRingReg.Fill(ee.ix(),ee.iy(),m_RinginRegion[ee.rawId()]);
+       EEMRingReg.Fill(ee.ix(),ee.iy(),m_RinginRegion[ee.rawId()]);
    }    
   } 
  TFile out ("EBZone.root", "recreate");
@@ -152,8 +156,7 @@ void InvRingCalib::startingNewLoop (unsigned int ciclo)
 
 //--------------------------------------------------------
 //!duringLoop
-edm::EDLooper::Status
-InvRingCalib::duringLoop (const edm::Event& iEvent,
+edm::EDLooper::Status InvRingCalib::duringLoop (const edm::Event& iEvent,
                           const edm::EventSetup&) 
 {
  //gets the barrel recHits
@@ -255,23 +258,28 @@ for (std::vector<EcalCalibBlock>::iterator calibBlock=m_ecalCalibBlocks.begin();
 	calibBlock!=m_ecalCalibBlocks.end();
 	++calibBlock)
 		calibBlock->solve(m_usingBlockSolver,m_minCoeff,m_maxCoeff);
-//Reads back the InterCalibration between the rings
 edm::LogInfo("IML") << "[InvRingLooper][endOfLoop] Starting to write the coeffs";
-int Numbers= EBRegionNum()+2*EERegionNum();
-Numbers *= m_etaWidth;
-TH1F * coeffMap= new TH1F ("coeffMap","coeffMap",Numbers ,0,Numbers-1);
-TH1F coeffDistr("coeffdistr","coeffdistr",100, 0.7,1.4);
-for (int reg = 0; reg< EBRegionNum()+ 2 * EERegionNum();++reg)
-  for (int i = 0; i < m_etaWidth; ++i){ 
-      m_InterRings[reg+i]= m_ecalCalibBlocks.at(reg).at(i);
-      coeffDistr.Fill(m_InterRings[reg+i]);
-      coeffMap->Fill(reg+i, m_InterRings[reg+i]);
+TH1F coeffDistr ("coeffdistr","coeffdistr",100 ,0.7,1.4);
+int ID;
+for (std::vector<DetId>::const_iterator it=m_barrelCells.begin();
+       it!=m_barrelCells.end();++it)
+     { 
+      ID= it->rawId();
+      if (m_xtalRegionId[ID]==-1) continue;
+      m_InterRings[m_xtalRing[ID]]= m_ecalCalibBlocks.at(m_xtalRegionId[ID]).at(m_RinginRegion[ID]);
+      coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]);
+     }
+for (std::vector<DetId>::const_iterator it=m_endcapCells.begin();
+       it!=m_endcapCells.end();++it)
+    { 
+     ID= it->rawId();
+     if (m_xtalRegionId[ID]==-1) continue;
+     m_InterRings[m_xtalRing[ID]]= m_ecalCalibBlocks.at(m_xtalRegionId[ID]).at(m_RinginRegion[ID]);
+     coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]);
     }
 TFile out("coeffs.root","recreate");    
 coeffDistr.Write();
-coeffMap->Write();
 out.Close();
-delete coeffMap;
 if (iCounter < m_loops-1 ) return kContinue ;
 else return kStop; 
 }
@@ -327,27 +335,34 @@ void InvRingCalib::fillEBMap (EBDetId EBmax,
   {
    curr_eta=EBmax.ieta() + ii - (m_recoWindowSide/2);
    curr_phi=EBmax.iphi() + ij - (m_recoWindowSide/2);
-   //The followind 2 lines couples with the zero gap in the barrel
+   //skips if the xtals matrix falls over the border
    if (abs(curr_eta)>85) continue;
+   //Couples with the zero gap in the barrel eta index
    if (curr_eta * EBmax.ieta() <= 0) {if (EBmax.ieta() > 0) curr_eta--; else curr_eta++; }  // JUMP over 0
    //The following 2 couples with the ciclicity of the phiIndex
    if (curr_phi < 1) curr_phi += 360;
-   if (curr_phi > 360) curr_phi -= 360;
+   if (curr_phi >= 360) curr_phi -= 360;
    //checks if the detId is valid
    if(EBDetId::validDetId(curr_eta,curr_phi))
     {
      EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
+     int ID= det.rawId();
      //finds the hit corresponding to the cell
      EcalRecHitCollection::const_iterator curr_recHit = barrelHitsCollection->find(det) ;
      double dummy = 0;
      dummy = curr_recHit->energy () ;
      //checks if the reading of the xtal is in a sensible range
-     if ( dummy < m_minEnergyPerCrystal || dummy > m_maxEnergyPerCrystal) continue;
+     if ( dummy < m_minEnergyPerCrystal) continue;
+     if (dummy > m_maxEnergyPerCrystal) 
+             {edm::LogWarning("IML")<<"[InvRingCalib] recHit bigger than maxEnergy per Crystal\n"
+	            <<" EB xtal eta"<<det.ieta()<<" phi "<<det.iphi();
+	      continue;
+	      }
     //corrects the energy with the calibration coeff of the ring
-     dummy *= m_fakeCoeffs[det.rawId()]; 
+     dummy *= m_InterRings[m_xtalRing[ID]]; 
      //sums the energy of the xtal to the appropiate ring
-     if (m_xtalRegionId[det.rawId()]==EBNumberOfRegion)
-       EBRegionMap[m_RinginRegion[det.rawId()]]+= dummy;
+     if (m_xtalRegionId[ID]==EBNumberOfRegion)
+       EBRegionMap[m_RinginRegion[ID]]+= dummy;
      //adds the reading to pSubtract when part of the matrix is outside the region
      else pSubtract +=dummy; 
     }
@@ -366,23 +381,24 @@ void InvRingCalib::fillEEMap (EEDetId EEmax,
  for (int ii = 0 ; ii< m_recoWindowSide ; ++ii)
   for (int ij =0 ; ij< m_recoWindowSide ; ++ij) 
  {
+  //Works as fillEBMap
   curr_x = EEmax.ix() - m_recoWindowSide/2 +ii;
   curr_y = EEmax.iy() - m_recoWindowSide /2 +ij;
   if(EEDetId::validDetId(curr_x,curr_y,EEmax.zside()))
   {
    EEDetId det = EEDetId(curr_x,curr_y,EEmax.zside(),EEDetId::XYMODE);
+   int ID=det.rawId();
    EcalRecHitCollection::const_iterator curr_recHit = endcapHitsCollection->find(det) ;
    double dummy = curr_recHit->energy () ;
-   if ( dummy < m_minEnergyPerCrystal ) continue; // selection
-   if ( dummy > m_maxEnergyPerCrystal ) continue; // selection
-//   std::cerr<<"x "<<curr_x<<" y "<<curr_y<<"  ";
-//   std::cerr<<"RingId "<<RingId<<"  ";
-//   std::cerr<<"energy = "<<dummy<<"   ";
-//   std::cerr<<"coeff = "<<m_InterRings[RingId]<<std::endl;
-//    dummy *= m_InterRings[RingId];FIXME
-    dummy *= m_fakeCoeffs[det.rawId()];
-   if (m_xtalRegionId[det.rawId()]==EENumberOfRegion)
-      EExtlMap[m_RinginRegion[det.rawId()]] += dummy;
+   if ( dummy < m_minEnergyPerCrystal ) continue; 
+   if ( dummy > m_maxEnergyPerCrystal ) {
+        edm::LogWarning("IML")<<"[InvRingCalib] recHit bigger than maxEnergy per Crystal\n"
+	   <<"EE xtal "<<det.ix()<<" "<<det.iy()<<"  Energy= "<< dummy;
+        continue; 
+   }
+   dummy *= m_InterRings[m_xtalRing[ID]];
+   if (m_xtalRegionId[ID]==EENumberOfRegion)
+      EExtlMap[m_RinginRegion[ID]] += dummy;
    else pSubtract +=dummy; 
   }
  }
@@ -391,10 +407,13 @@ void InvRingCalib::fillEEMap (EEDetId EEmax,
 //!EE ring definition
 void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)  
 {
+ //Gets the Handle for the geometry from the eventSetup
  edm::ESHandle<CaloGeometry> geoHandle;
  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+ //Gets the geometry of the endcap
  const CaloGeometry& geometry = *geoHandle;
  const CaloSubdetectorGeometry *endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+ //for every xtal gets the position Vector and the phi position
  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin();
     endcapIt!=m_endcapCells.end();
     ++endcapIt) {
@@ -402,40 +421,55 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
      m_cellPos[endcapIt->rawId()] = cellGeometry->getPosition();
      m_cellPhi[endcapIt->rawId()] = cellGeometry->getPosition().phi();
   }
+ //takes the first 39 xtals at a fixed y varying the x coordinate and saves their eta coordinate 
  float eta_ring[39];
  for (int ring=0; ring<39; ring++) 
 	if (EEDetId::validDetId(ring,50,1)){  
 	  EEDetId det = EEDetId (ring,50,1,EEDetId::XYMODE);
           eta_ring[ring]=m_cellPos[det.rawId()].eta();
 	  }
+ //defines the bonduary of the rings as the average eta of a xtal
  double etaBonduary[40];
  etaBonduary[0]=1.49;
  etaBonduary[39]=4.0;
  for (int ring=1; ring<39; ++ring)
        etaBonduary[ring]=(eta_ring[ring]+eta_ring[ring-1])/2.;
+ //assign to each xtal a ring number
+ int CRing;
  for (int ring=0; ring<39; ring++) 
    for (std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
         endcapIt!=m_endcapCells.end();++endcapIt){
      if (fabs(m_cellPos[endcapIt->rawId()].eta())>etaBonduary[ring] &&
-         fabs(m_cellPos[endcapIt->rawId()].eta())<etaBonduary[ring+1]) 
-              m_xtalRing[endcapIt->rawId()]=ring;
+         fabs(m_cellPos[endcapIt->rawId()].eta())<etaBonduary[ring+1])
+	  {
+	      EEDetId ee(*endcapIt);
+	      if (ee.zside()>0) CRing=ring + 170; 
+	      else CRing = ring + 210;
+              m_xtalRing[endcapIt->rawId()]=CRing;
+	  }    
       }
  return;
 }
 
 //
+//!Gives the Id of the region given the id of the xtal
 int InvRingCalib::EERegId( int id) 
 {
    int reg;
+   int ring;
+   EEDetId ee (id);
+  //sets the reg to -1 if the ring doesn't exist or is outside the region of interest 
    if (m_xtalRing[id] == -1) return -1;
-   else
-   if(m_xtalRing[id] >=m_endRing) return -1;
-   if (m_xtalRing[id] <m_startRing) return -1;
-   else reg = (m_xtalRing[id]-m_startRing) / m_etaWidth;
+   if (ee.zside()>0) ring = m_xtalRing[id]-170;
+   else ring = m_xtalRing[id] -210;
+   if(ring >=m_endRing) return -1;
+   if (ring<m_startRing) return -1;
+   reg = (ring -m_startRing) / m_etaWidth;
    return reg;
 }
 //----------------------------------------
-//Endcap Region Definition 
+//!Loops over all the endcap xtals and sets for each xtal the value of the region
+//!the xtal is in, and the ringNumber inside the region 
 void InvRingCalib::EERegionDef ()
 { 
 int reg;
@@ -443,8 +477,10 @@ for (std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
      endcapIt!=m_endcapCells.end();++endcapIt){
       EEDetId ee(*endcapIt);
       reg = EERegId(endcapIt->rawId());
+      //If the ring is not of interest saves only the region Id(-1)
       if(reg==-1) 
          m_xtalRegionId[endcapIt->rawId()]=reg;
+      //sums the number of region in EB or EB+EE to have different regionsId in different regions 
       else {
       if (ee.zside()>0)reg += EBRegionNum();
       else reg += EBRegionNum()+EERegionNum();
@@ -455,19 +491,19 @@ for (std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
 }
 
 //----------------------------------------
-//DS Number of Regions in EE 
+//!Number of Regions in EE 
 inline int InvRingCalib::EERegionNum () const 
 {
   return ((m_endRing - m_startRing)/m_etaWidth);
 }
 
 
-//DS number of Ring in EB
+//! number of Ring in EB
 inline int InvRingCalib::EBRegionNum () const 
 {
   return ((m_etaEnd - m_etaStart )/m_etaWidth); 
 }
-//EB Region Id
+//! gives the region Id given ieta
 int InvRingCalib::EBRegId(const int ieta) const
 {
  int reg;
@@ -491,17 +527,16 @@ void InvRingCalib::EBRegionDef()
   }
 }
 
-
-//--------------------------------------------
-//!LP checks if the ring you asks for is the correct one
-
-//---------------------Find the most energetic Xtal
+//---------------------
+//!Find the most energetic Xtal
 DetId  InvRingCalib::findMaxHit (const std::vector<DetId> & v1,
 				    const EBRecHitCollection* EBhits,
 				    const EERecHitCollection* EEhits) 
 {
  double currEnergy = 0.;
+ //creates an empty DetId 
  DetId maxHit;
+ //Loops over the vector of the recHits
  for (std::vector<DetId>::const_iterator idsIt = v1.begin () ; 
       idsIt != v1.end () ; ++idsIt)
    {
@@ -509,11 +544,13 @@ DetId  InvRingCalib::findMaxHit (const std::vector<DetId> & v1,
        {              
          EBRecHitCollection::const_iterator itrechit;
          itrechit = EBhits->find (*idsIt) ;
+	 //not really understood why this should happen, but it happens
          if (itrechit == EBhits->end () )
            {
             edm::LogWarning("IML") <<"max hit not found";
             continue;
            }
+	 //If the energy is greater than the currently stored energy sets maxHits to the current recHit
          if (itrechit->energy () > currEnergy)
            {
              currEnergy = itrechit->energy () ;
@@ -522,6 +559,7 @@ DetId  InvRingCalib::findMaxHit (const std::vector<DetId> & v1,
        } //barrel part ends
     else 
        {     
+	 //as the barrel part
          EERecHitCollection::const_iterator itrechit;
          itrechit = EEhits->find (*idsIt) ;
          if (itrechit == EEhits->end () )
@@ -535,11 +573,7 @@ DetId  InvRingCalib::findMaxHit (const std::vector<DetId> & v1,
             currEnergy=itrechit->energy ();
             maxHit= *idsIt;
            }
-       } //ends the barrel part
+       } //ends the endcap part
     } //end of the loop over the detId
  return maxHit;
 }
-//TODOS
-//Sistemare i vari RegDef
-//Ring struct
-//Ridefinire i coefficienti...le coordinate
