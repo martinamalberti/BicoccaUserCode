@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.20 2007/11/29 13:28:14 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.21 2007/11/29 14:39:25 tancini Exp $
 //
 //
 
@@ -143,6 +143,18 @@ class VBFReadEvent : public edm::EDAnalyzer {
                                          TLorentzVector &m_genqTagB,
 					 int & m_genqTagF_Flavour,
 				         int & m_genqTagB_Flavour) ;
+
+      void setZero (TLorentzVector &m_genHiggs,
+	 	   TLorentzVector &m_genWm,
+		   TLorentzVector &m_genWp,
+		   TLorentzVector &m_genLepPlus,
+		   TLorentzVector &m_genLepMinus,
+		   TLorentzVector &m_genMetPlus,
+		   TLorentzVector &m_genMetMinus,
+		   TLorentzVector &m_genqTagF,
+	    	   TLorentzVector &m_genqTagB,
+	            int & m_genqTagF_Flavour,
+		    int & m_genqTagB_Flavour);
     
 
    private:
@@ -171,6 +183,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
     
       TFile *m_outfile;
       TTree* m_genTree;
+
+      int m_evtFlag;
       TLorentzVector *m_genHiggs;
       TLorentzVector *m_genWm;
       TLorentzVector *m_genWp;

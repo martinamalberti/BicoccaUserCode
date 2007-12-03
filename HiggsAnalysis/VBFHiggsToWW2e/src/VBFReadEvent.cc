@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.29 2007/11/29 14:00:29 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.30 2007/11/29 14:39:25 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -109,10 +109,16 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   //PG fetch the MC information
   const HepMC::GenEvent * Evt = evtMC->GetEvent();
-  
-  findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
-                                                             *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB,
-							      m_genqTagF_Flavour, m_genqTagB_Flavour) ;
+  int m_evtFlag = Evt->signal_process_id() ;
+  if (m_evtFlag == 123 || m_evtFlag == 124)
+    {
+       findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
+                                                *m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB,
+                                              	 m_genqTagF_Flavour, m_genqTagB_Flavour) ;
+    }
+  else setZero (*m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
+		*m_genMetPlus, *m_genMetMinus, *m_genqTagF, *m_genqTagB,
+	         m_genqTagF_Flavour, m_genqTagB_Flavour) ;
 
   TClonesArray &elePart4Mom = *m_recoEle4Momentum;
   TClonesArray &elePartMom = *m_recoEleTrkMomentumAtVtx;
@@ -218,6 +224,8 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_outfile  = new TFile ("prova.root", "RECREATE");
     m_genTree = new TTree ("genTree","generatedParticles") ;
     
+    m_evtFlag = 0; // MC process ID
+
     //generated particles 
     m_genHiggs = new TLorentzVector (0.0,0.0,0.0,0.0) ;
     m_genWp = new TLorentzVector (0.0,0.0,0.0,0.0) ;
@@ -260,6 +268,7 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     // reco met
     m_recoMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0) ; 
     
+    m_genTree->Branch ("evtFlag", &m_evtFlag, "m_evtFlag/I");
     m_genTree->Branch ("LepPlusFlavour", &m_LepPlusFlavour, "m_LepPlusFlavour/I");
     m_genTree->Branch ("LepMinusFlavour", &m_LepMinusFlavour, "m_LepMinusFlavour/I");
     m_genTree->Branch ("genHiggs","TLorentzVector",&m_genHiggs,6400,99) ;
@@ -362,6 +371,33 @@ TLorentzVector VBFReadEvent::get4momentum (const Candidate & gen)
 //Z 23
 //h 25
 //g 21 ... nella WW fusion i vertici coinvolgono solo q...    
+
+void VBFReadEvent::setZero (TLorentzVector &m_genHiggs,
+				     TLorentzVector &m_genWm,
+				     TLorentzVector &m_genWp,
+				     TLorentzVector &m_genLepPlus,
+				     TLorentzVector &m_genLepMinus,
+				     TLorentzVector &m_genMetPlus,
+				     TLorentzVector &m_genMetMinus,
+				     TLorentzVector &m_genqTagF,
+				     TLorentzVector &m_genqTagB,
+				     int & m_genqTagF_Flavour,
+				     int & m_genqTagB_Flavour)
+{
+  m_genHiggs.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genWm.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genWp.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genLepPlus.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genLepMinus.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genMetPlus.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genMetMinus.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genqTagF.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genqTagB.SetPxPyPzE (0.0,0.0,0.0,0.0);
+  m_genqTagF_Flavour = 0;
+  m_genqTagB_Flavour = 0;
+}
+
+
 void VBFReadEvent::findGenParticles (edm::Handle<CandidateCollection> &genParticles,
                                                              TLorentzVector &m_genHiggs,
                                                              TLorentzVector &m_genWm,
