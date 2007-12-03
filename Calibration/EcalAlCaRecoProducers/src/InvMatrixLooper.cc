@@ -285,48 +285,44 @@ edm::EDLooper::Status InvMatrixLooper::endOfLoop (const edm::EventSetup& dumb,un
        calibBlock!=m_ecalCalibBlocks.end ();
        ++calibBlock) calibBlock->solve (m_usingBlockSolver, m_minCoeff,m_maxCoeff);
   TH1F * EBcoeffEnd = new TH1F ("EBRegion","EBRegion",100,0.5,2.1) ;
-  TH2F * EBcoeffMap = new TH2F ("EBcoeff","EBcoeff",170,0,170,360,0,360);
+  TH2F * EBcoeffMap = new TH2F ("EBcoeff","EBcoeff",171,-85,85,360,1,361);
   TH1F * EEPcoeffEnd = new TH1F ("EEPRegion", "EEPRegion",100,0.5,2.1);
   TH1F * EEMcoeffEnd = new TH1F ("EEMRegion", "EEMRegion",100,0.5,2.1);
-  TH2F * EEPcoeffMap = new TH2F ("EEPcoeffMap","EEPcoeffMap",100,0,100,100,0,100);
-  TH2F * EEMcoeffMap = new TH2F ("EEMcoeffMap","EEMcoeffMap",100,0,100,100,0,100);
-  //PG loop over eta
-  for (int eta = 0; eta < 170; ++eta)
-    {
-      int check =EBregionCheck(eta,0);
-      if (check==1 || check==2) continue;
-      //PG loop over phi
-      for (int phi = 0; phi < 360; ++phi)
+  TH2F * EEPcoeffMap = new TH2F ("EEPcoeffMap","EEPcoeffMap",101,1,101,101,0,101);
+  TH2F * EEMcoeffMap = new TH2F ("EEMcoeffMap","EEMcoeffMap",101,1,101,101,0,101);
+ //loop over the barrel xtals to get the coeffs
+ for (std::vector<DetId>::const_iterator barrelIt=m_barrelCells.begin();
+       barrelIt!=m_barrelCells.end();++barrelIt)
         {
-          int index=EBDetId::unhashIndex (eta*360+phi).rawId ();
+	  EBDetId ee (*barrelIt);
+          int index= barrelIt->rawId();
           if(m_xtalRegionId[index]==-1)continue;
           m_recalibMap[index] *= 
               m_ecalCalibBlocks.at(m_xtalRegionId[index]).at(m_xtalPositionInRegion[index]);
           EBcoeffEnd->Fill(m_recalibMap[index]);
-          EBcoeffMap->Fill(eta,phi,m_recalibMap[index]);
+          EBcoeffMap->Fill(ee.ieta(),ee.iphi(),m_recalibMap[index]);
         } //PG loop over phi
-     } //PG loop over eta
 
   // loop over the EndCap to get the recalib coefficients
-  for (int x = 0; x <100;  ++x)
-   for (int y = 0; y < 100; ++y)
+    for(std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
+         endcapIt!=m_endcapCells.end();++endcapIt)
     {
-      if (EEDetId::validDetId (x+1, y+1, 1))
+     EEDetId ee (*endcapIt);
+     int index =endcapIt->rawId(); 
+     if (ee.zside()>0) 
         { 
-          int index = EEDetId (x+1, y+1, 1).rawId () ;
           if (m_xtalRegionId[index]==-1) continue ;
           m_recalibMap[index] *= 
              m_ecalCalibBlocks.at (m_xtalRegionId[index]).at (m_xtalPositionInRegion[index]);
           EEPcoeffEnd->Fill (m_recalibMap[index]) ;
-          EEPcoeffMap->Fill (x,y,m_recalibMap[index]) ;
+          EEPcoeffMap->Fill (ee.ix(),ee.iy(),m_recalibMap[index]) ;
         }
-      if (EEDetId::validDetId (x+1, y+1, -1))
+      else
         {
-          int index = EEDetId (x+1, y+1, -1).rawId () ;
           m_recalibMap[index] *= 
             m_ecalCalibBlocks.at (m_xtalRegionId[index]).at (m_xtalPositionInRegion[index]);
           EEMcoeffEnd->Fill (m_recalibMap[index]) ;
-          EEMcoeffMap->Fill (x,y,m_recalibMap[index]) ;
+          EEMcoeffMap->Fill (ee.ix(),ee.iy(),m_recalibMap[index]) ;
         }
     } // loop over the EndCap to get the recalib coefficients
 
