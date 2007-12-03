@@ -95,9 +95,9 @@ print CONFIGNAMECRAB "lfc_home = /grid/cms\n";
 
 ################################################################################
 
-#system ("source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh\n") ; 
-#system ("eval \`scramv1 runtime -sh\`\n") ;  
-#system ("source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh\n") ; 
+#system ("source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh\n") ; 
+#system ("eval \`scramv1 runtime -csh\`\n") ;  
+#system ("source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.csh\n") ; 
 system("rm -rf ".$OUTDIR) ;
 mkdir($OUTDIR, 0755) || die "Cannot mkdir newdir: $!";     
 print ("command: crab -create -cfg ".$CONFIGCRAB."\n") ;
