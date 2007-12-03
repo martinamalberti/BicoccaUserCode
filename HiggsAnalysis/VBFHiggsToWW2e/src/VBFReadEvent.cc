@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.30 2007/11/29 14:39:25 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.31 2007/12/03 10:57:38 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -25,8 +25,9 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_egHcalIsoConeSizeIn  (iConfig.getParameter<double>("intRadiusHI")), 
       m_egHcalIsoConeSizeOut  (iConfig.getParameter<double>("extRadiusHI")),
       // get flavour
-      m_jfi (iConfig.getParameter<edm::ParameterSet>("jetIdParameters")) 
-
+      m_jfi (iConfig.getParameter<edm::ParameterSet>("jetIdParameters")),
+      //rootfile for the tree
+      m_rootfile (iConfig.getUntrackedParameter<std::string> ("rootfile")) 
 {}
 
 
@@ -221,8 +222,8 @@ void
 VBFReadEvent::beginJob (const edm::EventSetup&)
 {
 
-    m_outfile  = new TFile ("prova.root", "RECREATE");
-    m_genTree = new TTree ("genTree","generatedParticles") ;
+    m_outfile  = new TFile (m_rootfile.c_str(), "RECREATE");
+    m_genTree = new TTree ("tree","generatedParticles") ;
     
     m_evtFlag = 0; // MC process ID
 

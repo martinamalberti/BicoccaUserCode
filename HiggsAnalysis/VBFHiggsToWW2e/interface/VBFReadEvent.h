@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.21 2007/11/29 14:39:25 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.22 2007/12/03 10:57:37 tancini Exp $
 //
 //
 
@@ -183,6 +183,7 @@ class VBFReadEvent : public edm::EDAnalyzer {
     
       TFile *m_outfile;
       TTree* m_genTree;
+      std::string m_rootfile;
 
       int m_evtFlag;
       TLorentzVector *m_genHiggs;
