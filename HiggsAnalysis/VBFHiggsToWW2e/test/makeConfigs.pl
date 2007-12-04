@@ -61,7 +61,7 @@ print CONFIGNAME "  double etMinHI = 0.0\n";
 print CONFIGNAME "  double intRadiusHI = 0.15\n"; 
 print CONFIGNAME "  double extRadiusHI = 0.3\n";
 
-print CONFIGNAME "  untracked string fileName = \"$OUTROOTREE\"\n";
+print CONFIGNAME "  untracked string rootfile = \"$OUTROOTREE\"\n";
   
 print CONFIGNAME "PSet jetIdParameters = {\n";
 print CONFIGNAME "        string mcSource = \"source\"\n";
@@ -109,8 +109,8 @@ print CONFIGNAMECRAB "[CMSSW]\n";
 print CONFIGNAMECRAB "datasetpath = $DATASETPATH\n";
 print CONFIGNAMECRAB "pset = $CONFIG\n";
 #print CONFIGNAMECRAB "total_number_of_events = 10000\n"; 
-print CONFIGNAMECRAB "events_per_job = 1000\n";
-print CONFIGNAMECRAB "number_of_jobs = 10\n";
+print CONFIGNAMECRAB "events_per_job = 2000\n"; #1000
+print CONFIGNAMECRAB "number_of_jobs = 10\n"; #10
 print CONFIGNAMECRAB "output_file = $OUTROOT\n";
 
 print CONFIGNAMECRAB "[USER]\n";

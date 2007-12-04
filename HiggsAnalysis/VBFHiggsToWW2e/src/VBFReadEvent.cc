@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.31 2007/12/03 10:57:38 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.32 2007/12/03 11:31:51 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -110,7 +110,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   //PG fetch the MC information
   const HepMC::GenEvent * Evt = evtMC->GetEvent();
-  int m_evtFlag = Evt->signal_process_id() ;
+  m_evtFlag = Evt->signal_process_id() ;
   if (m_evtFlag == 123 || m_evtFlag == 124)
     {
        findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
