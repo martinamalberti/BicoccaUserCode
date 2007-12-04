@@ -94,9 +94,17 @@ perl makeConfigs.pl WWf_higgsMass200 /H200_WW_2l/CMSSW_1_6_0-CSA07-2747/GEN-SIM-
 
 #ci sono solo tt alpgen per la 160!!!!!
 #/tt0j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO
-#/tt1j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-B3/GEN-SIM-DIGI-RAW non vedo RECO!!
+#/tt0j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-A1/GEN-SIM-DIGI-RAW
+
+#/tt1j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-B3/GEN-SIM-DIGI-RAW
+ 
 #/tt2j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO    
+#/tt2j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-A1/GEN-SIM-DIGI-RAW
+
 #/tt3j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO
+#/tt3j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-A1/GEN-SIM-DIGI-RAW
+
 #/tt4j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO 
+#/tt4j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-A1/GEN-SIM-DIGI-RAW
 
 #dy
