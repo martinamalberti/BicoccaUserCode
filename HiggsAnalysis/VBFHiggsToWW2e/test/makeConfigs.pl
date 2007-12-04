@@ -83,14 +83,14 @@ print CONFIGNAME "      untracked vstring fileNames = {\"file:/tmp/tancini/VBFsi
 print CONFIGNAME "}\n";
   
 # ---- saving the ouptut -----------------------------------------------------
-print CONFIGNAME "module saving = PoolOutputModule\n";
-print CONFIGNAME "{\n";
-print CONFIGNAME "      untracked string fileName = \"$OUTROOT\"\n";
-print CONFIGNAME "}\n";
+#print CONFIGNAME "module saving = PoolOutputModule\n";
+#print CONFIGNAME "{\n";
+#print CONFIGNAME "      untracked string fileName = \"$OUTROOT\"\n";
+#print CONFIGNAME "}\n";
 
 # ---- analysis paths ---------------------------------------------
 print CONFIGNAME "  path analysis = {electronId , my_VBFReadEvent}\n";
-print CONFIGNAME "  endpath save = {saving}\n";
+#print CONFIGNAME "  endpath save = {saving}\n";
 
 print CONFIGNAME "}\n";
 
@@ -109,9 +109,9 @@ print CONFIGNAMECRAB "[CMSSW]\n";
 print CONFIGNAMECRAB "datasetpath = $DATASETPATH\n";
 print CONFIGNAMECRAB "pset = $CONFIG\n";
 #print CONFIGNAMECRAB "total_number_of_events = 10000\n"; 
-print CONFIGNAMECRAB "events_per_job = 2000\n"; #1000
-print CONFIGNAMECRAB "number_of_jobs = 10\n"; #10
-print CONFIGNAMECRAB "output_file = $OUTROOT\n";
+print CONFIGNAMECRAB "events_per_job = 100\n"; #2000
+print CONFIGNAMECRAB "number_of_jobs = 1\n"; #10
+print CONFIGNAMECRAB "output_file = $OUTROOTREE\n";
 
 print CONFIGNAMECRAB "[USER]\n";
 print CONFIGNAMECRAB "publish_data = 0\n";
@@ -135,9 +135,9 @@ print CONFIGNAMECRAB "lfc_home = /grid/cms\n";
 ################################################################################
 ################################################################################
 
-#system ("source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh\n") ; 
-#system ("eval \`scramv1 runtime -csh\`\n") ;  
-#system ("source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.csh\n") ; 
+#system ("source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh\n") ; 
+#system ("eval \`scramv1 runtime -sh\`\n") ;  
+#system ("source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh\n") ; 
 system("rm -rf ".$OUTDIR) ;
 mkdir($OUTDIR, 0755) || die "Cannot mkdir newdir: $!";     
 print ("command: crab -create -cfg ".$CONFIGCRAB."\n") ;
