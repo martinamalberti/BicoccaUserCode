@@ -17,6 +17,8 @@
 #include "TH2.h"
 #include "TFile.h"
 
+#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
@@ -40,7 +42,9 @@ InvRingCalib::InvRingCalib (const edm::ParameterSet& iConfig) :
   m_usingBlockSolver(iConfig.getParameter<int>("usingBlockSolver")),
   m_loops (iConfig.getParameter<int>("loops")),
   m_startRing (iConfig.getParameter<int>("startRing")),
-  m_endRing (iConfig.getParameter<int>("endRing"))
+  m_endRing (iConfig.getParameter<int>("endRing")),
+  m_EBcoeffFile (iConfig.getParameter<std::string>("EBcoeffs")),
+  m_EEcoeffFile (iConfig.getParameter<std::string>("EEcoeffs"))
 {
  //controls if the parameters inputed are correct
  assert (m_etaStart >=-85 && m_etaStart <= 85);
@@ -137,6 +141,19 @@ InvRingCalib::beginOfJob (const edm::EventSetup& iSetup)
  EEMRing.Write();
  EEMRingReg.Write();
  out.Close();
+ edm::LogInfo ("IML") <<"[InvRingCalib] Start to acquire the coeffs";
+ CaloMiscalibMapEcal EBmap;
+ EBmap.prefillMap ();
+ MiscalibReaderFromXMLEcalBarrel barrelreader (EBmap);
+ if (!m_EBcoeffFile.empty()) barrelreader.parseXMLMiscalibFile (m_EBcoeffFile);
+ EcalIntercalibConstants costants (EBmap.get());
+ m_barrelMap = costants.getMap();
+ CaloMiscalibMapEcal EEmap ;   
+ EEmap.prefillMap ();
+ MiscalibReaderFromXMLEcalEndcap endcapreader (EEmap);
+ if (!m_EEcoeffFile.empty()) endcapreader.parseXMLMiscalibFile (m_EEcoeffFile) ;
+ EcalIntercalibConstants EEcostants (EEmap.get());
+ m_endcapMap = EEcostants.getMap();
 }
 
 //--------------------------------------------------------
@@ -267,7 +284,7 @@ for (std::vector<DetId>::const_iterator it=m_barrelCells.begin();
       ID= it->rawId();
       if (m_xtalRegionId[ID]==-1) continue;
       m_InterRings[m_xtalRing[ID]]= m_ecalCalibBlocks.at(m_xtalRegionId[ID]).at(m_RinginRegion[ID]);
-      coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]);
+      coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]*m_barrelMap[*it]);
      }
 for (std::vector<DetId>::const_iterator it=m_endcapCells.begin();
        it!=m_endcapCells.end();++it)
@@ -275,9 +292,11 @@ for (std::vector<DetId>::const_iterator it=m_endcapCells.begin();
      ID= it->rawId();
      if (m_xtalRegionId[ID]==-1) continue;
      m_InterRings[m_xtalRing[ID]]= m_ecalCalibBlocks.at(m_xtalRegionId[ID]).at(m_RinginRegion[ID]);
-     coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]);
+     coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]*m_endcapMap[*it]);
     }
-TFile out("coeffs.root","recreate");    
+char filename[80];
+sprintf(filename,"coeff%d.root",iCounter);
+TFile out(filename,"recreate");    
 coeffDistr.Write();
 out.Close();
 if (iCounter < m_loops-1 ) return kContinue ;
@@ -292,28 +311,20 @@ InvRingCalib::endOfJob ()
 {
 
  edm::LogInfo ("IML") << "[InvMatrixCalibLooper][endOfJob] saving calib coeffs" ;
-/* calibXMLwriter barrelWriter(EcalBarrel);
+ calibXMLwriter barrelWriter(EcalBarrel);
  calibXMLwriter endcapWriter(EcalEndcap);
  for (std::vector<DetId>::const_iterator barrelIt =m_barrelCells.begin(); 
        barrelIt!=m_barrelCells.end(); 
        ++barrelIt) {
-            EBDetId eb(*barrelIt);
-	    int leta = etaShifter(eb.ieta());
-	    int lphi = eb.iphi();
-//            double coeff = m_InterRings[leta]*m_EBRingRecalibFactor[leta][lphi] ; 
-	    barrelWriter.writeLine(eb,coeff);
+	    EBDetId eb (*barrelIt);
+	    barrelWriter.writeLine(eb,m_InterRings[m_xtalRing[eb.rawId()]]*m_barrelMap[eb]);
           }
  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin();
      endcapIt!=m_endcapCells.end();
      ++endcapIt) {
-            EEDetId ee(*endcapIt);
-	    int ix = ee.ix()-1;
-	    int iy = ee.iy()-1;
-            double coeff;
-//            coeff = m_EEPRingRecalibFactor[ix][iy]*m_InterRings[m_xtalRegionId[ee.rawId()]];
-	  endcapWriter.writeLine(ee,coeff);
+	  EEDetId ee (*endcapIt);
+	  endcapWriter.writeLine(ee,m_InterRings[m_xtalRing[ee.rawId()]]*m_endcapMap[ee]);
 	}
-*/
 }
 
 
@@ -359,6 +370,7 @@ void InvRingCalib::fillEBMap (EBDetId EBmax,
 	      continue;
 	      }
     //corrects the energy with the calibration coeff of the ring
+     dummy *= m_barrelMap[det];
      dummy *= m_InterRings[m_xtalRing[ID]]; 
      //sums the energy of the xtal to the appropiate ring
      if (m_xtalRegionId[ID]==EBNumberOfRegion)
@@ -396,6 +408,7 @@ void InvRingCalib::fillEEMap (EEDetId EEmax,
 	   <<"EE xtal "<<det.ix()<<" "<<det.iy()<<"  Energy= "<< dummy;
         continue; 
    }
+   dummy *= m_endcapMap[det];
    dummy *= m_InterRings[m_xtalRing[ID]];
    if (m_xtalRegionId[ID]==EENumberOfRegion)
       EExtlMap[m_RinginRegion[ID]] += dummy;

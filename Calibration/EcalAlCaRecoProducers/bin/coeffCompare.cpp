@@ -1,5 +1,4 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"

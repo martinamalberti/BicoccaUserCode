@@ -2,8 +2,8 @@
   * \file InvRingCalib.h
   * \class InvRingCalib
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2007/11/26 14:23:15 $
-  * $Revision: 1.2 $
+  * $Date: 2007/12/02 21:42:42 $
+  * $Revision: 1.3 $
   * \author 
   *
 */
@@ -20,7 +20,11 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "Calibration/Tools/interface/calibXMLwriter.h"
 
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include <iostream>
@@ -108,6 +112,9 @@ class InvRingCalib : public edm::EDLooper {
     std::map<int,int> m_cellPhi;
     //!association map between coeff and ring 
     std::map <int,double> m_InterRings;
+    //!coeffs for the single xtals
+    EcalIntercalibConstants::EcalIntercalibConstantMap m_barrelMap;
+    EcalIntercalibConstants::EcalIntercalibConstantMap m_endcapMap;
     //! LP sets the number of loops to do
     int m_loops ;
     //! LP define the EE region to calibrate
@@ -122,6 +129,9 @@ class InvRingCalib : public edm::EDLooper {
     //! geometry things used all over the file
     std::vector<DetId> m_barrelCells;
     std::vector<DetId> m_endcapCells;
+    //!coeffs filenames
+    std::string m_EBcoeffFile;
+    std::string m_EEcoeffFile;
 };
 #endif
 #endif
