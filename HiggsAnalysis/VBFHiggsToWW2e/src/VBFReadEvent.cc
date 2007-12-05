@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.33 2007/12/04 12:43:35 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.34 2007/12/05 10:58:13 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 
@@ -140,8 +140,15 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
           new (muPart4Mom[counter]) TLorentzVector (get4momentum (*mu));
 		  new (muPartPos[counter]) TVector3 (getVtx (*mu));
 		  m_recoMuonCharge -> push_back (mu->charge());
-	  }  
+		  m_recoMuonR03_sumPt -> push_back (mu->getIsolationR03().sumPt);
+	      m_recoMuonR03_emEt -> push_back (mu->getIsolationR03().emEt);
+	      m_recoMuonR03_hadEt -> push_back (mu->getIsolationR03().hadEt);
+	      m_recoMuonR03_hoEt -> push_back (mu->getIsolationR03().hoEt);
+	      m_recoMuonR03_nTracks -> push_back (mu->getIsolationR03().nTracks);
+	      m_recoMuonR03_nJets -> push_back (mu->getIsolationR03().nJets);
 
+	  }  
+	  
   //////////////////////////////////////// reco electrons			 
 
   TClonesArray &elePart4Mom = *m_recoEle4Momentum;
@@ -237,10 +244,16 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
    m_recoEleCalIsoVal->clear ();
    m_recoEleClass->clear ();
    m_recoEleCutBasedID->clear ();
+   m_recoEleCharge->clear ();         
    m_genJetFlavour->clear ();
    m_recoJetFlavour->clear ();
    m_recoMuonCharge->clear ();
-   m_recoEleCharge->clear ();         
+   m_recoMuonR03_sumPt->clear ();
+   m_recoMuonR03_emEt->clear ();
+   m_recoMuonR03_hadEt->clear ();
+   m_recoMuonR03_hoEt->clear ();
+   m_recoMuonR03_nTracks->clear ();
+   m_recoMuonR03_nJets->clear ();
 }
 // --------------------------------------------------------------------
 
@@ -274,6 +287,12 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_recoMuon4Momentum = new TClonesArray ("TLorentzVector");
 	m_recoMuonTrkPositionAtVtx = new TClonesArray ("TVector3");
 	m_recoMuonCharge = new std::vector<int>;
+	m_recoMuonR03_sumPt = new std::vector<double>;
+    m_recoMuonR03_emEt = new std::vector<double>;
+    m_recoMuonR03_hadEt = new std::vector<double>;
+    m_recoMuonR03_hoEt = new std::vector<double>;
+    m_recoMuonR03_nTracks = new std::vector<int>;
+    m_recoMuonR03_nJets = new std::vector<int>;
     
     //reco electrons
     m_numberGSF = 0;
@@ -320,6 +339,12 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("genqTagB_Flavour", &m_genqTagB_Flavour, "m_genqTagB_Flavour/I");
 	
 	m_genTree->Branch ("numberGlobMuons", &m_numberGlobMuons, "m_numberGlobMuons/I");
+	m_genTree->Branch ("recoMuonR03_sumPt", &m_recoMuonR03_sumPt);
+    m_genTree->Branch ("recoMuonR03_emEt", &m_recoMuonR03_emEt);
+    m_genTree->Branch ("recoMuonR03_hadEt", &m_recoMuonR03_hadEt);
+    m_genTree->Branch ("recoMuonR03_hoEt", &m_recoMuonR03_hoEt);
+    m_genTree->Branch ("recoMuonR03_nTracks", &m_recoMuonR03_nTracks);
+    m_genTree->Branch ("recoMuonR03_nJets", &m_recoMuonR03_nJets);
     m_genTree->Branch ("recoMuon4Momentum", "TClonesArray", &m_recoMuon4Momentum, 256000,0);
 	m_genTree->Branch ("recoMuonTrkPositionAtVtx", "TClonesArray", &m_recoMuonTrkPositionAtVtx, 256000,0);
 	m_genTree->Branch ("recoMuonCharge", &m_recoMuonCharge);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.23 2007/12/03 11:31:50 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.24 2007/12/05 10:58:14 tancini Exp $
 //
 //
 
@@ -220,6 +220,12 @@ class VBFReadEvent : public edm::EDAnalyzer {
       TClonesArray *m_recoMuon4Momentum;
 	  TClonesArray *m_recoMuonTrkPositionAtVtx;
 	  std::vector<int> *m_recoMuonCharge;
+	  std::vector<double> *m_recoMuonR03_sumPt;
+      std::vector<double> *m_recoMuonR03_emEt;
+      std::vector<double> *m_recoMuonR03_hadEt;
+      std::vector<double> *m_recoMuonR03_hoEt;
+      std::vector<int> *m_recoMuonR03_nTracks;
+      std::vector<int> *m_recoMuonR03_nJets;
     
       int m_numberGenJet;
       TClonesArray *m_genJet4Momentum;
