@@ -36,9 +36,10 @@ void FakeRateHadIsolation::select(edm::Handle<reco::PixelMatchGsfElectronCollect
 
   //get the HCAL rechit collection
   edm::Handle<HBHERecHitCollection> hbhe;
-  HBHERecHitMetaCollection *mhbhe = 0;
   e.getByLabel(hcalrhitsLabel_, hbhe);//getByType(hbhe);  
-  mhbhe =  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
+//  HBHERecHitMetaCollection *mhbhe = 0;
+//  mhbhe =  &HBHERecHitMetaCollection(*hbhe);  //FIXME, generates warning
+  HBHERecHitMetaCollection mhbhe = HBHERecHitMetaCollection(*hbhe);  
 
   //services
   //get calo geometry
@@ -48,7 +49,7 @@ void FakeRateHadIsolation::select(edm::Handle<reco::PixelMatchGsfElectronCollect
 
   for(int i = 0 ; i < c->size(); ++i) 
    {
-    HadIsolation myHadIsolation(theCaloGeom_,mhbhe,&((*c)[i])) ;
+    HadIsolation myHadIsolation(theCaloGeom_,&mhbhe,&((*c)[i])) ;
     myHadIsolation.setExtRadius (radiusConeExt_) ; 
     myHadIsolation.setEtLow (eTMin_) ;
 //    double isoValue = myHadIsolation.getEtHadClusters() ;
