@@ -1,6 +1,9 @@
-// $Id: VBFReadEvent.cc,v 1.34 2007/12/05 10:58:13 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.35 2007/12/05 13:27:10 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
+//#include "DataFormats/EgammaCandidates/interface/Electron.h"
+//#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
+//#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
 
 VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) ,
@@ -9,6 +12,10 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_genJetInputTag (iConfig.getParameter<edm::InputTag> ("genJetInputTag")) ,
       m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
       m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
+	  //m_siElectronProducer (iConfig.getParameter<std::string> ("siElectronProducer")), //...
+      //m_siElectronCollection (iConfig.getParameter<std::string> ("siElectronCollection")), //...
+	  //m_electronProducer (iConfig.getParameter<std::string> ("electronProducer")),//...
+      //m_electronCollection (iConfig.getParameter<std::string> ("electronCollection")),//...
       m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")) ,
       m_MC (iConfig.getParameter<edm::InputTag> ("MC")) ,
       m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")),
@@ -68,6 +75,14 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //PG get the gen jet collection
   edm::Handle<reco::GenJetCollection> genJetCollectionHandle;
   iEvent.getByLabel (m_genJetInputTag, genJetCollectionHandle);
+
+  //VT get the SiStrip Electrons Collection
+  //edm::Handle<reco::SiStripElectronCollection> siStripElectronHandle;
+  //iEvent.getByLabel (m_siElectronProducer, m_siElectronCollection, siStripElectronHandle);
+  
+  //VT get the Electrons Collection
+  //edm::Handle<reco::ElectronCollection> electrons ;
+  //iEvent.getByLabel (m_electronProducer, m_electronCollection, electrons);
 
   //PG get the GSF electrons collection
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle;
@@ -305,7 +320,6 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_recoEleClass = new std::vector<int>;
     m_recoEleCutBasedID = new std::vector<int>;
 	m_recoEleCharge = new std::vector<int>;
-
   
     // gen jets
     m_numberGenJet = 0;

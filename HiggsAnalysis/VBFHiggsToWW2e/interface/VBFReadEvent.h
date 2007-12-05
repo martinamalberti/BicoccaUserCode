@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.24 2007/12/05 10:58:14 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.25 2007/12/05 13:27:11 tancini Exp $
 //
 //
 
@@ -167,6 +167,10 @@ class VBFReadEvent : public edm::EDAnalyzer {
       edm::InputTag m_genJetInputTag;
       edm::InputTag m_GSFInputTag;
       edm::InputTag m_electronIDInputTag;
+	  //std::string m_siElectronProducer;
+      //std::string m_siElectronCollection;
+	  //std::string m_electronProducer;
+	  //std::string m_electronCollection;
       edm::InputTag m_MCtruthInputTag;
       edm::InputTag m_MC;
       edm::InputTag m_muInputTag;
