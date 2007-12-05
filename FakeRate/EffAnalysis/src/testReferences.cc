@@ -101,6 +101,9 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[10]/D" ); 
     m_minitree->Branch("jetEta",m_jetEta ,"jetEta[10]/D");
     m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[10]/D");
+    m_minitree->Branch("jetPTMatch" ,m_jetPTMatch  ,"jetPTMatch[10]/D" ); 
+    m_minitree->Branch("jetEtaMatch",m_jetEtaMatch ,"jetEtaMatch[10]/D");
+    m_minitree->Branch("jetPhiMatch",m_jetPhiMatch ,"jetPhiMatch[10]/D");
     m_minitree->Branch("jetmaxPT" ,m_jetmaxPT  ,"jetmaxPT[10]/D" ); 
     m_minitree->Branch("jetmaxEta",m_jetmaxEta ,"jetmaxEta[10]/D");
     m_minitree->Branch("jetmaxPhi",m_jetmaxPhi ,"jetmaxPhi[10]/D");
@@ -151,6 +154,12 @@ void testReferences::analyze (const edm::Event& iEvent,
     *m_genMet4Momentum = TLorentzVector (0.0,0.0,0.0,0.0) ;   
     *m_recoMet4Momentum = TLorentzVector (0.0,0.0,0.0,0.0) ; 
    //PG reset the variables
+   for (int ii = 0 ; ii < 30 ; ++ii)
+     { 
+        m_jetPTMatch[ii] = 0 ;  
+        m_jetEtaMatch[ii] = 0 ; 
+        m_jetPhiMatch[ii] = 0 ; 
+     }
    for (int ii = 0 ; ii < 10 ; ++ii)
      { 
         m_rawBit[ii] = 0;
@@ -228,6 +237,21 @@ void testReferences::analyze (const edm::Event& iEvent,
    HepMC::GenEvent * generated_event = new HepMC::GenEvent (*(evtHandle->GetEvent ())) ;
    //int ff[7] ;
    //fillComponentsVector (generated_event,ff) ;
+
+   //Loop over jet collection
+   int ii = 0;
+   for (reco::CaloJetCollection::const_iterator iterJet = jetHandle->begin () ;
+                                                iterJet!= jetHandle->end () ; 
+                                                ++iterJet)
+     {      
+       if (ii < 30)
+        {
+          m_jetPT[ii]  = iterJet->pt () ;
+          m_jetEta[ii] = iterJet->eta () ;
+          m_jetPhi[ii] = iterJet->phi () ;
+          ++ii ;
+        }
+     }
    
    m_ptHat = generated_event->event_scale();
    m_eleNum = rawGSFHandle->size () ;
@@ -295,9 +319,12 @@ void testReferences::analyze (const edm::Event& iEvent,
       
       } //end fo the match
 
-     m_jetPT[i]  = jetPT ;
-     m_jetEta[i] = jetEta ;
-     m_jetPhi[i] = jetPhi ;
+//     m_jetPT[i]  = jetPT ;
+//     m_jetEta[i] = jetEta ;
+//     m_jetPhi[i] = jetPhi ;
+     m_jetPTMatch[i]  = jetPT ;
+     m_jetEtaMatch[i] = jetEta ;
+     m_jetPhiMatch[i] = jetPhi ;
      m_jetmaxPT[i]  = jetmaxPT ;
      m_jetmaxEta[i] = jetmaxEta ;
      m_jetmaxPhi[i] = jetmaxPhi ;

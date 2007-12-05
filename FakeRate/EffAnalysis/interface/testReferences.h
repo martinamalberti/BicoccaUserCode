@@ -75,7 +75,10 @@ class testReferences : public edm::EDAnalyzer
    int m_eleCharge[10] ; 
    double m_jetPT[10] ;  
    double m_jetEta[10] ; 
-   double m_jetPhi[10] ; 
+   double m_jetPhi[10] ;    
+   double m_jetPTMatch[10] ;  
+   double m_jetEtaMatch[10] ; 
+   double m_jetPhiMatch[10] ; 
    double m_jetmaxPT[10] ;  
    double m_jetmaxEta[10] ; 
    double m_jetmaxPhi[10] ; 
