@@ -3,7 +3,6 @@
 #### i dati filtrati sono in $OUTROOT e vanno copiati in /castor
 
 $SAMPLE = $ARGV[0] ;
-$OUTROOT =  $SAMPLE.".root" ;
 $OUTROOTREE =  $SAMPLE."_tree.root" ;
 $DATASETPATH = $ARGV[1] ;
 $CONFIG = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_0/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE.".cfg";
@@ -35,6 +34,13 @@ print CONFIGNAME "service = MessageLogger {}\n";
 # ---- electron ID modules  --------------------------------------
 print CONFIGNAME "include \"EgammaAnalysis/ElectronIDProducers/data/electronId.cfi\"\n";
 
+# ---- muons
+print CONFIGNAME "include \"Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi\"\n"; 
+print CONFIGNAME "include \"Geometry/CommonDetUnit/data/globalTrackingGeometry.cfi\"\n";
+print CONFIGNAME "include \"RecoMuon/DetLayers/data/muonDetLayerGeometry.cfi\"\n";
+print CONFIGNAME "include \"Geometry/MuonNumbering/data/muonNumberingInitialization.cfi\"\n";
+print CONFIGNAME "include \"RecoMuon/TrackingTools/data/MuonServiceProxy.cff\"\n";
+
 print CONFIGNAME "module my_VBFReadEvent  = VBFReadEvent  {\n";
 
 print CONFIGNAME "  InputTag metInputTag = met\n";
@@ -45,7 +51,7 @@ print CONFIGNAME "  InputTag GSFInputTag  = pixelMatchGsfElectrons\n";
 print CONFIGNAME "  InputTag eleIDInputTag  = electronId\n";
 print CONFIGNAME "  InputTag MCtruthInputTag = genParticleCandidates\n";
 print CONFIGNAME "  InputTag MC = source\n";
-print CONFIGNAME "  InputTag muInputTag = globalMuons\n";
+print CONFIGNAME "  InputTag muInputTag = muons\n";
 print CONFIGNAME "  InputTag trackInputTag = ctfWithMaterialTracks\n";
 print CONFIGNAME "  InputTag hcalRecHitProducer = hbhereco\n";
 print CONFIGNAME "  InputTag emObjectProducer =  pixelMatchGsfElectrons\n";
@@ -109,17 +115,17 @@ print CONFIGNAMECRAB "[CMSSW]\n";
 print CONFIGNAMECRAB "datasetpath = $DATASETPATH\n";
 print CONFIGNAMECRAB "pset = $CONFIG\n";
 #print CONFIGNAMECRAB "total_number_of_events = 10000\n"; 
-print CONFIGNAMECRAB "events_per_job = 100\n"; #2000
-print CONFIGNAMECRAB "number_of_jobs = 1\n"; #10
+print CONFIGNAMECRAB "events_per_job = 2000\n"; #2000
+print CONFIGNAMECRAB "number_of_jobs = 10\n"; #10
 print CONFIGNAMECRAB "output_file = $OUTROOTREE\n";
 
 print CONFIGNAMECRAB "[USER]\n";
 print CONFIGNAMECRAB "publish_data = 0\n";
-#print CONFIGNAMECRAB "return_data = 1\n";
+#print CONFIGNAMECRAB "return_data = 1\n";#comment if copy to castor
 print CONFIGNAMECRAB "use_central_bossDB = 0\n";
 print CONFIGNAMECRAB "use_boss_rt = 1\n";
 print CONFIGNAMECRAB "ui_working_dir = $OUTDIR\n";
-print CONFIGNAMECRAB "copy_data = 1\n"; 
+print CONFIGNAMECRAB "copy_data = 1\n"; #1 per copiare su castor  0 per non
 print CONFIGNAMECRAB "storage_element = srm.cern.ch\n"; 
 print CONFIGNAMECRAB "storage_path = /castor/cern.ch/user/t/tancini/crab\n"; 
 
