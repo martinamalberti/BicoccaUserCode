@@ -180,124 +180,44 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_eleNum = -1 ;
      }
 
-   //take the collections
-   typedef edm::RefVector<reco::PixelMatchGsfElectronCollection> GSFRefColl ;
-   edm::Handle<PixelMatchGsfElectronCollection> rawGSFHandle ;
-   edm::Handle<GSFRefColl> ambiguityHandle ;
-   edm::Handle<GSFRefColl> tkIsoHandle ;
-   edm::Handle<GSFRefColl> hadIsoHandle ;
-   edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
-   edm::Handle<reco::ElectronIDAssociationCollection> electronIDLooseAssocHandle;
-   edm::Handle<reco::ElectronIDAssociationCollection> electronIDTightAssocHandle;
-   edm::Handle<reco::CaloJetCollection> jetHandle;
-   edm::Handle<HepMCProduct> evtHandle;
+  //take the collections
+  typedef edm::RefVector<reco::PixelMatchGsfElectronCollection> GSFRefColl ;
+  edm::Handle<PixelMatchGsfElectronCollection> rawGSFHandle ;
+  iEvent.getByLabel (m_rawGSFInputTag,rawGSFHandle) ; 
+  edm::Handle<GSFRefColl> ambiguityHandle ;
+  iEvent.getByLabel (m_ambiguityInputTag,ambiguityHandle) ; 
+  edm::Handle<GSFRefColl> tkIsoHandle ;
+  iEvent.getByLabel (m_tkIsoInputTag,tkIsoHandle) ; 
+  edm::Handle<GSFRefColl> hadIsoHandle ;
+  iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
+  edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
+  iEvent.getByLabel (m_eleIdInputTag, electronIDAssocHandle);
+  edm::Handle<reco::ElectronIDAssociationCollection> electronIDLooseAssocHandle;
+  iEvent.getByLabel (m_eleIdLooseInputTag, electronIDLooseAssocHandle);
+  edm::Handle<reco::ElectronIDAssociationCollection> electronIDTightAssocHandle;
+  iEvent.getByLabel (m_eleIdTightInputTag, electronIDTightAssocHandle);
+  edm::Handle<reco::CaloJetCollection> jetHandle;
+  iEvent.getByLabel (m_jetInputTag, jetHandle);
+  edm::Handle<HepMCProduct> evtHandle;
+  iEvent.getByLabel (m_evtInputTag, evtHandle);
 
-   //PG FIXME togliere i try and catch
-   try {
-     iEvent.getByLabel (m_rawGSFInputTag,rawGSFHandle) ; 
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_rawGSFInputTag << " " << std::endl ; 
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_ambiguityInputTag,ambiguityHandle) ; 
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_ambiguityInputTag << " " << std::endl ;
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_tkIsoInputTag,tkIsoHandle) ; 
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_tkIsoInputTag << " " << std::endl ;
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_hadIsoInputTag << " " << std::endl ;
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_eleIdInputTag, electronIDAssocHandle);
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_eleIdInputTag << " normal " << std::endl ;
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_eleIdLooseInputTag, electronIDLooseAssocHandle);
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_eleIdLooseInputTag << " loose " << std::endl ;
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_eleIdTightInputTag, electronIDTightAssocHandle);
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_eleIdTightInputTag << " tight " << std::endl ;
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_jetInputTag, jetHandle);
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_jetInputTag << " " << std::endl ;
-     return ;           
-   }
-   try {
-     iEvent.getByLabel (m_evtInputTag, evtHandle);
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_evtInputTag << " " << std::endl ;
-     return ;           
-   }
+  edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
+  iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
+  const CaloMETCollection *calometcol = metCollectionHandle.product();
+  const CaloMET *calomet = &(calometcol->front());  
+  m_recoMet4Momentum->SetPx (calomet->px ()) ;
+  m_recoMet4Momentum->SetPy (calomet->py ()) ;
+  m_recoMet4Momentum->SetPz (calomet->pz ()) ;
+  m_recoMet4Momentum->SetE  (calomet->energy ()) ;
 
-   //PG get the MET
-   try {
-     edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
-     iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
-     const CaloMETCollection *calometcol = metCollectionHandle.product();
-     const CaloMET *calomet = &(calometcol->front());  
-     m_recoMet4Momentum->SetPx (calomet->px ()) ;
-     m_recoMet4Momentum->SetPy (calomet->py ()) ;
-     m_recoMet4Momentum->SetPz (calomet->pz ()) ;
-     m_recoMet4Momentum->SetE  (calomet->energy ()) ;
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_evtInputTag << " " << std::endl ;
-     return ;           
-   }
-
-   try {
-     edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
-     iEvent.getByLabel (m_genMetInputTag, genMetCollectionHandle) ;
-     const GenMETCollection *genmetcol = genMetCollectionHandle.product () ;
-     const GenMET *genmet = &(genmetcol->front ()) ;
-     m_genMet4Momentum->SetPx (genmet->px ()) ;
-     m_genMet4Momentum->SetPy (genmet->py ()) ;
-     m_genMet4Momentum->SetPz (genmet->pz ()) ;
-     m_genMet4Momentum->SetE  (genmet->energy ()) ;
-   } catch ( cms::Exception& ex )
-   {
-     std::cerr << ex.what () << std::endl ; 
-     std::cerr << "DEBUG skip evt because " << m_evtInputTag << " " << std::endl ;
-     return ;           
-   }
+  edm::Handle<reco::GenMETCollection> genMetCollectionHandle ;
+  iEvent.getByLabel (m_genMetInputTag, genMetCollectionHandle) ;
+  const GenMETCollection *genmetcol = genMetCollectionHandle.product () ;
+  const GenMET *genmet = &(genmetcol->front ()) ;
+  m_genMet4Momentum->SetPx (genmet->px ()) ;
+  m_genMet4Momentum->SetPy (genmet->py ()) ;
+  m_genMet4Momentum->SetPz (genmet->pz ()) ;
+  m_genMet4Momentum->SetE  (genmet->energy ()) ;
 
    typedef reco::PixelMatchGsfElectron Object ;
    typedef reco::PixelMatchGsfElectronRef Ref ;
