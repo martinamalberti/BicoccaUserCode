@@ -277,27 +277,39 @@ for (std::vector<EcalCalibBlock>::iterator calibBlock=m_ecalCalibBlocks.begin();
 		calibBlock->solve(m_usingBlockSolver,m_minCoeff,m_maxCoeff);
 edm::LogInfo("IML") << "[InvRingLooper][endOfLoop] Starting to write the coeffs";
 TH1F coeffDistr ("coeffdistr","coeffdistr",100 ,0.7,1.4);
+TH1F coeffMap ("coeffRingMap","coeffRingMap",248,0,248);
 int ID;
+std::map<int,int> flag;
+for(std::map<int,int>::const_iterator it=m_xtalRing.begin();
+      it!=m_xtalRing.end();++it)
+         flag[it->second]=0;
 for (std::vector<DetId>::const_iterator it=m_barrelCells.begin();
        it!=m_barrelCells.end();++it)
      { 
       ID= it->rawId();
       if (m_xtalRegionId[ID]==-1) continue;
+      if (flag[m_xtalRing[ID]]) continue;
+      flag[m_xtalRing[ID]] =1;
       m_InterRings[m_xtalRing[ID]]= m_ecalCalibBlocks.at(m_xtalRegionId[ID]).at(m_RinginRegion[ID]);
-      coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]*m_barrelMap[*it]);
+      coeffMap.Fill (m_xtalRing[ID],m_InterRings[m_xtalRing[ID]]);
+      coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]);
      }
 for (std::vector<DetId>::const_iterator it=m_endcapCells.begin();
        it!=m_endcapCells.end();++it)
     { 
      ID= it->rawId();
      if (m_xtalRegionId[ID]==-1) continue;
+     if (flag[m_xtalRing[ID]]) continue;
+     flag[m_xtalRing[ID]]= 1;
      m_InterRings[m_xtalRing[ID]]= m_ecalCalibBlocks.at(m_xtalRegionId[ID]).at(m_RinginRegion[ID]);
-     coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]*m_endcapMap[*it]);
+     coeffMap.Fill (m_xtalRing[ID],m_InterRings[m_xtalRing[ID]]);
+     coeffDistr.Fill(m_InterRings[m_xtalRing[ID]]);
     }
 char filename[80];
 sprintf(filename,"coeff%d.root",iCounter);
 TFile out(filename,"recreate");    
 coeffDistr.Write();
+coeffMap.Write();
 out.Close();
 if (iCounter < m_loops-1 ) return kContinue ;
 else return kStop; 
