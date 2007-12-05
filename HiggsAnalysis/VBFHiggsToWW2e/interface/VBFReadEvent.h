@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.22 2007/12/03 10:57:37 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.23 2007/12/03 11:31:50 tancini Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "CLHEP/HepMC/GenEvent.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 
@@ -117,20 +118,21 @@ class VBFReadEvent : public edm::EDAnalyzer {
   public:
     
       //! ctor
-      explicit VBFReadEvent (const edm::ParameterSet&) ;
+      explicit VBFReadEvent (const edm::ParameterSet&);
       //! dtor
-      ~VBFReadEvent () ;
+      ~VBFReadEvent ();
 
    private:
 
-      virtual void beginJob (const edm::EventSetup&) ;
-      virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
-      virtual void endJob () ;
-      void setMomentum (TLorentzVector & vector, const reco::Candidate & gen) ;
-      TLorentzVector get4momentum (const Candidate & gen) ;
+      virtual void beginJob (const edm::EventSetup&);
+      virtual void analyze (const edm::Event&, const edm::EventSetup&);
+      virtual void endJob ();
+      void setMomentum (TLorentzVector & vector, const reco::Candidate & gen);
+      TLorentzVector get4momentum (const Candidate & gen);
+	  TVector3 getVtx (const Candidate & gen);
     
-      TVector3 getTrackMomentumAtVtx (const reco::PixelMatchGsfElectron & ele) ;
-      TVector3 getTrackPositionAtVtx (const reco::PixelMatchGsfElectron & ele) ;
+      TVector3 getTrackMomentumAtVtx (const reco::PixelMatchGsfElectron & ele);
+      TVector3 getTrackPositionAtVtx (const reco::PixelMatchGsfElectron & ele);
       void findGenParticles (edm::Handle<CandidateCollection> &genParticles,
                                          TLorentzVector &m_genHiggs,
                                          TLorentzVector &m_genWm,
@@ -142,7 +144,7 @@ class VBFReadEvent : public edm::EDAnalyzer {
                                          TLorentzVector &m_genqTagF,
                                          TLorentzVector &m_genqTagB,
 					 int & m_genqTagF_Flavour,
-				         int & m_genqTagB_Flavour) ;
+				         int & m_genqTagB_Flavour);
 
       void setZero (TLorentzVector &m_genHiggs,
 	 	   TLorentzVector &m_genWm,
@@ -152,34 +154,37 @@ class VBFReadEvent : public edm::EDAnalyzer {
 		   TLorentzVector &m_genMetPlus,
 		   TLorentzVector &m_genMetMinus,
 		   TLorentzVector &m_genqTagF,
-	    	   TLorentzVector &m_genqTagB,
-	            int & m_genqTagF_Flavour,
-		    int & m_genqTagB_Flavour);
+		   TLorentzVector &m_genqTagB,
+		   int & m_genqTagF_Flavour,
+		   int & m_genqTagB_Flavour);
     
 
    private:
 
-      edm::InputTag m_metInputTag ;
-      edm::InputTag m_genMetInputTag ;
-      edm::InputTag m_jetInputTag ;
-      edm::InputTag m_genJetInputTag ;
-      edm::InputTag m_GSFInputTag ;
-      edm::InputTag m_electronIDInputTag ;
-      edm::InputTag m_MCtruthInputTag ;
-      edm::InputTag m_MC ;
-      edm::InputTag m_muInputTag ;
-      edm::InputTag m_trackInputTag ;
-      edm::InputTag m_hcalRecHitProducer ;
-      edm::InputTag m_emObjectProducer ;
-    
-      double m_ptMin ;
-      double m_intRadius ;
-      double m_extRadius ;
-      double m_maxVtxDist ;
-
-      double m_egHcalIsoPtMin ;
-      double m_egHcalIsoConeSizeIn ; 
-      double m_egHcalIsoConeSizeOut ;
+      edm::InputTag m_metInputTag;
+      edm::InputTag m_genMetInputTag;
+      edm::InputTag m_jetInputTag;
+      edm::InputTag m_genJetInputTag;
+      edm::InputTag m_GSFInputTag;
+      edm::InputTag m_electronIDInputTag;
+      edm::InputTag m_MCtruthInputTag;
+      edm::InputTag m_MC;
+      edm::InputTag m_muInputTag;
+      edm::InputTag m_trackInputTag;
+	  
+	  double m_ptMin;
+      double m_intRadius;
+      double m_extRadius;
+      double m_maxVtxDist;
+	  
+      edm::InputTag m_hcalRecHitProducer;
+      edm::InputTag m_emObjectProducer;
+	  double m_egHcalIsoPtMin;
+	  double m_egHcalIsoConeSizeIn; 
+      double m_egHcalIsoConeSizeOut;
+	  
+	  //Jet Flavour Identifier from BTau
+      JetFlavourIdentifier m_jfi;  
     
       TFile *m_outfile;
       TTree* m_genTree;
@@ -196,35 +201,38 @@ class VBFReadEvent : public edm::EDAnalyzer {
       TLorentzVector *m_genqTagF;
       TLorentzVector *m_genqTagB;
       int m_LepPlusFlavour;
-      int m_LepMinusFlavour;
+      int m_LepMinusFlavour; 
       int m_genqTagF_Flavour;
       int m_genqTagB_Flavour;
     
       int m_numberGSF;
       TClonesArray *m_recoEle4Momentum;
-      TClonesArray *m_recoEleTrkMomentumAtVtx ;
-      TClonesArray *m_recoEleTrkPositionAtVtx ;
-      std::vector<double> *m_recoEleEcalEnergy ;
-      std::vector<double> *m_recoEleTrkIsoVal ;
-      std::vector<double> *m_recoEleCalIsoVal ;
-      std::vector<int> *m_recoEleClass ;
-      std::vector<int> *m_recoEleCutBasedID ;
+      TClonesArray *m_recoEleTrkMomentumAtVtx;
+      TClonesArray *m_recoEleTrkPositionAtVtx;
+      std::vector<double> *m_recoEleEcalEnergy;
+      std::vector<double> *m_recoEleTrkIsoVal;
+      std::vector<double> *m_recoEleCalIsoVal;
+      std::vector<int> *m_recoEleClass;
+      std::vector<int> *m_recoEleCutBasedID;
+	  std::vector<int> *m_recoEleCharge;
+	  
+	  int m_numberGlobMuons;
+      TClonesArray *m_recoMuon4Momentum;
+	  TClonesArray *m_recoMuonTrkPositionAtVtx;
+	  std::vector<int> *m_recoMuonCharge;
     
       int m_numberGenJet;
       TClonesArray *m_genJet4Momentum;
-      std::vector<int> *m_genJetFlavour ;    
+      std::vector<int> *m_genJetFlavour;    
     
       int m_numberJet;
       TClonesArray *m_recoJet4Momentum;
-      std::vector<int> *m_recoJetFlavour ;     
+      std::vector<int> *m_recoJetFlavour;     
     
       TLorentzVector *m_genMet4Momentum;    
     
       TLorentzVector *m_recoMet4Momentum; 
-      
-      //Jet Flavour Identifier from BTau
-      JetFlavourIdentifier m_jfi ;   
     
-} ;
+};
 
 #endif

@@ -15,6 +15,8 @@
 <use name=AnalysisDataFormats/Egamma>
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/MuonReco>
+<use name=RecoMuon/MuonIsolation>
 <use name=RecoBTag/MCTools>
 <flags EDM_PLUGIN=1>
 <export>
@@ -36,5 +38,7 @@
    <use name=AnalysisDataFormats/Egamma>
    <use name=PhysicsTools/UtilAlgos>
    <use name=DataFormats/EgammaCandidates>
+   <use name=DataFormats/MuonReco>
+   <use name=RecoMuon/MuonIsolation>
    <use name=RecoBTag/MCTools>
 </export>
