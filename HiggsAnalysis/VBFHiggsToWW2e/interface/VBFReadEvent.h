@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.25 2007/12/05 13:27:11 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.26 2007/12/05 15:35:48 tancini Exp $
 //
 //
 
@@ -143,8 +143,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
                                          TLorentzVector &m_genMetMinus,
                                          TLorentzVector &m_genqTagF,
                                          TLorentzVector &m_genqTagB,
-					 int & m_genqTagF_Flavour,
-				         int & m_genqTagB_Flavour);
+										 int & m_genqTagF_Flavour,
+										 int & m_genqTagB_Flavour);
 
       void setZero (TLorentzVector &m_genHiggs,
 	 	   TLorentzVector &m_genWm,
@@ -157,7 +157,8 @@ class VBFReadEvent : public edm::EDAnalyzer {
 		   TLorentzVector &m_genqTagB,
 		   int & m_genqTagF_Flavour,
 		   int & m_genqTagB_Flavour);
-    
+    void ggf (edm::Handle<CandidateCollection> &genParticles) ;
+
 
    private:
 
@@ -233,7 +234,9 @@ class VBFReadEvent : public edm::EDAnalyzer {
     
       int m_numberGenJet;
       TClonesArray *m_genJet4Momentum;
-      std::vector<int> *m_genJetFlavour;    
+      std::vector<int> *m_genJetFlavour;
+	  TLorentzVector *m_genJetCloneTagF;
+	  TLorentzVector *m_genJetCloneTagB;      
     
       int m_numberJet;
       TClonesArray *m_recoJet4Momentum;

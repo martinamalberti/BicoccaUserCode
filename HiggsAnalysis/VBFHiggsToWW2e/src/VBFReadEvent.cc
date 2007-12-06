@@ -1,5 +1,5 @@
-// $Id: VBFReadEvent.cc,v 1.35 2007/12/05 13:27:10 tancini Exp $
-
+// $Id: VBFReadEvent.cc,v 1.36 2007/12/05 15:35:47 tancini Exp $
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
 //#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
@@ -127,9 +127,10 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  PG check the result of the electron ID on a given ref
   reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr;
     
-  //PG fetch the MC information
+  //PG fetch the MC information  
   const HepMC::GenEvent * Evt = evtMC->GetEvent();
   m_evtFlag = Evt->signal_process_id();
+  
   if (m_evtFlag == 123 || m_evtFlag == 124)
     {
        findGenParticles (genParticles, *m_genHiggs, *m_genWm, *m_genWp, *m_genLepPlus, *m_genLepMinus,
@@ -232,6 +233,8 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     
     //////////////////////////////////////// looking for genjets
+	m_genJetCloneTagF->SetPxPyPzE (0.0, 0.0, 0.0, 0.0) ;
+    m_genJetCloneTagB->SetPxPyPzE (0.0, 0.0, 0.0, 0.0) ;
     TClonesArray &genJetPart4Mom = *m_genJet4Momentum;
     counter = 0;
     m_numberGenJet =  genJetCollectionHandle->size ();
@@ -241,11 +244,29 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
             new (genJetPart4Mom[counter]) TLorentzVector (get4momentum (*jet));
             counter++;
-	    JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
-	    int myflav = jetFlavour.flavour ();
-	    m_genJetFlavour -> push_back (myflav);
+	        JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
+	        int myflav = jetFlavour.flavour ();
+	        m_genJetFlavour -> push_back (myflav);
+			if (m_evtFlag == 123 || m_evtFlag == 124)
+			{
+				TLorentzVector match;
+				match.SetPxPyPzE (jetFlavour.vec4MainParton ().px (), jetFlavour.vec4MainParton ().py (),
+								  jetFlavour.vec4MainParton ().pz (), jetFlavour.vec4MainParton ().energy ()) ;
+								  
+				double mydeltaR_F = m_genqTagF->DeltaR (match);
+				double mydeltaE_F = m_genqTagF->E() - match.E() ;
+				double mydeltaR_B = m_genqTagB->DeltaR (match);
+				double mydeltaE_B = m_genqTagB->E() - match.E() ;
+				
+				if (mydeltaR_F < 0.9 && myflav == abs (m_genqTagF_Flavour)) 
+				*m_genJetCloneTagF = match;
+			
+				else if (mydeltaR_B < 1.5 && myflav == abs (m_genqTagB_Flavour)) 
+				*m_genJetCloneTagB = match;
+									
+			}												
         }   
-    
+    	
     //////////////////////////////////////// looking for met
     setMomentum (*m_recoMet4Momentum, *calomet);
     
@@ -269,6 +290,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
    m_recoMuonR03_hoEt->clear ();
    m_recoMuonR03_nTracks->clear ();
    m_recoMuonR03_nJets->clear ();
+   
 }
 // --------------------------------------------------------------------
 
@@ -325,14 +347,16 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_numberGenJet = 0;
     m_genJet4Momentum = new TClonesArray ("TLorentzVector");
     m_genJetFlavour = new std::vector<int>;    
-    
+    m_genJetCloneTagF = new TLorentzVector (0.0,0.0,0.0,0.0);   
+	m_genJetCloneTagB = new TLorentzVector (0.0,0.0,0.0,0.0);   ;  
+	
     // reco jets
     m_numberJet = 0;
     m_recoJet4Momentum = new TClonesArray ("TLorentzVector");    
     m_recoJetFlavour = new std::vector<int>;  
     
     // gen met
-    m_genMet4Momentum= new TLorentzVector (0.0,0.0,0.0,0.0);   
+    m_genMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0);   
     
     // reco met
     m_recoMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0); 
@@ -377,6 +401,9 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("numberGenJet", &m_numberGenJet, "m_numberGenJet/I");
     m_genTree->Branch ("genJet4Momentum", "TClonesArray", &m_genJet4Momentum, 256000,0); 
     m_genTree->Branch ("genJetFlavour",  &m_genJetFlavour);
+	//m_genTree->Branch ("genJetCloneTagF","TLorentzVector",&m_genJetCloneTagF,6400,99);
+    //m_genTree->Branch ("genJetCloneTagB","TLorentzVector",&m_genJetCloneTagB,6400,99);
+	
     
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
     m_genTree->Branch ("recoJet4Momentum", "TClonesArray", &m_recoJet4Momentum, 256000,0); 
@@ -568,3 +595,33 @@ void VBFReadEvent::findGenParticles (edm::Handle<CandidateCollection> &genPartic
         
     }
 }
+
+void VBFReadEvent::ggf (edm::Handle<CandidateCollection> &genParticles)
+{
+std::cout << "*********************" << std::endl;
+	for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
+	{
+			  std::cout << "PDG " << p->pdgId () 
+			  << " ST " << p->status ()
+			  << " En " << p->energy () 
+			  << " pz " << p->pz ()
+			  << " #mam " << p->numberOfMothers ()
+			  << " #figli " << p->numberOfDaughters () ;
+			  
+			  // loop sulle mamme
+			  for ( size_t i = 0; i < p->numberOfMothers(); ++ i ) 
+                    {
+                        const Candidate *mum = p->mother (i);
+						std::cout << " figlio " << i << " pdg " << mum->pdgId () << " en " << mum->energy () ;
+					}
+			  
+			  // loop sui figli
+			  for ( size_t i = 0; i < p->numberOfDaughters(); ++ i ) 
+                    {
+                        const Candidate *daughter = p->daughter (i);
+						std::cout << " figlio " << i << " pdg " << daughter->pdgId () << " en " << daughter->energy () ;
+					}
+		std::cout << " " << std::endl;
+						
+	}
+}	
