@@ -401,8 +401,8 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("numberGenJet", &m_numberGenJet, "m_numberGenJet/I");
     m_genTree->Branch ("genJet4Momentum", "TClonesArray", &m_genJet4Momentum, 256000,0); 
     m_genTree->Branch ("genJetFlavour",  &m_genJetFlavour);
-	//m_genTree->Branch ("genJetCloneTagF","TLorentzVector",&m_genJetCloneTagF,6400,99);
-    //m_genTree->Branch ("genJetCloneTagB","TLorentzVector",&m_genJetCloneTagB,6400,99);
+	m_genTree->Branch ("genJetCloneTagF","TLorentzVector",&m_genJetCloneTagF,6400,99);
+    m_genTree->Branch ("genJetCloneTagB","TLorentzVector",&m_genJetCloneTagB,6400,99);
 	
     
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
@@ -522,8 +522,8 @@ void VBFReadEvent::findGenParticles (edm::Handle<CandidateCollection> &genPartic
                                                              TLorentzVector &m_genMetMinus,
                                                              TLorentzVector &m_genqTagF,
                                                              TLorentzVector &m_genqTagB,
-							     int & m_genqTagF_Flavour,
-							     int & m_genqTagB_Flavour)
+							                                 int & m_genqTagF_Flavour,
+							                                 int & m_genqTagB_Flavour)
 {
     for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
     {
@@ -540,12 +540,12 @@ void VBFReadEvent::findGenParticles (edm::Handle<CandidateCollection> &genPartic
                 if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
                     setMomentum (m_genqTagF, *(interact0->daughter(1)));
                     setMomentum (m_genqTagB, *(interact0->daughter(0)));
-		    m_genqTagF_Flavour = interact0->daughter (1)->pdgId ();
+		            m_genqTagF_Flavour = interact0->daughter (1)->pdgId ();
                     m_genqTagB_Flavour = interact0->daughter (0)->pdgId ();}
                 else {
                     setMomentum (m_genqTagB, *(interact0->daughter(1)));
                     setMomentum (m_genqTagF, *(interact0->daughter(0)));
-		    m_genqTagF_Flavour = interact0->daughter (0)->pdgId ();
+		            m_genqTagF_Flavour = interact0->daughter (0)->pdgId ();
                     m_genqTagB_Flavour = interact0->daughter (1)->pdgId ();}
             }
         
