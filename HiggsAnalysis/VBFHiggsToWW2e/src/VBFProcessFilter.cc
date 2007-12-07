@@ -1,4 +1,4 @@
-// $Id: VBFProcessFilter.cc,v 1.3 2007/12/07 14:52:14 govoni Exp $
+// $Id: VBFProcessFilter.cc,v 1.4 2007/12/07 14:57:01 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFProcessFilter.h"
 
@@ -33,9 +33,12 @@ VBFProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::CaloJetCollection> jetCollectionHandle ;
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle) ;
 
+  //PG get the jet tags
   std::pair<jetIt,jetIt> tagJets = findTagJets (jetCollectionHandle->begin (),
                                                 jetCollectionHandle->end ()) ;
+  if (tagJets.first == tagJets.second) return false ;
 
+  //PG select the event on the basis of the jets
 
   return false ;
 }
