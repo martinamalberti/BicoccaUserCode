@@ -1,3 +1,85 @@
+void jetClonesPlot ()
+{
+    gROOT->SetStyle("Plain") ;
+	
+    TFile *f = new TFile("WWF_HIGGS160/WWf_higgsMass160_tree.root") ;
+    TTree *tree = (TTree*)gDirectory->Get("tree");  
+    
+	TClonesArray *genJet4Momentum = new TClonesArray ("TLorentzVector");
+	TLorentzVector *genJetCloneTagB = new TLorentzVector();
+	TLorentzVector *genJetCloneTagF = new TLorentzVector();
+    int numberJet;	    
+	int evtFlag;
+
+    ///////////// reco jets
+	tree->SetBranchAddress ("numberJet", &numberJet);
+	tree->SetBranchAddress ("evtFlag", &evtFlag);
+	tree->SetBranchAddress ("genJet4Momentum",  &genJet4Momentum);
+	tree->SetBranchAddress ("genJetCloneTagB", &genJetCloneTagB);
+	tree->SetBranchAddress ("genJetCloneTagF", &genJetCloneTagF);
+	
+	TH1F *histo_deltaEtaTag_VVf = new TH1F ("histo_deltaEtaTag_VVf", "#Delta#eta between tag jets (matching with q)", 100, 0, 10) ;
+	histo_deltaEtaTag_VVf->SetFillColor (107) ;
+	TH1F *histo_invMassTag_VVf = new TH1F ("histo_invMassTag_VVf", "Invariant mass of tag jets (matching with q)", 100, 0, 4000) ;
+	histo_invMassTag_VVf->SetFillColor (107) ;
+	TH1F *histo_energyTag_VVf = new TH1F ("histo_energyTag_VVf", "Energy of tag jets (matching with q)", 100, 0, 1200) ;
+	histo_energyTag_VVf->SetFillColor (107) ;
+	TH1F *histo_ptTag_VVf = new TH1F ("histo_ptTag_VVf", "Pt of tag jets (matching with q)", 100, 0, 400) ;
+	histo_ptTag_VVf->SetFillColor (107) ;
+	TH1F *histo_etaTag_VVf = new TH1F ("histo_etaTag_VVf", "#eta of tag jets (matching with q)", 100, -6, 6) ;
+	histo_etaTag_VVf->SetFillColor (107) ;
+	
+	int nentries = (int) tree->GetEntries();
+	TLorentzVector sommaTag;
+    for(int i=0; i<nentries; i++)
+        {
+            tree->GetEntry(i);
+			if (evtFlag== 124 || evtFlag== 125)
+			{
+			    if (genJetCloneTagB->E () != 0) 
+				{
+				histo_energyTag_VVf -> Fill (genJetCloneTagB->E()) ;
+				histo_ptTag_VVf -> Fill (genJetCloneTagB->Pt()) ;
+				histo_etaTag_VVf -> Fill (genJetCloneTagB->Eta()) ;
+				}
+				/////////////////////////////////////////////////////////////
+				if (genJetCloneTagF->E () != 0) 
+				{
+				histo_energyTag_VVf -> Fill (genJetCloneTagF->E()) ;
+				histo_ptTag_VVf -> Fill (genJetCloneTagF->Pt()) ;
+				histo_etaTag_VVf -> Fill (genJetCloneTagF->Eta()) ;
+				}
+				/////////////////////////////////////////////////////////////
+				if (genJetCloneTagB->E () != 0 && genJetCloneTagF->E () != 0)
+				{
+				double deltaEtaTag_VVf = fabs (genJetCloneTagB->Eta () - genJetCloneTagF->Eta ()) ; 
+				histo_deltaEtaTag_VVf -> Fill (deltaEtaTag_VVf) ;
+				sommaTag = *(genJetCloneTagB)+*(genJetCloneTagF);
+				histo_invMassTag_VVf -> Fill (sommaTag.M()) ;
+				}
+			}
+       }
+	
+	 TCanvas *p = new TCanvas ()  ;
+	 p->Divide (2, 3);
+	 p->cd (1) ;
+	 histo_etaTag_VVf->Draw () ;
+	 p->cd (2) ;
+	 histo_energyTag_VVf->Draw () ;
+	 p->cd (3) ;
+	 histo_ptTag_VVf->Draw () ;
+	 p->cd (4) ; 
+	 histo_deltaEtaTag_VVf->Draw () ;
+	 p->cd (5) ;
+	 histo_invMassTag_VVf -> Draw () ;
+	
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 void plots ()
 {
     gROOT->SetStyle("Plain") ;
@@ -19,6 +101,8 @@ void plots ()
     std::vector<int> *recoEleClass = new std::vector<int>();
     std::vector<int> *recoEleCutBasedID = new std::vector<int>();
 	TClonesArray *recoJet4Momentum = new TClonesArray ("TLorentzVector");
+	TLorentzVector *genJetCloneTagB = new TLorentzVector();
+	TLorentzVector *genJetCloneTagF = new TLorentzVector();
     
 	tree->SetBranchAddress ("evtFlag", &evtFlag);
     tree->SetBranchAddress ("numberGSF", &numberGSF);
@@ -31,9 +115,12 @@ void plots ()
     tree->SetBranchAddress ("recoEleClass",  &recoEleClass); //vettore
     tree->SetBranchAddress ("recoEleCutBasedID",  &recoEleCutBasedID); //vettore
 	
+	
 	///////////// reco jets
 	tree->SetBranchAddress ("numberJet", &numberJet);
-	tree->SetBranchAddress ("genJet4Momentum",  &recoJet4Momentum); 
+	tree->SetBranchAddress ("genJet4Momentum", &recoJet4Momentum);
+	tree->SetBranchAddress ("genJetCloneTagB", &genJetCloneTagB);
+	tree->SetBranchAddress ("genJetCloneTagF", &genJetCloneTagF); 
 
     //electrons
     TH1F *histo_recLep_eVVF = new TH1F ("histo_recLep_eVVF", "GSF electrons energy (4p)",100,0,500) ;
@@ -88,30 +175,49 @@ void plots ()
     TH1F *histo_etaLeadingJetggF = new TH1F ("histo_etaLeadingJetggF", "#eta of 2 leading jets",100,-10,10) ;
     histo_etaLeadingJetggF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
     histo_etaLeadingJetggF->SetLineColor (3);
+	TH1F *histo_etaCloneJetVVF = new TH1F ("histo_etaCloneJetVVF", "#eta of 2 leading jets",100,-10,10) ;
+    histo_etaCloneJetVVF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
+    histo_etaCloneJetVVF->SetLineColor (4);
+
     TH1F *histo_energyLeadingJetVVF = new TH1F ("histo_energyLeadingJetVVF", "#energy of 2 leading jets",100,0,5000) ;
     histo_energyLeadingJetVVF->GetXaxis ()->SetTitle ("#energy of leading jets") ;
     histo_energyLeadingJetVVF->SetLineColor (2);
     TH1F *histo_energyLeadingJetggF = new TH1F ("histo_energyLeadingJetggF", "#energy of 2 leading jets",100,0,5000) ;
     histo_energyLeadingJetggF->GetXaxis ()->SetTitle ("#energy of leading jets") ;
     histo_energyLeadingJetggF->SetLineColor (3);
+    TH1F *histo_energyCloneJetVVF = new TH1F ("histo_energyCloneJetVVF", "#energy of 2 leading jets",100,0,5000) ;
+    histo_energyCloneJetVVF->GetXaxis ()->SetTitle ("#energy of leading jets") ;
+    histo_energyCloneJetVVF->SetLineColor (4);
+	
 	TH1F *histo_deltaEtaLeadingJetVVF = new TH1F ("histo_deltaEtaLeadingJetVVF", "#Delta#eta between 2 leading jets",100,-0.5,20) ;
     histo_deltaEtaLeadingJetVVF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
     histo_deltaEtaLeadingJetVVF->SetLineColor (2);
     TH1F *histo_deltaEtaLeadingJetggF = new TH1F ("histo_deltaEtaLeadingJetggF", "#Delta#eta of 2 leading jets",100,-0.5,20) ;
     histo_deltaEtaLeadingJetggF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
     histo_deltaEtaLeadingJetggF->SetLineColor (3);
+    TH1F *histo_deltaEtaCloneJetVVF = new TH1F ("histo_deltaEtaCloneJetVVF", "#Delta#eta of 2 leading jets",100,-0.5,20) ;
+    histo_deltaEtaCloneJetVVF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
+    histo_deltaEtaCloneJetVVF->SetLineColor (4);
+	
 	TH1F *histo_ptLeadingJetVVF = new TH1F ("histo_ptLeadingJetVVF", "#pt of 2 leading jets",100,0,200) ;
     histo_ptLeadingJetVVF->GetXaxis ()->SetTitle ("#pt of leading jets") ;
     histo_ptLeadingJetVVF->SetLineColor (2);
     TH1F *histo_ptLeadingJetggF = new TH1F ("histo_ptLeadingJetggF", "#pt of 2 leading jets",100,0,200) ;
     histo_ptLeadingJetggF->GetXaxis ()->SetTitle ("#pt of leading jets") ;
     histo_ptLeadingJetggF->SetLineColor (3);
-	TH1F *histo_invMassLeadingJetVVF = new TH1F ("histo_invMassLeadingJetVVF", "#invMass of 2 leading jets",100,0,1000) ;
+	TH1F *histo_ptCloneJetVVF = new TH1F ("histo_ptCloneJetVVF", "#pt of 2 leading jets",100,0,200) ;
+    histo_ptCloneJetVVF->GetXaxis ()->SetTitle ("#pt of leading jets") ;
+    histo_ptCloneJetVVF->SetLineColor (4);
+	
+	TH1F *histo_invMassLeadingJetVVF = new TH1F ("histo_invMassLeadingJetVVF", "#invMass of 2 leading jets",100,0,5000) ;
     histo_invMassLeadingJetVVF->GetXaxis ()->SetTitle ("#invMass of leading jets") ;
     histo_invMassLeadingJetVVF->SetLineColor (2);
-    TH1F *histo_invMassLeadingJetggF = new TH1F ("histo_invMassLeadingJetggF", "#invMass of 2 leading jets",100,0,1000) ;
+    TH1F *histo_invMassLeadingJetggF = new TH1F ("histo_invMassLeadingJetggF", "#invMass of 2 leading jets",100,0,5000) ;
     histo_invMassLeadingJetggF->GetXaxis ()->SetTitle ("#invMass of leading jets") ;
     histo_invMassLeadingJetggF->SetLineColor (3);
+	TH1F *histo_invMassCloneJetVVF = new TH1F ("histo_invMassCloneJetVVF", "#invMass of 2 leading jets",100,0,5000) ;
+    histo_invMassCloneJetVVF->GetXaxis ()->SetTitle ("#invMass of leading jets") ;
+    histo_invMassCloneJetVVF->SetLineColor (4);
 
 	
 	
@@ -162,7 +268,8 @@ void plots ()
 			}
 			
 			///// loop sui due jet piu' energetici
-    		twoLeadingJets (*recoJet4Momentum, *leadingJet1, *leadingJet2) ;
+    		//twoLeadingJets (*recoJet4Momentum, *leadingJet1, *leadingJet2) ; //due jet con maggior pt
+			twoLargestInvMassJets (*recoJet4Momentum, *leadingJet1, *leadingJet2) ; //due jet con massima massa invariante
 			sommaTag = *(leadingJet1) + *(leadingJet2);
 			
 			if (evtFlag == 124 || evtFlag == 125) //VV fusion
@@ -174,8 +281,9 @@ void plots ()
 				histo_ptLeadingJetVVF -> Fill (leadingJet2->Pt ()) ;
 				histo_etaLeadingJetVVF -> Fill (leadingJet1->Eta ()) ;
 				histo_etaLeadingJetVVF -> Fill (leadingJet2->Eta ()) ;
-				histo_deltaEtaLeadingJetVVF -> Fill (fabs (leadingJet1->Eta () - leadingJet2->Eta ()) ) ;
 				histo_invMassLeadingJetVVF -> Fill (sommaTag.M()) ;
+				double deltaEta = (fabs (leadingJet1->Eta () - leadingJet2->Eta ()) ) ;
+				//if (deltaEta > 3) histo_deltaEtaLeadingJetVVF -> Fill (deltaEta) ;
 			}
 			else if (evtFlag == 102) //gg fusion
 			{
@@ -186,9 +294,38 @@ void plots ()
 				histo_ptLeadingJetggF -> Fill (leadingJet2->Pt ()) ;
 				histo_etaLeadingJetggF -> Fill (leadingJet1->Eta ()) ;
 				histo_etaLeadingJetggF -> Fill (leadingJet2->Eta ()) ;
-				histo_deltaEtaLeadingJetggF -> Fill (fabs (leadingJet1->Eta () - leadingJet2->Eta ()) ) ;
 				histo_invMassLeadingJetggF -> Fill (sommaTag.M()) ;
+				double deltaEta2 = (fabs (leadingJet1->Eta () - leadingJet2->Eta ()) ) ;
+				//if (deltaEta2 > 3) 
+				histo_deltaEtaLeadingJetggF -> Fill (deltaEta2) ;
 			}
+			
+			/////////////////////////////////// clone
+			if (evtFlag== 124 || evtFlag== 125)
+			{
+			    if (genJetCloneTagB->E () != 0) 
+				{
+				histo_energyCloneJetVVF -> Fill (genJetCloneTagB->E()) ;
+				histo_ptCloneJetVVF -> Fill (genJetCloneTagB->Pt()) ;
+				histo_etaCloneJetVVF -> Fill (genJetCloneTagB->Eta()) ;
+				}
+				/////////////////////////////////////////////////////////////
+				if (genJetCloneTagF->E () != 0) 
+				{
+				histo_energyCloneJetVVF -> Fill (genJetCloneTagF->E()) ;
+				histo_ptCloneJetVVF -> Fill (genJetCloneTagF->Pt()) ;
+				histo_etaCloneJetVVF -> Fill (genJetCloneTagF->Eta()) ;
+				}
+				/////////////////////////////////////////////////////////////
+				if (genJetCloneTagB->E () != 0 && genJetCloneTagF->E () != 0)
+				{
+				double deltaEtaTag_VVf = fabs (genJetCloneTagB->Eta () - genJetCloneTagF->Eta ()) ; 
+				histo_deltaEtaCloneJetVVF -> Fill (deltaEtaTag_VVf) ;
+				sommaTag = *(genJetCloneTagB)+*(genJetCloneTagF);
+				histo_invMassCloneJetVVF -> Fill (sommaTag.M()) ;
+				}
+			}
+
 
         }
  
@@ -218,17 +355,26 @@ void plots ()
 	histo_deltaEtaLeadingJetVVF->Scale (1/(histo_deltaEtaLeadingJetVVF->Integral()));
 	histo_invMassLeadingJetggF->Scale (1/(histo_invMassLeadingJetggF->Integral()));
 	histo_invMassLeadingJetVVF->Scale (1/(histo_invMassLeadingJetVVF->Integral()));
+	histo_invMassCloneJetVVF -> Scale (1/(histo_invMassCloneJetVVF->Integral()));
+	histo_deltaEtaCloneJetVVF -> Scale (1/(histo_deltaEtaCloneJetVVF->Integral()));
+	histo_energyCloneJetVVF -> Scale (1/(histo_energyCloneJetVVF->Integral()));
+	histo_ptCloneJetVVF -> Scale (1/(histo_ptCloneJetVVF->Integral()));
+	histo_etaCloneJetVVF -> Scale (1/(histo_etaCloneJetVVF->Integral()));
 	
+	cout << "VVf #eventi prima del taglio in deltaEta" << histo_deltaEtaLeadingJetVVF->GetEntries() << endl ;		
+	cout << "ggf #eventi prima del taglio in deltaEta" << histo_deltaEtaLeadingJetggF->GetEntries() << endl ;		
 			
 	TLegend *tleg = new TLegend (0.7, 0.6, 0.9, 0.8);
     tleg -> SetBorderSize (0);
     tleg -> SetFillColor (0);
     tleg-> AddEntry (histo_recLep_eVVF, "VV fusion","l") ;
     tleg-> AddEntry (histo_recLep_eggF, "gg fusion","l") ;
+	tleg-> AddEntry (histo_etaCloneJetVVF, "clones","l") ;
 
  
     TCanvas *p=new TCanvas () ;
-	p->Divide (3,4) ;
+	p->Divide (3,2) ;
+	/*
 	p->cd (1);
     histo_recLep_eVVF->Draw () ;
     histo_recLep_eggF->Draw ("same") ;
@@ -253,24 +399,30 @@ void plots ()
 	p->cd (7);
 	histo_etaJetVVF->Draw () ;
     histo_etaJetggF->Draw ("same") ;
-	p->cd (8);
+	*/
+	p->cd (1);
 	histo_energyLeadingJetVVF->Draw () ;
 	histo_energyLeadingJetggF->Draw ("same") ;
-    p->cd (9);
+	histo_energyCloneJetVVF->Draw ("same") ;
+    p->cd (2);
 	histo_etaLeadingJetggF->Draw () ;
 	histo_etaLeadingJetVVF->Draw ("same") ;
-	p->cd (10);
+	histo_etaCloneJetVVF->Draw ("same") ; 
+	p->cd (3);
 	histo_deltaEtaLeadingJetggF->Draw () ;
 	histo_deltaEtaLeadingJetVVF->Draw ("same") ;
-	p->cd (11);
+	histo_deltaEtaCloneJetVVF->Draw ("same") ;
+	p->cd (4);
 	histo_ptLeadingJetggF->Draw () ;
 	histo_ptLeadingJetVVF->Draw ("same") ;
-	p->cd (12);
+	histo_ptCloneJetVVF->Draw ("same") ; 
+	p->cd (5);
 	histo_invMassLeadingJetggF->Draw () ;
 	histo_invMassLeadingJetVVF->Draw ("same") ;
-
+	histo_invMassCloneJetVVF->Draw ("same") ;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void MCtruthPlots ()
 {
@@ -529,6 +681,245 @@ void MCtruthPlots ()
     
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void jetPlots ()
+{
+    gROOT->SetStyle("Plain") ;
+	
+    TFile *f = new TFile("WWF_HIGGS160/WWf_higgsMass160_tree.root") ;
+    TTree *tree = (TTree*)gDirectory->Get("tree");  
+        
+	int evtFlag;
+	int numberJet;
+	
+	TClonesArray *genJet4Momentum = new TClonesArray ("TLorentzVector");
+	TLorentzVector *genJetCloneTagB = new TLorentzVector();
+	TLorentzVector *genJetCloneTagF = new TLorentzVector();
+    
+	tree->SetBranchAddress ("evtFlag", &evtFlag);
+	tree->SetBranchAddress ("numberJet", &numberJet);
+	tree->SetBranchAddress ("genJet4Momentum", &genJet4Momentum);
+	tree->SetBranchAddress ("genJetCloneTagB", &genJetCloneTagB);
+	tree->SetBranchAddress ("genJetCloneTagF", &genJetCloneTagF); 
+
+	//2 leading jets
+	TH1F *histo_etaLeadingJetVVF = new TH1F ("histo_etaLeadingJetVVF", "#eta of 2 leading jets",100,-10,10) ;
+    histo_etaLeadingJetVVF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
+    histo_etaLeadingJetVVF->SetLineColor (2);
+    TH1F *histo_etaLeadingJetggF = new TH1F ("histo_etaLeadingJetggF", "#eta of 2 leading jets",100,-10,10) ;
+    histo_etaLeadingJetggF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
+    histo_etaLeadingJetggF->SetLineColor (3);
+	TH1F *histo_etaCloneJetVVF = new TH1F ("histo_etaCloneJetVVF", "#eta of 2 leading jets",100,-10,10) ;
+    histo_etaCloneJetVVF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
+    histo_etaCloneJetVVF->SetLineColor (4);
+
+    TH1F *histo_energyLeadingJetVVF = new TH1F ("histo_energyLeadingJetVVF", "energy of 2 leading jets",100,0,5000) ;
+    histo_energyLeadingJetVVF->GetXaxis ()->SetTitle ("energy of leading jets") ;
+    histo_energyLeadingJetVVF->SetLineColor (2);
+    TH1F *histo_energyLeadingJetggF = new TH1F ("histo_energyLeadingJetggF", "energy of 2 leading jets",100,0,5000) ;
+    histo_energyLeadingJetggF->GetXaxis ()->SetTitle ("energy of leading jets") ;
+    histo_energyLeadingJetggF->SetLineColor (3);
+    TH1F *histo_energyCloneJetVVF = new TH1F ("histo_energyCloneJetVVF", "energy of 2 leading jets",100,0,5000) ;
+    histo_energyCloneJetVVF->GetXaxis ()->SetTitle ("energy of leading jets") ;
+    histo_energyCloneJetVVF->SetLineColor (4);
+	
+	TH1F *histo_deltaEtaLeadingJetVVF = new TH1F ("histo_deltaEtaLeadingJetVVF", "#Delta#eta between 2 leading jets",100,-0.5,20) ;
+    histo_deltaEtaLeadingJetVVF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
+    histo_deltaEtaLeadingJetVVF->SetLineColor (2);
+    TH1F *histo_deltaEtaLeadingJetggF = new TH1F ("histo_deltaEtaLeadingJetggF", "#Delta#eta of 2 leading jets",100,-0.5,20) ;
+    histo_deltaEtaLeadingJetggF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
+    histo_deltaEtaLeadingJetggF->SetLineColor (3);
+    TH1F *histo_deltaEtaCloneJetVVF = new TH1F ("histo_deltaEtaCloneJetVVF", "#Delta#eta of 2 leading jets",100,-0.5,20) ;
+    histo_deltaEtaCloneJetVVF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
+    histo_deltaEtaCloneJetVVF->SetLineColor (4);
+	
+	TH1F *histo_ptLeadingJetVVF = new TH1F ("histo_ptLeadingJetVVF", "pt of 2 leading jets",100,0,200) ;
+    histo_ptLeadingJetVVF->GetXaxis ()->SetTitle ("pt of leading jets") ;
+    histo_ptLeadingJetVVF->SetLineColor (2);
+    TH1F *histo_ptLeadingJetggF = new TH1F ("histo_ptLeadingJetggF", "pt of 2 leading jets",100,0,200) ;
+    histo_ptLeadingJetggF->GetXaxis ()->SetTitle ("pt of leading jets") ;
+    histo_ptLeadingJetggF->SetLineColor (3);
+	TH1F *histo_ptCloneJetVVF = new TH1F ("histo_ptCloneJetVVF", "pt of 2 leading jets",100,0,200) ;
+    histo_ptCloneJetVVF->GetXaxis ()->SetTitle ("pt of leading jets") ;
+    histo_ptCloneJetVVF->SetLineColor (4);
+	
+	TH1F *histo_invMassLeadingJetVVF = new TH1F ("histo_invMassLeadingJetVVF", "Invariant mass of 2 leading jets",100,0,5000) ;
+    histo_invMassLeadingJetVVF->GetXaxis ()->SetTitle ("invMass of leading jets") ;
+    histo_invMassLeadingJetVVF->SetLineColor (2);
+    TH1F *histo_invMassLeadingJetggF = new TH1F ("histo_invMassLeadingJetggF", "Invariant mass of 2 leading jets",100,0,5000) ;
+    histo_invMassLeadingJetggF->GetXaxis ()->SetTitle ("invMass of leading jets") ;
+    histo_invMassLeadingJetggF->SetLineColor (3);
+	TH1F *histo_invMassCloneJetVVF = new TH1F ("histo_invMassCloneJetVVF", "Invariant mass of 2 leading jets",100,0,5000) ;
+    histo_invMassCloneJetVVF->GetXaxis ()->SetTitle ("invMass of leading jets") ;
+    histo_invMassCloneJetVVF->SetLineColor (4);
+	
+    TLorentzVector *leadingJetF = new TLorentzVector (0.0, 0.0, 0.0, 0.0);
+	TLorentzVector *leadingJetB = new TLorentzVector (0.0, 0.0, 0.0, 0.0);
+	TLorentzVector sommaTag;
+	
+    int nentries = (int) tree->GetEntries();
+	
+	int purezzaF = 0;
+	int purezzaB = 0;
+	int purezzaBoth = 0;
+	int nvff = 0;
+	int nClonesF = 0;
+	int nClonesB = 0;
+	int nClonesBoth = 0;
+	int purezzaBoth = 0;
+	
+    for(int i=0; i<nentries; i++)
+        {
+            tree->GetEntry(i);			
+			
+			///// loop sui due jet piu' energetici
+			twoLargestInvMassJets (*genJet4Momentum, *leadingJetF, *leadingJetB) ; //due jet con massima massa invariante
+			
+			sommaTag = *(leadingJetF) + *(leadingJetB);
+			
+			if (evtFlag == 123 || evtFlag == 124) //VV fusion
+			{
+			    nvff++;
+				
+				histo_energyLeadingJetVVF -> Fill (leadingJetF->Energy ()) ;
+				histo_energyLeadingJetVVF -> Fill (leadingJetB->Energy ()) ;
+				histo_ptLeadingJetVVF -> Fill (leadingJetF->Pt ()) ;
+				histo_ptLeadingJetVVF -> Fill (leadingJetB->Pt ()) ;
+				histo_etaLeadingJetVVF -> Fill (leadingJetF->Eta ()) ;
+				histo_etaLeadingJetVVF -> Fill (leadingJetB->Eta ()) ;
+				histo_invMassLeadingJetVVF -> Fill (sommaTag.M()) ;
+				double deltaEta = (fabs (leadingJetF->Eta () - leadingJetB->Eta ()) ) ;
+				//if (deltaEta > 3) 
+				histo_deltaEtaLeadingJetVVF -> Fill (deltaEta) ;
+				
+				/////////////////// clones /////////////////////////////////
+				if (genJetCloneTagB->E () != 0) 
+				{
+				nClonesB++;
+				//bool pr = (leadingJetB == genJetCloneTagB);
+				//cout << "pr = " << pr << endl;
+				//cout << "leadingJetB->Px() = " << leadingJetB->Px() << ", genJetCloneTagB->Px() = " << genJetCloneTagB->Px() << endl ;
+				if ((leadingJetF != genJetCloneTagF) && (leadingJetB == genJetCloneTagB)) purezzaB++ ;
+				histo_energyCloneJetVVF -> Fill (genJetCloneTagB->E()) ;
+				histo_ptCloneJetVVF -> Fill (genJetCloneTagB->Pt()) ;
+				histo_etaCloneJetVVF -> Fill (genJetCloneTagB->Eta()) ;
+				}
+				/////////////////////////////////////////////////////////////
+				if (genJetCloneTagF->E () != 0) 
+				{
+				nClonesF++;
+				if ((leadingJetF == genJetCloneTagF) && (leadingJetB != genJetCloneTagB)) purezzaF++ ;
+				histo_energyCloneJetVVF -> Fill (genJetCloneTagF->E()) ;
+				histo_ptCloneJetVVF -> Fill (genJetCloneTagF->Pt()) ;
+				histo_etaCloneJetVVF -> Fill (genJetCloneTagF->Eta()) ;
+				}
+				/////////////////////////////////////////////////////////////
+				if (genJetCloneTagB->E () != 0 && genJetCloneTagF->E () != 0)
+				{
+				nClonesBoth++;
+				if ((leadingJetF == genJetCloneTagF) && (leadingJetB == genJetCloneTagB)) purezzaBoth++ ;
+				double deltaEtaTag_VVf = fabs (genJetCloneTagB->Eta () - genJetCloneTagF->Eta ()) ; 
+				histo_deltaEtaCloneJetVVF -> Fill (deltaEtaTag_VVf) ;
+				sommaTag = *(genJetCloneTagB)+*(genJetCloneTagF);
+				histo_invMassCloneJetVVF -> Fill (sommaTag.M()) ;
+				}
+
+			}
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			else if (evtFlag == 102) //gg fusion
+			{
+				histo_energyLeadingJetggF -> Fill (leadingJetF->Energy ()) ;
+				histo_energyLeadingJetggF -> Fill (leadingJetB->Energy ()) ;
+				histo_ptLeadingJetggF -> Fill (leadingJetF->Pt ()) ;
+				histo_ptLeadingJetggF -> Fill (leadingJetB->Pt ()) ;
+				histo_etaLeadingJetggF -> Fill (leadingJetF->Eta ()) ;
+				histo_etaLeadingJetggF -> Fill (leadingJetB->Eta ()) ;
+				histo_invMassLeadingJetggF -> Fill (sommaTag.M()) ;
+				double deltaEta2 = (fabs (leadingJetF->Eta () - leadingJetB->Eta ()) ) ;
+				//if (deltaEta2 > 3) 
+				histo_deltaEtaLeadingJetggF -> Fill (deltaEta2) ;
+			}
+        }
+ 
+    cout << "eventi VVF = " << nvff << endl;
+	cout << "nClonesF = " << nClonesF << endl;
+	cout << "nClonesB = " << nClonesB << endl;
+	cout << "nClonesBoth = " << nClonesBoth << endl;
+	
+ 	cout << "azzeccatiF = " << purezzaF << endl;
+	cout << "azzeccatiB = " << purezzaB << endl;
+	cout << "azzeccatiBoth = " << purezzaBoth << endl;
+ 
+    
+    //normalization 
+	histo_energyLeadingJetggF->Scale (1/(histo_energyLeadingJetggF->Integral()));
+	histo_ptLeadingJetggF->Scale (1/(histo_ptLeadingJetggF->Integral()));
+	histo_etaLeadingJetggF->Scale (1/(histo_etaLeadingJetggF->Integral()));
+	histo_energyLeadingJetVVF->Scale (1/(histo_energyLeadingJetVVF->Integral()));
+	histo_ptLeadingJetVVF->Scale (1/(histo_ptLeadingJetVVF->Integral()));
+	histo_etaLeadingJetVVF->Scale (1/(histo_etaLeadingJetVVF->Integral()));
+	histo_deltaEtaLeadingJetggF->Scale (1/(histo_deltaEtaLeadingJetggF->Integral()));
+	histo_deltaEtaLeadingJetVVF->Scale (1/(histo_deltaEtaLeadingJetVVF->Integral()));
+	histo_invMassLeadingJetggF->Scale (1/(histo_invMassLeadingJetggF->Integral()));
+	histo_invMassLeadingJetVVF->Scale (1/(histo_invMassLeadingJetVVF->Integral()));
+	histo_invMassCloneJetVVF -> Scale (1/(histo_invMassCloneJetVVF->Integral()));
+	histo_deltaEtaCloneJetVVF -> Scale (1/(histo_deltaEtaCloneJetVVF->Integral()));
+	histo_energyCloneJetVVF -> Scale (1/(histo_energyCloneJetVVF->Integral()));
+	histo_ptCloneJetVVF -> Scale (1/(histo_ptCloneJetVVF->Integral()));
+	histo_etaCloneJetVVF -> Scale (1/(histo_etaCloneJetVVF->Integral()));
+		
+			
+	TLegend *tleg = new TLegend (0.7, 0.6, 0.9, 0.8);
+    tleg -> SetBorderSize (0);
+    tleg -> SetFillColor (0);
+    tleg-> AddEntry (histo_energyLeadingJetVVF, "VV fusion","l") ;
+    tleg-> AddEntry (histo_energyLeadingJetggF, "gg fusion","l") ;
+	tleg-> AddEntry (histo_etaCloneJetVVF, "VV fusion clones","l") ;
+
+ 
+    TCanvas *p=new TCanvas () ;
+	p->Divide (3,2) ;
+	p->cd (1);
+	histo_energyLeadingJetVVF->Draw () ;
+	histo_energyLeadingJetggF->Draw ("same") ;
+	histo_energyCloneJetVVF->Draw ("same") ;
+	tleg->Draw ("same") ; 
+    p->cd (2);
+	histo_etaLeadingJetggF->Draw () ;
+	histo_etaLeadingJetVVF->Draw ("same") ;
+	histo_etaCloneJetVVF->Draw ("same") ; 
+	p->cd (3);
+	histo_deltaEtaLeadingJetggF->Draw () ;
+	histo_deltaEtaLeadingJetVVF->Draw ("same") ;
+	histo_deltaEtaCloneJetVVF->Draw ("same") ;
+	p->cd (4);
+	histo_ptLeadingJetggF->Draw () ;
+	histo_ptLeadingJetVVF->Draw ("same") ;
+	histo_ptCloneJetVVF->Draw ("same") ; 
+	p->cd (5);
+	histo_invMassLeadingJetggF->Draw () ;
+	histo_invMassLeadingJetVVF->Draw ("same") ;
+	histo_invMassCloneJetVVF->Draw ("same") ;
+	/*
+	cout << "1 "<< (histo_energyLeadingJetggF->Integral())<< endl;
+	cout << "2 "<<  (histo_ptLeadingJetggF->Integral())<< endl;
+	cout << "3 "<<  (histo_etaLeadingJetggF->Integral())<< endl;
+	cout << "4 "<<  (histo_energyLeadingJetVVF->Integral())<< endl;
+	cout << "5 "<<  (histo_ptLeadingJetVVF->Integral())<< endl;
+	cout << "6 "<<  (histo_etaLeadingJetVVF->Integral())<< endl;
+	cout << "7 "<<  (histo_deltaEtaLeadingJetggF->Integral())<< endl;
+	cout << "8 "<<  (histo_deltaEtaLeadingJetVVF->Integral())<< endl;
+	cout << "9 "<<  (histo_invMassLeadingJetggF->Integral())<< endl;
+	cout << "10 "<<  (histo_invMassLeadingJetVVF->Integral())<< endl;
+	cout << "11 "<<  (histo_invMassCloneJetVVF->Integral())<< endl;
+	cout << "12 "<<  (histo_deltaEtaCloneJetVVF->Integral())<< endl;
+	cout << "13 "<<  (histo_energyCloneJetVVF->Integral())<< endl;
+	cout << "14 "<<  (histo_ptCloneJetVVF->Integral())<< endl;
+	cout << "15 "<<  (histo_etaCloneJetVVF->Integral())<< endl;
+    */
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void twoLeadingJets (TClonesArray &recoJet4Momentum , TLorentzVector &leadingJet1, TLorentzVector &leadingJet2)
@@ -577,4 +968,57 @@ void twoLeadingJets (TClonesArray &recoJet4Momentum , TLorentzVector &leadingJet
 		
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void twoLargestInvMassJets (TClonesArray &recoJet4Momentum , TLorentzVector &leadingJetF, TLorentzVector &leadingJetB)
+{
+	int numberJet = recoJet4Momentum.GetEntries () ;
+	int A = 0 ;
+	int B = 0 ;
+	double maxInvMass = 0.0;
+	double invMass = 0.0;
+	TLorentzVector sum;
+	TLorentzVector leadingJet1;
+	TLorentzVector leadingJet2;
+
+	/////////// loop per i leading jet 
+	for (int a=0; a <numberJet; a++)
+	for (int b=0; b <numberJet; b++)
+	{
+	if (a==b) continue ;
+	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(a)))->Eta()) > 5) continue ;
+	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(b)))->Eta()) > 5) continue ;
+	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(a)))->Pt()) < 15) continue ;
+	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(b)))->Pt()) < 15) continue ;
+	sum = *((TLorentzVector*)(recoJet4Momentum.At(a)))+*((TLorentzVector*)(recoJet4Momentum.At(b)));
+	invMass = sum.M() ;
+	if (invMass > maxInvMass)
+		{ 
+		maxInvMass = invMass ;
+		A = a;
+		B = b; 
+		} 
+	}
+	
+	leadingJet1.SetPx (((TLorentzVector*)(recoJet4Momentum.At(A)))->Px()) ;  
+	leadingJet1.SetPy (((TLorentzVector*)(recoJet4Momentum.At(A)))->Py()) ;
+	leadingJet1.SetPz (((TLorentzVector*)(recoJet4Momentum.At(A)))->Pz()) ;
+	leadingJet1.SetE (((TLorentzVector*)(recoJet4Momentum.At(A)))->Energy()) ;
+	
+	leadingJet2.SetPx (((TLorentzVector*)(recoJet4Momentum.At(B)))->Px()) ;  
+	leadingJet2.SetPy (((TLorentzVector*)(recoJet4Momentum.At(B)))->Py()) ;
+	leadingJet2.SetPz (((TLorentzVector*)(recoJet4Momentum.At(B)))->Pz()) ;
+	leadingJet2.SetE (((TLorentzVector*)(recoJet4Momentum.At(B)))->Energy()) ;
+	
+	if (leadingJet1.Eta () > leadingJet2.Eta ())
+	{ 
+	leadingJetF = leadingJet1;
+	leadingJetB = leadingJet2;
+	}
+	else
+	{ 
+	leadingJetB = leadingJet1;
+	leadingJetF = leadingJet2;
+	}
+	
+}	
