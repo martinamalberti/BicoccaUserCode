@@ -1,4 +1,4 @@
-// $Id: VBFProcessFilter.cc,v 1.1 2007/12/07 14:10:19 govoni Exp $
+// $Id: VBFProcessFilter.cc,v 1.2 2007/12/07 14:47:02 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFProcessFilter.h"
 
@@ -58,16 +58,16 @@ VBFProcessFilter::findTagJets (VBFProcessFilter::jetIt begin, VBFProcessFilter::
        firstJet != end ; 
        ++firstJet ) 
     {
-//      JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons (*(jet)) ;
-//      int myflav = jetFlavour.flavour () ;
-//      m_recoJetFlavour-> push_back (myflav) ;
-
+      if (firstJet->et () < m_jetPtMin || 
+          firstJet->eta () > m_jetEtaMax) continue ;
       math::XYZTLorentzVector firstLV = firstJet->p4 () ;
       //PG second loop over jets
       for (jetIt secondJet = firstJet + 1 ; 
            secondJet != end ; 
            ++secondJet ) 
         {
+          if (secondJet->et () < m_jetPtMin || 
+              secondJet->eta () > m_jetEtaMax) continue ;
           math::XYZTLorentzVector sumLV = secondJet->p4 () + firstLV ;
           if (sumLV.M () > maxInvMass)
             {
