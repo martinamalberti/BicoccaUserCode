@@ -1,4 +1,4 @@
-// $Id: VBFProcessFilter.cc,v 1.2 2007/12/07 14:47:02 govoni Exp $
+// $Id: VBFProcessFilter.cc,v 1.3 2007/12/07 14:52:14 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFProcessFilter.h"
 
@@ -59,7 +59,7 @@ VBFProcessFilter::findTagJets (VBFProcessFilter::jetIt begin, VBFProcessFilter::
        ++firstJet ) 
     {
       if (firstJet->et () < m_jetPtMin || 
-          firstJet->eta () > m_jetEtaMax) continue ;
+          fabs (firstJet->eta ()) > m_jetEtaMax) continue ;
       math::XYZTLorentzVector firstLV = firstJet->p4 () ;
       //PG second loop over jets
       for (jetIt secondJet = firstJet + 1 ; 
@@ -67,7 +67,7 @@ VBFProcessFilter::findTagJets (VBFProcessFilter::jetIt begin, VBFProcessFilter::
            ++secondJet ) 
         {
           if (secondJet->et () < m_jetPtMin || 
-              secondJet->eta () > m_jetEtaMax) continue ;
+              fabs (secondJet->eta ()) > m_jetEtaMax) continue ;
           math::XYZTLorentzVector sumLV = secondJet->p4 () + firstLV ;
           if (sumLV.M () > maxInvMass)
             {
