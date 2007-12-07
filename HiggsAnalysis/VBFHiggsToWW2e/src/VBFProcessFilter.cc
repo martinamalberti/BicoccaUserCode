@@ -1,4 +1,4 @@
-// $Id: VBFProcessFilter.cc,v 1.6 2007/12/07 16:12:47 govoni Exp $
+// $Id: VBFProcessFilter.cc,v 1.7 2007/12/07 16:17:27 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFProcessFilter.h"
 
@@ -39,8 +39,9 @@ VBFProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle) ;
 
   //PG get the jet tags
-  std::pair<jetIt,jetIt> tagJets = findTagJets (jetCollectionHandle->begin (),
-                                                jetCollectionHandle->end ()) ;
+  std::pair<VBFjetIt,VBFjetIt> tagJets = findTagJets (jetCollectionHandle->begin (),
+                                                      jetCollectionHandle->end (),
+                                                      m_jetPtMin, m_jetEtaMax) ;
   //PG tag jets not found
   if (tagJets.first == tagJets.second) return false ;
 
@@ -52,45 +53,4 @@ VBFProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (invMass < m_tagJetsInvMassMin || invMass > m_tagJetsInvMassMax) return false ;
 
   return true ;
-}
-
-
-// ------------------------------------------------------------------------------------
-
-
-std::pair<VBFProcessFilter::jetIt,VBFProcessFilter::jetIt>	
-VBFProcessFilter::findTagJets (VBFProcessFilter::jetIt begin, VBFProcessFilter::jetIt end) 
-{
-
-  std::pair<jetIt,jetIt> tagJets (begin,begin) ;
-  double maxInvMass = 0. ;
-
-  //PG find the tagging jets
-
-  //PG first loop over jets
-  for (jetIt firstJet = begin ; 
-       firstJet != end ; 
-       ++firstJet ) 
-    {
-      if (firstJet->et () < m_jetPtMin || 
-          fabs (firstJet->eta ()) > m_jetEtaMax) continue ;
-      math::XYZTLorentzVector firstLV = firstJet->p4 () ;
-      //PG second loop over jets
-      for (jetIt secondJet = firstJet + 1 ; 
-           secondJet != end ; 
-           ++secondJet ) 
-        {
-          if (secondJet->et () < m_jetPtMin || 
-              fabs (secondJet->eta ()) > m_jetEtaMax) continue ;
-          math::XYZTLorentzVector sumLV = secondJet->p4 () + firstLV ;
-          if (sumLV.M () > maxInvMass)
-            {
-              maxInvMass = sumLV.M () ;
-              tagJets.first = firstJet ;
-              tagJets.second = secondJet ;
-            }
-        } //PG second loop over jets
-    } //PG first loop over jets
-
-  return tagJets ;
 }
