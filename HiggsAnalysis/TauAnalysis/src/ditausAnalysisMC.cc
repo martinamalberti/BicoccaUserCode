@@ -1,6 +1,7 @@
 #include <HiggsAnalysis/TauAnalysis/interface/ditausAnalysisMC.h>
 
-ditausAnalysisMC::ditausAnalysisMC(const edm::ParameterSet& iConfig)
+ditausAnalysisMC::ditausAnalysisMC(const edm::ParameterSet& iConfig):
+  m_nomefile(iConfig.getUntrackedParameter<std::string>("nomefile","output.root"))
 {
    //now do what ever initialization is needed
  
@@ -14,7 +15,8 @@ ditausAnalysisMC::ditausAnalysisMC(const edm::ParameterSet& iConfig)
   MUONMAX=10;
   JETMAX=30;
   
-  thefile = new TFile("H2tau_131_SpringProduction.root","recreate");
+  //thefile = new TFile("H2tau_131_SpringProduction.root","recreate");
+  thefile = new TFile(m_nomefile.c_str (),"recreate");
   thefile->cd();
 
 //   zmass = new TH1F("zmass","invariant mass of e+mu",200,0,200);
@@ -148,8 +150,8 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    for (p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
     
-     bool foundHtoTauToE = false;
-     bool foundHtoTauToMu = false;
+     //     bool foundHtoTauToE = false;
+     //     bool foundHtoTauToMu = false;
      
      // Look for heavy bosons and look at their children
      if (abs( (*p)->pdg_id()) == 23) 
@@ -196,6 +198,53 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		       MCphi2=(*taukid)->momentum().phi();
 		       MCpid2=(*taukid)->pdg_id();	 
 		     }
+		   //neutrini a livello generatore
+		   if(abs((*taukid)->pdg_id())==12) 
+		     {
+		       isnue = isnue++;
+		       ENue=(*taukid)->momentum().mag();
+		       PNue[0]=(*taukid)->momentum().x();
+		       PNue[1]=(*taukid)->momentum().y();
+		       PNue[2]=(*taukid)->momentum().z();
+		       EtaNue=(*taukid)->momentum().pseudoRapidity();
+		       PhiNue=(*taukid)->momentum().phi();
+		       PidNue=(*taukid)->pdg_id();	 
+		     }
+		   if(abs((*taukid)->pdg_id())==14) 
+		     {
+		       isnumu = isnumu++;
+		       ENumu=(*taukid)->momentum().mag();
+		       PNumu[0]=(*taukid)->momentum().x();
+		       PNumu[1]=(*taukid)->momentum().y();
+		       PNumu[2]=(*taukid)->momentum().z();
+		       EtaNumu=(*taukid)->momentum().pseudoRapidity();
+		       PhiNumu=(*taukid)->momentum().phi();
+		       PidNumu=(*taukid)->pdg_id();	 
+		     }
+		   if((*taukid)->pdg_id()==16) 
+		     {
+		       isnutau1 = isnutau1++;
+		       ENutau1=(*taukid)->momentum().mag();
+		       PNutau1[0]=(*taukid)->momentum().x();
+		       PNutau1[1]=(*taukid)->momentum().y();
+		       PNutau1[2]=(*taukid)->momentum().z();
+		       EtaNutau1=(*taukid)->momentum().pseudoRapidity();
+		       PhiNutau1=(*taukid)->momentum().phi();
+		       PidNutau1=(*taukid)->pdg_id();	 
+		     }
+		   if((*taukid)->pdg_id()==-16) 
+		     {
+		       isnutau2 = isnutau2++;
+		       ENutau2=(*taukid)->momentum().mag();
+		       PNutau2[0]=(*taukid)->momentum().x();
+		       PNutau2[1]=(*taukid)->momentum().y();
+		       PNutau2[2]=(*taukid)->momentum().z();
+		       EtaNutau2=(*taukid)->momentum().pseudoRapidity();
+		       PhiNutau2=(*taukid)->momentum().phi();
+		       PidNutau2=(*taukid)->pdg_id();	 
+		     }
+		   
+		   
 		   
 		 }
 		 if (!foundTauDaughter) tauDecayVertex = 0;
@@ -206,81 +255,7 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        }
    }
 	       
-//    nMCPar=0;
-//    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
-//    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-// 	 p != myGenEvent->particles_end(); ++p ) 
-//      {  
-//        if(abs((*p)->pdg_id()) == 15 && (*p)->status() == 2)
-// 	 {
-// 	   std::vector<HepMC::GenParticle*> children = (*p)->listChildren();
-// 	   std::vector<HepMC::GenParticle*>::const_iterator daughter;
-// 	   for (daughter = children.begin();daughter != children.end();daughter++)
-// 	     {     
-// 	       if(abs((*daughter)->pdg_id())==11) {
-// 		 isele = isele++;
-// 		 MCe1=(*daughter)->momentum().mag();
-// 		 MCp1[0]=(*daughter)->momentum().x();
-// 		 MCp1[1]=(*daughter)->momentum().y();
-// 		 MCp1[2]=(*daughter)->momentum().z();
-// 		 MCeta1=(*daughter)->momentum().pseudoRapidity();
-// 		 MCphi1=(*daughter)->momentum().phi();
-// 		 MCpid1=(*daughter)->pdg_id();	                //v la carica dopo..
-// 	       }
-// 	       if(abs((*daughter)->pdg_id())==13) {
-// 		 ismu = ismu++;
-// 		 MCe2=(*daughter)->momentum().mag();
-// 		 MCp2[0]=(*daughter)->momentum().x();
-// 		 MCp2[1]=(*daughter)->momentum().y();
-// 		 MCp2[2]=(*daughter)->momentum().z();
-// 		 MCeta2=(*daughter)->momentum().pseudoRapidity();
-// 		 MCphi2=(*daughter)->momentum().phi();
-// 		 MCpid2=(*daughter)->pdg_id();	 
-// 	       }
-// 	       //neutrini a livello generatore
-// 	       if(abs((*daughter)->pdg_id())==12) {
-// 		 isnue = isnue++;
-// 		 ENue=(*daughter)->momentum().mag();
-// 		 PNue[0]=(*daughter)->momentum().x();
-// 		 PNue[1]=(*daughter)->momentum().y();
-// 		 PNue[2]=(*daughter)->momentum().z();
-// 		 EtaNue=(*daughter)->momentum().pseudoRapidity();
-// 		 PhiNue=(*daughter)->momentum().phi();
-// 		 PidNue=(*daughter)->pdg_id();	 
-// 	       }
-// 	       if(abs((*daughter)->pdg_id())==14) {
-// 		 isnumu = isnumu++;
-// 		 ENumu=(*daughter)->momentum().mag();
-// 		 PNumu[0]=(*daughter)->momentum().x();
-// 		 PNumu[1]=(*daughter)->momentum().y();
-// 		 PNumu[2]=(*daughter)->momentum().z();
-// 		 EtaNumu=(*daughter)->momentum().pseudoRapidity();
-// 		 PhiNumu=(*daughter)->momentum().phi();
-// 		 PidNumu=(*daughter)->pdg_id();	 
-// 	       }
-// 	       if((*daughter)->pdg_id()==16) {
-// 		 isnutau1 = isnutau1++;
-// 		 ENutau1=(*daughter)->momentum().mag();
-// 		 PNutau1[0]=(*daughter)->momentum().x();
-// 		 PNutau1[1]=(*daughter)->momentum().y();
-// 		 PNutau1[2]=(*daughter)->momentum().z();
-// 		 EtaNutau1=(*daughter)->momentum().pseudoRapidity();
-// 		 PhiNutau1=(*daughter)->momentum().phi();
-// 		 PidNutau1=(*daughter)->pdg_id();	 
-// 	       }
-// 	       if((*daughter)->pdg_id()==-16) {
-// 		 isnutau2 = isnutau2++;
-// 		 ENutau2=(*daughter)->momentum().mag();
-// 		 PNutau2[0]=(*daughter)->momentum().x();
-// 		 PNutau2[1]=(*daughter)->momentum().y();
-// 		 PNutau2[2]=(*daughter)->momentum().z();
-// 		 EtaNutau2=(*daughter)->momentum().pseudoRapidity();
-// 		 PhiNutau2=(*daughter)->momentum().phi();
-// 		 PidNutau2=(*daughter)->pdg_id();	 
-// 	       }
-	       
-	       
-	       
+       
 // 	       //std::cout << "pdg_id = " << (*daughter)->pdg_id() << " status = " << (*daughter)->status() << std::endl;
 // 	       //std::cout << "isele = " << isele << "; ismuon = " << ismu <<  std::endl;
 // 	     }
