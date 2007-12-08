@@ -32,10 +32,20 @@ DEFINE_ANOTHER_FWK_MODULE (VBFReadEvent) ;
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetTagger.h"
 typedef ObjectSelector<VBFJetTagger> VBFJetTagSelector ;
-DEFINE_ANOTHER_FWK_MODULE(VBFJetTagSelector);
+DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelector) ;
 
 typedef ObjectSelector<
           VBFJetTagger, 
           edm::RefVector<reco::CaloJetCollection> 
          > VBFJetTagSelectorRef ;
-DEFINE_ANOTHER_FWK_MODULE(VBFJetTagSelectorRef);
+DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
+
+//#include "HiggsAnalysis/HiggsToZZ4e/plugins/HZZ4eTkIsolation.h"
+//typedef ObjectSelector<
+//          HZZ4eTkIsolation, 
+//          edm::RefVector<reco::PixelMatchGsfElectronCollection> 
+//         > TkIsoRef ;
+//DEFINE_ANOTHER_FWK_MODULE (TkIsoRef) ;
+
+
+

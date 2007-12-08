@@ -18,7 +18,7 @@
 <use name=DataFormats/MuonReco>
 <use name=RecoMuon/MuonIsolation>
 <use name=RecoBTag/MCTools>
-<use name=HiggsAnalysis/HiggsToZZ4e>
+#<use name=HiggsAnalysis/HiggsToZZ4e>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Utilities>
@@ -42,5 +42,5 @@
    <use name=DataFormats/MuonReco>
    <use name=RecoMuon/MuonIsolation>
    <use name=RecoBTag/MCTools>
-   <use name=HiggsAnalysis/HiggsToZZ4e>
+#   <use name=HiggsAnalysis/HiggsToZZ4e>
 </export>
