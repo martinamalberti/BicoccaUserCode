@@ -135,7 +135,7 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    // MC information 
    Handle<HepMCProduct> evt;
-   iEvent.getByLabel("VtxSmeared", evt);
+   iEvent.getByLabel("source", evt);
 
    int isele = 0;
    int ismu = 0;
@@ -153,8 +153,8 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      //     bool foundHtoTauToE = false;
      //     bool foundHtoTauToMu = false;
      
-     // Look for heavy bosons and look at their children
-     if (abs( (*p)->pdg_id()) == 23) 
+     // Look for Z0 and look at their children
+     if (abs( (*p)->pdg_id()) == 23)
        {	 
 	 HepMC::GenVertex * bosonDecayVertex = (*p)->end_vertex();
 	 // now look for tau
@@ -178,7 +178,8 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		   
 		   if (abs( (*taukid)->pdg_id()) == 11)
 		     {
-		       isele = isele++;
+		       isele++;
+		       //std::cout << "isele = " << isele << std::endl;
 		       MCe1=(*taukid)->momentum().mag();
 		       MCp1[0]=(*taukid)->momentum().x();
 		       MCp1[1]=(*taukid)->momentum().y();
@@ -189,12 +190,13 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		     }
 		   if (abs( (*taukid)->pdg_id()) == 13)
 		     {
-		       ismu = ismu++;
+		       ismu++;
+		       //std::cout << "ismu = " << ismu << std::endl;
 		       MCe2=(*taukid)->momentum().mag();
 		       MCp2[0]=(*taukid)->momentum().x();
 		       MCp2[1]=(*taukid)->momentum().y();
 		       MCp2[2]=(*taukid)->momentum().z();
-		       MCeta2=(*taukid)->momentum().pseudoRapidity();
+		       MCeta2=(*taukid)->momentum().eta();
 		       MCphi2=(*taukid)->momentum().phi();
 		       MCpid2=(*taukid)->pdg_id();	 
 		     }
@@ -206,7 +208,7 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		       PNue[0]=(*taukid)->momentum().x();
 		       PNue[1]=(*taukid)->momentum().y();
 		       PNue[2]=(*taukid)->momentum().z();
-		       EtaNue=(*taukid)->momentum().pseudoRapidity();
+		       EtaNue=(*taukid)->momentum().eta();
 		       PhiNue=(*taukid)->momentum().phi();
 		       PidNue=(*taukid)->pdg_id();	 
 		     }
@@ -217,7 +219,7 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		       PNumu[0]=(*taukid)->momentum().x();
 		       PNumu[1]=(*taukid)->momentum().y();
 		       PNumu[2]=(*taukid)->momentum().z();
-		       EtaNumu=(*taukid)->momentum().pseudoRapidity();
+		       EtaNumu=(*taukid)->momentum().eta();
 		       PhiNumu=(*taukid)->momentum().phi();
 		       PidNumu=(*taukid)->pdg_id();	 
 		     }
@@ -228,7 +230,7 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		       PNutau1[0]=(*taukid)->momentum().x();
 		       PNutau1[1]=(*taukid)->momentum().y();
 		       PNutau1[2]=(*taukid)->momentum().z();
-		       EtaNutau1=(*taukid)->momentum().pseudoRapidity();
+		       EtaNutau1=(*taukid)->momentum().eta();
 		       PhiNutau1=(*taukid)->momentum().phi();
 		       PidNutau1=(*taukid)->pdg_id();	 
 		     }
@@ -239,13 +241,10 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		       PNutau2[0]=(*taukid)->momentum().x();
 		       PNutau2[1]=(*taukid)->momentum().y();
 		       PNutau2[2]=(*taukid)->momentum().z();
-		       EtaNutau2=(*taukid)->momentum().pseudoRapidity();
+		       EtaNutau2=(*taukid)->momentum().eta();
 		       PhiNutau2=(*taukid)->momentum().phi();
 		       PidNutau2=(*taukid)->pdg_id();	 
 		     }
-		   
-		   
-		   
 		 }
 		 if (!foundTauDaughter) tauDecayVertex = 0;
 	       }
@@ -453,13 +452,13 @@ ditausAnalysisMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //    }
 
 // save the event in a smaller tree:
-
-
+   
+   
    //std::cout << std:: endl;
    if(isele==1 && ismu==1)         //IL PROG NON VA BENE SE VOGLIO TENERE TUTTI I LEPT NELLO STATO FINALE (PROB LIV MC)
      {
        smalltree->Fill();
-       //std::cout << "isnue = " << isnue << "; isnumu = " << isnumu << "; isnutau1 = " << isnutau1 << "; isnutau2 = " << isnutau2 << std::endl;
+       std::cout << "isele = " << isele << "; ismu = " << ismu << std::endl;
      }
 }
 

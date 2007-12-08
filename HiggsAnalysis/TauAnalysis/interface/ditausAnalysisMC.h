@@ -60,6 +60,7 @@ class ditausAnalysisMC : public edm::EDAnalyzer {
   // to be used for root output tree
   TFile *thefile;
   TTree *smalltree;
+  std::string m_nomefile;
 
   int nMCPar;
   int MCPARMAX;// used to set maximum of arrays
