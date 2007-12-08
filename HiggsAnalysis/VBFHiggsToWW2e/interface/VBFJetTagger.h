@@ -49,7 +49,6 @@ class VBFJetTagger {
  
   container m_selected ;
 
-  edm::InputTag m_jetInputTag ;
   double m_jetEtaMax ;
   double m_jetPtMin ;
   
