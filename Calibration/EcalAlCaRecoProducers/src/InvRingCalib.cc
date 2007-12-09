@@ -277,7 +277,11 @@ for (std::vector<EcalCalibBlock>::iterator calibBlock=m_ecalCalibBlocks.begin();
 		calibBlock->solve(m_usingBlockSolver,m_minCoeff,m_maxCoeff);
 edm::LogInfo("IML") << "[InvRingLooper][endOfLoop] Starting to write the coeffs";
 TH1F coeffDistr ("coeffdistr","coeffdistr",100 ,0.7,1.4);
-TH1F coeffMap ("coeffRingMap","coeffRingMap",248,0,248);
+TH1F coeffMap ("coeffRingMap","coeffRingMap",249,-85,165);
+TH1F ringDistr ("ringDistr","ringDistr",249,-85,165);
+for(std::map<int,int>::const_iterator it=m_xtalRing.begin();
+     it!=m_xtalRing.end();++it)
+     ringDistr.Fill(it->second);
 int ID;
 std::map<int,int> flag;
 for(std::map<int,int>::const_iterator it=m_xtalRing.begin();
@@ -310,6 +314,7 @@ sprintf(filename,"coeff%d.root",iCounter);
 TFile out(filename,"recreate");    
 coeffDistr.Write();
 coeffMap.Write();
+ringDistr.Write();
 out.Close();
 if (iCounter < m_loops-1 ) return kContinue ;
 else return kStop; 
@@ -468,8 +473,8 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
          fabs(m_cellPos[endcapIt->rawId()].eta())<etaBonduary[ring+1])
 	  {
 	      EEDetId ee(*endcapIt);
-	      if (ee.zside()>0) CRing=ring + 170; 
-	      else CRing = ring + 210;
+	      if (ee.zside()>0) CRing=ring + 86; 
+	      else CRing = ring + 125;
               m_xtalRing[endcapIt->rawId()]=CRing;
 	  }    
       }
@@ -485,8 +490,8 @@ int InvRingCalib::EERegId( int id)
    EEDetId ee (id);
   //sets the reg to -1 if the ring doesn't exist or is outside the region of interest 
    if (m_xtalRing[id] == -1) return -1;
-   if (ee.zside()>0) ring = m_xtalRing[id]-170;
-   else ring = m_xtalRing[id] -210;
+   if (ee.zside()>0) ring = m_xtalRing[id]-86;
+   else ring = m_xtalRing[id] -125;
    if(ring >=m_endRing) return -1;
    if (ring<m_startRing) return -1;
    reg = (ring -m_startRing) / m_etaWidth;
