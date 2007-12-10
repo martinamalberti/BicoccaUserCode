@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.36 2007/12/05 15:35:47 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.38 2007/12/06 17:49:46 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -217,6 +217,17 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     //////////////////////////////////////// looking for jets
     m_jfi.readEvent (iEvent); // for the flavour
+	
+	m_recoJetCloneTagF->SetPxPyPzE (0.0, 0.0, 0.0, 0.0) ;
+    m_recoJetCloneTagB->SetPxPyPzE (0.0, 0.0, 0.0, 0.0) ;
+	
+	m_myDeltaR_recoJet_q_MinF = 999.9;
+	m_myDeltaR_recoJet_q_MinB = 999.9;
+	m_myDeltaE_recoJet_q_MinF = 999.9;
+	m_myDeltaE_recoJet_q_MinB = 999.9;
+	m_myDeltaPt_recoJet_q_MinF = 999.9;
+	m_myDeltaPt_recoJet_q_MinB = 999.9;
+
     TClonesArray &jetPart4Mom = *m_recoJet4Momentum;
     counter = 0;
     m_numberJet =  jetCollectionHandle->size ();
@@ -229,15 +240,57 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
 	    int myflav = jetFlavour.flavour ();
 	    m_recoJetFlavour -> push_back (myflav);
+		
+		//per ogni jet controllo se deriva da un quark tag
+		if (m_evtFlag == 123 || m_evtFlag == 124)
+		{
+			TLorentzVector matchedQuark;
+			matchedQuark.SetPxPyPzE (jetFlavour.vec4MainParton ().px (), jetFlavour.vec4MainParton ().py (),
+									 jetFlavour.vec4MainParton ().pz (), jetFlavour.vec4MainParton ().energy ()) ;
+							  
+			double mydeltaR_F = m_genqTagF->DeltaR (matchedQuark); //risoluzione in direzione
+			double mydeltaE_F = 2*(m_genqTagF->E() - matchedQuark.E())/(m_genqTagF->E() + matchedQuark.E());//risoluzione in energia
+			double mydeltaPt_F = 2*(m_genqTagF->Pt() - matchedQuark.Pt())/(m_genqTagF->Pt() + matchedQuark.Pt());//risoluzione in pt
+			double mydeltaR_B = m_genqTagB->DeltaR (matchedQuark);
+			double mydeltaE_B = 2*(m_genqTagB->E() - matchedQuark.E())/(m_genqTagB->E() + matchedQuark.E()) ;
+			double mydeltaPt_B = 2*(m_genqTagB->Pt() - matchedQuark.Pt())/(m_genqTagB->Pt() + matchedQuark.Pt());//risoluzione in pt
+			
+			if (mydeltaR_F < m_myDeltaR_recoJet_q_MinF && myflav == abs (m_genqTagF_Flavour))
+			{
+				m_myDeltaR_recoJet_q_MinF = mydeltaR_F;
+				m_myDeltaE_recoJet_q_MinF = mydeltaE_F;
+				m_myDeltaPt_recoJet_q_MinF = mydeltaPt_F;
+				*m_recoJetCloneTagF = get4momentum (*jet);
+			}
+		
+			else if (mydeltaR_B < m_myDeltaR_recoJet_q_MinB && myflav == abs (m_genqTagB_Flavour))
+			{ 
+				m_myDeltaR_recoJet_q_MinB = mydeltaR_B;
+				m_myDeltaE_recoJet_q_MinB = mydeltaE_B;
+				m_myDeltaPt_recoJet_q_MinB = mydeltaPt_B;
+				*m_recoJetCloneTagB = get4momentum (*jet);
+			}
+								
+		}												
+		
         }   
     
     
     //////////////////////////////////////// looking for genjets
 	m_genJetCloneTagF->SetPxPyPzE (0.0, 0.0, 0.0, 0.0) ;
     m_genJetCloneTagB->SetPxPyPzE (0.0, 0.0, 0.0, 0.0) ;
-    TClonesArray &genJetPart4Mom = *m_genJet4Momentum;
+	
+	m_myDeltaR_genJet_q_MinF = 999.9;
+	m_myDeltaR_genJet_q_MinB = 999.9;
+	m_myDeltaE_genJet_q_MinF = 999.9;
+	m_myDeltaE_genJet_q_MinB = 999.9;
+	m_myDeltaPt_genJet_q_MinF = 999.9;
+	m_myDeltaPt_genJet_q_MinB = 999.9;
+	
+	TClonesArray &genJetPart4Mom = *m_genJet4Momentum;
     counter = 0;
     m_numberGenJet =  genJetCollectionHandle->size ();
+	
     for (GenJetCollection::const_iterator jet = genJetCollectionHandle->begin (); 
          jet != genJetCollectionHandle->end (); 
          ++jet ) 
@@ -247,22 +300,35 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	        JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(jet));
 	        int myflav = jetFlavour.flavour ();
 	        m_genJetFlavour -> push_back (myflav);
+			//per ogni jet controllo se deriva da un quark tag
 			if (m_evtFlag == 123 || m_evtFlag == 124)
 			{
-				TLorentzVector match;
-				match.SetPxPyPzE (jetFlavour.vec4MainParton ().px (), jetFlavour.vec4MainParton ().py (),
-								  jetFlavour.vec4MainParton ().pz (), jetFlavour.vec4MainParton ().energy ()) ;
+				TLorentzVector matchedQuark;
+				matchedQuark.SetPxPyPzE (jetFlavour.vec4MainParton ().px (), jetFlavour.vec4MainParton ().py (),
+								         jetFlavour.vec4MainParton ().pz (), jetFlavour.vec4MainParton ().energy ()) ;
 								  
-				double mydeltaR_F = m_genqTagF->DeltaR (match);
-				double mydeltaE_F = m_genqTagF->E() - match.E() ;
-				double mydeltaR_B = m_genqTagB->DeltaR (match);
-				double mydeltaE_B = m_genqTagB->E() - match.E() ;
+				double mydeltaR_F = m_genqTagF->DeltaR (matchedQuark); //risoluzione in direzione
+				double mydeltaE_F = 2*(m_genqTagF->E() - matchedQuark.E())/(m_genqTagF->E() + matchedQuark.E());//risoluzione in energia
+				double mydeltaPt_F = 2*(m_genqTagF->Pt() - matchedQuark.Pt())/(m_genqTagF->Pt() + matchedQuark.Pt());//risoluzione in pt
+				double mydeltaR_B = m_genqTagB->DeltaR (matchedQuark);
+				double mydeltaE_B = 2*(m_genqTagB->E() - matchedQuark.E())/(m_genqTagB->E() + matchedQuark.E()) ;
+				double mydeltaPt_B = 2*(m_genqTagB->Pt() - matchedQuark.Pt())/(m_genqTagB->Pt() + matchedQuark.Pt());//risoluzione in pt
 				
-				if (mydeltaR_F < 0.9 && myflav == abs (m_genqTagF_Flavour)) 
-				*m_genJetCloneTagF = match;
+				if (mydeltaR_F < m_myDeltaR_genJet_q_MinF && myflav == abs (m_genqTagF_Flavour))
+				{
+					m_myDeltaR_genJet_q_MinF = mydeltaR_F;
+					m_myDeltaE_genJet_q_MinF = mydeltaE_F;
+					m_myDeltaPt_genJet_q_MinF = mydeltaPt_F;
+					*m_genJetCloneTagF = get4momentum (*jet);
+				}
 			
-				else if (mydeltaR_B < 1.5 && myflav == abs (m_genqTagB_Flavour)) 
-				*m_genJetCloneTagB = match;
+				else if (mydeltaR_B < m_myDeltaR_genJet_q_MinB && myflav == abs (m_genqTagB_Flavour))
+				{ 
+					m_myDeltaR_genJet_q_MinB = mydeltaR_B;
+					m_myDeltaE_genJet_q_MinB = mydeltaE_B;
+					m_myDeltaPt_genJet_q_MinB = mydeltaPt_B;
+					*m_genJetCloneTagB = get4momentum (*jet);
+				}
 									
 			}												
         }   
@@ -348,12 +414,28 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genJet4Momentum = new TClonesArray ("TLorentzVector");
     m_genJetFlavour = new std::vector<int>;    
     m_genJetCloneTagF = new TLorentzVector (0.0,0.0,0.0,0.0);   
-	m_genJetCloneTagB = new TLorentzVector (0.0,0.0,0.0,0.0);   ;  
+	m_genJetCloneTagB = new TLorentzVector (0.0,0.0,0.0,0.0);
+	
+	m_myDeltaR_genJet_q_MinF = 0.0;
+	m_myDeltaR_genJet_q_MinB = 0.0;
+	m_myDeltaE_genJet_q_MinF = 0.0;
+	m_myDeltaE_genJet_q_MinB = 0.0;
+	m_myDeltaPt_genJet_q_MinF = 0.0;
+	m_myDeltaPt_genJet_q_MinB = 0.0;  
 	
     // reco jets
     m_numberJet = 0;
     m_recoJet4Momentum = new TClonesArray ("TLorentzVector");    
-    m_recoJetFlavour = new std::vector<int>;  
+    m_recoJetFlavour = new std::vector<int>;
+	m_recoJetCloneTagF = new TLorentzVector (0.0,0.0,0.0,0.0);   
+	m_recoJetCloneTagB = new TLorentzVector (0.0,0.0,0.0,0.0);  
+	
+	m_myDeltaR_recoJet_q_MinF = 0.0;
+	m_myDeltaR_recoJet_q_MinB = 0.0;
+	m_myDeltaE_recoJet_q_MinF = 0.0;
+	m_myDeltaE_recoJet_q_MinB = 0.0;
+	m_myDeltaPt_recoJet_q_MinF = 0.0;
+	m_myDeltaPt_recoJet_q_MinB = 0.0;
     
     // gen met
     m_genMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0);   
@@ -403,11 +485,24 @@ VBFReadEvent::beginJob (const edm::EventSetup&)
     m_genTree->Branch ("genJetFlavour",  &m_genJetFlavour);
 	m_genTree->Branch ("genJetCloneTagF","TLorentzVector",&m_genJetCloneTagF,6400,99);
     m_genTree->Branch ("genJetCloneTagB","TLorentzVector",&m_genJetCloneTagB,6400,99);
-	
+	m_genTree->Branch ("myDeltaR_genJet_q_MinF", &m_myDeltaR_genJet_q_MinF, "m_myDeltaR_genJet_q_MinF/D");
+	m_genTree->Branch ("myDeltaE_genJet_q_MinF", &m_myDeltaE_genJet_q_MinF, "m_myDeltaE_genJet_q_MinF/D");
+	m_genTree->Branch ("myDeltaPt_genJet_q_MinF", &m_myDeltaPt_genJet_q_MinF, "m_myDeltaPt_genJet_q_MinF/D");
+	m_genTree->Branch ("myDeltaR_genJet_q_MinB", &m_myDeltaR_genJet_q_MinB, "m_myDeltaR_genJet_q_MinB/D");
+	m_genTree->Branch ("myDeltaE_genJet_q_MinB", &m_myDeltaE_genJet_q_MinB, "m_myDeltaE_genJet_q_MinB/D");
+	m_genTree->Branch ("myDeltaPt_genJet_q_MinB", &m_myDeltaPt_genJet_q_MinB, "m_myDeltaPt_genJet_q_MinB/D");
     
     m_genTree->Branch ("numberJet", &m_numberJet, "m_numberJet/I");
     m_genTree->Branch ("recoJet4Momentum", "TClonesArray", &m_recoJet4Momentum, 256000,0); 
     m_genTree->Branch ("recoJetFlavour",  &m_recoJetFlavour);
+	m_genTree->Branch ("recoJetCloneTagF","TLorentzVector",&m_recoJetCloneTagF,6400,99);
+    m_genTree->Branch ("recoJetCloneTagB","TLorentzVector",&m_recoJetCloneTagB,6400,99);
+	m_genTree->Branch ("myDeltaR_recoJet_q_MinF", &m_myDeltaR_recoJet_q_MinF, "m_myDeltaR_recoJet_q_MinF/D");
+	m_genTree->Branch ("myDeltaE_recoJet_q_MinF", &m_myDeltaE_recoJet_q_MinF, "m_myDeltaE_recoJet_q_MinF/D");
+	m_genTree->Branch ("myDeltaPt_recoJet_q_MinF", &m_myDeltaPt_recoJet_q_MinF, "m_myDeltaPt_recoJet_q_MinF/D");
+	m_genTree->Branch ("myDeltaR_recoJet_q_MinB", &m_myDeltaR_recoJet_q_MinB, "m_myDeltaR_recoJet_q_MinB/D");
+	m_genTree->Branch ("myDeltaE_recoJet_q_MinB", &m_myDeltaE_recoJet_q_MinB, "m_myDeltaE_recoJet_q_MinB/D");
+	m_genTree->Branch ("myDeltaPt_recoJet_q_MinB", &m_myDeltaPt_recoJet_q_MinB, "m_myDeltaPt_recoJet_q_MinB/D");
     
     m_genTree->Branch ("genMet4Momentum", "TLorentzVector", &m_genMet4Momentum, 6400,99); 
     

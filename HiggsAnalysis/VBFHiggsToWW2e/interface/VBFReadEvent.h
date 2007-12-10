@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.26 2007/12/05 15:35:48 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.27 2007/12/06 17:44:39 tancini Exp $
 //
 //
 
@@ -236,11 +236,25 @@ class VBFReadEvent : public edm::EDAnalyzer {
       TClonesArray *m_genJet4Momentum;
       std::vector<int> *m_genJetFlavour;
 	  TLorentzVector *m_genJetCloneTagF;
-	  TLorentzVector *m_genJetCloneTagB;      
-    
+	  TLorentzVector *m_genJetCloneTagB;
+	  double m_myDeltaR_genJet_q_MinF;
+	  double m_myDeltaR_genJet_q_MinB;      
+	  double m_myDeltaE_genJet_q_MinF;
+	  double m_myDeltaE_genJet_q_MinB;   
+	  double m_myDeltaPt_genJet_q_MinF;
+	  double m_myDeltaPt_genJet_q_MinB;   
+	
       int m_numberJet;
       TClonesArray *m_recoJet4Momentum;
-      std::vector<int> *m_recoJetFlavour;     
+      std::vector<int> *m_recoJetFlavour;
+	  TLorentzVector *m_recoJetCloneTagF;
+	  TLorentzVector *m_recoJetCloneTagB;
+	  double m_myDeltaR_recoJet_q_MinF;
+	  double m_myDeltaR_recoJet_q_MinB; 
+	  double m_myDeltaE_recoJet_q_MinF;
+	  double m_myDeltaE_recoJet_q_MinB; 
+	  double m_myDeltaPt_recoJet_q_MinF;
+	  double m_myDeltaPt_recoJet_q_MinB;      
     
       TLorentzVector *m_genMet4Momentum;    
     
