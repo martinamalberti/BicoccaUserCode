@@ -101,6 +101,7 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[10]/D" ); 
     m_minitree->Branch("jetEta",m_jetEta ,"jetEta[10]/D");
     m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[10]/D");
+    m_minitree->Branch("jetFlav",m_jetFlav ,"eleFlav[30]/I");
     m_minitree->Branch("jetPTMatch" ,m_jetPTMatch  ,"jetPTMatch[10]/D" ); 
     m_minitree->Branch("jetEtaMatch",m_jetEtaMatch ,"jetEtaMatch[10]/D");
     m_minitree->Branch("jetPhiMatch",m_jetPhiMatch ,"jetPhiMatch[10]/D");
@@ -156,20 +157,21 @@ void testReferences::analyze (const edm::Event& iEvent,
    //PG reset the variables
    for (int ii = 0 ; ii < 30 ; ++ii)
      { 
-        m_jetPTMatch[ii] = 0 ;  
-        m_jetEtaMatch[ii] = 0 ; 
-        m_jetPhiMatch[ii] = 0 ; 
+        m_jetPT[ii] = 0 ;  
+        m_jetEta[ii] = 0 ; 
+        m_jetPhi[ii] = 0 ; 
+        m_jetFlav[ii] = 0 ; 
      }
    for (int ii = 0 ; ii < 10 ; ++ii)
      { 
+        m_jetPTMatch[ii] = 0 ;  
+        m_jetEtaMatch[ii] = 0 ; 
+        m_jetPhiMatch[ii] = 0 ; 
         m_rawBit[ii] = 0;
         m_elePT[ii] = 0 ;  
         m_eleEta[ii] = 0 ; 
         m_elePhi[ii] = 0 ; 
         m_eleCharge[ii] = 0 ; 
-        m_jetPT[ii] = 0 ;  
-        m_jetEta[ii] = 0 ; 
-        m_jetPhi[ii] = 0 ; 
         m_jetmaxPT[ii] = 0 ;  
         m_jetmaxEta[ii] = 0 ; 
         m_jetmaxPhi[ii] = 0 ; 
@@ -249,6 +251,8 @@ void testReferences::analyze (const edm::Event& iEvent,
           m_jetPT[ii]  = iterJet->pt () ;
           m_jetEta[ii] = iterJet->eta () ;
           m_jetPhi[ii] = iterJet->phi () ;
+          JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(iterJet));
+          m_jetFlav[ii] =  jetFlavour.flavour () ;
           ++ii ;
         }
      }
