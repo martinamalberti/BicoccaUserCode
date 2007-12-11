@@ -44,7 +44,9 @@ InvRingCalib::InvRingCalib (const edm::ParameterSet& iConfig) :
   m_startRing (iConfig.getParameter<int>("startRing")),
   m_endRing (iConfig.getParameter<int>("endRing")),
   m_EBcoeffFile (iConfig.getParameter<std::string>("EBcoeffs")),
-  m_EEcoeffFile (iConfig.getParameter<std::string>("EEcoeffs"))
+  m_EEcoeffFile (iConfig.getParameter<std::string>("EEcoeffs")),
+  m_EEZone (iConfig.getParameter<int>("EEZone")),
+  m_maxSelectedNumPerRing (iConfig.getParameter<int>("maxNumPerRing"))
 {
  //controls if the parameters inputed are correct
  assert (m_etaStart >=-85 && m_etaStart <= 85);
@@ -53,14 +55,16 @@ InvRingCalib::InvRingCalib (const edm::ParameterSet& iConfig) :
  assert (m_endRing>=m_startRing && m_endRing<=40);
  assert(!((m_endRing - m_startRing)%m_etaWidth));
  assert ((m_etaEnd-m_etaStart)%m_etaWidth == 0);
+ assert (( abs(m_EEZone)<=1));
  edm::LogInfo ("IML") << "[InvRingCalib][ctor] entering " ;
  
  //LP CalibBlock vector instantiation
  for (int i =0; i< EBRegionNum(); ++i)
  	m_ecalCalibBlocks.push_back (EcalCalibBlock (m_etaWidth)); 
- for (int i=0; i<EERegionNum();++i)
- 	m_ecalCalibBlocks.push_back (EcalCalibBlock (m_etaWidth));
- for (int i=0; i<EERegionNum();++i)
+ int EEBlocks;
+ if (m_EEZone ==0) EEBlocks = 2* EERegionNum();
+ if (m_EEZone ==1 || m_EEZone ==-1) EEBlocks = EERegionNum();
+ for (int i=0; i<EEBlocks;++i)
  	m_ecalCalibBlocks.push_back (EcalCalibBlock (m_etaWidth));
  edm::LogInfo ("IML") <<" [InvRingCalib][ctor] end of creator";
 }
@@ -168,6 +172,9 @@ void InvRingCalib::startingNewLoop (unsigned int ciclo)
 	//LP empties the energies vector, to fill DuringLoop.
         calibBlock->reset () ;
       }
+   for (std::map<int,int>::const_iterator ring=m_xtalRing.begin();
+         ring!=m_xtalRing.end();++ring)
+	 m_RingNumOfHits[ring->second]=0;
    return ;
 }
 
@@ -234,9 +241,9 @@ edm::EDLooper::Status InvRingCalib::duringLoop (const edm::Event& iEvent,
     if (Max.det()==0) continue; 
     //Skips if the Max is in a region we don't want to calibrate
     if (m_xtalRegionId[Max.rawId()]==-1) continue;
-//    if (m_maxSelectedNumPerXtal > 0 &&  //FIXME
-//        m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue ;
-//    ++m_xtalNumOfHits[Max.rawId()];
+    if (m_maxSelectedNumPerRing > 0 &&  
+        m_RingNumOfHits [m_xtalRing[Max.rawId ()]] > m_maxSelectedNumPerRing ) continue ;
+    ++m_RingNumOfHits [m_xtalRing[Max.rawId()]];
     //declares a map to be filled with the hits of the xtals around the MOX
     std::map<int , double> xtlMap;
     //Gets the momentum of the track
@@ -490,8 +497,25 @@ int InvRingCalib::EERegId( int id)
    EEDetId ee (id);
   //sets the reg to -1 if the ring doesn't exist or is outside the region of interest 
    if (m_xtalRing[id] == -1) return -1;
-   if (ee.zside()>0) ring = m_xtalRing[id]-86;
-   else ring = m_xtalRing[id] -125;
+  //avoid the calibration in the wrong zside
+   if (m_EEZone == 1 ){
+   if (ee.zside()<0) return -1;
+   ring = m_xtalRing[id]-86;
+   if(ring >=m_endRing) return -1;
+   if (ring<m_startRing) return -1;
+   reg = (ring -m_startRing) / m_etaWidth;
+   return reg;
+   }
+   if (m_EEZone == -1){
+   if (ee.zside()>0) return -1;
+   ring = m_xtalRing[id] -125;
+   if(ring >=m_endRing) return -1;
+   if (ring<m_startRing) return -1;
+   reg = (ring -m_startRing) / m_etaWidth;
+   return reg;
+   }
+   if (ee.zside()<0) ring=m_xtalRing[id]-86;
+   else ring = m_xtalRing[id]-125;
    if(ring >=m_endRing) return -1;
    if (ring<m_startRing) return -1;
    reg = (ring -m_startRing) / m_etaWidth;

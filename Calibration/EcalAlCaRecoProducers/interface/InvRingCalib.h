@@ -2,8 +2,8 @@
   * \file InvRingCalib.h
   * \class InvRingCalib
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2007/12/02 21:42:42 $
-  * $Revision: 1.3 $
+  * $Date: 2007/12/05 21:53:52 $
+  * $Revision: 1.4 $
   * \author 
   *
 */
@@ -97,8 +97,10 @@ class InvRingCalib : public edm::EDLooper {
     int m_etaEnd ;
     //! eta size of the regions 
     int m_etaWidth ;
-    //! maximum number of events per crystal
-//    int m_maxSelectedNumPerXtal ; //FIXME not yet used
+    //! maximum number of events per Ring
+    int m_maxSelectedNumPerRing ; 
+    //! number of events already read per Ring
+    std::map<int,int> m_RingNumOfHits;
     //! single blocks calibrators
     std::vector<EcalCalibBlock> m_ecalCalibBlocks ;
     //! minimum coefficient accepted (RAW)
@@ -132,6 +134,8 @@ class InvRingCalib : public edm::EDLooper {
     //!coeffs filenames
     std::string m_EBcoeffFile;
     std::string m_EEcoeffFile;
+    //!endcap zone to be calibrated
+    int m_EEZone;
 };
 #endif
 #endif
