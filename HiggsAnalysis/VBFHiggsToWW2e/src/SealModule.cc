@@ -31,11 +31,13 @@ DEFINE_ANOTHER_FWK_MODULE (VBFProcessFilter) ;
 DEFINE_ANOTHER_FWK_MODULE (VBFReadEvent) ; 
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetTagger.h"
-typedef ObjectSelector<VBFJetTagger> VBFJetTagSelector ;
+
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFSimpleJetTagger.h"
+typedef ObjectSelector<VBFSimpleJetTagger> VBFJetTagSelector ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelector) ;
 
 typedef ObjectSelector<
-          VBFJetTagger, 
+          VBFSimpleJetTagger, 
           edm::RefVector<reco::CaloJetCollection> 
          > VBFJetTagSelectorRef ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
