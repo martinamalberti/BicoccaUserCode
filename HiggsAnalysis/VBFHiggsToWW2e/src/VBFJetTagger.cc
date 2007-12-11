@@ -65,9 +65,8 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
     {
       double firstDelta = ROOT::Math::VectorUtil::DeltaR (firstDir,jetIt->momentum ()) ;
       double secondDelta = ROOT::Math::VectorUtil::DeltaR (secondDir,jetIt->momentum ()) ;
+//      if (fistDelta < m_gatherConeSize)
       /* 
-        - trovare il modo di fare delta R in maniera efficiente, 
-          ricordando le direzioni iniziali dei due getti
         - controllare la distanza da ciascun getto per aggiugnerlo al jet tag
           relativo
           - se il getto sta nei due coni, si accorpa al piu' vicino      
