@@ -63,6 +63,9 @@ class VBFJetTagger: public edm::EDProducer
   double m_jetEtaMax ;
   //! jet pt minimum threshold above which look for jets
   double m_jetPtMin ;
+  //! size of the cone inside which other jets are summed 
+  //! to the leading tag ones
+  double m_gatherConeSize ;
   
 
 
