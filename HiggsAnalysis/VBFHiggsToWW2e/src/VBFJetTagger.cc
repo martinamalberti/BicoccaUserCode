@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
+#include <Math/VectorUtil.h>
 
 #include <iostream>
 #include <algorithm>
@@ -62,6 +63,7 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
        jetIt != jetCollectionHandle->end () ; 
        ++jetIt) 
     {
+      ROOT::Math::VectorUtil::DeltaR (firstDir,jetIt->momentum ()) ;
       /* 
         - trovare il modo di fare delta R in maniera efficiente, 
           ricordando le direzioni iniziali dei due getti
