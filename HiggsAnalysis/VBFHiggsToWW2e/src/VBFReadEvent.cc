@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.38 2007/12/06 17:49:46 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.39 2007/12/10 14:26:31 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -188,7 +188,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
           m_recoEleClass -> push_back (ele->classification());
 		  m_recoEleCharge -> push_back (ele->charge());
 
-          const reco::GsfTrack* gsfTrack =  & (*((*GSFHandle)[counter].gsfTrack ()));
+          // const reco::GsfTrack* gsfTrack =  & (*((*GSFHandle)[counter].gsfTrack ()));
           //PG select according the to the hits number       
           //for the bug not fixed in CMSSW < 15X       
           //if (gsfTrack->numberOfValidHits () < 5); 
