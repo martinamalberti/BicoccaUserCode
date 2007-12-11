@@ -63,7 +63,8 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
        jetIt != jetCollectionHandle->end () ; 
        ++jetIt) 
     {
-      ROOT::Math::VectorUtil::DeltaR (firstDir,jetIt->momentum ()) ;
+      double firstDelta = ROOT::Math::VectorUtil::DeltaR (firstDir,jetIt->momentum ()) ;
+      double secondDelta = ROOT::Math::VectorUtil::DeltaR (secondDir,jetIt->momentum ()) ;
       /* 
         - trovare il modo di fare delta R in maniera efficiente, 
           ricordando le direzioni iniziali dei due getti
