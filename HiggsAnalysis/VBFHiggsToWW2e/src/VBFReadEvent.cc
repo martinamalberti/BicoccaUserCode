@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.39 2007/12/10 14:26:31 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.40 2007/12/11 13:21:57 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -255,7 +255,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			double mydeltaE_B = 2*(m_genqTagB->E() - matchedQuark.E())/(m_genqTagB->E() + matchedQuark.E()) ;
 			double mydeltaPt_B = 2*(m_genqTagB->Pt() - matchedQuark.Pt())/(m_genqTagB->Pt() + matchedQuark.Pt());//risoluzione in pt
 			
-			if (mydeltaR_F < m_myDeltaR_recoJet_q_MinF && myflav == abs (m_genqTagF_Flavour))
+			if (mydeltaR_F < mydeltaR_B && mydeltaR_F < m_myDeltaR_recoJet_q_MinF && myflav == abs (m_genqTagF_Flavour))
 			{
 				m_myDeltaR_recoJet_q_MinF = mydeltaR_F;
 				m_myDeltaE_recoJet_q_MinF = mydeltaE_F;
@@ -263,7 +263,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				*m_recoJetCloneTagF = get4momentum (*jet);
 			}
 		
-			else if (mydeltaR_B < m_myDeltaR_recoJet_q_MinB && myflav == abs (m_genqTagB_Flavour))
+			else if (mydeltaR_B < mydeltaR_F && mydeltaR_B < m_myDeltaR_recoJet_q_MinB && myflav == abs (m_genqTagB_Flavour))
 			{ 
 				m_myDeltaR_recoJet_q_MinB = mydeltaR_B;
 				m_myDeltaE_recoJet_q_MinB = mydeltaE_B;
@@ -314,7 +314,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				double mydeltaE_B = 2*(m_genqTagB->E() - matchedQuark.E())/(m_genqTagB->E() + matchedQuark.E()) ;
 				double mydeltaPt_B = 2*(m_genqTagB->Pt() - matchedQuark.Pt())/(m_genqTagB->Pt() + matchedQuark.Pt());//risoluzione in pt
 				
-				if (mydeltaR_F < m_myDeltaR_genJet_q_MinF && myflav == abs (m_genqTagF_Flavour))
+				if (mydeltaR_F < mydeltaR_B && mydeltaR_F < m_myDeltaR_genJet_q_MinF && myflav == abs (m_genqTagF_Flavour))
 				{
 					m_myDeltaR_genJet_q_MinF = mydeltaR_F;
 					m_myDeltaE_genJet_q_MinF = mydeltaE_F;
@@ -322,7 +322,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 					*m_genJetCloneTagF = get4momentum (*jet);
 				}
 			
-				else if (mydeltaR_B < m_myDeltaR_genJet_q_MinB && myflav == abs (m_genqTagB_Flavour))
+				else if (mydeltaR_B < mydeltaR_F && mydeltaR_B < m_myDeltaR_genJet_q_MinB && myflav == abs (m_genqTagB_Flavour))
 				{ 
 					m_myDeltaR_genJet_q_MinB = mydeltaR_B;
 					m_myDeltaE_genJet_q_MinB = mydeltaE_B;
