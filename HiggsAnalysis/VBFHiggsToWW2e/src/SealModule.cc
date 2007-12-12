@@ -27,6 +27,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFMCProcessFilter) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFProcessFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFProcessFilter) ; 
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptonsNumFilter.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFLeptonsNumFilter) ; 
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFReadEvent) ; 
 
