@@ -1,4 +1,4 @@
-// $Id: VBFTrivialAnalysis.cc,v 1.1 2007/12/12 11:25:38 govoni Exp $
+// $Id: VBFTrivialAnalysis.cc,v 1.2 2007/12/12 15:43:49 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTrivialAnalysis.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -8,6 +8,7 @@
 VBFTrivialAnalysis::VBFTrivialAnalysis (const edm::ParameterSet& iConfig) :
   m_jetTagsInputTag (iConfig.getParameter<edm::InputTag> ("jetTagsInputTag")) ,
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
+  m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
   m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")) ,
   m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) 
 {}
@@ -45,6 +46,14 @@ VBFTrivialAnalysis::analyze (const edm::Event& iEvent, const edm::EventSetup& iS
 
   std::cout << "[VBFTrivialAnalysis][analyze] number of GSF electrons : "
             << GSFHandle->size () 
+            << std::endl ;
+
+  //PG get the electron ID collection
+  edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
+  iEvent.getByLabel (m_electronIDInputTag, electronIDAssocHandle);
+
+  std::cout << "[VBFTrivialAnalysis][analyze] number of electron ID electrons : "
+            << electronIDAssocHandle->size () 
             << std::endl ;
 
   //VT get the Global muons collection

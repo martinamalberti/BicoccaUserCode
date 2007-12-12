@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFTrivialAnalysis.h,v 1.1 2007/12/12 11:25:37 govoni Exp $
+// $Id: VBFTrivialAnalysis.h,v 1.2 2007/12/12 15:43:47 govoni Exp $
 //
 //
 
@@ -135,6 +135,7 @@ class VBFTrivialAnalysis : public edm::EDAnalyzer {
 
       edm::InputTag m_jetTagsInputTag ;
       edm::InputTag m_GSFInputTag ;
+      edm::InputTag m_electronIDInputTag ;
       edm::InputTag m_muInputTag ;
       edm::InputTag m_metInputTag ;
 
