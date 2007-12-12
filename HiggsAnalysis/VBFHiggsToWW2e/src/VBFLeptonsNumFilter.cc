@@ -1,4 +1,4 @@
-// $Id: VBFLeptonsNumFilter.cc,v 1.8 2007/12/07 17:46:35 govoni Exp $
+// $Id: VBFLeptonsNumFilter.cc,v 1.1 2007/12/12 16:03:52 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptonsNumFilter.h"
 
@@ -44,7 +44,7 @@ VBFLeptonsNumFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::MuonCollection> MuonHandle;
   iEvent.getByLabel (m_muInputTag,MuonHandle); 
     
-  if (MuonHandle->size () + GSFHandle->size () < m_minLeptonsNum) return false ;
+  if ((MuonHandle->size () + GSFHandle->size ()) < m_minLeptonsNum) return false ;
   int leptonsNum = 0 ;
   
   //PG loop over the electrons collection
