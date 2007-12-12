@@ -47,9 +47,6 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 //tagJetCands.first 
 //tagJetCands.second
 
-  //PG create the collection to be added to the event
-  std::auto_ptr<LorentzVectorCollection> tagJets (new LorentzVectorCollection) ;
-  
   //PG build the new jets
   LorentzVector firstTag = tagJetCands.first->p4 () ;
   LorentzVector secondTag = tagJetCands.second->p4 () ;
@@ -78,7 +75,10 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
       */
     } //PG loop over the jets collection
   
-  //PG fill the collection
+  //PG create and fill the collection to be added to the event
+  std::auto_ptr<LorentzVectorCollection> tagJets (new LorentzVectorCollection) ;
+  tagJets->push_back (firstTag) ;  
+  tagJets->push_back (secondTag) ;  
     
   //PG insert the collection into the event
   iEvent.put (tagJets, m_tagJetsName) ;
