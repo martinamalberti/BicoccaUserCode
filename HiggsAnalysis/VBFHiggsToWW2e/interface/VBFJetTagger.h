@@ -39,6 +39,8 @@ class VBFJetTagger: public edm::EDProducer
   //! dtor
   virtual ~VBFJetTagger () ;
   
+  typedef math::XYZTLorentzVector LorentzVector ;
+  typedef std::vector<LorentzVector> LorentzVectorCollection ;
   typedef reco::CaloJetCollection collection ;
   typedef reco::CaloJetRef jet ;
 //  typedef std::vector<const reco::PixelMatchGsfElectron *> container;

@@ -4,7 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
-#include <Math/VectorUtil.h>
+#include "DataFormats/Math/interface/LorentzVector.h"#include <Math/VectorUtil.h>
 
 #include <iostream>
 #include <algorithm>
@@ -17,7 +17,7 @@ VBFJetTagger::VBFJetTagger (const edm::ParameterSet& iConfig) :
   m_jetPtMin (iConfig.getParameter<double> ("jetPtMin")) ,
   m_gatherConeSize (iConfig.getParameter<double> ("gatherConeSize")) 
 {
-  produces<reco::CaloJetCollection> (m_tagJetsName) ;
+  produces<LorentzVectorCollection> (m_tagJetsName) ;
 }  
 
 
@@ -48,14 +48,14 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 //tagJetCands.second
 
   //PG create the collection to be added to the event
-  std::auto_ptr<reco::CaloJetCollection> tagJets (new reco::CaloJetCollection) ;
+  std::auto_ptr<LorentzVectorCollection> tagJets (new LorentzVectorCollection) ;
   
   //PG build the new jets
-  reco::CaloJet firstTag = *tagJetCands.first ;
-  reco::CaloJet secondTag = *tagJetCands.second ;
+  LorentzVector firstTag = tagJetCands.first->p4 () ;
+  LorentzVector secondTag = tagJetCands.second->p4 () ;
   
-  math::XYZVector firstDir = firstTag.momentum () ;
-  math::XYZVector secondDir = secondTag.momentum () ;
+  math::XYZVector firstDir = tagJetCands.first->momentum () ;
+  math::XYZVector secondDir = tagJetCands.first->momentum () ;
   //PG look for other jets in cones around the found ones and add them to the "leading"
   
   //PG loop over the jets collection
@@ -65,7 +65,12 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
     {
       double firstDelta = ROOT::Math::VectorUtil::DeltaR (firstDir,jetIt->momentum ()) ;
       double secondDelta = ROOT::Math::VectorUtil::DeltaR (secondDir,jetIt->momentum ()) ;
-//      if (fistDelta < m_gatherConeSize)
+      if (firstDelta < m_gatherConeSize) 
+        {
+          if (secondDelta < firstDelta) secondTag += jetIt->p4 () ;
+          else firstTag += jetIt->p4 () ;
+        }
+      else secondTag += jetIt->p4 () ;
       /* 
         - controllare la distanza da ciascun getto per aggiugnerlo al jet tag
           relativo
