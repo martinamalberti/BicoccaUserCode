@@ -2,7 +2,7 @@ void tagJetSigVsBkg ()
 {
     gROOT->SetStyle("Plain") ;
 	
-    TFile *f = new TFile("WWF_HIGGS160/WWf_higgsMass160_tree.root") ;
+    TFile *f = new TFile("WWF_HIGGS160/tt4j_alpgen_152_tree_1.root") ;
     TTree *tree = (TTree*)f->Get("tree"); 
         
 	int evtFlag;
@@ -13,11 +13,9 @@ void tagJetSigVsBkg ()
 	tree->SetBranchAddress ("evtFlag", &evtFlag);
 	tree->SetBranchAddress ("numberJet", &numberJet);
 	tree->SetBranchAddress ("recoJet4Momentum", &recoJet4Momentum);
-    tree->SetBranchAddress ("numberJet", &numberJet);
-	tree->SetBranchAddress ("recoJet4Momentum", &recoJet4Momentum);
 	
 	//VVF
-	TH1F *histo_deltaEtaTag_VVf = new TH1F ("histo_deltaEtaTag_VVf", "#Delta#eta between tag jets", 100, 0, 10) ;
+	TH1F *histo_deltaEtaTag_VVf = new TH1F ("histo_deltaEtaTag_VVf", "#Delta#eta between tag jets", 50, 0, 10) ;
 	histo_deltaEtaTag_VVf->SetLineColor (4) ;
 	TH1F *histo_invMassTag_VVf = new TH1F ("histo_invMassTag_VVf", "Invariant mass of tag jets", 100, 0, 4000) ;
 	histo_invMassTag_VVf->SetLineColor (4) ;
@@ -25,36 +23,75 @@ void tagJetSigVsBkg ()
 	histo_energyTag_VVf->SetLineColor (4) ;
 	TH1F *histo_ptTag_VVf = new TH1F ("histo_ptTag_VVf", "Pt of tag jets", 100, 0, 400) ;
 	histo_ptTag_VVf->SetLineColor (4) ;
-	TH1F *histo_etaTag_VVf = new TH1F ("histo_etaTag_VVf", "#eta of tag jets", 100, -6, 6) ;
+	TH1F *histo_etaTag_VVf = new TH1F ("histo_etaTag_VVf", "#eta of tag jets", 50, -6, 6) ;
 	histo_etaTag_VVf->SetLineColor (4) ;
 	TH1F *histo_numJet_VVf = new TH1F ("histo_numJet_VVf", "# of tag jets", 12, 0, 12) ;
 	histo_numJet_VVf->SetLineColor (4) ;
     //ggF
-    TH1F *histo_deltaEtaTag_ggf = new TH1F ("histo_deltaEtaTag_ggf", "#Delta#eta between tag jets", 100, 0, 10) ;
-	histo_deltaEtaTag_ggf->SetLineColor (3) ;
+    TH1F *histo_deltaEtaTag_ggf = new TH1F ("histo_deltaEtaTag_ggf", "#Delta#eta between tag jets", 50, 0, 10) ;
+	histo_deltaEtaTag_ggf->SetLineColor (108) ;
 	TH1F *histo_invMassTag_ggf = new TH1F ("histo_invMassTag_ggf", "Invariant mass of tag jets", 100, 0, 4000) ;
-	histo_invMassTag_ggf->SetLineColor (3) ;
+	histo_invMassTag_ggf->SetLineColor (108) ;
 	TH1F *histo_energyTag_ggf = new TH1F ("histo_energyTag_ggf", "Energy of tag jets", 100, 0, 1200) ;
-	histo_energyTag_ggf->SetLineColor (3) ;
+	histo_energyTag_ggf->SetLineColor (108) ;
 	TH1F *histo_ptTag_ggf = new TH1F ("histo_ptTag_ggf", "Pt of tag jets", 100, 0, 400) ;
-	histo_ptTag_ggf->SetLineColor (3) ;
-	TH1F *histo_etaTag_ggf = new TH1F ("histo_etaTag_ggf", "#eta of tag jets", 100, -6, 6) ;
-	histo_etaTag_ggf->SetLineColor (3) ;
+	histo_ptTag_ggf->SetLineColor (108) ;
+	TH1F *histo_etaTag_ggf = new TH1F ("histo_etaTag_ggf", "#eta of tag jets", 50, -6, 6) ;
+	histo_etaTag_ggf->SetLineColor (108) ;
 	TH1F *histo_numJet_ggf = new TH1F ("histo_numJet_ggf", "# of tag jets", 12, 0, 12) ;
-	histo_numJet_ggf->SetLineColor (3) ;
-    //ttbar
-    TH1F *histo_deltaEtaTag_tt = new TH1F ("histo_deltaEtaTag_tt", "#Delta#eta between tag jets", 100, 0, 10) ;
-	histo_deltaEtaTag_tt->SetLineColor (2) ;
+	histo_numJet_ggf->SetLineColor (108) ;
+    //Wt
+    TH1F *histo_deltaEtaTag_Wt = new TH1F ("histo_deltaEtaTag_Wt", "#Delta#eta between tag jets", 50, 0, 10) ;
+	histo_deltaEtaTag_Wt->SetLineColor (4) ;
+	TH1F *histo_invMassTag_Wt = new TH1F ("histo_invMassTag_Wt", "Invariant mass of tag jets", 100, 0, 4000) ;
+	histo_invMassTag_Wt->SetLineColor (4) ;
+	TH1F *histo_energyTag_Wt = new TH1F ("histo_energyTag_Wt", "Energy of tag jets", 100, 0, 1200) ;
+	histo_energyTag_Wt->SetLineColor (4) ;
+	TH1F *histo_ptTag_Wt = new TH1F ("histo_ptTag_Wt", "Pt of tag jets", 100, 0, 400) ;
+	histo_ptTag_Wt->SetLineColor (4) ;
+	TH1F *histo_etaTag_Wt = new TH1F ("histo_etaTag_Wt", "#eta of tag jets", 50, -6, 6) ;
+	histo_etaTag_Wt->SetLineColor (4) ;
+	TH1F *histo_numJet_Wt = new TH1F ("histo_numJet_Wt", "# of tag jets", 12, 0, 12) ;
+	histo_numJet_Wt->SetLineColor (4) ;
+	//WW
+    TH1F *histo_deltaEtaTag_WW = new TH1F ("histo_deltaEtaTag_WW", "#Delta#eta between tag jets", 50, 0, 10) ;
+	histo_deltaEtaTag_WW->SetLineColor (1) ;
+	TH1F *histo_invMassTag_WW = new TH1F ("histo_invMassTag_WW", "Invariant mass of tag jets", 100, 0, 4000) ;
+	histo_invMassTag_WW->SetLineColor (1) ;
+	TH1F *histo_energyTag_WW = new TH1F ("histo_energyTag_WW", "Energy of tag jets", 100, 0, 1200) ;
+	histo_energyTag_WW->SetLineColor (1) ;
+	TH1F *histo_ptTag_WW = new TH1F ("histo_ptTag_WW", "Pt of tag jets", 100, 0, 400) ;
+	histo_ptTag_WW->SetLineColor (1) ;
+	TH1F *histo_etaTag_WW = new TH1F ("histo_etaTag_WW", "#eta of tag jets", 50, -6, 6) ;
+	histo_etaTag_WW->SetLineColor (1) ;
+	TH1F *histo_numJet_WW = new TH1F ("histo_numJet_WW", "# of tag jets", 12, 0, 12) ;
+	histo_numJet_WW->SetLineColor (1) ;
+	//WZ
+    TH1F *histo_deltaEtaTag_WZ = new TH1F ("histo_deltaEtaTag_WZ", "#Delta#eta between tag jets", 50, 0, 10) ;
+	histo_deltaEtaTag_WZ->SetLineColor (97) ;
+	TH1F *histo_invMassTag_WZ = new TH1F ("histo_invMassTag_WZ", "Invariant mass of tag jets", 100, 0, 4000) ;
+	histo_invMassTag_WZ->SetLineColor (97) ;
+	TH1F *histo_energyTag_WZ = new TH1F ("histo_energyTag_WZ", "Energy of tag jets", 100, 0, 1200) ;
+	histo_energyTag_WZ->SetLineColor (97) ;
+	TH1F *histo_ptTag_WZ = new TH1F ("histo_ptTag_WZ", "Pt of tag jets", 100, 0, 400) ;
+	histo_ptTag_WZ->SetLineColor (97) ;
+	TH1F *histo_etaTag_WZ = new TH1F ("histo_etaTag_WZ", "#eta of tag jets", 50, -6, 6) ;
+	histo_etaTag_WZ->SetLineColor (97) ;
+	TH1F *histo_numJet_WZ = new TH1F ("histo_numJet_WZ", "# of tag jets", 12, 0, 12) ;
+	histo_numJet_WZ->SetLineColor (97) ;
+	//ttbar
+    TH1F *histo_deltaEtaTag_tt = new TH1F ("histo_deltaEtaTag_tt", "#Delta#eta between tag jets", 50, 0, 10) ;
+	histo_deltaEtaTag_tt->SetLineColor (107) ;
 	TH1F *histo_invMassTag_tt = new TH1F ("histo_invMassTag_tt", "Invariant mass of tag jets", 100, 0, 4000) ;
-	histo_invMassTag_tt->SetLineColor (2) ;
+	histo_invMassTag_tt->SetLineColor (107) ;
 	TH1F *histo_energyTag_tt = new TH1F ("histo_energyTag_tt", "Energy of tag jets", 100, 0, 1200) ;
-	histo_energyTag_tt->SetLineColor (2) ;
+	histo_energyTag_tt->SetLineColor (107) ;
 	TH1F *histo_ptTag_tt = new TH1F ("histo_ptTag_tt", "Pt of tag jets", 100, 0, 400) ;
-	histo_ptTag_tt->SetLineColor (2) ;
-	TH1F *histo_etaTag_tt = new TH1F ("histo_etaTag_tt", "#eta of tag jets", 100, -6, 6) ;
-	histo_etaTag_tt->SetLineColor (2) ;
+	histo_ptTag_tt->SetLineColor (107) ;
+	TH1F *histo_etaTag_tt = new TH1F ("histo_etaTag_tt", "#eta of tag jets", 50, -6, 6) ;
+	histo_etaTag_tt->SetLineColor (107) ;
 	TH1F *histo_numJet_tt = new TH1F ("histo_numJet_tt", "# of tag jets", 12, 0, 12) ;
-	histo_numJet_tt->SetLineColor (2) ;
+	histo_numJet_tt->SetLineColor (107) ;
 
 	
 	TLorentzVector *reco_leadingJetF = new TLorentzVector (0.0, 0.0, 0.0, 0.0);
@@ -71,7 +108,7 @@ void tagJetSigVsBkg ()
 			twoLargestInvMassJets (*recoJet4Momentum, *reco_leadingJetF, *reco_leadingJetB, numberJet, numberJetAfterCuts ) ; //due recojet con massima massa invariante
 			recoSommaTag = *(reco_leadingJetF) + *(reco_leadingJetB);
 			
-			if (evtFlag== 123 || evtFlag== 124)
+			if (evtFlag== 123 || evtFlag== 124) //////////////////////////////////////////////////// vvf
 			{
 			    histo_numJet_VVf -> Fill (numberJetAfterCuts) ;
                 if (reco_leadingJetF->E() > 0)
@@ -92,7 +129,7 @@ void tagJetSigVsBkg ()
 				histo_deltaEtaTag_VVf -> Fill ((fabs (reco_leadingJetF->Eta () - reco_leadingJetB->Eta ()) )) ;
                 }
 			}
-			else if (evtFlag== 102)
+			else if (evtFlag== 102) //////////////////////////////////////////////////// ggf
 			{
        			histo_numJet_ggf -> Fill (numberJetAfterCuts) ;
 			    if (reco_leadingJetF->E() > 0)
@@ -114,7 +151,74 @@ void tagJetSigVsBkg ()
                 }
 
 			}
-			else
+			else if (evtFlag==40)//////////////////////////////////////////////////// Wt (4)
+			{
+    			histo_numJet_Wt -> Fill (numberJetAfterCuts) ;
+			    if (reco_leadingJetF->E() > 0)
+				{ 
+				histo_energyTag_Wt -> Fill (reco_leadingJetF->Energy ()) ;
+				histo_ptTag_Wt -> Fill (reco_leadingJetF->Pt ()) ;
+				histo_etaTag_Wt -> Fill (reco_leadingJetF->Eta ()) ;
+                }
+				if (reco_leadingJetB->E() > 0)
+				{
+				histo_energyTag_Wt -> Fill (reco_leadingJetB->Energy ()) ;
+				histo_ptTag_Wt -> Fill (reco_leadingJetB->Pt ()) ;
+				histo_etaTag_Wt -> Fill (reco_leadingJetB->Eta ()) ;
+				}
+				if (reco_leadingJetF->E() > 0 && reco_leadingJetB->E())
+				{
+				histo_invMassTag_Wt -> Fill (recoSommaTag.M()) ;
+				histo_deltaEtaTag_Wt -> Fill ((fabs (reco_leadingJetF->Eta () - reco_leadingJetB->Eta ()) )) ;
+                }
+			}
+				
+			else if (evtFlag==25)//////////////////////////////////////////////////// WW
+			{
+    			histo_numJet_WW -> Fill (numberJetAfterCuts) ;
+			    if (reco_leadingJetF->E() > 0)
+				{ 
+				histo_energyTag_WW -> Fill (reco_leadingJetF->Energy ()) ;
+				histo_ptTag_WW -> Fill (reco_leadingJetF->Pt ()) ;
+				histo_etaTag_WW -> Fill (reco_leadingJetF->Eta ()) ;
+                }
+				if (reco_leadingJetB->E() > 0)
+				{
+				histo_energyTag_WW -> Fill (reco_leadingJetB->Energy ()) ;
+				histo_ptTag_WW -> Fill (reco_leadingJetB->Pt ()) ;
+				histo_etaTag_WW -> Fill (reco_leadingJetB->Eta ()) ;
+				}
+				if (reco_leadingJetF->E() > 0 && reco_leadingJetB->E())
+				{
+				histo_invMassTag_WW -> Fill (recoSommaTag.M()) ;
+				histo_deltaEtaTag_WW -> Fill ((fabs (reco_leadingJetF->Eta () - reco_leadingJetB->Eta ()) )) ;
+                }
+			}
+			
+				
+			else if (evtFlag==23)//////////////////////////////////////////////////// WZ
+			{
+    			histo_numJet_WZ -> Fill (numberJetAfterCuts) ;
+			    if (reco_leadingJetF->E() > 0)
+				{ 
+				histo_energyTag_WZ -> Fill (reco_leadingJetF->Energy ()) ;
+				histo_ptTag_WZ -> Fill (reco_leadingJetF->Pt ()) ;
+				histo_etaTag_WZ -> Fill (reco_leadingJetF->Eta ()) ;
+                }
+				if (reco_leadingJetB->E() > 0)
+				{
+				histo_energyTag_WZ -> Fill (reco_leadingJetB->Energy ()) ;
+				histo_ptTag_WZ -> Fill (reco_leadingJetB->Pt ()) ;
+				histo_etaTag_WZ -> Fill (reco_leadingJetB->Eta ()) ;
+				}
+				if (reco_leadingJetF->E() > 0 && reco_leadingJetB->E())
+				{
+				histo_invMassTag_WZ -> Fill (recoSommaTag.M()) ;
+				histo_deltaEtaTag_WZ -> Fill ((fabs (reco_leadingJetF->Eta () - reco_leadingJetB->Eta ()) )) ;
+                }
+			}
+			
+			else if (evtFlag==4)//////////////////////////////////////////////////// ttbar
 			{
     			histo_numJet_tt -> Fill (numberJetAfterCuts) ;
 			    if (reco_leadingJetF->E() > 0)
@@ -134,11 +238,14 @@ void tagJetSigVsBkg ()
 				histo_invMassTag_tt -> Fill (recoSommaTag.M()) ;
 				histo_deltaEtaTag_tt -> Fill ((fabs (reco_leadingJetF->Eta () - reco_leadingJetB->Eta ()) )) ;
                 }
-
 			}
+
+
+			
+			
 	}		
 
-
+    /*
 	histo_deltaEtaTag_VVf -> Scale (1/(histo_deltaEtaTag_VVf->Integral()));
     histo_invMassTag_VVf -> Scale (1/(histo_invMassTag_VVf->Integral()));
 	histo_energyTag_VVf -> Scale (1/(histo_energyTag_VVf->Integral()));
@@ -151,49 +258,129 @@ void tagJetSigVsBkg ()
 	histo_ptTag_ggf -> Scale (1/(histo_ptTag_ggf->Integral()));
 	histo_etaTag_ggf -> Scale (1/(histo_etaTag_ggf->Integral()));
 	histo_numJet_ggf -> Scale (1/(histo_numJet_ggf->Integral()));
-	/*	
+	histo_deltaEtaTag_Wt -> Scale (1/(histo_deltaEtaTag_Wt->Integral()));
+    histo_invMassTag_Wt -> Scale (1/(histo_invMassTag_Wt->Integral()));
+	histo_energyTag_Wt -> Scale (1/(histo_energyTag_Wt->Integral()));
+	histo_ptTag_Wt -> Scale (1/(histo_ptTag_Wt->Integral()));
+	histo_etaTag_Wt -> Scale (1/(histo_etaTag_Wt->Integral()));
+	histo_numJet_Wt -> Scale (1/(histo_numJet_Wt->Integral()));	
+	histo_deltaEtaTag_WW -> Scale (1/(histo_deltaEtaTag_WW->Integral()));
+    histo_invMassTag_WW -> Scale (1/(histo_invMassTag_WW->Integral()));
+	histo_energyTag_WW -> Scale (1/(histo_energyTag_WW->Integral()));
+	histo_ptTag_WW -> Scale (1/(histo_ptTag_WW->Integral()));
+	histo_etaTag_WW -> Scale (1/(histo_etaTag_WW->Integral()));
+	histo_numJet_WW -> Scale (1/(histo_numJet_Wt->Integral()));
+	histo_deltaEtaTag_WZ -> Scale (1/(histo_deltaEtaTag_WZ->Integral()));
+    histo_invMassTag_WZ -> Scale (1/(histo_invMassTag_WZ->Integral()));
+	histo_energyTag_WZ -> Scale (1/(histo_energyTag_WZ->Integral()));
+	histo_ptTag_WZ -> Scale (1/(histo_ptTag_WZ->Integral()));
+	histo_etaTag_WZ -> Scale (1/(histo_etaTag_WZ->Integral()));
+	histo_numJet_WZ -> Scale (1/(histo_numJet_WZ->Integral()));
+	*/
 	histo_deltaEtaTag_tt -> Scale (1/(histo_deltaEtaTag_tt->Integral()));
     histo_invMassTag_tt -> Scale (1/(histo_invMassTag_tt->Integral()));
 	histo_energyTag_tt -> Scale (1/(histo_energyTag_tt->Integral()));
 	histo_ptTag_tt -> Scale (1/(histo_ptTag_tt->Integral()));
 	histo_etaTag_tt -> Scale (1/(histo_etaTag_tt->Integral()));
-	histo_numJet_tt -> Scale (1/(histo_numJet_tt->Integral()));	
-	*/
+	histo_numJet_tt -> Scale (1/(histo_numJet_tt->Integral()));
+	
+	
 	TLegend *tleg = new TLegend (0.7, 0.6, 0.9, 0.8);
     tleg -> SetBorderSize (0);
     tleg -> SetFillColor (0);
+	/*
 	tleg-> AddEntry (histo_deltaEtaTag_VVf , "VVf","l") ;
 	tleg-> AddEntry (histo_deltaEtaTag_ggf , "ggf","l") ;
-	tleg-> AddEntry (histo_deltaEtaTag_tt , "tt","l") ;
-
+	tleg-> AddEntry (histo_deltaEtaTag_Wt , "Wt","l") ;
+    tleg-> AddEntry (histo_deltaEtaTag_WW , "WW","l") ;
+    tleg-> AddEntry (histo_deltaEtaTag_WZ , "WZ","l") ;
+	*/
+	tleg-> AddEntry (histo_deltaEtaTag_tt , "tt3j","l") ;
 
     TCanvas *pip = new TCanvas () ;
 	pip->Divide (3,2);
 	pip->cd (1);
     histo_deltaEtaTag_ggf->Draw () ;
 	histo_deltaEtaTag_VVf->Draw ("same") ;
+	histo_deltaEtaTag_Wt->Draw ("same") ;
+	histo_deltaEtaTag_WW->Draw ("same") ;
+	histo_deltaEtaTag_WZ->Draw ("same") ;
 	histo_deltaEtaTag_tt->Draw ("same") ;
 	tleg-> Draw ("same") ; 
 	pip->cd (2);
 	histo_invMassTag_ggf->Draw () ;
 	histo_invMassTag_VVf->Draw ("same") ;
+	histo_invMassTag_Wt->Draw ("same") ;
+	histo_invMassTag_WW->Draw ("same") ;
+	histo_invMassTag_WZ->Draw ("same") ;
 	histo_invMassTag_tt->Draw ("same") ;
 	pip->cd (3);
 	histo_energyTag_ggf->Draw () ;
 	histo_energyTag_VVf->Draw ("same") ;
+	histo_energyTag_Wt->Draw ("same") ;
+	histo_energyTag_WW->Draw ("same") ;
+	histo_energyTag_WZ->Draw ("same") ;
 	histo_energyTag_tt->Draw ("same") ;
 	pip->cd (4);
 	histo_ptTag_ggf->Draw () ;
 	histo_ptTag_VVf->Draw ("same") ;
+	histo_ptTag_Wt->Draw ("same") ;
+	histo_ptTag_WW->Draw ("same") ;
+	histo_ptTag_WZ->Draw ("same") ;
 	histo_ptTag_tt->Draw ("same") ;
 	pip->cd (5);
 	histo_etaTag_ggf->Draw () ;
 	histo_etaTag_VVf->Draw ("same") ;
+	histo_etaTag_Wt->Draw ("same") ;
+	histo_etaTag_WW->Draw ("same") ;
+	histo_etaTag_WZ->Draw ("same") ;
 	histo_etaTag_tt->Draw ("same") ;
 	pip->cd (6);
 	histo_numJet_ggf->Draw () ;
 	histo_numJet_VVf->Draw ("same") ;
+	histo_numJet_Wt->Draw ("same") ;
+	histo_numJet_WW->Draw ("same") ;
+	histo_numJet_WZ->Draw ("same") ;
 	histo_numJet_tt->Draw ("same") ;
+	
+	TFile *pipa = new TFile ("histoSigVsBkg.root","RECREATE") ;
+    //histo_deltaEtaTag_ggf->Write();
+	//histo_deltaEtaTag_VVf->Write();
+	//histo_deltaEtaTag_Wt->Write();
+	//histo_deltaEtaTag_WW->Write();
+	//histo_deltaEtaTag_WZ->Write();
+	histo_deltaEtaTag_tt->Write();
+	//histo_invMassTag_ggf->Write();
+	//histo_invMassTag_VVf->Write();
+	//histo_invMassTag_Wt->Write();
+	//histo_invMassTag_WW->Write();
+	//histo_invMassTag_WZ->Write();
+	histo_invMassTag_tt->Write();
+	//histo_energyTag_ggf->Write();
+	//histo_energyTag_VVf->Write();
+	//histo_energyTag_Wt->Write();
+	//histo_energyTag_WW->Write();
+	//histo_energyTag_WZ->Write();
+	histo_energyTag_tt->Write();
+	//histo_ptTag_ggf->Write();
+	//histo_ptTag_VVf->Write();
+	//histo_ptTag_Wt->Write();
+	//histo_ptTag_WW->Write();
+	//histo_ptTag_WZ->Write();
+	histo_ptTag_tt->Write();
+	//histo_etaTag_ggf->Write();
+	//histo_etaTag_VVf->Write();
+	//histo_etaTag_Wt->Write();
+	//histo_etaTag_WW->Write();
+	//histo_etaTag_WZ->Write();
+	histo_etaTag_tt->Write();
+	//histo_numJet_ggf->Write();
+	//histo_numJet_VVf->Write();
+	//histo_numJet_Wt->Write();
+	//histo_numJet_WW->Write();
+	//histo_numJet_WZ->Write();
+	histo_numJet_tt->Write();
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -326,19 +513,19 @@ void plots ()
     //electrons
     TH1F *histo_recLep_eVVF = new TH1F ("histo_recLep_eVVF", "GSF electrons energy (4p)",100,0,500) ;
     histo_recLep_eVVF->GetXaxis ()->SetTitle ("Energy (GeV)") ;
-    histo_recLep_eVVF->SetLineColor (2);
+    histo_recLep_eVVF->SetLineColor (4);
     TH1F *histo_recLep_eggF = new TH1F ("histo_recLep_eggF", "GSF electrons energy (4p)",100,0,500) ;
     histo_recLep_eggF->GetXaxis ()->SetTitle ("Energy (GeV)") ;
     histo_recLep_eggF->SetLineColor (3);
     TH1F *histo_recLep_ptVVF = new TH1F ("histo_recLep_ptVVF", "GSF electrons pt (4p)",100,0,200) ;
     histo_recLep_ptVVF->GetXaxis ()->SetTitle ("pt (GeV)") ;
-    histo_recLep_ptVVF->SetLineColor (2);
+    histo_recLep_ptVVF->SetLineColor (4);
     TH1F *histo_recLep_ptggF = new TH1F ("histo_recLep_ptggF", "GSF electrons pt (4p)",100,0,200) ;
     histo_recLep_ptggF->GetXaxis ()->SetTitle ("pt (GeV)") ;
     histo_recLep_ptggF->SetLineColor (3);
 	TH1F *histo_recLep_etaVVF = new TH1F ("histo_recLep_etaVVF", "GSF electrons #eta (4p)",100,-4,4) ;
     histo_recLep_etaVVF->GetXaxis ()->SetTitle ("#eta (GeV)") ;
-    histo_recLep_etaVVF->SetLineColor (2);
+    histo_recLep_etaVVF->SetLineColor (4);
     TH1F *histo_recLep_etaggF = new TH1F ("histo_recLep_etaggF", "GSF electrons #eta (4p)",100,-4,4) ;
     histo_recLep_etaggF->GetXaxis ()->SetTitle ("#eta (GeV)") ;
     histo_recLep_etaggF->SetLineColor (3);
@@ -346,25 +533,25 @@ void plots ()
 	// jets 
 	TH1F *histo_numJetVVF = new TH1F ("histo_numJetVVF", "number of jets",50,0,50) ;
     histo_numJetVVF->GetXaxis ()->SetTitle ("number of jets") ;
-    histo_numJetVVF->SetLineColor (2);
+    histo_numJetVVF->SetLineColor (4);
     TH1F *histo_numJetggF = new TH1F ("histo_numJetggF", "number of jets",50,0,50) ;
     histo_numJetggF->GetXaxis ()->SetTitle ("number of jets") ;
     histo_numJetggF->SetLineColor (3);	
 	TH1F *histo_energyJetVVF = new TH1F ("histo_energyJetVVF", "energy of jets",100,0,500) ;
     histo_energyJetVVF->GetXaxis ()->SetTitle ("energy of jets") ;
-    histo_energyJetVVF->SetLineColor (2);
+    histo_energyJetVVF->SetLineColor (4);
     TH1F *histo_energyJetggF = new TH1F ("histo_energyJetggF", "energy of jets",100,0,500) ;
     histo_energyJetggF->GetXaxis ()->SetTitle ("energy of jets") ;
     histo_energyJetggF->SetLineColor (3);
 	TH1F *histo_ptJetVVF = new TH1F ("histo_ptJetVVF", "pt of jets",50,0,200) ;
     histo_ptJetVVF->GetXaxis ()->SetTitle ("pt of jets") ;
-    histo_ptJetVVF->SetLineColor (2);
+    histo_ptJetVVF->SetLineColor (4);
     TH1F *histo_ptJetggF = new TH1F ("histo_ptJetggF", "pt of jets",50,0,200) ;
     histo_ptJetggF->GetXaxis ()->SetTitle ("pt of jets") ;
     histo_ptJetggF->SetLineColor (3);
     TH1F *histo_etaJetVVF = new TH1F ("histo_etaJetVVF", "#eta of jets",100,-10,10) ;
     histo_etaJetVVF->GetXaxis ()->SetTitle ("#eta of jets") ;
-    histo_etaJetVVF->SetLineColor (2);
+    histo_etaJetVVF->SetLineColor (4);
     TH1F *histo_etaJetggF = new TH1F ("histo_etaJetggF", "#eta of jets",100,-10,10) ;
     histo_etaJetggF->GetXaxis ()->SetTitle ("#eta of jets") ;
     histo_etaJetggF->SetLineColor (3);
@@ -372,7 +559,7 @@ void plots ()
 	//2 leading jets
 	TH1F *histo_etaLeadingJetVVF = new TH1F ("histo_etaLeadingJetVVF", "#eta of 2 leading jets",100,-10,10) ;
     histo_etaLeadingJetVVF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
-    histo_etaLeadingJetVVF->SetLineColor (2);
+    histo_etaLeadingJetVVF->SetLineColor (4);
     TH1F *histo_etaLeadingJetggF = new TH1F ("histo_etaLeadingJetggF", "#eta of 2 leading jets",100,-10,10) ;
     histo_etaLeadingJetggF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
     histo_etaLeadingJetggF->SetLineColor (3);
@@ -382,7 +569,7 @@ void plots ()
 
     TH1F *histo_energyLeadingJetVVF = new TH1F ("histo_energyLeadingJetVVF", "#energy of 2 leading jets",100,0,5000) ;
     histo_energyLeadingJetVVF->GetXaxis ()->SetTitle ("#energy of leading jets") ;
-    histo_energyLeadingJetVVF->SetLineColor (2);
+    histo_energyLeadingJetVVF->SetLineColor (4);
     TH1F *histo_energyLeadingJetggF = new TH1F ("histo_energyLeadingJetggF", "#energy of 2 leading jets",100,0,5000) ;
     histo_energyLeadingJetggF->GetXaxis ()->SetTitle ("#energy of leading jets") ;
     histo_energyLeadingJetggF->SetLineColor (3);
@@ -392,7 +579,7 @@ void plots ()
 	
 	TH1F *histo_deltaEtaLeadingJetVVF = new TH1F ("histo_deltaEtaLeadingJetVVF", "#Delta#eta between 2 leading jets",100,-0.5,20) ;
     histo_deltaEtaLeadingJetVVF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
-    histo_deltaEtaLeadingJetVVF->SetLineColor (2);
+    histo_deltaEtaLeadingJetVVF->SetLineColor (4);
     TH1F *histo_deltaEtaLeadingJetggF = new TH1F ("histo_deltaEtaLeadingJetggF", "#Delta#eta of 2 leading jets",100,-0.5,20) ;
     histo_deltaEtaLeadingJetggF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
     histo_deltaEtaLeadingJetggF->SetLineColor (3);
@@ -402,7 +589,7 @@ void plots ()
 	
 	TH1F *histo_ptLeadingJetVVF = new TH1F ("histo_ptLeadingJetVVF", "#pt of 2 leading jets",100,0,200) ;
     histo_ptLeadingJetVVF->GetXaxis ()->SetTitle ("#pt of leading jets") ;
-    histo_ptLeadingJetVVF->SetLineColor (2);
+    histo_ptLeadingJetVVF->SetLineColor (4);
     TH1F *histo_ptLeadingJetggF = new TH1F ("histo_ptLeadingJetggF", "#pt of 2 leading jets",100,0,200) ;
     histo_ptLeadingJetggF->GetXaxis ()->SetTitle ("#pt of leading jets") ;
     histo_ptLeadingJetggF->SetLineColor (3);
@@ -412,7 +599,7 @@ void plots ()
 	
 	TH1F *histo_invMassLeadingJetVVF = new TH1F ("histo_invMassLeadingJetVVF", "#invMass of 2 leading jets",100,0,5000) ;
     histo_invMassLeadingJetVVF->GetXaxis ()->SetTitle ("#invMass of leading jets") ;
-    histo_invMassLeadingJetVVF->SetLineColor (2);
+    histo_invMassLeadingJetVVF->SetLineColor (4);
     TH1F *histo_invMassLeadingJetggF = new TH1F ("histo_invMassLeadingJetggF", "#invMass of 2 leading jets",100,0,5000) ;
     histo_invMassLeadingJetggF->GetXaxis ()->SetTitle ("#invMass of leading jets") ;
     histo_invMassLeadingJetggF->SetLineColor (3);
@@ -673,10 +860,10 @@ void MCtruthPlots ()
     histo_genLep_dphi_ee->SetLineColor (1);
     TH1F *histo_genLep_deta_mumu = new TH1F("histo_genLep_deta_mumu", "#Delta#eta between l+ and l-",50,0,10) ;
     histo_genLep_deta_mumu->GetXaxis ()->SetTitle ("#Delta#eta") ;
-    histo_genLep_deta_mumu->SetLineColor (2);
+    histo_genLep_deta_mumu->SetLineColor (4);
     TH1F *histo_genLep_dphi_mumu = new TH1F("histo_genLep_dphi_mumu", "#Delta#phi between l+ and l-",50,0,10) ;
     histo_genLep_dphi_mumu->GetXaxis ()->SetTitle ("#Delta#phi") ;
-    histo_genLep_dphi_mumu->SetLineColor (2);
+    histo_genLep_dphi_mumu->SetLineColor (4);
     TH1F *histo_genLep_deta_emu = new TH1F("histo_genLep_deta_emu", "#Delta#eta between l+ and l-",50,0,10) ;
     histo_genLep_deta_emu->GetXaxis ()->SetTitle ("#Delta#eta") ;
     histo_genLep_deta_emu->SetLineColor (3);
@@ -919,7 +1106,7 @@ void jetPlots ()
 	//2 leading jets eta
 	TH1F *histo_etaLeadingJetVVF = new TH1F ("histo_etaLeadingJetVVF", "#eta of 2 leading jets",100,-10,10) ;
     histo_etaLeadingJetVVF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
-    histo_etaLeadingJetVVF->SetLineColor (2);
+    histo_etaLeadingJetVVF->SetLineColor (4);
     TH1F *histo_etaLeadingJetggF = new TH1F ("histo_etaLeadingJetggF", "#eta of 2 leading jets",100,-10,10) ;
     histo_etaLeadingJetggF->GetXaxis ()->SetTitle ("#eta of leading jets") ;
     histo_etaLeadingJetggF->SetLineColor (1);
@@ -941,7 +1128,7 @@ void jetPlots ()
 	//2 leading jets energy
     TH1F *histo_energyLeadingJetVVF = new TH1F ("histo_energyLeadingJetVVF", "energy of 2 leading jets",100,0,5000) ;
     histo_energyLeadingJetVVF->GetXaxis ()->SetTitle ("energy of leading jets") ;
-    histo_energyLeadingJetVVF->SetLineColor (2);
+    histo_energyLeadingJetVVF->SetLineColor (4);
     TH1F *histo_energyLeadingJetggF = new TH1F ("histo_energyLeadingJetggF", "energy of 2 leading jets",100,0,5000) ;
     histo_energyLeadingJetggF->GetXaxis ()->SetTitle ("energy of leading jets") ;
     histo_energyLeadingJetggF->SetLineColor (1);
@@ -963,7 +1150,7 @@ void jetPlots ()
 	//2 leading jets deltaEta
 	TH1F *histo_deltaEtaLeadingJetVVF = new TH1F ("histo_deltaEtaLeadingJetVVF", "#Delta#eta between 2 leading jets",100,-0.5,12) ;
     histo_deltaEtaLeadingJetVVF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
-    histo_deltaEtaLeadingJetVVF->SetLineColor (2);
+    histo_deltaEtaLeadingJetVVF->SetLineColor (4);
     TH1F *histo_deltaEtaLeadingJetggF = new TH1F ("histo_deltaEtaLeadingJetggF", "#Delta#eta of 2 leading jets",100,-0.5,12) ;
     histo_deltaEtaLeadingJetggF->GetXaxis ()->SetTitle ("#Delta#eta between leading jets") ;
     histo_deltaEtaLeadingJetggF->SetLineColor (1);
@@ -985,7 +1172,7 @@ void jetPlots ()
     //2 leading jets deltaPhi
 	TH1F *histo_deltaPhiLeadingJetVVF = new TH1F ("histo_deltaPhiLeadingJetVVF", "#Delta#phi between 2 leading jets",50,0,7) ;
     histo_deltaPhiLeadingJetVVF->GetXaxis ()->SetTitle ("#Delta#phi between leading jets") ;
-    histo_deltaPhiLeadingJetVVF->SetLineColor (2);
+    histo_deltaPhiLeadingJetVVF->SetLineColor (4);
     TH1F *histo_deltaPhiLeadingJetggF = new TH1F ("histo_deltaPhiLeadingJetggF", "#Delta#phi of 2 leading jets",50,0, 7) ;
     histo_deltaPhiLeadingJetggF->GetXaxis ()->SetTitle ("#Delta#phi between leading jets") ;
     histo_deltaPhiLeadingJetggF->SetLineColor (1);
@@ -1007,7 +1194,7 @@ void jetPlots ()
     //2 leading jets deltaR
 	TH1F *histo_deltaRLeadingJetVVF = new TH1F ("histo_deltaRLeadingJetVVF", "#DeltaR between 2 leading jets",100,0, 10) ;
     histo_deltaRLeadingJetVVF->GetXaxis ()->SetTitle ("#DeltaR between leading jets") ;
-    histo_deltaRLeadingJetVVF->SetLineColor (2);
+    histo_deltaRLeadingJetVVF->SetLineColor (4);
     TH1F *histo_deltaRLeadingJetggF = new TH1F ("histo_deltaRLeadingJetggF", "#DeltaR of 2 leading jets",100,0, 10) ;
     histo_deltaRLeadingJetggF->GetXaxis ()->SetTitle ("#DeltaR between leading jets") ;
     histo_deltaRLeadingJetggF->SetLineColor (1);
@@ -1029,7 +1216,7 @@ void jetPlots ()
 	//2 leading jets pt
 	TH1F *histo_ptLeadingJetVVF = new TH1F ("histo_ptLeadingJetVVF", "pt of 2 leading jets",100,0,200) ;
     histo_ptLeadingJetVVF->GetXaxis ()->SetTitle ("pt of leading jets") ;
-    histo_ptLeadingJetVVF->SetLineColor (2);
+    histo_ptLeadingJetVVF->SetLineColor (4);
     TH1F *histo_ptLeadingJetggF = new TH1F ("histo_ptLeadingJetggF", "pt of 2 leading jets",100,0,200) ;
     histo_ptLeadingJetggF->GetXaxis ()->SetTitle ("pt of leading jets") ;
     histo_ptLeadingJetggF->SetLineColor (1);
@@ -1051,7 +1238,7 @@ void jetPlots ()
 	//2 leading jets invariant mass
 	TH1F *histo_invMassLeadingJetVVF = new TH1F ("histo_invMassLeadingJetVVF", "Invariant mass of 2 leading jets",100,0,5000) ;
     histo_invMassLeadingJetVVF->GetXaxis ()->SetTitle ("invMass of leading jets") ;
-    histo_invMassLeadingJetVVF->SetLineColor (2);
+    histo_invMassLeadingJetVVF->SetLineColor (4);
     TH1F *histo_invMassLeadingJetggF = new TH1F ("histo_invMassLeadingJetggF", "Invariant mass of 2 leading jets",100,0,5000) ;
     histo_invMassLeadingJetggF->GetXaxis ()->SetTitle ("invMass of leading jets") ;
     histo_invMassLeadingJetggF->SetLineColor (1);

@@ -1,6 +1,6 @@
 #passare flag per per output di root e datasetpath
 
-perl makeConfigs.pl WWf_higgsMass160 /H160_WW_2l/CMSSW_1_6_7-CSA07-1192836764/RECO
+#perl makeConfigs.pl WWf_higgsMass160 /H160_WW_2l/CMSSW_1_6_7-CSA07-1192836764/RECO
 #perl makeConfigs.pl WWf_higgsMass120 /H120_WW_2l/CMSSW_1_6_7-CSA07-1194963339/RECO
 #perl makeConfigs.pl WWf_higgsMass130 /H130_WW_2l/CMSSW_1_6_7-CSA07-1194126306/RECO
 #perl makeConfigs.pl WWf_higgsMass140 /H140_WW_2l/CMSSW_1_6_7-CSA07-1192835331/RECO
@@ -10,13 +10,57 @@ perl makeConfigs.pl WWf_higgsMass160 /H160_WW_2l/CMSSW_1_6_7-CSA07-1192836764/RE
 #perl makeConfigs.pl WWf_higgsMass190 /H190_WW_2l/CMSSW_1_6_7-CSA07-1194126661/RECO
 #perl makeConfigs.pl WWf_higgsMass200 /H200_WW_2l/CMSSW_1_6_7-CSA07-1192835385/RECO
 
-perl makeConfigs.pl ZZ_incl /ZZ_incl/CMSSW_1_6_0-HLT-1191583320/GEN-SIM-DIGI-RECO  
-perl makeConfigs.pl WW_incl /WW_incl/CMSSW_1_6_0-HLT-1191583578/GEN-SIM-DIGI-RECO
+
+#ci sono solo tt alpgen per la 160!!!!!
+#perl makeConfigs.pl tt0j_alpgen /tt0j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO
+#buco
+#perl makeConfigs.pl tt2j_alpgen /tt2j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO    
+#perl makeConfigs.pl tt3j_alpgen /tt3j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO
+#perl makeConfigs.pl tt4j_alpgen /tt4j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO 
+
+#perl makeConfigs.pl Wt /tW_inclusive/CMSSW_1_6_7-CSA07-1195471738/RECO
+#perl makeConfigs.pl WW /WW_incl/CMSSW_1_6_7-CSA07-1196178448/RECO
+#perl makeConfigs.pl WZ /WZ_incl/CMSSW_1_6_7-CSA07-1195629996/RECO
+
+#perl makeConfigs.pl Zee_0_15 /ZeeJets_Pt_0_15/CMSSW_1_6_7-CSA07-1192836918/RECO
+#perl makeConfigs.pl Zee_1000_1400 /ZeeJets_Pt_1000_1400/CMSSW_1_6_7-CSA07-1192835543/RECO
+#perl makeConfigs.pl Zee_120_170 /ZeeJets_Pt_120_170/CMSSW_1_6_7-CSA07-1192837023/RECO
+#perl makeConfigs.pl Zee_1400_1800 /ZeeJets_Pt_1400_1800/CMSSW_1_6_7-CSA07-1192835597/RECO
+#perl makeConfigs.pl Zee_15_20 /ZeeJets_Pt_15_20/CMSSW_1_6_7-CSA07-1192836131/RECO
+#perl makeConfigs.pl Zee_170_230 /ZeeJets_Pt_170_230/CMSSW_1_6_7-CSA07-1192837076/RECO
+#perl makeConfigs.pl Zee_1800_2200 /ZeeJets_Pt_1800_2200/CMSSW_1_6_7-CSA07-1192837127/RECO
+#perl makeConfigs.pl Zee_20_30 /ZeeJets_Pt_20_30/CMSSW_1_6_7-CSA07-1192836184/RECO
+#perl makeConfigs.pl Zee_2200_2600 /ZeeJets_Pt_2200_2600/CMSSW_1_6_7-CSA07-1192836022/RECO
+#perl makeConfigs.pl Zee_230_300 /ZeeJets_Pt_230_300/CMSSW_1_6_7-CSA07-1192835650/RECO
+#perl makeConfigs.pl Zee_2600_3000 /ZeeJets_Pt_2600_3000/CMSSW_1_6_7-CSA07-1192836237/RECO
+#perl makeConfigs.pl Zee_2600_3000 /ZeeJets_Pt_2600_3000/CMSSW_1_6_7-CSA07-1194963918/RECO
+#perl makeConfigs.pl Zee_3000_3500 /ZeeJets_Pt_3000_3500/CMSSW_1_6_7-CSA07-1192835702/RECO
+#perl makeConfigs.pl Zee_00_380 /ZeeJets_Pt_300_380/CMSSW_1_6_7-CSA07-1192835754/RECO
+#perl makeConfigs.pl Zee_30_50 /ZeeJets_Pt_30_50/CMSSW_1_6_7-CSA07-1195560538/RECO
+#perl makeConfigs.pl Zee_3500_1 /ZeeJets_Pt_3500_-1/CMSSW_1_6_7-CSA07-1192835650/RECO
+#perl makeConfigs.pl Zee_380_470 /ZeeJets_Pt_380_470/CMSSW_1_6_7-CSA07-1192837180/RECO
+#perl makeConfigs.pl Zee_470_600 /ZeeJets_Pt_470_600/CMSSW_1_6_7-CSA07-1192835807/RECO
+#perl makeConfigs.pl Zee_50_80 /ZeeJets_Pt_50_80/CMSSW_1_6_7-CSA07-1194964023/RECO
+#perl makeConfigs.pl Zee_600_800 /ZeeJets_Pt_600_800/CMSSW_1_6_7-CSA07-1192835860/RECO
+#perl makeConfigs.pl Zee_800_1000 /ZeeJets_Pt_800_1000/CMSSW_1_6_7-CSA07-1194964076/RECO
+#perl makeConfigs.pl Zee_80_120 /ZeeJets_Pt_80_120/CMSSW_1_6_7-CSA07-1192837232/RECO
+
+
+#dy
+
+###perl makeConfigs.pl ZZ_incl /ZZ_incl/CMSSW_1_6_0-HLT-1191583320/GEN-SIM-DIGI-RECO  
+###perl makeConfigs.pl WW_incl /WW_incl/CMSSW_1_6_0-HLT-1191583578/GEN-SIM-DIGI-RECO
+
+perl makeConfigs.pl tt0j_alpgen_152 /tt0j_mT_70-alpgen/CMSSW_1_5_2-CSA07-2231/GEN-SIM-DIGI-RECO
+perl makeConfigs.pl tt1j_alpgen_152 /tt1j_mT_70-alpgen/CMSSW_1_5_2-CSA07-2211/GEN-SIM-DIGI-RECO
+perl makeConfigs.pl tt2j_alpgen_152 /tt2j_mT_70-alpgen/CMSSW_1_5_2-CSA07-2232/GEN-SIM-DIGI-RECO
+perl makeConfigs.pl tt3j_alpgen_152 /tt3j_mT_70-alpgen/CMSSW_1_5_2-CSA07-2212/GEN-SIM-DIGI-RECO
+perl makeConfigs.pl tt4j_alpgen_152 /tt4j_mT_70-alpgen/CMSSW_1_5_2-CSA07-2233/GEN-SIM-DIGI-RECO
 
 
 #WZ non c'e' per 160 !!!!!
 
-#/WenuJets_Pt_0_15/CMSSW_1_6_0-HLT-1191269008/GEN-SIM-DIGI-RECO
+####/WenuJets_Pt_0_15/CMSSW_1_6_0-HLT-1191269008/GEN-SIM-DIGI-RECO
 #/WenuJets_Pt_15_20/CMSSW_1_6_0-HLT-1191269252/GEN-SIM-DIGI-RECO
 #/WenuJets_Pt_20_30/CMSSW_1_6_0-HLT-1191269499/GEN-SIM-DIGI-RECO
 #/WenuJets_Pt_30_50/CMSSW_1_6_0-HLT-1191269781/GEN-SIM-DIGI-RECO
@@ -73,11 +117,3 @@ perl makeConfigs.pl WW_incl /WW_incl/CMSSW_1_6_0-HLT-1191583578/GEN-SIM-DIGI-REC
 #/ZmumuJets_Pt_470_600/CMSSW_1_6_0-HLT-1191581481/GEN-SIM-DIGI-RECO
 #/ZmumuJets_Pt_600_800/CMSSW_1_6_0-HLT-1191263863/GEN-SIM-DIGI-RECO
 
-#ci sono solo tt alpgen per la 160!!!!!
-perl makeConfigs.pl tt0j_alpgen /tt0j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO
-#buco
-perl makeConfigs.pl tt2j_alpgen /tt2j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO    
-perl makeConfigs.pl tt3j_alpgen /tt3j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO
-perl makeConfigs.pl tt4j_alpgen /tt4j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO 
-
-#dy
