@@ -2,17 +2,19 @@ void tagJetSigVsBkg ()
 {
     gROOT->SetStyle("Plain") ;
 	
-    TFile *f = new TFile("WWF_HIGGS160/tt4j_alpgen_152_tree_1.root") ;
+    TFile *f = new TFile("WWF_HIGGS160/merged_tree.root") ;
     TTree *tree = (TTree*)f->Get("tree"); 
         
 	int evtFlag;
 	int numberJet;
 	int numberJetAfterCuts;
+	std::vector<int> *recoJetFlavour = new std::vector<int>;
 	TClonesArray *recoJet4Momentum = new TClonesArray ("TLorentzVector");
 	
 	tree->SetBranchAddress ("evtFlag", &evtFlag);
-	tree->SetBranchAddress ("numberJet", &numberJet);
-	tree->SetBranchAddress ("recoJet4Momentum", &recoJet4Momentum);
+	tree->SetBranchAddress ("numberJet", &numberJet); 
+    tree->SetBranchAddress ("recoJet4Momentum",  &recoJet4Momentum);
+	tree->SetBranchAddress ("recoJetFlavour", &recoJetFlavour); 
 	
 	//VVF
 	TH1F *histo_deltaEtaTag_VVf = new TH1F ("histo_deltaEtaTag_VVf", "#Delta#eta between tag jets", 50, 0, 10) ;
@@ -105,7 +107,7 @@ void tagJetSigVsBkg ()
         {
             tree->GetEntry(i);
 			
-			twoLargestInvMassJets (*recoJet4Momentum, *reco_leadingJetF, *reco_leadingJetB, numberJet, numberJetAfterCuts ) ; //due recojet con massima massa invariante
+			twoLargestInvMassJets (*recoJet4Momentum, *reco_leadingJetF, *reco_leadingJetB, numberJet, numberJetAfterCuts, recoJetFlavour ) ; //due recojet con massima massa invariante
 			recoSommaTag = *(reco_leadingJetF) + *(reco_leadingJetB);
 			
 			if (evtFlag== 123 || evtFlag== 124) //////////////////////////////////////////////////// vvf
@@ -151,7 +153,7 @@ void tagJetSigVsBkg ()
                 }
 
 			}
-			else if (evtFlag==40)//////////////////////////////////////////////////// Wt (4)
+			else if (evtFlag==4)//////////////////////////////////////////////////// Wt (4)
 			{
     			histo_numJet_Wt -> Fill (numberJetAfterCuts) ;
 			    if (reco_leadingJetF->E() > 0)
@@ -218,7 +220,7 @@ void tagJetSigVsBkg ()
                 }
 			}
 			
-			else if (evtFlag==4)//////////////////////////////////////////////////// ttbar
+			else if (evtFlag==40)//////////////////////////////////////////////////// ttbar (4)
 			{
     			histo_numJet_tt -> Fill (numberJetAfterCuts) ;
 			    if (reco_leadingJetF->E() > 0)
@@ -245,7 +247,7 @@ void tagJetSigVsBkg ()
 			
 	}		
 
-    /*
+    
 	histo_deltaEtaTag_VVf -> Scale (1/(histo_deltaEtaTag_VVf->Integral()));
     histo_invMassTag_VVf -> Scale (1/(histo_invMassTag_VVf->Integral()));
 	histo_energyTag_VVf -> Scale (1/(histo_energyTag_VVf->Integral()));
@@ -276,26 +278,24 @@ void tagJetSigVsBkg ()
 	histo_ptTag_WZ -> Scale (1/(histo_ptTag_WZ->Integral()));
 	histo_etaTag_WZ -> Scale (1/(histo_etaTag_WZ->Integral()));
 	histo_numJet_WZ -> Scale (1/(histo_numJet_WZ->Integral()));
-	*/
+	/*
 	histo_deltaEtaTag_tt -> Scale (1/(histo_deltaEtaTag_tt->Integral()));
     histo_invMassTag_tt -> Scale (1/(histo_invMassTag_tt->Integral()));
 	histo_energyTag_tt -> Scale (1/(histo_energyTag_tt->Integral()));
 	histo_ptTag_tt -> Scale (1/(histo_ptTag_tt->Integral()));
 	histo_etaTag_tt -> Scale (1/(histo_etaTag_tt->Integral()));
 	histo_numJet_tt -> Scale (1/(histo_numJet_tt->Integral()));
-	
+	*/
 	
 	TLegend *tleg = new TLegend (0.7, 0.6, 0.9, 0.8);
     tleg -> SetBorderSize (0);
     tleg -> SetFillColor (0);
-	/*
 	tleg-> AddEntry (histo_deltaEtaTag_VVf , "VVf","l") ;
 	tleg-> AddEntry (histo_deltaEtaTag_ggf , "ggf","l") ;
 	tleg-> AddEntry (histo_deltaEtaTag_Wt , "Wt","l") ;
     tleg-> AddEntry (histo_deltaEtaTag_WW , "WW","l") ;
     tleg-> AddEntry (histo_deltaEtaTag_WZ , "WZ","l") ;
-	*/
-	tleg-> AddEntry (histo_deltaEtaTag_tt , "tt3j","l") ;
+	//tleg-> AddEntry (histo_deltaEtaTag_tt , "tt3j","l") ;
 
     TCanvas *pip = new TCanvas () ;
 	pip->Divide (3,2);
@@ -344,42 +344,42 @@ void tagJetSigVsBkg ()
 	histo_numJet_tt->Draw ("same") ;
 	
 	TFile *pipa = new TFile ("histoSigVsBkg.root","RECREATE") ;
-    //histo_deltaEtaTag_ggf->Write();
-	//histo_deltaEtaTag_VVf->Write();
-	//histo_deltaEtaTag_Wt->Write();
-	//histo_deltaEtaTag_WW->Write();
-	//histo_deltaEtaTag_WZ->Write();
-	histo_deltaEtaTag_tt->Write();
-	//histo_invMassTag_ggf->Write();
-	//histo_invMassTag_VVf->Write();
-	//histo_invMassTag_Wt->Write();
-	//histo_invMassTag_WW->Write();
-	//histo_invMassTag_WZ->Write();
-	histo_invMassTag_tt->Write();
-	//histo_energyTag_ggf->Write();
-	//histo_energyTag_VVf->Write();
-	//histo_energyTag_Wt->Write();
-	//histo_energyTag_WW->Write();
-	//histo_energyTag_WZ->Write();
-	histo_energyTag_tt->Write();
-	//histo_ptTag_ggf->Write();
-	//histo_ptTag_VVf->Write();
-	//histo_ptTag_Wt->Write();
-	//histo_ptTag_WW->Write();
-	//histo_ptTag_WZ->Write();
-	histo_ptTag_tt->Write();
-	//histo_etaTag_ggf->Write();
-	//histo_etaTag_VVf->Write();
-	//histo_etaTag_Wt->Write();
-	//histo_etaTag_WW->Write();
-	//histo_etaTag_WZ->Write();
-	histo_etaTag_tt->Write();
-	//histo_numJet_ggf->Write();
-	//histo_numJet_VVf->Write();
-	//histo_numJet_Wt->Write();
-	//histo_numJet_WW->Write();
-	//histo_numJet_WZ->Write();
-	histo_numJet_tt->Write();
+    histo_deltaEtaTag_ggf->Write();
+	histo_deltaEtaTag_VVf->Write();
+	histo_deltaEtaTag_Wt->Write();
+	histo_deltaEtaTag_WW->Write();
+	histo_deltaEtaTag_WZ->Write();
+	//histo_deltaEtaTag_tt->Write();
+	histo_invMassTag_ggf->Write();
+	histo_invMassTag_VVf->Write();
+	histo_invMassTag_Wt->Write();
+	histo_invMassTag_WW->Write();
+	histo_invMassTag_WZ->Write();
+	//histo_invMassTag_tt->Write();
+	histo_energyTag_ggf->Write();
+	histo_energyTag_VVf->Write();
+	histo_energyTag_Wt->Write();
+	histo_energyTag_WW->Write();
+	histo_energyTag_WZ->Write();
+	//histo_energyTag_tt->Write();
+	histo_ptTag_ggf->Write();
+	histo_ptTag_VVf->Write();
+	histo_ptTag_Wt->Write();
+	histo_ptTag_WW->Write();
+	histo_ptTag_WZ->Write();
+	//histo_ptTag_tt->Write();
+	histo_etaTag_ggf->Write();
+	histo_etaTag_VVf->Write();
+	histo_etaTag_Wt->Write();
+	histo_etaTag_WW->Write();
+	histo_etaTag_WZ->Write();
+	//histo_etaTag_tt->Write();
+	histo_numJet_ggf->Write();
+	histo_numJet_VVf->Write();
+	histo_numJet_Wt->Write();
+	histo_numJet_WW->Write();
+	histo_numJet_WZ->Write();
+	//histo_numJet_tt->Write();
 	
 }
 
@@ -1704,7 +1704,8 @@ void twoLeadingJets (TClonesArray &recoJet4Momentum , TLorentzVector &leadingJet
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void twoLargestInvMassJets (TClonesArray &recoJet4Momentum , TLorentzVector &leadingJetF, 
-                           TLorentzVector &leadingJetB, int & numberJet, int &numberJetAfterCuts = 0)
+                           TLorentzVector &leadingJetB, int &numberJet, int &numberJetAfterCuts = 0,
+						   std::vector<int> *recoJetFlavour)
 {
 
     leadingJetF.SetPxPyPzE (0.0, 0.0, 0.0, 0.0) ;  
@@ -1725,6 +1726,7 @@ void twoLargestInvMassJets (TClonesArray &recoJet4Momentum , TLorentzVector &lea
 	{
 	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(a)))->Eta()) > 5) continue ;
 	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(a)))->Pt()) < 15) continue ;
+	if ( recoJetFlavour->at (a) == 5) continue; //flavor per btagging
 	dopoA++;
 
 	for (int b=0; b <numberJet; b++)
@@ -1733,6 +1735,8 @@ void twoLargestInvMassJets (TClonesArray &recoJet4Momentum , TLorentzVector &lea
 	
 	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(b)))->Eta()) > 5) continue ;
 	if (fabs(((TLorentzVector*)(recoJet4Momentum.At(b)))->Pt()) < 15) continue ;
+	if ( recoJetFlavour->at (b) == 5) continue; //flavor per btagging
+
 	
 	dopoB++;
 	sum = *((TLorentzVector*)(recoJet4Momentum.At(a)))+*((TLorentzVector*)(recoJet4Momentum.At(b)));
