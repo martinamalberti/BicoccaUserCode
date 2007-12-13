@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.27 2007/12/06 17:44:39 tancini Exp $
+// $Id: VBFReadEvent.h,v 1.28 2007/12/10 14:26:33 tancini Exp $
 //
 //
 
@@ -104,6 +104,7 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 
 //root include
 #include <TTree.h>

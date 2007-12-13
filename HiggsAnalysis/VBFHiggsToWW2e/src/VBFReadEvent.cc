@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.40 2007/12/11 13:21:57 govoni Exp $
+// $Id: VBFReadEvent.cc,v 1.41 2007/12/12 09:35:56 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -127,9 +127,15 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  PG check the result of the electron ID on a given ref
   reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr;
     
-  //PG fetch the MC information  
+  //PG fetch the MC information
+  //edm::Handle<edm::GenInfoProduct> gi;
+  //iEvent.getByLabel(m_MC, gi); // cosa bisogna passare? m_MC non va...
+  //double external_cross_section = gi->external_cross_section(); // is the precalculated one written in the cfg file -- units is pb
+  //std::cout << "**** xsec = " << external_cross_section << " pb" << std::endl;	  
+  
   const HepMC::GenEvent * Evt = evtMC->GetEvent();
   m_evtFlag = Evt->signal_process_id();
+  double pthat = Evt->event_scale();
   
   if (m_evtFlag == 123 || m_evtFlag == 124)
     {
