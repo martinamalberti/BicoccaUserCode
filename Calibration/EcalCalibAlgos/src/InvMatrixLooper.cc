@@ -204,16 +204,7 @@ InvMatrixLooper::duringLoop (const edm::Event& iEvent,
      return  kContinue ;//maybe FIXME not with a kContinue but a skip only on the barrel part;
     }
 
- //Takes the electron collection of the pixel detector
- edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
- iEvent.getByLabel (m_ElectronLabel,pElectrons);
- if (!pElectrons.isValid ()) {
-     edm::LogError ("reading")<< "[InvMatrixLooper] electrons not found" ;
-     return kContinue;
-   }
- const EERecHitCollection* endcapHitsCollection = 0;
- double pSubtract = 0.;
- double pTk = 0.;
+ const EERecHitCollection * endcapHitsCollection = 0 ;
  edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
  iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
  endcapHitsCollection = endcapRecHitsHandle.product () ;
@@ -222,43 +213,50 @@ InvMatrixLooper::duringLoop (const edm::Event& iEvent,
      return kContinue;
    }
 
-//Start the loop over the electrons 
-// const reco::PixelMatchGsfElectronCollection * electronCollection = pElectrons.product();
+ //Takes the electron collection of the pixel detector
+ edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
+ iEvent.getByLabel (m_ElectronLabel,pElectrons);
+ if (!pElectrons.isValid ()) {
+     edm::LogError ("reading")<< "[InvMatrixLooper] electrons not found" ;
+     return kContinue;
+   }
+
+ //Start the loop over the electrons 
  for (eleIterator eleIt = pElectrons->begin ();
       eleIt != pElectrons->end ();
       ++eleIt )
-      {
-       pSubtract =0;
-       pTk=0;
-       DetId Max = findMaxHit (eleIt->superCluster ()->getHitsByDetId (), 
-                               barrelHitsCollection,  endcapHitsCollection) ;
- //Continues if the findMaxHit doesn't find anything
-       if (Max.det()==0) continue; 
-       if (m_maxSelectedNumPerXtal > 0 && 
-          m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue;
-       ++m_xtalNumOfHits[Max.rawId()];
-       std::map<int , double> xtlMap;
-       int blockIndex =  m_xtalRegionId[Max.rawId ()] ;
-       pTk = eleIt->trackMomentumAtVtx ().R ();
-       if  ( Max.subdetId () == EcalBarrel  )
-         {
-           EBDetId EBmax = Max;
-           if (EBregionCheck (etaShifter (EBmax.ieta ()), EBmax.iphi ()-1)) continue;//IN the future FIXME
-           fillEBMap (EBmax, barrelHitsCollection, xtlMap,
-                      blockIndex, pSubtract );
-          }
-       else 
-          {
-           EEDetId EEmax = Max;
-	   if (EEregionCheck (EEmax.ix ()-1, EEmax.iy ()-1)) continue ;
-           fillEEMap (EEmax, endcapHitsCollection, xtlMap,
-                       blockIndex, pSubtract ) ;
-           pSubtract += eleIt->superCluster ()->preshowerEnergy () ;          
-          }
-       m_ecalCalibBlocks.at (blockIndex).Fill (xtlMap.begin (), xtlMap.end (),pTk,pSubtract) ;
-      } //End of the loop over the electron collection
+   {
+     double pSubtract = 0 ;
+     double pTk = 0 ;
+     DetId Max = findMaxHit (eleIt->superCluster ()->getHitsByDetId (), 
+                             barrelHitsCollection,  endcapHitsCollection) ;
+     // Continues if the findMaxHit doesn't find anything
+     if (Max.det()==0) continue; 
+     if (m_maxSelectedNumPerXtal > 0 && 
+        m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue;
+     ++m_xtalNumOfHits[Max.rawId()];
+     std::map<int , double> xtlMap;
+     int blockIndex =  m_xtalRegionId[Max.rawId ()] ;
+     pTk = eleIt->trackMomentumAtVtx ().R ();
+     if  ( Max.subdetId () == EcalBarrel  )
+       {
+         EBDetId EBmax = Max;
+         if (EBregionCheck (etaShifter (EBmax.ieta ()), EBmax.iphi ()-1)) continue;//IN the future FIXME
+         fillEBMap (EBmax, barrelHitsCollection, xtlMap,
+                    blockIndex, pSubtract );
+       }
+     else 
+       {
+         EEDetId EEmax = Max;
+	       if (EEregionCheck (EEmax.ix ()-1, EEmax.iy ()-1)) continue ;
+         fillEEMap (EEmax, endcapHitsCollection, xtlMap,
+                    blockIndex, pSubtract ) ;
+         pSubtract += eleIt->superCluster ()->preshowerEnergy () ;          
+       }
+     m_ecalCalibBlocks.at (blockIndex).Fill (xtlMap.begin (), xtlMap.end (),pTk,pSubtract) ;
+   } //End of the loop over the electron collection
 
-return  kContinue;
+  return  kContinue;
 } //end of duringLoop
 
 
