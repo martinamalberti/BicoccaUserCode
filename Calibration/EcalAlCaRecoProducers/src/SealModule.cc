@@ -11,7 +11,6 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPi0RecHitsProducer.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPi0BasicClusterRecHitsProducer.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/TBInvMatrixLooper.h"
-#include "Calibration/EcalAlCaRecoProducers/interface/InvMatrixLooper.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/InvRingCalib.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
@@ -26,7 +25,6 @@ DEFINE_ANOTHER_FWK_MODULE(AlCaPi0RecHitsProducer);
 DEFINE_ANOTHER_FWK_MODULE(AlCaPi0BasicClusterRecHitsProducer);
 
 DEFINE_ANOTHER_FWK_LOOPER(TBInvMatrixLooper);
-DEFINE_ANOTHER_FWK_LOOPER(InvMatrixLooper);
 DEFINE_ANOTHER_FWK_LOOPER(InvRingCalib);
 
 namespace reco {
