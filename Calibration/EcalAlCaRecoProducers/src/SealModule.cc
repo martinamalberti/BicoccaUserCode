@@ -5,8 +5,6 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsTest.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsTestCalib.h"
-#include "Calibration/EcalAlCaRecoProducers/interface/PhiRangeSelector.h"
-#include "Calibration/EcalAlCaRecoProducers/interface/IMASelector.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPhiSymRecHitsProducer.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPi0RecHitsProducer.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPi0BasicClusterRecHitsProducer.h"
@@ -27,15 +25,3 @@ DEFINE_ANOTHER_FWK_MODULE(AlCaPi0BasicClusterRecHitsProducer);
 DEFINE_ANOTHER_FWK_LOOPER(TBInvMatrixLooper);
 DEFINE_ANOTHER_FWK_LOOPER(InvRingCalib);
 
-namespace reco {
-  namespace modules {
-    typedef SingleObjectSelector<reco::PixelMatchGsfElectronCollection,
-                                 ::PhiRangeSelector> PhiRangeSelector; 
-    DEFINE_ANOTHER_FWK_MODULE(PhiRangeSelector);
-
-    typedef SingleObjectSelector<reco::PixelMatchGsfElectronCollection,
-                                 ::IMASelector> IMASelector; 
-    DEFINE_ANOTHER_FWK_MODULE(IMASelector);
-
-  }
-}
