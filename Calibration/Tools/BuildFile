@@ -28,6 +28,10 @@
 <use name=DataFormats/GeometrySurface>
 <use name=Geometry/Records>
 
+<use name=DataFormats/EgammaCandidates>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
+
 # removed Ecal Sim Producers -->it's now an EDM plugin
 #
 # <use name=SimDataFormats/HepMCProduct>
@@ -45,6 +49,10 @@
 
 
 <export>
+
+  <use name=DataFormats/EgammaCandidates>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=FWCore/ServiceRegistry>
 
 #DS added pro InvMatrix
   <use name=clhep>
