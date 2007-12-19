@@ -203,6 +203,7 @@ InvMatrixLooper::duringLoop (const edm::Event& iEvent,
      edm::LogError ("reading") << "[InvMatrixLooper] barrel rec hits not found" ;
      return  kContinue ;//maybe FIXME not with a kContinue but a skip only on the barrel part;
     }
+
  //Takes the electron collection of the pixel detector
  edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
  iEvent.getByLabel (m_ElectronLabel,pElectrons);
@@ -222,9 +223,9 @@ InvMatrixLooper::duringLoop (const edm::Event& iEvent,
    }
 
 //Start the loop over the electrons 
- const reco::PixelMatchGsfElectronCollection * electronCollection = pElectrons.product();
- for (eleIterator eleIt = electronCollection->begin ();
-      eleIt != electronCollection->end ();
+// const reco::PixelMatchGsfElectronCollection * electronCollection = pElectrons.product();
+ for (eleIterator eleIt = pElectrons->begin ();
+      eleIt != pElectrons->end ();
       ++eleIt )
       {
        pSubtract =0;
