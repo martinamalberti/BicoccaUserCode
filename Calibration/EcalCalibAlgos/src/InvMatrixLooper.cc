@@ -196,41 +196,30 @@ InvMatrixLooper::duringLoop (const edm::Event& iEvent,
                              const edm::EventSetup&) 
 {
  const EBRecHitCollection* barrelHitsCollection = 0;
- try {
-     edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
-     iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
-     barrelHitsCollection = barrelRecHitsHandle.product () ;
-    }
- catch (std::exception& ce) {
-     edm::LogError ("reading") << "[InvMatrixLooper] caught std::exception "
-                    << " in retrieving " << m_barrelAlCa << "\t" 
-                    << ce.what () << std::endl ;
+ edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
+ iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
+ barrelHitsCollection = barrelRecHitsHandle.product () ;
+ if (!barrelRecHitsHandle.isValid ()) {
+     edm::LogError ("reading") << "[InvMatrixLooper] barrel rec hits not found" ;
      return  kContinue ;//maybe FIXME not with a kContinue but a skip only on the barrel part;
     }
  //Takes the electron collection of the pixel detector
  edm::Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
- try {
-        iEvent.getByLabel (m_ElectronLabel,pElectrons);
-     }
- catch (std::exception&ce ) {
-	edm::LogError ("reading")<<m_ElectronLabel<<"NotFound";
-	edm::LogError ("reading")<<"caught"<<ce.what();
-	return kContinue;
-    }
+ iEvent.getByLabel (m_ElectronLabel,pElectrons);
+ if (!pElectrons.isValid ()) {
+     edm::LogError ("reading")<< "[InvMatrixLooper] electrons not found" ;
+     return kContinue;
+   }
  const EERecHitCollection* endcapHitsCollection = 0;
  double pSubtract = 0.;
  double pTk = 0.;
- try {
-      edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
-      iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
-      endcapHitsCollection = endcapRecHitsHandle.product () ;
-    }
- catch (std::exception& ce) {
-       edm::LogError ("reading") << "[InvMatrixLooper] caught std::exception" 
-                     << " in retrieving " << m_endcapAlCa << "\t"
-                     << ce.what () << std::endl ;
-        return kContinue;
-    }
+ edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
+ iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
+ endcapHitsCollection = endcapRecHitsHandle.product () ;
+ if (!endcapRecHitsHandle.isValid ()) {  
+     edm::LogError ("reading") << "[InvMatrixLooper] endcap rec hits not found" ; 
+     return kContinue;
+   }
 
 //Start the loop over the electrons 
  const reco::PixelMatchGsfElectronCollection * electronCollection = pElectrons.product();
