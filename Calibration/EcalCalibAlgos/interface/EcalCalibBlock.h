@@ -17,9 +17,9 @@
  
     \brief element for the single ECAL block intercalibration  
 
-    $Date: 2007/05/09 12:50:32 $
-    $Revision: 1.5 $
-    $Id: EcalCalibBlock.h,v 1.5 2007/05/09 12:50:32 govoni Exp $ 
+    $Date: 2007/11/17 17:52:53 $
+    $Revision: 1.1 $
+    $Id: EcalCalibBlock.h,v 1.1 2007/11/17 17:52:53 govoni Exp $ 
     \author $Author: govoni $
 */
 class EcalCalibBlock
@@ -34,7 +34,8 @@ class EcalCalibBlock
     void Fill (std::map<int,double>::const_iterator,
 	       std::map<int,double>::const_iterator,
     	       double pTk,
-               double pSubtract) ;
+               double pSubtract,
+               double sigma = 1.) ;
 
     //! reset the chi2 matrices
     void reset () ;

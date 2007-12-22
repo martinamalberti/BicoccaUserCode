@@ -1,7 +1,7 @@
 /**
-    $Date: 2007/05/04 10:52:45 $
-    $Revision: 1.7 $
-    $Id: EcalCalibBlock.cc,v 1.7 2007/05/04 10:52:45 govoni Exp $ 
+    $Date: 2007/11/17 17:52:36 $
+    $Revision: 1.1 $
+    $Id: EcalCalibBlock.cc,v 1.1 2007/11/17 17:52:36 govoni Exp $ 
     \author $Author: govoni $
 */
 
@@ -10,6 +10,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TH1F.h"
 #include "TFile.h"
+
+
+// -----------------------------------------------------
+
+
 EcalCalibBlock::EcalCalibBlock (const int  numberOfElements):
   m_numberOfElements (numberOfElements), 
   m_kaliVector (m_numberOfElements) , 
@@ -17,17 +22,27 @@ EcalCalibBlock::EcalCalibBlock (const int  numberOfElements):
 {
   reset () ;
 }
+
+
+// -----------------------------------------------------
+
+
 EcalCalibBlock::~EcalCalibBlock()
 {
 }
-////--------------------------------------
+
+
+// -----------------------------------------------------
+
+
 void
 EcalCalibBlock::Fill (std::map<int,double>::const_iterator MapBegin,
 		      std::map<int,double>::const_iterator MapEnd ,
 		      double pTk,
-                      double pSubtract)
+              double pSubtract,
+              double sigma)
 {
-  double inverror = 1./1. ; //FIXME to be upgraded
+  double inverror = 1./sigma ; 
   //LP fist loop over energies
   for (std::map<int,double>::const_iterator itMap1 =MapBegin ; 
        itMap1 !=MapEnd ; 
@@ -54,7 +69,11 @@ EcalCalibBlock::Fill (std::map<int,double>::const_iterator MapBegin,
     } //LP first loop over energies
   return ;
 }
+
+
 //------------------------------------------------------------
+
+
 void 
 EcalCalibBlock::complete ()
 {
@@ -107,6 +126,7 @@ EcalCalibBlock::solve (int usingBlockSolver, double min, double max)
  return ;
 }
 
+
 //------------------------------------------------------------
 
 
@@ -116,6 +136,7 @@ EcalCalibBlock::evalX2Size ()
 
     return m_numberOfElements* m_numberOfElements;
   }
+
 
 // ------------------------------------------------------------
 
@@ -137,6 +158,7 @@ EcalCalibBlock::riempiMtr (const std::vector<double> & piena,
     return ;
   }
 
+
 // ------------------------------------------------------------
 
 void
@@ -152,7 +174,10 @@ EcalCalibBlock::riempiVtr (const std::vector<double> & pieno,
     return ;
   }
 
+
 // ------------------------------------------------------------
+
+
 void 
 EcalCalibBlock::reset () 
 {
@@ -177,6 +202,7 @@ EcalCalibBlock::reset ()
 // ------------------------------------------------------------
 //LP sta provando a fare i seguenti due metodi come locali. Speriamo di non fare stronzate.
 
+
 void 
 EcalCalibBlock::fillMap (const CLHEP::HepVector & result) 
 {
@@ -188,7 +214,12 @@ EcalCalibBlock::fillMap (const CLHEP::HepVector & result)
 
    return ;
 }
+
+
+// -----------------------------------------------------
+
+
 double EcalCalibBlock::at (int index)
 {
- return m_coefficients[index]; 
+ return m_coefficients[index] ; 
 }
