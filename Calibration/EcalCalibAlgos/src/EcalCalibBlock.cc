@@ -1,7 +1,7 @@
 /**
-    $Date: 2007/11/17 17:52:36 $
-    $Revision: 1.1 $
-    $Id: EcalCalibBlock.cc,v 1.1 2007/11/17 17:52:36 govoni Exp $ 
+    $Date: 2007/12/22 08:55:29 $
+    $Revision: 1.2 $
+    $Id: EcalCalibBlock.cc,v 1.2 2007/12/22 08:55:29 govoni Exp $ 
     \author $Author: govoni $
 */
 
@@ -79,9 +79,9 @@ EcalCalibBlock::complete ()
 {
  int bef;
  int aft;
- for (int i=0; i<m_numberOfElements;++i)
+ for (unsigned int i=0; i<m_numberOfElements;++i)
   {
-    for (int j=i+1; j< m_numberOfElements; ++j) 
+    for (unsigned int j=i+1; j< m_numberOfElements; ++j) 
       {
          bef = (i*m_numberOfElements+j);
          aft =  (j*m_numberOfElements +i);
@@ -145,14 +145,14 @@ void
 EcalCalibBlock::riempiMtr (const std::vector<double> & piena, 
                            CLHEP::HepMatrix & vuota) 
   {
-    int max = m_numberOfElements ;
+    unsigned int max = m_numberOfElements ;
 
 
     assert (piena.size () == max * max) ; 
     assert (vuota.num_row () == max) ;
     assert (vuota.num_col () == max) ;
-    for (int i = 0 ; i < max ; ++i)
-     for (int j = 0 ; j < max ; ++j)
+    for (unsigned int i = 0 ; i < max ; ++i)
+     for (unsigned int j = 0 ; j < max ; ++j)
        vuota[i][j] = piena[i*max + j] ; 
 
     return ;
@@ -207,7 +207,7 @@ void
 EcalCalibBlock::fillMap (const CLHEP::HepVector & result) 
 {
 
-   for (int i=0; i < m_numberOfElements; ++i)
+   for (unsigned int i=0; i < m_numberOfElements; ++i)
       {
              m_coefficients[i] = result[i] ;
       } 

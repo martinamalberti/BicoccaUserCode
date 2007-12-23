@@ -17,9 +17,9 @@
  
     \brief element for the single ECAL block intercalibration  
 
-    $Date: 2007/11/17 17:52:53 $
-    $Revision: 1.1 $
-    $Id: EcalCalibBlock.h,v 1.1 2007/11/17 17:52:53 govoni Exp $ 
+    $Date: 2007/12/22 08:55:26 $
+    $Revision: 1.2 $
+    $Id: EcalCalibBlock.h,v 1.2 2007/12/22 08:55:26 govoni Exp $ 
     \author $Author: govoni $
 */
 class EcalCalibBlock
@@ -58,7 +58,7 @@ class EcalCalibBlock
   
   private :  
     //! The only parameter!
-    int m_numberOfElements ;
+    unsigned int m_numberOfElements ;
     //! vector for the chi2 inversion
     std::vector<double> m_kaliVector ; 
     //! matrix for the chi2 inversion
