@@ -1,3 +1,4 @@
+<use name=CalibCalorimetry/CaloMiscalibTools>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
@@ -41,6 +42,7 @@
   <lib name=CalibrationEcalCalibAlgos>
 #DS end
 
+  <use name=CalibCalorimetry/CaloMiscalibTools>
   <use name=CondFormats/EcalObjects>
   <use name=CondFormats/DataRecord>
   <use name=RecoLocalCalo/EcalRecAlgos>
