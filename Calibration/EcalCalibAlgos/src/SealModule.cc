@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Calibration/EcalCalibAlgos/interface/InvMatrixLooper.h"
+#include "Calibration/EcalCalibAlgos/interface/InvRingCalib.h"
 
 // #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 // #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
@@ -12,6 +13,7 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_LOOPER(InvMatrixLooper);
+DEFINE_ANOTHER_FWK_LOOPER(InvRingCalib);
 
 // namespace reco {
 //   namespace modules {
