@@ -450,15 +450,15 @@ int InvMatrixLooper::EERegionId (const int ics, const int ips) const
  if (EEregionCheck(ics,ips)) return -1;
  int phifake = m_phiStartEE;
  if (m_phiStartEE>m_phiEndEE) phifake = m_phiStartEE - 360;
- double radius = (ics-50)* (ics-50) + (ips-50)* (ips-50) ;
+ double radius = (ics-50) * (ics-50) + (ips-50) * (ips-50) ;
  radius = sqrt (radius) ;
  int Nphi = (m_phiEndEE - phifake)/m_phiWidthEE ;
  double phi = atan2 (static_cast<double> (ips-50), 
-                       static_cast<double> (ics-50)) ;
+                     static_cast<double> (ics-50)) ;
  phi = degrees (phi);
  if (phi < 0) phi += 360; 
- int radI = (radius-m_radStart) / m_radWidth ;
- int phiI = (m_phiEndEE-phi) / m_phiWidthEE ;
+ int radI = static_cast<int> ((radius-m_radStart) / m_radWidth) ;
+ int phiI = static_cast<int> ((m_phiEndEE-phi) / m_phiWidthEE) ;
  int regionNumEE = phiI + Nphi*radI ;
  return  regionNumEE ;
 }

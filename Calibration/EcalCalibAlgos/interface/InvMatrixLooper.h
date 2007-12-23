@@ -2,8 +2,8 @@
   * \file InvMatrixLooper.h
   * \class InvMatrixLooper
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2007/11/26 14:23:15 $
-  * $Revision: 1.2 $
+  * $Date: 2007/12/19 15:06:14 $
+  * $Revision: 1.1 $
   * \author 
   *
 */
@@ -169,7 +169,7 @@ class InvMatrixLooper : public edm::EDLooper {
     std::map<int,double> m_recalibMap ;
 
     //! DS sets the number of loops to do
-    int m_loops ;
+    unsigned int m_loops ;
     //! To take the electrons
     edm::InputTag m_ElectronLabel ;
 

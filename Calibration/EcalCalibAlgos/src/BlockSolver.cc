@@ -1,7 +1,7 @@
 /** 
-    $Date: 2007/04/24 16:40:02 $
-    $Revision: 1.9 $
-    $Id: BlockSolver.cc,v 1.9 2007/04/24 16:40:02 govoni Exp $ 
+    $Date: 2007/11/17 17:52:36 $
+    $Revision: 1.1 $
+    $Id: BlockSolver.cc,v 1.1 2007/11/17 17:52:36 govoni Exp $ 
     \author $Author: govoni $
 */
 
@@ -93,7 +93,6 @@ BlockSolver::pour (CLHEP::HepVector & result,
                    const CLHEP::HepVector & output,
                    const std::vector<int> & where) 
 {
-  int offsetCol = 0 ;
   std::vector<int>::const_iterator whereCols = where.begin () ;
   int readingIndex = 0 ;
   //PG loop over the output crystals
