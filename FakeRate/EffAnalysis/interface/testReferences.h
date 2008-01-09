@@ -39,7 +39,9 @@ class testReferences : public edm::EDAnalyzer
    double getEMMCComponent (reco::CaloJetCollection::const_iterator iterJet,
                             HepMC::GenEvent * generated_event, double deltaCone = 0.2);
   
-   edm::InputTag m_genMetInputTag ;   edm::InputTag m_metInputTag ;   edm::InputTag m_rawGSFInputTag ;
+   edm::InputTag m_genMetInputTag ;
+   edm::InputTag m_metInputTag ;
+   edm::InputTag m_rawGSFInputTag ;
    edm::InputTag m_ambiguityInputTag ;
    edm::InputTag m_tkIsoInputTag ; 
    edm::InputTag m_hadIsoInputTag ; 
@@ -49,6 +51,7 @@ class testReferences : public edm::EDAnalyzer
    edm::InputTag m_eleIdRobustInputTag ; 
    edm::InputTag m_jetInputTag ;
    edm::InputTag m_evtInputTag ;
+   edm::InputTag m_superClusterInputTag ;
    int m_rawCounter ;
    int m_ambiguityCounter ;
    int m_tkIsoCounter ;

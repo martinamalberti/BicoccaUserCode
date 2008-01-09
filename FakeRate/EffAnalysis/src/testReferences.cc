@@ -47,7 +47,9 @@ using namespace edm;
 using namespace HepMC;
 
 testReferences::testReferences(const edm::ParameterSet& conf) :
-   m_genMetInputTag (conf.getParameter<edm::InputTag> ("genMetInputTag")) ,   m_metInputTag (conf.getParameter<edm::InputTag> ("metInputTag")) ,   m_rawGSFInputTag (conf.getParameter<edm::InputTag>("rawGSF")) ,
+   m_genMetInputTag (conf.getParameter<edm::InputTag> ("genMetInputTag")) ,
+   m_metInputTag (conf.getParameter<edm::InputTag> ("metInputTag")) ,
+   m_rawGSFInputTag (conf.getParameter<edm::InputTag>("rawGSF")) ,
    m_ambiguityInputTag (conf.getParameter<edm::InputTag>("ambiguity")) ,
    m_tkIsoInputTag (conf.getParameter<edm::InputTag>("tkIso")) ,
    m_hadIsoInputTag (conf.getParameter<edm::InputTag>("hadIso")) ,
@@ -57,6 +59,7 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_eleIdRobustInputTag (conf.getParameter<edm::InputTag>("eleIdRobust")) ,
    m_jetInputTag (conf.getParameter<edm::InputTag>("jet")) ,
    m_evtInputTag (conf.getParameter<edm::InputTag>("evt")) ,
+   m_superClusterInputTag (conf.getParameter<edm::InputTag> ("superClusters")) ,
    m_rawCounter (0) ,
    m_ambiguityCounter (0),
    m_tkIsoCounter (0),
