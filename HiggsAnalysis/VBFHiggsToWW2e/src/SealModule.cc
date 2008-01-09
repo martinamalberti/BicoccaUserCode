@@ -36,6 +36,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFReadEvent) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetTagger.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagger) ; 
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCJetTagger.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFMCJetTagger) ; 
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFSimpleJetTagger.h"
 typedef ObjectSelector<VBFSimpleJetTagger> VBFJetTagSelector ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelector) ;
