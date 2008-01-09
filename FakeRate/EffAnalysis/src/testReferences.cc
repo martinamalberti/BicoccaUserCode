@@ -59,7 +59,8 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_eleIdRobustInputTag (conf.getParameter<edm::InputTag>("eleIdRobust")) ,
    m_jetInputTag (conf.getParameter<edm::InputTag>("jet")) ,
    m_evtInputTag (conf.getParameter<edm::InputTag>("evt")) ,
-   m_superClusterInputTag (conf.getParameter<edm::InputTag> ("superClusters")) ,
+   m_superClusterEBInputTag (conf.getParameter<edm::InputTag> ("EBsuperClusters")) ,
+   m_superClusterEEInputTag (conf.getParameter<edm::InputTag> ("EEsuperClusters")) ,
    m_rawCounter (0) ,
    m_ambiguityCounter (0),
    m_tkIsoCounter (0),
@@ -100,6 +101,9 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
     m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
     m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
+    m_minitree->Branch("SCET" ,m_SCET  ,"SCET[30]/D" ); 
+    m_minitree->Branch("SCEta",m_SCEta ,"SCEta[30]/D");
+    m_minitree->Branch("SCPhi",m_SCPhi ,"SCPhi[30]/D");
     m_minitree->Branch("eleCharge",m_eleCharge ,"eleCharge[10]/I");
     m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[10]/D" ); 
     m_minitree->Branch("jetEta",m_jetEta ,"jetEta[10]/D");
@@ -108,6 +112,9 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("jetPTMatch" ,m_jetPTMatch  ,"jetPTMatch[10]/D" ); 
     m_minitree->Branch("jetEtaMatch",m_jetEtaMatch ,"jetEtaMatch[10]/D");
     m_minitree->Branch("jetPhiMatch",m_jetPhiMatch ,"jetPhiMatch[10]/D");
+    m_minitree->Branch("SCETMatch" ,m_SCETMatch  ,"SCETMatch[10]/D" ); 
+    m_minitree->Branch("SCEtaMatch",m_SCEtaMatch ,"SCEtaMatch[10]/D");
+    m_minitree->Branch("SCPhiMatch",m_SCPhiMatch ,"SCPhiMatch[10]/D");
     m_minitree->Branch("jetmaxPT" ,m_jetmaxPT  ,"jetmaxPT[10]/D" ); 
     m_minitree->Branch("jetmaxEta",m_jetmaxEta ,"jetmaxEta[10]/D");
     m_minitree->Branch("jetmaxPhi",m_jetmaxPhi ,"jetmaxPhi[10]/D");
@@ -164,12 +171,18 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_jetEta[ii] = 0 ; 
         m_jetPhi[ii] = 0 ; 
         m_jetFlav[ii] = 0 ; 
+        m_SCET[ii] = 0 ;  
+        m_SCEta[ii] = 0 ; 
+        m_SCPhi[ii] = 0 ; 
      }
    for (int ii = 0 ; ii < 10 ; ++ii)
      { 
         m_jetPTMatch[ii] = 0 ;  
         m_jetEtaMatch[ii] = 0 ; 
         m_jetPhiMatch[ii] = 0 ; 
+        m_SCETMatch[ii] = 0 ;  
+        m_SCEtaMatch[ii] = 0 ; 
+        m_SCPhiMatch[ii] = 0 ; 
         m_rawBit[ii] = 0;
         m_elePT[ii] = 0 ;  
         m_eleEta[ii] = 0 ; 
@@ -214,6 +227,10 @@ void testReferences::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_jetInputTag, jetHandle);
   edm::Handle<HepMCProduct> evtHandle;
   iEvent.getByLabel (m_evtInputTag, evtHandle);
+  edm::Handle<reco::SuperCluster> SCEBHandle;
+  iEvent.getByLabel (m_superClusterEBInputTag, SCEBHandle);
+  edm::Handle<reco::SuperCluster> SCEEHandle;
+  iEvent.getByLabel (m_superClusterEEInputTag, SCEEHandle);
 
   edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
