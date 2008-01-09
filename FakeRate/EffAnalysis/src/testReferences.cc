@@ -293,7 +293,7 @@ void testReferences::analyze (const edm::Event& iEvent,
         }
      } //Loop over EB SC collection
 
-   //Loop over EB SC collection
+   //Loop over EE SC collection
    ii = 0;
    for (reco::SuperClusterCollection::const_iterator iterSCEE = SCEEHandle->begin () ;
                                                      iterSCEE!= SCEEHandle->end () ; 
@@ -307,13 +307,17 @@ void testReferences::analyze (const edm::Event& iEvent,
           m_SCPhi[ii] = iterSCEE->phi () ;
           ++ii ;
         }
-     } //Loop over EB SC collection
+     } //Loop over EE SC collection
 
    m_ptHat = generated_event->event_scale();
    m_eleNum = rawGSFHandle->size () ;
    //PG loop on the raw collection
    for (int i = 0; i < rawGSFHandle->size () ; ++i) 
      {
+      m_SCEMatch[i]   = (*rawGSFHandle)[i].superCluster ()->energy () ; 
+      m_SCEtaMatch[i] = (*rawGSFHandle)[i].superCluster ()->eta () ; 
+      m_SCPhiMatch[i] = (*rawGSFHandle)[i].superCluster ()->phi () ; 
+     
       const reco::GsfTrack* gsfTrack = 
                     & (*((*rawGSFHandle)[i].gsfTrack ())) ;
       if (gsfTrack->numberOfValidHits () < 5 && i > 9) 
@@ -396,6 +400,12 @@ void testReferences::analyze (const edm::Event& iEvent,
      //Compute the EM component
      double jetEMMCComponent = getEMMCComponent (closestJet,generated_event,m_deltaCone) ;
      m_EMjetCompon[i] = jetEMMCComponent ;
+
+     deltaRMin = 99999. ;
+     double  SCE  = -1 ;
+     double  SCEta = -99 ;
+     double  SCPhi = -99 ; 
+
      //int isResolved = 0 ;    
      //int isPassed = 0 ;    
      Ref ref (rawGSFHandle, i) ;
