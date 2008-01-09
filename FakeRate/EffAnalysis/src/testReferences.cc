@@ -293,6 +293,22 @@ void testReferences::analyze (const edm::Event& iEvent,
         }
      } //Loop over EB SC collection
 
+   //Loop over EB SC collection
+   ii = 0;
+   for (reco::SuperClusterCollection::const_iterator iterSCEE = SCEEHandle->begin () ;
+                                                     iterSCEE!= SCEEHandle->end () ; 
+                                                     ++iterSCEE)
+     {      
+       if (ii < 30)
+        {
+          if (fabs (iterSCEE->eta ()) < 2.5) continue ;
+          m_SCE[ii]  = iterSCEE->energy () ;
+          m_SCEta[ii] = iterSCEE->eta () ;
+          m_SCPhi[ii] = iterSCEE->phi () ;
+          ++ii ;
+        }
+     } //Loop over EB SC collection
+
    m_ptHat = generated_event->event_scale();
    m_eleNum = rawGSFHandle->size () ;
    //PG loop on the raw collection
