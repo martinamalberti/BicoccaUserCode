@@ -101,7 +101,7 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
     m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
     m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
-    m_minitree->Branch("SCET" ,m_SCET  ,"SCET[30]/D" ); 
+    m_minitree->Branch("SCE" ,m_SCE ,"SCE[30]/D" ); 
     m_minitree->Branch("SCEta",m_SCEta ,"SCEta[30]/D");
     m_minitree->Branch("SCPhi",m_SCPhi ,"SCPhi[30]/D");
     m_minitree->Branch("eleCharge",m_eleCharge ,"eleCharge[10]/I");
@@ -112,7 +112,7 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("jetPTMatch" ,m_jetPTMatch  ,"jetPTMatch[10]/D" ); 
     m_minitree->Branch("jetEtaMatch",m_jetEtaMatch ,"jetEtaMatch[10]/D");
     m_minitree->Branch("jetPhiMatch",m_jetPhiMatch ,"jetPhiMatch[10]/D");
-    m_minitree->Branch("SCETMatch" ,m_SCETMatch  ,"SCETMatch[10]/D" ); 
+    m_minitree->Branch("SCEMatch" ,m_SCEMatch ,"SCEMatch[10]/D" ); 
     m_minitree->Branch("SCEtaMatch",m_SCEtaMatch ,"SCEtaMatch[10]/D");
     m_minitree->Branch("SCPhiMatch",m_SCPhiMatch ,"SCPhiMatch[10]/D");
     m_minitree->Branch("jetmaxPT" ,m_jetmaxPT  ,"jetmaxPT[10]/D" ); 
@@ -171,7 +171,7 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_jetEta[ii] = 0 ; 
         m_jetPhi[ii] = 0 ; 
         m_jetFlav[ii] = 0 ; 
-        m_SCET[ii] = 0 ;  
+        m_SCE[ii] = 0 ;  
         m_SCEta[ii] = 0 ; 
         m_SCPhi[ii] = 0 ; 
      }
@@ -180,7 +180,7 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_jetPTMatch[ii] = 0 ;  
         m_jetEtaMatch[ii] = 0 ; 
         m_jetPhiMatch[ii] = 0 ; 
-        m_SCETMatch[ii] = 0 ;  
+        m_SCEMatch[ii] = 0 ;  
         m_SCEtaMatch[ii] = 0 ; 
         m_SCPhiMatch[ii] = 0 ; 
         m_rawBit[ii] = 0;
@@ -227,9 +227,9 @@ void testReferences::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_jetInputTag, jetHandle);
   edm::Handle<HepMCProduct> evtHandle;
   iEvent.getByLabel (m_evtInputTag, evtHandle);
-  edm::Handle<reco::SuperCluster> SCEBHandle;
+  edm::Handle<reco::SuperClusterCollection> SCEBHandle;
   iEvent.getByLabel (m_superClusterEBInputTag, SCEBHandle);
-  edm::Handle<reco::SuperCluster> SCEEHandle;
+  edm::Handle<reco::SuperClusterCollection> SCEEHandle;
   iEvent.getByLabel (m_superClusterEEInputTag, SCEEHandle);
 
   edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
@@ -275,8 +275,24 @@ void testReferences::analyze (const edm::Event& iEvent,
           m_jetFlav[ii] =  jetFlavour.flavour () ;
           ++ii ;
         }
-     }
+     } //Loop over jet collection
    
+   //Loop over EB SC collection
+   ii = 0;
+   for (reco::SuperClusterCollection::const_iterator iterSCEB = SCEBHandle->begin () ;
+                                                     iterSCEB!= SCEBHandle->end () ; 
+                                                     ++iterSCEB)
+     {      
+       if (ii < 30)
+        {
+          if (fabs (iterSCEB->eta ()) > 2.5) continue ;
+          m_SCE[ii]  = iterSCEB->energy () ;
+          m_SCEta[ii] = iterSCEB->eta () ;
+          m_SCPhi[ii] = iterSCEB->phi () ;
+          ++ii ;
+        }
+     } //Loop over EB SC collection
+
    m_ptHat = generated_event->event_scale();
    m_eleNum = rawGSFHandle->size () ;
    //PG loop on the raw collection
@@ -342,6 +358,9 @@ void testReferences::analyze (const edm::Event& iEvent,
           
       
       } //end fo the match
+
+     
+
 
 //     m_jetPT[i]  = jetPT ;
 //     m_jetEta[i] = jetEta ;
