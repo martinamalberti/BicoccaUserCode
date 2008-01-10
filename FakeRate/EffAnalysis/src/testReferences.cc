@@ -279,13 +279,16 @@ void testReferences::analyze (const edm::Event& iEvent,
    
    //Loop over EB SC collection
    ii = 0;
+   double ebMax = 1.4442;
+   double eeMin = 1.560;
+   double eeMax = 2.500;
    for (reco::SuperClusterCollection::const_iterator iterSCEB = SCEBHandle->begin () ;
                                                      iterSCEB!= SCEBHandle->end () ; 
                                                      ++iterSCEB)
      {      
        if (ii < 30)
         {
-          if (fabs (iterSCEB->eta ()) > 2.5) continue ;
+          if (fabs (iterSCEB->eta ()) > ebMax) continue ;
           m_SCE[ii]  = iterSCEB->energy () ;
           m_SCEta[ii] = iterSCEB->eta () ;
           m_SCPhi[ii] = iterSCEB->phi () ;
@@ -299,7 +302,7 @@ void testReferences::analyze (const edm::Event& iEvent,
      {      
        if (ii < 30)
         {
-          if (fabs (iterSCEE->eta ()) < 2.5) continue ;
+          if (fabs (iterSCEE->eta ()) < eeMin || fabs (iterSCEE->eta ()) > eeMax) continue ;
           m_SCE[ii]  = iterSCEE->energy () ;
           m_SCEta[ii] = iterSCEE->eta () ;
           m_SCPhi[ii] = iterSCEE->phi () ;
@@ -377,12 +380,6 @@ void testReferences::analyze (const edm::Event& iEvent,
       
       } //end fo the match
 
-     
-
-
-//     m_jetPT[i]  = jetPT ;
-//     m_jetEta[i] = jetEta ;
-//     m_jetPhi[i] = jetPhi ;
      m_jetPTMatch[i]  = jetPT ;
      m_jetEtaMatch[i] = jetEta ;
      m_jetPhiMatch[i] = jetPhi ;
@@ -398,11 +395,6 @@ void testReferences::analyze (const edm::Event& iEvent,
      //Compute the EM component
      double jetEMMCComponent = getEMMCComponent (closestJet,generated_event,m_deltaCone) ;
      m_EMjetCompon[i] = jetEMMCComponent ;
-
-     deltaRMin = 99999. ;
-     double  SCE  = -1 ;
-     double  SCEta = -99 ;
-     double  SCPhi = -99 ; 
 
      //int isResolved = 0 ;    
      //int isPassed = 0 ;    
