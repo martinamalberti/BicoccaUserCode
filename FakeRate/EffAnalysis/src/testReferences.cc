@@ -105,10 +105,10 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("SCEta",m_SCEta ,"SCEta[30]/D");
     m_minitree->Branch("SCPhi",m_SCPhi ,"SCPhi[30]/D");
     m_minitree->Branch("eleCharge",m_eleCharge ,"eleCharge[10]/I");
-    m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[10]/D" ); 
-    m_minitree->Branch("jetEta",m_jetEta ,"jetEta[10]/D");
-    m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[10]/D");
-    m_minitree->Branch("jetFlav",m_jetFlav ,"eleFlav[30]/I");
+    m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[30]/D" ); 
+    m_minitree->Branch("jetEta",m_jetEta ,"jetEta[30]/D");
+    m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[30]/D");
+    m_minitree->Branch("jetFlav",m_jetFlav ,"jetFlav[30]/I");
     m_minitree->Branch("jetPTMatch" ,m_jetPTMatch  ,"jetPTMatch[10]/D" ); 
     m_minitree->Branch("jetEtaMatch",m_jetEtaMatch ,"jetEtaMatch[10]/D");
     m_minitree->Branch("jetPhiMatch",m_jetPhiMatch ,"jetPhiMatch[10]/D");
@@ -292,9 +292,7 @@ void testReferences::analyze (const edm::Event& iEvent,
           ++ii ;
         }
      } //Loop over EB SC collection
-
    //Loop over EE SC collection
-   ii = 0;
    for (reco::SuperClusterCollection::const_iterator iterSCEE = SCEEHandle->begin () ;
                                                      iterSCEE!= SCEEHandle->end () ; 
                                                      ++iterSCEE)
