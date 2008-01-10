@@ -3,21 +3,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"#include <Math/VectorUtil.h>
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <iostream>
 #include <algorithm>
 
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include <Math/VectorUtil.h>
 
 VBFMCJetTagger::VBFMCJetTagger (const edm::ParameterSet& iConfig) :
-  m_jetInputTag (iConfig.getParameter<edm::InputTag> ("jetInputTag")) ,
-  m_tagJetsName (iConfig.getParameter<std::string> ("tagJetsName")) ,
-  m_jetEtaMax (iConfig.getParameter<double> ("jetEtaMax")) ,
-  m_jetPtMin (iConfig.getParameter<double> ("jetPtMin")) ,
-  m_gatherConeSize (iConfig.getParameter<double> ("gatherConeSize")) 
+  m_genParticles (iConfig.getParameter<edm::InputTag> ("MCParticlesInputTag")) ,
+  m_MCtagJetsName(iConfig.getParameter<std::string> ("MCtagJetsName")) 
 {
-  produces<LorentzVectorCollection> (m_tagJetsName) ;
+  produces<LorentzVectorCollection> (m_MCtagJetsName) ;
 }  
 
 
@@ -35,52 +35,50 @@ VBFMCJetTagger::~VBFMCJetTagger ()
 void 
 VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 {
+  using namespace reco;
+  edm::Handle<CandidateCollection> genParticles; 
+  iEvent.getByLabel (m_genParticles,genParticles) ;
 
-  edm::Handle<reco::CaloJetCollection> jetCollectionHandle ;
-  iEvent.getByLabel (m_jetInputTag, jetCollectionHandle) ;
+  LorentzVector MCjetTagF;
+  LorentzVector MCjetTagB;
 
-  //PG get the jet tags
-  std::pair<VBFjetIt,VBFjetIt> tagJetCands = findTagJets (jetCollectionHandle->begin (),
-                                                          jetCollectionHandle->end (),
-                                                          m_jetPtMin, m_jetEtaMax) ;
-
-//tagJetCands.first 
-//tagJetCands.second
-
-  //PG build the new jets
-  LorentzVector firstTag = tagJetCands.first->p4 () ;
-  LorentzVector secondTag = tagJetCands.second->p4 () ;
-  
-  math::XYZVector firstDir = tagJetCands.first->momentum () ;
-  math::XYZVector secondDir = tagJetCands.first->momentum () ;
-  //PG look for other jets in cones around the found ones and add them to the "leading"
-  
-  //PG loop over the jets collection
-  for (VBFjetIt jetIt = jetCollectionHandle->begin () ; 
-       jetIt != jetCollectionHandle->end () ; 
-       ++jetIt) 
+ for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
     {
-      double firstDelta = ROOT::Math::VectorUtil::DeltaR (firstDir,jetIt->momentum ()) ;
-      double secondDelta = ROOT::Math::VectorUtil::DeltaR (secondDir,jetIt->momentum ()) ;
-      if (firstDelta < m_gatherConeSize) 
-        {
-          if (secondDelta < firstDelta) secondTag += jetIt->p4 () ;
-          else firstTag += jetIt->p4 () ;
-        }
-      else secondTag += jetIt->p4 () ;
-      /* 
-        - controllare la distanza da ciascun getto per aggiugnerlo al jet tag
-          relativo
-          - se il getto sta nei due coni, si accorpa al piu' vicino      
-      */
-    } //PG loop over the jets collection
-  
+        int mumPDG = p->pdgId();
+        int mumSTATUS = p->status();
+
+        ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
+        //misteriosamente i tag sono i fratelli dell'higgs
+        //quindi parto dall'higgs e ne prendo le mamme e quindi riguardo i figli
+
+        if ((abs(mumPDG)==25) && (mumSTATUS ==3))
+            {
+	      const Candidate * interact0 = p->mother(0);
+	      if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
+		setMomentum (MCjetTagF, *(interact0->daughter(1)));
+		setMomentum (MCjetTagB, *(interact0->daughter(0)));
+
+	      }
+	      else {
+		setMomentum (MCjetTagB, *(interact0->daughter(1)));
+		setMomentum (MCjetTagF, *(interact0->daughter(0)));
+	      }
+	    }
+    }
   //PG create and fill the collection to be added to the event
-  std::auto_ptr<LorentzVectorCollection> tagJets (new LorentzVectorCollection) ;
-  tagJets->push_back (firstTag) ;  
-  tagJets->push_back (secondTag) ;  
+  std::auto_ptr<LorentzVectorCollection> MCtagJets (new LorentzVectorCollection) ;
+  
+  MCtagJets->push_back (MCjetTagF) ;  
+  MCtagJets->push_back (MCjetTagB) ;  
     
   //PG insert the collection into the event
-  iEvent.put (tagJets, m_tagJetsName) ;
+  iEvent.put (MCtagJets, m_MCtagJetsName) ;
 }
 
+void VBFMCJetTagger::setMomentum (LorentzVector & myvector, const reco::Candidate & gen)
+{
+    myvector.SetPx (gen.px());
+    myvector.SetPy (gen.py());
+    myvector.SetPz (gen.pz());
+    myvector.SetE (gen.energy());
+}

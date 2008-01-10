@@ -26,28 +26,23 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
-
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include <string>
+
 
 class VBFMCJetTagger: public edm::EDProducer
 {
 
  public:
-
+ typedef math::XYZTLorentzVector LorentzVector ;
+  typedef std::vector<LorentzVector> LorentzVectorCollection ;
+ 
   //! ctor  
   VBFMCJetTagger (const edm::ParameterSet& conf) ;  
   //! dtor
   virtual ~VBFMCJetTagger () ;
-  
-  typedef math::XYZTLorentzVector LorentzVector ;
-  typedef std::vector<LorentzVector> LorentzVectorCollection ;
-  typedef reco::CaloJetCollection collection ;
-  typedef reco::CaloJetRef jet ;
-//  typedef std::vector<const reco::PixelMatchGsfElectron *> container;
-  typedef std::vector<reco::CaloJetRef> container ;
-  typedef container::const_iterator const_iterator ;
 
-  //! begin job
   void beginJob ( const edm::EventSetup & ) {} ;
   //! actual produce method
   void produce (edm::Event &, const edm::EventSetup&) ;
@@ -57,19 +52,10 @@ class VBFMCJetTagger: public edm::EDProducer
  private:
  
   //! input collection
-  edm::InputTag m_jetInputTag ;
+  edm::InputTag m_genParticles ;
   //! output collection
-  std::string m_tagJetsName ;
-
-  //! |eta| threshold below which look for jets
-  double m_jetEtaMax ;
-  //! jet pt minimum threshold above which look for jets
-  double m_jetPtMin ;
-  //! size of the cone inside which other jets are summed 
-  //! to the leading tag ones
-  double m_gatherConeSize ;
-  
-
+  std::string m_MCtagJetsName ;
+  void setMomentum (LorentzVector & myvector, const reco::Candidate & gen);
 
 };
   
