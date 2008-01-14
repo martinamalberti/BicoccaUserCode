@@ -1,7 +1,7 @@
 /**
-    $Date: 2007/12/22 08:55:29 $
-    $Revision: 1.2 $
-    $Id: EcalCalibBlock.cc,v 1.2 2007/12/22 08:55:29 govoni Exp $ 
+    $Date: 2007/11/17 17:52:36 $
+    $Revision: 1.1 $
+    $Id: EcalCalibBlock.cc,v 1.1 2007/11/17 17:52:36 govoni Exp $ 
     \author $Author: govoni $
 */
 
@@ -10,39 +10,25 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TH1F.h"
 #include "TFile.h"
-
-
-// -----------------------------------------------------
-
-
 EcalCalibBlock::EcalCalibBlock (const int  numberOfElements):
   m_numberOfElements (numberOfElements), 
   m_kaliVector (m_numberOfElements) , 
   m_kaliMatrix (evalX2Size ())
 {
+  m_map = new TH1F ("mappa","mappa",m_numberOfElements,0,m_numberOfElements);
   reset () ;
 }
-
-
-// -----------------------------------------------------
-
-
 EcalCalibBlock::~EcalCalibBlock()
 {
 }
-
-
-// -----------------------------------------------------
-
-
+////--------------------------------------
 void
 EcalCalibBlock::Fill (std::map<int,double>::const_iterator MapBegin,
 		      std::map<int,double>::const_iterator MapEnd ,
 		      double pTk,
-              double pSubtract,
-              double sigma)
+                      double pSubtract)
 {
-  double inverror = 1./sigma ; 
+  double inverror = 1./1. ; //FIXME to be upgraded
   //LP fist loop over energies
   for (std::map<int,double>::const_iterator itMap1 =MapBegin ; 
        itMap1 !=MapEnd ; 
@@ -65,23 +51,20 @@ EcalCalibBlock::Fill (std::map<int,double>::const_iterator MapBegin,
       dummy *= itMap1->second ;
       dummy *= inverror ;
       //LP fill the calib vector
+      m_map->Fill(itMap1->first,itMap1->second);
       m_kaliVector.at(itMap1->first) += dummy ;
     } //LP first loop over energies
   return ;
 }
-
-
 //------------------------------------------------------------
-
-
 void 
 EcalCalibBlock::complete ()
 {
  int bef;
  int aft;
- for (unsigned int i=0; i<m_numberOfElements;++i)
+ for (int i=0; i<m_numberOfElements;++i)
   {
-    for (unsigned int j=i+1; j< m_numberOfElements; ++j) 
+    for (int j=i+1; j< m_numberOfElements; ++j) 
       {
          bef = (i*m_numberOfElements+j);
          aft =  (j*m_numberOfElements +i);
@@ -105,6 +88,30 @@ EcalCalibBlock::solve (int usingBlockSolver, double min, double max)
  riempiMtr (m_kaliMatrix , kaliMatrix) ;
  CLHEP::HepVector kaliVector (m_numberOfElements) ;
  riempiVtr (m_kaliVector , kaliVector) ;
+ TH1F * histo = new TH1F ("rechitsMap","rechitsMap",m_kaliMatrix.size(),0,m_kaliMatrix.size());
+ TH1F * histo2 = new TH1F ("rechitsVect","rechitsVect", m_kaliVector.size(),0,m_kaliVector.size()); 
+ for (std::vector<double>::const_iterator it=m_kaliMatrix.begin();
+ 	it!=m_kaliMatrix.end();++it){
+	histo->Fill(it-m_kaliMatrix.begin(),*it);
+	}
+ for (std::vector<double>::const_iterator it=m_kaliVector.begin();
+ 	it!=m_kaliVector.end();++it){
+	 histo2->Fill(it-m_kaliVector.begin(),*it);
+	 }
+ int index=0;
+ char filename[50];
+ sprintf (filename,"mappa.root");
+ while (1){
+    sprintf (filename,"map%d.root",index++);
+    if (!fopen(filename,"r")) break; 
+    }
+ TFile f (filename,"recreate");
+ histo->Write();
+ histo2->Write();
+ m_map->Write();
+ f.Close();
+ delete histo;
+ delete histo2;
  //PG linear system solution
  CLHEP::HepVector result = CLHEP::solve (kaliMatrix,kaliVector) ;
  if (result.normsq () < min * kaliMatrix.num_row () ||
@@ -122,10 +129,10 @@ EcalCalibBlock::solve (int usingBlockSolver, double min, double max)
              result[i] = 1. ;
      }
    }
+ 
  fillMap(result);
  return ;
 }
-
 
 //------------------------------------------------------------
 
@@ -137,7 +144,6 @@ EcalCalibBlock::evalX2Size ()
     return m_numberOfElements* m_numberOfElements;
   }
 
-
 // ------------------------------------------------------------
 
 
@@ -145,19 +151,15 @@ void
 EcalCalibBlock::riempiMtr (const std::vector<double> & piena, 
                            CLHEP::HepMatrix & vuota) 
   {
-    unsigned int max = m_numberOfElements ;
-
-
+    int max = m_numberOfElements ;
     assert (piena.size () == max * max) ; 
     assert (vuota.num_row () == max) ;
     assert (vuota.num_col () == max) ;
-    for (unsigned int i = 0 ; i < max ; ++i)
-     for (unsigned int j = 0 ; j < max ; ++j)
+    for (int i = 0 ; i < max ; ++i)
+     for (int j = 0 ; j < max ; ++j)
        vuota[i][j] = piena[i*max + j] ; 
-
     return ;
   }
-
 
 // ------------------------------------------------------------
 
@@ -165,19 +167,13 @@ void
 EcalCalibBlock::riempiVtr (const std::vector<double> & pieno, 
                            CLHEP::HepVector & vuoto) 
   {
-
-    int max = m_numberOfElements ;
-    assert (vuoto.num_row () == max) ;
-    for (int i = 0 ; i < max ; ++i)
+    assert (vuoto.num_row () == m_numberOfElements) ;
+    for (int i = 0 ; i < m_numberOfElements ; ++i)
       vuoto[i] = pieno[i] ; 
-
     return ;
   }
 
-
 // ------------------------------------------------------------
-
-
 void 
 EcalCalibBlock::reset () 
 {
@@ -200,26 +196,21 @@ EcalCalibBlock::reset ()
 
 
 // ------------------------------------------------------------
-//LP sta provando a fare i seguenti due metodi come locali. Speriamo di non fare stronzate.
-
+//Fills the results vector
 
 void 
 EcalCalibBlock::fillMap (const CLHEP::HepVector & result) 
 {
 
-   for (unsigned int i=0; i < m_numberOfElements; ++i)
+   for (int i=0; i < m_numberOfElements; ++i)
       {
-             m_coefficients[i] = result[i] ;
+        m_coefficients[i] = result[i] ;
       } 
-
    return ;
 }
-
-
-// -----------------------------------------------------
-
-
+//-------------------------
+//At method to read the coeffs
 double EcalCalibBlock::at (int index)
 {
- return m_coefficients[index] ; 
+ return m_coefficients[index]; 
 }

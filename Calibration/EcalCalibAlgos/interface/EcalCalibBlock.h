@@ -10,16 +10,16 @@
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Random/RandGaussQ.h"
-
-#include "Calibration/Tools/interface/InvMatrixCommonDefs.h"
+#include "TH1F.h"
+//#include "Calibration/Tools/interface/InvMatrixCommonDefs.h"
 
 /** \class EcalCalibBlock
  
     \brief element for the single ECAL block intercalibration  
 
-    $Date: 2007/12/22 08:55:26 $
-    $Revision: 1.2 $
-    $Id: EcalCalibBlock.h,v 1.2 2007/12/22 08:55:26 govoni Exp $ 
+    $Date: 2007/11/17 17:52:53 $
+    $Revision: 1.1 $
+    $Id: EcalCalibBlock.h,v 1.1 2007/11/17 17:52:53 govoni Exp $ 
     \author $Author: govoni $
 */
 class EcalCalibBlock
@@ -34,8 +34,7 @@ class EcalCalibBlock
     void Fill (std::map<int,double>::const_iterator,
 	       std::map<int,double>::const_iterator,
     	       double pTk,
-               double pSubtract,
-               double sigma = 1.) ;
+               double pSubtract) ;
 
     //! reset the chi2 matrices
     void reset () ;
@@ -58,13 +57,15 @@ class EcalCalibBlock
   
   private :  
     //! The only parameter!
-    unsigned int m_numberOfElements ;
+    int m_numberOfElements ;
     //! vector for the chi2 inversion
     std::vector<double> m_kaliVector ; 
     //! matrix for the chi2 inversion
     std::vector<double> m_kaliMatrix ;
     //! map of coefficients   
     std::map<int, double> m_coefficients ;
+
+    TH1F * m_map;
 } ;
 
 

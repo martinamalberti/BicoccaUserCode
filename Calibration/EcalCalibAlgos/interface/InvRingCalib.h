@@ -10,10 +10,7 @@
 #ifndef __CINT__
 #ifndef InvRingCalib_H
 #define InvRingCalib_H
-#include "Calibration/Tools/interface/matrixSaver.h"
-#include "Calibration/Tools/interface/InvMatrixUtils.h"
 #include "Calibration/EcalCalibAlgos/interface/EcalCalibBlock.h"
-#include "Calibration/Tools/interface/smartSelector.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -70,9 +67,9 @@ class InvRingCalib : public edm::EDLooper {
 
   typedef reco::PixelMatchGsfElectronCollection::const_iterator eleIterator;
   //! fills the barrel energy map to be sent to the CalibBlock
-    void fillEBMap (EBDetId, const EcalRecHitCollection *, std::map<int, double> &, int, double &);
+    bool fillEBMap (EBDetId, const EcalRecHitCollection *, std::map<int, double> &, int, double &);
  //! fills the endcap energy map to be sent to the CalibBlock
-    void fillEEMap (EEDetId, const EcalRecHitCollection *, std::map<int, double> &, int, double &);
+    bool fillEEMap (EEDetId, const EcalRecHitCollection *, std::map<int, double> &, int, double &);
 //! Find the most energetic Xtals    
     DetId findMaxHit ( const std::vector<DetId> & v1,
                        const EBRecHitCollection* EBhits , 
@@ -118,7 +115,7 @@ class InvRingCalib : public edm::EDLooper {
     EcalIntercalibConstants::EcalIntercalibConstantMap m_barrelMap;
     EcalIntercalibConstants::EcalIntercalibConstantMap m_endcapMap;
     //! LP sets the number of loops to do
-    int m_loops ;
+    unsigned int m_loops ;
     //! LP define the EE region to calibrate
     int m_startRing;
     int m_endRing;

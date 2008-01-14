@@ -2,8 +2,8 @@
   * \file InvMatrixLooper.h
   * \class InvMatrixLooper
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2007/12/19 15:06:14 $
-  * $Revision: 1.1 $
+  * $Date: 2007/11/26 14:23:15 $
+  * $Revision: 1.2 $
   * \author 
   *
 */
@@ -11,7 +11,6 @@
 #ifndef InvMatrixLooper_H
 #define InvMatrixLooper_H
 #include "Calibration/EcalCalibAlgos/interface/EcalCalibBlock.h"
-#include "Calibration/Tools/interface/smartSelector.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -19,12 +18,15 @@
 #include <string>
 #include <vector>
 
+
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+
+
 
 
 class InvMatrixLooper : public edm::EDLooper {
@@ -169,7 +171,7 @@ class InvMatrixLooper : public edm::EDLooper {
     std::map<int,double> m_recalibMap ;
 
     //! DS sets the number of loops to do
-    unsigned int m_loops ;
+    int m_loops ;
     //! To take the electrons
     edm::InputTag m_ElectronLabel ;
 
