@@ -4,7 +4,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"#include <Math/VectorUtil.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include <DataFormats/RecoCandidate/interface/RecoChargedCandidate.h>
+#include <DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h>
+#include <Math/VectorUtil.h>
 
 #include <iostream>
 #include <algorithm>
@@ -17,7 +20,8 @@ VBFJetTagger::VBFJetTagger (const edm::ParameterSet& iConfig) :
   m_jetPtMin (iConfig.getParameter<double> ("jetPtMin")) ,
   m_gatherConeSize (iConfig.getParameter<double> ("gatherConeSize")) 
 {
-  produces<LorentzVectorCollection> (m_tagJetsName) ;
+//  produces<LorentzVectorCollection> (m_tagJetsName) ;
+  produces<reco::RecoChargedCandidateCollection> (m_tagJetsName) ;
 }  
 
 
@@ -76,10 +80,18 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
     } //PG loop over the jets collection
   
   //PG create and fill the collection to be added to the event
-  std::auto_ptr<LorentzVectorCollection> tagJets (new LorentzVectorCollection) ;
-  tagJets->push_back (firstTag) ;  
-  tagJets->push_back (secondTag) ;  
-    
+//  std::auto_ptr<LorentzVectorCollection> tagJets (new LorentzVectorCollection) ;
+//  tagJets->push_back (firstTag) ;  
+//  tagJets->push_back (secondTag) ;  
+
+  std::auto_ptr<reco::RecoChargedCandidateCollection> tagJets 
+      (new reco::RecoChargedCandidateCollection) ;
+
+  reco::RecoChargedCandidate firstTagCandidate (99,firstTag) ;
+  tagJets->push_back (firstTagCandidate) ;  
+  reco::RecoChargedCandidate secondTagCandidate (99,secondTag) ;
+  tagJets->push_back (secondTagCandidate) ;  
+  
   //PG insert the collection into the event
   iEvent.put (tagJets, m_tagJetsName) ;
 }
