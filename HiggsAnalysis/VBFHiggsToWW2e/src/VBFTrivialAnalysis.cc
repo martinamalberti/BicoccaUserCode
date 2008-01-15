@@ -1,9 +1,11 @@
-// $Id: VBFTrivialAnalysis.cc,v 1.2 2007/12/12 15:43:49 govoni Exp $
+// $Id: VBFTrivialAnalysis.cc,v 1.3 2007/12/12 18:36:27 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTrivialAnalysis.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
 //#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 //#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
+#include <DataFormats/RecoCandidate/interface/RecoChargedCandidate.h>
+#include <DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h>
 
 VBFTrivialAnalysis::VBFTrivialAnalysis (const edm::ParameterSet& iConfig) :
   m_jetTagsInputTag (iConfig.getParameter<edm::InputTag> ("jetTagsInputTag")) ,
@@ -30,10 +32,11 @@ VBFTrivialAnalysis::~VBFTrivialAnalysis ()
 
 
 void
-VBFTrivialAnalysis::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
+VBFTrivialAnalysis::analyze (const edm::Event& iEvent, 
+                             const edm::EventSetup& iSetup)
 {
   // Get the tag jets
-  edm::Handle<LorentzVectorCollection> jetTagsHandle ;
+  edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
   iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
 
   std::cout << "[VBFTrivialAnalysis][analyze] number of jet Tags : "
