@@ -35,10 +35,12 @@ VBFMCJetTagger::~VBFMCJetTagger ()
 void 
 VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 {
+  
   using namespace reco;
   edm::Handle<CandidateCollection> genParticles; 
-  iEvent.getByLabel (m_genParticles,genParticles) ;
-
+  try {iEvent.getByLabel (m_genParticles,genParticles) ;}
+  catch(...){std::cout<<"AAAAB genParticles handle is not valid!!!"<<std::endl;return;}
+  if(!genParticles.isValid()){std::cout<<"AAAA genParticles handle is not valid!!!"<<std::endl;return;}
   LorentzVector MCjetTagF;
   LorentzVector MCjetTagB;
 
@@ -53,7 +55,9 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 
         if ((abs(mumPDG)==25) && (mumSTATUS ==3))
             {
+	      if(p->numberOfMothers() < 1){std::cout<<"AAAAA nMoth < 1 !!!! "<<std::endl;continue;}
 	      const Candidate * interact0 = p->mother(0);
+	      if(interact0->numberOfDaughters() < 2){std::cout<<"AAAAA nDaugh < 2 !!!! "<<std::endl;continue;}
 	      if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
 		setMomentum (MCjetTagF, *(interact0->daughter(1)));
 		setMomentum (MCjetTagB, *(interact0->daughter(0)));
@@ -65,6 +69,8 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 	      }
 	    }
     }
+
+ 
   //PG create and fill the collection to be added to the event
   std::auto_ptr<LorentzVectorCollection> MCtagJets (new LorentzVectorCollection) ;
   
@@ -73,6 +79,7 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
     
   //PG insert the collection into the event
   iEvent.put (MCtagJets, m_MCtagJetsName) ;
+ 
 }
 
 void VBFMCJetTagger::setMomentum (LorentzVector & myvector, const reco::Candidate & gen)
