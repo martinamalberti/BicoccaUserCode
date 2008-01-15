@@ -43,7 +43,7 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   if(!genParticles.isValid()){std::cout<<"AAAA genParticles handle is not valid!!!"<<std::endl;return;}
   LorentzVector MCjetTagF;
   LorentzVector MCjetTagB;
-
+  bool foundDaughther = false;
  for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
     {
         int mumPDG = p->pdgId();
@@ -52,12 +52,13 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
         ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
         //misteriosamente i tag sono i fratelli dell'higgs
         //quindi parto dall'higgs e ne prendo le mamme e quindi riguardo i figli
-
+	
         if ((abs(mumPDG)==25) && (mumSTATUS ==3))
             {
 	      if(p->numberOfMothers() < 1){std::cout<<"AAAAA nMoth < 1 !!!! "<<std::endl;continue;}
 	      const Candidate * interact0 = p->mother(0);
 	      if(interact0->numberOfDaughters() < 2){std::cout<<"AAAAA nDaugh < 2 !!!! "<<std::endl;continue;}
+	      foundDaughther = true;
 	      if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
 		setMomentum (MCjetTagF, *(interact0->daughter(1)));
 		setMomentum (MCjetTagB, *(interact0->daughter(0)));
@@ -72,11 +73,11 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 
  
   //PG create and fill the collection to be added to the event
-  std::auto_ptr<LorentzVectorCollection> MCtagJets (new LorentzVectorCollection) ;
-  
-  MCtagJets->push_back (MCjetTagF) ;  
-  MCtagJets->push_back (MCjetTagB) ;  
-    
+ std::auto_ptr<LorentzVectorCollection> MCtagJets (new LorentzVectorCollection) ;
+ if(foundDaughther){
+   MCtagJets->push_back (MCjetTagF) ;  
+   MCtagJets->push_back (MCjetTagB) ;  
+ }
   //PG insert the collection into the event
   iEvent.put (MCtagJets, m_MCtagJetsName) ;
  
