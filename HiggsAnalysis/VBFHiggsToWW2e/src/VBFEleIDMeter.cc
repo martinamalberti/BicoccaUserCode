@@ -48,7 +48,6 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   edm::Handle<CandidateCollection> genParticles;
   iEvent.getByLabel(m_MCtruthInputTag, genParticles);
 
-  int MCeleNumber = 0 ;
   std::vector<TLorentzVector> MCelectrons ; 
 
   //PG loop over generated particles
@@ -68,20 +67,14 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
                             TLorentzVector dummy ;
                             setMomentum (dummy, *daughter) ;
                             MCelectrons.push_back (dummy) ;
-                            ++MCeleNumber ;
                           }
                     } //PG loop over daughters
-            } //PG if W
-        
+            } //PG if W        
     } //PG loop over generated particles
 
-
-
-
-
   //PG get the GSF electrons collection
-  edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle;
-  iEvent.getByLabel (m_GSFInputTag,GSFHandle); 
+  edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
+  iEvent.getByLabel (m_GSFInputTag , GSFHandle) ; 
 
   std::cout << "[VBFEleIDMeter][analyze] number of GSF electrons : "
             << GSFHandle->size () 
@@ -94,6 +87,36 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   std::cout << "[VBFEleIDMeter][analyze] number of electron ID electrons : "
             << eleIDPTDRLooseAssocHandle->size () 
             << std::endl ;
+
+  if (MCelectrons.size () != 2) return ; //FIXME metti un mex d'errore
+
+  //PG loop over GSF electrons
+  for (int i = 0; i < GSFHandle->size () ; ++i)   
+    {
+      //PG association to the true electron
+      reco::GsfTrackRef tmpTrack = (*GSFHandle)[i].gsfTrack () ;
+      math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).innerMomentum () ; 
+      
+      double deltaR2 = (MCelectrons[0].Eta () - tmpElectronMomentumAtVtx.eta ()) * 
+                       (MCelectrons[0].Eta () - tmpElectronMomentumAtVtx.eta ()) +
+                       (MCelectrons[0].Phi () - tmpElectronMomentumAtVtx.phi ()) * 
+                       (MCelectrons[0].Phi () - tmpElectronMomentumAtVtx.phi ()) ;
+                      
+      reco::PixelMatchGsfElectronRef ref (GSFHandle, i) ;
+      reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
+      electronIDAssocItr = eleIDPTDRLooseAssocHandle->find (ref) ;
+      if (electronIDAssocItr == eleIDPTDRLooseAssocHandle->end ())
+        {
+          const reco::ElectronIDRef& id = electronIDAssocItr->val ;
+          bool cutBasedID = id->cutBasedDecision () ;
+//          if (cutBasedID == 1) 
+//            m_eleIdBit[i] = 1 ;
+//          else
+//            m_eleIdBit[i] = 0 ;
+        }
+    } //PG loop over GSF electrons
+
+
 
 }
 
