@@ -68,11 +68,14 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 	      if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) {
 		setMomentum (MCjetTagF, *(interact0->daughter(1)));
 		setMomentum (MCjetTagB, *(interact0->daughter(0)));
-
+		chargeF=interact0->daughter(1)->charge();
+		chargeB=interact0->daughter(0)->charge();
 	      }
 	      else {
 		setMomentum (MCjetTagB, *(interact0->daughter(1)));
 		setMomentum (MCjetTagF, *(interact0->daughter(0)));
+		chargeB=interact0->daughter(1)->charge();
+		chargeF=interact0->daughter(0)->charge();
 	      }
 	    }
     }
@@ -84,7 +87,7 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 
  if(foundDaughther){
    // FIX-ME aggiungere la pId nelle versioni successive
-   //Point vtx( 0, 0, 0 );
+   //const Point vtx( 0, 0, 0 );
    reco::RecoChargedCandidate FTagCandidate (chargeF,MCjetTagF) ;
    reco::RecoChargedCandidate BTagCandidate (chargeB,MCjetTagB) ;
 
