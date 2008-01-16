@@ -106,6 +106,7 @@
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
 //root include
+#include "TH1.h"
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
@@ -133,13 +134,42 @@ class VBFEleIDMeter : public edm::EDAnalyzer {
 
    private:
 
+      //! collections
       edm::InputTag m_GSFInputTag ;
+      edm::InputTag m_MCtruthInputTag ;
       edm::InputTag m_eleIDPTDRLooseInputTag ;
       edm::InputTag m_eleIDPTDRMediumInputTag ;
       edm::InputTag m_eleIDPTDRTightInputTag ;
       edm::InputTag m_eleIDOTHERRobustInputTag ;
       edm::InputTag m_eleIDOTHERMediumInputTag ;
       edm::InputTag m_eleIDOTHERTightInputTag ;
+
+      //! histograms
+      //! delta R matching with MC
+      TH1F * m_deltaR_PTDRLoose ;
+      TH1F * m_deltaR_PTDRMedium ;
+      TH1F * m_deltaR_PTDRTight ;
+      TH1F * m_deltaR_OTHERRobust ;
+      TH1F * m_deltaR_OTHERMedium ;
+      TH1F * m_deltaR_OTHERTight ;
+
+      //! efficiency vs Pt
+      TH1F * m_effVSPt_PTDRLoose ;
+      TH1F * m_effVSPt_PTDRMedium ;
+      TH1F * m_effVSPt_PTDRTight ;
+      TH1F * m_effVSPt_OTHERRobust ;
+      TH1F * m_effVSPt_OTHERMedium ;
+      TH1F * m_effVSPt_OTHERTight ;
+      
+      //! efficiency vs eta
+      TH1F * m_effVSEta_PTDRLoose ;
+      TH1F * m_effVSEta_PTDRMedium ;
+      TH1F * m_effVSEta_PTDRTight ;
+      TH1F * m_effVSEta_OTHERRobust ;
+      TH1F * m_effVSEta_OTHERMedium ;
+      TH1F * m_effVSEta_OTHERTight ;
+
+      
 
 };
 
