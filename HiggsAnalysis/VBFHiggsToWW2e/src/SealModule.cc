@@ -55,6 +55,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFJetVetoFilter) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTrivialAnalysis.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFTrivialAnalysis) ; 
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIDMeter.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFEleIDMeter) ; 
+
 //#include "HiggsAnalysis/HiggsToZZ4e/plugins/HZZ4eTkIsolation.h"
 //typedef ObjectSelector<
 //          HZZ4eTkIsolation, 
