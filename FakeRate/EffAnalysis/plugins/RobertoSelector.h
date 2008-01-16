@@ -8,7 +8,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: RobertoSelector.h,v 1.1 2007/07/10 09:26:34 baffi Exp $
+ * $Id: RobertoSelector.h,v 1.1 2007/11/28 14:16:27 govoni Exp $
  *
  */
 
@@ -60,7 +60,7 @@ private:
     using namespace std;
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );
-    StoreManager manager;
+    StoreManager manager (source) ;
     selector_.select( source, evt, evtSetup );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
     bool result = ( ! filter_ || sizeSelector_( manager.size() ) );

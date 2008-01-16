@@ -12,7 +12,7 @@
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectRefVectorSelector.h"
+//#include "PhysicsTools/UtilAlgos/interface/SingleObjectRefVectorSelector.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 //define this as a plug-in
