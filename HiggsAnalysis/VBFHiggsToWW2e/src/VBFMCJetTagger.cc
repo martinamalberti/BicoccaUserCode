@@ -6,6 +6,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+
 #include <iostream>
 #include <algorithm>
 
@@ -17,7 +20,8 @@ VBFMCJetTagger::VBFMCJetTagger (const edm::ParameterSet& iConfig) :
   m_genParticles (iConfig.getParameter<edm::InputTag> ("MCParticlesInputTag")) ,
   m_MCtagJetsName(iConfig.getParameter<std::string> ("MCtagJetsName")) 
 {
-  produces<LorentzVectorCollection> (m_MCtagJetsName) ;
+  // produces<LorentzVectorCollection> (m_MCtagJetsName) ;
+  produces<reco::RecoChargedCandidateCollection> (m_MCtagJetsName) ;
 }  
 
 
@@ -43,6 +47,8 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   if(!genParticles.isValid()){std::cout<<"AAAA genParticles handle is not valid!!!"<<std::endl;return;}
   LorentzVector MCjetTagF;
   LorentzVector MCjetTagB;
+  int idF =0, idB=0;
+  int chargeF=99,chargeB=99;
   bool foundDaughther = false;
  for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
     {
@@ -73,10 +79,17 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 
  
   //PG create and fill the collection to be added to the event
- std::auto_ptr<LorentzVectorCollection> MCtagJets (new LorentzVectorCollection) ;
+ //std::auto_ptr<LorentzVectorCollection> MCtagJets (new LorentzVectorCollection) ;
+ std::auto_ptr<reco::RecoChargedCandidateCollection> MCtagJets (new reco::RecoChargedCandidateCollection) ;
+
  if(foundDaughther){
-   MCtagJets->push_back (MCjetTagF) ;  
-   MCtagJets->push_back (MCjetTagB) ;  
+   // FIX-ME aggiungere la pId nelle versioni successive
+   //Point vtx( 0, 0, 0 );
+   reco::RecoChargedCandidate FTagCandidate (chargeF,MCjetTagF) ;
+   reco::RecoChargedCandidate BTagCandidate (chargeB,MCjetTagB) ;
+
+   MCtagJets->push_back (FTagCandidate) ;  
+   MCtagJets->push_back (BTagCandidate) ;  
  }
   //PG insert the collection into the event
   iEvent.put (MCtagJets, m_MCtagJetsName) ;
