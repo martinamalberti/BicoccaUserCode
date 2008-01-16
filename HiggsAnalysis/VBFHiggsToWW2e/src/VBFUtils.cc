@@ -1,9 +1,20 @@
-// $Id: VBFProcessFilter.cc,v 1.7 2007/12/07 16:17:27 govoni Exp $
+// $Id: VBFUtils.cc,v 1.1 2007/12/07 17:46:35 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <iostream>
+
+void setMomentum (TLorentzVector & myvector, const reco::Candidate & gen)
+{
+    myvector.SetPx (gen.px ()) ;
+    myvector.SetPy (gen.py ()) ;
+    myvector.SetPz (gen.pz ()) ;
+    myvector.SetE (gen.energy ()) ;
+}
+
+
+// --------------------------------------------------------------------
 
 
 std::pair<VBFjetIt,VBFjetIt>	

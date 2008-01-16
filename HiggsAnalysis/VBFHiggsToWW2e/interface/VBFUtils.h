@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFProcessFilter.h,v 1.4 2007/12/07 16:17:27 govoni Exp $
+// $Id: VBFUtils.h,v 1.1 2007/12/07 17:46:34 govoni Exp $
 //
 //
 // system include files
@@ -11,8 +11,14 @@ Implementation: inherits from generic EDFilter
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "TLorentzVector.h"
 
 typedef reco::CaloJetCollection::const_iterator VBFjetIt ;
+
+void 
+setMomentum (TLorentzVector & myvector, 
+             const reco::Candidate & gen) ;
+
 
 std::pair<VBFjetIt,VBFjetIt>	
 findTagJets (VBFjetIt begin, VBFjetIt end,
