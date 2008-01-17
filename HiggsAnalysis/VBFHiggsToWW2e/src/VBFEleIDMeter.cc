@@ -109,6 +109,12 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   //PG loop over ID electrons
   for (int eleId = 0 ; eleId < MCelectrons.size () ; ++eleId)
     {
+//      double  elePT  =  gsfTrack->pt () ; 
+//      double  eleEta =  (*rawGSFHandle)[i].eta () ;
+//      double  elePhi =  (*rawGSFHandle)[i].phi () ;
+      double eta = MCelectrons[eleId].Eta () ;
+      double pt = MCelectrons[eleId].Pt () ;
+
       reco::PixelMatchGsfElectronRef ref (GSFHandle, GSFeleIndex[eleId]) ;
       reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
       //PG loop over the eleID
@@ -121,9 +127,12 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
               bool cutBasedID = id->cutBasedDecision () ;
               if (cutBasedID == 1) eleIDsChoiceFlag[i] = 1 ;
               else eleIDsChoiceFlag[i] = 0 ;
+              m_effVSPt[i]->Fill (pt, eleIDsChoiceFlag[i]) ;
+              m_effVSEta[i]->Fill (eta, eleIDsChoiceFlag[i]) ;
             }
         } //PG loop over the eleID
     } //PG loop over ID electrons
+
 
 }
 
@@ -143,19 +152,19 @@ VBFEleIDMeter::beginJob (const edm::EventSetup&)
   m_deltaR[4] = fs->make<TH1F> ("m_deltaR_OTHERMedium","m_deltaR_OTHERMedium",100,0,2) ;
   m_deltaR[5] = fs->make<TH1F> ("m_deltaR_OTHERTight","m_deltaR_OTHERTight",100,0,2) ;
   
-  m_effVSPt[0] = fs->make<TH1F> ("m_effVSPt_PTDRLoose","m_effVSPt_PTDRLoose",50,0,500) ;
-  m_effVSPt[1] = fs->make<TH1F> ("m_effVSPt_PTDRMedium","m_effVSPt_PTDRMedium",50,0,500) ;
-  m_effVSPt[2] = fs->make<TH1F> ("m_effVSPt_PTDRTight","m_effVSPt_PTDRTight",50,0,500) ;
-  m_effVSPt[3] = fs->make<TH1F> ("m_effVSPt_OTHERRobust","m_effVSPt_OTHERRobust",50,0,500) ;
-  m_effVSPt[4] = fs->make<TH1F> ("m_effVSPt_OTHERMedium","m_effVSPt_OTHERMedium",50,0,500) ;
-  m_effVSPt[5] = fs->make<TH1F> ("m_effVSPt_OTHERTight","m_effVSPt_OTHERTight",50,0,500) ;     
+  m_effVSPt[0] = fs->make<TH2F> ("m_effVSPt_PTDRLoose","m_effVSPt_PTDRLoose",50,0,500,12,0,3) ;
+  m_effVSPt[1] = fs->make<TH2F> ("m_effVSPt_PTDRMedium","m_effVSPt_PTDRMedium",50,0,500,12,0,3) ;
+  m_effVSPt[2] = fs->make<TH2F> ("m_effVSPt_PTDRTight","m_effVSPt_PTDRTight",50,0,500,12,0,3) ;
+  m_effVSPt[3] = fs->make<TH2F> ("m_effVSPt_OTHERRobust","m_effVSPt_OTHERRobust",50,0,500,12,0,3) ;
+  m_effVSPt[4] = fs->make<TH2F> ("m_effVSPt_OTHERMedium","m_effVSPt_OTHERMedium",50,0,500,12,0,3) ;
+  m_effVSPt[5] = fs->make<TH2F> ("m_effVSPt_OTHERTight","m_effVSPt_OTHERTight",50,0,500,12,0,3) ;     
 
-  m_effVSEta[0] = fs->make<TH1F> ("m_effVSEta_PTDRLoose","m_effVSEta_PTDRLoose",170,0,3) ;
-  m_effVSEta[1] = fs->make<TH1F> ("m_effVSEta_PTDRMedium","m_effVSEta_PTDRMedium",170,0,3) ;
-  m_effVSEta[2] = fs->make<TH1F> ("m_effVSEta_PTDRTight","m_effVSEta_PTDRTight",170,0,3) ;
-  m_effVSEta[3] = fs->make<TH1F> ("m_effVSEta_OTHERRobust","m_effVSEta_OTHERRobust",170,0,3) ; 
-  m_effVSEta[4] = fs->make<TH1F> ("m_effVSEta_OTHERMedium","m_effVSEta_OTHERMedium",170,0,3) ; 
-  m_effVSEta[5] = fs->make<TH1F> ("m_effVSEta_OTHERTight","m_effVSEta_OTHERTight",170,0,3) ;
+  m_effVSEta[0] = fs->make<TH2F> ("m_effVSEta_PTDRLoose","m_effVSEta_PTDRLoose",170,0,3,12,0,3) ;
+  m_effVSEta[1] = fs->make<TH2F> ("m_effVSEta_PTDRMedium","m_effVSEta_PTDRMedium",170,0,3,12,0,3) ;
+  m_effVSEta[2] = fs->make<TH2F> ("m_effVSEta_PTDRTight","m_effVSEta_PTDRTight",170,0,3,12,0,3) ;
+  m_effVSEta[3] = fs->make<TH2F> ("m_effVSEta_OTHERRobust","m_effVSEta_OTHERRobust",170,0,3,12,0,3) ; 
+  m_effVSEta[4] = fs->make<TH2F> ("m_effVSEta_OTHERMedium","m_effVSEta_OTHERMedium",170,0,3,12,0,3) ; 
+  m_effVSEta[5] = fs->make<TH2F> ("m_effVSEta_OTHERTight","m_effVSEta_OTHERTight",170,0,3,12,0,3) ;
 }
 
 

@@ -107,6 +107,7 @@
 
 //root include
 #include "TH1.h"
+#include "TH2.h"
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
@@ -150,8 +151,8 @@ class VBFEleIDMeter : public edm::EDAnalyzer {
 
       //! histograms
       TH1F * m_deltaR[6] ;
-      TH1F * m_effVSPt[6] ;
-      TH1F * m_effVSEta[6] ;
+      TH2F * m_effVSPt[6] ;
+      TH2F * m_effVSEta[6] ;
       
 
 };
