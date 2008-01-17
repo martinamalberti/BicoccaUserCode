@@ -149,30 +149,9 @@ class VBFEleIDMeter : public edm::EDAnalyzer {
       edm::InputTag m_eleIDOTHERTightInputTag ;
 
       //! histograms
-      //! delta R matching with MC
-      TH1F * m_deltaR_PTDRLoose ;
-      TH1F * m_deltaR_PTDRMedium ;
-      TH1F * m_deltaR_PTDRTight ;
-      TH1F * m_deltaR_OTHERRobust ;
-      TH1F * m_deltaR_OTHERMedium ;
-      TH1F * m_deltaR_OTHERTight ;
-
-      //! efficiency vs Pt
-      TH1F * m_effVSPt_PTDRLoose ;
-      TH1F * m_effVSPt_PTDRMedium ;
-      TH1F * m_effVSPt_PTDRTight ;
-      TH1F * m_effVSPt_OTHERRobust ;
-      TH1F * m_effVSPt_OTHERMedium ;
-      TH1F * m_effVSPt_OTHERTight ;
-      
-      //! efficiency vs eta
-      TH1F * m_effVSEta_PTDRLoose ;
-      TH1F * m_effVSEta_PTDRMedium ;
-      TH1F * m_effVSEta_PTDRTight ;
-      TH1F * m_effVSEta_OTHERRobust ;
-      TH1F * m_effVSEta_OTHERMedium ;
-      TH1F * m_effVSEta_OTHERTight ;
-
+      TH1F * m_deltaR[6] ;
+      TH1F * m_effVSPt[6] ;
+      TH1F * m_effVSEta[6] ;
       
 
 };

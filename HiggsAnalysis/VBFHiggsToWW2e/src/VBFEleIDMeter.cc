@@ -81,32 +81,49 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
             << std::endl ;
 
   //PG get the electron ID collections
-  edm::Handle<reco::ElectronIDAssociationCollection> eleIDPTDRLooseAssocHandle;
-  iEvent.getByLabel (m_eleIDPTDRLooseInputTag, eleIDPTDRLooseAssocHandle);
+  std::vector<edm::Handle<reco::ElectronIDAssociationCollection> > eleIdHandles ;
+  for (int i=0 ; i<6 ; ++i)
+    {
+      edm::Handle<reco::ElectronIDAssociationCollection> dummy ;
+      eleIdHandles.push_back (dummy) ;
+    }
+  iEvent.getByLabel (m_eleIDPTDRLooseInputTag, eleIdHandles[0]);
+  iEvent.getByLabel (m_eleIDPTDRMediumInputTag, eleIdHandles[1]);
+  iEvent.getByLabel (m_eleIDPTDRTightInputTag, eleIdHandles[2]);
+  iEvent.getByLabel (m_eleIDOTHERRobustInputTag, eleIdHandles[3]);
+  iEvent.getByLabel (m_eleIDOTHERMediumInputTag, eleIdHandles[4]);
+  iEvent.getByLabel (m_eleIDOTHERTightInputTag, eleIdHandles[5]);
 
-  std::cout << "[VBFEleIDMeter][analyze] number of electron ID electrons : "
-            << eleIDPTDRLooseAssocHandle->size () 
-            << std::endl ;
-
-  if (MCelectrons.size () != 2) return ; //FIXME metti un mex d'errore
+  if (MCelectrons.size () > 2)
+    {
+      edm::LogError ("reading") << "There are " << MCelectrons.size () 
+                                << "MC electrons, skipping" ;
+      return ;                                
+    } 
+  if (MCelectrons.size () == 0) return ; 
 
   std::vector<int> GSFeleIndex (2, 0) ;
   match (GSFeleIndex, GSFHandle, MCelectrons) ;
+  std::vector<int> eleIDsChoiceFlag ;
 
-  reco::PixelMatchGsfElectronRef ref (GSFHandle, GSFeleIndex[0]) ;
-  reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
-  electronIDAssocItr = eleIDPTDRLooseAssocHandle->find (ref) ;
-  if (electronIDAssocItr == eleIDPTDRLooseAssocHandle->end ())
+  //PG loop over ID electrons
+  for (int eleId = 0 ; eleId < MCelectrons.size () ; ++eleId)
     {
-      const reco::ElectronIDRef& id = electronIDAssocItr->val ;
-      bool cutBasedID = id->cutBasedDecision () ;
-//          if (cutBasedID == 1) 
-//            m_eleIdBit[i] = 1 ;
-//          else
-//            m_eleIdBit[i] = 0 ;
-    }
-
-
+      reco::PixelMatchGsfElectronRef ref (GSFHandle, GSFeleIndex[eleId]) ;
+      reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
+      //PG loop over the eleID
+      for (int i=0 ; i<6 ; ++i)
+        {
+          electronIDAssocItr = eleIdHandles[i]->find (ref) ;
+          if (electronIDAssocItr == eleIdHandles[i]->end ())
+            {
+              const reco::ElectronIDRef& id = electronIDAssocItr->val ;
+              bool cutBasedID = id->cutBasedDecision () ;
+              if (cutBasedID == 1) eleIDsChoiceFlag[i] = 1 ;
+              else eleIDsChoiceFlag[i] = 0 ;
+            }
+        } //PG loop over the eleID
+    } //PG loop over ID electrons
 
 }
 
@@ -119,28 +136,26 @@ VBFEleIDMeter::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
 
-  m_deltaR_PTDRLoose     = fs->make<TH1F> ("m_deltaR_PTDRLoose","m_deltaR_PTDRLoose",100,0,2) ;
-  m_deltaR_PTDRMedium    = fs->make<TH1F> ("m_deltaR_PTDRMedium","m_deltaR_PTDRMedium",100,0,2) ;
-  m_deltaR_PTDRTight     = fs->make<TH1F> ("m_deltaR_PTDRTight","m_deltaR_PTDRTight",100,0,2) ;
-  m_deltaR_OTHERRobust   = fs->make<TH1F> ("m_deltaR_OTHERRobust","m_deltaR_OTHERRobust",100,0,2) ;
-  m_deltaR_OTHERMedium   = fs->make<TH1F> ("m_deltaR_OTHERMedium","m_deltaR_OTHERMedium",100,0,2) ;
-  m_deltaR_OTHERTight    = fs->make<TH1F> ("m_deltaR_OTHERTight","m_deltaR_OTHERTight",100,0,2) ;
+  m_deltaR[0] = fs->make<TH1F> ("m_deltaR_PTDRLoose","m_deltaR_PTDRLoose",100,0,2) ;
+  m_deltaR[1] = fs->make<TH1F> ("m_deltaR_PTDRMedium","m_deltaR_PTDRMedium",100,0,2) ;
+  m_deltaR[2] = fs->make<TH1F> ("m_deltaR_PTDRTight","m_deltaR_PTDRTight",100,0,2) ;
+  m_deltaR[3] = fs->make<TH1F> ("m_deltaR_OTHERRobust","m_deltaR_OTHERRobust",100,0,2) ;
+  m_deltaR[4] = fs->make<TH1F> ("m_deltaR_OTHERMedium","m_deltaR_OTHERMedium",100,0,2) ;
+  m_deltaR[5] = fs->make<TH1F> ("m_deltaR_OTHERTight","m_deltaR_OTHERTight",100,0,2) ;
   
-  m_effVSPt_PTDRLoose    = fs->make<TH1F> ("m_effVSPt_PTDRLoose","m_effVSPt_PTDRLoose",50,0,500) ;
-  m_effVSPt_PTDRMedium   = fs->make<TH1F> ("m_effVSPt_PTDRMedium","m_effVSPt_PTDRMedium",50,0,500) ;
-  m_effVSPt_PTDRTight    = fs->make<TH1F> ("m_effVSPt_PTDRTight","m_effVSPt_PTDRTight",50,0,500) ;
-  m_effVSPt_OTHERRobust  = fs->make<TH1F> ("m_effVSPt_OTHERRobust","m_effVSPt_OTHERRobust",50,0,500) ;
-  m_effVSPt_OTHERMedium  = fs->make<TH1F> ("m_effVSPt_OTHERMedium","m_effVSPt_OTHERMedium",50,0,500) ;
-  m_effVSPt_OTHERTight   = fs->make<TH1F> ("m_effVSPt_OTHERTight","m_effVSPt_OTHERTight",50,0,500) ;     
+  m_effVSPt[0] = fs->make<TH1F> ("m_effVSPt_PTDRLoose","m_effVSPt_PTDRLoose",50,0,500) ;
+  m_effVSPt[1] = fs->make<TH1F> ("m_effVSPt_PTDRMedium","m_effVSPt_PTDRMedium",50,0,500) ;
+  m_effVSPt[2] = fs->make<TH1F> ("m_effVSPt_PTDRTight","m_effVSPt_PTDRTight",50,0,500) ;
+  m_effVSPt[3] = fs->make<TH1F> ("m_effVSPt_OTHERRobust","m_effVSPt_OTHERRobust",50,0,500) ;
+  m_effVSPt[4] = fs->make<TH1F> ("m_effVSPt_OTHERMedium","m_effVSPt_OTHERMedium",50,0,500) ;
+  m_effVSPt[5] = fs->make<TH1F> ("m_effVSPt_OTHERTight","m_effVSPt_OTHERTight",50,0,500) ;     
 
-  m_effVSEta_PTDRLoose   = fs->make<TH1F> ("m_effVSEta_PTDRLoose","m_effVSEta_PTDRLoose",170,0,3) ;
-  m_effVSEta_PTDRMedium  = fs->make<TH1F> ("m_effVSEta_PTDRMedium","m_effVSEta_PTDRMedium",170,0,3) ;
-  m_effVSEta_PTDRTight   = fs->make<TH1F> ("m_effVSEta_PTDRTight","m_effVSEta_PTDRTight",170,0,3) ;
-  m_effVSEta_OTHERRobust = fs->make<TH1F> ("m_effVSEta_OTHERRobust","m_effVSEta_OTHERRobust",170,0,3) ; 
-  m_effVSEta_OTHERMedium = fs->make<TH1F> ("m_effVSEta_OTHERMedium","m_effVSEta_OTHERMedium",170,0,3) ; 
-  m_effVSEta_OTHERTight  = fs->make<TH1F> ("m_effVSEta_OTHERTight","m_effVSEta_OTHERTight",170,0,3) ;
-
-// fs->make<TH2F> ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",170,-85,85,360,0,360) ;
+  m_effVSEta[0] = fs->make<TH1F> ("m_effVSEta_PTDRLoose","m_effVSEta_PTDRLoose",170,0,3) ;
+  m_effVSEta[1] = fs->make<TH1F> ("m_effVSEta_PTDRMedium","m_effVSEta_PTDRMedium",170,0,3) ;
+  m_effVSEta[2] = fs->make<TH1F> ("m_effVSEta_PTDRTight","m_effVSEta_PTDRTight",170,0,3) ;
+  m_effVSEta[3] = fs->make<TH1F> ("m_effVSEta_OTHERRobust","m_effVSEta_OTHERRobust",170,0,3) ; 
+  m_effVSEta[4] = fs->make<TH1F> ("m_effVSEta_OTHERMedium","m_effVSEta_OTHERMedium",170,0,3) ; 
+  m_effVSEta[5] = fs->make<TH1F> ("m_effVSEta_OTHERTight","m_effVSEta_OTHERTight",170,0,3) ;
 }
 
 
@@ -184,23 +199,25 @@ VBFEleIDMeter::match (std::vector<int> & GSFeleIndex,
           GSFeleIndex[0] = i ;
           continue ;
         } 
-
-      double deltaR2_1 = (MCelectrons[1].Eta () - tmpElectronMomentumAtVtx.eta ()) * 
-                         (MCelectrons[1].Eta () - tmpElectronMomentumAtVtx.eta ()) +
-                         (MCelectrons[1].Phi () - tmpElectronMomentumAtVtx.phi ()) * 
-                         (MCelectrons[1].Phi () - tmpElectronMomentumAtVtx.phi ()) ;
-                      
-      if (deltaR2_1 < deltaRmax[1])
+      if (MCelectrons.size () > 1)
         {
-          secondDelta[1] = deltaRmax[1] ;
-          secondIndex[1] = GSFeleIndex[1] ;
-          deltaRmax[1] = deltaR2_1 ;
-          GSFeleIndex[1] = i ;
-          continue ;
+          double deltaR2_1 = (MCelectrons[1].Eta () - tmpElectronMomentumAtVtx.eta ()) * 
+                             (MCelectrons[1].Eta () - tmpElectronMomentumAtVtx.eta ()) +
+                             (MCelectrons[1].Phi () - tmpElectronMomentumAtVtx.phi ()) * 
+                             (MCelectrons[1].Phi () - tmpElectronMomentumAtVtx.phi ()) ;
+                          
+          if (deltaR2_1 < deltaRmax[1])
+            {
+              secondDelta[1] = deltaRmax[1] ;
+              secondIndex[1] = GSFeleIndex[1] ;
+              deltaRmax[1] = deltaR2_1 ;
+              GSFeleIndex[1] = i ;
+              continue ;
+            }
         } 
     } //PG loop over GSF electrons
 
-  if (GSFeleIndex[0] == GSFeleIndex[1])
+  if (MCelectrons.size () > 1 && GSFeleIndex[0] == GSFeleIndex[1])
     {
       if (secondDelta[0] < secondDelta[1]) GSFeleIndex[0] = secondIndex[0] ;
       else GSFeleIndex[1] = secondIndex[1] ;
