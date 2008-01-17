@@ -1,4 +1,4 @@
-// $Id: VBFEleIDMeter.cc,v 1.4 2008/01/15 20:47:17 govoni Exp $
+// $Id: VBFEleIDMeter.cc,v 1.3 2008/01/16 18:08:25 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIDMeter.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
@@ -90,31 +90,21 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
 
   if (MCelectrons.size () != 2) return ; //FIXME metti un mex d'errore
 
-  //PG loop over GSF electrons
-  for (int i = 0; i < GSFHandle->size () ; ++i)   
+  std::vector<int> GSFeleIndex (2, 0) ;
+  match (GSFeleIndex, GSFHandle, MCelectrons) ;
+
+  reco::PixelMatchGsfElectronRef ref (GSFHandle, GSFeleIndex[0]) ;
+  reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
+  electronIDAssocItr = eleIDPTDRLooseAssocHandle->find (ref) ;
+  if (electronIDAssocItr == eleIDPTDRLooseAssocHandle->end ())
     {
-      //PG association to the true electron
-      reco::GsfTrackRef tmpTrack = (*GSFHandle)[i].gsfTrack () ;
-      math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).innerMomentum () ; 
-      
-      double deltaR2 = (MCelectrons[0].Eta () - tmpElectronMomentumAtVtx.eta ()) * 
-                       (MCelectrons[0].Eta () - tmpElectronMomentumAtVtx.eta ()) +
-                       (MCelectrons[0].Phi () - tmpElectronMomentumAtVtx.phi ()) * 
-                       (MCelectrons[0].Phi () - tmpElectronMomentumAtVtx.phi ()) ;
-                      
-      reco::PixelMatchGsfElectronRef ref (GSFHandle, i) ;
-      reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
-      electronIDAssocItr = eleIDPTDRLooseAssocHandle->find (ref) ;
-      if (electronIDAssocItr == eleIDPTDRLooseAssocHandle->end ())
-        {
-          const reco::ElectronIDRef& id = electronIDAssocItr->val ;
-          bool cutBasedID = id->cutBasedDecision () ;
+      const reco::ElectronIDRef& id = electronIDAssocItr->val ;
+      bool cutBasedID = id->cutBasedDecision () ;
 //          if (cutBasedID == 1) 
 //            m_eleIdBit[i] = 1 ;
 //          else
 //            m_eleIdBit[i] = 0 ;
-        }
-    } //PG loop over GSF electrons
+    }
 
 
 
@@ -160,5 +150,60 @@ VBFEleIDMeter::beginJob (const edm::EventSetup&)
 void 
 VBFEleIDMeter::endJob () 
 {
+}
+
+
+// --------------------------------------------------------------------
+
+
+void 
+VBFEleIDMeter::match (std::vector<int> & GSFeleIndex,
+                      edm::Handle<reco::PixelMatchGsfElectronCollection>& GSFHandle,
+                      const std::vector<TLorentzVector>& MCelectrons)
+{
+  std::vector<double> deltaRmax (2, 999.) ;
+  std::vector<double> secondDelta (2, 999.) ;
+  std::vector<int> secondIndex (2, 0) ;
+ 
+  //PG loop over GSF electrons
+  for (int i = 0; i < GSFHandle->size () ; ++i)   
+    {
+      //PG association to the true electron
+      reco::GsfTrackRef tmpTrack = (*GSFHandle)[i].gsfTrack () ;
+      math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).innerMomentum () ; 
+      
+      double deltaR2_0 = (MCelectrons[0].Eta () - tmpElectronMomentumAtVtx.eta ()) * 
+                         (MCelectrons[0].Eta () - tmpElectronMomentumAtVtx.eta ()) +
+                         (MCelectrons[0].Phi () - tmpElectronMomentumAtVtx.phi ()) * 
+                         (MCelectrons[0].Phi () - tmpElectronMomentumAtVtx.phi ()) ;
+      if (deltaR2_0 < deltaRmax[0])
+        {
+          secondDelta[0] = deltaRmax[0] ;
+          secondIndex[0] = GSFeleIndex[0] ;
+          deltaRmax[0] = deltaR2_0 ;
+          GSFeleIndex[0] = i ;
+          continue ;
+        } 
+
+      double deltaR2_1 = (MCelectrons[1].Eta () - tmpElectronMomentumAtVtx.eta ()) * 
+                         (MCelectrons[1].Eta () - tmpElectronMomentumAtVtx.eta ()) +
+                         (MCelectrons[1].Phi () - tmpElectronMomentumAtVtx.phi ()) * 
+                         (MCelectrons[1].Phi () - tmpElectronMomentumAtVtx.phi ()) ;
+                      
+      if (deltaR2_1 < deltaRmax[1])
+        {
+          secondDelta[1] = deltaRmax[1] ;
+          secondIndex[1] = GSFeleIndex[1] ;
+          deltaRmax[1] = deltaR2_1 ;
+          GSFeleIndex[1] = i ;
+          continue ;
+        } 
+    } //PG loop over GSF electrons
+
+  if (GSFeleIndex[0] == GSFeleIndex[1])
+    {
+      if (secondDelta[0] < secondDelta[1]) GSFeleIndex[0] = secondIndex[0] ;
+      else GSFeleIndex[1] = secondIndex[1] ;
+    }    
 }
 

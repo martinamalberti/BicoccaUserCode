@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleIDMeter.h,v 1.3 2007/12/12 18:36:26 govoni Exp $
+// $Id: VBFEleIDMeter.h,v 1.2 2008/01/16 17:35:39 govoni Exp $
 //
 //
 
@@ -131,6 +131,10 @@ class VBFEleIDMeter : public edm::EDAnalyzer {
       virtual void beginJob (const edm::EventSetup&);
       virtual void analyze (const edm::Event&, const edm::EventSetup&);
       virtual void endJob ();
+
+      void match (std::vector<int> & GSFeleIndex,
+                  edm::Handle<reco::PixelMatchGsfElectronCollection>& GSFHandle,
+                  const std::vector<TLorentzVector>& MCelectrons) ;
 
    private:
 
