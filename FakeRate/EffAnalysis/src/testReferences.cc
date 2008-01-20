@@ -132,6 +132,8 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("eleClass" ,m_eleClass,"eleClass[10]/I") ;
     m_minitree->Branch("ptHat" ,&m_ptHat,"ptHat/I") ;
     m_minitree->Branch("eleNum" ,&m_eleNum,"eleNum/I") ;
+    m_minitree->Branch("jetNum" ,&m_jetNum,"jetNum/I") ;
+    m_minitree->Branch("SCNum" ,&m_SCNum,"SCNum/I") ;
 }     
 
 
@@ -203,9 +205,11 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_eleIdLooseBit[ii] = 0 ;  
         m_eleIdTightBit[ii] = 0 ;  
         m_eleClass[ii] = 0 ; 
-        m_ptHat = -1 ;  
-        m_eleNum = -1 ;
      }
+   m_ptHat = -1 ;  
+   m_eleNum = -1 ;
+   m_jetNum = -1 ;
+   m_SCNum = -1 ;
 
   //take the collections
   typedef edm::RefVector<reco::PixelMatchGsfElectronCollection> GSFRefColl ;
@@ -261,24 +265,24 @@ void testReferences::analyze (const edm::Event& iEvent,
    //fillComponentsVector (generated_event,ff) ;
 
    //Loop over jet collection
-   int ii = 0;
+   m_jetNum = 0;
    for (reco::CaloJetCollection::const_iterator iterJet = jetHandle->begin () ;
                                                 iterJet!= jetHandle->end () ; 
                                                 ++iterJet)
      {      
-       if (ii < 30)
+       if (m_jetNum < 30)
         {
-          m_jetPT[ii]  = iterJet->pt () ;
-          m_jetEta[ii] = iterJet->eta () ;
-          m_jetPhi[ii] = iterJet->phi () ;
+          m_jetPT[m_jetNum]  = iterJet->pt () ;
+          m_jetEta[m_jetNum] = iterJet->eta () ;
+          m_jetPhi[m_jetNum] = iterJet->phi () ;
           JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(iterJet));
-          m_jetFlav[ii] =  jetFlavour.flavour () ;
-          ++ii ;
+          m_jetFlav[m_jetNum] =  jetFlavour.flavour () ;
+          ++m_jetNum ;
         }
      } //Loop over jet collection
    
    //Loop over EB SC collection
-   ii = 0;
+   m_SCNum = 0;
    double ebMax = 1.4442;
    double eeMin = 1.560;
    double eeMax = 2.500;
@@ -286,27 +290,29 @@ void testReferences::analyze (const edm::Event& iEvent,
                                                      iterSCEB!= SCEBHandle->end () ; 
                                                      ++iterSCEB)
      {      
-       if (ii < 30)
+       if (m_SCNum < 30)
         {
           if (fabs (iterSCEB->eta ()) > ebMax) continue ;
-          m_SCE[ii]  = iterSCEB->energy () ;
-          m_SCEta[ii] = iterSCEB->eta () ;
-          m_SCPhi[ii] = iterSCEB->phi () ;
-          ++ii ;
+          m_SCE[m_SCNum]  = iterSCEB->energy () ;
+          m_SCEta[m_SCNum] = iterSCEB->eta () ;
+          m_SCPhi[m_SCNum] = iterSCEB->phi () ;
+          ++m_SCNum ;
         }
      } //Loop over EB SC collection
+     
    //Loop over EE SC collection
    for (reco::SuperClusterCollection::const_iterator iterSCEE = SCEEHandle->begin () ;
                                                      iterSCEE!= SCEEHandle->end () ; 
                                                      ++iterSCEE)
      {      
-       if (ii < 30)
+       if (m_SCNum < 30)
         {
-          if (fabs (iterSCEE->eta ()) < eeMin || fabs (iterSCEE->eta ()) > eeMax) continue ;
-          m_SCE[ii]  = iterSCEE->energy () ;
-          m_SCEta[ii] = iterSCEE->eta () ;
-          m_SCPhi[ii] = iterSCEE->phi () ;
-          ++ii ;
+          if (fabs (iterSCEE->eta ()) < eeMin || 
+              fabs (iterSCEE->eta ()) > eeMax) continue ;
+          m_SCE[m_SCNum]  = iterSCEE->energy () ;
+          m_SCEta[m_SCNum] = iterSCEE->eta () ;
+          m_SCPhi[m_SCNum] = iterSCEE->phi () ;
+          ++m_SCNum ;
         }
      } //Loop over EE SC collection
 

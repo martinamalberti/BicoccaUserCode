@@ -106,7 +106,9 @@ class testReferences : public edm::EDAnalyzer
    int    m_eleIdTightBit[10] ;  
    int    m_eleClass[10] ;  
    int    m_ptHat ;
-   int    m_eleNum ;  
+   int    m_eleNum ; 
+   int    m_jetNum ;
+   int    m_SCNum ; 
 
 } ;
 
