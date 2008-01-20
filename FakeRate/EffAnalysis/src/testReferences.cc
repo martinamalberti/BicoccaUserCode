@@ -105,10 +105,10 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("SCEta",m_SCEta ,"SCEta[30]/D");
     m_minitree->Branch("SCPhi",m_SCPhi ,"SCPhi[30]/D");
     m_minitree->Branch("eleCharge",m_eleCharge ,"eleCharge[10]/I");
-    m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[30]/D" ); 
-    m_minitree->Branch("jetEta",m_jetEta ,"jetEta[30]/D");
-    m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[30]/D");
-    m_minitree->Branch("jetFlav",m_jetFlav ,"jetFlav[30]/I");
+    m_minitree->Branch("jetPT" ,m_jetPT  ,"jetPT[50]/D" ); 
+    m_minitree->Branch("jetEta",m_jetEta ,"jetEta[50]/D");
+    m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[50]/D");
+    m_minitree->Branch("jetFlav",m_jetFlav ,"jetFlav[50]/I");
     m_minitree->Branch("jetPTMatch" ,m_jetPTMatch  ,"jetPTMatch[10]/D" ); 
     m_minitree->Branch("jetEtaMatch",m_jetEtaMatch ,"jetEtaMatch[10]/D");
     m_minitree->Branch("jetPhiMatch",m_jetPhiMatch ,"jetPhiMatch[10]/D");
@@ -167,12 +167,15 @@ void testReferences::analyze (const edm::Event& iEvent,
     *m_genMet4Momentum = TLorentzVector (0.0,0.0,0.0,0.0) ;   
     *m_recoMet4Momentum = TLorentzVector (0.0,0.0,0.0,0.0) ; 
    //PG reset the variables
-   for (int ii = 0 ; ii < 30 ; ++ii)
+   for (int ii = 0 ; ii < 50 ; ++ii)
      { 
         m_jetPT[ii] = 0 ;  
         m_jetEta[ii] = 0 ; 
         m_jetPhi[ii] = 0 ; 
         m_jetFlav[ii] = 0 ; 
+     }
+   for (int ii = 0 ; ii < 30 ; ++ii)
+     {     
         m_SCE[ii] = 0 ;  
         m_SCEta[ii] = 0 ; 
         m_SCPhi[ii] = 0 ; 
@@ -270,7 +273,7 @@ void testReferences::analyze (const edm::Event& iEvent,
                                                 iterJet!= jetHandle->end () ; 
                                                 ++iterJet)
      {      
-       if (m_jetNum < 30)
+       if (m_jetNum < 50)
         {
           m_jetPT[m_jetNum]  = iterJet->pt () ;
           m_jetEta[m_jetNum] = iterJet->eta () ;
