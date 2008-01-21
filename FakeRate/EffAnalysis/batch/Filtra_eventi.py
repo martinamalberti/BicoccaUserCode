@@ -26,6 +26,8 @@ process analysis = {
   untracked PSet options = {untracked bool wantSummary = true}
 
  module referenceTester = testReferences {
+   InputTag genMetInputTag = genMet 
+   InputTag metInputTag = met
    InputTag rawGSF = pixelMatchGsfElectrons
    InputTag ambiguity = refResolver
    InputTag tkIso = refTkisolation
@@ -33,7 +35,10 @@ process analysis = {
    InputTag eleId = electronId
    InputTag eleIdLoose = electronIdLoose
    InputTag eleIdTight = electronIdTight
+   InputTag eleIdRobust = electronIdRobust
    InputTag jet = iterativeCone5CaloJets
+   InputTag EBsuperClusters = correctedHybridSuperClusters
+   InputTag EEsuperClusters = correctedIslandEndcapSuperClusters
    InputTag evt = source 
    untracked double deltaCone = 0.5
    untracked string rootfile = "'''+out_rootfile_name+'''"
