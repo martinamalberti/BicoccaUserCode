@@ -108,6 +108,7 @@
 //root include
 #include <TTree.h>
 #include <TFile.h>
+#include <TH1.h>
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
 #include <TVector3.h>
@@ -135,7 +136,21 @@ class VBFTestTagJets : public edm::EDAnalyzer {
 
       edm::InputTag m_jetTagsInputTag ;
       edm::InputTag m_MCjetTagsInputTag ;
+      
+      TH1F * m_deltaEta ;
+      TH1F * m_deltaPhi ;
+      TH1F * m_deltaR ;
+      TH1F * m_Ejet_o_EMC ;
 
+      TH1F * m_deltaEtaMaxE ;
+      TH1F * m_deltaPhiMaxE ;
+      TH1F * m_deltaRMaxE ;
+      TH1F * m_Ejet_o_EMCMaxE ;
+
+      TH1F * m_deltaEtaMinE ;
+      TH1F * m_deltaPhiMinE ;
+      TH1F * m_deltaRMinE ;
+      TH1F * m_Ejet_o_EMCMinE ;
 };
 
 #endif
