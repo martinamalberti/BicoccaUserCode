@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleIDMeter.h,v 1.5 2008/01/17 11:30:21 govoni Exp $
+// $Id: VBFEleIDMeter.h,v 1.6 2008/01/22 14:41:19 govoni Exp $
 //
 //
 
@@ -113,6 +113,7 @@
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
 #include <TVector3.h>
+#include <map>
 
 
 class VBFEleIDMeter : public edm::EDAnalyzer {
@@ -121,6 +122,7 @@ class VBFEleIDMeter : public edm::EDAnalyzer {
     
       typedef math::XYZTLorentzVector LorentzVector ;
       typedef std::vector<LorentzVector> LorentzVectorCollection ;
+      typedef std::map<int,int> matchColl ;
 
       //! ctor
       explicit VBFEleIDMeter (const edm::ParameterSet&);
@@ -133,7 +135,7 @@ class VBFEleIDMeter : public edm::EDAnalyzer {
       virtual void analyze (const edm::Event&, const edm::EventSetup&);
       virtual void endJob ();
 
-      void match (std::vector<int> & GSFeleIndex,
+      void match (matchColl & matched,
                   edm::Handle<reco::PixelMatchGsfElectronCollection>& GSFHandle,
                   const std::vector<TLorentzVector>& MCelectrons) ;
 
