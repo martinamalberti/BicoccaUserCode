@@ -1,4 +1,4 @@
-// $Id: VBFEleIDMeter.cc,v 1.3 2008/01/16 18:08:25 govoni Exp $
+// $Id: VBFEleIDMeter.cc,v 1.6 2008/01/17 11:30:21 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIDMeter.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
@@ -19,7 +19,7 @@ VBFEleIDMeter::VBFEleIDMeter (const edm::ParameterSet& iConfig) :
   m_eleIDPTDRMediumInputTag (iConfig.getParameter<edm::InputTag> ("eleIDPTDRMediumInputTag")) ,
   m_eleIDPTDRTightInputTag (iConfig.getParameter<edm::InputTag> ("eleIDPTDRTightInputTag")) ,
   m_eleIDOTHERRobustInputTag (iConfig.getParameter<edm::InputTag> ("eleIDOTHERRobustInputTag")) ,
-  m_eleIDOTHERMediumInputTag (iConfig.getParameter<edm::InputTag> ("eleIDOTHERMediumInputTag")) ,
+  m_eleIDOTHERLooseInputTag (iConfig.getParameter<edm::InputTag> ("eleIDOTHERLooseInputTag")) ,
   m_eleIDOTHERTightInputTag (iConfig.getParameter<edm::InputTag> ("eleIDOTHERTightInputTag")) 
 {}
 
@@ -91,7 +91,7 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_eleIDPTDRMediumInputTag, eleIdHandles[1]);
   iEvent.getByLabel (m_eleIDPTDRTightInputTag, eleIdHandles[2]);
   iEvent.getByLabel (m_eleIDOTHERRobustInputTag, eleIdHandles[3]);
-  iEvent.getByLabel (m_eleIDOTHERMediumInputTag, eleIdHandles[4]);
+  iEvent.getByLabel (m_eleIDOTHERLooseInputTag, eleIdHandles[4]);
   iEvent.getByLabel (m_eleIDOTHERTightInputTag, eleIdHandles[5]);
 
   if (MCelectrons.size () > 2)
@@ -149,21 +149,21 @@ VBFEleIDMeter::beginJob (const edm::EventSetup&)
   m_deltaR[1] = fs->make<TH1F> ("m_deltaR_PTDRMedium","m_deltaR_PTDRMedium",100,0,2) ;
   m_deltaR[2] = fs->make<TH1F> ("m_deltaR_PTDRTight","m_deltaR_PTDRTight",100,0,2) ;
   m_deltaR[3] = fs->make<TH1F> ("m_deltaR_OTHERRobust","m_deltaR_OTHERRobust",100,0,2) ;
-  m_deltaR[4] = fs->make<TH1F> ("m_deltaR_OTHERMedium","m_deltaR_OTHERMedium",100,0,2) ;
+  m_deltaR[4] = fs->make<TH1F> ("m_deltaR_OTHERLoose","m_deltaR_OTHERLoose",100,0,2) ;
   m_deltaR[5] = fs->make<TH1F> ("m_deltaR_OTHERTight","m_deltaR_OTHERTight",100,0,2) ;
   
   m_effVSPt[0] = fs->make<TH2F> ("m_effVSPt_PTDRLoose","m_effVSPt_PTDRLoose",50,0,500,12,0,3) ;
   m_effVSPt[1] = fs->make<TH2F> ("m_effVSPt_PTDRMedium","m_effVSPt_PTDRMedium",50,0,500,12,0,3) ;
   m_effVSPt[2] = fs->make<TH2F> ("m_effVSPt_PTDRTight","m_effVSPt_PTDRTight",50,0,500,12,0,3) ;
   m_effVSPt[3] = fs->make<TH2F> ("m_effVSPt_OTHERRobust","m_effVSPt_OTHERRobust",50,0,500,12,0,3) ;
-  m_effVSPt[4] = fs->make<TH2F> ("m_effVSPt_OTHERMedium","m_effVSPt_OTHERMedium",50,0,500,12,0,3) ;
+  m_effVSPt[4] = fs->make<TH2F> ("m_effVSPt_OTHERLoose","m_effVSPt_OTHERLoose",50,0,500,12,0,3) ;
   m_effVSPt[5] = fs->make<TH2F> ("m_effVSPt_OTHERTight","m_effVSPt_OTHERTight",50,0,500,12,0,3) ;     
 
   m_effVSEta[0] = fs->make<TH2F> ("m_effVSEta_PTDRLoose","m_effVSEta_PTDRLoose",170,0,3,12,0,3) ;
   m_effVSEta[1] = fs->make<TH2F> ("m_effVSEta_PTDRMedium","m_effVSEta_PTDRMedium",170,0,3,12,0,3) ;
   m_effVSEta[2] = fs->make<TH2F> ("m_effVSEta_PTDRTight","m_effVSEta_PTDRTight",170,0,3,12,0,3) ;
   m_effVSEta[3] = fs->make<TH2F> ("m_effVSEta_OTHERRobust","m_effVSEta_OTHERRobust",170,0,3,12,0,3) ; 
-  m_effVSEta[4] = fs->make<TH2F> ("m_effVSEta_OTHERMedium","m_effVSEta_OTHERMedium",170,0,3,12,0,3) ; 
+  m_effVSEta[4] = fs->make<TH2F> ("m_effVSEta_OTHERLoose","m_effVSEta_OTHERLoose",170,0,3,12,0,3) ; 
   m_effVSEta[5] = fs->make<TH2F> ("m_effVSEta_OTHERTight","m_effVSEta_OTHERTight",170,0,3,12,0,3) ;
 }
 

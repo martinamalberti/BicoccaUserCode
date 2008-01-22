@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleIDMeter.h,v 1.2 2008/01/16 17:35:39 govoni Exp $
+// $Id: VBFEleIDMeter.h,v 1.5 2008/01/17 11:30:21 govoni Exp $
 //
 //
 
@@ -146,7 +146,7 @@ class VBFEleIDMeter : public edm::EDAnalyzer {
       edm::InputTag m_eleIDPTDRMediumInputTag ;
       edm::InputTag m_eleIDPTDRTightInputTag ;
       edm::InputTag m_eleIDOTHERRobustInputTag ;
-      edm::InputTag m_eleIDOTHERMediumInputTag ;
+      edm::InputTag m_eleIDOTHERLooseInputTag ;
       edm::InputTag m_eleIDOTHERTightInputTag ;
 
       //! histograms
