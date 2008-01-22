@@ -10,6 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include <TLorentzVector.h>
+#include <Math/VectorUtil.h>
 
 
 VBFEleIDMeter::VBFEleIDMeter (const edm::ParameterSet& iConfig) :
@@ -51,18 +52,19 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   std::vector<TLorentzVector> MCelectrons ; 
 
   //PG loop over generated particles
-  for (CandidateCollection::const_iterator p = genParticles->begin(); 
-       p != genParticles->end(); ++ p) 
+  for (CandidateCollection::const_iterator p = genParticles->begin () ; 
+       p != genParticles->end () ; 
+       ++p) 
     {
-        int mumPDG = p->pdgId();
-        int mumSTATUS = p->status();
+        int mumPDG = p->pdgId () ;
+        int mumSTATUS = p->status () ;
         if (abs (mumPDG) == 24 &&  mumSTATUS == 3) //W±
             {
                 for ( size_t i = 0; i < p->numberOfDaughters () ; ++ i ) 
                     {
                         const Candidate * daughter = p->daughter ( i ) ;
                         int PDG = daughter -> pdgId () ;    
-                        if (PDG==11) 
+                        if (abs (PDG) == 11) 
                           {
                             TLorentzVector dummy ;
                             setMomentum (dummy, *daughter) ;
@@ -76,9 +78,16 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
   iEvent.getByLabel (m_GSFInputTag , GSFHandle) ; 
 
-  std::cout << "[VBFEleIDMeter][analyze] number of GSF electrons : "
+  std::cerr << "[VBFEleIDMeter][analyze] number of GSF electrons : "
             << GSFHandle->size () 
             << std::endl ;
+
+  std::cerr << "[VBFEleIDMeter][analyze] number of MC electrons : "
+            << MCelectrons.size () 
+            << std::endl ;
+
+//  if (MCelectrons.size () < 2) return ;
+//  if (GSFHandle->size () < 2) return ;
 
   //PG get the electron ID collections
   std::vector<edm::Handle<reco::ElectronIDAssociationCollection> > eleIdHandles ;
@@ -98,32 +107,44 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
     {
       edm::LogError ("reading") << "There are " << MCelectrons.size () 
                                 << "MC electrons, skipping" ;
-      return ;                                
+      std::cerr << "There are " << MCelectrons.size () 
+                << "MC electrons, skipping" ;
+//      return ;                                
     } 
   if (MCelectrons.size () == 0) return ; 
 
+  std::map<int,int> matched ;
+  match (matched, GSFHandle, MCelectrons) ;
+
+  std::cerr << "[VBFEleIDMeter][analyze] number of matched electrons : "
+            << matched.size () 
+            << std::endl ;
+
+  
   std::vector<int> GSFeleIndex (2, 0) ;
-  match (GSFeleIndex, GSFHandle, MCelectrons) ;
-  std::vector<int> eleIDsChoiceFlag ;
+  oldMatch (GSFeleIndex, GSFHandle, MCelectrons) ;
+  std::vector<int> eleIDsChoiceFlag ; //PG a che serve questo?
 
   //PG loop over ID electrons
   for (int eleId = 0 ; eleId < MCelectrons.size () ; ++eleId)
     {
+      if (matched.count (eleId) == 0) continue ;
+ 
 //      double  elePT  =  gsfTrack->pt () ; 
 //      double  eleEta =  (*rawGSFHandle)[i].eta () ;
 //      double  elePhi =  (*rawGSFHandle)[i].phi () ;
       double eta = MCelectrons[eleId].Eta () ;
       double pt = MCelectrons[eleId].Pt () ;
 
-      reco::PixelMatchGsfElectronRef ref (GSFHandle, GSFeleIndex[eleId]) ;
+      reco::PixelMatchGsfElectronRef ref (GSFHandle, matched[eleId]) ;
       reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
       //PG loop over the eleID
       for (int i=0 ; i<6 ; ++i)
         {
           electronIDAssocItr = eleIdHandles[i]->find (ref) ;
-          if (electronIDAssocItr == eleIdHandles[i]->end ())
+          if (electronIDAssocItr != eleIdHandles[i]->end ())
             {
-              const reco::ElectronIDRef& id = electronIDAssocItr->val ;
+              const reco::ElectronIDRef & id = electronIDAssocItr->val ;
               bool cutBasedID = id->cutBasedDecision () ;
               if (cutBasedID == 1) eleIDsChoiceFlag[i] = 1 ;
               else eleIDsChoiceFlag[i] = 0 ;
@@ -132,7 +153,6 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
             }
         } //PG loop over the eleID
     } //PG loop over ID electrons
-
 
 }
 
@@ -181,16 +201,16 @@ VBFEleIDMeter::endJob ()
 
 
 void 
-VBFEleIDMeter::match (std::vector<int> & GSFeleIndex,
-                      edm::Handle<reco::PixelMatchGsfElectronCollection>& GSFHandle,
-                      const std::vector<TLorentzVector>& MCelectrons)
+VBFEleIDMeter::oldMatch (std::vector<int> & GSFeleIndex,
+                         edm::Handle<reco::PixelMatchGsfElectronCollection>& GSFHandle,
+                         const std::vector<TLorentzVector>& MCelectrons)
 {
   std::vector<double> deltaRmax (2, 999.) ;
   std::vector<double> secondDelta (2, 999.) ;
   std::vector<int> secondIndex (2, 0) ;
  
   //PG loop over GSF electrons
-  for (int i = 0; i < GSFHandle->size () ; ++i)   
+  for (int i = 0; i < GSFHandle->size () ; ++i)
     {
       //PG association to the true electron
       reco::GsfTrackRef tmpTrack = (*GSFHandle)[i].gsfTrack () ;
@@ -207,7 +227,7 @@ VBFEleIDMeter::match (std::vector<int> & GSFeleIndex,
           deltaRmax[0] = deltaR2_0 ;
           GSFeleIndex[0] = i ;
           continue ;
-        } 
+        }
       if (MCelectrons.size () > 1)
         {
           double deltaR2_1 = (MCelectrons[1].Eta () - tmpElectronMomentumAtVtx.eta ()) * 
@@ -223,13 +243,54 @@ VBFEleIDMeter::match (std::vector<int> & GSFeleIndex,
               GSFeleIndex[1] = i ;
               continue ;
             }
-        } 
+        }
     } //PG loop over GSF electrons
 
   if (MCelectrons.size () > 1 && GSFeleIndex[0] == GSFeleIndex[1])
     {
       if (secondDelta[0] < secondDelta[1]) GSFeleIndex[0] = secondIndex[0] ;
       else GSFeleIndex[1] = secondIndex[1] ;
-    }    
+    }
 }
 
+
+// --------------------------------------------------------------------
+
+
+void 
+VBFEleIDMeter::match (VBFEleIDMeter::matchColl & matched,
+                      edm::Handle<reco::PixelMatchGsfElectronCollection>& GSFHandle,
+                      const std::vector<TLorentzVector>& MCelectrons) 
+{
+  std::map<int,int> tempo ;
+  
+  //PG loop over MC electrons
+  for (std::vector<TLorentzVector>::const_iterator itMC = MCelectrons.begin () ;
+       itMC != MCelectrons.end () ;
+       ++itMC)
+    {    
+      double deltaMin = 999. ;
+      int indexMin = GSFHandle->size () ;
+
+      //PG loop over GSF electrons
+      for (int i = 0; i < GSFHandle->size () ; ++i)
+        {
+          double delta = ROOT::Math::VectorUtil::DeltaR ((*GSFHandle)[i].momentum (), *itMC) ;
+          if (delta < deltaMin)
+            {
+              indexMin = i ;
+              deltaMin = delta ;            
+            }
+        } //PG loop over GSF electrons
+      if (indexMin < GSFHandle->size () && tempo.count (indexMin) == 0) 
+        tempo[indexMin] = itMC - MCelectrons.begin () ;
+    } //PG loop over MC electrons
+
+  for (std::map<int,int>::const_iterator itTempo = tempo.begin () ;
+       itTempo != tempo.end () ;
+       ++itTempo)
+    {
+      matched[itTempo->second] = itTempo->first ;      
+    }   
+
+}
