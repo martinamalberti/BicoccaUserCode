@@ -1,81 +1,48 @@
 block OTHER_ID_TIGHT = {
-
-    #Selection of input variables to be used for each eID quality "loose", "medium", "tight"
-    vint32 useEoverPIn      	= { 0, 1, 0 }
-    vint32 useDeltaEtaIn    	= { 1, 1, 1 }
-    vint32 useDeltaPhiIn    	= { 1, 1, 1 }
-    vint32 useHoverE        	= { 1, 1, 1 }
-    vint32 useE9overE25     	= { 1, 1, 1 }
-    vint32 useEoverPOut     	= { 1, 1, 1 }
-    vint32 useDeltaPhiOut   	= { 0, 1, 1 }
-    vint32 useInvEMinusInvP 	= { 0, 0, 0 }
-    vint32 useBremFraction  	= { 0, 0, 0 }
-    vint32 useSigmaEtaEta   	= { 0, 1, 1 }
-    vint32 useSigmaPhiPhi   	= { 0, 1, 0 }
-
     # Electron quality for cut based ID. Can be:
-    # "loose"  - e.g. suitable for H->ZZ->4l
-    # "medium" - intermediate quality
-    # "tight"  - e.g. suitable for H->WW->2l2nu
+    # "robust" 
+    # "loose" 
+    # "tight" 
     string electronQuality = "tight"
 
-    # cut value arrays of form {barrel golden, barrel bigbrem, barrel narrow, barrel showering,
-    #                           endcap golden, endcap bigbrem, endcap narrow, endcap showering}
+    # cut value arrays of form {hoe, sigmaEtaEta, dPhiIn, dEtaIn}
+    PSet robustEleIDCuts =
+    {
+        vdouble barrel     = {0.115, 0.0140, 0.090, 0.0090}
+        vdouble endcap     = {0.150, 0.0275, 0.092, 0.0105}
+    }
 
+    # cut value arrays of form {barrel cat 0, barrel cat 1, barrel cat 2, barrel cat high E/p,
+    #                           endcap cat 0, endcap cat 1, endcap cat 2, endcap cat high E/p}
     PSet looseEleIDCuts =
-    {
-        vdouble EoverPInMax    = { 999.,  999.,  999.,  999.,  999.,  999.,  999.,  999.  }
-        vdouble EoverPInMin    = { 0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.    }
-        vdouble deltaEtaIn     = { 0.008, 0.008, 0.008, 0.009, 0.008, 0.008, 0.008, 0.009 }
-        vdouble deltaPhiIn     = { 0.06,  0.06,  0.06,  0.08,  0.06,  0.06,  0.06,  0.09  }
-        vdouble HoverE         = { 0.09,  0.06,  0.07,  0.12,  0.09,  0.06,  0.07,  0.12  }
-        vdouble E9overE25      = { 0.7,   0.70,  0.7,   0.5,   0.8,   0.8,   0.8,   0.5   }
-        vdouble EoverPOutMax   = { 2.5,   999.,  2.2,   999.,  2.5,   999.,  2.2,   999.  }
-        vdouble EoverPOutMin   = { 0.6,   1.7,   0.9,   0.5,   0.6,   1.7,   0.9,   0.5   }
-        vdouble deltaPhiOut    = { 0.011, 999.,  999.,  999.,  0.02,  999.,  999.,  999.  }
-        vdouble invEMinusInvP  = { 0.02,  0.02,  0.02,  0.02,  0.02,  0.02,  0.02,  0.02  }
-        vdouble bremFraction   = { 0.,    0.1,   0.1,   0.1,   0.,    0.2,   0.2,   0.2   }
-        vdouble sigmaEtaEtaMax = { 999.,  999.,  999.,  999.,  999.,  999.,  999.,  999.  }
-        vdouble sigmaEtaEtaMin = { 0.,    0.,	 0.,	0.,    0.,    0.,    0.,    0.    }
-        vdouble sigmaPhiPhiMax = { 999.,  999.,  999.,  999.,  999.,  999.,  999.,  999.  }
-        vdouble sigmaPhiPhiMin = { 0.,    0.,	 0.,	0.,    0.,    0.,    0.,    0.    }
+    { 
+        vdouble hOverE       = {0.115,   0.10,   0.055,  0.,  
+                                0.145,   0.12,   0.150,  0.}    
+        vdouble sigmaEtaEta  = {0.0140,  0.0120, 0.0115, 0.,
+                                0.0275,  0.0265, 0.0265, 0.}
+        vdouble deltaPhiIn   = {0.05,    0.025,  0.053,  0.09, 
+                                0.07,    0.03,   0.092,  0.092}
+        vdouble deltaEtaIn   = {0.009,   0.0045, 0.0085, 0.,
+                                0.0105,  0.0068, 0.010,  0.}   
+        vdouble eSeedOverPin = {0.11,    0.91,   0.11,   0.,   
+                                0.,      0.85,   0.,     0.}    
     }
-    
-    PSet mediumEleIDCuts =
-    {
-        vdouble EoverPInMax    = { 1.3,   1.2,   1.3,   999.,  999.,  999.,  999.,  999.  }
-        vdouble EoverPInMin    = { 0.9,   0.9,   0.9,   0.6,   0.9,   0.9,   0.9,   0.7   }
-        vdouble deltaEtaIn     = { 0.004, 0.006, 0.005, 0.007, 0.007, 0.008, 0.007, 0.008 }
-        vdouble deltaPhiIn     = { 0.04,  0.07,  0.04,  0.08,  0.06,  0.07,  0.06,  0.07  }
-        vdouble HoverE         = { 0.06,  0.05,  0.06,  0.14,  0.1,   0.1,   0.1,   0.12  }
-        vdouble E9overE25      = { 0.7,   0.75,  0.8,   0.,    0.85,  0.75,  0.8,   0.    }
-        vdouble EoverPOutMax   = { 2.5,   999.,  999.,  999.,  2.,    999.,  999.,  999.  }
-        vdouble EoverPOutMin   = { 0.6,   1.8,   1.,    0.75,  0.6,   1.5,   1.,    0.8   }
-        vdouble deltaPhiOut    = { 0.011, 999.,  999.,  999.,  0.02,  999.,  999.,  999.  }
-        vdouble invEMinusInvP  = { 0.02,  0.02,  0.02,  0.02,  0.02,  0.02,  0.02,  0.02  }
-        vdouble bremFraction   = { 0.,    0.1,   0.1,   0.1,   0.,    0.2,   0.2,   0.2   }
-        vdouble sigmaEtaEtaMax = { 0.011, 0.011, 0.011, 0.011, 0.022, 0.022, 0.022, 0.3   }
-        vdouble sigmaEtaEtaMin = { 0.005, 0.005, 0.005, 0.005, 0.008, 0.008, 0.008, 0.	  }
-        vdouble sigmaPhiPhiMax = { 0.015, 999.,  999.,  999.,  0.02,  999.,  999.,  999.  }
-        vdouble sigmaPhiPhiMin = { 0.005, 0.,    0.,    0.,    0.,    0.,    0.,    0.    }
-    }
-    
+
+    # cut value arrays of form {barrel cat 0, barrel cat 1, barrel cat 2, barrel cat high E/p,
+    #                           endcap cat 0, endcap cat 1, endcap cat 2, endcap cat high E/p}
     PSet tightEleIDCuts =
     {
-        vdouble EoverPInMax    = { 999.,  999.,  999.,  999.,  999.,  999.,  999.,  999.  }
-        vdouble EoverPInMin    = { 0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.    }
-        vdouble deltaEtaIn     = { 0.004, 0.004, 0.004, 0.005, 0.005, 0.005, 0.005, 0.005 }
-        vdouble deltaPhiIn     = { 0.02,  0.03,  0.02,  0.04,  0.04,  0.04,  0.04,  0.05  }
-        vdouble HoverE         = { 0.05,  0.05,  0.05,  0.05,  0.07,  0.07,  0.07,  0.07  }
-        vdouble E9overE25      = { 0.8,   0.65,  0.75,  0.65,  0.8,   0.7,   0.7,   0.65  }
-        vdouble EoverPOutMax   = { 999,   999.,  999.,  999.,  999.,  999.,  999.,  999.  }
-        vdouble EoverPOutMin   = { 0.6,   0.75,  0.75,  0.75,  0.5,   0.8,   0.5,   0.8   }
-        vdouble deltaPhiOut    = { 0.02,  999.,  0.02,  999.,  0.02,  999.,  0.02,  999.  }
-        vdouble invEMinusInvP  = { 0.02,  0.02,  0.02,  0.02,  0.02,  0.02,  0.02,  0.02  }
-        vdouble bremFraction   = { 0.,    0.1,   0.1,   0.1,   0.,    0.2,   0.2,   0.2   }
-        vdouble sigmaEtaEtaMax = { 0.011, 0.011, 0.011, 0.011, 0.03,  0.03,  0.03,  0.022 }
-        vdouble sigmaEtaEtaMin = { 0.005, 0.005, 0.005, 0.005, 0.008, 0.008, 0.008, 0.008 }
-        vdouble sigmaPhiPhiMax = { 999.,  999.,  999.,  999.,  999.,  999.,  999.,  999.  }
-        vdouble sigmaPhiPhiMin = { 0.,    0.,    0.,    0.,    0.,    0.,    0.,    0.    }
+        vdouble hOverE          = {0.05,    0.042,  0.045,  0.,  
+                                   0.055,   0.037,  0.050,  0.}
+        vdouble sigmaEtaEta     = {0.0125,  0.011,  0.01,   0.,
+                                   0.0265,  0.0252, 0.026,  0.}
+        vdouble deltaPhiIn      = {0.032,   0.016,  0.0525, 0.09, 
+                                   0.025,   0.035,  0.065,  0.092}
+        vdouble deltaEtaIn      = {0.0055,  0.0030, 0.0065, 0.,
+                                   0.0060,  0.0055, 0.0075, 0.} 
+        vdouble eSeedOverPinMin = {0.24,    0.94,   0.11,   0.,   
+                                   0.32,    0.83,   0.,     0.} 
+        vdouble eSeedOverPinMax = {99999.,  99999., 99999., 99999.,   
+                                   99999.,  99999., 99999., 99999.}    
     }
 }
