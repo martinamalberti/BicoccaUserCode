@@ -1,4 +1,4 @@
-// $Id: VBFEleIDMeter.cc,v 1.8 2008/01/22 18:31:55 govoni Exp $
+// $Id: VBFEleIDMeter.cc,v 1.9 2008/01/22 18:37:54 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIDMeter.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
@@ -78,17 +78,6 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
   iEvent.getByLabel (m_GSFInputTag , GSFHandle) ; 
 
-  std::cerr << "[VBFEleIDMeter][analyze] number of GSF electrons : "
-            << GSFHandle->size () 
-            << std::endl ;
-
-  std::cerr << "[VBFEleIDMeter][analyze] number of MC electrons : "
-            << MCelectrons.size () 
-            << std::endl ;
-
-//  if (MCelectrons.size () < 2) return ;
-//  if (GSFHandle->size () < 2) return ;
-
   //PG get the electron ID collections
   std::vector<edm::Handle<reco::ElectronIDAssociationCollection> > eleIdHandles ;
   for (int i=0 ; i<6 ; ++i)
@@ -116,11 +105,7 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
   std::map<int,int> matched ;
   match (matched, GSFHandle, MCelectrons) ;
 
-  std::cerr << "[VBFEleIDMeter][analyze] number of matched electrons : "
-            << matched.size () 
-            << std::endl ;
-
-  std::vector<int> eleIDsChoiceFlag ; //PG a che serve questo?
+  std::vector<int> eleIDsChoiceFlag (6,0) ; //PG a che serve questo?
 
   //PG loop over ID electrons
   for (int eleId = 0 ; eleId < MCelectrons.size () ; ++eleId)
