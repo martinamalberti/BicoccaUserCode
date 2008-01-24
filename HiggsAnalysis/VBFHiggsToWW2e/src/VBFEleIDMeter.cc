@@ -161,12 +161,12 @@ VBFEleIDMeter::beginJob (const edm::EventSetup&)
   m_effVSPt[4] = fs->make<TH2F> ("m_effVSPt_OTHERLoose","m_effVSPt_OTHERLoose",50,0,500,50,0,1.1) ;
   m_effVSPt[5] = fs->make<TH2F> ("m_effVSPt_OTHERTight","m_effVSPt_OTHERTight",50,0,500,50,0,1.1) ;     
 
-  m_effVSEta[0] = fs->make<TH2F> ("m_effVSEta_PTDRLoose","m_effVSEta_PTDRLoose",170,0,3,50,0,1.1) ;
-  m_effVSEta[1] = fs->make<TH2F> ("m_effVSEta_PTDRMedium","m_effVSEta_PTDRMedium",170,0,3,50,0,1.1) ;
-  m_effVSEta[2] = fs->make<TH2F> ("m_effVSEta_PTDRTight","m_effVSEta_PTDRTight",170,0,3,50,0,1.1) ;
-  m_effVSEta[3] = fs->make<TH2F> ("m_effVSEta_OTHERRobust","m_effVSEta_OTHERRobust",170,0,3,50,0,1.1) ; 
-  m_effVSEta[4] = fs->make<TH2F> ("m_effVSEta_OTHERLoose","m_effVSEta_OTHERLoose",170,0,3,50,0,1.1) ; 
-  m_effVSEta[5] = fs->make<TH2F> ("m_effVSEta_OTHERTight","m_effVSEta_OTHERTight",170,0,3,50,0,1.1) ;
+  m_effVSEta[0] = fs->make<TH2F> ("m_effVSEta_PTDRLoose","m_effVSEta_PTDRLoose",85,0,3,50,0,1.1) ;
+  m_effVSEta[1] = fs->make<TH2F> ("m_effVSEta_PTDRMedium","m_effVSEta_PTDRMedium",85,0,3,50,0,1.1) ;
+  m_effVSEta[2] = fs->make<TH2F> ("m_effVSEta_PTDRTight","m_effVSEta_PTDRTight",85,0,3,50,0,1.1) ;
+  m_effVSEta[3] = fs->make<TH2F> ("m_effVSEta_OTHERRobust","m_effVSEta_OTHERRobust",85,0,3,50,0,1.1) ; 
+  m_effVSEta[4] = fs->make<TH2F> ("m_effVSEta_OTHERLoose","m_effVSEta_OTHERLoose",85,0,3,50,0,1.1) ; 
+  m_effVSEta[5] = fs->make<TH2F> ("m_effVSEta_OTHERTight","m_effVSEta_OTHERTight",85,0,3,50,0,1.1) ;
 }
 
 
@@ -174,11 +174,7 @@ VBFEleIDMeter::beginJob (const edm::EventSetup&)
 
 
 void 
-VBFEleIDMeter::endJob () 
-{
-  std::cerr << "DIOBONO " << m_effVSEta->GetEntries () << std::endl ;
-
-}
+VBFEleIDMeter::endJob () {}
 
 
 // --------------------------------------------------------------------
