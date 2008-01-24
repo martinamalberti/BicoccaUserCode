@@ -52,9 +52,9 @@ VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandl
           //PG NB should we use the SC direction, or the electron one?
           double deltaR = 
             ROOT::Math::VectorUtil::DeltaR (eleIt->momentum (),jetIt->momentum ()) ;
-          if (deltaR < m_maxDeltaR)
-//          && eleIt->hadronicOverEm() < 0.20 &&
-//          eleIt->superCluster().e()/jetIt->e() > m_minEleOJetEratio)
+          if (deltaR < m_maxDeltaR &&
+              eleIt->hadronicOverEm() < 0.20)
+//          && eleIt->superCluster().e()/jetIt->e() > m_minEleOJetEratio)
             {
               discard = true ; break ;
             }  
