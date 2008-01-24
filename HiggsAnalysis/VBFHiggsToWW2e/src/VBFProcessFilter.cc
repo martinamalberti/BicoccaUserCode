@@ -1,7 +1,8 @@
-// $Id: VBFProcessFilter.cc,v 1.7 2007/12/07 16:17:27 govoni Exp $
+// $Id: VBFProcessFilter.cc,v 1.8 2007/12/07 17:46:35 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFProcessFilter.h"
-
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <iostream>
 
@@ -35,22 +36,24 @@ bool
 VBFProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //PG get the jet collection
-  edm::Handle<reco::CaloJetCollection> jetCollectionHandle ;
+  edm::Handle<reco::RecoChargedCandidateCollection> jetCollectionHandle ;
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle) ;
 
-  //PG get the jet tags
-  std::pair<VBFjetIt,VBFjetIt> tagJets = findTagJets (jetCollectionHandle->begin (),
-                                                      jetCollectionHandle->end (),
-                                                      m_jetPtMin, m_jetEtaMax) ;
   //PG tag jets not found
-  if (tagJets.first == tagJets.second) return false ;
+  if (jetCollectionHandle->size () != 2) return false ;
 
   //PG select the event on the basis of the jets kinematics
-  if (m_checkOpposite && tagJets.first->eta () * tagJets.second->eta () > 0) return false ;
-  double deltaEta = fabs (tagJets.first->eta () - tagJets.second->eta ()) ;
-  if (deltaEta < m_tagJetsDeltaEtaMin || deltaEta > m_tagJetsDeltaEtaMax) return false ;
-  double invMass = (tagJets.first->p4 () + tagJets.second->p4 ()).M () ;
-  if (invMass < m_tagJetsInvMassMin || invMass > m_tagJetsInvMassMax) return false ;
+  if (m_checkOpposite && 
+      (*jetCollectionHandle)[0].eta () * (*jetCollectionHandle)[1].eta () > 0) 
+    return false ;
+  double deltaEta = fabs ((*jetCollectionHandle)[0].eta () - 
+                          (*jetCollectionHandle)[1].eta ()) ;
+  if (deltaEta < m_tagJetsDeltaEtaMin || 
+      deltaEta > m_tagJetsDeltaEtaMax) return false ;
+  double invMass = ((*jetCollectionHandle)[0].p4 () + 
+                    (*jetCollectionHandle)[1].p4 ()).M () ;
+  if (invMass < m_tagJetsInvMassMin || 
+      invMass > m_tagJetsInvMassMax) return false ;
 
   return true ;
 }
