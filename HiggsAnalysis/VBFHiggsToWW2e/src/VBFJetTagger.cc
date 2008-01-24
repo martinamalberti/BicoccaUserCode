@@ -39,7 +39,6 @@ VBFJetTagger::~VBFJetTagger ()
 void 
 VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 {
-
   edm::Handle<reco::CaloJetCollection> jetCollectionHandle ;
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle) ;
 
@@ -64,6 +63,7 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
        jetIt != jetCollectionHandle->end () ; 
        ++jetIt) 
     {
+      if( (jetIt == tagJetCands.first) || (jetIt == tagJetCands.second) ){continue;}
       double firstDelta = ROOT::Math::VectorUtil::DeltaR (firstDir,jetIt->momentum ()) ;
       double secondDelta = ROOT::Math::VectorUtil::DeltaR (secondDir,jetIt->momentum ()) ;
       if (firstDelta < m_gatherConeSize) 
@@ -71,7 +71,7 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
           if (secondDelta < firstDelta) secondTag += jetIt->p4 () ;
           else firstTag += jetIt->p4 () ;
         }
-      else secondTag += jetIt->p4 () ;
+      else if (secondDelta < m_gatherConeSize) secondTag += jetIt->p4 () ;
       /* 
         - controllare la distanza da ciascun getto per aggiugnerlo al jet tag
           relativo
@@ -94,5 +94,6 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   
   //PG insert the collection into the event
   iEvent.put (tagJets, m_tagJetsName) ;
+
 }
 
