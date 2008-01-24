@@ -53,8 +53,9 @@ VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandl
           double deltaR = 
             ROOT::Math::VectorUtil::DeltaR (eleIt->momentum (),jetIt->momentum ()) ;
           if (deltaR < m_maxDeltaR &&
-              eleIt->hadronicOverEm() < 0.20)
-//          && eleIt->superCluster().e()/jetIt->e() > m_minEleOJetEratio)
+              eleIt->hadronicOverEm() < 0.20 &&
+              eleIt->superCluster()->energy () /
+                jetIt->energy () > m_minEleOJetEratio)
             {
               discard = true ; break ;
             }  
