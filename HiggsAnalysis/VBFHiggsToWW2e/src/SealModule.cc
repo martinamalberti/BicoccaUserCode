@@ -49,6 +49,26 @@ typedef ObjectSelector<
          > VBFJetTagSelectorRef ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFSimpleJetTagger.h"
+typedef ObjectSelector<VBFSimpleJetTagger> VBFJetTagSelector ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelector) ;
+
+typedef ObjectSelector<
+          VBFSimpleJetTagger, 
+          edm::RefVector<reco::CaloJetCollection> 
+         > VBFJetTagSelectorRef ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
+
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetCleaner.h"
+typedef ObjectSelector<VBFJetCleaner> VBFJetCleaning ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaning) ;
+
+typedef ObjectSelector<
+          VBFJetCleaner, 
+          edm::RefVector<reco::CaloJetCollection> 
+         > VBFJetCleaningRef ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningRef) ;
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetVetoFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFJetVetoFilter) ; 
 
