@@ -38,7 +38,7 @@ module otherElectronIdLoose = electronId from "EgammaAnalysis/ElectronIDProducer
 replace otherElectronIdLoose.doPtdrId = false
 replace otherElectronIdLoose.doCutBased = true
 replace otherElectronIdLoose.algo_psets = {
-     {using OTHER_ID_LOOSE},  {using CutBased_ID}
+     {using PTDR_ID},  {using OTHER_ID_LOOSE}
 }
 
 
@@ -50,7 +50,7 @@ module otherElectronIdTight = electronId from "EgammaAnalysis/ElectronIDProducer
 replace otherElectronIdTight.doPtdrId = false
 replace otherElectronIdTight.doCutBased = true
 replace otherElectronIdTight.algo_psets = {
-     {using OTHER_ID_TIGHT},  {using CutBased_ID}
+     {using PTDR_ID},  {using OTHER_ID_TIGHT}
 }
 
 
