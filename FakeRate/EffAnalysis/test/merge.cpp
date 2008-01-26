@@ -16,9 +16,10 @@
 #include "TCanvas.h"
 
 #include "dati.h"
-#include "histo2.h"
+#include "histo.h"
 
-//COMPILO c++ -o merge3 `root-config --cflags --libs --glibs` merge3.cpp 
+//COMPILO c++ -o merge `root-config --cflags --libs --glibs` merge.cpp 
+
 
 // ------------------------------------------------------------------------
 
@@ -57,7 +58,17 @@ int main (int argc, char ** argv)
   crossSections[80] = 0.00308/totalCrossSection ;
   crossSections[120] = 0.000494/totalCrossSection ;
 
-  std::map<int,histos2*> istogrammi ;
+/* PG FIXME
+- prepara gli histo di normalizzazione, cioe' un histos
+- riempire loop-ando sui singoli getti
+- ripesare per i pthat
+*/
+
+  //PG numerator histograms
+  std::map<int,histos*> istogrammi ;
+  //PG denominator histograms
+  std::map<int,histos*>  denomin ;
+
   //loop over the events
   for (int index = 0 ; index < fChain.GetEntries () ; ++index )
     {
@@ -75,195 +86,231 @@ int main (int argc, char ** argv)
       if (Input.ptHat > 119 && Input.ptHat < 170)
           pthatevent = 120 ;
       //pthatevent = 120 ;
+
+      if (!istogrammi.count (pthatevent))
+        {
+           histos* dummy = new histos(pthatevent) ;
+           denomin[pthatevent] = dummy ;
+        }
+
+      //PG loop over jets per event
+      //PG NB usati due istogrammi di un histos
+      for (int i = 0 ; i < 30 ; ++i)
+        {
+           //PG FIXME manca il numero di getti, ora faccio cosi'
+           //PG FIXME da controllare 
+           if (Input.jetPT[i] == 0 &&  
+               Input.jetEta[i] == 0 && 
+               Input.jetPhi[i] == 0 && 
+               Input.jetFlav[i] == 0 ) 
+             {
+               std::cout << "number of jets: " << i << std::endl ;  
+               break ;
+             } 
+           int fIndex = 3 ;
+           if (Input.jetFlav[i] == 1 || Input.jetFlav[i] == 2 || Input.jetFlav[i] == 3 )
+             fIndex = 0 ;
+           if (Input.jetFlav[i] == 4 )
+             fIndex = 1 ;
+           if (Input.jetFlav[i] == 5 )
+             fIndex = 2 ;
+           if (Input.jetFlav[i] > 20 && Input.jetFlav[i] < 25)
+             fIndex = 4 ;
+           denomin[pthatevent]->m_e_single_resol_eta->Fill (Input.jetEta[i]) ;
+           denomin[pthatevent]->m_e_single_resol_ptJ->Fill (Input.jetPT[i]) ;
+           denomin[pthatevent]->m_e_single_resol_eta_flav[fIndex]->Fill (Input.jetEta[i]) ;
+           denomin[pthatevent]->m_e_single_resol_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+        } //PG loop over jets per event
       
-      if (!istogrammi.count (pthatevent)){
-        histos2* dummy = new histos2(pthatevent) ;
-	istogrammi[pthatevent] = dummy ;
-      }
-      istogrammi[pthatevent]->grow () ;
-      //PG loop of objects per event
+      if (!istogrammi.count (pthatevent))
+        {
+           histos* dummy = new histos(pthatevent) ;
+           istogrammi[pthatevent] = dummy ;
+        }
+      istogrammi[pthatevent]->grow () ; //PG questo serve ancora?
+      //PG loop over the electrons per event
       for (int i = 0 ; i < Input.eleNum ; ++i)
        {
-	  int fIndex = 3 ;
+          int fIndex = 3 ;
           if (Input.jetFlavour[i] == 1 || Input.jetFlavour[i] == 2 || Input.jetFlavour[i] == 3 )
-	      fIndex = 0 ;
+            fIndex = 0 ;
           if (Input.jetFlavour[i] == 4 )
-	      fIndex = 1 ;
+            fIndex = 1 ;
           if (Input.jetFlavour[i] == 5 )
-	      fIndex = 2 ;
+            fIndex = 2 ;
           if (Input.jetFlavour[i] > 20 && Input.jetFlavour[i] < 25)
-	      fIndex = 4 ;
-	  
-	  if (Input.rawBit[i]) {; }
+            fIndex = 4 ;
+      
+          if (Input.rawBit[i]) {; }
 
           int selected = 0 ;
-          //PG amb resolving passed
+          //PG amb resolving passed (qui c'e' il taglio su jet pt)
           if (Input.ambiguityBit[i] && Input.jetmaxPT[i] > 30 )//&& (Input.eleClass[i] != 40)) 
             {
-	      istogrammi[pthatevent]->m_e_single_resol_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_resol_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_resol_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_resol_ptJ->Fill (Input.jetPT[i]) ;
-              istogrammi[pthatevent]->m_e_sequence_resol_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_resol_ptJ->Fill (Input.jetPTMatch[i]) ;
+              istogrammi[pthatevent]->m_e_sequence_resol_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_sequence_resol_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_sequence_resol_ptJ->Fill (Input.jetPT[i]) ;   
+              istogrammi[pthatevent]->m_e_sequence_resol_ptJ->Fill (Input.jetPTMatch[i]) ;   
               istogrammi[pthatevent]->m_e_single_resol_EMfrac->Fill (Input.EMjetCompon[i]) ;
               istogrammi[pthatevent]->m_e_sequence_resol_EMfrac->Fill (Input.EMjetCompon[i]) ;
-              istogrammi[pthatevent]->m_e_single_resol_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_resol_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_resol_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_resol_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
-              istogrammi[pthatevent]->m_e_sequence_resol_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_resol_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
+              istogrammi[pthatevent]->m_e_sequence_resol_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_sequence_resol_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_sequence_resol_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;   
+              istogrammi[pthatevent]->m_e_sequence_resol_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;   
               istogrammi[pthatevent]->m_e_single_resol_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               istogrammi[pthatevent]->m_e_sequence_resol_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               selected = 1 ;
             }
-	  else selected = 0 ;
+          else selected = 0 ;
 /*  
           if (Input.eleIdTightBit[i]) 
             {
-              istogrammi[pthatevent]->m_e_single_eleIdTight_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_EMfrac->Fill (Input.EMjetCompon[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdTight_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               if (selected == 1 ) 
                 {        
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptE->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_EMfrac->Fill (Input.EMjetCompon[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
                 }
               
-	    } else selected = 0 ;
+        } else selected = 0 ;
 */
           if (Input.tkIsoBit[i]) 
             {
-              istogrammi[pthatevent]->m_e_single_tkIso_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_tkIso_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_tkIso_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_tkIso_ptJ->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_tkIso_ptJ->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_tkIso_EMfrac->Fill (Input.EMjetCompon[i]) ;
-              istogrammi[pthatevent]->m_e_single_tkIso_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_tkIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_tkIso_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_tkIso_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_tkIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_tkIso_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               if (selected == 1) 
                 {
-                  istogrammi[pthatevent]->m_e_sequence_tkIso_eta->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_tkIso_eta->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_tkIso_ptE->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_tkIso_ptJ->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_tkIso_ptJ->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_tkIso_EMfrac->Fill (Input.EMjetCompon[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_tkIso_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_tkIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_tkIso_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_tkIso_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_tkIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_tkIso_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
                 }
             } else selected = 0 ;
 
           if (Input.hadIsoBit[i]) 
             {
-              istogrammi[pthatevent]->m_e_single_hadIso_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_hadIso_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_hadIso_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_hadIso_ptJ->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_hadIso_ptJ->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_hadIso_EMfrac->Fill (Input.EMjetCompon[i]) ;
-              istogrammi[pthatevent]->m_e_single_hadIso_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_hadIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_hadIso_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_hadIso_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_hadIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_hadIso_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               if (selected == 1) 
                 {
-                  istogrammi[pthatevent]->m_e_sequence_hadIso_eta->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_hadIso_eta->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_hadIso_ptE->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_hadIso_ptJ->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_hadIso_ptJ->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_hadIso_EMfrac->Fill (Input.EMjetCompon[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_hadIso_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_hadIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_hadIso_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_hadIso_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_hadIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_hadIso_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
                 }
             } else selected = 0 ;
 
           if (Input.eleIdBit[i]) 
             {
-              istogrammi[pthatevent]->m_e_single_eleId_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleId_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleId_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleId_ptJ->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleId_ptJ->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleId_EMfrac->Fill (Input.EMjetCompon[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleId_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleId_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleId_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleId_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleId_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleId_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               if (selected == 1) 
                 {
-                  istogrammi[pthatevent]->m_e_sequence_eleId_eta->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleId_eta->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleId_ptE->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleId_ptJ->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleId_ptJ->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleId_EMfrac->Fill (Input.EMjetCompon[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleId_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleId_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleId_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleId_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleId_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleId_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
                 }
             } 
 
           if (Input.eleIdLooseBit[i]) 
             {
-              istogrammi[pthatevent]->m_e_single_eleIdLoose_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdLoose_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdLoose_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdLoose_ptJ->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdLoose_ptJ->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdLoose_EMfrac->Fill (Input.EMjetCompon[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdLoose_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdLoose_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdLoose_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdLoose_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdLoose_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdLoose_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               if (selected == 1) 
                 {        
-                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_eta->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_eta->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdLoose_ptE->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_ptJ->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_ptJ->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdLoose_EMfrac->Fill (Input.EMjetCompon[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdLoose_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdLoose_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdLoose_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
                 }
             } 
 
           if (Input.eleIdTightBit[i] && Input.jetmaxPT[i] > 30 )//&& (Input.eleClass[i] != 40)) 
             {
-              istogrammi[pthatevent]->m_e_single_eleIdTight_eta->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_ptE->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_EMfrac->Fill (Input.EMjetCompon[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdTight_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+              istogrammi[pthatevent]->m_e_single_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_single_eleIdTight_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
               if (selected == 1 )//&& (Input.eleClass[i] == 0 || Input.eleClass[i] == 100)) 
                 {        
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptE->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_EMfrac->Fill (Input.EMjetCompon[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta_flav[fIndex]->Fill (Input.eleEta[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptE_flav[fIndex]->Fill (Input.elePT[i]) ;
-                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPT[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdTight_EMfrac_flav[fIndex]->Fill (Input.EMjetCompon[i]) ;
                 }
             } 
 
-       }  //PG loop of objects per event
+       }  //PG loop of the electrons per event
     }//end of the loop over the events
   
   //rescale histo per pt hat
-  for (std::map<int,histos2*>::iterator istoIt = istogrammi.begin () ;
+  for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
        istoIt != istogrammi.end () ;
        ++istoIt)
     {
@@ -271,7 +318,7 @@ int main (int argc, char ** argv)
     }     
   
   //save histo per pt hat
-  for (std::map<int,histos2*>::iterator istoIt = istogrammi.begin () ;
+  for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
        istoIt != istogrammi.end () ;
        ++istoIt)
     {
@@ -335,7 +382,7 @@ int main (int argc, char ** argv)
   
   //PG loop sui pthat
   std::cout << "Debug loop over pt hat" << std::endl ;
-  for (std::map<int,histos2*>::iterator istoIt = istogrammi.begin () ;
+  for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
        istoIt != istogrammi.end () ;
        ++istoIt)
     {
@@ -350,7 +397,7 @@ int main (int argc, char ** argv)
           std::string name = pthatname + stacksIt->first ;  
           TH1F * dummy = (TH1F *) gDirectory->Get (name.c_str ()) ;
           //seg violation?!? Why?!?
-	  //dummy->SetFillColor (50 + istoIt->first) ;
+      //dummy->SetFillColor (50 + istoIt->first) ;
           (stacksIt->second).Add (dummy) ;
         } //PG loop sulle distribuzioni  
     } //PG loop sui pthat   
@@ -415,14 +462,14 @@ int main (int argc, char ** argv)
       //pt20_30_histogr->GetXaxis()->SetTitle("p_T (GeV/c)") ;
       TH2F bkgGlobal ((std::string (global_histogr->GetName ()) + std::string ("_bkg")).c_str (),"",
                       10,0.000001,0.1,
-		      10,global_histogr->GetXaxis ()->GetXmin (),global_histogr->GetXaxis ()->GetXmax ()) ;
+              10,global_histogr->GetXaxis ()->GetXmin (),global_histogr->GetXaxis ()->GetXmax ()) ;
       bkgGlobal.SetStats (0) ;
       bkgGlobal.Draw () ;
       global_histogr->Draw ("same") ;
       c1->Print ((std::string (global_histogr->GetName ()) + std::string (".gif")).c_str (),"gif") ;
       TH2F bkgpippo ((std::string (global_histogr->GetName ()) + std::string ("_)bkg")).c_str (),"",
                       10,0.000001,0.1,
-		      10,global_histogr->GetXaxis ()->GetXmin (),global_histogr->GetXaxis ()->GetXmax ()) ;
+              10,global_histogr->GetXaxis ()->GetXmin (),global_histogr->GetXaxis ()->GetXmax ()) ;
       bkgGlobal.SetStats (0) ;
       bkgGlobal.Draw () ;
       pippo.Draw () ;
@@ -449,13 +496,13 @@ int main (int argc, char ** argv)
         {
           global_histogr_flav[i] = (TH1F *) global.Get ((*histosIt + names[i]).c_str ()) ;        
           if (i == 2)
-	    {
-	       global_histogr_flav[i]->Add ((TH1F *) global.Get ((*histosIt + std::string("_b")).c_str ()),1) ;
-	    }
-	  global_histogr_flav[i]->SetFillStyle(2002) ;
+        {
+           global_histogr_flav[i]->Add ((TH1F *) global.Get ((*histosIt + std::string("_b")).c_str ()),1) ;
+        }
+      global_histogr_flav[i]->SetFillStyle(2002) ;
           pluto.Add (global_histogr_flav[i]) ;
           pluto.Add (global_histogr) ;
-	}
+    }
       global_histogr_flav[0]->SetFillColor (64) ;
       global_histogr_flav[1]->SetFillColor (65) ;
       global_histogr_flav[2]->SetFillColor (66) ;
@@ -463,7 +510,7 @@ int main (int argc, char ** argv)
 
       pluto.Draw () ;
       for (int i=0 ; i<4 ; ++i)
-	  global_histogr_flav[i]->GetYaxis()->SetRangeUser(0.000001,0.1) ;
+      global_histogr_flav[i]->GetYaxis()->SetRangeUser(0.000001,0.1) ;
       pluto.Draw () ;
       //c1->Print ((std::string (global_histogr->GetName ()) + std::string ("_flav_stack.gif")).c_str (),"gif") ;
       for (int i=0 ; i<4 ; ++i) global_histogr_flav[i]->SetFillStyle(3001) ;
@@ -475,5 +522,3 @@ int main (int argc, char ** argv)
 */
 
 } // int main
-
-

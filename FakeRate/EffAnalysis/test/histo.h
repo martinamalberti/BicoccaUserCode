@@ -15,7 +15,7 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 
-struct histos2
+struct histos
 {
 
   int m_ptHat ;
@@ -122,7 +122,7 @@ struct histos2
   TH1F * m_e_sequence_eleIdLoose_EMfrac_flav[5]  ;
   TH1F * m_e_sequence_eleIdTight_EMfrac_flav[5]  ;
 
-  histos2 (int ptHat = 0) :
+  histos (int ptHat = 0) :
     m_ptHat (ptHat) ,
     m_baseName ("problem_") ,
     m_counter (0)
@@ -564,7 +564,7 @@ struct histos2
     
     
     }
-~histos2 ()
+~histos ()
     {
     }
 } ;
