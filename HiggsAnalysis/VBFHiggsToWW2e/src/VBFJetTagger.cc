@@ -16,12 +16,15 @@
 VBFJetTagger::VBFJetTagger (const edm::ParameterSet& iConfig) :
   m_jetInputTag (iConfig.getParameter<edm::InputTag> ("jetInputTag")) ,
   m_tagJetsName (iConfig.getParameter<std::string> ("tagJetsName")) ,
+  m_otherJetsName (iConfig.getParameter<std::string> ("otherJetsName")) ,
   m_jetEtaMax (iConfig.getParameter<double> ("jetEtaMax")) ,
   m_jetPtMin (iConfig.getParameter<double> ("jetPtMin")) ,
   m_gatherConeSize (iConfig.getParameter<double> ("gatherConeSize")) 
 {
 //  produces<LorentzVectorCollection> (m_tagJetsName) ;
   produces<reco::RecoChargedCandidateCollection> (m_tagJetsName) ;
+  produces<reco::CaloJetCollection> (m_otherJetsName) ;
+  //PG this has maybe to be changed into a RefVector in the future
 }  
 
 
@@ -58,6 +61,9 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   math::XYZVector secondDir = tagJetCands.first->momentum () ;
   //PG look for other jets in cones around the found ones and add them to the "leading"
   
+  std::auto_ptr<reco::CaloJetCollection> otherJets 
+      (new reco::CaloJetCollection) ;
+
   //PG loop over the jets collection
   for (VBFjetIt jetIt = jetCollectionHandle->begin () ; 
        jetIt != jetCollectionHandle->end () ; 
@@ -72,11 +78,7 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
           else firstTag += jetIt->p4 () ;
         }
       else if (secondDelta < m_gatherConeSize) secondTag += jetIt->p4 () ;
-      /* 
-        - controllare la distanza da ciascun getto per aggiugnerlo al jet tag
-          relativo
-          - se il getto sta nei due coni, si accorpa al piu' vicino      
-      */
+      else otherJets->push_back (*jetIt) ;
     } //PG loop over the jets collection
   
   //PG create and fill the collection to be added to the event
@@ -94,6 +96,7 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   
   //PG insert the collection into the event
   iEvent.put (tagJets, m_tagJetsName) ;
+  iEvent.put (otherJets, m_otherJetsName) ;
 
 }
 

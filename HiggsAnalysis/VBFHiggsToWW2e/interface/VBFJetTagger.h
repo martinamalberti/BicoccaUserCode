@@ -60,6 +60,8 @@ class VBFJetTagger: public edm::EDProducer
   edm::InputTag m_jetInputTag ;
   //! output collection
   std::string m_tagJetsName ;
+  //! residual jets collection
+  std::string m_otherJetsName ;
 
   //! |eta| threshold below which look for jets
   double m_jetEtaMax ;
