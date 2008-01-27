@@ -1,0 +1,16 @@
+source = PoolSource 
+{ 
+  untracked vstring fileNames = 
+    {
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_1.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_2.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_3.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_4.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_5.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_6.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_7.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_8.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_9.root",
+      "file:/gwtera4/users/govoni/VBF/skims/WW/VBFskim_10.root"
+    } 
+}
