@@ -6,7 +6,8 @@
 
    private:
       
-      edm::InputTag m_MCtruthInputTag ;      //! the decay channel: 
+      edm::InputTag m_MCtruthInputTag ;
+      //! the decay channel: 
       //! * 1 = uu
       //! * 2 = ee
       //! * 3 = eu
