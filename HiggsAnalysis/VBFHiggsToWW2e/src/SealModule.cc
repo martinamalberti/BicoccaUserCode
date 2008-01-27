@@ -24,6 +24,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFHiggsToWW2e) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCProcessFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFMCProcessFilter) ; 
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCChannelFilter.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFMCChannelFilter) ; 
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFProcessFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFProcessFilter) ; 
 
