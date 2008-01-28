@@ -20,7 +20,7 @@
 
 VBFMCFlagEvent::VBFMCFlagEvent (const edm::ParameterSet& iConfig) :
   m_label (iConfig.getUntrackedParameter<std::string> ("moduleLabel",std::string ("source"))),
-  m_eventFlagName (iConfig.getUntrackedParameter<std::string> ("eventFlagName",std::string ("eventFlag"))) 
+  m_eventFlagName (iConfig.getUntrackedParameter<std::string> ("eventFlagName",std::string ("MCeventFlag"))) 
 {
   produces<std::vector<int> > (m_eventFlagName += "Mass").setBranchAlias (m_eventFlagName) ;
 }  
