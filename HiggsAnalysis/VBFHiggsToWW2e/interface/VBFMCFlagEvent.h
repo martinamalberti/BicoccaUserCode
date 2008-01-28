@@ -33,7 +33,8 @@
 
 class VBFMCFlagEvent: public edm::EDProducer
 {
- 
+
+  public : 
   //! ctor  
   VBFMCFlagEvent (const edm::ParameterSet& conf) ;  
   //! dtor
