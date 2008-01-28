@@ -55,10 +55,6 @@ typedef ObjectSelector<
          > VBFJetTagSelectorRef ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
 
-#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFSimpleJetTagger.h"
-typedef ObjectSelector<VBFSimpleJetTagger> VBFJetTagSelector ;
-DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelector) ;
-
 typedef ObjectSelector<
           VBFSimpleJetTagger, 
           edm::RefVector<reco::CaloJetCollection> 
