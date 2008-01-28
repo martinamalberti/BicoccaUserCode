@@ -127,7 +127,7 @@ print CONFIGNAMECRAB "use_boss_rt = 1\n";
 print CONFIGNAMECRAB "ui_working_dir = $OUTDIR\n";
 print CONFIGNAMECRAB "copy_data = 1\n"; #1 per copiare su castor  0 per non
 print CONFIGNAMECRAB "storage_element = srm.cern.ch\n"; 
-print CONFIGNAMECRAB "storage_path = /castor/cern.ch/user/t/tancini/crab\n"; 
+print CONFIGNAMECRAB "storage_path = /castor/cern.ch/user/t/tancini/crab2\n"; 
 
 print CONFIGNAMECRAB "[EDG]\n";
 print CONFIGNAMECRAB "lcg_version = 2\n";

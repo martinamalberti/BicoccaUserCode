@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.41 2007/12/12 09:35:56 tancini Exp $
+// $Id: VBFReadEvent.cc,v 1.42 2007/12/13 16:57:38 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFReadEvent.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -12,9 +12,9 @@ VBFReadEvent::VBFReadEvent (const edm::ParameterSet& iConfig) :
       m_genJetInputTag (iConfig.getParameter<edm::InputTag> ("genJetInputTag")) ,
       m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
       m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
-	  //m_siElectronProducer (iConfig.getParameter<std::string> ("siElectronProducer")), //...
+      //m_siElectronProducer (iConfig.getParameter<std::string> ("siElectronProducer")), //...
       //m_siElectronCollection (iConfig.getParameter<std::string> ("siElectronCollection")), //...
-	  //m_electronProducer (iConfig.getParameter<std::string> ("electronProducer")),//...
+      //m_electronProducer (iConfig.getParameter<std::string> ("electronProducer")),//...
       //m_electronCollection (iConfig.getParameter<std::string> ("electronCollection")),//...
       m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")) ,
       m_MC (iConfig.getParameter<edm::InputTag> ("MC")) ,
@@ -154,23 +154,28 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   TClonesArray &muPart4Mom = *m_recoMuon4Momentum;
   TClonesArray &muPartPos = *m_recoMuonTrkPositionAtVtx;			 
 
+  //std::cout << "m_numberGlobMuons " << m_numberGlobMuons << std::endl;
+
   int counter = 0; 
   for (MuonCollection::const_iterator mu = MuonHandle->begin (); 
        mu != MuonHandle->end (); 
        ++mu ) 
       {
+	  counter++;
           new (muPart4Mom[counter]) TLorentzVector (get4momentum (*mu));
-		  new (muPartPos[counter]) TVector3 (getVtx (*mu));
-		  m_recoMuonCharge -> push_back (mu->charge());
-		  m_recoMuonR03_sumPt -> push_back (mu->getIsolationR03().sumPt);
-	      m_recoMuonR03_emEt -> push_back (mu->getIsolationR03().emEt);
-	      m_recoMuonR03_hadEt -> push_back (mu->getIsolationR03().hadEt);
-	      m_recoMuonR03_hoEt -> push_back (mu->getIsolationR03().hoEt);
-	      m_recoMuonR03_nTracks -> push_back (mu->getIsolationR03().nTracks);
-	      m_recoMuonR03_nJets -> push_back (mu->getIsolationR03().nJets);
+	  new (muPartPos[counter]) TVector3 (getVtx (*mu));
+	  //std::cout << "energia mu "<< mu->energy () << std::endl;
+	  m_recoMuonCharge -> push_back (mu->charge());
+	  m_recoMuonR03_sumPt -> push_back (mu->getIsolationR03().sumPt);
+	  m_recoMuonR03_emEt -> push_back (mu->getIsolationR03().emEt);
+	  m_recoMuonR03_hadEt -> push_back (mu->getIsolationR03().hadEt);
+	  m_recoMuonR03_hoEt -> push_back (mu->getIsolationR03().hoEt);
+	  m_recoMuonR03_nTracks -> push_back (mu->getIsolationR03().nTracks);
+	  m_recoMuonR03_nJets -> push_back (mu->getIsolationR03().nJets);
 
 	  }  
-	  
+  //std::cout << "counter sui muoni = "<< counter << std::endl;
+  //cout << "size muons "<< m_recoMuon4Momentum->GetEntries () << std::endl;
   //////////////////////////////////////// reco electrons			 
 
   TClonesArray &elePart4Mom = *m_recoEle4Momentum;
@@ -220,7 +225,7 @@ VBFReadEvent::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
           m_recoEleCalIsoVal->push_back (myHadIsolation.getHcalEtSum(&(emObjectHandle->at(i))));     
       }
-    
+  //cout << "size ele "<< m_recoEle4Momentum->GetEntries () << std::endl;
     //////////////////////////////////////// looking for jets
     m_jfi.readEvent (iEvent); // for the flavour
 	

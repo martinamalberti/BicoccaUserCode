@@ -1,6 +1,6 @@
 #passare flag per per output di root e datasetpath
 
-#perl makeConfigs.pl WWf_higgsMass160 /H160_WW_2l/CMSSW_1_6_7-CSA07-1192836764/RECO
+perl makeConfigs.pl WWf_higgsMass160 /H160_WW_2l/CMSSW_1_6_7-CSA07-1192836764/RECO
 #perl makeConfigs.pl WWf_higgsMass120 /H120_WW_2l/CMSSW_1_6_7-CSA07-1194963339/RECO
 #perl makeConfigs.pl WWf_higgsMass130 /H130_WW_2l/CMSSW_1_6_7-CSA07-1194126306/RECO
 #perl makeConfigs.pl WWf_higgsMass140 /H140_WW_2l/CMSSW_1_6_7-CSA07-1192835331/RECO
@@ -18,9 +18,9 @@
 #perl makeConfigs.pl tt3j_alpgen /tt3j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO
 #perl makeConfigs.pl tt4j_alpgen /tt4j_mT_70-alpgen/CMSSW_1_6_0-PreCSA07-HLT-A2/GEN-SIM-DIGI-RECO 
 
-#perl makeConfigs.pl Wt /tW_inclusive/CMSSW_1_6_7-CSA07-1195471738/RECO
-#perl makeConfigs.pl WW /WW_incl/CMSSW_1_6_7-CSA07-1196178448/RECO
-#perl makeConfigs.pl WZ /WZ_incl/CMSSW_1_6_7-CSA07-1195629996/RECO
+perl makeConfigs.pl Wt /tW_inclusive/CMSSW_1_6_7-CSA07-1195471738/RECO
+perl makeConfigs.pl WW /WW_incl/CMSSW_1_6_7-CSA07-1196178448/RECO
+perl makeConfigs.pl WZ /WZ_incl/CMSSW_1_6_7-CSA07-1195629996/RECO
 
 #perl makeConfigs.pl Zee_0_15 /ZeeJets_Pt_0_15/CMSSW_1_6_7-CSA07-1192836918/RECO
 #perl makeConfigs.pl Zee_1000_1400 /ZeeJets_Pt_1000_1400/CMSSW_1_6_7-CSA07-1192835543/RECO
