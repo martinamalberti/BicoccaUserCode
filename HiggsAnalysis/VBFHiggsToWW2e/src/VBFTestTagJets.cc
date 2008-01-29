@@ -1,4 +1,4 @@
-// $Id: VBFTestTagJets.cc,v 1.4 2008/01/15 20:47:17 govoni Exp $
+// $Id: VBFTestTagJets.cc,v 1.2 2008/01/22 13:14:28 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTestTagJets.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -52,16 +52,6 @@ VBFTestTagJets::analyze (const edm::Event& iEvent,
             << MCjetTagsHandle->size () 
             << std::endl ;
             
-  (*jetTagsHandle)[0].p4 ().Eta () ;
-  (*jetTagsHandle)[1].p4 ().Eta () ;
-  (*MCjetTagsHandle)[0].p4 ().Eta () ;
-  (*MCjetTagsHandle)[1].p4 ().Eta () ;
-
-  (*jetTagsHandle)[0].momentum ().Eta () ;
-  (*jetTagsHandle)[1].momentum ().Eta () ;
-  (*MCjetTagsHandle)[0].momentum ().Eta () ;
-  (*MCjetTagsHandle)[1].momentum ().Eta () ;
-
   int maxIndex = (*MCjetTagsHandle)[0].p4 ().E () < 
                  (*MCjetTagsHandle)[1].p4 ().E () ;
 
