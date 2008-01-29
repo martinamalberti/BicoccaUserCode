@@ -1,7 +1,9 @@
-// $Id: VBFLeptonsNumFilter.cc,v 1.1 2007/12/12 16:03:52 govoni Exp $
+// $Id: VBFLeptonsNumFilter.cc,v 1.2 2007/12/12 16:34:00 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptonsNumFilter.h"
 
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -12,6 +14,8 @@
 VBFLeptonsNumFilter::VBFLeptonsNumFilter (const edm::ParameterSet& iConfig) :
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
   m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")) ,
+  m_useEleId (iConfig.getParameter<bool> ("useEleId")) ,
+  m_eleIdInputTag (iConfig.getUntrackedParameter<edm::InputTag> ("eleIDInputTag")) ,
   m_minLeptonsNum (iConfig.getParameter<int> ("minLeptonsNum")) ,
   m_maxLeptonsNum (iConfig.getParameter<int> ("maxLeptonsNum")) ,
   m_eleEtaMax (iConfig.getParameter<double> ("eleEtaMax")) , 
@@ -43,7 +47,11 @@ VBFLeptonsNumFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
   //VT get the Global muons collection
   edm::Handle<reco::MuonCollection> MuonHandle;
   iEvent.getByLabel (m_muInputTag,MuonHandle); 
-    
+
+  edm::Handle<reco::ElectronIDAssociationCollection> eleIdHandle ;
+  //PG get the eleId, if required
+  if (m_useEleId) iEvent.getByLabel (m_eleIdInputTag, eleIdHandle) ;
+
   if ((MuonHandle->size () + GSFHandle->size ()) < m_minLeptonsNum) return false ;
   int leptonsNum = 0 ;
   
@@ -53,6 +61,13 @@ VBFLeptonsNumFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
        ++ele) 
     {
       if (fabs (ele->eta ()) > m_eleEtaMax || ele->pt () < m_elePtMin) continue ;
+      if (m_useEleId)
+        {
+          reco::PixelMatchGsfElectronRef ref (GSFHandle, ele - GSFHandle->begin ()) ;
+          reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr = 
+            eleIdHandle->find (ref) ;
+          if (electronIDAssocItr->val->cutBasedDecision () != 1) continue ;        
+        }
       ++leptonsNum ; 
     } //PG loop over the electrons collection
          

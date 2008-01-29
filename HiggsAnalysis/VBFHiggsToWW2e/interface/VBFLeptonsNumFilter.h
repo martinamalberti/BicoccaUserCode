@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFLeptonsNumFilter.h,v 1.5 2007/12/07 17:46:34 govoni Exp $
+// $Id: VBFLeptonsNumFilter.h,v 1.1 2007/12/12 16:03:50 govoni Exp $
 //
 //
 // system include files
@@ -39,7 +39,10 @@ class VBFLeptonsNumFilter : public edm::EDFilter
 
       edm::InputTag m_GSFInputTag ;
       edm::InputTag m_muInputTag ;
-   
+
+      bool m_useEleId ;
+      edm::InputTag m_eleIdInputTag ;
+         
       int m_minLeptonsNum ;
       int m_maxLeptonsNum ;
 
