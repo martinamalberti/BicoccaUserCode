@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.2 2008/01/31 08:52:35 tancini Exp $
+// $Id: VBFplots.cc,v 1.3 2008/01/31 13:27:27 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -9,6 +9,7 @@
 //for TH1F
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include <Math/VectorUtil.h>
 
 VBFplots::VBFplots (const edm::ParameterSet& iConfig) :
   m_jetTagsInputTag (iConfig.getParameter<edm::InputTag> ("jetTagsInputTag")) ,
@@ -76,8 +77,10 @@ VBFplots::analyze (const edm::Event& iEvent,
       m_energyOthers -> Fill (jetIt->p4 ().E () ) ;
       m_ptOthers -> Fill (jetIt->p4 ().Pt () ) ;
 
-      m_deltaROthers -> Fill (jetIt->p4 ().deltaR ((*jetTagsHandle)[0].p4 ().Eta ()) ) ;
-      m_deltaROthers -> Fill (jetIt->p4 ().deltaR ((*jetTagsHandle)[1].p4 ().Eta ()) ) ;
+      double deltaR0 = ROOT::Math::VectorUtil::DeltaR (((*jetTagsHandle)[0].momentum ()), jetIt->momentum ()) ;
+      m_deltaROthers -> Fill (deltaR0) ;
+      double deltaR1 = ROOT::Math::VectorUtil::DeltaR (((*jetTagsHandle)[1].momentum ()), jetIt->momentum ()) ;
+      m_deltaROthers -> Fill (deltaR1) ;
       m_deltaEtaOthers -> Fill (fabs (jetIt->p4 ().Eta () - (*jetTagsHandle)[0].p4 ().Eta () ) ) ;
       m_deltaEtaOthers -> Fill (fabs (jetIt->p4 ().Eta () - (*jetTagsHandle)[1].p4 ().Eta () ) ) ;
       summedOthers += (jetIt->p4 ());
