@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.1 2008/01/29 11:12:46 tancini Exp $
+// $Id: VBFplots.cc,v 1.2 2008/01/31 08:52:35 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -65,7 +65,7 @@ VBFplots::analyze (const edm::Event& iEvent,
   m_pt -> Fill ((*jetTagsHandle)[0].p4 ().Pt () );
   m_pt -> Fill ((*jetTagsHandle)[1].p4 ().Pt () );
 
-  LorentzVector summedOthers(0.0, 0.0, 0.0, 0.0) ;
+  LorentzVector summedOthers (0.0, 0.0, 0.0, 0.0) ;
   // Other jets plots
   for (reco::CaloJetCollection::const_iterator jetIt = jetOthersHandle->begin () ; 
        jetIt != jetOthersHandle->end () ; 
@@ -75,7 +75,15 @@ VBFplots::analyze (const edm::Event& iEvent,
       m_etaOthers -> Fill (jetIt->p4 ().Eta () ) ;
       m_energyOthers -> Fill (jetIt->p4 ().E () ) ;
       m_ptOthers -> Fill (jetIt->p4 ().Pt () ) ;
+
+      m_deltaROthers -> Fill (jetIt->p4 ().deltaR ((*jetTagsHandle)[0].p4 ().Eta ()) ) ;
+      m_deltaROthers -> Fill (jetIt->p4 ().deltaR ((*jetTagsHandle)[1].p4 ().Eta ()) ) ;
+      m_deltaEtaOthers -> Fill (fabs (jetIt->p4 ().Eta () - (*jetTagsHandle)[0].p4 ().Eta () ) ) ;
+      m_deltaEtaOthers -> Fill (fabs (jetIt->p4 ().Eta () - (*jetTagsHandle)[1].p4 ().Eta () ) ) ;
       summedOthers += (jetIt->p4 ());
+
+
+
     }
 
   m_etaOthersSummed -> Fill (summedOthers.Eta ()) ;
@@ -104,6 +112,9 @@ VBFplots::beginJob (const edm::EventSetup&)
   m_etaOthers = fs->make<TH1F> ("m_etaOthers","#eta of tag jets",50,-6,6) ;
   m_energyOthers = fs->make<TH1F> ("m_energyOthers","energy of tag jets",100, 0, 1200) ;
   m_ptOthers = fs->make<TH1F> ("m_ptOthers","pt of tag jets",100, 0, 600) ;
+
+  m_deltaROthers = fs->make<TH1F> ("m_etaOthers","#eta of tag jets",50,0,12) ;
+  m_deltaEtaOthers = fs->make<TH1F> ("m_deltaEtaOthers","#Delta#eta between tag jets and other jets",50,0,12) ;
 
   m_etaOthersSummed = fs->make<TH1F> ("m_etaOthersSummed","#eta of summed jets",50,-6,6) ;
   m_energyOthersSummed = fs->make<TH1F> ("m_energyOthersSummed","energy of summed jets",100, 0, 1200) ;
