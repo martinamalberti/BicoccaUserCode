@@ -1,4 +1,4 @@
-// $Id: VBFUtils.cc,v 1.1 2007/12/07 17:46:35 govoni Exp $
+// $Id: VBFUtils.cc,v 1.2 2008/01/16 17:35:25 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 
@@ -32,7 +32,7 @@ findTagJets (VBFjetIt begin, VBFjetIt end,
        firstJet != end ; 
        ++firstJet ) 
     {
-      if (firstJet->et () < jetPtMin || 
+      if (firstJet->pt () < jetPtMin || 
           fabs (firstJet->eta ()) > jetEtaMax) continue ;
       math::XYZTLorentzVector firstLV = firstJet->p4 () ;
       //PG second loop over jets
@@ -40,7 +40,7 @@ findTagJets (VBFjetIt begin, VBFjetIt end,
            secondJet != end ; 
            ++secondJet ) 
         {
-          if (secondJet->et () < jetPtMin || 
+          if (secondJet->pt () < jetPtMin || 
               fabs (secondJet->eta ()) > jetEtaMax) continue ;
           math::XYZTLorentzVector sumLV = secondJet->p4 () + firstLV ;
           if (sumLV.M () > maxInvMass)

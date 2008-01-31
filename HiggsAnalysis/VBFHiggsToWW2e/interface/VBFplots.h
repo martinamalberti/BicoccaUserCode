@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFplots.h,v 1.3 2007/12/12 18:36:26 govoni Exp $
+// $Id: VBFplots.h,v 1.1 2008/01/29 11:12:47 tancini Exp $
 //
 //
 
@@ -134,6 +134,7 @@ class VBFplots : public edm::EDAnalyzer {
    private:
 
       edm::InputTag m_jetTagsInputTag ;
+      edm::InputTag m_jetOthersInputTag ;
       edm::InputTag m_GSFInputTag ;
       edm::InputTag m_electronIDInputTag ;
       edm::InputTag m_muInputTag ;
@@ -141,6 +142,17 @@ class VBFplots : public edm::EDAnalyzer {
 
       TH1F *m_deltaEta;
       TH1F *m_sumEta;
+      TH1F *m_invMass;
+      TH1F *m_eta;
+      TH1F *m_energy;
+      TH1F *m_pt;
+      TH1F *m_etaOthers;
+      TH1F *m_energyOthers;
+      TH1F *m_ptOthers;
+      TH1F *m_etaOthersSummed;
+      TH1F *m_energyOthersSummed;
+      TH1F *m_ptOthersSummed;
+      TH1F *m_invMassOtherSummed;
 };
 
 #endif

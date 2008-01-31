@@ -75,7 +75,10 @@ DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningRef) ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetVetoFilter) ; 
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTrivialAnalysis.h"
-DEFINE_ANOTHER_FWK_MODULE (VBFTrivialAnalysis) ; 
+DEFINE_ANOTHER_FWK_MODULE (VBFTrivialAnalysis) ;
+
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFplots) ; 
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTestTagJets.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFTestTagJets) ; 
