@@ -45,13 +45,24 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   edm::Handle<reco::CaloJetCollection> jetCollectionHandle ;
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle) ;
 
+  if (jetCollectionHandle->size () == 0)
+    {
+      //VT create void collection
+      std::auto_ptr<reco::RecoChargedCandidateCollection> tagJets (new reco::RecoChargedCandidateCollection) ;
+      std::auto_ptr<reco::CaloJetCollection> otherJets (new reco::CaloJetCollection) ;
+
+      //VT insert the collection into the event
+      iEvent.put (tagJets, m_tagJetsName) ;
+      iEvent.put (otherJets, m_otherJetsName) ;
+
+      return;
+    }  
+
+
   //PG get the jet tags
   std::pair<VBFjetIt,VBFjetIt> tagJetCands = findTagJets (jetCollectionHandle->begin (),
                                                           jetCollectionHandle->end (),
                                                           m_jetPtMin, m_jetEtaMax) ;
-
-//tagJetCands.first 
-//tagJetCands.second
 
   //PG build the new jets
   LorentzVector firstTag = tagJetCands.first->p4 () ;
