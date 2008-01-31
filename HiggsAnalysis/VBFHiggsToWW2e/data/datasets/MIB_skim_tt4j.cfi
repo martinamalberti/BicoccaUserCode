@@ -1,0 +1,8 @@
+source = PoolSource 
+{ 
+  untracked vstring fileNames = 
+    {
+    "file:/gwtera4/users/govoni/VBF/skims/tt4j_alpgen_152/VBFskim_1.root",
+    "file:/gwtera4/users/govoni/VBF/skims/tt4j_alpgen_152/VBFskim_2.root"
+    }
+}
