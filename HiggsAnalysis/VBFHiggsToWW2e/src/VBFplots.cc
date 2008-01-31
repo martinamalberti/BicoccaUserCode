@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.3 2008/01/31 13:27:27 tancini Exp $
+// $Id: VBFplots.cc,v 1.4 2008/01/31 14:11:03 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -116,7 +116,7 @@ VBFplots::beginJob (const edm::EventSetup&)
   m_energyOthers = fs->make<TH1F> ("m_energyOthers","energy of tag jets",100, 0, 1200) ;
   m_ptOthers = fs->make<TH1F> ("m_ptOthers","pt of tag jets",100, 0, 600) ;
 
-  m_deltaROthers = fs->make<TH1F> ("m_etaOthers","#eta of tag jets",50,0,12) ;
+  m_deltaROthers = fs->make<TH1F> ("m_deltaROthers","#Delta#eta between tag jets and other jets",50,0,12) ;
   m_deltaEtaOthers = fs->make<TH1F> ("m_deltaEtaOthers","#Delta#eta between tag jets and other jets",50,0,12) ;
 
   m_etaOthersSummed = fs->make<TH1F> ("m_etaOthersSummed","#eta of summed jets",50,-6,6) ;
