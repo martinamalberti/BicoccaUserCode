@@ -1,0 +1,74 @@
+$SAMPLE = $ARGV[0] ;
+$OUTROOTHISTOS =  $SAMPLE."_histos.root" ;
+$DATASETPATH = $ARGV[1] ;
+
+$CONFIG = "VBFplots_".$SAMPLE.".cfg";
+
+system("rm -f ".$CONFIG ) ;   
+open (CONFIGNAME,">>".$CONFIG) or die "Cannot open ".$CONFIG." to write the config file" ;
+
+#### writing the config file 
+
+print CONFIGNAME "process VBFplots = {\n";
+
+print CONFIGNAME "include \"Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi\"\n";
+print CONFIGNAME "include \"Geometry/CaloEventSetup/data/CaloGeometry.cfi\"\n";
+print CONFIGNAME "include \"SimGeneral/HepPDTESSource/data/pythiapdt.cfi\"\n";
+print CONFIGNAME "include \"PhysicsTools/HepMCCandAlgos/data/genCandidates.cfi\"\n";
+print CONFIGNAME "include \"PhysicsTools/HepMCCandAlgos/data/genParticleCandidatesFast.cfi\"\n";
+print CONFIGNAME "include \"PhysicsTools/RecoCandAlgos/data/allTracks.cfi\"\n";
+print CONFIGNAME "include \"Configuration/EventContent/data/EventContent.cff\"\n";
+print CONFIGNAME "include \"HiggsAnalysis/VBFHiggsToWW2e/data/allEleIds.cfi\"\n";
+
+print CONFIGNAME "include \"$DATASETPATH\"\n";
+
+print CONFIGNAME "untracked PSet maxEvents = {untracked int32 input = -1}\n";
+print CONFIGNAME "untracked PSet options = { untracked bool wantSummary = true }\n";
+
+print CONFIGNAME "  service = TFileService \n";
+print CONFIGNAME "    { \n";
+print CONFIGNAME "       string fileName = \"$OUTROOTHISTOS \"\n";
+print CONFIGNAME "    }\n";
+ 
+print CONFIGNAME "service = MessageLogger {}\n";
+
+print CONFIGNAME "module tagJets = VBFJetTagger\n";
+print CONFIGNAME "  {\n";
+print CONFIGNAME "    InputTag jetInputTag  = iterativeCone5CaloJets\n";
+print CONFIGNAME "    string tagJetsName = \"tagJets\"\n";
+print CONFIGNAME "    string otherJetsName = \"otherJets\"\n";
+print CONFIGNAME "    double jetEtaMax = 5\n";
+print CONFIGNAME "    double jetPtMin = 15 # GeV\n";
+print CONFIGNAME "    double gatherConeSize = 0.5\n";
+print CONFIGNAME "  }\n";
+
+print CONFIGNAME "module trivialReader = VBFplots\n";
+print CONFIGNAME "{\n";
+print CONFIGNAME "  InputTag jetTagsInputTag = tagJets:tagJets\n";
+print CONFIGNAME "  InputTag jetOthersInputTag = tagJets:otherJets\n";
+print CONFIGNAME "  InputTag GSFInputTag  = pixelMatchGsfElectrons\n";
+print CONFIGNAME"  InputTag eleIDInputTag  = electronId\n";
+print CONFIGNAME"  InputTag muInputTag = muons\n";
+print CONFIGNAME"  InputTag metInputTag = met\n";
+print CONFIGNAME "}\n";
+
+print CONFIGNAME "path reading = {tagJets & trivialReader}\n";
+
+print CONFIGNAME "}\n";
+
+
+################################################################################################
+
+################################################################################################
+################################################################################################
+
+$SCRIPT = "lancia_$SAMPLE.csh";
+system("rm -f ".$SCRIPT) ;
+open (SCRIPTNAME,">>".$SCRIPT) or die "Cannot open ".$SCRIPT." to write the config file" ;
+
+#### writing the config file
+
+print SCRIPTNAME "eval `scramv1 runtime -csh`\n";
+print SCRIPTNAME "cmsRun test/VBFplots.cfg\n";
+
+system ("qsub -q fastcms ".$SCRIPT);
