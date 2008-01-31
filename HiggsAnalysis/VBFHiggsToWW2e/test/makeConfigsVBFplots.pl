@@ -69,6 +69,6 @@ open (SCRIPTNAME,">>".$SCRIPT) or die "Cannot open ".$SCRIPT." to write the conf
 #### writing the config file
 
 print SCRIPTNAME "eval `scramv1 runtime -csh`\n";
-print SCRIPTNAME "cmsRun test/VBFplots.cfg\n";
+print SCRIPTNAME "cmsRun $CONFIG\n";
 
 system ("qsub -q fastcms ".$SCRIPT);
