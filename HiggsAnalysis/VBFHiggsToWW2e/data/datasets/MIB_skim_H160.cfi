@@ -25,9 +25,9 @@ source = PoolSource
       "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_21.root",
       "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_22.root",
       "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_23.root",
-      "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_24.root",
+      //"file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_24.root",
       "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_25.root",
-      "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_26.root"
-//      "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_27.root"
+      "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_26.root",
+      "file:/gwtera4/users/govoni/VBF/skims/H160/VBFskim_27.root"
     } 
 }
