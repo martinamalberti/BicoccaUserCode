@@ -1,8 +1,8 @@
 $SAMPLE = $ARGV[0] ;
-$OUTROOTHISTOS =  $SAMPLE."_histos.root" ;
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos.root" ;
 $DATASETPATH = $ARGV[1] ;
 
-$CONFIG = "VBFplots_".$SAMPLE.".cfg";
+$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_".$SAMPLE.".cfg";
 
 system("rm -f ".$CONFIG ) ;   
 open (CONFIGNAME,">>".$CONFIG) or die "Cannot open ".$CONFIG." to write the config file" ;
@@ -68,7 +68,9 @@ open (SCRIPTNAME,">>".$SCRIPT) or die "Cannot open ".$SCRIPT." to write the conf
 
 #### writing the config file
 
-print SCRIPTNAME "eval `scramv1 runtime -csh`\n";
+system("eval `scramv1 runtime -sh`");
+#print SCRIPTNAME "source /linux/newCms/slc4_ia32_gcc345/lcg/root/5.14.00f-CMS2/etc/profile.d/init.csh\n";
+#print SCRIPTNAME "eval `scramv1 runtime -csh`\n";
 print SCRIPTNAME "cmsRun $CONFIG\n";
 
-system ("qsub -q fastcms ".$SCRIPT);
+system ("qsub -V -q fastcms ".$SCRIPT);
