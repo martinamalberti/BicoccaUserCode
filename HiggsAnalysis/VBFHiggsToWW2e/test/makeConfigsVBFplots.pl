@@ -32,9 +32,18 @@ print CONFIGNAME "    }\n";
  
 print CONFIGNAME "service = MessageLogger {}\n";
 
+
+print CONFIGNAME "module jetUEPU = VBFJetEtaPtSelecting\n";
+print CONFIGNAME "{\n";
+print CONFIGNAME "    InputTag src  = iterativeCone5CaloJets\n";
+print CONFIGNAME "    double maxEta = 5\n";
+print CONFIGNAME "    double minPt = 15 # GeV\n";
+print CONFIGNAME "}\n";
+
+
 print CONFIGNAME "module tagJets = VBFJetTagger\n";
 print CONFIGNAME "  {\n";
-print CONFIGNAME "    InputTag jetInputTag  = iterativeCone5CaloJets\n";
+print CONFIGNAME "    InputTag jetInputTag  =  jetUEPU\n";
 print CONFIGNAME "    string tagJetsName = \"tagJets\"\n";
 print CONFIGNAME "    string otherJetsName = \"otherJets\"\n";
 print CONFIGNAME "    double jetEtaMax = 5\n";
@@ -52,7 +61,7 @@ print CONFIGNAME"  InputTag muInputTag = muons\n";
 print CONFIGNAME"  InputTag metInputTag = met\n";
 print CONFIGNAME "}\n";
 
-print CONFIGNAME "path reading = {tagJets & trivialReader}\n";
+print CONFIGNAME "path reading = {jetUEPU & tagJets & trivialReader}\n";
 
 print CONFIGNAME "}\n";
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFplots.h,v 1.2 2008/01/31 08:53:33 tancini Exp $
+// $Id: VBFplots.h,v 1.3 2008/01/31 13:27:27 tancini Exp $
 //
 //
 
@@ -112,6 +112,7 @@
 #include <TClonesArray.h>
 #include <TVector3.h>
 #include <TH1F.h>
+#include <TH2F.h>
 
 class VBFplots : public edm::EDAnalyzer {
 
@@ -141,6 +142,7 @@ class VBFplots : public edm::EDAnalyzer {
       edm::InputTag m_metInputTag ;
 
       TH1F *m_deltaEta;
+      TH1F *m_deltaPhi;
       TH1F *m_sumEta;
       TH1F *m_invMass;
       TH1F *m_eta;
@@ -155,6 +157,7 @@ class VBFplots : public edm::EDAnalyzer {
       TH1F *m_invMassOtherSummed;
       TH1F *m_deltaROthers;
       TH1F *m_deltaEtaOthers;
+      TH2F *m_etaSummedTagVsEtaSummedOthers;
 };
 
 #endif

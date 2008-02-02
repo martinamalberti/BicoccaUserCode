@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.4 2008/01/31 14:11:03 tancini Exp $
+// $Id: VBFplots.cc,v 1.5 2008/01/31 14:41:59 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -55,6 +55,7 @@ VBFplots::analyze (const edm::Event& iEvent,
 
   // Tag jets plots
   m_deltaEta -> Fill (fabs ((*jetTagsHandle)[0].p4 ().Eta () - (*jetTagsHandle)[1].p4 ().Eta ()) ) ;
+  m_deltaPhi -> Fill ( ((*jetTagsHandle)[0].p4 ().Phi () - (*jetTagsHandle)[1].p4 ().Phi ()) ) ;
   LorentzVector summedTags = (*jetTagsHandle)[0].p4 () + (*jetTagsHandle)[1].p4 ();
   m_sumEta -> Fill (summedTags.Eta ()) ;
   m_invMass -> Fill (summedTags.M ()) ;
@@ -93,6 +94,8 @@ VBFplots::analyze (const edm::Event& iEvent,
   m_energyOthersSummed -> Fill (summedOthers.E ()) ;
   m_ptOthersSummed -> Fill (summedOthers.Pt ()) ;
   m_invMassOtherSummed -> Fill (summedOthers.M ()) ;
+
+  m_etaSummedTagVsEtaSummedOthers -> Fill (summedTags.Eta (), summedOthers.Eta ()) ;
 }
 
 
@@ -104,25 +107,28 @@ VBFplots::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
 
-  m_deltaEta = fs->make<TH1F> ("m_deltaEtaTags","#Delta#eta between tag jets",100,0,10) ;
-  m_sumEta = fs->make<TH1F> ("m_sumEtaTags","#Sigma#eta of tag jets",100,-12,12) ;
-  m_invMass = fs->make<TH1F> ("m_invMassTags","invariant mass of tag jets",100, 0, 4500) ;
+  m_deltaEta = fs->make<TH1F> ("m_deltaEtaTags","#Delta#eta between tag jets",50,0,10) ;
+  m_deltaPhi = fs->make<TH1F> ("m_deltaPhiTags","#Delta#phi between tag jets",100,-6.3,6.3) ;
+  m_sumEta = fs->make<TH1F> ("m_sumEtaTags","#Sigma#eta of tag jets",50,-12,12) ;
+  m_invMass = fs->make<TH1F> ("m_invMassTags","invariant mass of tag jets",100, 0, 3500) ;
 
   m_eta = fs->make<TH1F> ("m_etaTags","#eta of tag jets",50,-6,6) ;
   m_energy = fs->make<TH1F> ("m_energyTags","energy of tag jets",100, 0, 1200) ;
   m_pt = fs->make<TH1F> ("m_ptTags","pt of tag jets",100, 0, 600) ;
 
-  m_etaOthers = fs->make<TH1F> ("m_etaOthers","#eta of tag jets",50,-6,6) ;
-  m_energyOthers = fs->make<TH1F> ("m_energyOthers","energy of tag jets",100, 0, 1200) ;
-  m_ptOthers = fs->make<TH1F> ("m_ptOthers","pt of tag jets",100, 0, 600) ;
+  m_etaOthers = fs->make<TH1F> ("m_etaOthers","#eta of other jets",50,-6,6) ;
+  m_energyOthers = fs->make<TH1F> ("m_energyOthers","energy of other jets",100, 0, 400) ;
+  m_ptOthers = fs->make<TH1F> ("m_ptOthers","pt of other jets",100, 0, 200) ;
 
-  m_deltaROthers = fs->make<TH1F> ("m_deltaROthers","#Delta#eta between tag jets and other jets",50,0,12) ;
+  m_deltaROthers = fs->make<TH1F> ("m_deltaROthers","#DeltaR between tag jets and other jets",50,0,12) ;
   m_deltaEtaOthers = fs->make<TH1F> ("m_deltaEtaOthers","#Delta#eta between tag jets and other jets",50,0,12) ;
 
   m_etaOthersSummed = fs->make<TH1F> ("m_etaOthersSummed","#eta of summed jets",50,-6,6) ;
-  m_energyOthersSummed = fs->make<TH1F> ("m_energyOthersSummed","energy of summed jets",100, 0, 1200) ;
+  m_energyOthersSummed = fs->make<TH1F> ("m_energyOthersSummed","energy of summed jets",100, 0, 4000) ;
   m_ptOthersSummed = fs->make<TH1F> ("m_ptOthersSummed","pt of summed jets",100, 0, 600) ;
   m_invMassOtherSummed = fs->make<TH1F> ("m_invMassOthersSummed","invariant mass of summed jets",100, 0, 4500) ;
+
+  m_etaSummedTagVsEtaSummedOthers  = fs->make<TH2F> ("m_etaSummedTagVsEtaSummedOthers", "#eta summed tags vs #eta summed other jetes", 50, -6, 6, 50, -6, 6) ;
 }
 
 
