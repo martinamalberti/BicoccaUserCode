@@ -65,6 +65,10 @@ DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
 typedef ObjectSelector<VBFJetCleaner> VBFJetCleaning ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaning) ;
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetEtaPtSelector.h"
+typedef ObjectSelector<VBFJetEtaPtSelector> VBFJetEtaPtSelecting ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetEtaPtSelecting) ;
+
 typedef ObjectSelector<
           VBFJetCleaner, 
           edm::RefVector<reco::CaloJetCollection> 
