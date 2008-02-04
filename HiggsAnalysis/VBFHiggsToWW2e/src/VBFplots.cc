@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.5 2008/01/31 14:41:59 tancini Exp $
+// $Id: VBFplots.cc,v 1.6 2008/02/02 11:46:29 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -18,7 +18,10 @@ VBFplots::VBFplots (const edm::ParameterSet& iConfig) :
   m_electronIDInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
   m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")) ,
   m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) 
-{}
+{
+  evAnalyzed = 0;
+  evWithTags = 0;
+}
 
 
 // --------------------------------------------------------------------
@@ -41,12 +44,16 @@ VBFplots::analyze (const edm::Event& iEvent,
                              const edm::EventSetup& iSetup)
 {
 
+  evAnalyzed++;
+  
   // Get the tag jets
   edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
   iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
 
   if (jetTagsHandle->size () < 2) return ;
   if ((*jetTagsHandle)[0].p4 () == (*jetTagsHandle)[1].p4 ()) return;
+
+  evWithTags++;
 
   // Get remaining jets
   edm::Handle<reco::CaloJetCollection> jetOthersHandle ;
@@ -138,5 +145,7 @@ VBFplots::beginJob (const edm::EventSetup&)
 void 
 VBFplots::endJob () 
 {
+  std::cout << "Analyzed events: " << evAnalyzed << std::endl;
+  std::cout << "Events with 2 tag jets after EUPU cuts " << evWithTags << std::endl;
 }
 

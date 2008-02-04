@@ -61,7 +61,32 @@ print CONFIGNAME"  InputTag muInputTag = muons\n";
 print CONFIGNAME"  InputTag metInputTag = met\n";
 print CONFIGNAME "}\n";
 
-print CONFIGNAME "path reading = {jetUEPU & tagJets & trivialReader}\n";
+
+if ($SAMPLE eq "WWF")
+{
+    print ("sample WWF\n") ;
+    print CONFIGNAME "module my_VBFMCProcessFilter = VBFMCProcessFilter\n";
+    print CONFIGNAME "{\n";
+    print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
+    print CONFIGNAME "}\n";
+    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & jetUEPU & tagJets & trivialReader}\n";
+}
+
+elsif ($SAMPLE eq "ggF")
+{
+    print ("sample ggF\n") ;
+    print CONFIGNAME "module my_VBFMCProcessFilter = VBFMCProcessFilter\n";
+    print CONFIGNAME "{\n";
+    print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
+    print CONFIGNAME "}\n";
+    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter & jetUEPU & tagJets & trivialReader}\n";
+} 
+
+else
+{
+    print ("sample other\n") ;
+    print CONFIGNAME "path reading = {jetUEPU & tagJets & trivialReader}\n";
+}
 
 print CONFIGNAME "}\n";
 
