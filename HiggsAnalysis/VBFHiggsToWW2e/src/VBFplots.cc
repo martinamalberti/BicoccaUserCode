@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.6 2008/02/02 11:46:29 tancini Exp $
+// $Id: VBFplots.cc,v 1.7 2008/02/04 11:31:10 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -19,8 +19,9 @@ VBFplots::VBFplots (const edm::ParameterSet& iConfig) :
   m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")) ,
   m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) 
 {
-  evAnalyzed = 0;
-  evWithTags = 0;
+  m_evAnalyzed = 0;
+  m_evWithTags = 0;
+  m_evWithOthers = 0;
 }
 
 
@@ -44,7 +45,7 @@ VBFplots::analyze (const edm::Event& iEvent,
                              const edm::EventSetup& iSetup)
 {
 
-  evAnalyzed++;
+  m_evAnalyzed++;
   
   // Get the tag jets
   edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
@@ -53,12 +54,14 @@ VBFplots::analyze (const edm::Event& iEvent,
   if (jetTagsHandle->size () < 2) return ;
   if ((*jetTagsHandle)[0].p4 () == (*jetTagsHandle)[1].p4 ()) return;
 
-  evWithTags++;
+  m_evWithTags++;
 
   // Get remaining jets
   edm::Handle<reco::CaloJetCollection> jetOthersHandle ;
   iEvent.getByLabel (m_jetOthersInputTag, jetOthersHandle) ;
 
+  if (jetOthersHandle->size () > 0) m_evWithOthers++;
+  m_numOthers -> Fill (jetOthersHandle->size () ) ;
 
   // Tag jets plots
   m_deltaEta -> Fill (fabs ((*jetTagsHandle)[0].p4 ().Eta () - (*jetTagsHandle)[1].p4 ().Eta ()) ) ;
@@ -123,6 +126,7 @@ VBFplots::beginJob (const edm::EventSetup&)
   m_energy = fs->make<TH1F> ("m_energyTags","energy of tag jets",100, 0, 1200) ;
   m_pt = fs->make<TH1F> ("m_ptTags","pt of tag jets",100, 0, 600) ;
 
+  m_numOthers = fs->make<TH1F> ("m_numOthers","# of other jets",15,0,15) ;
   m_etaOthers = fs->make<TH1F> ("m_etaOthers","#eta of other jets",50,-6,6) ;
   m_energyOthers = fs->make<TH1F> ("m_energyOthers","energy of other jets",100, 0, 400) ;
   m_ptOthers = fs->make<TH1F> ("m_ptOthers","pt of other jets",100, 0, 200) ;
@@ -145,7 +149,8 @@ VBFplots::beginJob (const edm::EventSetup&)
 void 
 VBFplots::endJob () 
 {
-  std::cout << "Analyzed events: " << evAnalyzed << std::endl;
-  std::cout << "Events with 2 tag jets after EUPU cuts " << evWithTags << std::endl;
+  std::cout << "Analyzed events: " << m_evAnalyzed << std::endl;
+  std::cout << "Events with 2 tag jets after EUPU cuts " << m_evWithTags << std::endl;
+  std::cout << "Events with other jets after EUPU cuts " << m_evWithOthers << std::endl;
 }
 

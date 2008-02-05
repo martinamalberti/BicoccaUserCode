@@ -1,0 +1,9 @@
+{ 
+  untracked vstring fileNames = 
+    {
+    "file:/gwtera4/users/govoni/VBF/skims/Zeej_120_170/VBFskim_1.root",
+    "file:/gwtera4/users/govoni/VBF/skims/Zeej_120_170/VBFskim_2.root",
+    "file:/gwtera4/users/govoni/VBF/skims/Zeej_120_170/VBFskim_3.root" 
+    }
+}
+

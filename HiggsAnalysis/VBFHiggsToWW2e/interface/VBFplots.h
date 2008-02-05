@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFplots.h,v 1.4 2008/02/02 11:46:29 tancini Exp $
+// $Id: VBFplots.h,v 1.5 2008/02/04 11:31:10 tancini Exp $
 //
 //
 
@@ -148,6 +148,7 @@ class VBFplots : public edm::EDAnalyzer {
       TH1F *m_eta;
       TH1F *m_energy;
       TH1F *m_pt;
+      TH1F *m_numOthers;
       TH1F *m_etaOthers;
       TH1F *m_energyOthers;
       TH1F *m_ptOthers;
@@ -159,8 +160,9 @@ class VBFplots : public edm::EDAnalyzer {
       TH1F *m_deltaEtaOthers;
       TH2F *m_etaSummedTagVsEtaSummedOthers;
 
-      int evAnalyzed ;
-      int evWithTags ;
+      int m_evAnalyzed ;
+      int m_evWithTags ;
+      int m_evWithOthers ;
 };
 
 #endif
