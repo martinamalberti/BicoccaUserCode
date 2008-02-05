@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFplots.h,v 1.6 2008/02/05 09:34:43 tancini Exp $
+// $Id: VBFplots.h,v 1.7 2008/02/05 13:59:49 tancini Exp $
 //
 //
 
@@ -93,7 +93,6 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -113,6 +112,7 @@
 #include <TVector3.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TNtuple.h>
 
 class VBFplots : public edm::EDAnalyzer {
 
@@ -162,6 +162,7 @@ class VBFplots : public edm::EDAnalyzer {
       TH1F *m_deltaROthers;
       TH1F *m_deltaEtaOthers;
       TH2F *m_etaSummedTagVsEtaSummedOthers;
+      TNtuple *m_ntuple;
 
       int m_evAnalyzed ;
       int m_evWithTags ;
