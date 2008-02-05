@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFplots.h,v 1.5 2008/02/04 11:31:10 tancini Exp $
+// $Id: VBFplots.h,v 1.6 2008/02/05 09:34:43 tancini Exp $
 //
 //
 
@@ -141,6 +141,9 @@ class VBFplots : public edm::EDAnalyzer {
       edm::InputTag m_muInputTag ;
       edm::InputTag m_metInputTag ;
 
+      TH1F *m_firstEnergyTagEnergy;
+      TH1F *m_secondEnergyTagEnergy;
+      TH2F *m_deltaPhiVsMinEnergyTag;
       TH1F *m_deltaEta;
       TH1F *m_deltaPhi;
       TH1F *m_sumEta;
