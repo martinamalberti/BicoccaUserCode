@@ -1,7 +1,0 @@
-source = PoolSource 
-{ 
-  untracked vstring fileNames = 
-    {
-    "file:/gwtera4/users/govoni/VBF/skims/VBFskim_1.root
-VBFskim_2.root
-VBFskim_3.root
