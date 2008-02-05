@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFUtils.h,v 1.1 2007/12/07 17:46:34 govoni Exp $
+// $Id: VBFUtils.h,v 1.2 2008/01/16 17:35:25 govoni Exp $
 //
 //
 // system include files
@@ -24,6 +24,7 @@ std::pair<VBFjetIt,VBFjetIt>
 findTagJets (VBFjetIt begin, VBFjetIt end,
              double jetPtMin, double jetEtaMax) ;
 
+double deltaPhi (double phi1, double phi2) ;
 
 #endif
 

@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.7 2008/02/04 11:31:10 tancini Exp $
+// $Id: VBFplots.cc,v 1.8 2008/02/05 09:34:42 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -10,6 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include <Math/VectorUtil.h>
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 
 VBFplots::VBFplots (const edm::ParameterSet& iConfig) :
   m_jetTagsInputTag (iConfig.getParameter<edm::InputTag> ("jetTagsInputTag")) ,
@@ -33,7 +34,6 @@ VBFplots::~VBFplots ()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -61,11 +61,24 @@ VBFplots::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_jetOthersInputTag, jetOthersHandle) ;
 
   if (jetOthersHandle->size () > 0) m_evWithOthers++;
-  m_numOthers -> Fill (jetOthersHandle->size () ) ;
 
-  // Tag jets plots
+  //////////////////// Tag jets plots
+  if (((*jetTagsHandle)[0].p4 ().E () ) > ((*jetTagsHandle)[1].p4 ().E () )) 
+    {
+      m_firstEnergyTagEnergy -> Fill (((*jetTagsHandle)[0].p4 ().E () )) ;
+      m_secondEnergyTagEnergy -> Fill (((*jetTagsHandle)[1].p4 ().E () )) ;
+      m_deltaPhiVsMinEnergyTag -> Fill (((*jetTagsHandle)[1].p4 ().E () ), deltaPhi((*jetTagsHandle)[0].p4 ().Phi (), (*jetTagsHandle)[1].p4 ().Phi ())) ;
+    }
+  else 
+    {
+      m_firstEnergyTagEnergy -> Fill (((*jetTagsHandle)[1].p4 ().E () )) ;
+      m_secondEnergyTagEnergy -> Fill (((*jetTagsHandle)[0].p4 ().E () )) ;
+      m_deltaPhiVsMinEnergyTag -> Fill (((*jetTagsHandle)[0].p4 ().E () ), deltaPhi((*jetTagsHandle)[0].p4 ().Phi (), (*jetTagsHandle)[1].p4 ().Phi ())) ;
+    }
+
   m_deltaEta -> Fill (fabs ((*jetTagsHandle)[0].p4 ().Eta () - (*jetTagsHandle)[1].p4 ().Eta ()) ) ;
-  m_deltaPhi -> Fill ( ((*jetTagsHandle)[0].p4 ().Phi () - (*jetTagsHandle)[1].p4 ().Phi ()) ) ;
+  m_deltaPhi -> Fill (deltaPhi ((*jetTagsHandle)[0].p4 ().Phi () , (*jetTagsHandle)[1].p4 ().Phi ()) ) ;
+
   LorentzVector summedTags = (*jetTagsHandle)[0].p4 () + (*jetTagsHandle)[1].p4 ();
   m_sumEta -> Fill (summedTags.Eta ()) ;
   m_invMass -> Fill (summedTags.M ()) ;
@@ -77,6 +90,8 @@ VBFplots::analyze (const edm::Event& iEvent,
   m_pt -> Fill ((*jetTagsHandle)[0].p4 ().Pt () );
   m_pt -> Fill ((*jetTagsHandle)[1].p4 ().Pt () );
 
+
+  m_numOthers -> Fill (jetOthersHandle->size () ) ;
   LorentzVector summedOthers (0.0, 0.0, 0.0, 0.0) ;
   // Other jets plots
   for (reco::CaloJetCollection::const_iterator jetIt = jetOthersHandle->begin () ; 
@@ -96,8 +111,6 @@ VBFplots::analyze (const edm::Event& iEvent,
       m_deltaEtaOthers -> Fill (fabs (jetIt->p4 ().Eta () - (*jetTagsHandle)[1].p4 ().Eta () ) ) ;
       summedOthers += (jetIt->p4 ());
 
-
-
     }
 
   m_etaOthersSummed -> Fill (summedOthers.Eta ()) ;
@@ -116,6 +129,10 @@ void
 VBFplots::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
+
+  m_firstEnergyTagEnergy = fs->make<TH1F> ("m_firstEnergyTagEnergy","energy of leading tag jets",100, 0, 1200) ;
+  m_secondEnergyTagEnergy = fs->make<TH1F> ("m_secondEnergyTagEnergy","energy of softer tag jets",100, 0, 1200) ;
+  m_deltaPhiVsMinEnergyTag = fs->make<TH2F> ("m_deltaPhiVsMinEnergyTag","#Delta#phi vs energy of softest tag jet",100, 0, 1200,100,-6.3,6.3) ;
 
   m_deltaEta = fs->make<TH1F> ("m_deltaEtaTags","#Delta#eta between tag jets",50,0,10) ;
   m_deltaPhi = fs->make<TH1F> ("m_deltaPhiTags","#Delta#phi between tag jets",100,-6.3,6.3) ;

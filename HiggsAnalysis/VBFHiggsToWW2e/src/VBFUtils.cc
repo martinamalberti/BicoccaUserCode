@@ -1,4 +1,4 @@
-// $Id: VBFUtils.cc,v 1.2 2008/01/16 17:35:25 govoni Exp $
+// $Id: VBFUtils.cc,v 1.3 2008/01/31 08:53:32 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 
@@ -53,4 +53,13 @@ findTagJets (VBFjetIt begin, VBFjetIt end,
     } //PG first loop over jets
 
   return tagJets ;
+}
+
+double deltaPhi (double phi1, double phi2)
+{
+
+  double deltaphi=fabs(phi1-phi2);
+  if (deltaphi > 6.283185308) deltaphi -= 6.283185308;
+  if (deltaphi > 3.141592654) deltaphi = 6.283185308-deltaphi;
+  return deltaphi;
 }
