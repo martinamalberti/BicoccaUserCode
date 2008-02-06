@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFElePlots.h,v 1.4 2008/02/02 11:46:29 tancini Exp $
+// $Id: VBFElePlots.h,v 1.1 2008/02/05 14:05:43 govoni Exp $
 //
 //
 
@@ -115,6 +115,7 @@
 #include <TVector3.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TNtuple.h>
 
 
 struct VBFeleHistos 
@@ -160,6 +161,7 @@ class VBFElePlots : public edm::EDAnalyzer
       edm::InputTag m_GSFInputTag ;
       edm::InputTag m_electronIDInputTag ;
 
+      TNtuple * m_ntuple ;
       VBFeleHistos m_GSFhistos ;
       VBFeleHistos m_eleIDhistos ;
 
