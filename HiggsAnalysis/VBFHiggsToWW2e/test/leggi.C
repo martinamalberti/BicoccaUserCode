@@ -4,9 +4,10 @@ int AddToList (TList * BkgFileList, const char * name) ;
 // ------------------------------------------------------------------------
 
 
-int leggi () 
+int leggi (TString signalName, TString backgroundsName) 
 {
-  TFile signal ("VBFElePlots_H160.root") ;
+//  TFile signal ("VBFElePlots_H160.root") ;
+  TFile signal (signalName) ;
 
   //PG find the folder
   //PG ---------------
@@ -44,7 +45,8 @@ int leggi ()
 //    std::cout << histosNameList[i] << std::endl ;
 
   BkgFileList = new TList () ;
-  AddToList (BkgFileList, "VBFElePlots_*bkg.root") ;
+//  AddToList (BkgFileList, "VBFElePlots_*bkg.root") ;
+  AddToList (BkgFileList, backgroundsName) ;
   int numOfBkg = BkgFileList->GetSize () ;
 
 //  TFile *first_source = (TFile*) BkgFileList->First(); 
