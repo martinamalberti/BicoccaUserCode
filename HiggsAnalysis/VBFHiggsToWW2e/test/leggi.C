@@ -44,7 +44,7 @@ int leggi ()
 //    std::cout << histosNameList[i] << std::endl ;
 
   BkgFileList = new TList () ;
-  AddToList (BkgFileList, "VBFElePlots_*.root") ;
+  AddToList (BkgFileList, "VBFElePlots_*bkg.root") ;
   int numOfBkg = BkgFileList->GetSize () ;
 
 //  TFile *first_source = (TFile*) BkgFileList->First(); 
