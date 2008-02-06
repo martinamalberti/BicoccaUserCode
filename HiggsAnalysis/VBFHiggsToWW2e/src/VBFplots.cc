@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.9 2008/02/05 13:08:52 tancini Exp $
+// $Id: VBFplots.cc,v 1.10 2008/02/05 16:27:01 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -81,8 +81,7 @@ VBFplots::analyze (const edm::Event& iEvent,
      t_PtMax = ((*jetTagsHandle)[0].p4 ().Pt () );
      t_PtMin = ((*jetTagsHandle)[1].p4 ().Pt () );
     }
-
-  if (((*jetTagsHandle)[0].p4 ().Pt () ) > ((*jetTagsHandle)[1].p4 ().Pt () ))
+  else 
     {
       t_PtMax = ((*jetTagsHandle)[1].p4 ().Pt () );
       t_PtMin = ((*jetTagsHandle)[0].p4 ().Pt () );
@@ -156,7 +155,7 @@ VBFplots::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
 
-  m_ntuple = fs->make <TNtuple> ("ntuple","Some variables","deltaEta:deltaPhi:mInv:Emax:Ptmax:PtMin:nJet15:nJet20:nJet30");
+  m_ntuple = fs->make <TNtuple> ("ntuple","Some variables","deltaEta:deltaPhi:mInv:Emax:Ptmax:Ptmin:nJet15:nJet20:nJet30");
 
   m_firstEnergyTagEnergy = fs->make<TH1F> ("m_firstEnergyTagEnergy","energy of leading tag jets",100, 0, 1200) ;
   m_secondEnergyTagEnergy = fs->make<TH1F> ("m_secondEnergyTagEnergy","energy of softer tag jets",100, 0, 1200) ;
