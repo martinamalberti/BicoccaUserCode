@@ -2,6 +2,12 @@
 perl makeConfigsVBFplots.pl WWF HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_H160.cfi
 perl makeConfigsVBFplots.pl ggF HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_H160.cfi
 
+#perl makeConfigsVBFplots.pl WWF HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_H120.cfi
+#perl makeConfigsVBFplots.pl ggF HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_H120.cfi
+
+#perl makeConfigsVBFplots.pl WWF HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_H140.cfi
+#perl makeConfigsVBFplots.pl ggF HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_H140.cfi
+
 perl makeConfigsVBFplots.pl Wt HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_Wt.cfi  
 
 perl makeConfigsVBFplots.pl WW HiggsAnalysis/VBFHiggsToWW2e/data/datasets/MIB_skim_WW.cfi
