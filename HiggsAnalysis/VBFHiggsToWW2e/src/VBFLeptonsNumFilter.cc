@@ -1,11 +1,6 @@
-// $Id: VBFLeptonsNumFilter.cc,v 1.2 2007/12/12 16:34:00 govoni Exp $
+// $Id: VBFLeptonsNumFilter.cc,v 1.3 2008/01/29 10:52:17 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptonsNumFilter.h"
-
-#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
-#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include <iostream>
 
@@ -41,11 +36,11 @@ bool
 VBFLeptonsNumFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //PG get the GSF electrons collection
-  edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle;
+  edm::Handle<electronCollection> GSFHandle;
   iEvent.getByLabel (m_GSFInputTag,GSFHandle); 
 
   //VT get the Global muons collection
-  edm::Handle<reco::MuonCollection> MuonHandle;
+  edm::Handle<muonCollection> MuonHandle;
   iEvent.getByLabel (m_muInputTag,MuonHandle); 
 
   edm::Handle<reco::ElectronIDAssociationCollection> eleIdHandle ;
@@ -56,23 +51,29 @@ VBFLeptonsNumFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
   int leptonsNum = 0 ;
   
   //PG loop over the electrons collection
-  for (reco::PixelMatchGsfElectronCollection::const_iterator ele = GSFHandle->begin () ; 
+  for (electronCollection::const_iterator ele = GSFHandle->begin () ; 
        ele != GSFHandle->end () ; 
        ++ele) 
     {
       if (fabs (ele->eta ()) > m_eleEtaMax || ele->pt () < m_elePtMin) continue ;
       if (m_useEleId)
         {
-          reco::PixelMatchGsfElectronRef ref (GSFHandle, ele - GSFHandle->begin ()) ;
-          reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr = 
-            eleIdHandle->find (ref) ;
-          if (electronIDAssocItr->val->cutBasedDecision () != 1) continue ;        
+//          reco::CandidateBaseRef ref = GSFHandle->refAt (ele - GSFHandle->begin ()) ;
+//          edm::RefToBase<reco::PixelMatchGsfElectron> ref = GSFHandle->refAt(ele - GSFHandle->begin ());
+//          reco::PixelMatchGsfElectronRef ref (GSFHandle, ele - GSFHandle->begin ()) ;
+//          reco::PixelMatchGsfElectronRef ref = GSFHandle->refAt (ele - GSFHandle->begin ()) ;
+//          reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr = 
+//            eleIdHandle->find (ref) ;
+//          reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr = 
+//            eleIdHandle->find (*ele) ;
+//          if (electronIDAssocItr->val->cutBasedDecision () != 1) continue ;        
+          std::cerr << "WARNING the electron ID option is disabled" << std::endl ;
         }
       ++leptonsNum ; 
     } //PG loop over the electrons collection
          
   //PG loop over the muons collection
-  for (reco::MuonCollection::const_iterator mu = MuonHandle->begin (); 
+  for (muonCollection::const_iterator mu = MuonHandle->begin (); 
        mu != MuonHandle->end (); 
        ++mu ) 
     {
