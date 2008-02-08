@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFLeptPlots.h,v 1.2 2008/02/06 17:57:45 govoni Exp $
+// $Id: VBFLeptPlots.h,v 1.1 2008/02/08 09:48:39 govoni Exp $
 //
 //
 
@@ -144,6 +144,8 @@ class VBFLeptPlots : public edm::EDAnalyzer
     
       typedef math::XYZTLorentzVector LorentzVector ;
       typedef std::vector<LorentzVector> LorentzVectorCollection ;
+      typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
+      typedef edm::View<reco::Muon> muonCollection ;
 
       //! ctor
       explicit VBFLeptPlots (const edm::ParameterSet&);
@@ -190,6 +192,7 @@ class VBFLeptPlots : public edm::EDAnalyzer
       TNtuple * m_ntuple ;
       VBFLeptHistos m_GSFhistos ;
       VBFLeptHistos m_MUhistos ;
+      VBFLeptHistos m_Xhistos ;
 
 } ;
 

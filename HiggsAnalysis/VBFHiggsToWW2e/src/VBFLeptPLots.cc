@@ -1,4 +1,4 @@
-// $Id: VBFLeptPlots.cc,v 1.6 2008/02/06 17:57:45 govoni Exp $
+// $Id: VBFLeptPLots.cc,v 1.1 2008/02/08 09:48:40 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptPlots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -41,85 +41,107 @@ VBFLeptPlots::analyze (const edm::Event& iEvent,
 {
 
   // Get the electrons
-  edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
+  edm::Handle<electronCollection> GSFHandle ;
   iEvent.getByLabel (m_GSFInputTag, GSFHandle) ;
-  if (GSFHandle->size () < 2) return ;
-  
+
+  //PG crea due iteratori per i due elettroni scelti
+  electronCollection::const_iterator firstEle ;
+  electronCollection::const_iterator secondEle ;
+  double firstEleMaxPt = 0 ;
+  double secondEleMaxPt = 0 ;
+
+  //PG switch for electrons
+  switch (GSFHandle->size ())
+    {
+      case 0 :
+        break ;
+      case 1 :
+        firstEleMaxPt == GSFHandle->begin ()->pt () ;
+        firstEle = GSFHandle->begin () ;
+        break ;
+      default :
+        //PG loop over electrons
+        for (electronCollection::const_iterator eleIt = 
+               GSFHandle->begin () ; 
+             eleIt != GSFHandle->end () ; 
+             ++eleIt) 
+          {
+            if (firstEleMaxPt < eleIt->pt ())
+              {
+                secondEleMaxPt = firstEleMaxPt ;
+                secondEle = firstEle ;
+                firstEleMaxPt = eleIt->pt () ;
+                firstEle = eleIt ;
+              }
+            else if (secondEleMaxPt < eleIt->pt ())
+              {
+                secondEleMaxPt = eleIt->pt () ;
+                secondEle = eleIt ;
+              }  
+          } //PG loop over electrons 
+    } //PG switch for electrons
+
+  if (firstEleMaxPt * secondEleMaxPt != 0)  
+    {
+      fillHistos (firstEle, secondEle, m_GSFhistos) ;
+      return ;
+    }
+
 /* PG FIXME
 
-  - togli il controllo sul numero di elettroni, metti il modulo
-    sul counting dei leptoni
-  - riempi le distro giuste in funzione del numero di oggetti che trova!
-  - plot per soli ele
-  - plot per soli mu
-  - plot per cross channel
-    - ne faccio due? 
-  - plot per tutti (?)
-  - quante ntuple faccio?
-  
-  - come faccio a salvare il massimo generico e il secondo
-    massimo generico, fra elettroni e muoni?
+  - per ora non basta, bisogna controllare nel caso in cui ci siano
+    tanti elettroni e tanti muoni
 
 */    
     
-  //PG crea due iteratori per i due elettroni scelti
-  reco::PixelMatchGsfElectronCollection::const_iterator firstEle ;
-  reco::PixelMatchGsfElectronCollection::const_iterator secondEle ;
-  double firstEleMaxPt = 0 ;
-  double secondEleMaxPt = 0 ;
-  
-  //PG loop over electrons
-  for (reco::PixelMatchGsfElectronCollection::const_iterator eleIt = GSFHandle->begin () ; 
-       eleIt != GSFHandle->end () ; 
-       ++eleIt) 
-    {
-      if (firstEleMaxPt < eleIt->pt ())
-        {
-          secondEleMaxPt = firstEleMaxPt ;
-          secondEle = firstEle ;
-          firstEleMaxPt = eleIt->pt () ;
-          firstEle = eleIt ;
-        }
-      else if (secondEleMaxPt < eleIt->pt ())
-        {
-          secondEleMaxPt = eleIt->pt () ;
-          secondEle = eleIt ;
-        }  
-    } //PG loop over electrons 
-
-  fillHistos (firstEle, secondEle, m_GSFhistos) ;
-
   //VT get the Global muons collection
-  edm::Handle<reco::MuonCollection> MuonHandle;
+  edm::Handle<muonCollection> MuonHandle;
   iEvent.getByLabel (m_muInputTag,MuonHandle); 
     
   //PG crea due iteratori per i due elettroni scelti
-  reco::MuonCollection::const_iterator firstMu ;
-  reco::MuonCollection::const_iterator secondMu ;
+  muonCollection::const_iterator firstMu ;
+  muonCollection::const_iterator secondMu ;
   double firstMuMaxPt = 0 ;
   double secondMuMaxPt = 0 ;
   
-  //PG loop over muons
-  for (reco::MuonCollection::const_iterator muIt = MuonHandle->begin () ; 
-       muIt != MuonHandle->end () ; 
-       ++muIt) 
+  //PG switch for muons
+  switch (MuonHandle->size ())
     {
-      if (firstMuMaxPt < muIt->pt ())
-        {
-          secondMuMaxPt = firstMuMaxPt ;
-          secondMu = firstMu ;
-          firstMuMaxPt = muIt->pt () ;
-          firstMu = muIt ;
-        }
-      else if (secondMuMaxPt < muIt->pt ())
-        {
-          secondMuMaxPt = muIt->pt () ;
-          secondMu = muIt ;
-        }  
-    } //PG loop over muons 
+      case 0 :
+        break ;
+      case 1 :
+        firstMuMaxPt == MuonHandle->begin ()->pt () ;
+        firstMu = MuonHandle->begin () ;
+        break ;
+      default :
+        //PG loop over muons
+        for (muonCollection::const_iterator muIt = MuonHandle->begin () ; 
+             muIt != MuonHandle->end () ; 
+             ++muIt) 
+          {
+            if (firstMuMaxPt < muIt->pt ())
+              {
+                secondMuMaxPt = firstMuMaxPt ;
+                secondMu = firstMu ;
+                firstMuMaxPt = muIt->pt () ;
+                firstMu = muIt ;
+              }
+            else if (secondMuMaxPt < muIt->pt ())
+              {
+                secondMuMaxPt = muIt->pt () ;
+                secondMu = muIt ;
+              }  
+          } //PG loop over muons 
+    } //PG switch for muons
+    
 
-  fillHistos (firstMu, secondMu, m_MUhistos) ;
+  if (firstMuMaxPt * secondMuMaxPt != 0)
+    {
+      fillHistos (firstMu, secondMu, m_MUhistos) ;
+      return ;
+    }
 
+  fillHistos (firstMu, firstEle, m_Xhistos) ;
 
 }
 
@@ -135,6 +157,7 @@ VBFLeptPlots::beginJob (const edm::EventSetup&)
                                 "deltaEta:deltaPhi:mInv:Ptmax:etaMax") ;
   m_GSFhistos.init ("GSF",fs) ;
   m_MUhistos.init ("MU",fs) ;
+  m_Xhistos.init ("X",fs) ;
 }
 
 
@@ -153,15 +176,15 @@ VBFLeptPlots::endJob ()
 void VBFLeptHistos::init (std::string tag, 
                          edm::Service<TFileService> & fs) 
 {
-  m_deltaEta   = fs->make<TH1F> (TString (tag.c_str ()) + "_deltaEta" ,"#Delta#eta between electrons",50,0,6) ;
-  m_deltaPhi   = fs->make<TH1F> (TString (tag.c_str ()) + "_deltaPhi" ,"#Delta#phi between electrons",50,0,3.15) ;
-  m_averageEta = fs->make<TH1F> (TString (tag.c_str ()) + "_averageEta" ,"average #eta of electrons",100,-3,3) ;
-  m_averagePhi = fs->make<TH1F> (TString (tag.c_str ()) + "_averagePhi" ,"average #phi of electrons",100,0,6.28) ;
-  m_invMass    = fs->make<TH1F> (TString (tag.c_str ()) + "_invMass" ,"M_{inv} of electrons",90,0,300) ;
-  m_eta        = fs->make<TH1F> (TString (tag.c_str ()) + "_eta" ,"#eta of electrons",100,-3,3) ;
-  m_phi        = fs->make<TH1F> (TString (tag.c_str ()) + "_phi" ,"#phi of electrons",100,-3.15,3.15) ;
-  m_pt         = fs->make<TH1F> (TString (tag.c_str ()) + "_pt" ,"p_{T} of electrons",100,0,500) ;
-  m_ptMax      = fs->make<TH1F> (TString (tag.c_str ()) + "_ptMax" ,"p_{T} of the max p_{T} electron",50,0,300) ;
-  m_ptMin      = fs->make<TH1F> (TString (tag.c_str ()) + "_ptMin" ,"p_{T} of the min p_{T} electron",50,0,300) ;
+  m_deltaEta   = fs->make<TH1F> (TString (tag.c_str ()) + "_deltaEta" ,"#Delta#eta between leptons",50,0,6) ;
+  m_deltaPhi   = fs->make<TH1F> (TString (tag.c_str ()) + "_deltaPhi" ,"#Delta#phi between leptons",50,0,3.15) ;
+  m_averageEta = fs->make<TH1F> (TString (tag.c_str ()) + "_averageEta" ,"average #eta of leptons",100,-3,3) ;
+  m_averagePhi = fs->make<TH1F> (TString (tag.c_str ()) + "_averagePhi" ,"average #phi of leptons",100,0,6.28) ;
+  m_invMass    = fs->make<TH1F> (TString (tag.c_str ()) + "_invMass" ,"M_{inv} of leptons",90,0,300) ;
+  m_eta        = fs->make<TH1F> (TString (tag.c_str ()) + "_eta" ,"#eta of leptons",100,-3,3) ;
+  m_phi        = fs->make<TH1F> (TString (tag.c_str ()) + "_phi" ,"#phi of leptons",100,-3.15,3.15) ;
+  m_pt         = fs->make<TH1F> (TString (tag.c_str ()) + "_pt" ,"p_{T} of leptons",100,0,500) ;
+  m_ptMax      = fs->make<TH1F> (TString (tag.c_str ()) + "_ptMax" ,"p_{T} of the max p_{T} lepton",50,0,300) ;
+  m_ptMin      = fs->make<TH1F> (TString (tag.c_str ()) + "_ptMin" ,"p_{T} of the min p_{T} lepton",50,0,300) ;
 }                         
 
