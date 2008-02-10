@@ -87,6 +87,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFplots) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElePlots.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFElePlots) ; 
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleSelectionsStudy.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFEleSelectionsStudy) ; 
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptPlots.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFLeptPlots) ; 
 
