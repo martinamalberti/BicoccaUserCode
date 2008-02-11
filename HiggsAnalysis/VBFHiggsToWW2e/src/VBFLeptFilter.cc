@@ -58,17 +58,22 @@ VBFLeptFilter::filter (edm::Event& iEvent,
   muonCollection::const_iterator secondMu ;
   findLeptons (firstMu, secondMu, MuonHandle) ;
 
-  std::vector <const reco::Particle *> leptons ;
-  if (firstEle != EleHandle->end ()) leptons.push_back (&*firstEle) ;
-  if (secondEle != EleHandle->end ()) leptons.push_back (&*secondEle) ;
-  if (firstMu != MuonHandle->end ()) leptons.push_back (&*firstMu) ;
-  if (secondMu != MuonHandle->end ()) leptons.push_back (&*secondMu) ;
+  std::vector <std::pair<int, const reco::Particle *> > leptons ;
+  leptons.reserve (EleHandle->size () + MuonHandle->size ()) ;
+  if (firstEle != EleHandle->end ()) leptons.push_back (
+    std::pair<int, const reco::Particle *> (1,&*firstEle)) ;
+  if (secondEle != EleHandle->end ()) leptons.push_back (
+    std::pair<int, const reco::Particle *> (1,&*secondEle)) ;
+  if (firstMu != MuonHandle->end ()) leptons.push_back (
+    std::pair<int, const reco::Particle *> (2,&*firstMu)) ;
+  if (secondMu != MuonHandle->end ()) leptons.push_back (
+    std::pair<int, const reco::Particle *> (2,&*secondMu)) ;
 
   if (leptons.size () < 2) return false ;
   sort (leptons.begin (), leptons.end (), PtSorting ()) ;
 
-  double invMass = (leptons[0]->p4 () + leptons[1]->p4 ()).M () ;
-  double deltaphi = deltaPhi (leptons[0]->phi (), leptons[1]->phi ()) ;
+  double invMass = (leptons[0].second->p4 () + leptons[1].second->p4 ()).M () ;
+  double deltaphi = deltaPhi (leptons[0].second->phi (), leptons[1].second->phi ()) ;
 
   return true ;
 

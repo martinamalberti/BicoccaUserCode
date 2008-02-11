@@ -189,11 +189,13 @@ class VBFLeptFilter : public edm::EDFilter
 
 
 struct PtSorting : public 
-   std::binary_function<const reco::Particle *, const reco::Particle *, bool> 
+   std::binary_function< std::pair<int, const reco::Particle *>, 
+                         std::pair<int, const reco::Particle *>, bool> 
   {
-    bool operator() (const reco::Particle * lept1, const reco::Particle * lept2) 
+    bool operator() (const std::pair<int, const reco::Particle *> & lept1, 
+                     const std::pair<int, const reco::Particle *> & lept2) 
       { 
-        return lept1->pt () < lept2->pt () ;
+        return lept1.second->pt () < lept2.second->pt () ;
       }
     };
       
