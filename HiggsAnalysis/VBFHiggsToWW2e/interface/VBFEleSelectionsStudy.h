@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleSelectionsStudy.h,v 1.2 2008/02/08 13:35:16 govoni Exp $
+// $Id: VBFEleSelectionsStudy.h,v 1.1 2008/02/10 18:13:00 govoni Exp $
 //
 //
 
@@ -143,8 +143,8 @@ class VBFEleSelectionsStudy : public edm::EDAnalyzer
         electronCollection::const_iterator & secondEle) ;
       void findFirstTwoMC (
         edm::Handle<reco::CandidateCollection> & EleHandle ,
-        const reco::Candidate * firstEle ,
-        const reco::Candidate * secondEle) ;
+        const reco::Candidate ** firstEle ,
+        const reco::Candidate ** secondEle) ;
 
    private:
 

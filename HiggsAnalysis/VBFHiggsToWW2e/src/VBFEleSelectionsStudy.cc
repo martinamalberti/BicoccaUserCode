@@ -48,10 +48,10 @@ VBFEleSelectionsStudy::analyze (const edm::Event& iEvent,
   edm::Handle<reco::CandidateCollection> genParticles ;
   iEvent.getByLabel (m_MCtruthInputTag, genParticles) ;
 
-  const reco::Candidate * firstEle ;
-  const reco::Candidate * secondEle ;
+  const reco::Candidate * firstMCEle ;
+  const reco::Candidate * secondMCEle ;
 
-  findFirstTwoMC (genParticles, firstEle, secondEle) ;
+  findFirstTwoMC (genParticles, &firstMCEle, &secondMCEle) ;
 
   // Get the electrons
   edm::Handle<electronCollection> GSFHandle ;
@@ -66,18 +66,22 @@ VBFEleSelectionsStudy::analyze (const edm::Event& iEvent,
   electronCollection::const_iterator secondGSFEle ;
   findFirstTwo (GSFHandle, firstGSFEle, secondGSFEle) ;
   //PG if not enough electrons
-  if (firstGSFEle == secondGSFEle)  return ; 
+  if (firstGSFEle == secondGSFEle) return ; 
 
   electronCollection::const_iterator firstAREle ;
   electronCollection::const_iterator secondAREle ;
   findFirstTwo (ARHandle, firstAREle, secondAREle) ;
   //PG if not enough electrons
-  if (firstAREle == secondAREle)  return ; 
+  if (firstAREle == secondAREle) return ; 
 
-  m_deltaEta->Fill (firstAREle->eta () - firstGSFEle->eta ()) ;
-  m_deltaEta->Fill (secondAREle->eta () - secondGSFEle->eta ()) ;
-  m_deltaPhi->Fill (deltaPhi (firstAREle->phi (), firstGSFEle->phi ())) ;
-  m_deltaPhi->Fill (deltaPhi (secondAREle->phi (), secondGSFEle->phi ())) ;
+//  m_deltaEta->Fill (firstAREle->eta () - firstGSFEle->eta ()) ;
+//  m_deltaEta->Fill (secondAREle->eta () - secondGSFEle->eta ()) ;
+//  m_deltaPhi->Fill (deltaPhi (firstAREle->phi (), firstGSFEle->phi ())) ;
+//  m_deltaPhi->Fill (deltaPhi (secondAREle->phi (), secondGSFEle->phi ())) ;
+  m_deltaEta->Fill (firstAREle->eta () - firstMCEle->eta ()) ;
+  m_deltaEta->Fill (secondAREle->eta () - secondMCEle->eta ()) ;
+  m_deltaPhi->Fill (deltaPhi (firstAREle->phi (), firstMCEle->phi ())) ;
+  m_deltaPhi->Fill (deltaPhi (secondAREle->phi (), secondMCEle->phi ())) ;
     
 }
 
@@ -135,8 +139,8 @@ VBFEleSelectionsStudy::findFirstTwo (
 void 
 VBFEleSelectionsStudy::findFirstTwoMC (
   edm::Handle<reco::CandidateCollection> & EleHandle ,
-  const reco::Candidate * firstEle ,
-  const reco::Candidate * secondEle) 
+  const reco::Candidate ** firstEle ,
+  const reco::Candidate ** secondEle) 
 {
   double firstEleMaxPt = 0 ;
   double secondEleMaxPt = 0 ;
@@ -158,22 +162,22 @@ VBFEleSelectionsStudy::findFirstTwoMC (
                 if (firstEleMaxPt < particle->daughter (i)->pt ())
                   {
                     secondEleMaxPt = firstEleMaxPt ;
-                    secondEle = firstEle ;
+                    *secondEle = *firstEle ;
                     firstEleMaxPt = particle->daughter (i)->pt () ;
-                    firstEle = particle->daughter (i) ;
+                    *firstEle = particle->daughter (i) ;
+                    std::cerr << "[PIETRO] new first " << firstEle << std::endl ;
                   }
                 else if (secondEleMaxPt < particle->daughter (i)->pt ())
                   {
                     secondEleMaxPt = particle->daughter (i)->pt () ;
-                    secondEle = particle->daughter (i) ;
+                    *secondEle = particle->daughter (i) ;
+                    std::cerr << "[PIETRO] new second " << secondEle << std::endl ;
                   } 
               } //W+-
           }
      } //PG loop over generated particles
 
-
-
-
+  return ;
 }
 
 // --------------------------------------------------------------------
@@ -184,8 +188,8 @@ VBFEleSelectionsStudy::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
   m_ARvsGSF = fs->make<TH2F> ("m_ARvsGSF","ambiguity resolved vs GSF",6,0,6,6,0,6) ;
-  m_deltaEta = fs->make<TH1F> ("m_deltaEta","#eta_{res} - #eta_{GSF}",100,-1,1) ;
-  m_deltaPhi = fs->make<TH1F> ("m_deltaPhi","#phi_{res} - #phi_{GSF}",100,0,1) ;
+  m_deltaEta = fs->make<TH1F> ("m_deltaEta","#eta_{res} - #eta_{GSF}",200,-0.1,0.1) ;
+  m_deltaPhi = fs->make<TH1F> ("m_deltaPhi","#phi_{res} - #phi_{GSF}",200,0,0.1) ;
 }
 
 
