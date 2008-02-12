@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFLeptFilter.h,v 1.2 2008/02/08 13:35:16 govoni Exp $
+// $Id: VBFLeptFilter.h,v 1.2 2008/02/11 18:53:53 govoni Exp $
 //
 //
 
@@ -181,6 +181,9 @@ class VBFLeptFilter : public edm::EDFilter
 
       edm::InputTag m_GSFInputTag ;
       edm::InputTag m_muInputTag ;
+      double m_invMassMin ;
+      double m_invMassMax ;
+      double m_deltaPhiMax ;
 
 } ;
 

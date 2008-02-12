@@ -1,4 +1,4 @@
-// $Id: VBFLeptPLots.cc,v 1.2 2008/02/08 13:35:16 govoni Exp $
+// $Id: VBFLeptFilter.cc,v 1.2 2008/02/11 18:53:54 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptFilter.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -16,7 +16,10 @@
 
 VBFLeptFilter::VBFLeptFilter (const edm::ParameterSet& iConfig) :
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
-  m_muInputTag (iConfig.getParameter<edm::InputTag> ("muonsInputTag"))
+  m_muInputTag (iConfig.getParameter<edm::InputTag> ("muonsInputTag")) ,
+  m_invMassMin (iConfig.getParameter<double> ("invMassMin")) ,
+  m_invMassMax (iConfig.getParameter<double> ("invMassMax")) ,
+  m_deltaPhiMax (iConfig.getParameter<double> ("deltaPhiMax"))
 {}
 
 
@@ -70,10 +73,16 @@ VBFLeptFilter::filter (edm::Event& iEvent,
     std::pair<int, const reco::Particle *> (2,&*secondMu)) ;
 
   if (leptons.size () < 2) return false ;
+
   sort (leptons.begin (), leptons.end (), PtSorting ()) ;
 
-  double invMass = (leptons[0].second->p4 () + leptons[1].second->p4 ()).M () ;
+  if (leptons[0].first = leptons[1].first)
+    {
+      double invMass = (leptons[0].second->p4 () + leptons[1].second->p4 ()).M () ;
+      if (invMass < m_invMassMin || invMass > m_invMassMax) return false ;
+    }
   double deltaphi = deltaPhi (leptons[0].second->phi (), leptons[1].second->phi ()) ;
+  if (deltaphi > m_deltaPhiMax) return false ;
 
   return true ;
 
