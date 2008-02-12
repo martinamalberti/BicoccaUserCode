@@ -11,6 +11,8 @@
     untracked PSet finalReport = 
       { 
         untracked PSet INFO = { untracked int32 limit = 0 }
+        untracked PSet WARNING = { untracked int32 limit = 0 }
+        untracked PSet ERROR = { untracked int32 limit = 0 }
         untracked PSet FwkSummary = { untracked int32 limit = 10000000 }
       }
 
