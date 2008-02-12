@@ -1,4 +1,4 @@
-// $Id: VBFMCProcessFilter.cc,v 1.3 2007/11/17 16:14:24 tancini Exp $
+// $Id: VBFMCProcessFilter.cc,v 1.4 2007/12/07 14:09:16 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFMCProcessFilter.h"
 
@@ -34,7 +34,7 @@ VBFMCProcessFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int processID = Evt->signal_process_id() ;
   if (processID == 123 || processID == 124) return true ;
-
+  //if (processID == 102) return true ;
   return false ;
 
 }

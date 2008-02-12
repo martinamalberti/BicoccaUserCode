@@ -36,5 +36,5 @@ print SCRIPTNAME "cmsRun ".$DIR."/".$CFGFILE."\n";
 
 #system ("crab -create -submit -cfg ".$CRABFILE."\n") ;
 #system ("eval `scramv1 runtime -sh`");
-print ("qsub -V -q shortcms ".$SCRIPT."...\n");
-system ("qsub -V -q shortcms ".$SCRIPT."\n");
+print ("qsub -V -q fastcms ".$SCRIPT."...\n");
+system ("qsub -V -q fastcms ".$SCRIPT."\n");

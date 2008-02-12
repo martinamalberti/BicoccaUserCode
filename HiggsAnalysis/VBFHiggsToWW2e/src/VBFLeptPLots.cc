@@ -1,4 +1,4 @@
-// $Id: VBFLeptPLots.cc,v 1.1 2008/02/08 09:48:40 govoni Exp $
+// $Id: VBFLeptPLots.cc,v 1.2 2008/02/08 13:35:16 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptPlots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -84,6 +84,15 @@ VBFLeptPlots::analyze (const edm::Event& iEvent,
   if (firstEleMaxPt * secondEleMaxPt != 0)  
     {
       fillHistos (firstEle, secondEle, m_GSFhistos) ;
+      LorentzVector sum = firstEle->p4 () + secondEle->p4 () ;
+      m_ntuple->Fill (
+                      fabs (firstEle->eta () - secondEle->eta ()),
+                      deltaPhi (firstEle->phi (), secondEle->phi ()),
+	              sum.M (),
+	              firstEle->pt (),
+                      firstEle->eta (),
+                      2
+	              );
       return ;
     }
 
@@ -138,10 +147,39 @@ VBFLeptPlots::analyze (const edm::Event& iEvent,
   if (firstMuMaxPt * secondMuMaxPt != 0)
     {
       fillHistos (firstMu, secondMu, m_MUhistos) ;
+      LorentzVector sum = firstMu->p4 () + secondMu->p4 () ;
+      m_ntuple->Fill (
+		      fabs (firstMu->eta () - secondMu->eta ()),
+		      deltaPhi (firstMu->phi (), secondMu->phi ()),
+		      sum.M (),
+		      firstMu->pt (),
+		      firstMu->eta (),
+	              1//mumu
+		      ) ;
       return ;
     }
 
   fillHistos (firstMu, firstEle, m_Xhistos) ;
+  LorentzVector sum = firstMu->p4 () + firstEle->p4 () ;
+  double ptM=-1,etaM=8;
+  if (firstMu->pt() > firstEle->pt()) 
+  {
+   ptM = firstMu->pt () ;
+   etaM = firstMu->eta ();
+  }
+  else
+  {
+   ptM = firstEle->pt () ;
+   etaM = firstEle->eta ();
+  }
+  m_ntuple->Fill (
+  fabs (firstMu->eta () - firstEle->eta ()),
+  deltaPhi (firstMu->phi (), firstEle->phi ()),
+  sum.M (),
+  ptM,
+  etaM,
+  3//emu
+  ) ;
 
 }
 
@@ -153,8 +191,7 @@ void
 VBFLeptPlots::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
-  m_ntuple = fs->make <TNtuple> ("ntuple","Some variables",
-                                "deltaEta:deltaPhi:mInv:Ptmax:etaMax") ;
+  m_ntuple = fs->make <TNtuple> ("ntuple","Some variables","deltaEta:deltaPhi:mInv:Ptmax:etaMax:sample") ;
   m_GSFhistos.init ("GSF",fs) ;
   m_MUhistos.init ("MU",fs) ;
   m_Xhistos.init ("X",fs) ;

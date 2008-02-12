@@ -1,4 +1,4 @@
-// $Id: VBFLeptonsNumFilter.cc,v 1.4 2008/02/08 18:04:54 govoni Exp $
+// $Id: VBFLeptonsNumFilter.cc,v 1.5 2008/02/12 10:48:53 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptonsNumFilter.h"
 
@@ -10,7 +10,7 @@ VBFLeptonsNumFilter::VBFLeptonsNumFilter (const edm::ParameterSet& iConfig) :
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
   m_muInputTag (iConfig.getParameter<edm::InputTag> ("muInputTag")) ,
   m_useEleId (iConfig.getParameter<bool> ("useEleId")) ,
-  m_eleIdInputTag (iConfig.getUntrackedParameter<edm::InputTag> ("eleIDInputTag")) ,
+  m_eleIdInputTag (iConfig.getParameter<edm::InputTag> ("eleIDInputTag")) ,
   m_minLeptonsNum (iConfig.getParameter<int> ("minLeptonsNum")) ,
   m_maxLeptonsNum (iConfig.getParameter<int> ("maxLeptonsNum")) ,
   m_eleEtaMax (iConfig.getParameter<double> ("eleEtaMax")) , 
