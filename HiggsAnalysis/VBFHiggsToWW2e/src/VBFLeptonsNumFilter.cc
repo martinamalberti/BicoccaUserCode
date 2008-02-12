@@ -1,4 +1,4 @@
-// $Id: VBFLeptonsNumFilter.cc,v 1.3 2008/01/29 10:52:17 govoni Exp $
+// $Id: VBFLeptonsNumFilter.cc,v 1.4 2008/02/08 18:04:54 govoni Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptonsNumFilter.h"
 
@@ -58,16 +58,14 @@ VBFLeptonsNumFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (fabs (ele->eta ()) > m_eleEtaMax || ele->pt () < m_elePtMin) continue ;
       if (m_useEleId)
         {
-//          reco::CandidateBaseRef ref = GSFHandle->refAt (ele - GSFHandle->begin ()) ;
-//          edm::RefToBase<reco::PixelMatchGsfElectron> ref = GSFHandle->refAt(ele - GSFHandle->begin ());
-//          reco::PixelMatchGsfElectronRef ref (GSFHandle, ele - GSFHandle->begin ()) ;
-//          reco::PixelMatchGsfElectronRef ref = GSFHandle->refAt (ele - GSFHandle->begin ()) ;
-//          reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr = 
-//            eleIdHandle->find (ref) ;
-//          reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr = 
-//            eleIdHandle->find (*ele) ;
-//          if (electronIDAssocItr->val->cutBasedDecision () != 1) continue ;        
-          std::cerr << "WARNING the electron ID option is disabled" << std::endl ;
+          edm::RefToBase<reco::PixelMatchGsfElectron> eRef = GSFHandle->refAt (ele - GSFHandle->begin ()) ;
+          reco::PixelMatchGsfElectronRef ref =
+            eRef.castTo<reco::PixelMatchGsfElectronRef> () ;
+          reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr = 
+            eleIdHandle->find (ref) ;
+          if (electronIDAssocItr != eleIdHandle->end () && 
+              electronIDAssocItr->val->cutBasedDecision () != 1) continue ;        
+//          std::cerr << "WARNING the electron ID option is disabled" << std::endl ;
         }
       ++leptonsNum ; 
     } //PG loop over the electrons collection
