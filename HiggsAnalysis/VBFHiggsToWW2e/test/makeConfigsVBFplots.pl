@@ -1,5 +1,5 @@
 $SAMPLE = $ARGV[0] ;
-$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos.root" ;
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_jetCleaned_histos.root" ;
 $DATASETPATH = $ARGV[1] ;
 
 $CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_".$SAMPLE.".cfg";
@@ -33,9 +33,20 @@ print CONFIGNAME "    }\n";
 print CONFIGNAME "service = MessageLogger {}\n";
 
 
+# ---- VBFJetCleaner --------------------------------------
+
+print CONFIGNAME "module jetCleaner = VBFJetCleaning\n";
+print CONFIGNAME "{\n";
+print CONFIGNAME "InputTag src  = iterativeCone5CaloJets\n";
+print CONFIGNAME "InputTag GSFInputTag = refResolver\n";
+print CONFIGNAME "double maxDeltaR = 0.3\n";
+print CONFIGNAME "double minEleOJetEratio = 0.9\n"; 
+print CONFIGNAME "}\n";
+
+
 print CONFIGNAME "module jetUEPU = VBFJetEtaPtSelecting\n";
 print CONFIGNAME "{\n";
-print CONFIGNAME "    InputTag src  = iterativeCone5CaloJets\n";
+print CONFIGNAME "    InputTag src  = jetCleaner\n";
 print CONFIGNAME "    double maxEta = 5\n";
 print CONFIGNAME "    double minPt = 15 # GeV\n";
 print CONFIGNAME "}\n";
@@ -56,9 +67,9 @@ print CONFIGNAME "{\n";
 print CONFIGNAME "  InputTag jetTagsInputTag = tagJets:tagJets\n";
 print CONFIGNAME "  InputTag jetOthersInputTag = tagJets:otherJets\n";
 print CONFIGNAME "  InputTag GSFInputTag  = pixelMatchGsfElectrons\n";
-print CONFIGNAME"  InputTag eleIDInputTag  = electronId\n";
-print CONFIGNAME"  InputTag muInputTag = muons\n";
-print CONFIGNAME"  InputTag metInputTag = met\n";
+print CONFIGNAME "  InputTag eleIDInputTag  = electronId\n";
+print CONFIGNAME "  InputTag muInputTag = muons\n";
+print CONFIGNAME "  InputTag metInputTag = met\n";
 print CONFIGNAME "}\n";
 
 
@@ -69,7 +80,7 @@ if ($SAMPLE eq "WWF")
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
-    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & jetUEPU & tagJets & trivialReader}\n";
+    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
 }
 
 elsif ($SAMPLE eq "ggF")
@@ -79,13 +90,13 @@ elsif ($SAMPLE eq "ggF")
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
-    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter & jetUEPU & tagJets & trivialReader}\n";
+    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
 } 
 
 else
 {
     print ("sample other\n") ;
-    print CONFIGNAME "path reading = {jetUEPU & tagJets & trivialReader}\n";
+    print CONFIGNAME "path reading = {jetCleaner & jetUEPU & tagJets & trivialReader}\n";
 }
 
 print CONFIGNAME "}\n";
