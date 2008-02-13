@@ -38,9 +38,9 @@ print CONFIGNAME "service = MessageLogger {}\n";
 print CONFIGNAME "module jetCleaner = VBFJetCleaning\n";
 print CONFIGNAME "{\n";
 print CONFIGNAME "InputTag src  = iterativeCone5CaloJets\n";
-print CONFIGNAME "InputTag GSFInputTag = refResolver\n";
+print CONFIGNAME "InputTag GSFInputTag = pixelMatchGsfElectrons\n";
 print CONFIGNAME "double maxDeltaR = 0.3\n";
-print CONFIGNAME "double minEleOJetEratio = 0.9\n"; 
+print CONFIGNAME "double minEleOJetEratio = 0\n"; 
 print CONFIGNAME "}\n";
 
 
