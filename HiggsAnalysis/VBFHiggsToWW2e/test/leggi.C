@@ -68,14 +68,17 @@ int leggi (TString signalName, TString backgroundsName)
       std::string histoName = std::string (histosFolder->GetName ()) + "/" + histosNameList[i] ;
 //      std::cout << "PIPPA " << histoName << std::endl ;
       TH1F * h_signal = (TH1F *) signal.Get (histoName.c_str ()) ; 
-      h_signal->SetFillColor (15) ;
+      h_signal->SetLineColor (1) ;
+      h_signal->SetLineWidth (2) ;
+      h_signal->SetFillStyle (3002) ;
+      h_signal->SetFillColor (1) ;
       h_signal->Scale (1./h_signal->Integral ()) ;
       //PG bkg
       TH1F ** h_bkg = new TH1F* [numOfBkg] ;
       TFile * first_bkg = (TFile *) BkgFileList->First () ;
       h_bkg[0] = (TH1F *) first_bkg->Get (histoName.c_str ()) ;
       h_bkg[0]->Scale (1./h_bkg[0]->Integral ()) ;
-      h_bkg[0]->SetLineColor (29) ;
+      h_bkg[0]->SetLineColor (50) ;
       h_bkg[0]->SetLineWidth (2) ;
 
       if (doLegend)
@@ -96,7 +99,7 @@ int leggi (TString signalName, TString backgroundsName)
           std::cout << "reading : " << it << " " << next_bkg->GetName() << std::endl ;
           h_bkg[it] = (TH1F *) next_bkg->Get (histoName.c_str ()) ;
           h_bkg[it]->Scale (1./h_bkg[it]->Integral ()) ;
-          h_bkg[it]->SetLineColor (29 + 5 * it) ;
+          h_bkg[it]->SetLineColor (2 + it) ;
           h_bkg[it]->SetLineWidth (2) ;
           if (doLegend)
             {
