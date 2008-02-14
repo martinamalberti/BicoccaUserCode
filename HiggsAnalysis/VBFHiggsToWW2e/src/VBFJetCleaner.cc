@@ -1,5 +1,4 @@
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetCleaner.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -36,7 +35,7 @@ VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandl
   m_selected.clear () ;
 
   //PG get the GSF electrons collection
-  edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
+  edm::Handle<electronCollection> GSFHandle; 
   iEvent.getByLabel (m_GSFInputTag,GSFHandle) ; 
 
   //PG loop over jets
@@ -45,8 +44,8 @@ VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandl
        ++jetIt)
     {
       bool discard = false ;
-      //PG loop over electrons
-      for (reco::PixelMatchGsfElectronCollection::const_iterator eleIt = GSFHandle->begin () ;
+      //PG loop over electronixs
+      for (electronCollection::const_iterator eleIt = GSFHandle->begin () ;
            eleIt != GSFHandle->end () ;
            ++eleIt)
         {
