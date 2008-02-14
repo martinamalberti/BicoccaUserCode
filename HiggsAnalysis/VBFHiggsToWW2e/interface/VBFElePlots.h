@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFElePlots.h,v 1.1 2008/02/05 14:05:43 govoni Exp $
+// $Id: VBFElePlots.h,v 1.2 2008/02/06 17:57:45 govoni Exp $
 //
 //
 
@@ -144,6 +144,8 @@ class VBFElePlots : public edm::EDAnalyzer
     
       typedef math::XYZTLorentzVector LorentzVector ;
       typedef std::vector<LorentzVector> LorentzVectorCollection ;
+      typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
+      typedef edm::View<reco::Muon> muonCollection ;
 
       //! ctor
       explicit VBFElePlots (const edm::ParameterSet&);
