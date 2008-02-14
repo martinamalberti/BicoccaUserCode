@@ -1,8 +1,11 @@
 $SAMPLE = $ARGV[0] ;
-$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_jetCleaned_histos.root" ;
 $DATASETPATH = $ARGV[1] ;
+#$CHANNEL = $ARGV[2] ;
 
-$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_".$SAMPLE.".cfg";
+#$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_".$CHANNEL."_jetCleaned_0.5_histos.root" ;
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos.root" ;
+#$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_0.5".$SAMPLE."_".$CHANNEL.".cfg";
+$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_NoClean".$SAMPLE.".cfg";
 
 system("rm -f ".$CONFIG ) ;   
 open (CONFIGNAME,">>".$CONFIG) or die "Cannot open ".$CONFIG." to write the config file" ;
@@ -38,15 +41,18 @@ print CONFIGNAME "service = MessageLogger {}\n";
 print CONFIGNAME "module jetCleaner = VBFJetCleaning\n";
 print CONFIGNAME "{\n";
 print CONFIGNAME "InputTag src  = iterativeCone5CaloJets\n";
-print CONFIGNAME "InputTag GSFInputTag = pixelMatchGsfElectrons\n";
+#print CONFIGNAME "InputTag GSFInputTag = pixelMatchGsfElectrons\n";
+print CONFIGNAME "InputTag GSFInputTag = refResolver\n";
 print CONFIGNAME "double maxDeltaR = 0.3\n";
 print CONFIGNAME "double minEleOJetEratio = 0\n"; 
+print CONFIGNAME "double maxHEoverEmE = 1000\n";
 print CONFIGNAME "}\n";
 
 
 print CONFIGNAME "module jetUEPU = VBFJetEtaPtSelecting\n";
 print CONFIGNAME "{\n";
 print CONFIGNAME "    InputTag src  = jetCleaner\n";
+#print CONFIGNAME "InputTag src  = iterativeCone5CaloJets\n";
 print CONFIGNAME "    double maxEta = 5\n";
 print CONFIGNAME "    double minPt = 15 # GeV\n";
 print CONFIGNAME "}\n";
@@ -75,28 +81,47 @@ print CONFIGNAME "}\n";
 
 if ($SAMPLE eq "WWF")
 {
-    print ("sample WWF\n") ;
+    print ("sample WWF with channel $CHANNEL\n") ;
+
+    print CONFIGNAME "module channelSelector = VBFMCChannelFilter\n";
+    print CONFIGNAME "{\n";
+    print CONFIGNAME "  InputTag MCtruthInputTag = genParticleCandidates\n";
+    print CONFIGNAME "  int32 channel = $CHANNEL  # 1 = uu, 2 = ee, 3 = ue\n";
+    print CONFIGNAME "  bool filter = true\n";
+    print CONFIGNAME "}\n";
+
     print CONFIGNAME "module my_VBFMCProcessFilter = VBFMCProcessFilter\n";
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
-    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
+    #print CONFIGNAME "path reading = {my_VBFMCProcessFilter & channelSelector & jetUEPU & tagJets & trivialReader}\n";
+    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & channelSelector & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
 }
 
 elsif ($SAMPLE eq "ggF")
 {
-    print ("sample ggF\n") ;
+    print ("sample ggF with channel $CHANNEL\n") ;
+
+    print CONFIGNAME "module channelSelector = VBFMCChannelFilter\n";
+    print CONFIGNAME "{\n";
+    print CONFIGNAME "  InputTag MCtruthInputTag = genParticleCandidates\n";
+    print CONFIGNAME "  int32 channel = $CHANNEL  # 1 = uu, 2 = ee, 3 = ue\n";
+    print CONFIGNAME "  bool filter = true\n";
+    print CONFIGNAME "}\n";
+
     print CONFIGNAME "module my_VBFMCProcessFilter = VBFMCProcessFilter\n";
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
-    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
+    #print CONFIGNAME "path reading = {!my_VBFMCProcessFilter &  channelSelector & jetUEPU & tagJets & trivialReader}\n";
+    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter &  channelSelector & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
 } 
 
 else
 {
     print ("sample other\n") ;
     print CONFIGNAME "path reading = {jetCleaner & jetUEPU & tagJets & trivialReader}\n";
+    #print CONFIGNAME "path reading = jetUEPU & tagJets & trivialReader}\n";
 }
 
 print CONFIGNAME "}\n";
