@@ -12,7 +12,8 @@
 VBFJetCleaner::VBFJetCleaner (const edm::ParameterSet& iConfig) :
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
   m_maxDeltaR (iConfig.getParameter<double> ("maxDeltaR")) ,
-  m_minEleOJetEratio (iConfig.getParameter<double> ("minEleOJetEratio")) 
+  m_minEleOJetEratio (iConfig.getParameter<double> ("minEleOJetEratio")),
+  m_maxHEoverEmE (iConfig.getParameter<double> ("maxHEoverEmE"))
 {
 }  
 
@@ -52,14 +53,18 @@ VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandl
           //PG NB should we use the SC direction, or the electron one?
           double deltaR = 
             ROOT::Math::VectorUtil::DeltaR (eleIt->momentum (),jetIt->momentum ()) ;
+	  std::cout << "**********************deltaR " << deltaR << std::endl;
+	  std::cout << "eleIt->hadronicOverEm() " << eleIt->hadronicOverEm()  << std::endl ;
+	  std::cout << "eleIt->superCluster()->energy () /jetIt->energy () " << eleIt->superCluster()->energy () /jetIt->energy () << std::endl;
           if (deltaR < m_maxDeltaR &&
-              eleIt->hadronicOverEm() < 0.20 &&
+              eleIt->hadronicOverEm() < m_maxHEoverEmE &&
               eleIt->superCluster()->energy () /
                 jetIt->energy () > m_minEleOJetEratio)
             {
               discard = true ; break ;
             }  
         } //PG loop over electrons
+      std::cout << "discard " << discard << std::endl;
       if (!discard) m_selected.push_back (
           jet (jetCollectionHandle,jetIt - jetCollectionHandle->begin ())
         ) ;

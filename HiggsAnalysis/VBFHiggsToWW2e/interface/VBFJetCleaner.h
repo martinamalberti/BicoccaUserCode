@@ -52,7 +52,7 @@ class VBFJetCleaner {
   edm::InputTag m_GSFInputTag ;
   double m_maxDeltaR ;
   double m_minEleOJetEratio ;
-  
+  double m_maxHEoverEmE ;
 
 
 };
