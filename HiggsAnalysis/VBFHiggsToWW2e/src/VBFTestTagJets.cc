@@ -139,7 +139,6 @@ VBFTestTagJets::analyze (const edm::Event& iEvent,
                           (*MCjetTagsHandle)[!maxIndex].p4 ().E ()) ;
     }  
 
-
 }
 
 
@@ -151,20 +150,20 @@ VBFTestTagJets::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
 
-  m_deltaEta   = fs->make<TH1F> ("deltaEta","deltaEta",50,-0.1,0.1) ;
-  m_deltaPhi   = fs->make<TH1F> ("deltaPhi","deltaPhi",50,-0.1,0.1) ;
-  m_deltaR     = fs->make<TH1F> ("deltaR","deltaR",50,0,0.1) ;
-  m_Ejet_o_EMC = fs->make<TH1F> ("Ejet_o_EMC","Ejet_o_EMC",50,0.5,1.5) ; 
+  m_deltaEta   = fs->make<TH1F> ("deltaEta","deltaEta",100,-0.2,0.2) ;
+  m_deltaPhi   = fs->make<TH1F> ("deltaPhi","deltaPhi",100,-0.2,0.2) ;
+  m_deltaR     = fs->make<TH1F> ("deltaR","deltaR",150,0,0.3) ;
+  m_Ejet_o_EMC = fs->make<TH1F> ("Ejet_o_EMC","Ejet_o_EMC",300,0,10) ; 
   
-  m_deltaEtaMaxE   = fs->make<TH1F> ("deltaEtaMaxE","deltaEtaMaxE",50,-0.1,0.1) ;
-  m_deltaPhiMaxE   = fs->make<TH1F> ("deltaPhiMaxE","deltaPhiMaxE",50,-0.1,0.1) ;
-  m_deltaRMaxE     = fs->make<TH1F> ("deltaRMaxE","deltaRMaxE",50,0,0.1) ;
-  m_Ejet_o_EMCMaxE = fs->make<TH1F> ("Ejet_o_EMCMaxE","Ejet_o_EMCMaxE",50,0.5,1.5) ; 
+  m_deltaEtaMaxE   = fs->make<TH1F> ("deltaEtaMaxE","deltaEtaMaxE",100,-0.2,0.2) ;
+  m_deltaPhiMaxE   = fs->make<TH1F> ("deltaPhiMaxE","deltaPhiMaxE",100,-0.2,0.2) ;
+  m_deltaRMaxE     = fs->make<TH1F> ("deltaRMaxE","deltaRMaxE",150,0,0.3) ;
+  m_Ejet_o_EMCMaxE = fs->make<TH1F> ("Ejet_o_EMCMaxE","Ejet_o_EMCMaxE",300,0,10) ; 
   
-  m_deltaEtaMinE   = fs->make<TH1F> ("deltaEtaMinE","deltaEtaMinE",50,-0.1,0.1) ;
-  m_deltaPhiMinE   = fs->make<TH1F> ("deltaPhiMinE","deltaPhiMinE",50,-0.1,0.1) ;
-  m_deltaRMinE     = fs->make<TH1F> ("deltaRMinE","deltaRMinE",50,0,0.1) ;
-  m_Ejet_o_EMCMinE = fs->make<TH1F> ("Ejet_o_EMCMinE","Ejet_o_EMCMinE",50,0.5,1.5) ; 
+  m_deltaEtaMinE   = fs->make<TH1F> ("deltaEtaMinE","deltaEtaMinE",100,-0.2,0.2) ;
+  m_deltaPhiMinE   = fs->make<TH1F> ("deltaPhiMinE","deltaPhiMinE",100,-0.2,0.2) ;
+  m_deltaRMinE     = fs->make<TH1F> ("deltaRMinE","deltaRMinE",150,0,0.3) ;
+  m_Ejet_o_EMCMinE = fs->make<TH1F> ("Ejet_o_EMCMinE","Ejet_o_EMCMinE",300,0,10) ; 
 
 }
 
