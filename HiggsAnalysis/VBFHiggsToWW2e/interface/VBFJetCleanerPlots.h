@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    VBFReadEvent
-// Class:      VBFReadEvent
+// Package:    VBFJetCleanerPlots
+// Class:      VBFJetCleanerPlots
 // 
-/**\class VBFReadEvent VBFReadEvent.cc HiggsAnalysis/VBFReadEvent/src/VBFReadEvent.cc
+/**\class VBFJetCleanerPlots VBFJetCleanerPlots.cc HiggsAnalysis/VBFJetCleanerPlots/src/VBFJetCleanerPlots.cc
 
  Description: <one line class summary>
  
@@ -13,12 +13,12 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFReadEvent.h,v 1.29 2007/12/13 16:57:38 tancini Exp $
+// $Id: VBFJetCleanerPlots.h,v 1.1 2008/02/15 15:48:59 tancini Exp $
 //
 //
 
-#ifndef VBFReadEvent_H
-#define VBFReadEvent_H
+#ifndef VBFJetCleanerPlots_H
+#define VBFJetCleanerPlots_H
 
 // system include files
 #include <memory>
