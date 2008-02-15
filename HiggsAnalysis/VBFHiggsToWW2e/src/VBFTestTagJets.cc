@@ -1,4 +1,4 @@
-// $Id: VBFTestTagJets.cc,v 1.2 2008/01/22 13:14:28 govoni Exp $
+// $Id: VBFTestTagJets.cc,v 1.3 2008/01/29 11:12:46 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTestTagJets.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -40,18 +40,22 @@ VBFTestTagJets::analyze (const edm::Event& iEvent,
   edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
   iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
 
-  std::cout << "[VBFTestTagJets][analyze] number of jet Tags : "
+  std::cerr << "[VBFTestTagJets][analyze] number of jet Tags : "
             << jetTagsHandle->size () 
             << std::endl ;
+
+  if (jetTagsHandle->size () < 2) return ;
 
   // Get the tag jets
   edm::Handle<reco::RecoChargedCandidateCollection> MCjetTagsHandle ;
   iEvent.getByLabel (m_MCjetTagsInputTag, MCjetTagsHandle) ;
 
-  std::cout << "[VBFTestTagJets][analyze] number of jet Tags : "
+  std::cerr << "[VBFTestTagJets][analyze] number of jet Tags : "
             << MCjetTagsHandle->size () 
             << std::endl ;
             
+  if (MCjetTagsHandle->size () < 2) return ;
+
   int maxIndex = (*MCjetTagsHandle)[0].p4 ().E () < 
                  (*MCjetTagsHandle)[1].p4 ().E () ;
 
