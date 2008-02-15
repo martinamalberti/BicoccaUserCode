@@ -69,7 +69,7 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   LorentzVector secondTag = tagJetCands.second->p4 () ;
   
   math::XYZVector firstDir = tagJetCands.first->momentum () ;
-  math::XYZVector secondDir = tagJetCands.first->momentum () ;
+  math::XYZVector secondDir = tagJetCands.second->momentum () ;
   //PG look for other jets in cones around the found ones and add them to the "leading"
   
   std::auto_ptr<reco::CaloJetCollection> otherJets 
