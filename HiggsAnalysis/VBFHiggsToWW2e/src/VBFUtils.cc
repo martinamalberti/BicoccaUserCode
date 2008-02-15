@@ -1,4 +1,4 @@
-// $Id: VBFUtils.cc,v 1.3 2008/01/31 08:53:32 tancini Exp $
+// $Id: VBFUtils.cc,v 1.4 2008/02/05 13:08:52 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 
@@ -54,6 +54,53 @@ findTagJets (VBFjetIt begin, VBFjetIt end,
 
   return tagJets ;
 }
+
+// --------------------------------------------------------------------
+
+
+std::pair<VBFjetIt,VBFjetIt>
+findMaxPtJetsPair (VBFjetIt begin, VBFjetIt end,
+             double jetPtMin, double jetEtaMax)
+{
+
+  std::pair<VBFjetIt,VBFjetIt> tagJets (begin,begin) ;
+
+  VBFjetIt first ;
+  VBFjetIt second ;
+
+  double firstMaxPt = 0 ;
+  double secondMaxPt = 0 ;
+
+  //PG first loop over jets
+  for (VBFjetIt Jet = begin ;
+       Jet != end ;
+       ++Jet )
+    {
+      if (Jet->pt () < jetPtMin ||
+          fabs (Jet->eta ()) > jetEtaMax) continue ;
+
+      if (firstMaxPt < Jet->pt ())
+        {
+          secondMaxPt = firstMaxPt ;
+          second = first ;
+          firstMaxPt = Jet->pt () ;
+          first = Jet ;
+        }
+      else if (secondMaxPt < Jet->pt ())
+        {
+          secondMaxPt = Jet->pt () ;
+          second = Jet ;
+        }  
+    } //close loop
+
+  tagJets.first = first ;
+  tagJets.second = second ;
+
+  return tagJets ;
+
+    }
+
+// --------------------------------------------------------------------
 
 double deltaPhi (double phi1, double phi2)
 {

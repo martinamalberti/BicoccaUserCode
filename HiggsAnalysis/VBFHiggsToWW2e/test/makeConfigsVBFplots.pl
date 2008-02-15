@@ -2,10 +2,8 @@ $SAMPLE = $ARGV[0] ;
 $DATASETPATH = $ARGV[1] ;
 #$CHANNEL = $ARGV[2] ;
 
-#$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_".$CHANNEL."_jetCleaned_0.5_histos.root" ;
-$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos.root" ;
-#$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_0.5".$SAMPLE."_".$CHANNEL.".cfg";
-$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_NoClean".$SAMPLE.".cfg";
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos_merged1.2_other30.root" ;
+$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_merged1.2".$SAMPLE.".cfg";
 
 system("rm -f ".$CONFIG ) ;   
 open (CONFIGNAME,">>".$CONFIG) or die "Cannot open ".$CONFIG." to write the config file" ;
@@ -81,47 +79,46 @@ print CONFIGNAME "}\n";
 
 if ($SAMPLE eq "WWF")
 {
-    print ("sample WWF with channel $CHANNEL\n") ;
+    #print ("sample WWF with channel $CHANNEL\n") ;
 
-    print CONFIGNAME "module channelSelector = VBFMCChannelFilter\n";
-    print CONFIGNAME "{\n";
-    print CONFIGNAME "  InputTag MCtruthInputTag = genParticleCandidates\n";
-    print CONFIGNAME "  int32 channel = $CHANNEL  # 1 = uu, 2 = ee, 3 = ue\n";
-    print CONFIGNAME "  bool filter = true\n";
-    print CONFIGNAME "}\n";
+    #print CONFIGNAME "module channelSelector = VBFMCChannelFilter\n";
+    #print CONFIGNAME "{\n";
+    #print CONFIGNAME "  InputTag MCtruthInputTag = genParticleCandidates\n";
+    #print CONFIGNAME "  int32 channel = $CHANNEL  # 1 = uu, 2 = ee, 3 = ue\n";
+    #print CONFIGNAME "  bool filter = true\n";
+    #print CONFIGNAME "}\n";
 
     print CONFIGNAME "module my_VBFMCProcessFilter = VBFMCProcessFilter\n";
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
     #print CONFIGNAME "path reading = {my_VBFMCProcessFilter & channelSelector & jetUEPU & tagJets & trivialReader}\n";
-    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & channelSelector & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
+    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
 }
 
 elsif ($SAMPLE eq "ggF")
 {
-    print ("sample ggF with channel $CHANNEL\n") ;
+    #print ("sample ggF with channel $CHANNEL\n") ;
 
-    print CONFIGNAME "module channelSelector = VBFMCChannelFilter\n";
-    print CONFIGNAME "{\n";
-    print CONFIGNAME "  InputTag MCtruthInputTag = genParticleCandidates\n";
-    print CONFIGNAME "  int32 channel = $CHANNEL  # 1 = uu, 2 = ee, 3 = ue\n";
-    print CONFIGNAME "  bool filter = true\n";
-    print CONFIGNAME "}\n";
+    #print CONFIGNAME "module channelSelector = VBFMCChannelFilter\n";
+    #print CONFIGNAME "{\n";
+    #print CONFIGNAME "  InputTag MCtruthInputTag = genParticleCandidates\n";
+    #print CONFIGNAME "  int32 channel = $CHANNEL  # 1 = uu, 2 = ee, 3 = ue\n";
+    #print CONFIGNAME "  bool filter = true\n";
+    #print CONFIGNAME "}\n";
 
     print CONFIGNAME "module my_VBFMCProcessFilter = VBFMCProcessFilter\n";
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
     #print CONFIGNAME "path reading = {!my_VBFMCProcessFilter &  channelSelector & jetUEPU & tagJets & trivialReader}\n";
-    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter &  channelSelector & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
+    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & trivialReader}\n";
 } 
 
 else
 {
     print ("sample other\n") ;
     print CONFIGNAME "path reading = {jetCleaner & jetUEPU & tagJets & trivialReader}\n";
-    #print CONFIGNAME "path reading = jetUEPU & tagJets & trivialReader}\n";
 }
 
 print CONFIGNAME "}\n";

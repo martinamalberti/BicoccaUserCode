@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFplots.h,v 1.8 2008/02/05 16:27:02 tancini Exp $
+// $Id: VBFplots.h,v 1.9 2008/02/13 15:47:06 tancini Exp $
 //
 //
 
@@ -164,6 +164,17 @@ class VBFplots : public edm::EDAnalyzer {
       TH1F *m_invMassOtherSummed;
       TH1F *m_deltaROthers;
       TH1F *m_deltaEtaOthers;
+
+      TH1F *m_etaOthers30;
+      TH1F *m_energyOthers30;
+      TH1F *m_ptOthers30;
+      TH1F *m_etaOthersSummed30;
+      TH1F *m_energyOthersSummed30;
+      TH1F *m_ptOthersSummed30;
+      TH1F *m_invMassOtherSummed30;
+      TH1F *m_deltaROthers30;
+      TH1F *m_deltaEtaOthers30;
+
       TH2F *m_etaSummedTagVsEtaSummedOthers;
       TNtuple *m_ntuple;
 

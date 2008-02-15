@@ -1,4 +1,4 @@
-// $Id: VBFReadEvent.cc,v 1.43 2008/01/28 08:08:59 tancini Exp $
+// $Id: VBFJetCleanerPlots.cc,v 1.1 2008/02/15 15:49:00 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFJetCleanerPlots.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -19,7 +19,6 @@ VBFJetCleanerPlots::~VBFJetCleanerPlots ()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -46,7 +45,6 @@ VBFJetCleanerPlots::analyze (const edm::Event& iEvent, const edm::EventSetup& iS
            eleIt != GSFHandle->end () ;
            ++eleIt)
         {
-
           double deltaR = ROOT::Math::VectorUtil::DeltaR (eleIt->momentum (),jetIt->momentum ()) ;
 	  double HEoverEmE = eleIt->hadronicOverEm();
 	  double EleOJetEratio = eleIt->caloEnergy() / jetIt->energy () ;  
@@ -68,8 +66,8 @@ VBFJetCleanerPlots::beginJob (const edm::EventSetup&)
 {
   edm::Service<TFileService> fs ;
   m_deltaR = fs->make<TH1F> ("m_deltaR", "dR between jet and ele", 100, 0, 10);
-  m_HEoverEmE = fs->make<TH1F> ("m_HEoverEmE", "H/E", 100, -50,50) ;
-  m_EleOJetEratio = fs->make<TH1F> ("m_EleOJetEratio", "ratio between ele and jet energies", 100, -50, 50);
+  m_HEoverEmE = fs->make<TH1F> ("m_HEoverEmE", "H/E", 100, -0.2,0.2) ;
+  m_EleOJetEratio = fs->make<TH1F> ("m_EleOJetEratio", "ratio between ele and jet energies", 100, 0, 50);
 
 }
 

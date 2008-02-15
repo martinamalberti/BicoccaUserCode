@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFUtils.h,v 1.2 2008/01/16 17:35:25 govoni Exp $
+// $Id: VBFUtils.h,v 1.3 2008/02/05 13:08:53 tancini Exp $
 //
 //
 // system include files
@@ -23,6 +23,11 @@ setMomentum (TLorentzVector & myvector,
 std::pair<VBFjetIt,VBFjetIt>	
 findTagJets (VBFjetIt begin, VBFjetIt end,
              double jetPtMin, double jetEtaMax) ;
+
+std::pair<VBFjetIt,VBFjetIt>
+findMaxPtJetsPair (VBFjetIt begin, VBFjetIt end,
+		   double jetPtMin, double jetEtaMax) ;
+
 
 double deltaPhi (double phi1, double phi2) ;
 
