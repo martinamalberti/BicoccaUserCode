@@ -1,4 +1,4 @@
-perl test/makeConfigsSkim.pl HWW_160 /H160_WW_2l/CMSSW_1_6_7-CSA07-1192836764/RECO
+#perl test/makeConfigsSkim.pl HWW_160 /H160_WW_2l/CMSSW_1_6_7-CSA07-1192836764/RECO
 perl test/makeConfigsSkim.pl HWW_120 /H120_WW_2l/CMSSW_1_6_7-CSA07-1194963339/RECO
 perl test/makeConfigsSkim.pl HWW_130 /H130_WW_2l/CMSSW_1_6_7-CSA07-1194126306/RECO
 perl test/makeConfigsSkim.pl HWW_140 /H140_WW_2l/CMSSW_1_6_7-CSA07-1192835331/RECO
