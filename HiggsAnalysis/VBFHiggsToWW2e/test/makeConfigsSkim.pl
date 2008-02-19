@@ -5,7 +5,7 @@ $SAMPLE = $ARGV[0] ;
 $DATASETPATH = $ARGV[1] ;
 #### per crab
 $CONFIGCRAB = "/afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_crab.cfg";
-$OUTDIR = "outSkim_".$SAMPLE."/" ;
+$OUTDIR = "outSkim_".$SAMPLE ;
 
 ################################################################################
 ####################################################################################################################
@@ -20,7 +20,7 @@ print CONFIGNAMECRAB "scheduler = glitecoll\n";
 print CONFIGNAMECRAB "server_mode = 1\n";
 print CONFIGNAMECRAB "server_name = crabas.lnl.infn.it/data1/cms/\n";
 print CONFIGNAMECRAB "[CMSSW]\n";
-print CONFIGNAMECRAB "datasetpath=$DATASETPATH\n";
+print CONFIGNAMECRAB "datasetpath = $DATASETPATH\n";
 print CONFIGNAMECRAB "pset = /afs/cern.ch/user/t/tancini/scratch0/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFLepTagSkim.cfg\n";
 print CONFIGNAMECRAB "events_per_job = 2000\n";
 print CONFIGNAMECRAB "total_number_of_events = -1\n";
@@ -35,7 +35,7 @@ print CONFIGNAMECRAB "ui_working_dir = /afs/cern.ch/user/t/tancini/scratch0/WWF/
 print CONFIGNAMECRAB "storage_element = srm.cern.ch\n";
 print CONFIGNAMECRAB "storage_path = /castor/cern.ch/user/t/tancini/crabWWFSkim/$OUTDIR\n";
 print CONFIGNAMECRAB "thresholdLevel = 80\n";
-print CONFIGNAMECRAB "eMail = pietro.govoni@gmail.com, valentina.tancini@mib.infn.it, alessio.ghezzi@mib.infn.it\n";
+print CONFIGNAMECRAB "eMail = pietro.govoni\@gmail.com, valentina.tancini\@mib.infn.it, alessio.ghezzi\@mib.infn.it\n";
 print CONFIGNAMECRAB "[EDG]\n";
 print CONFIGNAMECRAB "lcg_version = 2\n";
 print CONFIGNAMECRAB "proxy_server = myproxy.cern.ch\n";
@@ -55,11 +55,13 @@ print CONFIGNAMECRAB "lfc_home = /grid/cms\n";
 system ("rm -rf ".$OUTDIR) ;
 mkdir ($OUTDIR, 0755) || die "Cannot mkdir newdir: $!";
 $NEWDIR = "/castor/cern.ch/user/t/tancini/crabWWFSkim/".$OUTDIR;
+print("removing ".$NEWDIR."\n");
+system("rfrm -r ".$NEWDIR."\n");
 print("creating ".$NEWDIR."\n");
 system ("rfmkdir ".$NEWDIR);     
 system ("rfchmod +775 ".$NEWDIR);
 print ("command: crab -create -cfg ".$CONFIGCRAB."\n") ;
 system ("crab -create -cfg ".$CONFIGCRAB) ;
-print ("command: crab -submit -c ".$OUTDIR."\n") ;
+print ("command: crab -submit all -c ".$OUTDIR."\n") ;
 system ("crab -submit -c ".$OUTDIR) ;
 
