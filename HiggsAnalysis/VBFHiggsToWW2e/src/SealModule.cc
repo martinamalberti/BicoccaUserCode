@@ -18,6 +18,9 @@
 //define this as a plug-in
 DEFINE_SEAL_MODULE () ;
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFDiffTagFinderComparison) ;
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFHiggsToWW2e.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFHiggsToWW2e) ;
 

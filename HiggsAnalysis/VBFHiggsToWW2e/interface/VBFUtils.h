@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFUtils.h,v 1.4 2008/02/15 16:58:16 tancini Exp $
+// $Id: VBFUtils.h,v 1.5 2008/02/20 10:38:17 tancini Exp $
 //
 //
 // system include files
@@ -28,7 +28,7 @@ findTagJets (VBFjetIt begin, VBFjetIt end,
 // --------------------------------------------------------------------------------
 
 std::pair<VBFjetIt,VBFjetIt>
-findMaxPtJetsPair (reco::CaloJetCollection coll,
+findMaxPtJetsPair (reco::CaloJetCollection& coll,
 		   double jetPtMin, double jetEtaMax) ;
 
 // --------------------------------------------------------------------------------
@@ -36,31 +36,13 @@ findMaxPtJetsPair (reco::CaloJetCollection coll,
 double deltaPhi (double phi1, double phi2) ;
 
 // --------------------------------------------------------------------------------
-/*
-template <class ParticleType>
-struct ptSorting : public 
-std::binary_function <ParticleType, ParticleType, bool> 
-{
-  bool operator() (ParticleType & lept1, ParticleType & lept2) const
-  { 
-    return lept1.pt () < lept2.pt () ;
-  }
-};
 
-// --------------------------------------------------------------------------------
-
-template <typename ParticleType>
-static void sortByPt (std::vector<ParticleType>& particles)
-{
-  ptSorting<ParticleType> comp ;
-  sort (particles.begin (), particles.end (), comp) ;
-}
-
-*/
-
+template<typename T>
 struct ptSorting
 {
-  bool operator()( const reco::CaloJet& t1, const reco::CaloJet& t2 ) const {
+  typedef T first_argument_type;
+  typedef T second_argument_type;
+  bool operator()( const T &t1, const T &t2 ) const {
   return t1.pt()> t2.pt();
 }
 };
