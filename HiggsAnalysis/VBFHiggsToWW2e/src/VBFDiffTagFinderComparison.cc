@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.1 2008/02/20 13:26:04 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.2 2008/02/20 14:59:58 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -31,11 +31,12 @@ VBFDiffTagFinderComparison::~VBFDiffTagFinderComparison ()
 void
 VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout << "************* analyze " << std::endl;
   //PG get the jet collection
   edm::Handle<reco::CaloJetCollection> jetCollectionHandle;
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle);
- 
+  std::cout << "size " << jetCollectionHandle->size ()  << std::endl; 
+  if (jetCollectionHandle->size () < 2) return ;
+
   edm::Handle<CandidateCollection> genParticles;
   iEvent.getByLabel(m_MCtruthInputTag, genParticles);
        
@@ -46,43 +47,51 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
                                                           jetCollectionHandle->end (),
                                                           m_jetPtMin, m_jetEtaMax) ;
 
-  std::cout << "************** eta 1 " << tagJetCandsMaxMinv.first->p4().Eta() << " eta 2 "<<  tagJetCandsMaxMinv.second->p4().Eta() << std::endl;
+  std::cout << "A ************** eta 1 " << tagJetCandsMaxMinv.first->p4().Eta() << " eta 2 "<<  tagJetCandsMaxMinv.second->p4().Eta() << std::endl;
 
   if (tagJetCandsMaxMinv.first->p4().Eta() > tagJetCandsMaxMinv.second->p4().Eta())
     {
       m_deltaR_CandsMaxMinv -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.first->momentum(), m_genqTagF->Vect()) ) ; 
       m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.first->p4().E()/m_genqTagF->E()) ;
-
+      std::cout << "ratioA " << (tagJetCandsMaxMinv.first->p4().E()/m_genqTagF->E())  << std::endl;
       m_deltaR_CandsMaxMinv -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.second->momentum(), m_genqTagB->Vect()) ) ;
       m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.second->p4().E()/m_genqTagB->E()) ;
+      std::cout << "ratioA " << (tagJetCandsMaxMinv.second->p4().E()/m_genqTagB->E())  << std::endl;
     }
   else if (tagJetCandsMaxMinv.first->p4().Eta() < tagJetCandsMaxMinv.second->p4().Eta()) 
     {
       m_deltaR_CandsMaxMinv -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.first->momentum(), m_genqTagB->Vect()) ) ;
       m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.first->p4().E()/m_genqTagB->E()) ;
-
+      std::cout << "ratioA " << (tagJetCandsMaxMinv.first->p4().E()/m_genqTagB->E())  << std::endl;
       m_deltaR_CandsMaxMinv -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.second->momentum(), m_genqTagF->Vect()) ) ;
       m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.second->p4().E()/m_genqTagF->E()) ;
+      std::cout << "ratioA " << (tagJetCandsMaxMinv.second->p4().E()/m_genqTagF->E())  << std::endl;
     }
 
   reco::CaloJetCollection TheJets = *jetCollectionHandle;
   std::pair<VBFjetIt,VBFjetIt> tagJetCandsMaxPt = findMaxPtJetsPair (TheJets, m_jetPtMin, m_jetEtaMax) ;
 
+  std::cout << "B ************** eta 1 " << tagJetCandsMaxPt.first->p4().Eta() << " eta 2 "<<  tagJetCandsMaxPt.second->p4().Eta() << std::endl;
+  std::cout << "B ************** E 1 " << tagJetCandsMaxPt.first->p4().E() << " E 2 "<<  tagJetCandsMaxPt.second->p4().E() << std::endl;
+  std::cout << "B ************** Pt 1 " << tagJetCandsMaxPt.first->p4().Pt() << " Pt 2 "<<  tagJetCandsMaxPt.second->p4().Pt() << std::endl;
+
   if (tagJetCandsMaxPt.first->p4().Eta() > tagJetCandsMaxPt.second->p4().Eta())
     {
       m_deltaR_CandsMaxPt -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.first->momentum(), m_genqTagF->Vect()) ) ;
       m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.first->p4().E()/m_genqTagF->E()) ;
-
+      std::cout << "ratioB " << (tagJetCandsMaxPt.first->p4().E()/m_genqTagF->E())  << std::endl;
       m_deltaR_CandsMaxPt -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.second->momentum(), m_genqTagB->Vect()) ) ;
       m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.second->p4().E()/m_genqTagB->E()) ;
+      std::cout << "ratioB " << (tagJetCandsMaxPt.second->p4().E()/m_genqTagB->E())  << std::endl;
     }
   else if (tagJetCandsMaxPt.first->p4().Eta() < tagJetCandsMaxPt.second->p4().Eta())
     {
       m_deltaR_CandsMaxPt -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.first->momentum(), m_genqTagB->Vect()) ) ;
       m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.first->p4().E()/m_genqTagB->E()) ;
-
+      std::cout << "ratioB " << (tagJetCandsMaxPt.first->p4().E()/m_genqTagB->E())  << std::endl;
       m_deltaR_CandsMaxPt -> Fill (ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.second->momentum(), m_genqTagF->Vect()) ) ;
       m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.second->p4().E()/m_genqTagF->E()) ;
+      std::cout << "ratioB " << (tagJetCandsMaxPt.second->p4().E()/m_genqTagF->E())  << std::endl;
     }
 
    
@@ -93,13 +102,16 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
 void 
 VBFDiffTagFinderComparison::beginJob (const edm::EventSetup&)
 {
+  m_genqTagF = new TLorentzVector (0.0,0.0,0.0,0.0);
+  m_genqTagB = new TLorentzVector (0.0,0.0,0.0,0.0);
+
   edm::Service<TFileService> fs ;
 
-  m_deltaR_CandsMaxMinv = fs->make<TH1F> ("m_deltaR_CandsMaxMinv", "dR between jet and ele", 100, 0, 10);
-  m_Eratio_CandsMaxMinv = fs->make<TH1F> ("m_Eratio_CandsMaxMinv", "ratio between ele and jet energies", 100, 0, 50);
+  m_deltaR_CandsMaxMinv = fs->make<TH1F> ("m_deltaR_CandsMaxMinv", "dR between jet and quark", 10000, 0, 150);
+  m_Eratio_CandsMaxMinv = fs->make<TH1F> ("m_Eratio_CandsMaxMinv", "ratio between quark and jet energies", 10000, 0, 150);
 
-  m_deltaR_CandsMaxPt = fs->make<TH1F> ("m_deltaR_CandsMaxPt", "dR between jet and ele", 100, 0, 10);
-  m_Eratio_CandsMaxPt = fs->make<TH1F> ("m_Eratio_CandsMaxPt", "ratio between ele and jet energies", 100, 0, 50);
+  m_deltaR_CandsMaxPt = fs->make<TH1F> ("m_deltaR_CandsMaxPt", "dR between jet and quark", 10000, 0, 50);
+  m_Eratio_CandsMaxPt = fs->make<TH1F> ("m_Eratio_CandsMaxPt", "ratio between quark and jet energies", 10000, 0, 50);
 }
 
 
@@ -121,7 +133,6 @@ void VBFDiffTagFinderComparison::findGenParticles (edm::Handle<CandidateCollecti
     {
       int mumPDG = p->pdgId();
       int mumSTATUS = p->status();
-      std::cout << " ******* pdg "<< mumPDG  << std::endl;
 
       ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
       //misteriosamente i tag sono i fratelli dell'higgs

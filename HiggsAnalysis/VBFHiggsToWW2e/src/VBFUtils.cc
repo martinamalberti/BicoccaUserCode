@@ -1,4 +1,4 @@
-// $Id: VBFUtils.cc,v 1.6 2008/02/20 10:38:16 tancini Exp $
+// $Id: VBFUtils.cc,v 1.7 2008/02/20 14:59:58 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -62,44 +62,12 @@ std::pair<VBFjetIt,VBFjetIt>
 findMaxPtJetsPair (reco::CaloJetCollection &coll,
              double jetPtMin, double jetEtaMax)
 {
-
   ptSorting<reco::CaloJet> ptComparator;
   std::sort (coll.begin(), coll.end(), ptComparator);
 
-  VBFjetIt begin = coll.begin();
-  VBFjetIt end = coll.end();
-  std::pair<VBFjetIt,VBFjetIt> tagJets (begin,begin) ;
-
-  VBFjetIt first ;
-  VBFjetIt second ;
-
-  double firstMaxPt = 0 ;
-  double secondMaxPt = 0 ;
-
-  //PG first loop over jets
-  for (VBFjetIt Jet = begin ;
-       Jet != end ;
-       ++Jet )
-    {
-      if (Jet->pt () < jetPtMin ||
-          fabs (Jet->eta ()) > jetEtaMax) continue ;
-
-      if (firstMaxPt < Jet->pt ())
-        {
-          secondMaxPt = firstMaxPt ;
-          second = first ;
-          firstMaxPt = Jet->pt () ;
-          first = Jet ;
-        }
-      else if (secondMaxPt < Jet->pt ())
-        {
-          secondMaxPt = Jet->pt () ;
-          second = Jet ;
-        }  
-    } //close loop
-
-  tagJets.first = first ;
-  tagJets.second = second ;
+  VBFjetIt first = coll.begin();
+  VBFjetIt second = first++;
+  std::pair<VBFjetIt,VBFjetIt> tagJets (first, second) ;
 
   return tagJets ;
 
