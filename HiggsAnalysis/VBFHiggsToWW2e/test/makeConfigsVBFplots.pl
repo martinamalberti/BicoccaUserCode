@@ -2,8 +2,8 @@ $SAMPLE = $ARGV[0] ;
 $DATASETPATH = $ARGV[1] ;
 #$CHANNEL = $ARGV[2] ;
 
-$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos_merged1.2_other30.root" ;
-$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_merged1.2".$SAMPLE.".cfg";
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos_ptMax.root" ;
+$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_ptMax".$SAMPLE.".cfg";
 
 system("rm -f ".$CONFIG ) ;   
 open (CONFIGNAME,">>".$CONFIG) or die "Cannot open ".$CONFIG." to write the config file" ;
@@ -64,6 +64,7 @@ print CONFIGNAME "    string otherJetsName = \"otherJets\"\n";
 print CONFIGNAME "    double jetEtaMax = 5\n";
 print CONFIGNAME "    double jetPtMin = 15 # GeV\n";
 print CONFIGNAME "    double gatherConeSize = 0.5\n";
+print CONFIGNAME "    int algoType = 1\n";
 print CONFIGNAME "  }\n";
 
 print CONFIGNAME "module trivialReader = VBFplots\n";

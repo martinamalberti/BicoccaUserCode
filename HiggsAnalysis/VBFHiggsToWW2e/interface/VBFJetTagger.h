@@ -70,7 +70,10 @@ class VBFJetTagger: public edm::EDProducer
   //! size of the cone inside which other jets are summed 
   //! to the leading tag ones
   double m_gatherConeSize ;
-  
+  //! algo used to identify the tag jets
+  //! 0 --> max inv mass
+  //! 1 --> jet with highest pt
+  int m_algoType ;  
 
 
 };

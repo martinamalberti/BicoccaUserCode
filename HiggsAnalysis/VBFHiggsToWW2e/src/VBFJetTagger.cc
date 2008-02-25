@@ -19,7 +19,8 @@ VBFJetTagger::VBFJetTagger (const edm::ParameterSet& iConfig) :
   m_otherJetsName (iConfig.getParameter<std::string> ("otherJetsName")) ,
   m_jetEtaMax (iConfig.getParameter<double> ("jetEtaMax")) ,
   m_jetPtMin (iConfig.getParameter<double> ("jetPtMin")) ,
-  m_gatherConeSize (iConfig.getParameter<double> ("gatherConeSize")) 
+  m_gatherConeSize (iConfig.getParameter<double> ("gatherConeSize")) ,
+  m_algoType (iConfig.getParameter<int> ("algoType")) 
 {
 //  produces<LorentzVectorCollection> (m_tagJetsName) ;
   produces<reco::RecoChargedCandidateCollection> (m_tagJetsName) ;
@@ -60,9 +61,15 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 
 
   //PG get the jet tags
-  std::pair<VBFjetIt,VBFjetIt> tagJetCands = findTagJets (jetCollectionHandle->begin (),
-                                                          jetCollectionHandle->end (),
-                                                          m_jetPtMin, m_jetEtaMax) ;
+  std::pair<VBFjetIt,VBFjetIt> tagJetCands ;
+
+  if (m_algoType == 0) tagJetCands = findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
+
+  else if (m_algoType == 1) 
+    {
+     reco::CaloJetCollection TheJets = *jetCollectionHandle;  
+     tagJetCands = findMaxPtJetsPair (TheJets, m_jetPtMin, m_jetEtaMax) ; 
+    }
 
   //PG build the new jets
   LorentzVector firstTag = tagJetCands.first->p4 () ;

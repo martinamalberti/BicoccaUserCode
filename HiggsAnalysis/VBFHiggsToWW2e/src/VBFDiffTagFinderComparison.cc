@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.2 2008/02/20 14:59:58 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.3 2008/02/22 10:35:29 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -107,11 +107,11 @@ VBFDiffTagFinderComparison::beginJob (const edm::EventSetup&)
 
   edm::Service<TFileService> fs ;
 
-  m_deltaR_CandsMaxMinv = fs->make<TH1F> ("m_deltaR_CandsMaxMinv", "dR between jet and quark", 10000, 0, 150);
+  m_deltaR_CandsMaxMinv = fs->make<TH1F> ("m_deltaR_CandsMaxMinv", "dR between jet and quark", 10000, 0, 50);
   m_Eratio_CandsMaxMinv = fs->make<TH1F> ("m_Eratio_CandsMaxMinv", "ratio between quark and jet energies", 10000, 0, 150);
 
   m_deltaR_CandsMaxPt = fs->make<TH1F> ("m_deltaR_CandsMaxPt", "dR between jet and quark", 10000, 0, 50);
-  m_Eratio_CandsMaxPt = fs->make<TH1F> ("m_Eratio_CandsMaxPt", "ratio between quark and jet energies", 10000, 0, 50);
+  m_Eratio_CandsMaxPt = fs->make<TH1F> ("m_Eratio_CandsMaxPt", "ratio between quark and jet energies", 10000, 0, 150);
 }
 
 
