@@ -13,7 +13,7 @@
 //
 // Original Author:  Valentina Tancini
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFDiffTagFinderComparison.h,v 1.1 2008/02/20 13:26:04 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.h,v 1.2 2008/02/20 14:59:58 tancini Exp $
 //
 //
 
@@ -118,10 +118,12 @@ class VBFDiffTagFinderComparison : public edm::EDAnalyzer {
       edm::InputTag m_MCtruthInputTag;
       double m_jetPtMin;
       double m_jetEtaMax;
-      TH1F *m_deltaR_CandsMaxMinv  ;
-      TH1F *m_Eratio_CandsMaxMinv  ;
-      TH1F *m_deltaR_CandsMaxPt  ;
-      TH1F *m_Eratio_CandsMaxPt  ;
+      TH1F *m_deltaR_CandsMaxMinv ;
+      TH1F *m_Eratio_CandsMaxMinv ;
+      TH1F *m_deltaR_CandsMaxPt ;
+      TH1F *m_Eratio_CandsMaxPt ;
+      TH1F *m_purityHisto_pt ;
+      TH1F *m_purityHisto_mInv ;
       TLorentzVector *m_genqTagF;
       TLorentzVector *m_genqTagB;
 };
