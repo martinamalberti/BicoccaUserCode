@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.12 2008/02/13 15:47:06 tancini Exp $
+// $Id: VBFplots.cc,v 1.13 2008/02/15 16:58:13 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -44,7 +44,6 @@ void
 VBFplots::analyze (const edm::Event& iEvent, 
                              const edm::EventSetup& iSetup)
 {
-
   m_evAnalyzed++;
   
   //PG get the calo MET
