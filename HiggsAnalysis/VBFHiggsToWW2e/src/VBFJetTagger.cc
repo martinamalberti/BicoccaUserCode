@@ -59,6 +59,19 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
       return;
     }  
 
+  else if (jetCollectionHandle->size () == 1)
+    {
+      //VT create void collection                                                                                                                                     
+      std::auto_ptr<reco::RecoChargedCandidateCollection> tagJets (new reco::RecoChargedCandidateCollection) ;
+      std::auto_ptr<reco::CaloJetCollection> otherJets (new reco::CaloJetCollection) ;
+
+      //VT insert the collection into the event
+      otherJets -> push_back(*(jetCollectionHandle->begin()));
+      iEvent.put (tagJets, m_tagJetsName) ;
+      iEvent.put (otherJets, m_otherJetsName) ;
+
+      return;
+    }
 
   //PG get the jet tags
   std::pair<VBFjetIt,VBFjetIt> tagJetCands ;
@@ -67,8 +80,9 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 
   else if (m_algoType == 1) 
     {
-     reco::CaloJetCollection TheJets = *jetCollectionHandle;  
-     tagJetCands = findMaxPtJetsPair (TheJets, m_jetPtMin, m_jetEtaMax) ; 
+      //reco::CaloJetCollection TheJets = *jetCollectionHandle;  
+      //tagJetCands = findMaxPtJetsPair (TheJets, m_jetPtMin, m_jetEtaMax) ; 
+      tagJetCands = findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
     }
 
   //PG build the new jets
@@ -95,7 +109,10 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
           if (secondDelta < firstDelta) secondTag += jetIt->p4 () ;
           else firstTag += jetIt->p4 () ;
         }
-      else if (secondDelta < m_gatherConeSize) secondTag += jetIt->p4 () ;
+      else if (secondDelta < m_gatherConeSize) 
+	{
+         secondTag += jetIt->p4 () ;
+	}
       else otherJets->push_back (*jetIt) ;
     } //PG loop over the jets collection
   
