@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.4 2008/02/25 14:58:38 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.5 2008/02/25 17:03:58 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -47,7 +47,6 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
 
 
   std::pair<VBFjetIt,VBFjetIt> tagJetCandsMaxMinv = findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
-
   if (tagJetCandsMaxMinv.first->p4().Eta() > tagJetCandsMaxMinv.second->p4().Eta())
     {
       ///////////////// ************ resolution ***********************************************                                                                       
@@ -86,8 +85,6 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
       else if (deltaRB < threshold && deltaRF > threshold) m_purityHisto_mInv-> Fill (1) ; // 1 matching       
       else if (deltaRB < threshold && deltaRF < threshold) m_purityHisto_mInv -> Fill (2) ; // 2 matching
       else if (deltaRB > threshold && deltaRF > threshold) m_purityHisto_mInv-> Fill (0) ; // 0 matching
-
-
     }
 
 ///////////////////////////////////////////////////////////////// pt based selection

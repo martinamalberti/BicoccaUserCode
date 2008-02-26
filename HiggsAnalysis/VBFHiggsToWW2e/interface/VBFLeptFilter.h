@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFLeptFilter.h,v 1.2 2008/02/11 18:53:53 govoni Exp $
+// $Id: VBFLeptFilter.h,v 1.3 2008/02/12 12:06:04 govoni Exp $
 //
 //
 
@@ -202,6 +202,5 @@ struct PtSorting : public
       }
     };
       
-
 
 #endif
