@@ -1,10 +1,12 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.5 2008/02/25 17:03:58 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.6 2008/02/26 10:27:17 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include <Math/VectorUtil.h>
+#include <TLorentzVector.h>
+#include "Math/GenVector/LorentzVector.h"
 
 VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet& iConfig) :
       m_jetInputTag (iConfig.getParameter<edm::InputTag> ("jetInputTag")),
@@ -45,8 +47,15 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
   double deltaRB;
   double threshold = 0.3;
 
-
   std::pair<VBFjetIt,VBFjetIt> tagJetCandsMaxMinv = findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
+  //eta1 * eta2 < 0, |eta1-eta2|>4 and m(j1,j2)>600
+  double prodEta1 = tagJetCandsMaxMinv.first->p4().Eta() * tagJetCandsMaxMinv.second->p4().Eta();
+  double deltaEta1 = fabs (tagJetCandsMaxMinv.first->p4().Eta() - tagJetCandsMaxMinv.second->p4().Eta());
+  math::XYZTLorentzVector summedTags1 = (tagJetCandsMaxMinv.first->p4() + tagJetCandsMaxMinv.second->p4());
+  double mInv1 =  summedTags1.M() ;
+ if (prodEta1 < 0 && deltaEta1 < 4 &&  mInv1 > 600)
+{
+  std::cout << "scrivo 1" << std::endl;
   if (tagJetCandsMaxMinv.first->p4().Eta() > tagJetCandsMaxMinv.second->p4().Eta())
     {
       ///////////////// ************ resolution ***********************************************                                                                       
@@ -86,13 +95,16 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
       else if (deltaRB < threshold && deltaRF < threshold) m_purityHisto_mInv -> Fill (2) ; // 2 matching
       else if (deltaRB > threshold && deltaRF > threshold) m_purityHisto_mInv-> Fill (0) ; // 0 matching
     }
-
+}
 ///////////////////////////////////////////////////////////////// pt based selection
 
-  reco::CaloJetCollection TheJets = *jetCollectionHandle;
-  std::pair<VBFjetIt,VBFjetIt> tagJetCandsMaxPt = findMaxPtJetsPair (TheJets, m_jetPtMin, m_jetEtaMax) ;
-
-
+  std::pair<VBFjetIt,VBFjetIt> tagJetCandsMaxPt = findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
+  double prodEta2 = tagJetCandsMaxPt.first->p4().Eta() * tagJetCandsMaxPt.second->p4().Eta();
+  double deltaEta2 = fabs (tagJetCandsMaxPt.first->p4().Eta() - tagJetCandsMaxPt.second->p4().Eta());
+  math::XYZTLorentzVector summedTags2 = tagJetCandsMaxPt.first->p4() + tagJetCandsMaxPt.second->p4();
+  double mInv2 =  summedTags2.M() ;
+  if (prodEta2 < 0 && deltaEta2 < 4 &&  mInv2 > 600)
+    {
   if (tagJetCandsMaxPt.first->p4().Eta() > tagJetCandsMaxPt.second->p4().Eta())
     {
       ///////////////// ************ resolution ***********************************************
@@ -134,7 +146,7 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
       else if (deltaRB > threshold && deltaRF > threshold) m_purityHisto_pt-> Fill (0) ; // 0 matching
 
     }
-
+    }
 }
 // --------------------------------------------------------------------
 
