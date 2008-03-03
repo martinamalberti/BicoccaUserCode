@@ -1,12 +1,8 @@
-// $Id: VBFplots.cc,v 1.13 2008/02/15 16:58:13 tancini Exp $
+// $Id: VBFplots.cc,v 1.14 2008/02/26 16:45:40 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
-//#include "DataFormats/EgammaCandidates/interface/Electron.h"
-//#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
-//#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
 #include <DataFormats/RecoCandidate/interface/RecoChargedCandidate.h>
 #include <DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h>
-//for TH1F
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include <Math/VectorUtil.h>
@@ -60,6 +56,8 @@ VBFplots::analyze (const edm::Event& iEvent,
 
   if (jetTagsHandle->size () < 2) return ;
   if ((*jetTagsHandle)[0].p4 () == (*jetTagsHandle)[1].p4 ()) return;
+
+  if ((*jetTagsHandle)[0].p4().Eta() * (*jetTagsHandle)[1].p4().Eta() > 0) return ; //temp to require opposite emisphere for the tag jets
 
   m_evWithTags++;
 

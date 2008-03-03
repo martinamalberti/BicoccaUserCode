@@ -1,18 +1,16 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.6 2008/02/26 10:27:17 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.4 2008/02/25 14:58:38 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include <Math/VectorUtil.h>
-#include <TLorentzVector.h>
-#include "Math/GenVector/LorentzVector.h"
 
 VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet& iConfig) :
       m_jetInputTag (iConfig.getParameter<edm::InputTag> ("jetInputTag")),
-      m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")) ,
-      m_jetPtMin (iConfig.getParameter<double> ("jetPtMin")),
-      m_jetEtaMax (iConfig.getParameter<double> ("jetEtaMax"))
+      m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")),
+	  m_algo (iConfig.getParameter<int> ("algoType"))
+
  {}
 
 
@@ -33,120 +31,91 @@ VBFDiffTagFinderComparison::~VBFDiffTagFinderComparison ()
 void
 VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //PG get the jet collection
+  edm::Handle<edm::HepMCProduct> evtMC;
+  bool sig = true;
+  try {
+  iEvent.getByLabel("source",evtMC);}
+  catch (...) {
+  sig = false;}
+  
+  //get the jet collection
   edm::Handle<reco::CaloJetCollection> jetCollectionHandle;
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle);
   if (jetCollectionHandle->size () < 2) return ;
-
+  //get the gen particles collection
   edm::Handle<CandidateCollection> genParticles;
   iEvent.getByLabel(m_MCtruthInputTag, genParticles);
-       
-  findGenParticles (genParticles, *m_genqTagF, *m_genqTagB);
 
-  double deltaRF;
-  double deltaRB;
+  std::pair<VBFjetIt,VBFjetIt> tagJetCands ;
+  if (m_algo == 0) tagJetCands = findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), 15.0, 5.0) ;
+  else if (m_algo == 1) tagJetCands = findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), 15.0, 5.0) ;
+
   double threshold = 0.3;
+  double m_ptMax, m_energyMax;
+  int m_purity;
+  double m_deltaRF = 99.9;
+  double m_EratioF = 99.9;
+  double m_deltaRB = 99.9;
+  double m_EratioB = 99.9;
+  
+  double m_deltaEta = fabs (tagJetCands.first->p4().Eta() - tagJetCands.second->p4().Eta() );
+  double m_prdEta = (tagJetCands.first->p4().Eta() * tagJetCands.second->p4().Eta() );
+  
+  math::XYZTLorentzVector summedTags = (tagJetCands.first->p4() + tagJetCands.second->p4());  
+  double m_massInv = summedTags.M ();
+  
+  if (tagJetCands.first->p4().Pt() > tagJetCands.second->p4().Pt()) m_ptMax = tagJetCands.first->p4().Pt();
+  else m_ptMax = tagJetCands.second->p4().Pt();
+  
+  if (tagJetCands.first->p4().E() > tagJetCands.second->p4().E()) m_energyMax = tagJetCands.first->p4().E();
+  else m_energyMax = tagJetCands.second->p4().E();
+  
+  if (sig)
+  {
+	  const HepMC::GenEvent * Evt = evtMC->GetEvent();
+	  int processID = Evt->signal_process_id() ;
+	  if (processID == 123 || processID == 124)
+	  {
+		  findGenParticles (genParticles, *m_genqTagF, *m_genqTagB);
+		  if (tagJetCands.first->p4().Eta() > tagJetCands.second->p4().Eta())
+			{
+			  ///////////////// ************ resolution ***********************************************                                                                       
+			  m_deltaRF = ROOT::Math::VectorUtil::DeltaR (tagJetCands.first->momentum(), m_genqTagF->Vect()) ;
+			  m_EratioF = tagJetCands.first->p4().E()/m_genqTagF->E() ;
 
-  std::pair<VBFjetIt,VBFjetIt> tagJetCandsMaxMinv = findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
-  //eta1 * eta2 < 0, |eta1-eta2|>4 and m(j1,j2)>600
-  double prodEta1 = tagJetCandsMaxMinv.first->p4().Eta() * tagJetCandsMaxMinv.second->p4().Eta();
-  double deltaEta1 = fabs (tagJetCandsMaxMinv.first->p4().Eta() - tagJetCandsMaxMinv.second->p4().Eta());
-  math::XYZTLorentzVector summedTags1 = (tagJetCandsMaxMinv.first->p4() + tagJetCandsMaxMinv.second->p4());
-  double mInv1 =  summedTags1.M() ;
- if (prodEta1 < 0 && deltaEta1 < 4 &&  mInv1 > 600)
-{
-  std::cout << "scrivo 1" << std::endl;
-  if (tagJetCandsMaxMinv.first->p4().Eta() > tagJetCandsMaxMinv.second->p4().Eta())
-    {
-      ///////////////// ************ resolution ***********************************************                                                                       
-      deltaRF = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.first->momentum(), m_genqTagF->Vect()) ;
-      m_deltaR_CandsMaxMinv -> Fill (deltaRF) ; 
-      m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.first->p4().E()/m_genqTagF->E()) ;
+			  m_deltaRB = ROOT::Math::VectorUtil::DeltaR (tagJetCands.second->momentum(), m_genqTagB->Vect()) ;
+			  m_EratioB = tagJetCands.second->p4().E()/m_genqTagB->E() ;
+			  
+			  ///////////////// ************ purity with inv mass selection ***********************************************
 
-      deltaRB = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.second->momentum(), m_genqTagB->Vect()) ;
-      m_deltaR_CandsMaxMinv -> Fill (deltaRB) ;
-      m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.second->p4().E()/m_genqTagB->E()) ;
-	  
-	  ///////////////// ************ purity with inv mass selection ***********************************************
+			  if (m_deltaRF < threshold && m_deltaRB > threshold) m_purity = 1 ; // 1 matching
+			  else if (m_deltaRB < threshold && m_deltaRF > threshold) m_purity = 1 ; // 1 matching       
+			  else if (m_deltaRB < threshold && m_deltaRF < threshold) m_purity = 2 ; // 2 matching
+			  else if (m_deltaRB > threshold && m_deltaRF > threshold) m_purity = 0 ; // 0 matching
+			}
+		  else if (tagJetCands.first->p4().Eta() < tagJetCands.second->p4().Eta()) 
+			{
+			  ///////////////// ************ resolution ***********************************************                                                                      
 
-      if (deltaRF < threshold && deltaRB > threshold) m_purityHisto_mInv-> Fill (1) ; // 1 matching
-      else if (deltaRB < threshold && deltaRF > threshold) m_purityHisto_mInv-> Fill (1) ; // 1 matching       
-      else if (deltaRB < threshold && deltaRF < threshold) m_purityHisto_mInv -> Fill (2) ; // 2 matching
-      else if (deltaRB > threshold && deltaRF > threshold) m_purityHisto_mInv-> Fill (0) ; // 0 matching
+			  m_deltaRB = ROOT::Math::VectorUtil::DeltaR (tagJetCands.first->momentum(), m_genqTagB->Vect()) ;
+			  m_EratioB  = tagJetCands.first->p4().E()/m_genqTagB->E() ;
 
+			  m_deltaRF = ROOT::Math::VectorUtil::DeltaR (tagJetCands.second->momentum(), m_genqTagF->Vect()) ;
+			  m_EratioF = tagJetCands.second->p4().E()/m_genqTagF->E() ;
+			  
+			  ///////////////// ************ purity with inv mass selection ***********************************************
 
-    }
-  else if (tagJetCandsMaxMinv.first->p4().Eta() < tagJetCandsMaxMinv.second->p4().Eta()) 
-    {
-      ///////////////// ************ resolution ***********************************************                                                                      
+			  if (m_deltaRF < threshold && m_deltaRB > threshold) m_purity = 1 ; // 1 matching
+			  else if (m_deltaRB < threshold && m_deltaRF > threshold) m_purity = 1 ; // 1 matching       
+			  else if (m_deltaRB < threshold && m_deltaRF < threshold) m_purity = 2 ; // 2 matching
+			  else if (m_deltaRB > threshold && m_deltaRF > threshold) m_purity = 0 ; // 0 matching
+			}
 
-      deltaRB = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.first->momentum(), m_genqTagB->Vect()) ;
-      m_deltaR_CandsMaxMinv -> Fill (deltaRB) ;
-      m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.first->p4().E()/m_genqTagB->E()) ;
+		}
+	}
+  
+m_ntuple -> Fill (m_deltaEta, m_prdEta, m_massInv, m_energyMax, m_ptMax, m_purity, m_deltaRF, m_deltaRB, m_EratioF, m_EratioB, m_algo) ;
 
-      deltaRF = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxMinv.second->momentum(), m_genqTagF->Vect()) ;
-      m_deltaR_CandsMaxMinv -> Fill (deltaRF) ;
-      m_Eratio_CandsMaxMinv -> Fill (tagJetCandsMaxMinv.second->p4().E()/m_genqTagF->E()) ;
-	  
-	  ///////////////// ************ purity with inv mass selection ***********************************************
-
-      if (deltaRF < threshold && deltaRB > threshold) m_purityHisto_mInv-> Fill (1) ; // 1 matching
-      else if (deltaRB < threshold && deltaRF > threshold) m_purityHisto_mInv-> Fill (1) ; // 1 matching       
-      else if (deltaRB < threshold && deltaRF < threshold) m_purityHisto_mInv -> Fill (2) ; // 2 matching
-      else if (deltaRB > threshold && deltaRF > threshold) m_purityHisto_mInv-> Fill (0) ; // 0 matching
-    }
-}
-///////////////////////////////////////////////////////////////// pt based selection
-
-  std::pair<VBFjetIt,VBFjetIt> tagJetCandsMaxPt = findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
-  double prodEta2 = tagJetCandsMaxPt.first->p4().Eta() * tagJetCandsMaxPt.second->p4().Eta();
-  double deltaEta2 = fabs (tagJetCandsMaxPt.first->p4().Eta() - tagJetCandsMaxPt.second->p4().Eta());
-  math::XYZTLorentzVector summedTags2 = tagJetCandsMaxPt.first->p4() + tagJetCandsMaxPt.second->p4();
-  double mInv2 =  summedTags2.M() ;
-  if (prodEta2 < 0 && deltaEta2 < 4 &&  mInv2 > 600)
-    {
-  if (tagJetCandsMaxPt.first->p4().Eta() > tagJetCandsMaxPt.second->p4().Eta())
-    {
-      ///////////////// ************ resolution ***********************************************
-      
-      deltaRF = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.first->momentum(), m_genqTagF->Vect()) ;
-      m_deltaR_CandsMaxPt -> Fill (deltaRF) ;
-      m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.first->p4().E()/m_genqTagF->E()) ;
-
-      deltaRB = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.second->momentum(), m_genqTagB->Vect()) ;
-      m_deltaR_CandsMaxPt -> Fill (deltaRB ) ;
-      m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.second->p4().E()/m_genqTagB->E()) ;
-
-      ///////////////// ************ purity with inv mass selection ***********************************************
-
-      if (deltaRF < threshold && deltaRB > threshold) m_purityHisto_pt-> Fill (1) ; // 1 matching
-      else if (deltaRB < threshold && deltaRF > threshold) m_purityHisto_pt-> Fill (1) ; // 1 matching       
-      else if (deltaRB < threshold && deltaRF < threshold) m_purityHisto_pt -> Fill (2) ; // 2 matching
-      else if (deltaRB > threshold && deltaRF > threshold) m_purityHisto_pt-> Fill (0) ; // 0 matching
-    }
-
-  else if (tagJetCandsMaxPt.first->p4().Eta() < tagJetCandsMaxPt.second->p4().Eta())
-    {
-	  ///////////////// ************ resolution ***********************************************
-
-      deltaRB = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.first->momentum(), m_genqTagB->Vect()) ;
-      m_deltaR_CandsMaxPt -> Fill (deltaRB) ;
-      m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.first->p4().E()/m_genqTagB->E()) ;
-
-      deltaRF = ROOT::Math::VectorUtil::DeltaR (tagJetCandsMaxPt.second->momentum(), m_genqTagF->Vect()) ;
-      m_deltaR_CandsMaxPt -> Fill (deltaRF) ;
-      m_Eratio_CandsMaxPt -> Fill (tagJetCandsMaxPt.second->p4().E()/m_genqTagF->E()) ;
-	  
-	  
-      ///////////////// ************ purity with inv mass selection ***********************************************
-
-      if (deltaRF < threshold && deltaRB > threshold) m_purityHisto_pt-> Fill (1) ; // 1 matching
-      else if (deltaRB < threshold && deltaRF > threshold) m_purityHisto_pt-> Fill (1) ; // 1 matching       
-      else if (deltaRB < threshold && deltaRF < threshold) m_purityHisto_pt -> Fill (2) ; // 2 matching
-      else if (deltaRB > threshold && deltaRF > threshold) m_purityHisto_pt-> Fill (0) ; // 0 matching
-
-    }
-    }
 }
 // --------------------------------------------------------------------
 
@@ -159,14 +128,7 @@ VBFDiffTagFinderComparison::beginJob (const edm::EventSetup&)
 
   edm::Service<TFileService> fs ;
 
-  m_deltaR_CandsMaxMinv = fs->make<TH1F> ("m_deltaR_CandsMaxMinv", "dR between jet and quark", 10000, 0, 50);
-  m_Eratio_CandsMaxMinv = fs->make<TH1F> ("m_Eratio_CandsMaxMinv", "ratio between quark and jet energies", 10000, 0, 150);
-
-  m_deltaR_CandsMaxPt = fs->make<TH1F> ("m_deltaR_CandsMaxPt", "dR between jet and quark", 10000, 0, 50);
-  m_Eratio_CandsMaxPt = fs->make<TH1F> ("m_Eratio_CandsMaxPt", "ratio between quark and jet energies", 10000, 0, 150);
-  
-  m_purityHisto_mInv = fs->make<TH1F> ("m_purityHisto_mInv", "purity with max inv mass method", 3, 0, 3);
-  m_purityHisto_pt = fs->make<TH1F> ("m_purityHisto_pt", "purity with max pt method", 3, 0, 3);
+  m_ntuple = fs->make <TNtuple> ("ntuple","Some variables","deltaEta:prodEta:mInv:Emax:Ptmax:purity:dR1:dR2:rE1:rE2:algo");
 
 }
 
