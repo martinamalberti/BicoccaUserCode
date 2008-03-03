@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.4 2008/02/25 14:58:38 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.8 2008/03/03 10:58:57 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -49,6 +49,8 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
   std::pair<VBFjetIt,VBFjetIt> tagJetCands ;
   if (m_algo == 0) tagJetCands = findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), 15.0, 5.0) ;
   else if (m_algo == 1) tagJetCands = findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), 15.0, 5.0) ;
+
+  if (tagJetCands.first->p4() == tagJetCands.second->p4()) return;
 
   double threshold = 0.3;
   double m_ptMax, m_energyMax;

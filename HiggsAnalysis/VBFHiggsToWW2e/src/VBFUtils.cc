@@ -1,4 +1,4 @@
-// $Id: VBFUtils.cc,v 1.10 2008/02/26 16:45:43 tancini Exp $
+// $Id: VBFUtils.cc,v 1.11 2008/02/28 07:55:20 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -42,7 +42,7 @@ findTagJets (VBFjetIt begin, VBFjetIt end,
         {
           if (secondJet->pt () < jetPtMin || 
               fabs (secondJet->eta ()) > jetEtaMax) continue ;
-	  if (firstJet->eta ()*secondJet->eta () > 0) continue ; // only tags in opposite emispheres are considered
+	  //if (firstJet->eta ()*secondJet->eta () > 0) continue ; // only tags in opposite emispheres are considered
           math::XYZTLorentzVector sumLV = secondJet->p4 () + firstLV ;
           if (sumLV.M () > maxInvMass)
             {
@@ -82,7 +82,8 @@ findMaxPtJetsPair (VBFjetIt begin, VBFjetIt end,
 	  ptMax1 = Jet->p4().Pt() ;
 
         } 
-      else if (Jet->p4().Pt() > ptMax2)
+      // else if ((Jet->p4().Pt() > ptMax2) && (myJet1->p4().Eta() *Jet->p4().Eta() < 0))
+      else if (Jet->p4().Pt() > ptMax2) 
 	{
          myJet2 = Jet;
          ptMax2 = Jet->p4().Pt() ;
