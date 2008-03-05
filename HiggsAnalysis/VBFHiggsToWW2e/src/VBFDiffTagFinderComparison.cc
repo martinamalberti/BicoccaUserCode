@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.8 2008/03/03 10:58:57 tancini Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.9 2008/03/03 13:20:19 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -54,7 +54,7 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
 
   double threshold = 0.3;
   double m_ptMax, m_energyMax;
-  int m_purity;
+  int m_purity = 99;
   double m_deltaRF = 99.9;
   double m_EratioF = 99.9;
   double m_deltaRB = 99.9;
