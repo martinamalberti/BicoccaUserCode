@@ -108,6 +108,13 @@ DEFINE_ANOTHER_FWK_MODULE (VBFTestTagJets) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIDMeter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFEleIDMeter) ; 
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElectronIsolator.h"
+typedef ObjectSelector<VBFElectronIsolator> VBFElectronIsolation ;
+typedef ObjectSelector<
+          VBFElectronIsolator, 
+          edm::RefVector<reco::PixelMatchGsfElectronCollection> 
+        > VBFElectronIsolationRef ;
+
 //#include "HiggsAnalysis/HiggsToZZ4e/plugins/HZZ4eTkIsolation.h"
 //typedef ObjectSelector<
 //          HZZ4eTkIsolation, 
