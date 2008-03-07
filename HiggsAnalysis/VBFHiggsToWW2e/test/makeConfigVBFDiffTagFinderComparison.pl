@@ -1,7 +1,7 @@
 $SAMPLE = $ARGV[0] ;
 $DATASETPATH = $ARGV[1] ;
 
-$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_tree_tag.root" ;
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_treeSkimmed_tag.root" ;
 $CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/tree_tag_".$SAMPLE.".cfg";
 
 system("rm -f ".$CONFIG ) ;   
