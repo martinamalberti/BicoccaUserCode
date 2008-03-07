@@ -1,3 +1,4 @@
+// $Id: VBFElePlots.cc,v 1.8 2008/02/14 14:43:55 govoni Exp $
 // -*- C++ -*-
 //
 // Package:    HtoWWElectrons
@@ -10,11 +11,6 @@
    Implementation:
  
 */
-//
-// Original Author:  Chiara Rovelli
-//
-//
-
 
 #ifndef VBFEleTrackerIsolationAlgo_h
 #define VBFEleTrackerIsolationAlgo_h
@@ -33,36 +29,41 @@
 //CLHEP
 #include <CLHEP/Vector/LorentzVector.h>
 
-using namespace edm;
-using namespace std;
-using namespace reco;
+class VBFEleTrackerIsolationAlgo {
 
-class VBFEleTrackerIsolationAlgo{
- public:
+  public:
   
-  //constructors
-  VBFEleTrackerIsolationAlgo();
-  VBFEleTrackerIsolationAlgo(const PixelMatchGsfElectron *gsfEle, const TrackCollection trackColl);
-
-  //methods
-  void setExtRadius (float extRadius);
-  void setIntRadius (float intRadius);
+    typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
+    typedef reco::PixelMatchGsfElectron* electronPtr ;
+    typedef reco::PixelMatchGsfElectronRef electronRef ;
+    typedef edm::View<reco::Track> trackCollection ; 
   
-  float getPtTracks () const;
-  float minDeltaR (float minPt) const;
-  float minDeltaR_withVeto (float minPt) const;
-  bool isIsolated (float ptCut = 0.05) const;
+    //! constructor
+    VBFEleTrackerIsolationAlgo (double coneRadius,
+                                double vetoRadius,
+                                double otherVetoRadius,
+                                double ptMin,
+                                double lipMax) ;
+  
+    //!destructor 
+    ~VBFEleTrackerIsolationAlgo () ;
+  
+    float calcSumOfPt (const electronCollection & electrons,
+                       const trackCollection & tracks,
+                       const electronPtr mainElectron) const ;
 
-  //destructor 
-  ~VBFEleTrackerIsolationAlgo();
+    float calcIsolationValue (const electronCollection & electrons,
+                              const trackCollection & tracks,
+                              const electronPtr mainElectron) const ;
   
  private:
 
-  const PixelMatchGsfElectron*_myGsfEle;  	  
-  const TrackCollection _tracks;
-  
-  float _extRadius;
-  float _intRadius;
+    double m_coneRadius ;
+    double m_vetoRadius ;
+    double m_otherVetoRadius ;
+    double m_ptMin ;
+    double m_lipMax ;
+
 };
 
 #endif
