@@ -1,4 +1,4 @@
-// $Id: VBFElePlots.cc,v 1.8 2008/02/14 14:43:55 govoni Exp $
+// $Id: VBFElectronIsolator.h,v 1.2 2008/03/07 11:06:37 govoni Exp $
 #ifndef VBFElectronIsolator_h
 #define VBFElectronIsolator_h
 
@@ -39,7 +39,7 @@ class VBFElectronIsolator{
    const_iterator begin () const { return m_selected.begin () ; }
    const_iterator end () const { return  m_selected.end () ; }
 
-   void select (const collection, const edm::Event&) ;
+   void select (const edm::Handle<collection>, const edm::Event&) ;
 	
  private:	
  
@@ -57,12 +57,6 @@ class VBFElectronIsolator{
    //! isolated electrons   
    std::vector<reco::PixelMatchGsfElectronRef> m_selected ;
 
-
-   edm::InputTag m_tracksLabel ;
-   edm::InputTag m_electronsLabel ;
-   edm::InputTag m_trckIsolationProducer ;
-   bool m_doRefCheck ;
-   edm::InputTag m_selectedElectronsRefLabel ;
 };
 
 

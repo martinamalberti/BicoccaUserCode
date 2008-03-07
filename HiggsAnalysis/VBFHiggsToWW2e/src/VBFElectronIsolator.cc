@@ -1,4 +1,4 @@
-// $Id: VBFElectronIsolator.cc,v 1.2 2008/03/07 11:06:38 govoni Exp $
+// $Id: VBFElectronIsolator.cc,v 1.3 2008/03/07 11:35:53 govoni Exp $
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElectronIsolator.h"
 
@@ -18,7 +18,7 @@ VBFElectronIsolator::VBFElectronIsolator (const edm::ParameterSet& iConfig) :
 // ------------------------------------------------------------------------------------------------
 
 
-VBFElectronIsolator::~VBFElectronIsolator()
+VBFElectronIsolator::~VBFElectronIsolator ()
 {
 }
 
@@ -27,7 +27,7 @@ VBFElectronIsolator::~VBFElectronIsolator()
 
 
 //PG FIXME qui ci voglio un edm::View??
-void VBFElectronIsolator::select (const VBFElectronIsolator::collection electrons, 
+void VBFElectronIsolator::select (const edm::Handle<VBFElectronIsolator::collection> electrons, 
                                   const edm::Event& iEvent)
 {
 // Get the electrons
@@ -41,9 +41,9 @@ void VBFElectronIsolator::select (const VBFElectronIsolator::collection electron
   m_selected.clear () ;
 
   //PG loop over electrons
-  for (unsigned i =0 ; i < electrons.size () ; ++i)
+  for (unsigned i = 0 ; i < electrons->size () ; ++i)
     {
-      electronRef electronReference = electrons.refAt (i).castTo<electronRef> () ;
+      electronRef electronReference = electrons->refAt (i).castTo<electronRef> () ;
       double isolationValue = 0. ;
       m_tkIsolationAlgo.calcIsolationValue (electrons, TrackHandle, electronReference) ;
       if (isolationValue < m_trackIsolationCut)

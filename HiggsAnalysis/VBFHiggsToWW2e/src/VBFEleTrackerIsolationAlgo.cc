@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.4 2008/03/07 10:05:35 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.5 2008/03/07 11:35:53 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -33,7 +33,7 @@ VBFEleTrackerIsolationAlgo::~VBFEleTrackerIsolationAlgo () {}
 
 
 float 
-VBFEleTrackerIsolationAlgo::calcSumOfPt (const electronCollection & electrons,
+VBFEleTrackerIsolationAlgo::calcSumOfPt (const edm::Handle<electronCollection> & electrons,
                                          const edm::Handle<trackCollection> & tracks,
                                          const electronRef mainElectron) const
 {
@@ -59,8 +59,8 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const electronCollection & electrons,
 
       //PG loop over electrons
       if (m_otherVetoRadius > 0.0001) //PG to avoid useless caclulations 
-        for (electronCollection::const_iterator eleIt = electrons.begin () ; 
-             eleIt != electrons.end () ;
+        for (electronCollection::const_iterator eleIt = electrons->begin () ; 
+             eleIt != electrons->end () ;
              ++eleIt)
           {
               reco::GsfTrackRef eleTrack = eleIt->gsfTrack () ;
@@ -92,7 +92,7 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const electronCollection & electrons,
 
 
 float 
-VBFEleTrackerIsolationAlgo::calcIsolationValue (const electronCollection & electrons,
+VBFEleTrackerIsolationAlgo::calcIsolationValue (const edm::Handle<electronCollection> & electrons,
                                                 const edm::Handle<trackCollection> & tracks,
                                                 const electronRef mainElectron) const
 {
