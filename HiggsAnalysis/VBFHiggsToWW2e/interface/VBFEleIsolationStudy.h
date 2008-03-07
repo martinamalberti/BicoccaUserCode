@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleIsolationStudy.h,v 1.3 2007/12/12 18:36:26 govoni Exp $
+// $Id: VBFEleIsolationStudy.h,v 1.1 2008/03/07 14:48:27 govoni Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
@@ -120,13 +121,13 @@ class VBFEleIsolationStudy : public edm::EDAnalyzer {
       typedef math::XYZTLorentzVector LorentzVector ;
       typedef std::vector<LorentzVector> LorentzVectorCollection ;
       typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
+      typedef reco::PixelMatchGsfElectronRef electronRef ;
+      typedef edm::RefToBase<reco::PixelMatchGsfElectron> electronBaseRef ;
 
       //! ctor
       explicit VBFEleIsolationStudy (const edm::ParameterSet&);
       //! dtor
       ~VBFEleIsolationStudy ();
-
-   private:
 
       virtual void beginJob (const edm::EventSetup&);
       virtual void analyze (const edm::Event&, const edm::EventSetup&);
@@ -134,9 +135,32 @@ class VBFEleIsolationStudy : public edm::EDAnalyzer {
 
    private:
 
+      void findFirstTwo (edm::Handle<electronCollection> & EleHandle ,
+                         electronRef & firstEle ,
+                         electronRef & secondEle) ;
+ 
+   private:
+
       edm::InputTag m_GSFInputTag ;
+      edm::InputTag m_AmbRefInputTag ;
       edm::InputTag m_OLDIsoInputTag ;
       edm::InputTag m_NEWIsoInputTag ;
+
+   private:
+     
+     template <typename T>
+     typename edm::View<T>::const_iterator
+     findInView (typename edm::Handle<edm::View<T> > collection,
+                 typename edm::RefToBase<T> element) 
+       {
+         for (typename edm::View<T>::const_iterator it = collection->begin () ; 
+              it != collection->end () ;
+              ++it)
+           {
+             if (collection->refAt (it - collection->begin ()) == element) return it ;
+           }   
+          return collection->end () ;             
+       }
 
 };
 
