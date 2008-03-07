@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.5 2008/03/07 11:35:53 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.6 2008/03/07 11:49:17 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -40,8 +40,10 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const edm::Handle<electronCollection> &
   float ptSum = 0 ;
 
   //Take the electron track
-  reco::GsfTrackRef tmpTrack = mainElectron->gsfTrack () ;
-  math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
+  math::XYZVector tmpElectronMomentumAtVtx = mainElectron->trackMomentumAtVtx () ; 
+  math::XYZVector tmpElectronPositionAtVtx = mainElectron->TrackPositionAtVtx () ; 
+//  reco::GsfTrackRef tmpTrack = mainElectron->gsfTrack () ;
+//  math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
 
   //PG loop over tracks
   for (trackCollection::const_iterator trackIt = tracks->begin () ;
@@ -53,7 +55,8 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const edm::Handle<electronCollection> &
       double this_pt = (*trackIt).pt () ;
       if ( this_pt < m_ptMin ) continue ;  
       //PG impact parameter threshold
-      if (fabs( (*trackIt).dz () - (*tmpTrack).dz () ) > m_lipMax) continue ;
+      if (fabs( (*trackIt).dz () - dz (tmpElectronPositionAtVtx,tmpElectronMomentumAtVtx) ) 
+          > m_lipMax) continue ;
 
       bool countTrack = true ;
 
@@ -63,9 +66,10 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const edm::Handle<electronCollection> &
              eleIt != electrons->end () ;
              ++eleIt)
           {
-              reco::GsfTrackRef eleTrack = eleIt->gsfTrack () ;
-              math::XYZVector eleMomentum = (*eleTrack).momentum () ; 
-              if (fabs( (*trackIt).dz () - (*eleTrack).dz () ) > m_lipMax) continue ;
+//              reco::GsfTrackRef eleTrack = eleIt->gsfTrack () ;
+              math::XYZVector eleMomentum = eleIt->trackMomentumAtVtx () ; 
+              math::XYZVector eleVtx = eleIt->TrackPositionAtVtx () ; 
+              if (fabs( (*trackIt).dz () - dz (eleVtx,eleMomentum) ) > m_lipMax) continue ;
               double eleDr = ROOT::Math::VectorUtil::DeltaR (tmpTrackMomentumAtVtx,eleMomentum) ;
               if (eleDr < m_otherVetoRadius) 
                 {
@@ -104,3 +108,14 @@ VBFEleTrackerIsolationAlgo::calcIsolationValue (const edm::Handle<electronCollec
 }
 
 
+// ------------------------------------------------------------------------------------------------
+
+
+double VBFEleTrackerIsolationAlgo::dz (const math::XYZVector & vertex,
+                                       const math::XYZVector & momentum) const 
+{ 
+  double invpt = 1. / sqrt ( momentum.Perp2 () ) ;
+  return vertex.z () - 
+        (vertex.x () * momentum.x () + vertex.y () * momentum.y ()) * invpt * 
+        (momentum.z () * invpt) ; 
+}

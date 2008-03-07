@@ -1,9 +1,10 @@
-// $Id: VBFElectronIsolator.cc,v 1.3 2008/03/07 11:35:53 govoni Exp $
-#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
+// $Id: VBFElectronIsolator.cc,v 1.4 2008/03/07 11:49:17 govoni Exp $
+//#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElectronIsolator.h"
 
 
 VBFElectronIsolator::VBFElectronIsolator (const edm::ParameterSet& iConfig) :
+  m_TrackInputTag (iConfig.getParameter<edm::InputTag> ("trackInputTag")) ,
   m_tkIsolationAlgo (
       iConfig.getParameter<double> ("coneRadius") ,
       iConfig.getParameter<double> ("vetoRadius") ,
@@ -26,7 +27,6 @@ VBFElectronIsolator::~VBFElectronIsolator ()
 // ------------------------------------------------------------------------------------------------
 
 
-//PG FIXME qui ci voglio un edm::View??
 void VBFElectronIsolator::select (const edm::Handle<VBFElectronIsolator::collection> electrons, 
                                   const edm::Event& iEvent)
 {

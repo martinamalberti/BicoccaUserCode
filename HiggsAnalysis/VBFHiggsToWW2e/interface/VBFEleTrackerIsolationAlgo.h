@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.h,v 1.3 2008/03/07 11:35:53 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.h,v 1.4 2008/03/07 11:49:17 govoni Exp $
 // -*- C++ -*-
 //
 // Package:    HtoWWElectrons
@@ -55,6 +55,12 @@ class VBFEleTrackerIsolationAlgo {
                               const edm::Handle<trackCollection> & tracks,
                               const electronRef mainElectron) const ;
   
+
+  private :
+  
+    double dz (const math::XYZVector & vertex,
+               const math::XYZVector & momentum) const ;
+
  private:
 
     double m_coneRadius ;
