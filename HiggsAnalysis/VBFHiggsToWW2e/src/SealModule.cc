@@ -90,6 +90,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFJetVetoFilter) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFTrivialAnalysis.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFTrivialAnalysis) ;
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFEleIsolationStudy) ;
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFplots) ; 
 
@@ -110,17 +113,12 @@ DEFINE_ANOTHER_FWK_MODULE (VBFEleIDMeter) ;
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElectronIsolator.h"
 typedef ObjectSelector<VBFElectronIsolator> VBFElectronIsolation ;
+DEFINE_ANOTHER_FWK_MODULE (VBFElectronIsolation) ;
+
 typedef ObjectSelector<
           VBFElectronIsolator, 
           edm::RefVector<reco::PixelMatchGsfElectronCollection> 
         > VBFElectronIsolationRef ;
-
-//#include "HiggsAnalysis/HiggsToZZ4e/plugins/HZZ4eTkIsolation.h"
-//typedef ObjectSelector<
-//          HZZ4eTkIsolation, 
-//          edm::RefVector<reco::PixelMatchGsfElectronCollection> 
-//         > TkIsoRef ;
-//DEFINE_ANOTHER_FWK_MODULE (TkIsoRef) ;
-
+DEFINE_ANOTHER_FWK_MODULE (VBFElectronIsolationRef) ;
 
 
