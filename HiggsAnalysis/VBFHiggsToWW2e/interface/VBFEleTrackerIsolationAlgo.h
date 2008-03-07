@@ -1,4 +1,4 @@
-// $Id: VBFElePlots.cc,v 1.8 2008/02/14 14:43:55 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.h,v 1.2 2008/03/07 10:02:54 govoni Exp $
 // -*- C++ -*-
 //
 // Package:    HtoWWElectrons
@@ -34,7 +34,6 @@ class VBFEleTrackerIsolationAlgo {
   public:
   
     typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
-    typedef reco::PixelMatchGsfElectron* electronPtr ;
     typedef reco::PixelMatchGsfElectronRef electronRef ;
     typedef edm::View<reco::Track> trackCollection ; 
   
@@ -49,12 +48,12 @@ class VBFEleTrackerIsolationAlgo {
     ~VBFEleTrackerIsolationAlgo () ;
   
     float calcSumOfPt (const electronCollection & electrons,
-                       const trackCollection & tracks,
-                       const electronPtr mainElectron) const ;
+                       const edm::Handle<trackCollection> & tracks,
+                       const electronRef mainElectron) const ;
 
     float calcIsolationValue (const electronCollection & electrons,
-                              const trackCollection & tracks,
-                              const electronPtr mainElectron) const ;
+                              const edm::Handle<trackCollection> & tracks,
+                              const electronRef mainElectron) const ;
   
  private:
 

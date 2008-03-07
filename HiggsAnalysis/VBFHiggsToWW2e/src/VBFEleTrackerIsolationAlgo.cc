@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.3 2008/03/07 10:03:30 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.4 2008/03/07 10:05:35 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -34,9 +34,8 @@ VBFEleTrackerIsolationAlgo::~VBFEleTrackerIsolationAlgo () {}
 
 float 
 VBFEleTrackerIsolationAlgo::calcSumOfPt (const electronCollection & electrons,
-                                         const trackCollection & tracks,
-                                         const electronPtr mainElectron) const
-//                                         const electronRef & mainElectron) const
+                                         const edm::Handle<trackCollection> & tracks,
+                                         const electronRef mainElectron) const
 {
   float ptSum = 0 ;
 
@@ -45,8 +44,8 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const electronCollection & electrons,
   math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
 
   //PG loop over tracks
-  for (trackCollection::const_iterator trackIt = tracks.begin () ;
-       trackIt != tracks.end () ; 
+  for (trackCollection::const_iterator trackIt = tracks->begin () ;
+       trackIt != tracks->end () ; 
        ++trackIt)
     {    
       //PG min pT threshold
@@ -94,9 +93,8 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const electronCollection & electrons,
 
 float 
 VBFEleTrackerIsolationAlgo::calcIsolationValue (const electronCollection & electrons,
-                                                const trackCollection & tracks,
-                                                const electronPtr mainElectron) const
-//                                              const electronRef & mainElectron) const
+                                                const edm::Handle<trackCollection> & tracks,
+                                                const electronRef mainElectron) const
 {
 
   float isoVal = calcSumOfPt (electrons, tracks, mainElectron) ;

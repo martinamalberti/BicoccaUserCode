@@ -1,4 +1,4 @@
-// $Id: VBFElePlots.cc,v 1.8 2008/02/14 14:43:55 govoni Exp $
+// $Id: VBFElectronIsolator.cc,v 1.2 2008/03/07 11:06:38 govoni Exp $
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElectronIsolator.h"
 
@@ -43,12 +43,12 @@ void VBFElectronIsolator::select (const VBFElectronIsolator::collection electron
   //PG loop over electrons
   for (unsigned i =0 ; i < electrons.size () ; ++i)
     {
-//      electronRef electronReference (electrons,i) ;
+      electronRef electronReference = electrons.refAt (i).castTo<electronRef> () ;
       double isolationValue = 0. ;
-    //  m_tkIsolationAlgo.calcIsolationValue (GSFHandle, TrackHandle, &(*electronReference)) ;
+      m_tkIsolationAlgo.calcIsolationValue (electrons, TrackHandle, electronReference) ;
       if (isolationValue < m_trackIsolationCut)
         {
-    //      m_selected.push_back () ;
+          m_selected.push_back (electronReference) ;
         }
     } //PG loop over electrons
       
