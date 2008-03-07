@@ -1,4 +1,4 @@
-// $Id: VBFElePlots.cc,v 1.8 2008/02/14 14:43:55 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.3 2008/03/07 10:03:30 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -59,20 +59,21 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const electronCollection & electrons,
       bool countTrack = true ;
 
       //PG loop over electrons
-      for (electronCollection::const_iterator eleIt = electrons.begin () ; 
-           eleIt != electrons.end () ;
-           ++eleIt)
-        {
-            reco::GsfTrackRef eleTrack = eleIt->gsfTrack () ;
-            math::XYZVector eleMomentum = (*eleTrack).momentum () ; 
-            if (fabs( (*trackIt).dz () - (*eleTrack).dz () ) > m_lipMax) continue ;
-            double eleDr = ROOT::Math::VectorUtil::DeltaR (tmpTrackMomentumAtVtx,eleMomentum) ;
-            if (eleDr < m_otherVetoRadius) 
-              {
-                countTrack = false ;
-                break ;
-              }
-        } //PG loop over electrons
+      if (m_otherVetoRadius > 0.0001) //PG to avoid useless caclulations 
+        for (electronCollection::const_iterator eleIt = electrons.begin () ; 
+             eleIt != electrons.end () ;
+             ++eleIt)
+          {
+              reco::GsfTrackRef eleTrack = eleIt->gsfTrack () ;
+              math::XYZVector eleMomentum = (*eleTrack).momentum () ; 
+              if (fabs( (*trackIt).dz () - (*eleTrack).dz () ) > m_lipMax) continue ;
+              double eleDr = ROOT::Math::VectorUtil::DeltaR (tmpTrackMomentumAtVtx,eleMomentum) ;
+              if (eleDr < m_otherVetoRadius) 
+                {
+                  countTrack = false ;
+                  break ;
+                }
+          } //PG loop over electrons
         
       double dr = ROOT::Math::VectorUtil::DeltaR (tmpTrackMomentumAtVtx,tmpElectronMomentumAtVtx) ;
       if ( countTrack && 
