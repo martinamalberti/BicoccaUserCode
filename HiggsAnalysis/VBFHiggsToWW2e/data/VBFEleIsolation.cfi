@@ -1,0 +1,11 @@
+module eleIsolation = VBFElectronIsolationRef
+{
+  InputTag src = pixelMatchGsfElectrons
+  double coneRadius = 0.4
+  double vetoRadius = 0.015
+  double otherVetoRadius = 0.015
+  double ptMin = 1.5
+  double lipMax = 0.1
+  double tkIsoCut = 0.1
+  bool filter = false
+}
