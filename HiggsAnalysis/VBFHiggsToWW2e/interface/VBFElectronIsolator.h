@@ -1,4 +1,4 @@
-// $Id: VBFElectronIsolator.h,v 1.2 2008/03/07 11:06:37 govoni Exp $
+// $Id: VBFElectronIsolator.h,v 1.3 2008/03/07 11:49:17 govoni Exp $
 #ifndef VBFElectronIsolator_h
 #define VBFElectronIsolator_h
 
@@ -43,8 +43,6 @@ class VBFElectronIsolator{
 	
  private:	
  
-   //! pixel match gsf electrons
-   edm::InputTag m_GSFInputTag ;
    //! all the tracks
    edm::InputTag m_TrackInputTag ;
 
