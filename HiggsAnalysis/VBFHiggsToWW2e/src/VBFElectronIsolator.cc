@@ -1,59 +1,57 @@
-#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
+// $Id: VBFElePlots.cc,v 1.8 2008/02/14 14:43:55 govoni Exp $
 #include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElectronIsolator.h"
 
 
-VBFElectronIsolator::VBFElectronIsolator(const edm::ParameterSet& iConfig)
-{
-  selectedElectronsRefLabel_ = iConfig.getParameter<InputTag>("SelectedElectronRefCollectionLabel");
-  trckIsolationProducer_     = iConfig.getParameter<InputTag>("TrckIsolationProducerLabel");
-  doRefCheck_		     = iConfig.getParameter<bool>("doRefCheck");
-  theTrackIsolCut_	     = iConfig.getParameter<double>("TrackIsolCut");
-}
+VBFElectronIsolator::VBFElectronIsolator (const edm::ParameterSet& iConfig) :
+  m_tkIsolationAlgo (
+      iConfig.getParameter<double> ("coneRadius") ,
+      iConfig.getParameter<double> ("vetoRadius") ,
+      iConfig.getParameter<double> ("otherVetoRadius") ,
+      iConfig.getParameter<double> ("ptMin") ,
+      iConfig.getParameter<double> ("lipMax") 
+    ) ,
+  m_trackIsolationCut (iConfig.getParameter<double> ("tkIsoCut"))
+{}
+
+
+// ------------------------------------------------------------------------------------------------
 
 
 VBFElectronIsolator::~VBFElectronIsolator()
 {
 }
 
-void VBFElectronIsolator::select(edm::Handle<reco::PixelMatchGsfElectronCollection> electrons, const edm::Event& iEvent)
+
+// ------------------------------------------------------------------------------------------------
+
+
+//PG FIXME qui ci voglio un edm::View??
+void VBFElectronIsolator::select (const VBFElectronIsolator::collection electrons, 
+                                  const edm::Event& iEvent)
 {
-  using namespace edm;
-  using namespace reco;
-  using namespace std;
+// Get the electrons
+//  edm::Handle<electronCollection> GSFHandle ;
+//  iEvent.getByLabel (m_GSFInputTag, GSFHandle) ;
 
-  selected_.clear();
-  Handle<RefVector<PixelMatchGsfElectronCollection> >electronsRef;
+  // Get the tracks
+  edm::Handle<trackCollection> TrackHandle ;
+  iEvent.getByLabel (m_TrackInputTag, TrackHandle) ;
 
-  edm::Handle< reco::PMGsfElectronIsoCollection > tkIsolationHandle;
-  try {
-    iEvent.getByLabel(trckIsolationProducer_, tkIsolationHandle);
-  }
-  catch ( cms::Exception& ex ) {
-    printf("Can't get tracker isolation product\n");
-  }
+  m_selected.clear () ;
 
-  if(doRefCheck_==true)
-    iEvent.getByLabel(selectedElectronsRefLabel_,electronsRef);
-
-  for(unsigned i =0; i<electrons->size(); i++)
-  {
-     double sumPtOverEt = (*tkIsolationHandle)[i].second; 
-
-     Ref<reco::PixelMatchGsfElectronCollection> electronRAWRef(electrons,i);
-     
-     bool selected=true;
-     if(doRefCheck_==true)
-       if (find(electronsRef->begin(), electronsRef->end(),electronRAWRef)==electronsRef->end())
-       {
-         selected=false;
-       }
-
-     if (sumPtOverEt < theTrackIsolCut_ && selected==true)
-     {
-       selected_.push_back(electronRAWRef);
-     }
-  }
+  //PG loop over electrons
+  for (unsigned i =0 ; i < electrons.size () ; ++i)
+    {
+//      electronRef electronReference (electrons,i) ;
+      double isolationValue = 0. ;
+    //  m_tkIsolationAlgo.calcIsolationValue (GSFHandle, TrackHandle, &(*electronReference)) ;
+      if (isolationValue < m_trackIsolationCut)
+        {
+    //      m_selected.push_back () ;
+        }
+    } //PG loop over electrons
+      
 }
 
 

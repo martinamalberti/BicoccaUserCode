@@ -1,3 +1,4 @@
+// $Id: VBFElePlots.cc,v 1.8 2008/02/14 14:43:55 govoni Exp $
 #ifndef VBFElectronIsolator_h
 #define VBFElectronIsolator_h
 
@@ -15,30 +16,53 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
+
 
 class VBFElectronIsolator{
+
  public:
+
    explicit VBFElectronIsolator (const edm::ParameterSet&) ;
-   ~VBFElectronIsolator();
+   ~VBFElectronIsolator () ;
 
    // Collections to be selected
-   typedef reco::PixelMatchGsfElectronCollection collection;
-   typedef std::vector<reco::PixelMatchGsfElectronRef> ::const_iterator const_iterator;
+//   typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
+   typedef edm::View<reco::PixelMatchGsfElectron> collection ;
+   typedef reco::PixelMatchGsfElectronRef electronRef ;
+   typedef edm::View<reco::Track> trackCollection ; 
+
+//   typedef reco::PixelMatchGsfElectronCollection collection ;
+   typedef std::vector<reco::PixelMatchGsfElectronRef> ::const_iterator const_iterator ;
 
    //define iterators with above typedef
-   const_iterator begin () const { return selected_.begin () ; }
-   const_iterator end () const { return  selected_.end () ; }
+   const_iterator begin () const { return m_selected.begin () ; }
+   const_iterator end () const { return  m_selected.end () ; }
 
-   void select (edm::Handle<reco::PixelMatchGsfElectronCollection>, const edm::Event&) ;
+   void select (const collection, const edm::Event&) ;
 	
  private:	
-   std::vector<reco::PixelMatchGsfElectronRef> selected_;
-   edm::InputTag tracksLabel_;
-   edm::InputTag electronsLabel_;
-   edm::InputTag trckIsolationProducer_;
-   bool doRefCheck_;
-   edm::InputTag selectedElectronsRefLabel_;
-   double theTrackIsolCut_; 
+ 
+   //! pixel match gsf electrons
+   edm::InputTag m_GSFInputTag ;
+   //! all the tracks
+   edm::InputTag m_TrackInputTag ;
+
+   //! the isolation algorithm
+   VBFEleTrackerIsolationAlgo m_tkIsolationAlgo ;
+
+   //! the isolation threshold
+   double m_trackIsolationCut ; 
+
+   //! isolated electrons   
+   std::vector<reco::PixelMatchGsfElectronRef> m_selected ;
+
+
+   edm::InputTag m_tracksLabel ;
+   edm::InputTag m_electronsLabel ;
+   edm::InputTag m_trckIsolationProducer ;
+   bool m_doRefCheck ;
+   edm::InputTag m_selectedElectronsRefLabel ;
 };
 
 
