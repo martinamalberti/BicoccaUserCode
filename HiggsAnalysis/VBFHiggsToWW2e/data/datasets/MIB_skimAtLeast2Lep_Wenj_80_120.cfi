@@ -1,0 +1,17 @@
+source = PoolSource 
+{ 
+  untracked vstring fileNames = 
+    {
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_10.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_11.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_1.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_2.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_3.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_4.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_5.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_6.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_7.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_8.root",
+/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_Wenj_80_120//VBFskim_9.root"
+    }
+}
