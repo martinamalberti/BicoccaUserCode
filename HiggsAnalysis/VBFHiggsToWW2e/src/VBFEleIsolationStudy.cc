@@ -1,5 +1,6 @@
-// $Id: VBFEleIsolationStudy.cc,v 1.1 2008/03/07 14:48:27 govoni Exp $
+// $Id: VBFEleIsolationStudy.cc,v 1.2 2008/03/07 18:08:05 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
 //#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
@@ -67,17 +68,16 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
             << NEWIsoHandle->size () 
             << std::endl ;
 
-  int OLDcounter = 0 ;
-  int NEWcounter = 0 ;
-
+  //PG if not enough electrons
+  if (AmbRefHandle->size () < 2) return ;
 
   electronRef firstAmbRefEle ;
   electronRef secondAmbRefEle ;
   findFirstTwo (AmbRefHandle, firstAmbRefEle, secondAmbRefEle) ;
-  //PG if not enough electrons
   if (firstAmbRefEle == secondAmbRefEle) return ; 
 
-
+  int OLDcounter = 0 ;
+  int NEWcounter = 0 ;
 
   //PG loop over GSF electrons
   for (unsigned GSFit = 0 ; GSFit < GSFHandle->size () ; ++GSFit)
@@ -95,6 +95,9 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
 
     } //PG loop over electrons
 
+  float Dphi = deltaPhi (firstAmbRefEle->phi (),secondAmbRefEle->phi ()) ;
+  m_OLDIsoEffvsDPhi->Fill (Dphi, OLDcounter) ;
+  m_NEWIsoEffvsDPhi->Fill (Dphi, NEWcounter) ;
 
 }
 
@@ -105,6 +108,9 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
 void 
 VBFEleIsolationStudy::beginJob (const edm::EventSetup&)
 {
+  edm::Service<TFileService> fs ;
+  m_OLDIsoEffvsDPhi = fs->make<TH2F> ("OLDIsoEffvsDPhi","OLDIsoEffvsPhi",180,0,3.15,2,0,2) ;
+  m_NEWIsoEffvsDPhi = fs->make<TH2F> ("NEWIsoEffvsDPhi","NEWIsoEffvsPhi",180,0,3.15,2,0,2) ;
 }
 
 

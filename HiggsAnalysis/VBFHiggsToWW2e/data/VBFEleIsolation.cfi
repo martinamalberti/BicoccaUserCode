@@ -1,6 +1,7 @@
-module eleIsolation = VBFElectronIsolationRef
+module refEleIsolation = VBFElectronIsolationRef
 {
   InputTag src = pixelMatchGsfElectrons
+  InputTag trackInputTag = ctfWithMaterialTracks
   double coneRadius = 0.4
   double vetoRadius = 0.015
   double otherVetoRadius = 0.015

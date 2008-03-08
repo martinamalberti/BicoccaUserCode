@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleIsolationStudy.h,v 1.1 2008/03/07 14:48:27 govoni Exp $
+// $Id: VBFEleIsolationStudy.h,v 1.2 2008/03/07 18:08:04 govoni Exp $
 //
 //
 
@@ -93,7 +93,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -107,6 +108,7 @@
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
 //root include
+#include <TH2F.h>
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
@@ -146,6 +148,9 @@ class VBFEleIsolationStudy : public edm::EDAnalyzer {
       edm::InputTag m_OLDIsoInputTag ;
       edm::InputTag m_NEWIsoInputTag ;
 
+      TH2F * m_OLDIsoEffvsDPhi ;
+      TH2F * m_NEWIsoEffvsDPhi ;
+ 
    private:
      
      template <typename T>
