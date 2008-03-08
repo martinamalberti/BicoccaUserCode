@@ -1,4 +1,4 @@
-// $Id: VBFEleIsolationStudy.cc,v 1.2 2008/03/07 18:08:05 govoni Exp $
+// $Id: VBFEleIsolationStudy.cc,v 1.3 2008/03/08 15:01:24 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
@@ -7,6 +7,7 @@
 //#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
 #include <DataFormats/RecoCandidate/interface/RecoChargedCandidate.h>
 #include <DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h>
+
 
 VBFEleIsolationStudy::VBFEleIsolationStudy (const edm::ParameterSet& iConfig) :
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
@@ -40,33 +41,33 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
   edm::Handle<electronCollection> GSFHandle ;
   iEvent.getByLabel (m_GSFInputTag,GSFHandle) ; 
 
-  std::cout << "[VBFEleIsolationStudy][analyze] number of GSF electrons : "
-            << GSFHandle->size () 
-            << std::endl ;
+//  std::cout << "[VBFEleIsolationStudy][analyze] number of GSF electrons : "
+//            << GSFHandle->size () 
+//            << std::endl ;
 
   //PG get the AmbRef electrons collection
   edm::Handle<electronCollection> AmbRefHandle ;
   iEvent.getByLabel (m_AmbRefInputTag,AmbRefHandle) ; 
 
-  std::cout << "[VBFEleIsolationStudy][analyze] number of AmbRef electrons : "
-            << AmbRefHandle->size () 
-            << std::endl ;
+//  std::cout << "[VBFEleIsolationStudy][analyze] number of AmbRef electrons : "
+//            << AmbRefHandle->size () 
+//            << std::endl ;
 
   //PG get the OLDIso electrons collection
   edm::Handle<electronCollection> OLDIsoHandle ;
   iEvent.getByLabel (m_OLDIsoInputTag,OLDIsoHandle) ; 
 
-  std::cout << "[VBFEleIsolationStudy][analyze] number of OLDIso electrons : "
-            << OLDIsoHandle->size () 
-            << std::endl ;
+//  std::cout << "[VBFEleIsolationStudy][analyze] number of OLDIso electrons : "
+//            << OLDIsoHandle->size () 
+//            << std::endl ;
 
   //PG get the NEWIso electrons collection
   edm::Handle<electronCollection> NEWIsoHandle ;
   iEvent.getByLabel (m_NEWIsoInputTag,NEWIsoHandle) ; 
 
-  std::cout << "[VBFEleIsolationStudy][analyze] number of NEWIso electrons : "
-            << NEWIsoHandle->size () 
-            << std::endl ;
+//  std::cout << "[VBFEleIsolationStudy][analyze] number of NEWIso electrons : "
+//            << NEWIsoHandle->size () 
+//            << std::endl ;
 
   //PG if not enough electrons
   if (AmbRefHandle->size () < 2) return ;
