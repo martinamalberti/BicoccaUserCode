@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFUtils.h,v 1.6 2008/02/20 14:59:58 tancini Exp $
+// $Id: VBFUtils.h,v 1.7 2008/02/26 16:45:43 tancini Exp $
 //
 //
 // system include files
@@ -11,7 +11,10 @@ Implementation: inherits from generic EDFilter
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/Common/interface/View.h"
 #include "TLorentzVector.h"
+
+//PG FIXME to be inserted in a vbfhww2l namespace to avoid clashes
 
 typedef reco::CaloJetCollection::const_iterator VBFjetIt ;
 
@@ -46,6 +49,24 @@ struct ptSorting
   return t1.pt()> t2.pt();
 }
 };
+
+// --------------------------------------------------------------------------------
+
+//! find a RefToBase in a edm::View
+template <typename T>
+typename edm::View<T>::const_iterator
+findInView (typename edm::Handle<edm::View<T> > collection,
+            typename edm::RefToBase<T> element) 
+  {
+    for (typename edm::View<T>::const_iterator it = collection->begin () ; 
+         it != collection->end () ;
+         ++it)
+      {
+        if (collection->refAt (it - collection->begin ()) == element) return it ;
+      }   
+     return collection->end () ;             
+  }
+
 
 #endif
 
