@@ -1,4 +1,4 @@
-// $Id: VBFElectronIsolator.h,v 1.3 2008/03/07 11:49:17 govoni Exp $
+// $Id: VBFElectronIsolator.h,v 1.4 2008/03/07 14:01:36 govoni Exp $
 #ifndef VBFElectronIsolator_h
 #define VBFElectronIsolator_h
 
@@ -18,6 +18,7 @@
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 
+#include <TH1F.h>
 
 class VBFElectronIsolator{
 

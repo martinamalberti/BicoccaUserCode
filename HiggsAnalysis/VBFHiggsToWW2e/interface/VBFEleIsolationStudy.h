@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleIsolationStudy.h,v 1.3 2008/03/08 15:01:24 govoni Exp $
+// $Id: VBFEleIsolationStudy.h,v 1.4 2008/03/08 16:12:52 govoni Exp $
 //
 //
 
@@ -106,9 +106,11 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 
 //root include
-#include <TH2F.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
@@ -125,6 +127,7 @@ class VBFEleIsolationStudy : public edm::EDAnalyzer {
       typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
       typedef reco::PixelMatchGsfElectronRef electronRef ;
       typedef edm::RefToBase<reco::PixelMatchGsfElectron> electronBaseRef ;
+      typedef edm::View<reco::Track> trackCollection ; 
 
       //! ctor
       explicit VBFEleIsolationStudy (const edm::ParameterSet&);
@@ -147,25 +150,15 @@ class VBFEleIsolationStudy : public edm::EDAnalyzer {
       edm::InputTag m_AmbRefInputTag ;
       edm::InputTag m_OLDIsoInputTag ;
       edm::InputTag m_NEWIsoInputTag ;
+      edm::InputTag m_TrackInputTag ;
 
       TH2F * m_OLDIsoEffvsDPhi ;
       TH2F * m_NEWIsoEffvsDPhi ;
- 
-//   private:
-//     
-//     template <typename T>
-//     typename edm::View<T>::const_iterator
-//     findInView (typename edm::Handle<edm::View<T> > collection,
-//                 typename edm::RefToBase<T> element) 
-//       {
-//         for (typename edm::View<T>::const_iterator it = collection->begin () ; 
-//              it != collection->end () ;
-//              ++it)
-//           {
-//             if (collection->refAt (it - collection->begin ()) == element) return it ;
-//           }   
-//          return collection->end () ;             
-//       }
+      TH1F * m_NEWIsoValueW ;
+      TH1F * m_NEWIsoValueWO ;
+
+      VBFEleTrackerIsolationAlgo m_tkIsolationAlgoWithOtherCones ;
+      VBFEleTrackerIsolationAlgo m_tkIsolationAlgoNoOtherCones ;
 
 };
 

@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.h,v 1.4 2008/03/07 11:49:17 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.h,v 1.5 2008/03/07 13:53:10 govoni Exp $
 // -*- C++ -*-
 //
 // Package:    HtoWWElectrons
@@ -34,7 +34,9 @@ class VBFEleTrackerIsolationAlgo {
   public:
   
     typedef edm::View<reco::PixelMatchGsfElectron> electronCollection ;
+    typedef edm::View<reco::PixelMatchGsfElectron> collection ;
     typedef reco::PixelMatchGsfElectronRef electronRef ;
+    typedef edm::RefToBase<reco::PixelMatchGsfElectron> electronBaseRef ;
     typedef edm::View<reco::Track> trackCollection ; 
   
     //! constructor
