@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFUtils.h,v 1.8 2008/03/08 16:12:23 govoni Exp $
+// $Id: VBFUtils.h,v 1.9 2008/03/10 09:18:17 govoni Exp $
 //
 //
 // system include files
@@ -63,17 +63,8 @@ findInView (typename edm::Handle<edm::View<T> > collection,
          it != collection->end () ;
          ++it)
       {
-        std::cerr << "[findInView] look for " << element.key ()
-                  << " compare to : " << collection->refAt (it - collection->begin ()).key ()
-                  << " ("<< it - collection->begin () <<")"
-                  << std::endl ;
-        std::cerr << "[findInView] look for " << element.id ().id ()
-                  << " compare to : " << collection->refAt (it - collection->begin ()).id ().id ()
-                  << " ("<< it - collection->begin () <<")"
-                  << std::endl ;
         if (collection->refAt (it - collection->begin ()) == element) return it ;
       }   
-    std::cerr << "[findInView] not found " << std::endl ;
     return collection->end () ;             
   }
 
