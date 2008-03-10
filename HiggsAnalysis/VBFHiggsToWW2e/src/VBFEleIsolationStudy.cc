@@ -1,4 +1,4 @@
-// $Id: VBFEleIsolationStudy.cc,v 1.3 2008/03/08 15:01:24 govoni Exp $
+// $Id: VBFEleIsolationStudy.cc,v 1.4 2008/03/08 16:11:48 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
@@ -94,9 +94,18 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
       //PG check if isolated NEW style
       if (findInView (NEWIsoHandle, electronBaseReference) == NEWIsoHandle->end ()) ++NEWcounter ;
 
+      std::cerr << "[VBFEleIsolationStudy][analyze]     electron " << GSFit
+                << " OLD " << OLDcounter 
+                << " NEW " << NEWcounter << std::endl ;
+
     } //PG loop over electrons
 
-  float Dphi = deltaPhi (firstAmbRefEle->phi (),secondAmbRefEle->phi ()) ;
+  std::cerr << "[VBFEleIsolationStudy][analyze] summary GSF " << GSFHandle->size ()
+            << " OLD " << OLDcounter 
+            << " NEW " << NEWcounter << std::endl ;
+
+  float Dphi = deltaPhi (firstAmbRefEle->phi (), 
+  secondAmbRefEle->phi ()) ;
   m_OLDIsoEffvsDPhi->Fill (Dphi, OLDcounter) ;
   m_NEWIsoEffvsDPhi->Fill (Dphi, NEWcounter) ;
 
