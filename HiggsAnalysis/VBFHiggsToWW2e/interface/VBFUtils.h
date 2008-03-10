@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFUtils.h,v 1.7 2008/02/26 16:45:43 tancini Exp $
+// $Id: VBFUtils.h,v 1.8 2008/03/08 16:12:23 govoni Exp $
 //
 //
 // system include files
@@ -52,6 +52,7 @@ struct ptSorting
 
 // --------------------------------------------------------------------------------
 
+
 //! find a RefToBase in a edm::View
 template <typename T>
 typename edm::View<T>::const_iterator
@@ -62,9 +63,18 @@ findInView (typename edm::Handle<edm::View<T> > collection,
          it != collection->end () ;
          ++it)
       {
+        std::cerr << "[findInView] look for " << element.key ()
+                  << " compare to : " << collection->refAt (it - collection->begin ()).key ()
+                  << " ("<< it - collection->begin () <<")"
+                  << std::endl ;
+        std::cerr << "[findInView] look for " << element.id ().id ()
+                  << " compare to : " << collection->refAt (it - collection->begin ()).id ().id ()
+                  << " ("<< it - collection->begin () <<")"
+                  << std::endl ;
         if (collection->refAt (it - collection->begin ()) == element) return it ;
       }   
-     return collection->end () ;             
+    std::cerr << "[findInView] not found " << std::endl ;
+    return collection->end () ;             
   }
 
 
