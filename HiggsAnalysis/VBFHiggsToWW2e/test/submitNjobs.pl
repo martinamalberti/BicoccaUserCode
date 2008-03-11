@@ -3,12 +3,17 @@ $SAMPLELIST = $ARGV[1] ; # lista di tutti i file .root del sample in questione s
 $ORIGINALPATH = $ARGV[2] ;# path dei .root relativi al sample sul cluster
 $OUTPUTTAG = $ARGV[3] ; # nome comune per il .cfi per il .cfg per il .csh per il .root
 $FILEPERNODO = $ARGV[4] ; # numero file che si vogliono lanciare su un nodo
+
 #creare prima la dir jobDataset sotto test per la copia in locale dei file
+
+$JOBDATASET = "jobDataset_".$OUTPUTTAG;
+if (!(-d $JOBDATASET)) {mkdir($JOBDATASET, 0755) || die "Cannot mkdir newdir: $!"; } 
+
 
 use Cwd;
 my $DIR = getcwd () ;
 
-$COPIAPATH = $DIR."/jobDataset/" ;
+$COPIAPATH = $DIR."/".$JOBDATASET."/" ;
 print ("Copiero' i .root in ".$COPIAPATH."\n") ;
 
 ########################################### #preparare i cfi
