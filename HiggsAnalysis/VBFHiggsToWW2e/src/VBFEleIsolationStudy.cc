@@ -1,4 +1,4 @@
-// $Id: VBFEleIsolationStudy.cc,v 1.5 2008/03/10 09:13:43 govoni Exp $
+// $Id: VBFEleIsolationStudy.cc,v 1.6 2008/03/10 17:49:13 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
@@ -96,9 +96,22 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
       electronRef electronReference = electronBaseReference.castTo<electronRef> () ;
       double isolationValueWithOtherCones = 
         m_tkIsolationAlgoWithOtherCones.calcIsolationValue (GSFHandle, TrackHandle, electronReference) ;
+      std::cerr << "[VBFEleIsolationStudy][analyze] WITH "
+                << electronReference->pt () 
+                << " " << electronReference->eta () 
+                << " " << electronReference->phi () 
+                << " " << TrackHandle->size ()
+                << " " << isolationValueWithOtherCones << std::endl ;
       m_NEWIsoValueW->Fill (isolationValueWithOtherCones) ;
+
       double isolationValueNoOtherCones = 
         m_tkIsolationAlgoNoOtherCones.calcIsolationValue (GSFHandle, TrackHandle, electronReference) ;
+      std::cerr << "[VBFEleIsolationStudy][analyze] WITHOUT "
+                << electronReference->pt () 
+                << " " << electronReference->eta () 
+                << " " << electronReference->phi () 
+                << " " << TrackHandle->size ()
+                << " " << isolationValueWithOtherCones << std::endl ;
       m_NEWIsoValueWO->Fill (isolationValueNoOtherCones) ;
     }
 
