@@ -36,6 +36,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFProcessFilter) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFLeptFilter) ; 
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElePtFilter.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFElePtFilter) ; 
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptonsNumFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFLeptonsNumFilter) ; 
 
