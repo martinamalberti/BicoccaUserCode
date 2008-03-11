@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFElePtFilter.h,v 1.4 2008/02/26 10:27:18 tancini Exp $
+// $Id: VBFElePtFilter.h,v 1.1 2008/03/11 09:45:38 govoni Exp $
 //
 //
 
@@ -182,6 +182,7 @@ class VBFElePtFilter : public edm::EDFilter
       edm::InputTag m_GSFInputTag ;
       double m_firstPtMin ;
       double m_secondPtMin ;
+      bool m_testCharge ;
 
 } ;
 

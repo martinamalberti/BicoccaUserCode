@@ -1,4 +1,4 @@
-// $Id: VBFElePtFilter.cc,v 1.3 2008/02/12 12:06:02 govoni Exp $
+// $Id: VBFElePtFilter.cc,v 1.1 2008/03/11 09:45:38 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElePtFilter.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -17,7 +17,8 @@
 VBFElePtFilter::VBFElePtFilter (const edm::ParameterSet& iConfig) :
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
   m_firstPtMin (iConfig.getParameter<double> ("firstPtMin")) ,
-  m_secondPtMin (iConfig.getParameter<double> ("secondPtMin"))
+  m_secondPtMin (iConfig.getParameter<double> ("secondPtMin")) ,
+  m_testCharge (iConfig.getParameter<bool> ("testCharge"))
 {}
 
 
@@ -53,6 +54,8 @@ VBFElePtFilter::filter (edm::Event& iEvent,
 
   if (firstEle->pt () < m_firstPtMin) return false ;
   if (secondEle->pt () < m_secondPtMin) return false ;
+  
+  if (m_testCharge && firstEle->charge () * secondEle->charge () >= 0) return false ;
 
   return true ;
 }
