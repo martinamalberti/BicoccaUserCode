@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.9 2008/03/11 09:50:43 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.10 2008/03/11 12:36:36 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -34,6 +34,78 @@ VBFEleTrackerIsolationAlgo::VBFEleTrackerIsolationAlgo (double coneRadius,
 
 
 VBFEleTrackerIsolationAlgo::~VBFEleTrackerIsolationAlgo () {}
+
+
+// ------------------------------------------------------------------------------------------------
+
+
+int 
+VBFEleTrackerIsolationAlgo::countNumOfTracks (const edm::Handle<electronCollection> & electrons,
+                                              const edm::Handle<trackCollection> & tracks,
+                                              const electronRef mainElectron) const 
+{
+  int counter = 0 ;
+
+  //Take the electron track
+  math::XYZVector tmpElectronMomentumAtVtx = mainElectron->trackMomentumAtVtx () ; 
+  math::XYZVector tmpElectronPositionAtVtx = mainElectron->TrackPositionAtVtx () ; 
+//  reco::GsfTrackRef tmpTrack = mainElectron->gsfTrack () ;
+//  math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum () ; 
+
+  //PG loop over tracks
+  for (trackCollection::const_iterator trackIt = tracks->begin () ;
+       trackIt != tracks->end () ; 
+       ++trackIt)
+    {    
+      //PG min pT threshold
+//      math::XYZVector tmpTrackMomentumAtVtx = (*trackIt).momentum () ; 
+//      double this_pt = (*trackIt).pt () ;
+      math::XYZVector tmpTrackMomentumAtVtx = (*trackIt).innerMomentum () ; 
+      double this_pt  = sqrt (tmpTrackMomentumAtVtx.Perp2 ()) ;
+  
+      if ( this_pt < m_ptMin ) continue ;  
+      //PG impact parameter threshold
+      if (fabs( (*trackIt).dz () - dz (tmpElectronPositionAtVtx,tmpElectronMomentumAtVtx) ) 
+          > m_lipMax) continue ;
+
+      if (!testTrackerTrack (trackIt)) continue ;
+      bool countTrack = true ;
+
+      //PG loop over electrons
+      if (m_otherVetoRadius > 0.0001) //PG to avoid useless caclulations 
+        {
+          for (electronCollection::const_iterator eleIt = electrons->begin () ; 
+               eleIt != electrons->end () ;
+               ++eleIt)
+            {
+                electronBaseRef electronBaseReference = electrons->refAt (eleIt - electrons->begin ()) ;
+                electronRef electronReference = electronBaseReference.castTo<electronRef> () ;
+                if (electronReference == mainElectron) continue ;
+                  
+                math::XYZVector eleMomentum = eleIt->trackMomentumAtVtx () ; 
+//                math::XYZVector eleVtx = eleIt->TrackPositionAtVtx () ; 
+//                if (fabs( (*trackIt).dz () - dz (eleVtx,eleMomentum) ) > m_lipMax) continue ;
+                double eleDr = ROOT::Math::VectorUtil::DeltaR (tmpTrackMomentumAtVtx,eleMomentum) ;
+                if (eleDr < m_otherVetoRadius) 
+                  {
+                    countTrack = false ;
+                    break ;
+                  }
+            } //PG loop over electrons
+         } //PG if (m_otherVetoRadius > 0.0001)
+         
+      double dr = ROOT::Math::VectorUtil::DeltaR (tmpTrackMomentumAtVtx,tmpElectronMomentumAtVtx) ;
+      if ( countTrack && 
+           dr < m_coneRadius && 
+           dr >= m_vetoRadius )
+        {
+          ++counter ;
+        }
+    } //PG loop over tracks
+  
+  return counter ;
+
+}                                              
 
 
 // ------------------------------------------------------------------------------------------------

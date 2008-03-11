@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.h,v 1.6 2008/03/10 17:50:10 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.h,v 1.7 2008/03/11 12:36:36 govoni Exp $
 // -*- C++ -*-
 //
 // Package:    HtoWWElectrons
@@ -49,6 +49,10 @@ class VBFEleTrackerIsolationAlgo {
     //!destructor 
     ~VBFEleTrackerIsolationAlgo () ;
   
+    int countNumOfTracks (const edm::Handle<electronCollection> & electrons,
+                          const edm::Handle<trackCollection> & tracks,
+                          const electronRef mainElectron) const ;
+
     float calcSumOfPt (const edm::Handle<electronCollection> & electrons,
                        const edm::Handle<trackCollection> & tracks,
                        const electronRef mainElectron) const ;
