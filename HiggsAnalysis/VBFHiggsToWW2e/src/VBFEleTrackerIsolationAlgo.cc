@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.7 2008/03/07 13:53:10 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.8 2008/03/10 17:50:11 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -58,8 +58,11 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const edm::Handle<electronCollection> &
        ++trackIt)
     {    
       //PG min pT threshold
-      math::XYZVector tmpTrackMomentumAtVtx = (*trackIt).momentum () ; 
-      double this_pt = (*trackIt).pt () ;
+//      math::XYZVector tmpTrackMomentumAtVtx = (*trackIt).momentum () ; 
+//      double this_pt = (*trackIt).pt () ;
+      math::XYZVector tmpTrackMomentumAtVtx = (*trackIt).innerMomentum () ; 
+      double this_pt  = sqrt (tmpTrackMomentumAtVtx.Perp2 ()) ;
+  
       if ( this_pt < m_ptMin ) continue ;  
       //PG impact parameter threshold
       if (fabs( (*trackIt).dz () - dz (tmpElectronPositionAtVtx,tmpElectronMomentumAtVtx) ) 
