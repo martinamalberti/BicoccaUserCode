@@ -1,4 +1,4 @@
-// $Id: VBFEleIsolationDump.cc,v 1.8 2008/03/11 10:07:05 govoni Exp $
+// $Id: VBFEleIsolationDump.cc,v 1.1 2008/03/11 13:47:29 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationDump.h"
@@ -12,8 +12,6 @@
 VBFEleIsolationDump::VBFEleIsolationDump (const edm::ParameterSet& iConfig) :
   m_GSFInputTag (iConfig.getParameter<edm::InputTag> ("GSFInputTag")) ,
   m_AmbRefInputTag (iConfig.getParameter<edm::InputTag> ("AmbRefInputTag")) ,
-  m_OLDIsoInputTag (iConfig.getParameter<edm::InputTag> ("OLDIsoInputTag")) ,
-  m_NEWIsoInputTag (iConfig.getParameter<edm::InputTag> ("NEWIsoInputTag")) , 
   m_TrackInputTag (iConfig.getParameter<edm::InputTag> ("trackInputTag")) ,
   m_tkIsolationAlgoWithOtherCones (
       iConfig.getParameter<double> ("coneRadius") ,
@@ -59,14 +57,6 @@ VBFEleIsolationDump::analyze (const edm::Event& iEvent,
   //PG get the AmbRef electrons collection
   edm::Handle<electronCollection> AmbRefHandle ;
   iEvent.getByLabel (m_AmbRefInputTag,AmbRefHandle) ; 
-
-  //PG get the OLDIso electrons collection
-  edm::Handle<electronCollection> OLDIsoHandle ;
-  iEvent.getByLabel (m_OLDIsoInputTag,OLDIsoHandle) ; 
-
-  //PG get the NEWIso electrons collection
-  edm::Handle<electronCollection> NEWIsoHandle ;
-  iEvent.getByLabel (m_NEWIsoInputTag,NEWIsoHandle) ; 
 
   //PG Get the tracks
   edm::Handle<trackCollection> TrackHandle ;

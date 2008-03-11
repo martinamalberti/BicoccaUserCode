@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFEleIsolationDump.h,v 1.5 2008/03/10 17:50:10 govoni Exp $
+// $Id: VBFEleIsolationDump.h,v 1.1 2008/03/11 13:47:28 govoni Exp $
 //
 //
 
@@ -149,8 +149,6 @@ class VBFEleIsolationDump : public edm::EDAnalyzer {
 
       edm::InputTag m_GSFInputTag ;
       edm::InputTag m_AmbRefInputTag ;
-      edm::InputTag m_OLDIsoInputTag ;
-      edm::InputTag m_NEWIsoInputTag ;
       edm::InputTag m_TrackInputTag ;
   
       //! isolation with the veto around all the GSF electrons
