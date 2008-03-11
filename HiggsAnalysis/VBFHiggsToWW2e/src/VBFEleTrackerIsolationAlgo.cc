@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.8 2008/03/10 17:50:11 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.9 2008/03/11 09:50:43 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -68,6 +68,13 @@ VBFEleTrackerIsolationAlgo::calcSumOfPt (const edm::Handle<electronCollection> &
       if (fabs( (*trackIt).dz () - dz (tmpElectronPositionAtVtx,tmpElectronMomentumAtVtx) ) 
           > m_lipMax) continue ;
 
+//PG alternative way to the lib, probably. tp be tested
+//      // Difference with Z vertex
+//      float dZ  = leptonVtx[i].z() - dz;
+//      dZ = fabs ( dZ );     
+//      if ( dZ > 0.5 ) continue                      // Compatibility with lepton vertex
+
+      if (!testTrackerTrack (trackIt)) continue ;
       bool countTrack = true ;
 
       //PG loop over electrons
@@ -132,4 +139,42 @@ double VBFEleTrackerIsolationAlgo::dz (const math::XYZVector & vertex,
   return vertex.z () - 
         (vertex.x () * momentum.x () + vertex.y () * momentum.y ()) * invpt * 
         (momentum.z () * invpt) ; 
+}
+
+
+// ------------------------------------------------------------------------------------------------
+
+
+//! cloned from:
+//! http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/HiggsAnalysis/HiggsToZZ2e2m/plugins/HZZ2e2muIsolationAnalyzer.cc?revision=1.2&view=markup
+bool 
+VBFEleTrackerIsolationAlgo::testTrackerTrack (trackCollection::const_iterator & itTrack) const
+{
+
+  // Extract track properties
+  float d0  = fabs (itTrack->d0 ()) ;
+  float ed0 = itTrack->d0Error () ;
+  float dz  = fabs (itTrack->dz ()) ;
+  float edz = itTrack->dzError () ;
+  int nhits = itTrack->recHitsSize () ;
+
+  if ( nhits < 8 ) {
+    if ( d0 > 0.04 ) return false;
+    if ( dz > 0.50 ) return false;
+    if ( d0 / ed0 > 7.0 ) return false;
+    if ( dz / edz > 10. ) return false;
+  }
+  else if ( nhits < 10 ) {
+    if ( d0 > 0.20 ) return false;
+    if ( dz > 2.00 ) return false;
+    if ( d0 / ed0 > 10. ) return false;
+    if ( dz / edz > 10. ) return false;
+  }
+  else {
+    if ( d0 > 1.00 ) return false;
+    if ( dz > 5.00 ) return false;
+  }
+
+  return true ;
+
 }

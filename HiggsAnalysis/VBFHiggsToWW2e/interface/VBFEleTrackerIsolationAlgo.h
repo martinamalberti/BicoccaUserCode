@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.h,v 1.5 2008/03/07 13:53:10 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.h,v 1.6 2008/03/10 17:50:10 govoni Exp $
 // -*- C++ -*-
 //
 // Package:    HtoWWElectrons
@@ -62,6 +62,8 @@ class VBFEleTrackerIsolationAlgo {
   
     double dz (const math::XYZVector & vertex,
                const math::XYZVector & momentum) const ;
+    bool 
+    testTrackerTrack (trackCollection::const_iterator & itTrack) const ;
 
  private:
 
