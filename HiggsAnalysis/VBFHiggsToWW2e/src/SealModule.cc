@@ -96,6 +96,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFTrivialAnalysis) ;
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFEleIsolationStudy) ;
 
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationDump.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFEleIsolationDump) ;
+
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFplots) ; 
 
