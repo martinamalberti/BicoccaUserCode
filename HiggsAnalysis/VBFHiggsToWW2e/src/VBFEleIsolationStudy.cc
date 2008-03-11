@@ -1,4 +1,4 @@
-// $Id: VBFEleIsolationStudy.cc,v 1.6 2008/03/10 17:49:13 govoni Exp $
+// $Id: VBFEleIsolationStudy.cc,v 1.7 2008/03/11 09:50:31 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
@@ -78,7 +78,7 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
 
   //PG if not enough electrons
   if (AmbRefHandle->size () < 2) return ;
-  if (AmbRefHandle->size () > 2) return ;
+//  if (AmbRefHandle->size () > 2) return ;
 
   electronRef firstAmbRefEle ;
   electronRef secondAmbRefEle ;
@@ -157,8 +157,8 @@ VBFEleIsolationStudy::beginJob (const edm::EventSetup&)
   edm::Service<TFileService> fs ;
   m_OLDIsoEffvsDPhi = fs->make<TH2F> ("OLDIsoEffvsDPhi","OLDIsoEffvsPhi",180,0,3.15,300,0,3) ;
   m_NEWIsoEffvsDPhi = fs->make<TH2F> ("NEWIsoEffvsDPhi","NEWIsoEffvsPhi",180,0,3.15,300,0,3) ;
-  m_NEWIsoValueW = fs->make<TH1F> ("NEWIsoValueW","NEWIsoValueW",1000,0,4) ;
-  m_NEWIsoValueWO = fs->make<TH1F> ("NEWIsoValueWO","NEWIsoValueWO",1000,0,4) ;
+  m_NEWIsoValueW = fs->make<TH1F> ("NEWIsoValueW","NEWIsoValueW",100,0,5) ;
+  m_NEWIsoValueWO = fs->make<TH1F> ("NEWIsoValueWO","NEWIsoValueWO",100,0,5) ;
 }
 
 
