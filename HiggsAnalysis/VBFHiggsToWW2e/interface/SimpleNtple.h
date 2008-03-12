@@ -38,10 +38,11 @@ class SimpleNtple : public edm::EDAnalyzer {
   TTree *mytree_;
   //electrons;
   int nEle;
-  float EtEle[30],EtaEle[30],PhiEle[30],IsolEle[30];
+  float EtEle[30],EtaEle[30],PhiEle[30],IsolEleSumPt[30],IsolEleNTracks[30];
+  int EleId[30];
   //muons
   int nMu;
-  float EtMu[30],EtaMu[30],PhiMu[30],IsolMu[30];
+  float EtMu[30],EtaMu[30],PhiMu[30],IsolMuSumPt[30],IsolMuNTracks[30];
   //missing Et
   float MetX,MetY,Met;
   //tag jets

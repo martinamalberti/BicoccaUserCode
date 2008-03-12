@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id$
+// $Id: SimpleNtple.cc,v 1.1 2008/03/12 15:32:42 ghezzi Exp $
 //
 //
 
@@ -101,7 +101,8 @@ void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // edm::Handle<electronCollection> EleHandle ;
 
   //typedef edm::View<reco::PixelMatchGsfElectron> electronCollection
-  edm::Handle<reco::PixelMatchGsfElectronCollection> EleHandle ;
+  edm::Handle<edm::View<reco::PixelMatchGsfElectron> > EleHandle ;
+  //  edm::Handle<reco::PixelMatchGsfElectronCollection> EleHandle ;
 
   iEvent.getByLabel (EleTag_,EleHandle) ;
 
@@ -113,7 +114,9 @@ void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetu
     EtEle[i]= (*EleHandle)[i].et();
     EtaEle[i]= (*EleHandle)[i].eta();
     PhiEle[i]= (*EleHandle)[i].phi();
-    //IsolEle[i]= (*EleHandle)[i].eta();
+    IsolEleSumPt[i]= (*EleHandle)[i].eta();
+    IsolEleNTracks[i]= (*EleHandle)[i].eta();
+    EleId[i]=0;
   }
 
   
@@ -129,7 +132,8 @@ void SimpleNtple::FillMu(const edm::Event& iEvent, const edm::EventSetup& iSetup
     EtMu[i]= (*MuHandle)[i].et();
     EtaMu[i]= (*MuHandle)[i].eta();
     PhiMu[i]= (*MuHandle)[i].phi();
-    //IsolMu[i]= (*MuHandle)[i].eta();
+    IsolMuSumPt[i]= (*MuHandle)[i].getIsolationR03().sumPt;
+    IsolMuNTracks[i]= (*MuHandle)[i].getIsolationR03().nTracks;
   }
 }
 
@@ -179,8 +183,8 @@ void SimpleNtple::Init(){
   nEle = 0; 
   nMu = 0;
   for (int i=0;i<30;i++){
-    EtEle[i]=0;EtaEle[i]=0;PhiEle[i]=0;IsolEle[i]=0;
-    EtMu[i]=0;EtaMu[i]=0;PhiMu[i]=0;IsolMu[i]=0;
+    EtEle[i]=0;EtaEle[i]=0;PhiEle[i]=0;IsolEleSumPt[i]=0;IsolEleNTracks[i]=0;EleId[i]=0;
+    EtMu[i]=0;EtaMu[i]=0;PhiMu[i]=0;IsolMuSumPt[i]=0;IsolMuNTracks[i]=0;
   }
 
   MetX=0;MetY=0;Met=-1;
@@ -205,13 +209,15 @@ SimpleNtple::beginJob(const edm::EventSetup& iSetup)
   mytree_->Branch("EtEle",EtEle,"EtEle[30]/F");
   mytree_->Branch("EtaEle",EtaEle,"EtaEle[30]/F");
   mytree_->Branch("PhiEle",PhiEle,"PhiEle[30]/F");
-  mytree_->Branch("IsolEle",IsolEle,"IsolEle[30]/F");
+  mytree_->Branch("IsolEleSumPt",IsolEleSumPt,"IsolEleSumPt[30]/F");
+  mytree_->Branch("IsolEleNTracks",IsolEleNTracks,"IsolEleNTracks[30]/F");
 
   mytree_->Branch("nMu",&nMu,"nMu/I");
   mytree_->Branch("EtMu",EtMu,"EtMu[30]/F");
   mytree_->Branch("EtaMu",EtaMu,"EtaMu[30]/F");
   mytree_->Branch("PhiMu",PhiMu,"PhiMu[30]/F");
-  mytree_->Branch("IsolMu",IsolMu,"IsolMu[30]/F");
+  mytree_->Branch("IsolMuSumPt",IsolMuSumPt,"IsolMuSumPt[30]/F");
+  mytree_->Branch("IsolMuNTracks",IsolMuNTracks,"IsolMuNTracks[30]/F");
 
   mytree_->Branch("MetX",&MetX,"MetX/F");
   mytree_->Branch("MetY",&MetY,"MetY/F");
