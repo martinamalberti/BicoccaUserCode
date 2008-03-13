@@ -1,4 +1,4 @@
-// $Id: VBFElectronIsolator.cc,v 1.5 2008/03/07 13:53:10 govoni Exp $
+// $Id: VBFElectronIsolator.cc,v 1.6 2008/03/07 14:47:35 govoni Exp $
 //#include "DataFormats/EgammaCandidates/interface/PMGsfElectronIsoCollection.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFElectronIsolator.h"
 
@@ -10,7 +10,8 @@ VBFElectronIsolator::VBFElectronIsolator (const edm::ParameterSet& iConfig) :
       iConfig.getParameter<double> ("vetoRadius") ,
       iConfig.getParameter<double> ("otherVetoRadius") ,
       iConfig.getParameter<double> ("ptMin") ,
-      iConfig.getParameter<double> ("lipMax") 
+      iConfig.getParameter<double> ("lipMax") ,
+      iConfig.getUntrackedParameter<bool> ("useTkQuality",true)
     ) ,
   m_trackIsolationCut (iConfig.getParameter<double> ("tkIsoCut"))
 {}

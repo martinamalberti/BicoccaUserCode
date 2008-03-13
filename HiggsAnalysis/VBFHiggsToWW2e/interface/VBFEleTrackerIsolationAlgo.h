@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.h,v 1.7 2008/03/11 12:36:36 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.h,v 1.8 2008/03/11 12:45:56 govoni Exp $
 // -*- C++ -*-
 //
 // Package:    HtoWWElectrons
@@ -44,7 +44,8 @@ class VBFEleTrackerIsolationAlgo {
                                 double vetoRadius,
                                 double otherVetoRadius,
                                 double ptMin,
-                                double lipMax) ;
+                                double lipMax,
+                                bool useTkQuality = true) ;
   
     //!destructor 
     ~VBFEleTrackerIsolationAlgo () ;
@@ -76,6 +77,8 @@ class VBFEleTrackerIsolationAlgo {
     double m_otherVetoRadius ;
     double m_ptMin ;
     double m_lipMax ;
+    
+    bool m_useTkQuality ;
 
 };
 

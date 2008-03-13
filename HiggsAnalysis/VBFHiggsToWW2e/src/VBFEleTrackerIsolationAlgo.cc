@@ -1,4 +1,4 @@
-// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.10 2008/03/11 12:36:36 govoni Exp $
+// $Id: VBFEleTrackerIsolationAlgo.cc,v 1.11 2008/03/11 12:45:56 govoni Exp $
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleTrackerIsolationAlgo.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -14,12 +14,14 @@ VBFEleTrackerIsolationAlgo::VBFEleTrackerIsolationAlgo (double coneRadius,
                                                         double vetoRadius,
                                                         double otherVetoRadius,
                                                         double ptMin,
-                                                        double lipMax) :
+                                                        double lipMax,
+                                                        bool useTkQuality) :
   m_coneRadius (coneRadius) ,
   m_vetoRadius (vetoRadius) ,
   m_otherVetoRadius (otherVetoRadius) ,
   m_ptMin (ptMin) ,
-  m_lipMax (lipMax)
+  m_lipMax (lipMax) ,
+  m_useTkQuality (useTkQuality)
 {
 //  std::cerr << "[VBFEleTrackerIsolationAlgo][ctor] "
 //            << " m_coneRadius " << m_coneRadius
@@ -68,7 +70,7 @@ VBFEleTrackerIsolationAlgo::countNumOfTracks (const edm::Handle<electronCollecti
       if (fabs( (*trackIt).dz () - dz (tmpElectronPositionAtVtx,tmpElectronMomentumAtVtx) ) 
           > m_lipMax) continue ;
 
-      if (!testTrackerTrack (trackIt)) continue ;
+      if (m_useTkQuality && !testTrackerTrack (trackIt)) continue ;
       bool countTrack = true ;
 
       //PG loop over electrons
