@@ -1,4 +1,4 @@
-// $Id: VBFEleIsolationStudy.cc,v 1.7 2008/03/11 09:50:31 govoni Exp $
+// $Id: VBFEleIsolationStudy.cc,v 1.8 2008/03/11 10:07:05 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
@@ -20,14 +20,16 @@ VBFEleIsolationStudy::VBFEleIsolationStudy (const edm::ParameterSet& iConfig) :
       iConfig.getParameter<double> ("vetoRadius") ,
       iConfig.getParameter<double> ("otherVetoRadius") ,
       iConfig.getParameter<double> ("ptMin") ,
-      iConfig.getParameter<double> ("lipMax") 
+      iConfig.getParameter<double> ("lipMax") ,
+      iConfig.getUntrackedParameter<bool> ("useTkQuality",true) 
     ) ,
   m_tkIsolationAlgoNoOtherCones (
       iConfig.getParameter<double> ("coneRadius") ,
       iConfig.getParameter<double> ("vetoRadius") ,
       0. ,
       iConfig.getParameter<double> ("ptMin") ,
-      iConfig.getParameter<double> ("lipMax") 
+      iConfig.getParameter<double> ("lipMax") ,
+      iConfig.getUntrackedParameter<bool> ("useTkQuality",true) 
     ) 
 {}
 
