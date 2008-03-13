@@ -1,4 +1,4 @@
-// $Id: VBFLeptPLots.cc,v 1.2 2008/02/08 13:35:16 govoni Exp $
+// $Id: VBFEleSelectionsStudy.cc,v 1.2 2008/02/11 14:33:04 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleSelectionsStudy.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -80,8 +80,8 @@ VBFEleSelectionsStudy::analyze (const edm::Event& iEvent,
 //  m_deltaPhi->Fill (deltaPhi (secondAREle->phi (), secondGSFEle->phi ())) ;
   m_deltaEta->Fill (firstAREle->eta () - firstMCEle->eta ()) ;
   m_deltaEta->Fill (secondAREle->eta () - secondMCEle->eta ()) ;
-  m_deltaPhi->Fill (deltaPhi (firstAREle->phi (), firstMCEle->phi ())) ;
-  m_deltaPhi->Fill (deltaPhi (secondAREle->phi (), secondMCEle->phi ())) ;
+  m_deltaPhi->Fill (vbfhww2l::deltaPhi (firstAREle->phi (), firstMCEle->phi ())) ;
+  m_deltaPhi->Fill (vbfhww2l::deltaPhi (secondAREle->phi (), secondMCEle->phi ())) ;
     
 }
 

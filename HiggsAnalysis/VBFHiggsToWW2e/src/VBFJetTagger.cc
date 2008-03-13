@@ -74,15 +74,15 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
     }
 
   //PG get the jet tags
-  std::pair<VBFjetIt,VBFjetIt> tagJetCands ;
+  std::pair<vbfhww2l::VBFjetIt,vbfhww2l::VBFjetIt> tagJetCands ;
 
-  if (m_algoType == 0) tagJetCands = findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
+  if (m_algoType == 0) tagJetCands = vbfhww2l::findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
 
   else if (m_algoType == 1) 
     {
       //reco::CaloJetCollection TheJets = *jetCollectionHandle;  
       //tagJetCands = findMaxPtJetsPair (TheJets, m_jetPtMin, m_jetEtaMax) ; 
-      tagJetCands = findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
+      tagJetCands = vbfhww2l::findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), m_jetPtMin, m_jetEtaMax) ;
     }
 
   //PG build the new jets
@@ -97,7 +97,7 @@ VBFJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
       (new reco::CaloJetCollection) ;
 
   //PG loop over the jets collection
-  for (VBFjetIt jetIt = jetCollectionHandle->begin () ; 
+  for (vbfhww2l::VBFjetIt jetIt = jetCollectionHandle->begin () ; 
        jetIt != jetCollectionHandle->end () ; 
        ++jetIt) 
     {

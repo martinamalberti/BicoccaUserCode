@@ -31,9 +31,10 @@ void VBFSimpleJetTagger::select (edm::Handle<VBFSimpleJetTagger::collection> jet
   m_selected.clear () ;
 
   //PG get the jet tags
-  std::pair<VBFjetIt,VBFjetIt> tagJets = findTagJets (jetCollectionHandle->begin (),
-                                                      jetCollectionHandle->end (),
-                                                      m_jetPtMin, m_jetEtaMax) ;
+  std::pair<vbfhww2l::VBFjetIt,vbfhww2l::VBFjetIt> tagJets = 
+               vbfhww2l::findTagJets (jetCollectionHandle->begin (),
+                                      jetCollectionHandle->end (),
+                                      m_jetPtMin, m_jetEtaMax) ;
 
   m_selected.push_back (jet (jetCollectionHandle,tagJets.first - jetCollectionHandle->begin ())) ;
   m_selected.push_back (jet (jetCollectionHandle,tagJets.second - jetCollectionHandle->begin ())) ;

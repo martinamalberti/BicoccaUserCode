@@ -1,4 +1,4 @@
-// $Id: VBFLeptFilter.cc,v 1.2 2008/02/11 18:53:54 govoni Exp $
+// $Id: VBFLeptFilter.cc,v 1.3 2008/02/12 12:06:02 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptFilter.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -81,7 +81,7 @@ VBFLeptFilter::filter (edm::Event& iEvent,
       double invMass = (leptons[0].second->p4 () + leptons[1].second->p4 ()).M () ;
       if (invMass < m_invMassMin || invMass > m_invMassMax) return false ;
     }
-  double deltaphi = deltaPhi (leptons[0].second->phi (), leptons[1].second->phi ()) ;
+  double deltaphi = vbfhww2l::deltaPhi (leptons[0].second->phi (), leptons[1].second->phi ()) ;
   if (deltaphi > m_deltaPhiMax) return false ;
 
   return true ;

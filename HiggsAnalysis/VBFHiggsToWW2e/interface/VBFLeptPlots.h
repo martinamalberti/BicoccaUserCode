@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFLeptPlots.h,v 1.1 2008/02/08 09:48:39 govoni Exp $
+// $Id: VBFLeptPlots.h,v 1.2 2008/02/08 13:35:16 govoni Exp $
 //
 //
 
@@ -106,6 +106,7 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
+#include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 
 //root include
 #include <TTree.h>
@@ -168,7 +169,7 @@ class VBFLeptPlots : public edm::EDAnalyzer
           histos.m_pt->Fill (first->energy ()) ;
           histos.m_pt->Fill (second->energy ()) ;
           histos.m_deltaEta->Fill (fabs (first->eta () - second->eta ())) ;
-          double dphi = deltaPhi (first->phi (), second->phi ()) ;
+          double dphi = vbfhww2l::deltaPhi (first->phi (), second->phi ()) ;
           histos.m_deltaPhi->Fill (dphi) ;
           histos.m_averageEta->Fill (0.5 * (first->eta () + second->eta ())) ;
           double phi1 = first->phi () ; 

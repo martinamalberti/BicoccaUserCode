@@ -1,4 +1,4 @@
-// $Id: VBFEleIDMeter.cc,v 1.9 2008/01/22 18:37:54 govoni Exp $
+// $Id: VBFEleIDMeter.cc,v 1.12 2008/01/24 10:03:05 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIDMeter.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
@@ -67,7 +67,7 @@ VBFEleIDMeter::analyze (const edm::Event& iEvent,
                         if (abs (PDG) == 11) 
                           {
                             TLorentzVector dummy ;
-                            setMomentum (dummy, *daughter) ;
+                            vbfhww2l::setMomentum (dummy, *daughter) ;
                             MCelectrons.push_back (dummy) ;
                           }
                     } //PG loop over daughters

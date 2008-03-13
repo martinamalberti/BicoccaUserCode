@@ -1,4 +1,4 @@
-// $Id: VBFEleIsolationStudy.cc,v 1.8 2008/03/11 10:07:05 govoni Exp $
+// $Id: VBFEleIsolationStudy.cc,v 1.9 2008/03/13 15:51:01 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFEleIsolationStudy.h"
@@ -94,7 +94,7 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
   for (unsigned GSFit = 0 ; GSFit < GSFHandle->size () ; ++GSFit)
     {
       electronBaseRef electronBaseReference = GSFHandle->refAt (GSFit) ;
-      if (findInView (AmbRefHandle, electronBaseReference) == AmbRefHandle->end ()) continue ;
+      if (vbfhww2l::findInView (AmbRefHandle, electronBaseReference) == AmbRefHandle->end ()) continue ;
       electronRef electronReference = electronBaseReference.castTo<electronRef> () ;
       double isolationValueWithOtherCones = 
         m_tkIsolationAlgoWithOtherCones.calcIsolationValue (GSFHandle, TrackHandle, electronReference) ;
@@ -127,10 +127,10 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
       if (electronReference != firstAmbRefEle && electronReference != secondAmbRefEle) continue ;
 
       //PG check if isolated OLD style
-      if (findInView (OLDIsoHandle, electronBaseReference) != OLDIsoHandle->end ()) ++OLDcounter ;
+      if (vbfhww2l::findInView (OLDIsoHandle, electronBaseReference) != OLDIsoHandle->end ()) ++OLDcounter ;
        
       //PG check if isolated NEW style
-      if (findInView (NEWIsoHandle, electronBaseReference) != NEWIsoHandle->end ()) ++NEWcounter ;
+      if (vbfhww2l::findInView (NEWIsoHandle, electronBaseReference) != NEWIsoHandle->end ()) ++NEWcounter ;
 
       std::cerr << "[VBFEleIsolationStudy][analyze]     electron " << GSFit
                 << " OLD " << OLDcounter 
@@ -143,7 +143,7 @@ VBFEleIsolationStudy::analyze (const edm::Event& iEvent,
             << " OLD " << OLDcounter 
             << " NEW " << NEWcounter << std::endl ;
 
-  float Dphi = deltaPhi (firstAmbRefEle->phi (), secondAmbRefEle->phi ()) ;
+  float Dphi = vbfhww2l::deltaPhi (firstAmbRefEle->phi (), secondAmbRefEle->phi ()) ;
   m_OLDIsoEffvsDPhi->Fill (Dphi, OLDcounter) ;
   m_NEWIsoEffvsDPhi->Fill (Dphi, NEWcounter) ;
 

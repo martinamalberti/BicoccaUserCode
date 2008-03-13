@@ -1,11 +1,20 @@
-// $Id: VBFUtils.cc,v 1.11 2008/02/28 07:55:20 tancini Exp $
+// $Id: VBFUtils.cc,v 1.12 2008/03/03 13:20:19 tancini Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFUtils.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <iostream>
 
-void setMomentum (TLorentzVector & myvector, const reco::Candidate & gen)
+
+
+//PG NAMESPACE DEFINITION
+namespace vbfhww2l
+{
+
+
+void 
+setMomentum (TLorentzVector & myvector, 
+             const reco::Candidate & gen)
 {
     myvector.SetPx (gen.px ()) ;
     myvector.SetPy (gen.py ()) ;
@@ -56,6 +65,7 @@ findTagJets (VBFjetIt begin, VBFjetIt end,
   return tagJets ;
 }
 
+
 // --------------------------------------------------------------------
 
 
@@ -97,9 +107,12 @@ findMaxPtJetsPair (VBFjetIt begin, VBFjetIt end,
 
     }
 
+
 // --------------------------------------------------------------------------------
 
-double deltaPhi (double phi1, double phi2)
+
+double 
+deltaPhi (double phi1, double phi2)
 {
 
   double deltaphi=fabs(phi1-phi2);
@@ -107,3 +120,7 @@ double deltaPhi (double phi1, double phi2)
   if (deltaphi > 3.141592654) deltaphi = 6.283185308-deltaphi;
   return deltaphi;
 }
+
+
+} //PG namespace vbfhww2l
+

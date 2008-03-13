@@ -1,4 +1,4 @@
-// $Id: VBFLeptPLots.cc,v 1.2 2008/02/08 13:35:16 govoni Exp $
+// $Id: VBFLeptPLots.cc,v 1.3 2008/02/12 15:17:35 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFLeptPlots.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -87,9 +87,9 @@ VBFLeptPlots::analyze (const edm::Event& iEvent,
       LorentzVector sum = firstEle->p4 () + secondEle->p4 () ;
       m_ntuple->Fill (
                       fabs (firstEle->eta () - secondEle->eta ()),
-                      deltaPhi (firstEle->phi (), secondEle->phi ()),
-	              sum.M (),
-	              firstEle->pt (),
+                      vbfhww2l::deltaPhi (firstEle->phi (), secondEle->phi ()),
+                      sum.M (),
+                      firstEle->pt (),
                       firstEle->eta (),
                       2
 	              );
@@ -150,7 +150,7 @@ VBFLeptPlots::analyze (const edm::Event& iEvent,
       LorentzVector sum = firstMu->p4 () + secondMu->p4 () ;
       m_ntuple->Fill (
 		      fabs (firstMu->eta () - secondMu->eta ()),
-		      deltaPhi (firstMu->phi (), secondMu->phi ()),
+		      vbfhww2l::deltaPhi (firstMu->phi (), secondMu->phi ()),
 		      sum.M (),
 		      firstMu->pt (),
 		      firstMu->eta (),
@@ -163,23 +163,23 @@ VBFLeptPlots::analyze (const edm::Event& iEvent,
   LorentzVector sum = firstMu->p4 () + firstEle->p4 () ;
   double ptM=-1,etaM=8;
   if (firstMu->pt() > firstEle->pt()) 
-  {
-   ptM = firstMu->pt () ;
-   etaM = firstMu->eta ();
-  }
+    {
+      ptM = firstMu->pt () ;
+      etaM = firstMu->eta ();
+    }
   else
-  {
-   ptM = firstEle->pt () ;
-   etaM = firstEle->eta ();
-  }
+    {
+      ptM = firstEle->pt () ;
+      etaM = firstEle->eta ();
+    }
   m_ntuple->Fill (
-  fabs (firstMu->eta () - firstEle->eta ()),
-  deltaPhi (firstMu->phi (), firstEle->phi ()),
-  sum.M (),
-  ptM,
-  etaM,
-  3//emu
-  ) ;
+      fabs (firstMu->eta () - firstEle->eta ()),
+      vbfhww2l::deltaPhi (firstMu->phi (), firstEle->phi ()),
+      sum.M (),
+      ptM,
+      etaM,
+      3//emu
+    ) ;
 
 }
 

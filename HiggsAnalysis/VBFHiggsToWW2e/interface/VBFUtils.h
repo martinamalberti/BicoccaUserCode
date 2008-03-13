@@ -3,7 +3,7 @@ Implementation: inherits from generic EDFilter
 
 */
 //
-// $Id: VBFUtils.h,v 1.9 2008/03/10 09:18:17 govoni Exp $
+// $Id: VBFUtils.h,v 1.10 2008/03/10 17:50:34 govoni Exp $
 //
 //
 // system include files
@@ -14,7 +14,10 @@ Implementation: inherits from generic EDFilter
 #include "DataFormats/Common/interface/View.h"
 #include "TLorentzVector.h"
 
-//PG FIXME to be inserted in a vbfhww2l namespace to avoid clashes
+
+//PG NAMESPACE DEFINITION
+namespace vbfhww2l
+{
 
 typedef reco::CaloJetCollection::const_iterator VBFjetIt ;
 
@@ -68,6 +71,7 @@ findInView (typename edm::Handle<edm::View<T> > collection,
     return collection->end () ;             
   }
 
+} //PG namespace vbfhww2l
 
 #endif
 

@@ -1,4 +1,4 @@
-// $Id: VBFplots.cc,v 1.14 2008/02/26 16:45:40 tancini Exp $
+// $Id: VBFplots.cc,v 1.15 2008/03/03 10:58:57 tancini Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWW2e/interface/VBFplots.h"
 #include <DataFormats/RecoCandidate/interface/RecoChargedCandidate.h>
@@ -97,7 +97,7 @@ VBFplots::analyze (const edm::Event& iEvent,
 
   double t_deltaEta = (fabs ((*jetTagsHandle)[0].p4 ().Eta () - (*jetTagsHandle)[1].p4 ().Eta ()) );
   m_deltaEta -> Fill (t_deltaEta) ;
-  double t_deltaPhi = (deltaPhi ((*jetTagsHandle)[0].p4 ().Phi () , (*jetTagsHandle)[1].p4 ().Phi ()) ) ;
+  double t_deltaPhi = (vbfhww2l::deltaPhi ((*jetTagsHandle)[0].p4 ().Phi () , (*jetTagsHandle)[1].p4 ().Phi ()) ) ;
   m_deltaPhi -> Fill (t_deltaPhi);
   m_deltaPhiVsMinEnergyTag -> Fill (t_EMin, t_deltaPhi) ;
 
