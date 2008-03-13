@@ -1,7 +1,7 @@
 
 //.x /Users/govoni/public/rootLogon.C
 //TFile *_file0 = TFile::Open ("testVBFIsolation.root") ;
-//testIsol->cd () ;
+testIsol->cd () ;
 TCanvas c1 ;
 TH2F * dummy = new TH2F ("dummy","",3.15,0,3.15,2,0.3,2.1) ;
 dummy->SetStats (0) ;
