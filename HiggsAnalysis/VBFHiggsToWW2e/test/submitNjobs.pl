@@ -89,8 +89,8 @@ for ($INDEX = 0; $INDEX < $NUMFILES; $INDEX = $INDEX + $FILEPERNODO)
     print JOBNAME  "source $COPIA\n";
     print JOBNAME  "cmsRun  ".$DIR."/".$CONFIG."\n"; 
 
-    print ("qsub -V -q fastcms ".$JOB."...\n");
-    system ("qsub -V -q fastcms ".$JOB."\n");
+    print ("qsub -V -q shortcms ".$JOB."...\n");
+    system ("qsub -V -q shortcms ".$JOB."\n");
 	
 }
  
