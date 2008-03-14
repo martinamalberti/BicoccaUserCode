@@ -2,8 +2,8 @@ $SAMPLE = $ARGV[0] ;
 $DATASETPATH = $ARGV[1] ;
 #$CHANNEL = $ARGV[2] ;
 
-$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos_mInvMaxPrdEtaBefore.root" ;
-$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_mInvMaxPrdEtaBefore".$SAMPLE.".cfg";
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_histos_ptMaxPrdEtaBefore.root" ;
+$CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/VBFplots_ptMaxPrdEtaBefore".$SAMPLE.".cfg";
 
 system("rm -f ".$CONFIG ) ;   
 open (CONFIGNAME,">>".$CONFIG) or die "Cannot open ".$CONFIG." to write the config file" ;
