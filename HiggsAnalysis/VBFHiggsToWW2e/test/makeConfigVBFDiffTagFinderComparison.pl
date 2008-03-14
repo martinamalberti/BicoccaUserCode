@@ -1,7 +1,7 @@
 $SAMPLE = $ARGV[0] ;
 $DATASETPATH = $ARGV[1] ;
 
-$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_treeSkimmed_tag.root" ;
+$OUTROOTHISTOS =  "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/".$SAMPLE."_tree_algo0.root" ;
 $CONFIG = "/gwtera2/users/tancini/WWF/CMSSW_1_6_8/src/HiggsAnalysis/VBFHiggsToWW2e/test/tree_tag_".$SAMPLE.".cfg";
 
 system("rm -f ".$CONFIG ) ;   
@@ -22,7 +22,7 @@ print CONFIGNAME "include \"HiggsAnalysis/VBFHiggsToWW2e/data/allEleIds.cfi\"\n"
 
 print CONFIGNAME "include \"$DATASETPATH\"\n";
 
-print CONFIGNAME "untracked PSet maxEvents = {untracked int32 input = -1}\n";
+print CONFIGNAME "untracked PSet maxEvents = {untracked int32 input = 100}\n";
 print CONFIGNAME "untracked PSet options = { untracked bool wantSummary = true }\n";
 
 print CONFIGNAME "  service = TFileService\n"; 
@@ -41,12 +41,27 @@ print CONFIGNAME "double minEleOJetEratio = 0\n";
 print CONFIGNAME "double maxHEoverEmE = 1000\n";
 print CONFIGNAME "}\n";
 
+print CONFIGNAME "module numJetFilter_afterClean = VBFJetNumFilter\n";
+print CONFIGNAME "{\n";
+print CONFIGNAME "    InputTag jetInputTag  = jetCleaner\n";
+print CONFIGNAME "    int32 maxJetNum = 100\n"; # very big
+print CONFIGNAME "    int32 minJetNum = 2\n"; #se minore 2 ritorna
+print CONFIGNAME "}\n";
+
 print CONFIGNAME "module jetUEPU = VBFJetEtaPtSelecting\n";
 print CONFIGNAME "{\n";
 print CONFIGNAME "    InputTag src  = jetCleaner\n";
 print CONFIGNAME "    double maxEta = 5\n";
 print CONFIGNAME "    double minPt = 15 # GeV\n";
 print CONFIGNAME "}\n";
+
+print CONFIGNAME "module numJetFilter_afterUEPU = VBFJetNumFilter\n";
+print CONFIGNAME "{\n";
+print CONFIGNAME "    InputTag jetInputTag  = jetUEPU\n";
+print CONFIGNAME "    int32 maxJetNum = 100\n"; # very big                                                                                           
+print CONFIGNAME "    int32 minJetNum = 2\n"; #se minore 2 ritorna                                                                                  
+print CONFIGNAME "}\n";
+
 
 print CONFIGNAME "module tagJets = VBFJetTagger\n";
 print CONFIGNAME "  {\n";
@@ -56,14 +71,14 @@ print CONFIGNAME "    string otherJetsName = \"otherJets\"\n";
 print CONFIGNAME "    double jetEtaMax = 5\n";
 print CONFIGNAME "    double jetPtMin = 15 # GeV\n";
 print CONFIGNAME "    double gatherConeSize = 0.5\n";
-print CONFIGNAME "    int32 algoType = 1\n";
+print CONFIGNAME "    int32 algoType = 0\n";
 print CONFIGNAME "  }\n";
 
 print CONFIGNAME "module compare = VBFDiffTagFinderComparison\n";
 print CONFIGNAME "{\n";
 print CONFIGNAME "    InputTag jetInputTag  =  jetUEPU\n";
 print CONFIGNAME "    InputTag MCtruthInputTag = genParticleCandidates\n";
-print CONFIGNAME "    int32 algoType = 1\n";
+print CONFIGNAME "    int32 algoType = 0\n";
 print CONFIGNAME "}\n";
 
 
@@ -75,7 +90,7 @@ if ($SAMPLE eq "WWF")
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
-    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & compare}\n";
+    print CONFIGNAME "path reading = {my_VBFMCProcessFilter & jetCleaner & numJetFilter_afterClean & jetUEPU & numJetFilter_afterUEPU & tagJets & compare}\n";
 }
 
 elsif ($SAMPLE eq "ggF")
@@ -86,13 +101,13 @@ elsif ($SAMPLE eq "ggF")
     print CONFIGNAME "{\n";
     print CONFIGNAME "untracked string moduleLabel = \"source\"\n";
     print CONFIGNAME "}\n";
-    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter & jetCleaner & jetUEPU & tagJets & compare}\n";
+    print CONFIGNAME "path reading = {!my_VBFMCProcessFilter & jetCleaner & numJetFilter_afterClean & jetUEPU & numJetFilter_afterUEPU & tagJets & compare}\n";
 } 
 
 else
 {
     print ("sample other\n") ;
-    print CONFIGNAME "path reading = {jetCleaner & jetUEPU & tagJets & compare}\n";
+    print CONFIGNAME "path reading = {jetCleaner & numJetFilter_afterClean & jetUEPU & numJetFilter_afterUEPU & tagJets & compare}\n";
 }
 
 print CONFIGNAME "}\n";
@@ -111,4 +126,4 @@ open (SCRIPTNAME,">>".$SCRIPT) or die "Cannot open ".$SCRIPT." to write the conf
 system("eval `scramv1 runtime -sh`");
 print SCRIPTNAME "cmsRun $CONFIG\n";
 
-system ("qsub -V -q fastcms ".$SCRIPT);
+system ("qsub -V -q shortcms ".$SCRIPT);

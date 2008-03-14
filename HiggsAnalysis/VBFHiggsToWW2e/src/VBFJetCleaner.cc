@@ -60,8 +60,8 @@ VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandl
               discard = true ; break ;
             }  
         } //PG loop over electrons
-      if (!discard) m_selected.push_back (
-          jet (jetCollectionHandle,jetIt - jetCollectionHandle->begin ())
-        ) ;
+      if (!discard) {
+          m_selected.push_back (jet (jetCollectionHandle,jetIt - jetCollectionHandle->begin ())) ;
+      }
     } //PG loop over jets   
-}
+ }
