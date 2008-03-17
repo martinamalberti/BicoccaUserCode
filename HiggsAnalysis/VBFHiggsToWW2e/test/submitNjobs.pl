@@ -75,10 +75,12 @@ for ($INDEX = 0; $INDEX < $NUMFILES; $INDEX = $INDEX + $FILEPERNODO)
     $CONFIG = $OUTPUTTAG."_myCfg_From".$INDEX.".cfg";
     $ROOTFILE = $OUTPUTTAG."_from_".$INDEX.".root" ;
     $SAMPLEFILE = "HiggsAnalysis/VBFHiggsToWW2e/test/".$OUTPUTTAG."_listaFiles_From".$INDEX.".cfi";
+    $MY_FINALREPORT = $OUTPUTTAG."_from_".$INDEX.".log" ;
 
     system ("cat ".$CFGFILE_TEMPLATE." | sed -e s%DATASETFILE%".$SAMPLEFILE."% > tempo1\n") ;
     system ("cat tempo1 | sed -e s%OUTPUT_ROOT%".$DIR."/".$ROOTFILE."% > tempo2\n") ;
-    system ("mv tempo2 ".$CONFIG."\n") ;
+    system ("cat tempo1 | sed -e s%FINALREPORT%".$DIR."/".$MY_FINALREPORT."% > tempo3\n") ;
+    system ("mv tempo3 ".$CONFIG."\n") ;
     system ("rm tempo*\n") ;
 
     $JOB = $OUTPUTTAG."_lanciaFiles_From".$INDEX.".csh";
