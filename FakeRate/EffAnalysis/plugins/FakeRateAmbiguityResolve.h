@@ -38,7 +38,8 @@ class FakeRateAmbiguityResolve{
 //   void select (edm::Handle<collection>, 
 //                const edm::Event&, const edm::EventSetup& ) ;
   void select (edm::Handle<collection>, 
-               const edm::Event&) ;
+               const edm::Event&,
+               const edm::EventSetup&) ;
   
   //! to sort the GSF electrons std::vector according to the E/p ratio and E
   //! if the tracks are different, the sorting is performed by the supercluster raw energy

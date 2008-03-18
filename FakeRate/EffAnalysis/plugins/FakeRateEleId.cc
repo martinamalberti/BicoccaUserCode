@@ -26,7 +26,10 @@ FakeRateEleId::~FakeRateEleId()
 {
 }
 
-void FakeRateEleId::select(edm::Handle<reco::PixelMatchGsfElectronCollection> c, const edm::Event& e)
+void 
+FakeRateEleId::select (edm::Handle<reco::PixelMatchGsfElectronCollection> c, 
+                       const edm::Event& e, 
+                       const edm::EventSetup& es)
 //void FakeRateEleId::select(edm::Handle<reco::ElectronIDCollection> c, const edm::Event& e)
 {
 

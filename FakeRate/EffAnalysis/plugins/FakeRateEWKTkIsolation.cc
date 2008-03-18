@@ -34,7 +34,10 @@ FakeRateEWKTkIsolation::~FakeRateEWKTkIsolation()
 {
 }
 
-void FakeRateEWKTkIsolation::select(edm::Handle<reco::PixelMatchGsfElectronCollection> c, const edm::Event& e)
+void 
+FakeRateEWKTkIsolation::select(edm::Handle<reco::PixelMatchGsfElectronCollection> c, 
+                               const edm::Event& e,
+                               const edm::EventSetup& es)
 {
 
   selected_.clear();

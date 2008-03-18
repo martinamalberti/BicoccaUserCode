@@ -25,7 +25,8 @@ void
 //FakeRateAmbiguityResolve::select (edm::Handle<collection> inputHandle, 
 //                         const edm::Event& evt, const edm::EventSetup& evtStp ) 
 FakeRateAmbiguityResolve::select (edm::Handle<collection> inputHandle, 
-                        const edm::Event& evt) 
+                        const edm::Event& evt,
+                        const edm::EventSetup& es) 
 {
   m_selected.clear () ;
   //PG get the actual product

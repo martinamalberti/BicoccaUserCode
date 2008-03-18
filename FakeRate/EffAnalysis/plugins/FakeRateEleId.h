@@ -32,7 +32,9 @@ class FakeRateEleId {
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
  
-  void select( edm::Handle<reco::PixelMatchGsfElectronCollection>, const edm::Event& );
+  void select( edm::Handle<reco::PixelMatchGsfElectronCollection>, 
+               const edm::Event&,
+               const edm::EventSetup&) ;
 
  private:
  
