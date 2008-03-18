@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.1 2008/03/12 15:32:42 ghezzi Exp $
+// $Id: SimpleNtple.cc,v 1.2 2008/03/12 18:26:00 ghezzi Exp $
 //
 //
 
@@ -53,6 +53,13 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraBase.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
@@ -66,6 +73,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   MetTag_= iConfig.getParameter<edm::InputTag>("MetTag");
   TagJetTag_= iConfig.getParameter<edm::InputTag>("TagJetTag");
   JetTag_= iConfig.getParameter<edm::InputTag>("JetTag");
+  TrackTag_= iConfig.getParameter<edm::InputTag>("TrackTag");
 }
 
 
@@ -179,6 +187,23 @@ void SimpleNtple::FillJet(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 }
 
+
+void SimpleNtple::FillTrack(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  edm::Handle<edm::View<reco::Track> > TrackHandle ;
+  iEvent.getByLabel (TrackTag_, TrackHandle) ;
+
+  if(TrackHandle->size() < 100 ){ nTrack = TrackHandle->size(); }
+  else {nTrack = 100;}
+  for(int i=0; i< nTrack; i++){
+    EtTrack[i]= (*TrackHandle)[i].pt();
+    EtaTrack[i]= (*TrackHandle)[i].eta();
+    PhiTrack[i]= (*TrackHandle)[i].phi();
+  }
+
+
+}
+
 void SimpleNtple::Init(){
   nEle = 0; 
   nMu = 0;
@@ -198,6 +223,12 @@ void SimpleNtple::Init(){
   for (int i=0;i<50;i++){
     EtJet[i]=0;EtaJet[i]=0;PhiJet[i]=0;
   }
+
+  nTrack=0;
+  for (int i=0;i<100;i++){
+    EtTrack[i]=0;EtaTrack[i]=0;PhiTrack[i]=0;
+  }
+
 
 }
 
@@ -233,7 +264,10 @@ SimpleNtple::beginJob(const edm::EventSetup& iSetup)
   mytree_->Branch("EtaJet",EtaJet,"EtaJet[50]/F");
   mytree_->Branch("PhiJet",PhiJet,"PhiJet[50]/F");
 
-
+  mytree_->Branch("nTrack",&nTrack,"nTrack/I");
+  mytree_->Branch("EtTrack",EtTrack,"EtTrack[100]/F");
+  mytree_->Branch("EtaTrack",EtaTrack,"EtaTrack[100]/F");
+  mytree_->Branch("PhiTrack",PhiTrack,"PhiTrack[100]/F");
 
 }
 

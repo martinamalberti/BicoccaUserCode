@@ -33,6 +33,7 @@ class SimpleNtple : public edm::EDAnalyzer {
   void FillMet (const edm::Event&, const edm::EventSetup&);
   void FillTagJet (const edm::Event&, const edm::EventSetup&);
   void FillJet (const edm::Event&, const edm::EventSetup&);
+  void FillTrack (const edm::Event&, const edm::EventSetup&);
   
   // ----------member data ---------------------------
   TTree *mytree_;
@@ -52,6 +53,9 @@ class SimpleNtple : public edm::EDAnalyzer {
   int nJet;
   float EtJet[50],EtaJet[50],PhiJet[50];
 
+  int nTrack;
+  float EtTrack[100],EtaTrack[100],PhiTrack[100];
+
   
 
   edm::InputTag EleTag_;
@@ -61,5 +65,6 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag MetTag_;
   edm::InputTag TagJetTag_;
   edm::InputTag JetTag_;
+  edm::InputTag TrackTag_;
   
 };
