@@ -1,3 +1,5 @@
+source = PoolSource 
+{
   untracked vstring fileNames = 
     {
     "file:/gwtera2/users/tancini/VBF/leptSkim/tancini/outSkim_WW1j-alpgen/VBFskim_1.root",
