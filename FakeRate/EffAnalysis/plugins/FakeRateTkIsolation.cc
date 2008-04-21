@@ -34,10 +34,7 @@ FakeRateTkIsolation::~FakeRateTkIsolation()
 {
 }
 
-void 
-FakeRateTkIsolation::select(edm::Handle<reco::PixelMatchGsfElectronCollection> c, 
-                            const edm::Event& e,
-                            const edm::EventSetup& es)
+void FakeRateTkIsolation::select(edm::Handle<reco::PixelMatchGsfElectronCollection> c, const edm::Event& e)
 {
 
   selected_.clear();
@@ -55,8 +52,8 @@ FakeRateTkIsolation::select(edm::Handle<reco::PixelMatchGsfElectronCollection> c
     myTkIsolation.setPtLow (pTMin_) ;
     myTkIsolation.setLip (lip_) ;
 //    double isoValue = myTkIsolation.getPtTracks()  ;
-    double isoValue = myTkIsolation.getPtTracks()/(*c)[i].pt() ;
-//    double isoValue = myTkIsolation.getSqPtTracks()/(*c)[i].pt()/(*c)[i].pt() ;
+//    double isoValue = myTkIsolation.getPtTracks()/(*c)[i].pt() ;
+    double isoValue = myTkIsolation.getSqPtTracks()/(*c)[i].pt()/(*c)[i].pt() ;
     if ( isoValue < cut_ ) 
     	selected_.push_back (electron (c, i)) ;
   }  
