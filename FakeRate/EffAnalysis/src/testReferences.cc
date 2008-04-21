@@ -41,12 +41,18 @@
 #include <algorithm>
 #include <vector>
 
+//LM include per il modulo dei pesi
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 using namespace reco;
 using namespace std;
 using namespace edm;
 using namespace HepMC;
 
 testReferences::testReferences(const edm::ParameterSet& conf) :
+
+   runOnChowder_   (conf.getParameter<bool>("runOnChowder")),
+
    m_genMetInputTag (conf.getParameter<edm::InputTag> ("genMetInputTag")) ,
    m_metInputTag (conf.getParameter<edm::InputTag> ("metInputTag")) ,
    m_rawGSFInputTag (conf.getParameter<edm::InputTag>("rawGSF")) ,
@@ -72,7 +78,7 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_deltaCone (conf.getUntrackedParameter<double> ("deltaCone",0.2)),
    m_diagCutParam (conf.getUntrackedParameter<double> ("diagCutParam",0.2)),
    m_jfi (conf.getParameter<edm::ParameterSet>("jetIdParameters")),
-   m_rootfile(conf.getUntrackedParameter <std::string> ("rootfile")) 
+   m_rootfile(conf.getUntrackedParameter <std::string> ("rootfile"))
 {
 }  
 
@@ -134,6 +140,9 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("eleNum" ,&m_eleNum,"eleNum/I") ;
     m_minitree->Branch("jetNum" ,&m_jetNum,"jetNum/I") ;
     m_minitree->Branch("SCNum" ,&m_SCNum,"SCNum/I") ;
+    
+    csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
+
 }     
 
 
@@ -455,6 +464,44 @@ void testReferences::analyze (const edm::Event& iEvent,
        m_eleIdTightBit[i] = 0 ;
 
      } //PG loop on the raw collection
+     
+/*LM paste del csa07effanalyser.cc*/
+  edm::Handle<int> procId;
+  if (runOnChowder_) {
+    iEvent.getByLabel("csa07EventWeightProducer", "AlpgenProcessID", procId);
+  } else {
+    iEvent.getByLabel("genEventProcID", procId);
+  }
+  csa07Info_.procId = *procId;
+
+  edm::Handle<double> scale;
+  iEvent.getByLabel("genEventScale", scale);
+  csa07Info_.ptHat = *scale;
+
+  if (runOnChowder_) {
+    csa07Info_.filterEff = -1; // not available for alpgen samples
+  } else {
+    edm::Handle<double> filterEff;
+    iEvent.getByLabel("genEventRunInfo", "FilterEfficiency", filterEff);
+    csa07Info_.filterEff = *filterEff;
+  }
+
+  edm::Handle<double> weight;
+  if (runOnChowder_) {
+    iEvent.getByLabel("csa07EventWeightProducer", "weight", weight);
+  } else {
+    iEvent.getByLabel("genEventWeight", weight);
+  }
+  csa07Info_.weight = *weight;
+
+
+  edm::Handle<edm::TriggerResults> triggerResults;
+  iEvent.getByLabel(edm::InputTag("TriggerResults","","HLT"), triggerResults);
+  if (triggerResults->size() > 90) throw cms::Exception("CSA07EffAnalyser: hardcoded trigger-bit size must be increased!");
+  for (unsigned int i = 0; i < 90; i++) {
+    csa07Info_.trigBits[i] = triggerResults->accept(i);
+  }
+/*LM fine dell'csa07effanalyser*/
 
      m_minitree->Fill();
 }

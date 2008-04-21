@@ -19,8 +19,24 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 
+//LM aggiunte per i weight
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "TBranch.h"
+#include <string>
+
 class testReferences : public edm::EDAnalyzer
 {
+
+
+  typedef struct {
+    Int_t procId;
+    Float_t ptHat;
+    Float_t filterEff;
+    Float_t weight;
+    Int_t trigBits[90];
+  } CSA07Info;
+
  public:
  
    explicit testReferences(const edm::ParameterSet& conf);
@@ -31,6 +47,12 @@ class testReferences : public edm::EDAnalyzer
    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
  
  private:
+
+    bool runOnChowder_;
+    std::string rootFileName_;
+    TFile * rootFile_;
+    TBranch * csa07B_;
+    CSA07Info csa07Info_;
  
    typedef std::vector< HepMC::GenParticle * > GenPartVect;
    typedef std::vector< HepMC::GenParticle * >::const_iterator GenPartVectIt;
