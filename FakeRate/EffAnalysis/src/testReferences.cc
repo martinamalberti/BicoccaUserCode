@@ -109,6 +109,9 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
     m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
     m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
+    m_minitree->Branch("eleHE",m_eleHE ,"eleHE[10]/D");
+    m_minitree->Branch("eleDeltaPhi",m_eleDeltaPhi ,"eleDeltaPhi[10]/D");
+    m_minitree->Branch("eleDeltaEta",m_eleDeltaEta ,"eleDeltaEta[10]/D");    
     m_minitree->Branch("eleSigmaEtaEta",m_eleSigmaEtaEta ,"eleSigmaEtaEta[10]/D");
     m_minitree->Branch("SCE" ,m_SCE ,"SCE[30]/D" ); 
     m_minitree->Branch("SCEta",m_SCEta ,"SCEta[30]/D");
@@ -203,7 +206,10 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_rawBit[ii] = 0;
         m_elePT[ii] = 0 ;  
         m_eleEta[ii] = 0 ; 
-        m_elePhi[ii] = 0 ; 
+        m_elePhi[ii] = 0 ;
+	m_eleHE[ii] = 0 ;
+	m_eleDeltaEta[ii] = 0 ;
+	m_eleDeltaPhi[ii] = 0 ;
         m_eleSigmaEtaEta[ii] = 0 ;
         m_eleCharge[ii] = 0 ; 
         m_jetmaxPT[ii] = 0 ;  
@@ -342,6 +348,9 @@ void testReferences::analyze (const edm::Event& iEvent,
    //PG loop on the raw collection
    for (unsigned int i = 0; i < rawGSFHandle->size () ; ++i) 
      {
+      m_eleHE[i]   = (*rawGSFHandle)[i].hadronicOverEm();
+      m_eleDeltaEta[i]   = (*rawGSFHandle)[i].deltaEtaSuperClusterTrackAtVtx();
+      m_eleDeltaPhi[i]   = (*rawGSFHandle)[i].deltaPhiSuperClusterTrackAtVtx(); 
       m_SCEMatch[i]   = (*rawGSFHandle)[i].superCluster ()->energy () ; 
       m_SCEtaMatch[i] = (*rawGSFHandle)[i].superCluster ()->eta () ; 
       m_SCPhiMatch[i] = (*rawGSFHandle)[i].superCluster ()->phi () ; 
