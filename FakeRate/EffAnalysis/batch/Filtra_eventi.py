@@ -26,14 +26,15 @@ process analysis = {
   untracked PSet options = {untracked bool wantSummary = true}
 
  module referenceTester = testReferences {
+   bool runOnChowder = false
    InputTag genMetInputTag = genMet 
    InputTag metInputTag = met
    InputTag rawGSF = pixelMatchGsfElectrons
    InputTag ambiguity = refResolver
    InputTag tkIso = refTkisolation
    InputTag hadIso = refHadisolation
-   InputTag eleId = electronId
-   InputTag eleIdLoose = electronIdLoose
+   InputTag eleId = electronIdMedium
+   InputTag eleIdLoose = electronId
    InputTag eleIdTight = electronIdTight
    InputTag eleIdRobust = electronIdRobust
    InputTag jet = iterativeCone5CaloJets
