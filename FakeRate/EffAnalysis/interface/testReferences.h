@@ -3,12 +3,13 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -73,6 +74,8 @@ class testReferences : public edm::EDAnalyzer
    edm::InputTag m_eleIdRobustInputTag ; 
    edm::InputTag m_jetInputTag ;
    edm::InputTag m_evtInputTag ;
+   edm::InputTag m_barrelClusterShapeAssocTag ;
+   edm::InputTag m_endcapClusterShapeAssocTag ;
    edm::InputTag m_superClusterEBInputTag ;
    edm::InputTag m_superClusterEEInputTag ;
    int m_rawCounter ;
@@ -98,6 +101,7 @@ class testReferences : public edm::EDAnalyzer
    double m_elePT[10] ;  
    double m_eleEta[10] ; 
    double m_elePhi[10] ; 
+   double m_eleSigmaEtaEta[10] ;
    double m_SCE[30] ;  
    double m_SCEta[30] ; 
    double m_SCPhi[30] ; 
@@ -127,7 +131,7 @@ class testReferences : public edm::EDAnalyzer
    int    m_eleIdLooseBit[10] ;  
    int    m_eleIdTightBit[10] ;  
    int    m_eleClass[10] ;  
-   int    m_ptHat ;
+   double    m_ptHat ;
    int    m_eleNum ; 
    int    m_jetNum ;
    int    m_SCNum ; 

@@ -65,6 +65,8 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_eleIdRobustInputTag (conf.getParameter<edm::InputTag>("eleIdRobust")) ,
    m_jetInputTag (conf.getParameter<edm::InputTag>("jet")) ,
    m_evtInputTag (conf.getParameter<edm::InputTag>("evt")) ,
+   m_barrelClusterShapeAssocTag (conf.getParameter<edm::InputTag> ("barrelClusterShapeAssoc")),
+   m_endcapClusterShapeAssocTag (conf.getParameter<edm::InputTag> ("endcapClusterShapeAssoc")),
    m_superClusterEBInputTag (conf.getParameter<edm::InputTag> ("EBsuperClusters")) ,
    m_superClusterEEInputTag (conf.getParameter<edm::InputTag> ("EEsuperClusters")) ,
    m_rawCounter (0) ,
@@ -102,11 +104,12 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_genMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0) ;   
     m_recoMet4Momentum = new TLorentzVector (0.0,0.0,0.0,0.0) ; 
     
-    m_minitree->Branch ("genMet4Momentum", "TLorentzVector", &m_genMet4Momentum, 6400,99); 
-    m_minitree->Branch ("recoMet4Momentum", "TLorentzVector", &m_recoMet4Momentum, 6400,99); 
+    m_minitree->Branch("genMet4Momentum", "TLorentzVector", &m_genMet4Momentum, 6400,99); 
+    m_minitree->Branch("recoMet4Momentum", "TLorentzVector", &m_recoMet4Momentum, 6400,99); 
     m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
     m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
     m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
+    m_minitree->Branch("eleSigmaEtaEta",m_eleSigmaEtaEta ,"eleSigmaEtaEta[10]/D");
     m_minitree->Branch("SCE" ,m_SCE ,"SCE[30]/D" ); 
     m_minitree->Branch("SCEta",m_SCEta ,"SCEta[30]/D");
     m_minitree->Branch("SCPhi",m_SCPhi ,"SCPhi[30]/D");
@@ -136,7 +139,7 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("eleIdLooseBit" ,m_eleIdLooseBit,"eleIdLooseBit[10]/I") ;
     m_minitree->Branch("eleIdTightBit" ,m_eleIdTightBit,"eleIdTightBit[10]/I") ;
     m_minitree->Branch("eleClass" ,m_eleClass,"eleClass[10]/I") ;
-    m_minitree->Branch("ptHat" ,&m_ptHat,"ptHat/I") ;
+    m_minitree->Branch("ptHat" ,&m_ptHat,"ptHat/D") ;
     m_minitree->Branch("eleNum" ,&m_eleNum,"eleNum/I") ;
     m_minitree->Branch("jetNum" ,&m_jetNum,"jetNum/I") ;
     m_minitree->Branch("SCNum" ,&m_SCNum,"SCNum/I") ;
@@ -201,6 +204,7 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_elePT[ii] = 0 ;  
         m_eleEta[ii] = 0 ; 
         m_elePhi[ii] = 0 ; 
+        m_eleSigmaEtaEta[ii] = 0 ;
         m_eleCharge[ii] = 0 ; 
         m_jetmaxPT[ii] = 0 ;  
         m_jetmaxEta[ii] = 0 ; 
@@ -243,6 +247,10 @@ void testReferences::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_jetInputTag, jetHandle);
   edm::Handle<HepMCProduct> evtHandle;
   iEvent.getByLabel (m_evtInputTag, evtHandle);
+  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleBarrel;
+  iEvent.getByLabel(m_barrelClusterShapeAssocTag , clusterShapeHandleBarrel);
+  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleEndcap;
+  iEvent.getByLabel(m_endcapClusterShapeAssocTag , clusterShapeHandleEndcap);
   edm::Handle<reco::SuperClusterCollection> SCEBHandle;
   iEvent.getByLabel (m_superClusterEBInputTag, SCEBHandle);
   edm::Handle<reco::SuperClusterCollection> SCEEHandle;
@@ -330,8 +338,9 @@ void testReferences::analyze (const edm::Event& iEvent,
 
    m_ptHat = generated_event->event_scale();
    m_eleNum = rawGSFHandle->size () ;
+
    //PG loop on the raw collection
-   for (int i = 0; i < rawGSFHandle->size () ; ++i) 
+   for (unsigned int i = 0; i < rawGSFHandle->size () ; ++i) 
      {
       m_SCEMatch[i]   = (*rawGSFHandle)[i].superCluster ()->energy () ; 
       m_SCEtaMatch[i] = (*rawGSFHandle)[i].superCluster ()->eta () ; 
@@ -359,9 +368,20 @@ void testReferences::analyze (const edm::Event& iEvent,
       m_bremFraction[i] = (pin - pout)/pin ;
       //double eleDiagCut = gsfTrack->EoP
 
+      //Get the correct cluster shape associated to the electron
+      reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
+      if ((*rawGSFHandle)[i].classification()<100) {
+         seedShpItr=clusterShapeHandleBarrel->find((*rawGSFHandle)[i].superCluster()->seed());
+         if ((*rawGSFHandle)[i].classification()==40 && seedShpItr == clusterShapeHandleBarrel->end()) 
+             seedShpItr=clusterShapeHandleEndcap->find((*rawGSFHandle)[i].superCluster()->seed());
+          } 
+      else seedShpItr=clusterShapeHandleEndcap->find((*rawGSFHandle)[i].superCluster()->seed()); 
+      const reco::ClusterShape& sClShape = (*seedShpItr->val) ;
+      m_eleSigmaEtaEta[i] = sClShape.covEtaEta() ;
+      
+      //Match with the closest jet and take the phi eta pt of the jet
       reco::CaloJetCollection::const_iterator closestJet ;
       reco::CaloJetCollection::const_iterator highestJet ;
-      //match with the closest jet and take the phi eta pt of the jet
       double deltaRMin = 99999. ;
       const double pi = 3.14159 ;
       double  jetPT  = -1 ;
