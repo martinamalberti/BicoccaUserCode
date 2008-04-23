@@ -100,7 +100,10 @@ class testReferences : public edm::EDAnalyzer
    TLorentzVector * m_recoMet4Momentum ; 
    double m_elePT[10] ;  
    double m_eleEta[10] ; 
-   double m_elePhi[10] ; 
+   double m_elePhi[10] ;
+   double m_eleHE[10] ;
+   double m_eleDeltaEta[10] ;
+   double m_eleDeltaPhi[10] ;    
    double m_eleSigmaEtaEta[10] ;
    double m_SCE[30] ;  
    double m_SCEta[30] ; 
