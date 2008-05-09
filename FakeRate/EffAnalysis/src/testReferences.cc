@@ -109,10 +109,13 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("elePT" ,m_elePT  ,"elePT[10]/D" ); 
     m_minitree->Branch("eleEta",m_eleEta ,"eleEta[10]/D");
     m_minitree->Branch("elePhi",m_elePhi ,"elePhi[10]/D");
+    
     m_minitree->Branch("eleHE",m_eleHE ,"eleHE[10]/D");
     m_minitree->Branch("eleDeltaPhi",m_eleDeltaPhi ,"eleDeltaPhi[10]/D");
     m_minitree->Branch("eleDeltaEta",m_eleDeltaEta ,"eleDeltaEta[10]/D");    
     m_minitree->Branch("eleSigmaEtaEta",m_eleSigmaEtaEta ,"eleSigmaEtaEta[10]/D");
+    m_minitree->Branch("eleIsBarrel",m_eleIsBarrel,"eleIsBarrel[10]/I");
+
     m_minitree->Branch("SCE" ,m_SCE ,"SCE[30]/D" ); 
     m_minitree->Branch("SCEta",m_SCEta ,"SCEta[30]/D");
     m_minitree->Branch("SCPhi",m_SCPhi ,"SCPhi[30]/D");
@@ -207,11 +210,14 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_elePT[ii] = 0 ;  
         m_eleEta[ii] = 0 ; 
         m_elePhi[ii] = 0 ;
+	
 	m_eleHE[ii] = 0 ;
 	m_eleDeltaEta[ii] = 0 ;
 	m_eleDeltaPhi[ii] = 0 ;
         m_eleSigmaEtaEta[ii] = 0 ;
-        m_eleCharge[ii] = 0 ; 
+        m_eleIsBarrel[ii] = 0;
+	
+	m_eleCharge[ii] = 0 ; 
         m_jetmaxPT[ii] = 0 ;  
         m_jetmaxEta[ii] = 0 ; 
         m_jetmaxPhi[ii] = 0 ; 
@@ -255,8 +261,10 @@ void testReferences::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_evtInputTag, evtHandle);
   edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleBarrel;
   iEvent.getByLabel(m_barrelClusterShapeAssocTag , clusterShapeHandleBarrel);
-  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleEndcap;
-  iEvent.getByLabel(m_endcapClusterShapeAssocTag , clusterShapeHandleEndcap);
+//questo va ancora??
+//  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleEndcap;
+//  iEvent.getByLabel(m_endcapClusterShapeAssocTag , clusterShapeHandleEndcap);
+//
   edm::Handle<reco::SuperClusterCollection> SCEBHandle;
   iEvent.getByLabel (m_superClusterEBInputTag, SCEBHandle);
   edm::Handle<reco::SuperClusterCollection> SCEEHandle;
@@ -378,15 +386,18 @@ void testReferences::analyze (const edm::Event& iEvent,
       //double eleDiagCut = gsfTrack->EoP
 
       //Get the correct cluster shape associated to the electron
+      //LM ci siamo dimenticati in produzione la mappa di associazione per l'EE:aggiriamo il problema salvando solo per EB
       reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
       if ((*rawGSFHandle)[i].classification()<100) {
          seedShpItr=clusterShapeHandleBarrel->find((*rawGSFHandle)[i].superCluster()->seed());
+	 m_eleIsBarrel[i] = 1;
          if ((*rawGSFHandle)[i].classification()==40 && seedShpItr == clusterShapeHandleBarrel->end()) 
-             seedShpItr=clusterShapeHandleEndcap->find((*rawGSFHandle)[i].superCluster()->seed());
+             m_eleIsBarrel[i] = 0;//seedShpItr=clusterShapeHandleEndcap->find((*rawGSFHandle)[i].superCluster()->seed());
           } 
-      else seedShpItr=clusterShapeHandleEndcap->find((*rawGSFHandle)[i].superCluster()->seed()); 
-      const reco::ClusterShape& sClShape = (*seedShpItr->val) ;
-      m_eleSigmaEtaEta[i] = sClShape.covEtaEta() ;
+      else m_eleIsBarrel[i] = 0; //seedShpItr=clusterShapeHandleEndcap->find((*rawGSFHandle)[i].superCluster()->seed()); 
+      if (m_eleIsBarrel[i])
+        {const reco::ClusterShape& sClShape = (*seedShpItr->val) ;
+         m_eleSigmaEtaEta[i] = sClShape.covEtaEta() ;}
       
       //Match with the closest jet and take the phi eta pt of the jet
       reco::CaloJetCollection::const_iterator closestJet ;

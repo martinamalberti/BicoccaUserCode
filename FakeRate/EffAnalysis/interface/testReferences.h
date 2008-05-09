@@ -105,6 +105,7 @@ class testReferences : public edm::EDAnalyzer
    double m_eleDeltaEta[10] ;
    double m_eleDeltaPhi[10] ;    
    double m_eleSigmaEtaEta[10] ;
+   int    m_eleIsBarrel[10];
    double m_SCE[30] ;  
    double m_SCEta[30] ; 
    double m_SCPhi[30] ; 
