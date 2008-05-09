@@ -23,14 +23,18 @@ struct rates
   TH1F * rate_tkIso_ptJ ;
   TH1F * rate_minimumPT_ptJ ;
   TH1F * rate_eleIdTight_ptJ ;
+  TH1F * rate_eleIdDaskalakis_ptJ ;
   TH1F * rate_resol_eta ;
   TH1F * rate_tkIso_eta  ;
   TH1F * rate_minimumPT_eta ;
   TH1F * rate_eleIdTight_eta ;
+  TH1F * rate_eleIdDaskalakis_eta ;
   TH1F * rate_resol_ptJ_flav[5]          ;
   TH1F * rate_resol_eta_flav[5]          ;
   TH1F * rate_eleIdTight_eta_flav[5]     ;
   TH1F * rate_eleIdTight_ptJ_flav[5]     ;
+  TH1F * rate_eleIdDaskalakis_eta_flav[5]     ;
+  TH1F * rate_eleIdDaskalakis_ptJ_flav[5]     ;
   TH1F * rate_minimumPT_eta_flav[5]         ;
   TH1F * rate_minimumPT_ptJ_flav[5]         ;
   TH1F * rate_tkIso_eta_flav[5]          ;
@@ -50,10 +54,12 @@ struct rates
     rate_tkIso_ptJ = new TH1F( (m_baseName+std::string("rate_tkIso_ptJ")).c_str(),"+ track isolation",40,0,200);
     rate_minimumPT_ptJ = new TH1F( (m_baseName+std::string("rate_minimumPT_ptJ")).c_str(),"+ minimum P_T matching electron",40,0,200);
     rate_eleIdTight_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdTight_ptJ")).c_str(),"+ Tight electron ID",40,0,200);
+    rate_eleIdDaskalakis_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_ptJ")).c_str(),"+ Daskalakis electron ID",40,0,200);
     rate_resol_eta = new TH1F( (m_baseName+std::string("rate_resol_eta")).c_str(),(m_baseName+std::string("ptHat")).c_str(),100,-2.5,2.5);
     rate_tkIso_eta = new TH1F((m_baseName+std::string("rate_tkIso_eta")).c_str(),"+ track isolation",100,-2.5,2.5);
     rate_minimumPT_eta = new TH1F( (m_baseName+std::string("rate_minimumPT_eta")).c_str(),"+ minimum P_T matching electron",100,-2.5,2.5);
     rate_eleIdTight_eta = new TH1F( (m_baseName+std::string("rate_eleIdTight_eta")).c_str(),"+ Tight electron ID",100,-2.5,2.5);
+    rate_eleIdDaskalakis_eta = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_eta")).c_str(),"+ Daskalakis electron ID",100,-2.5,2.5);
 
     std::string names[5] = {"light","c","b","t","g"} ;
     //PG loop over possible flavours    
@@ -67,6 +73,8 @@ struct rates
        rate_minimumPT_ptJ_flav[i] = new TH1F ((m_baseName + std::string ("rate_minimumPT_ptJ_") + names[i]).c_str () , (m_baseName + std::string("rate_minimumPT_ptJ_") ).c_str () ,  40, 0, 200) ;
        rate_eleIdTight_eta_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdTight_eta_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdTight_eta_")).c_str () ,  50, -2.5, 2.5) ;
        rate_eleIdTight_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdTight_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdTight_ptJ_") ).c_str () ,  40, 0, 200) ;
+       rate_eleIdDaskalakis_eta_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdDaskalakis_eta_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdDaskalakis_eta_")).c_str () ,  50, -2.5, 2.5) ;
+       rate_eleIdDaskalakis_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdDaskalakis_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdDaskalakis_ptJ_") ).c_str () ,  40, 0, 200) ;
        }   
     }
   ~rates()
@@ -79,14 +87,18 @@ struct ratesIntegral
   TH1F * rate_tkIso_ptJ ;
   TH1F * rate_minimumPT_ptJ ;
   TH1F * rate_eleIdTight_ptJ ;
+  TH1F * rate_eleIdDaskalakis_ptJ ;
   TH1F * rate_resol_eta ;
   TH1F * rate_tkIso_eta  ;
   TH1F * rate_minimumPT_eta ;
   TH1F * rate_eleIdTight_eta ;
+  TH1F * rate_eleIdDaskalakis_eta ;
   TH1F * rate_resol_ptJ_flav[5]          ;
   TH1F * rate_resol_eta_flav[5]          ;
   TH1F * rate_eleIdTight_eta_flav[5]     ;
   TH1F * rate_eleIdTight_ptJ_flav[5]     ;
+  TH1F * rate_eleIdDaskalakis_eta_flav[5]     ;
+  TH1F * rate_eleIdDaskalakis_ptJ_flav[5]     ;
   TH1F * rate_minimumPT_eta_flav[5]         ;
   TH1F * rate_minimumPT_ptJ_flav[5]         ;
   TH1F * rate_tkIso_eta_flav[5]          ;
@@ -104,10 +116,12 @@ struct ratesIntegral
     rate_tkIso_ptJ = new TH1F( (m_baseName+std::string("rate_tkIso_ptJ")).c_str(),"+ track isolation",40,0,200);
     rate_minimumPT_ptJ = new TH1F( (m_baseName+std::string("rate_minimumPT_ptJ")).c_str(),"+ minimum P_T matching electron",40,0,200);
     rate_eleIdTight_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdTight_ptJ")).c_str(),"+ Tight electron ID",40,0,200);
+    rate_eleIdDaskalakis_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_ptJ")).c_str(),"+ Daskalakis electron ID",40,0,200);
     rate_resol_eta = new TH1F( (m_baseName+std::string("rate_resol_eta")).c_str(),(m_baseName+std::string("ptHat")).c_str(),100,-2.5,2.5);
     rate_tkIso_eta = new TH1F((m_baseName+std::string("rate_tkIso_eta")).c_str(),"+ track isolation",100,-2.5,2.5);
     rate_minimumPT_eta = new TH1F( (m_baseName+std::string("rate_minimumPT_eta")).c_str(),"+ minimum P_T matching electron",100,-2.5,2.5);
     rate_eleIdTight_eta = new TH1F( (m_baseName+std::string("rate_eleIdTight_eta")).c_str(),"+ Tight electron ID",100,-2.5,2.5);
+    rate_eleIdDaskalakis_eta = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_eta")).c_str(),"+ Daskalakis electron ID",100,-2.5,2.5);
 
     std::string names[5] = {"light","c","b","t","g"} ;
     //PG loop over possible flavours    
@@ -121,6 +135,8 @@ struct ratesIntegral
        rate_minimumPT_ptJ_flav[i] = new TH1F ((m_baseName + std::string ("rate_minimumPT_ptJ_") + names[i]).c_str () , (m_baseName + std::string("rate_minimumPT_ptJ_") ).c_str () ,  40, 0, 200) ;
        rate_eleIdTight_eta_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdTight_eta_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdTight_eta_")).c_str () ,  50, -2.5, 2.5) ;
        rate_eleIdTight_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdTight_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdTight_ptJ_") ).c_str () ,  40, 0, 200) ;
+       rate_eleIdDaskalakis_eta_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdDaskalakis_eta_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdDaskalakis_eta_")).c_str () ,  50, -2.5, 2.5) ;
+       rate_eleIdDaskalakis_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdDaskalakis_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdDaskalakis_ptJ_") ).c_str () ,  40, 0, 200) ;
        }   
     }
   ~ratesIntegral()
@@ -143,7 +159,9 @@ struct histos
   TH1F * m_e_sequence_minimumPT_ptJ         ;
   TH1F * m_e_sequence_eleIdTight_eta          ;
   TH1F * m_e_sequence_eleIdTight_ptJ          ;
-  
+  TH1F * m_e_sequence_eleIdDaskalakis_eta          ;
+  TH1F * m_e_sequence_eleIdDaskalakis_ptJ          ;
+    
   TH1F * cumulativeAll       ;
   
   TH1F * m_e_sequence_resol_ptJ_flav[5]          ;
@@ -303,6 +321,8 @@ struct histosIntegral
   TH1F * m_e_sequence_minimumPT_ptJ         ;
   TH1F * m_e_sequence_eleIdTight_eta          ;
   TH1F * m_e_sequence_eleIdTight_ptJ          ;
+  TH1F * m_e_sequence_eleIdDaskalakis_eta          ;
+  TH1F * m_e_sequence_eleIdDaskalakis_ptJ          ;
   
   TH1F * cumulativeAll       ;
   

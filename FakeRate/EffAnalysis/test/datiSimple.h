@@ -60,19 +60,19 @@ struct dati
    int    eleClass[10] ;  
    int    ptHat ;
    int    eleNum ;
-   double eleDeltaPhi;
-   double eleDeltaEta;
-   double elesigmaEtaEta;
-   double eleHE;
-   int eleIsBarrel;
-   
+   double eleDeltaPhi[10];
+   double eleDeltaEta[10];
+   double eleSigmaEtaEta[10];
+   double eleHE[10];
+   int eleIsBarrel[10];
+/*   
    double transverse(double appoEta, double appoVar)
      {
-     double theta = 2* atan ( exp( - appoEta) ) ;
+     double theta = 2.* atan ( exp( - appoEta) ) ;
      double transverseVar = abs ( appoVar * sin(theta) ) ;
      return transverseVar;
      }
-   
+*/   
    struct CSA07Info {
      Int_t procId;
      Float_t ptHat;

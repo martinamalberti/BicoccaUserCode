@@ -36,8 +36,9 @@ int main (int argc, char ** argv)
   gStyle->SetPalette(1,0);
 
   TChain fChain ("elminitree") ;
-  fChain.Add ("/misc/cms/users/mucib/modifiche/CMSSW_1_6_9/src/FakeRate/EffAnalysis/test/FakeRateFase2/*ntuple.root"); 
+  fChain.Add ("/misc/cms/users/mucib/AllEventsProduction_FakeRateAnalysisAllEvents_10194_ntuple.root"); 
   dati Input (&fChain) ;  
+  std::cout << "numero di files linkati "<< fChain.GetEntries () << std::endl;
 
   std::map<int,double> rescale; 
   rescale[15] = 53.0E+9 / (13.75E+06 * 53.0 / 55.0 + 0.75E+06);   //number = cross section in 1 pb-1 div by #events (MB HS+ QCD bin)
@@ -201,7 +202,7 @@ int main (int argc, char ** argv)
             } else selected = 0 ;
 //prima eID: Daskalakis
 //dividere eID in EE e EB
-          if(Input.eleIsBarrel[i]==1)
+          if(Input.eleIsBarrel[i])
 	    {
 	    //EB electron ID with kinematics variables (daskalakis)	    
             if ( (Input.eleDeltaPhi[i]<0.007)&(Input.eleDeltaEta[i]<0.0030)&(Input.eleHE[i]<0.026)&(Input.eleSigmaEtaEta[i]<0.0092) ) 
@@ -513,7 +514,7 @@ int main (int argc, char ** argv)
       (istoIt->second)->rate_eleIdTight_ptJ->Write() ;
       (istoIt->second)->rate_eleIdDaskalakis_eta->Write() ;
       (istoIt->second)->rate_eleIdDaskalakis_ptJ->Write() ;      
-      for (int f=0 ; f<5 ; f++)
+ /*     for (int f=0 ; f<5 ; f++)
         {
         (istoIt->second)->rate_resol_eta_flav[f]->Write() ;
         (istoIt->second)->rate_resol_ptJ_flav[f]->Write() ;
@@ -525,9 +526,9 @@ int main (int argc, char ** argv)
         (istoIt->second)->rate_eleIdTight_ptJ_flav[f]->Write() ;
         (istoIt->second)->rate_eleIdDaskalakis_eta_flav[f]->Write() ;
         (istoIt->second)->rate_eleIdDaskalakis_ptJ_flav[f]->Write() ;	      
-        }
+        }*/
     }
-  for (std::map<int,histos*>::iterator istoIt = cumulate.begin () ;
+/*  for (std::map<int,histos*>::iterator istoIt = cumulate.begin () ;
          istoIt != cumulate.end () ;
          ++istoIt)
     {
@@ -544,7 +545,7 @@ int main (int argc, char ** argv)
   rateOverAll->rate_eleIdTight_eta->Write() ;         
   rateOverAll->rate_eleIdDaskalakis_eta->Write() ;         
   cumulateOverAll->cumulativeAll->Write() ;   
-
+*/
   plotting.Close();
 
 } // int main
