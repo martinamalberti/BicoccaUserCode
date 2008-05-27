@@ -28,7 +28,8 @@ struct dati
    TLorentzVector * recoMet4Momentum ; 
    double elePT[10] ;  
    double eleEta[10] ; 
-   double elePhi[10] ; 
+   double elePhi[10] ;
+   int    SCNum ; 
    double SCE[30] ;  
    double SCEta[30] ; 
    double SCPhi[30] ; 
@@ -84,7 +85,8 @@ struct dati
 //PG FIXME manca il lorentz vector
    TBranch * b_elePT ;  
    TBranch * b_eleEta ; 
-   TBranch * b_elePhi ; 
+   TBranch * b_elePhi ;
+   TBranch * b_SCNum ; 
    TBranch * b_SCE ;  
    TBranch * b_SCEta ; 
    TBranch * b_SCPhi ; 
@@ -130,6 +132,7 @@ struct dati
       fChain->SetBranchAddress ("elePT" ,elePT) ;
       fChain->SetBranchAddress ("eleEta" ,eleEta) ;
       fChain->SetBranchAddress ("elePhi" ,elePhi) ;
+      fChain->SetBranchAddress ("SCNum" ,&SCNum) ;
       fChain->SetBranchAddress ("SCE" ,SCE) ;  
       fChain->SetBranchAddress ("SCEta" ,SCEta) ; 
       fChain->SetBranchAddress ("SCPhi" ,SCPhi) ; 
@@ -171,6 +174,7 @@ struct dati
       b_elePT = fChain->GetBranch("elePT");
       b_eleEta = fChain->GetBranch("eleEta");
       b_elePhi = fChain->GetBranch("elePhi");
+      b_SCNum = fChain->GetBranch("SCNum");  
       b_SCE = fChain->GetBranch("SCE");  
       b_SCEta = fChain->GetBranch("SCEta");
       b_SCPhi = fChain->GetBranch("SCPhi");  

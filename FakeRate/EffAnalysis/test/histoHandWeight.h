@@ -55,11 +55,11 @@ struct rates
     rate_minimumPT_ptJ = new TH1F( (m_baseName+std::string("rate_minimumPT_ptJ")).c_str(),"+ minimum P_T matching electron",40,0,200);
     rate_eleIdTight_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdTight_ptJ")).c_str(),"+ Tight electron ID",40,0,200);
     rate_eleIdDaskalakis_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_ptJ")).c_str(),"+ Daskalakis electron ID",40,0,200);
-    rate_resol_eta = new TH1F( (m_baseName+std::string("rate_resol_eta")).c_str(),(m_baseName+std::string("ptHat")).c_str(),100,-2.5,2.5);
-    rate_tkIso_eta = new TH1F((m_baseName+std::string("rate_tkIso_eta")).c_str(),"+ track isolation",100,-2.5,2.5);
-    rate_minimumPT_eta = new TH1F( (m_baseName+std::string("rate_minimumPT_eta")).c_str(),"+ minimum P_T matching electron",100,-2.5,2.5);
-    rate_eleIdTight_eta = new TH1F( (m_baseName+std::string("rate_eleIdTight_eta")).c_str(),"+ Tight electron ID",100,-2.5,2.5);
-    rate_eleIdDaskalakis_eta = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_eta")).c_str(),"+ Daskalakis electron ID",100,-2.5,2.5);
+    rate_resol_eta = new TH1F( (m_baseName+std::string("rate_resol_eta")).c_str(),(m_baseName+std::string("ptHat")).c_str(),50,-2.5,2.5);
+    rate_tkIso_eta = new TH1F((m_baseName+std::string("rate_tkIso_eta")).c_str(),"+ track isolation",50,-2.5,2.5);
+    rate_minimumPT_eta = new TH1F( (m_baseName+std::string("rate_minimumPT_eta")).c_str(),"+ minimum P_T matching electron",50,-2.5,2.5);
+    rate_eleIdTight_eta = new TH1F( (m_baseName+std::string("rate_eleIdTight_eta")).c_str(),"+ Tight electron ID",50,-2.5,2.5);
+    rate_eleIdDaskalakis_eta = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_eta")).c_str(),"+ Daskalakis electron ID",50,-2.5,2.5);
 
     std::string names[5] = {"light","c","b","t","g"} ;
     //PG loop over possible flavours    
@@ -103,6 +103,8 @@ struct ratesIntegral
   TH1F * rate_minimumPT_ptJ_flav[5]         ;
   TH1F * rate_tkIso_eta_flav[5]          ;
   TH1F * rate_tkIso_ptJ_flav[5]          ;
+  TH1F * rate_afterEverything_ptJ_flavOnflav[5]    ;
+  TH1F * rate_afterEverything_eta_flavOnflav[5]    ;
 
   std::string m_baseName ;
 
@@ -117,11 +119,11 @@ struct ratesIntegral
     rate_minimumPT_ptJ = new TH1F( (m_baseName+std::string("rate_minimumPT_ptJ")).c_str(),"+ minimum P_T matching electron",40,0,200);
     rate_eleIdTight_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdTight_ptJ")).c_str(),"+ Tight electron ID",40,0,200);
     rate_eleIdDaskalakis_ptJ = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_ptJ")).c_str(),"+ Daskalakis electron ID",40,0,200);
-    rate_resol_eta = new TH1F( (m_baseName+std::string("rate_resol_eta")).c_str(),(m_baseName+std::string("ptHat")).c_str(),100,-2.5,2.5);
-    rate_tkIso_eta = new TH1F((m_baseName+std::string("rate_tkIso_eta")).c_str(),"+ track isolation",100,-2.5,2.5);
-    rate_minimumPT_eta = new TH1F( (m_baseName+std::string("rate_minimumPT_eta")).c_str(),"+ minimum P_T matching electron",100,-2.5,2.5);
-    rate_eleIdTight_eta = new TH1F( (m_baseName+std::string("rate_eleIdTight_eta")).c_str(),"+ Tight electron ID",100,-2.5,2.5);
-    rate_eleIdDaskalakis_eta = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_eta")).c_str(),"+ Daskalakis electron ID",100,-2.5,2.5);
+    rate_resol_eta = new TH1F( (m_baseName+std::string("rate_resol_eta")).c_str(),(m_baseName+std::string("ptHat")).c_str(),50,-2.5,2.5);
+    rate_tkIso_eta = new TH1F((m_baseName+std::string("rate_tkIso_eta")).c_str(),"+ track isolation",50,-2.5,2.5);
+    rate_minimumPT_eta = new TH1F( (m_baseName+std::string("rate_minimumPT_eta")).c_str(),"+ minimum P_T matching electron",50,-2.5,2.5);
+    rate_eleIdTight_eta = new TH1F( (m_baseName+std::string("rate_eleIdTight_eta")).c_str(),"+ Tight electron ID",50,-2.5,2.5);
+    rate_eleIdDaskalakis_eta = new TH1F( (m_baseName+std::string("rate_eleIdDaskalakis_eta")).c_str(),"+ Daskalakis electron ID",50,-2.5,2.5);
 
     std::string names[5] = {"light","c","b","t","g"} ;
     //PG loop over possible flavours    
@@ -137,6 +139,8 @@ struct ratesIntegral
        rate_eleIdTight_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdTight_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdTight_ptJ_") ).c_str () ,  40, 0, 200) ;
        rate_eleIdDaskalakis_eta_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdDaskalakis_eta_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdDaskalakis_eta_")).c_str () ,  50, -2.5, 2.5) ;
        rate_eleIdDaskalakis_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("rate_eleIdDaskalakis_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("rate_eleIdDaskalakis_ptJ_") ).c_str () ,  40, 0, 200) ;
+       rate_afterEverything_eta_flavOnflav[i] = new TH1F ((m_baseName + std::string ("rate_afterEverything_eta_flavOnflav_") + names[i]).c_str () , (m_baseName + std::string ("rate_afterEverything_eta_flavOnflav_") ).c_str () ,  50, -2.5, 2.5) ;
+       rate_afterEverything_ptJ_flavOnflav[i] = new TH1F ((m_baseName + std::string ("rate_afterEverything_ptJ_flavOnflav_") + names[i]).c_str () , (m_baseName + std::string ("rate_afterEverything_ptJ_flavOnflav_") ).c_str () ,  40, 0, 200) ;
        }   
     }
   ~ratesIntegral()
@@ -186,15 +190,15 @@ struct histos
       sprintf (appoBasename,"%i_%d",basename,ptHat) ;
       m_baseName = appoBasename ;
 
-      m_e_sequence_resol_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_resol_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str (), 50, -2.5, 2.5) ;
       m_e_sequence_resol_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_resol_ptJ" )).c_str (),  40, 0, 200) ;
-      m_e_sequence_tkIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_tkIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_tkIso_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_ptJ" )).c_str (),  40, 0, 200) ;
-      m_e_sequence_minimumPT_eta = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str () , (m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_minimumPT_eta = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str () , (m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_minimumPT_ptJ = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_ptJ")).c_str () , (m_baseName + std::string ("m_e_sequence_minimum_ptJ")).c_str (),  40, 0, 200) ;
-      m_e_sequence_eleIdTight_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_eleIdTight_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_eleIdTight_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str (),  40, 0, 200) ;
-      m_e_sequence_eleIdDaskalakis_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_eleIdDaskalakis_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_eleIdDaskalakis_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str (),  40, 0, 200) ;
 
       cumulativeAll  = new TH1F ((m_baseName + std::string ("cumulativeAll" )).c_str () ,"cumulative distributions",  40, 0, 200) ;
@@ -203,21 +207,21 @@ struct histos
       //PG loop over possible flavours
       for (int i = 0 ; i < 5 ; ++i)
         {      
-          m_e_sequence_resol_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_resol_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_resol_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_resol_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_tkIso_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_tkIso_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_tkIso_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_minimumPT_eta_flav[i] = new TH1F ((m_baseName + std::string ("m_e_sequence_minimumPT_eta_") + names[i]).c_str () , (m_baseName + std::string("m_e_sequence_minimumPT_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_minimumPT_eta_flav[i] = new TH1F ((m_baseName + std::string ("m_e_sequence_minimumPT_eta_") + names[i]).c_str () , (m_baseName + std::string("m_e_sequence_minimumPT_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_minimumPT_ptJ_flav[i] = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_ptE_") + names[i]).c_str () , (m_baseName + std::string("m_e_sequence_minimumPT_ptE_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_eleIdTight_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_eleIdTight_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_eleIdTight_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_eleIdDaskalakis_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_eleIdDaskalakis_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_eleIdDaskalakis_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
 
         }
 
     }
-/*
+
   void growNum ()
     {
       m_counterNum++ ; 
@@ -226,10 +230,10 @@ struct histos
     {
       m_counterDen++ ; 
     }
-*/    
+    
   void rescaleNum (double factor)
     {
-      //factor /= m_counterNum ;
+      factor /= m_counterNum ;
       m_e_sequence_resol_eta    ->Scale (factor) ;
       m_e_sequence_resol_ptJ    ->Scale (factor) ;
       m_e_sequence_tkIso_eta    ->Scale (factor) ;
@@ -259,7 +263,7 @@ struct histos
     
   void rescaleDen (double factor)
     {
-      //factor /= m_counterDen ;
+      factor /= m_counterDen ;
       m_e_sequence_resol_eta         ->Scale (factor) ;
       m_e_sequence_resol_ptJ         ->Scale (factor) ;
 
@@ -347,15 +351,15 @@ struct histosIntegral
       sprintf (appoBasename,"integral_%i",appoInt) ;
       m_baseName = appoBasename ;
 
-      m_e_sequence_resol_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_resol_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_resol_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_resol_ptJ" )).c_str (),  40, 0, 200) ;
-      m_e_sequence_tkIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_tkIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_tkIso_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_ptJ" )).c_str (),  40, 0, 200) ;
-      m_e_sequence_minimumPT_eta = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str () , (m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_minimumPT_eta = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str () , (m_baseName + std::string ("m_e_sequence_minimum_eta")).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_minimumPT_ptJ = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_ptJ")).c_str () , (m_baseName + std::string ("m_e_sequence_minimum_ptJ")).c_str (),  40, 0, 200) ;
-      m_e_sequence_eleIdTight_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_eleIdTight_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_eleIdTight_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str (),  40, 0, 200) ;
-      m_e_sequence_eleIdDaskalakis_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str (),  100, -2.5, 2.5) ;
+      m_e_sequence_eleIdDaskalakis_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_eleIdDaskalakis_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str (),  40, 0, 200) ;
 
       cumulativeAll  = new TH1F ((m_baseName + std::string ("cumulativeAll" )).c_str () ,"cumulative distributions",  40, 0, 200) ;
@@ -364,15 +368,15 @@ struct histosIntegral
       //PG loop over possible flavours
       for (int i = 0 ; i < 5 ; ++i)
         {      
-          m_e_sequence_resol_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_resol_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_resol_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_resol_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_resol_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_resol_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_tkIso_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_tkIso_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_tkIso_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_tkIso_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_tkIso_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_minimumPT_eta_flav[i] = new TH1F ((m_baseName + std::string ("m_e_sequence_minimumPT_eta_") + names[i]).c_str () , (m_baseName + std::string("m_e_sequence_minimumPT_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_minimumPT_eta_flav[i] = new TH1F ((m_baseName + std::string ("m_e_sequence_minimumPT_eta_") + names[i]).c_str () , (m_baseName + std::string("m_e_sequence_minimumPT_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_minimumPT_ptJ_flav[i] = new TH1F ((m_baseName + std::string ("m_e_sequence_minimum_ptE_") + names[i]).c_str () , (m_baseName + std::string("m_e_sequence_minimumPT_ptE_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_eleIdTight_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_eleIdTight_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_eleIdTight_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
-          m_e_sequence_eleIdDaskalakis_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () ,  100, -2.5, 2.5) ;
+          m_e_sequence_eleIdDaskalakis_eta_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta_") + names[i]).c_str () ,  50, -2.5, 2.5) ;
           m_e_sequence_eleIdDaskalakis_ptJ_flav[i]  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ_") + names[i]).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ_") + names[i]).c_str () ,  40, 0, 200) ;
         }
 
