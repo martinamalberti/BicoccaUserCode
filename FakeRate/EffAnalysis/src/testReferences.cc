@@ -58,8 +58,10 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_rawGSFInputTag (conf.getParameter<edm::InputTag>("rawGSF")) ,
    m_ambiguityInputTag (conf.getParameter<edm::InputTag>("ambiguity")) ,
    m_tkIsoInputTag (conf.getParameter<edm::InputTag>("tkIso")) ,
-   m_hadIsoInputTag (conf.getParameter<edm::InputTag>("hadIso")) ,
+//   m_hadIsoInputTag (conf.getParameter<edm::InputTag>("hadIso")) ,
+   m_ecalIsoInputTag (conf.getParameter<edm::InputTag>("ecalIso")) ,   
    m_eleIdInputTag (conf.getParameter<edm::InputTag>("eleId")) ,
+   m_hcalIsoInputTag (conf.getParameter<edm::InputTag>("hcalIso")) ,
    m_eleIdLooseInputTag (conf.getParameter<edm::InputTag>("eleIdLoose")) ,
    m_eleIdTightInputTag (conf.getParameter<edm::InputTag>("eleIdTight")) ,
    m_eleIdRobustInputTag (conf.getParameter<edm::InputTag>("eleIdRobust")) ,
@@ -72,7 +74,9 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_rawCounter (0) ,
    m_ambiguityCounter (0),
    m_tkIsoCounter (0),
-   m_hadIsoCounter (0),
+//   m_hadIsoCounter (0),
+   m_ecalIsoCounter (0),
+   m_hcalIsoCounter (0),
    m_eleIdCounter (0),
    m_eleIdLooseCounter (0),   
    m_eleIdTightCounter (0),   
@@ -140,7 +144,9 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("rawBit"        ,m_rawBit,       "rawBit[10]/I") ;    
     m_minitree->Branch("ambiguityBit"  ,m_ambiguityBit, "ambiguityBit[10]/I") ; 
     m_minitree->Branch("tkIsoBit"      ,m_tkIsoBit,     "tkIsoBit[10]/I") ;      
-    m_minitree->Branch("hadIsoBit"     ,m_hadIsoBit,    "hadIsoBit[10]/I") ;    
+//    m_minitree->Branch("hadIsoBit"     ,m_hadIsoBit,    "hadIsoBit[10]/I") ;    
+    m_minitree->Branch("ecalIsoBit"     ,m_ecalIsoBit,    "ecalIsoBit[10]/I") ;    
+    m_minitree->Branch("hcalIsoBit"     ,m_hcalIsoBit,    "hcalIsoBit[10]/I") ;    
     m_minitree->Branch("eleIdBit"      ,m_eleIdBit,     "eleIdBit[10]/I") ;      
     m_minitree->Branch("eleIdLooseBit" ,m_eleIdLooseBit,"eleIdLooseBit[10]/I") ;
     m_minitree->Branch("eleIdTightBit" ,m_eleIdTightBit,"eleIdTightBit[10]/I") ;
@@ -166,7 +172,7 @@ void testReferences::endJob()
   std::cerr << "[DEBUG] ENDJOB RAW : " << m_rawCounter << " (" << m_rawCounter/static_cast<double> (2*m_eventsCounter) << ")"
             << " AMB : " << m_ambiguityCounter << " (" << m_ambiguityCounter/static_cast<double> (2*m_eventsCounter) << ")"
             << " TKI : " << m_tkIsoCounter << " (" << m_tkIsoCounter/static_cast<double> (2*m_eventsCounter) << ")"
-            << " HAI : " << m_hadIsoCounter << " (" << m_hadIsoCounter/static_cast<double> (2*m_eventsCounter) << ")"
+            //<< " HAI : " << m_hadIsoCounter << " (" << m_hadIsoCounter/static_cast<double> (2*m_eventsCounter) << ")"
             << " EID : " << m_eleIdCounter << " (" << m_eleIdCounter/static_cast<double> (2*m_eventsCounter) << ")"
             << " EIDLoose : " << m_eleIdLooseCounter << " (" << m_eleIdLooseCounter/static_cast<double> (2*m_eventsCounter) << ")"
             << " EIDTight : " << m_eleIdTightCounter << " (" << m_eleIdTightCounter/static_cast<double> (2*m_eventsCounter) << ")"
@@ -228,7 +234,9 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_rawBit[ii] = 0 ;  
         m_ambiguityBit[ii] = 0 ;  
         m_tkIsoBit[ii] = 0 ;  
-        m_hadIsoBit[ii] = 0 ; 
+ //       m_hadIsoBit[ii] = 0 ; 
+        m_ecalIsoBit[ii] = 0 ; 
+        m_hcalIsoBit[ii] = 0 ; 
         m_eleIdBit[ii] = 0 ;  
         m_eleIdLooseBit[ii] = 0 ;  
         m_eleIdTightBit[ii] = 0 ;  
@@ -247,9 +255,13 @@ void testReferences::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_ambiguityInputTag,ambiguityHandle) ; 
   edm::Handle<GSFRefColl> tkIsoHandle ;
   iEvent.getByLabel (m_tkIsoInputTag,tkIsoHandle) ; 
-  edm::Handle<GSFRefColl> hadIsoHandle ;
-  iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
-  edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
+//  edm::Handle<GSFRefColl> hadIsoHandle ;
+//  iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
+  edm::Handle<GSFRefColl> ecalIsoHandle ;
+  iEvent.getByLabel (m_ecalIsoInputTag,ecalIsoHandle) ; 
+  edm::Handle<GSFRefColl> hcalIsoHandle ;
+  iEvent.getByLabel (m_hcalIsoInputTag,hcalIsoHandle) ; 
+ edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
   iEvent.getByLabel (m_eleIdInputTag, electronIDAssocHandle);
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDLooseAssocHandle;
   iEvent.getByLabel (m_eleIdLooseInputTag, electronIDLooseAssocHandle);
@@ -468,10 +480,18 @@ void testReferences::analyze (const edm::Event& iEvent,
      else
        m_tkIsoBit[i] = 0 ;
 
-     if (find (hadIsoHandle->begin (), hadIsoHandle->end (), ref) != hadIsoHandle->end ())
-       m_hadIsoBit[i] = 1 ;
+//     if (find (hadIsoHandle->begin (), hadIsoHandle->end (), ref) != hadIsoHandle->end ())
+//       m_hadIsoBit[i] = 1 ;
+//     else
+//       m_hadIsoBit[i] = 0 ;
+     if (find (ecalIsoHandle->begin (), ecalIsoHandle->end (), ref) != ecalIsoHandle->end ())
+       m_ecalIsoBit[i] = 1 ;
      else
-       m_hadIsoBit[i] = 0 ;
+       m_ecalIsoBit[i] = 0 ;
+     if (find (hcalIsoHandle->begin (), hcalIsoHandle->end (), ref) != hcalIsoHandle->end ())
+       m_hcalIsoBit[i] = 1 ;
+     else
+       m_hcalIsoBit[i] = 0 ;
      
      reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
      electronIDAssocItr = electronIDAssocHandle->find (ref) ;

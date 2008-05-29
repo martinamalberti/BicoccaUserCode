@@ -67,7 +67,9 @@ class testReferences : public edm::EDAnalyzer
    edm::InputTag m_rawGSFInputTag ;
    edm::InputTag m_ambiguityInputTag ;
    edm::InputTag m_tkIsoInputTag ; 
-   edm::InputTag m_hadIsoInputTag ; 
+//   edm::InputTag m_hadIsoInputTag ; 
+   edm::InputTag m_ecalIsoInputTag ; 
+   edm::InputTag m_hcalIsoInputTag ; 
    edm::InputTag m_eleIdInputTag ; 
    edm::InputTag m_eleIdLooseInputTag ; 
    edm::InputTag m_eleIdTightInputTag ; 
@@ -81,7 +83,9 @@ class testReferences : public edm::EDAnalyzer
    int m_rawCounter ;
    int m_ambiguityCounter ;
    int m_tkIsoCounter ;
-   int m_hadIsoCounter ;
+//   int m_hadIsoCounter ;
+   int m_ecalIsoCounter ;
+   int m_hcalIsoCounter ;
    int m_eleIdCounter ;   
    int m_eleIdLooseCounter ;   
    int m_eleIdTightCounter ;   
@@ -130,7 +134,9 @@ class testReferences : public edm::EDAnalyzer
    int    m_rawBit[10] ;  
    int    m_ambiguityBit[10] ;  
    int    m_tkIsoBit[10] ;  
-   int    m_hadIsoBit[10] ; 
+//   int    m_hadIsoBit[10] ; 
+   int    m_ecalIsoBit[10] ;
+   int    m_hcalIsoBit[10] ;
    int    m_eleIdBit[10] ;  
    int    m_eleIdLooseBit[10] ;  
    int    m_eleIdTightBit[10] ;  
