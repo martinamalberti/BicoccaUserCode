@@ -68,8 +68,8 @@ class testReferences : public edm::EDAnalyzer
    edm::InputTag m_ambiguityInputTag ;
    edm::InputTag m_tkIsoInputTag ; 
 //   edm::InputTag m_hadIsoInputTag ; 
-   edm::InputTag m_ecalIsoInputTag ; 
-   edm::InputTag m_hcalIsoInputTag ; 
+   edm::InputTag m_EcalIsolationProducer_ ; 
+   edm::InputTag m_HcalIsolationProducer_ ; 
    edm::InputTag m_eleIdInputTag ; 
    edm::InputTag m_eleIdLooseInputTag ; 
    edm::InputTag m_eleIdTightInputTag ; 

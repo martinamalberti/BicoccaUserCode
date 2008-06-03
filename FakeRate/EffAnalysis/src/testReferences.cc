@@ -20,6 +20,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -59,9 +61,11 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_ambiguityInputTag (conf.getParameter<edm::InputTag>("ambiguity")) ,
    m_tkIsoInputTag (conf.getParameter<edm::InputTag>("tkIso")) ,
 //   m_hadIsoInputTag (conf.getParameter<edm::InputTag>("hadIso")) ,
-   m_ecalIsoInputTag (conf.getParameter<edm::InputTag>("ecalIso")) ,   
+
+   m_EcalIsolationProducer_ (conf.getParameter<edm::InputTag>("ecalIso")) ,   //?????? dubito ci vada l'InputTag
+   m_HcalIsolationProducer_ (conf.getParameter<edm::InputTag>("hcalIso")) ,  //??????  idem
+
    m_eleIdInputTag (conf.getParameter<edm::InputTag>("eleId")) ,
-   m_hcalIsoInputTag (conf.getParameter<edm::InputTag>("hcalIso")) ,
    m_eleIdLooseInputTag (conf.getParameter<edm::InputTag>("eleIdLoose")) ,
    m_eleIdTightInputTag (conf.getParameter<edm::InputTag>("eleIdTight")) ,
    m_eleIdRobustInputTag (conf.getParameter<edm::InputTag>("eleIdRobust")) ,
@@ -145,8 +149,10 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("ambiguityBit"  ,m_ambiguityBit, "ambiguityBit[10]/I") ; 
     m_minitree->Branch("tkIsoBit"      ,m_tkIsoBit,     "tkIsoBit[10]/I") ;      
 //    m_minitree->Branch("hadIsoBit"     ,m_hadIsoBit,    "hadIsoBit[10]/I") ;    
+
     m_minitree->Branch("ecalIsoBit"     ,m_ecalIsoBit,    "ecalIsoBit[10]/I") ;    
     m_minitree->Branch("hcalIsoBit"     ,m_hcalIsoBit,    "hcalIsoBit[10]/I") ;    
+
     m_minitree->Branch("eleIdBit"      ,m_eleIdBit,     "eleIdBit[10]/I") ;      
     m_minitree->Branch("eleIdLooseBit" ,m_eleIdLooseBit,"eleIdLooseBit[10]/I") ;
     m_minitree->Branch("eleIdTightBit" ,m_eleIdTightBit,"eleIdTightBit[10]/I") ;
@@ -235,8 +241,10 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_ambiguityBit[ii] = 0 ;  
         m_tkIsoBit[ii] = 0 ;  
  //       m_hadIsoBit[ii] = 0 ; 
+ 
         m_ecalIsoBit[ii] = 0 ; 
         m_hcalIsoBit[ii] = 0 ; 
+
         m_eleIdBit[ii] = 0 ;  
         m_eleIdLooseBit[ii] = 0 ;  
         m_eleIdTightBit[ii] = 0 ;  
@@ -257,11 +265,13 @@ void testReferences::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_tkIsoInputTag,tkIsoHandle) ; 
 //  edm::Handle<GSFRefColl> hadIsoHandle ;
 //  iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
-  edm::Handle<GSFRefColl> ecalIsoHandle ;
-  iEvent.getByLabel (m_ecalIsoInputTag,ecalIsoHandle) ; 
-  edm::Handle<GSFRefColl> hcalIsoHandle ;
-  iEvent.getByLabel (m_hcalIsoInputTag,hcalIsoHandle) ; 
- edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
+
+  edm::Handle<reco::CandViewDoubleAssociations> ecalIsolationHandle ;
+  iEvent.getByLabel (m_EcalIsolationProducer_,ecalIsolationHandle) ; 
+  edm::Handle< reco::CandViewDoubleAssociations > hcalIsolationHandle ;
+  iEvent.getByLabel (m_HcalIsolationProducer_,hcalIsolationHandle) ;
+
+  edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
   iEvent.getByLabel (m_eleIdInputTag, electronIDAssocHandle);
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDLooseAssocHandle;
   iEvent.getByLabel (m_eleIdLooseInputTag, electronIDLooseAssocHandle);
@@ -301,7 +311,7 @@ void testReferences::analyze (const edm::Event& iEvent,
   m_genMet4Momentum->SetE  (genmet->energy ()) ;
 
    typedef reco::PixelMatchGsfElectron Object ;
-   typedef reco::PixelMatchGsfElectronRef Ref ;
+   typedef reco::PixelMatchGsfElectronRef Ref ;  //la ecalIsolation allora non vuole piu' questo!
   
    m_jfi.readEvent (iEvent) ;  
 
@@ -483,23 +493,17 @@ void testReferences::analyze (const edm::Event& iEvent,
 //     if (find (hadIsoHandle->begin (), hadIsoHandle->end (), ref) != hadIsoHandle->end ())
 //       m_hadIsoBit[i] = 1 ;
 //     else
-//       m_hadIsoBit[i] = 0 ;
-     if (find (ecalIsoHandle->begin (), ecalIsoHandle->end (), ref) != ecalIsoHandle->end ())
-       m_ecalIsoBit[i] = 1 ;
-     else
-       m_ecalIsoBit[i] = 0 ;
-     if (find (hcalIsoHandle->begin (), hcalIsoHandle->end (), ref) != hcalIsoHandle->end ())
-       m_hcalIsoBit[i] = 1 ;
-     else
-       m_hcalIsoBit[i] = 0 ;
-     
-     reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
-     electronIDAssocItr = electronIDAssocHandle->find (ref) ;
+//       m_hadIsoBit[i] = 0 ;   
+
+     // questo di sotto devo farlo perche' le ID non lavorano con PixelMatchGsfElectrons, ma con un altro Handle:
+     //pero' io voglio mantenere la corrispondenza che fa si che dell'elettrone i-esimo collezione nela medesima posizione tutte le informazioni        
+     reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ; //creo un iteratore al tipo di collezione del quale sono interessato
+     electronIDAssocItr = electronIDAssocHandle->find (ref) ;                   //linko il mio iteratore all'handle che davvero mi serve
      if (electronIDAssocItr == electronIDAssocHandle->end ()) continue ;
-     const reco::ElectronIDRef& id = electronIDAssocItr->val ;
+     const reco::ElectronIDRef& id = electronIDAssocItr->val ;                  // sintassi specifica per la decisione del bit
      bool cutBasedID = id->cutBasedDecision () ;
      if (cutBasedID == 1) 
-       m_eleIdBit[i] = 1 ;
+       m_eleIdBit[i] = 1 ;                                                      //cosi accedo automaticamente alla
      else
        m_eleIdBit[i] = 0 ;
 
@@ -523,6 +527,11 @@ void testReferences::analyze (const edm::Event& iEvent,
      else
        m_eleIdTightBit[i] = 0 ;
 
+     //anche qui devo creare l'escamotage che mi preservi la corrispondenza???
+     reco::CandViewDoubleAssociations::value_type iso=(*ecalIsolationHandle)[i];
+     double isoVal = iso.second;
+     m_ecalIsoBit[i]=isoVal;   
+     
      } //PG loop on the raw collection
      
 /*LM paste del csa07effanalyser.cc*/
