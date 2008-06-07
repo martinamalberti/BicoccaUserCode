@@ -45,6 +45,10 @@
 
 //LM include per il modulo dei pesi
 #include "DataFormats/Common/interface/TriggerResults.h"
+//LM include per MCTruth
+#include "PhysicsTools/HepMCCandAlgos/interface/MCCandMatcher.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 
 using namespace reco;
 using namespace std;
@@ -62,8 +66,8 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_tkIsoInputTag (conf.getParameter<edm::InputTag>("tkIso")) ,
 //   m_hadIsoInputTag (conf.getParameter<edm::InputTag>("hadIso")) ,
 
-   m_EcalIsolationProducer_ (conf.getParameter<edm::InputTag>("ecalIso")) ,   //?????? dubito ci vada l'InputTag
-   m_HcalIsolationProducer_ (conf.getParameter<edm::InputTag>("hcalIso")) ,  //??????  idem
+   m_EcalIsolationProducer_ (conf.getParameter<edm::InputTag>("ecalIso")) ,  
+   m_HcalIsolationProducer_ (conf.getParameter<edm::InputTag>("hcalIso")) ,  
 
    m_eleIdInputTag (conf.getParameter<edm::InputTag>("eleId")) ,
    m_eleIdLooseInputTag (conf.getParameter<edm::InputTag>("eleIdLoose")) ,
@@ -75,6 +79,10 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_endcapClusterShapeAssocTag (conf.getParameter<edm::InputTag> ("endcapClusterShapeAssoc")),
    m_superClusterEBInputTag (conf.getParameter<edm::InputTag> ("EBsuperClusters")) ,
    m_superClusterEEInputTag (conf.getParameter<edm::InputTag> ("EEsuperClusters")) ,
+
+   //MC-Truth
+   matchMap_ (conf.getParameter<edm::InputTag>("electronMCMatch")) ,
+
    m_rawCounter (0) ,
    m_ambiguityCounter (0),
    m_tkIsoCounter (0),
@@ -164,6 +172,8 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     
     csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
 
+   //settiamo qualche branch di prova dei risultati dell' MCTruth
+   m_minitree->Branch("eleTruthEta",m_eleTruthEta ,"eleTruthEta[10]/D") ;
 }     
 
 
@@ -249,6 +259,9 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_eleIdLooseBit[ii] = 0 ;  
         m_eleIdTightBit[ii] = 0 ;  
         m_eleClass[ii] = 0 ; 
+//MCTruth
+        m_eleTruthEta[ii] = 0 ;
+
      }
    m_ptHat = -1 ;  
    m_eleNum = -1 ;
@@ -263,6 +276,12 @@ void testReferences::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_ambiguityInputTag,ambiguityHandle) ; 
   edm::Handle<GSFRefColl> tkIsoHandle ;
   iEvent.getByLabel (m_tkIsoInputTag,tkIsoHandle) ; 
+//MC-Truth
+  edm::Handle<CandMatchMap> mcMatchMap;
+  iEvent.getByLabel(matchMap_,mcMatchMap);
+  // create the extended matcher that includes automatic parent matching
+  MCCandMatcher<PixelMatchGsfElectronCollection> match( * mcMatchMap) ;
+
 //  edm::Handle<GSFRefColl> hadIsoHandle ;
 //  iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
 
@@ -294,6 +313,7 @@ void testReferences::analyze (const edm::Event& iEvent,
 
   edm::Handle<reco::CaloMETCollection> metCollectionHandle ;
   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
+
   const CaloMETCollection *calometcol = metCollectionHandle.product();
   const CaloMET *calomet = &(calometcol->front());  
   m_recoMet4Momentum->SetPx (calomet->px ()) ;
@@ -378,6 +398,19 @@ void testReferences::analyze (const edm::Event& iEvent,
    //PG loop on the raw collection
    for (unsigned int i = 0; i < rawGSFHandle->size () ; ++i) 
      {
+     
+     //le analisi degli oggetti matchati o meno devo farla qui dentro:
+     //infatti e' sulla collezione stessa di cui voglio verificare il match che devo ciclare:i rawGsfHandle-PixelMatchGsfElectronCollection
+     
+     // get your candidate
+     const Candidate & candReco =(*rawGSFHandle)[i]; //cand
+     CandidateRef mcCandTruth = match( candReco );
+     if( mcCandTruth.isNonnull() ) //i.e. ho beccato un elettrone vero!
+       {
+       //controlla la classe Candidate per capire come usarne i membri
+       //perche' ora sia i miei PixelMatchGsfElectrons (candReco) sia i miei genParticleElectron (mcCandTruth,se ci sono) e' cosi' che li gestiro'
+       m_eleTruthEta[i]= candReco->eta();
+       }else m_eleTruthEta[i]= 2.1;
       m_eleHE[i]   = (*rawGSFHandle)[i].hadronicOverEm();
       m_eleDeltaEta[i]   = (*rawGSFHandle)[i].deltaEtaSuperClusterTrackAtVtx();
       m_eleDeltaPhi[i]   = (*rawGSFHandle)[i].deltaPhiSuperClusterTrackAtVtx(); 

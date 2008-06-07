@@ -80,6 +80,8 @@ class testReferences : public edm::EDAnalyzer
    edm::InputTag m_endcapClusterShapeAssocTag ;
    edm::InputTag m_superClusterEBInputTag ;
    edm::InputTag m_superClusterEEInputTag ;
+//MCTruth
+   edm::InputTag matchMap_ ;
    int m_rawCounter ;
    int m_ambiguityCounter ;
    int m_tkIsoCounter ;
@@ -89,8 +91,7 @@ class testReferences : public edm::EDAnalyzer
    int m_eleIdCounter ;   
    int m_eleIdLooseCounter ;   
    int m_eleIdTightCounter ;   
-   int m_eventsCounter ;
-   
+   int m_eventsCounter ;   
    double m_deltaCone ;
    double m_diagCutParam ;
 
@@ -113,11 +114,11 @@ class testReferences : public edm::EDAnalyzer
    double m_SCE[30] ;  
    double m_SCEta[30] ; 
    double m_SCPhi[30] ; 
-   int m_eleCharge[10] ; 
+   int    m_eleCharge[10] ; 
    double m_jetPT[30] ;  
    double m_jetEta[30] ; 
    double m_jetPhi[30] ;    
-   int m_jetFlav[30] ;    
+   int    m_jetFlav[30] ;    
    double m_jetPTMatch[10] ;  
    double m_jetEtaMatch[10] ; 
    double m_jetPhiMatch[10] ; 
@@ -146,6 +147,8 @@ class testReferences : public edm::EDAnalyzer
    int    m_jetNum ;
    int    m_SCNum ; 
 
+//MCTruth
+  double  m_eleTruthEta[10] ;
 } ;
 
 #endif
