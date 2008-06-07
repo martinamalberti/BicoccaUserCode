@@ -165,6 +165,11 @@ struct histos
   TH1F * m_e_sequence_eleIdTight_ptJ          ;
   TH1F * m_e_sequence_eleIdDaskalakis_eta          ;
   TH1F * m_e_sequence_eleIdDaskalakis_ptJ          ;
+//introdotti solo questi quattro per test,senza breakout
+  TH1F * m_e_sequence_ecalIso_eta          ;
+  TH1F * m_e_sequence_ecalIso_ptJ          ;
+  TH1F * m_e_sequence_hcalIso_eta          ;
+  TH1F * m_e_sequence_hcalIso_ptJ          ;
     
   TH1F * cumulativeAll       ;
   
@@ -200,6 +205,11 @@ struct histos
       m_e_sequence_eleIdTight_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str (),  40, 0, 200) ;
       m_e_sequence_eleIdDaskalakis_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_eleIdDaskalakis_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str (),  40, 0, 200) ;
+//
+      m_e_sequence_ecalIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_ecalIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_ecalIso_eta" )).c_str (),  50, -2.5, 2.5) ;
+      m_e_sequence_ecalIso_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_ecalIso_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_ecalIso_ptJ" )).c_str (),  40, 0, 200) ;
+      m_e_sequence_hcalIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_hcalIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_hcalIso_eta" )).c_str (),  50, -2.5, 2.5) ;
+      m_e_sequence_hcalIso_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_hcalIso_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_hcalIso_ptJ" )).c_str (),  40, 0, 200) ;
 
       cumulativeAll  = new TH1F ((m_baseName + std::string ("cumulativeAll" )).c_str () ,"cumulative distributions",  40, 0, 200) ;
 
@@ -244,7 +254,12 @@ struct histos
       m_e_sequence_eleIdTight_ptJ    ->Scale (factor) ;
       m_e_sequence_eleIdDaskalakis_eta    ->Scale (factor) ;
       m_e_sequence_eleIdDaskalakis_ptJ    ->Scale (factor) ;
-
+//
+      m_e_sequence_ecalIso_eta  ->Scale(factor) ;
+      m_e_sequence_ecalIso_ptJ  ->Scale(factor) ;
+      m_e_sequence_hcalIso_eta  ->Scale(factor) ;
+      m_e_sequence_hcalIso_ptJ  ->Scale(factor) ;
+      
       for (int i=0 ; i<5 ; ++i)
         {                                                  
           m_e_sequence_resol_eta_flav[i]          ->Scale (factor) ;
@@ -327,6 +342,12 @@ struct histosIntegral
   TH1F * m_e_sequence_eleIdTight_ptJ          ;
   TH1F * m_e_sequence_eleIdDaskalakis_eta          ;
   TH1F * m_e_sequence_eleIdDaskalakis_ptJ          ;
+//
+  TH1F * m_e_sequence_ecalIso_eta          ;
+  TH1F * m_e_sequence_ecalIso_ptJ          ;
+  TH1F * m_e_sequence_hcalIso_eta          ;
+  TH1F * m_e_sequence_hcalIso_ptJ          ;
+
   
   TH1F * cumulativeAll       ;
   
@@ -361,6 +382,11 @@ struct histosIntegral
       m_e_sequence_eleIdTight_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdTight_ptJ" )).c_str (),  40, 0, 200) ;
       m_e_sequence_eleIdDaskalakis_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_eta" )).c_str (),  50, -2.5, 2.5) ;
       m_e_sequence_eleIdDaskalakis_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_eleIdDaskalakis_ptJ" )).c_str (),  40, 0, 200) ;
+//
+      m_e_sequence_ecalIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_ecalIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_ecalIso_eta" )).c_str (),  50, -2.5, 2.5) ;
+      m_e_sequence_ecalIso_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_ecalIso_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_ecalIso_ptJ" )).c_str (),  40, 0, 200) ;
+      m_e_sequence_hcalIso_eta  = new TH1F ((m_baseName + std::string ("m_e_sequence_hcalIso_eta" )).c_str () , (m_baseName + std::string ("m_e_sequence_hcalIso_eta" )).c_str (),  50, -2.5, 2.5) ;
+      m_e_sequence_hcalIso_ptJ  = new TH1F ((m_baseName + std::string ("m_e_sequence_hcalIso_ptJ" )).c_str () , (m_baseName + std::string ("m_e_sequence_hcalIso_ptJ" )).c_str (),  40, 0, 200) ;
 
       cumulativeAll  = new TH1F ((m_baseName + std::string ("cumulativeAll" )).c_str () ,"cumulative distributions",  40, 0, 200) ;
 

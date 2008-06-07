@@ -54,7 +54,7 @@ struct dati
    int    rawBit[10] ;  
    int    ambiguityBit[10] ;  
    int    tkIsoBit[10] ;  
-   int    hadIsoBit[10] ; 
+   //int    hadIsoBit[10] ; 
    int    eleIdBit[10] ;  
    int    eleIdLooseBit[10] ;  
    int    eleIdTightBit[10] ;  
@@ -66,6 +66,9 @@ struct dati
    double eleSigmaEtaEta[10];
    double eleHE[10];
    int eleIsBarrel[10];
+   
+   int ecalIsoBit[10];
+   int hcalIsoBit[10];
 /*   
    double transverse(double appoEta, double appoVar)
      {
@@ -111,7 +114,7 @@ struct dati
    TBranch * b_rawBit ;  
    TBranch * b_ambiguityBit ;  
    TBranch * b_tkIsoBit ;  
-   TBranch * b_hadIsoBit ; 
+   //TBranch * b_hadIsoBit ; 
    TBranch * b_eleIdBit ;  
    TBranch * b_eleIdLooseBit ;  
    TBranch * b_eleIdTightBit ;  
@@ -124,6 +127,8 @@ struct dati
    TBranch * b_eleDeltaEta ;
    TBranch * b_eleSigmaEtaEta ;
    TBranch * b_eleIsBarrel ;
+   TBranch * b_ecalIsoBit;
+   TBranch * b_hcalIsoBit;
 
   dati (TTree * fChain) 
     {
@@ -157,7 +162,7 @@ struct dati
       fChain->SetBranchAddress ("rawBit" ,rawBit) ;
       fChain->SetBranchAddress ("ambiguityBit" ,ambiguityBit) ;
       fChain->SetBranchAddress ("tkIsoBit" ,tkIsoBit) ;
-      fChain->SetBranchAddress ("hadIsoBit" ,hadIsoBit) ;
+      //fChain->SetBranchAddress ("hadIsoBit" ,hadIsoBit) ;
       fChain->SetBranchAddress ("eleIdBit" ,eleIdBit) ;
       fChain->SetBranchAddress ("eleIdLooseBit" ,eleIdLooseBit) ;
       fChain->SetBranchAddress ("eleIdTightBit" ,eleIdTightBit) ;
@@ -170,6 +175,8 @@ struct dati
       fChain->SetBranchAddress ("eleDeltaEta" ,&eleDeltaEta) ;
       fChain->SetBranchAddress ("eleSigmaEtaEta" ,&eleSigmaEtaEta) ;
       fChain->SetBranchAddress ("eleIsBarrel" ,&eleIsBarrel) ;
+      fChain->SetBranchAddress ("ecalIsoBit"  ,&ecalIsoBit) ;
+      fChain->SetBranchAddress ("hcalIsoBit"  ,&hcalIsoBit) ;
 
       b_elePT = fChain->GetBranch("elePT");
       b_eleEta = fChain->GetBranch("eleEta");
@@ -199,7 +206,7 @@ struct dati
       b_rawBit = fChain->GetBranch("rawBit");
       b_ambiguityBit = fChain->GetBranch("ambiguityBit");
       b_tkIsoBit = fChain->GetBranch("tkIsoBit");
-      b_hadIsoBit = fChain->GetBranch("hadIsoBit");
+      //b_hadIsoBit = fChain->GetBranch("hadIsoBit");
       b_eleIdBit = fChain->GetBranch("eleIdBit");
       b_eleIdLooseBit = fChain->GetBranch("eleIdLooseBit");
       b_eleIdTightBit = fChain->GetBranch("eleIdTightBit");
@@ -212,6 +219,8 @@ struct dati
       b_eleDeltaEta = fChain->GetBranch("eleDeltaEta");   
       b_eleSigmaEtaEta = fChain->GetBranch("eleSigmaEtaEta");   
       b_eleIsBarrel = fChain->GetBranch("eleIsBarrel");   
+      b_ecalIsoBit = fChain->GetBranch("ecalIsoBit");
+      b_hcalIsoBit = fChain->GetBranch("hcalIsoBit");
   
     }     
 

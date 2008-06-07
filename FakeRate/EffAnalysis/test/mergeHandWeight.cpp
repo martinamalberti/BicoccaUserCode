@@ -36,7 +36,8 @@ int main (int argc, char ** argv)
   gStyle->SetPalette(1,0);
 
   TChain fChain ("elminitree") ;
-  fChain.Add ("/misc/cms/users/mucib/FakeRateFase2AllEvents/*.root"); 
+  //fChain.Add ("/misc/cms/users/mucib/FakeRateFase2AllEvents/*.root"); 
+  fChain.Add ("rfio:/castor/cern.ch/user/m/mucib/python/newProductionRootuples/*.root");
   dati Input (&fChain) ;  
   std::cout << "numero di eventi linkati "<< fChain.GetEntries () << std::endl;
 
@@ -201,6 +202,20 @@ int main (int argc, char ** argv)
        
           if (Input.rawBit[i]) {; }
           int selected = 0 ;
+//inserisco subito ecalIso per non uccidere troppo la statistica
+/*          if (Input.ecalIsoBit[i])
+            {
+              //if (selected == 1) 
+                {
+		  std::cout<<"lo go becca!!!!"<<std::endl;
+                  istogrammi[pthatevent]->m_e_sequence_hcalIso_eta->Fill (Input.jetEtaMatch[i]) ;
+                  istogrammi[pthatevent]->m_e_sequence_hcalIso_ptJ->Fill (Input.jetPTMatch[i]) ;
+                  //questi due qui sotto ancora non esistono, ma verra' il loro tempo...
+		  //istogrammi[pthatevent]->m_e_sequence_ecalIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
+                  //istogrammi[pthatevent]->m_e_sequence_ecalIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
+                }
+            } else selected = 0 ;
+*/
           //PG amb resolving passed (qui c'e' il taglio su jet pt)
           if (Input.ambiguityBit[i] && Input.jetmaxPT[i] > 30. && (fabs(Input.jetEtaMatch[i]<2.5)) && (fIndex!=3) )//&& (Input.eleClass[i] != 40)) 
             {
@@ -711,6 +726,15 @@ int main (int argc, char ** argv)
     rateOverAll->rate_afterEverything_ptJ_flavOnflav[f]->Write() ;
     rateOverAll->rate_afterEverything_eta_flavOnflav[f]->Write() ;
     }
+    
+  //salvo gli istogrammi di ecalIso divisi per pthat:
+  for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
+       istoIt != istogrammi.end () ;
+       ++istoIt)
+    {
+      (istoIt->second)->m_e_sequence_hcalIso_eta->Write() ;
+      (istoIt->second)->m_e_sequence_hcalIso_ptJ->Write() ;
+    } 
   plotting.Close();
 
 } // int main
