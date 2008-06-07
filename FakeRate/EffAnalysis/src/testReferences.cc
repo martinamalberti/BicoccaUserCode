@@ -50,10 +50,11 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 using namespace reco;
 using namespace std;
 using namespace edm;
-using namespace HepMC;
 
 testReferences::testReferences(const edm::ParameterSet& conf) :
 
@@ -81,7 +82,7 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_superClusterEEInputTag (conf.getParameter<edm::InputTag> ("EEsuperClusters")) ,
 
    //MC-Truth
-   matchMap_ (conf.getParameter<edm::InputTag>("electronMCMatch")) ,
+   matchMap_ (conf.getParameter<edm::InputTag>("truthMatchMap")) ,
 
    m_rawCounter (0) ,
    m_ambiguityCounter (0),
@@ -93,6 +94,7 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_eleIdLooseCounter (0),   
    m_eleIdTightCounter (0),   
    m_eventsCounter (0),
+
    m_deltaCone (conf.getUntrackedParameter<double> ("deltaCone",0.2)),
    m_diagCutParam (conf.getUntrackedParameter<double> ("diagCutParam",0.2)),
    m_jfi (conf.getParameter<edm::ParameterSet>("jetIdParameters")),
@@ -172,8 +174,9 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     
     csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
 
-   //settiamo qualche branch di prova dei risultati dell' MCTruth
-   m_minitree->Branch("eleTruthEta",m_eleTruthEta ,"eleTruthEta[10]/D") ;
+    //settiamo qualche branch di prova dei risultati dell' MCTruth
+    m_minitree->Branch("eleTruthEta",m_eleTruthEta ,"eleTruthEta[10]/D") ;
+    m_minitree->Branch("dimensioneMappa",&m_dimensioneMappa,"dimenensioneMappa/I") ;
 }     
 
 
@@ -267,7 +270,7 @@ void testReferences::analyze (const edm::Event& iEvent,
    m_eleNum = -1 ;
    m_jetNum = -1 ;
    m_SCNum = -1 ;
-
+   m_dimensioneMappa=-1;
   //take the collections
   typedef edm::RefVector<reco::PixelMatchGsfElectronCollection> GSFRefColl ;
   edm::Handle<PixelMatchGsfElectronCollection> rawGSFHandle ;
@@ -277,10 +280,10 @@ void testReferences::analyze (const edm::Event& iEvent,
   edm::Handle<GSFRefColl> tkIsoHandle ;
   iEvent.getByLabel (m_tkIsoInputTag,tkIsoHandle) ; 
 //MC-Truth
-  edm::Handle<CandMatchMap> mcMatchMap;
-  iEvent.getByLabel(matchMap_,mcMatchMap);
+  edm::Handle<GenParticleMatch> electronMCMatchHandle;
+  iEvent.getByLabel(matchMap_,electronMCMatchHandle);
   // create the extended matcher that includes automatic parent matching
-  MCCandMatcher<PixelMatchGsfElectronCollection> match( * mcMatchMap) ;
+  //MCCandMatcher<PixelMatchGsfElectronCollection> match( * mcMatchMap) ;
 
 //  edm::Handle<GSFRefColl> hadIsoHandle ;
 //  iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
@@ -395,22 +398,37 @@ void testReferences::analyze (const edm::Event& iEvent,
    m_ptHat = generated_event->event_scale();
    m_eleNum = rawGSFHandle->size () ;
 
+//MCTruth implementazione alternativa: ciclo sui membri della mappa stessa, key e val
+//facciamo una verifica facile facile: conto i reco e i mc: i reco dovranno dare lo stesso risultato che in eleNum (che e' giusto)
+//e invece gli mc-elettroni devono essere in minoreOuguale (perche' non tutti i miei pixelgsf saranno dei verio elettroni!!)
+//per controverifica la mappa deve essere grande quanto i miei eleNum!!
+//...ma scusa: allora verifichiamo semplicemente la dimensione della mappa e vediamo se e' proprio come eleNum!!
+  int counterMinchia = 0;
+  //non posso piu lavrare con candmatchmap!!!devo modificare l'accesso alla mappa che ora e' una genparticlemap
+/*  CandMatchMap::const_iterator i; 
+  for(i = electronMCMatchHandle->begin(); i != electronMCMatchHandle->end(); i++ )  
+    {
+    counterMinchia++;
+    }
+  m_dimensioneMappa = counterMinchia;
+*/
    //PG loop on the raw collection
    for (unsigned int i = 0; i < rawGSFHandle->size () ; ++i) 
      {
-     
+//implementazione alla TwikiLista     
      //le analisi degli oggetti matchati o meno devo farla qui dentro:
-     //infatti e' sulla collezione stessa di cui voglio verificare il match che devo ciclare:i rawGsfHandle-PixelMatchGsfElectronCollection
+     //infatti e' sulla collezione stessa di cui voglio verificare il match che devo ciclare:i rawGsfHandle-PixelMatchGsfElectronCollection    
+     //qui sotto non va: non posso convertire un reco::pixelmatchgsf a un'altra roba
+     CandidateRef candReco = (*rawGSFHandle)[i]; // get your reference to a candidate
+     GenParticleRef mcMatch = (*electronMCMatchHandle)[candReco];
      
-     // get your candidate
-     const Candidate & candReco =(*rawGSFHandle)[i]; //cand
-     CandidateRef mcCandTruth = match( candReco );
-     if( mcCandTruth.isNonnull() ) //i.e. ho beccato un elettrone vero!
+     if( mcMatch.isNonnull() ) //i.e. ho beccato un elettrone vero!
        {
        //controlla la classe Candidate per capire come usarne i membri
        //perche' ora sia i miei PixelMatchGsfElectrons (candReco) sia i miei genParticleElectron (mcCandTruth,se ci sono) e' cosi' che li gestiro'
-       m_eleTruthEta[i]= candReco->eta();
+       m_eleTruthEta[i]= (*rawGSFHandle)[i].eta();
        }else m_eleTruthEta[i]= 2.1;
+
       m_eleHE[i]   = (*rawGSFHandle)[i].hadronicOverEm();
       m_eleDeltaEta[i]   = (*rawGSFHandle)[i].deltaEtaSuperClusterTrackAtVtx();
       m_eleDeltaPhi[i]   = (*rawGSFHandle)[i].deltaPhiSuperClusterTrackAtVtx(); 
@@ -640,10 +658,10 @@ void testReferences::fillComponentsVector (HepMC::GenEvent * generated_event, in
        if (((*p)->pdg_id() < 1) && ((*p)->pdg_id() > -10) ) 
             { 
           // We have an anti-quark
-              vector< GenParticle * > parents;
+              vector< HepMC::GenParticle * > parents;
               HepMC::GenVertex* inVertex = (*p)->production_vertex();
               // build the list of parents frfo the vertex
-              for(std::set<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin() ;
+              for(std::set<HepMC::GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin() ;
                                                          iter != inVertex->particles_in_const_end() ; 
                                                          ++iter)
                 parents.push_back(*iter);
@@ -652,10 +670,10 @@ void testReferences::fillComponentsVector (HepMC::GenEvent * generated_event, in
                                    z != parents.end() ; 
                                   ++z)
                   {
-                     vector< GenParticle * > child;
+                     vector< HepMC::GenParticle * > child;
                      HepMC::GenVertex* outVertex = (*z)->end_vertex();
                      // fill childs vector
-                     for(std::set<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
+                     for(std::set<HepMC::GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
                          iter != outVertex->particles_in_const_end();iter++)
                        child.push_back(*iter);
                      // search childs vector  

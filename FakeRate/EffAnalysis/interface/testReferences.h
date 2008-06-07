@@ -146,9 +146,10 @@ class testReferences : public edm::EDAnalyzer
    int    m_eleNum ; 
    int    m_jetNum ;
    int    m_SCNum ; 
-
+   
 //MCTruth
   double  m_eleTruthEta[10] ;
+  int     m_dimensioneMappa ;
 } ;
 
 #endif
