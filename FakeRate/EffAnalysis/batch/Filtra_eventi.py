@@ -32,7 +32,9 @@ process analysis = {
    InputTag rawGSF = pixelMatchGsfElectrons
    InputTag ambiguity = refResolver
    InputTag tkIso = refTkisolation
-   InputTag hadIso = refHadisolation
+   #InputTag hadIso = refHadisolation
+   InputTag  hcalIso = egammaHcalIsolationRelative
+   InputTag  ecalIso = egammaEcalIsolationRelative
    InputTag eleId = electronIdMedium
    InputTag eleIdLoose = electronId
    InputTag eleIdTight = electronIdTight
@@ -139,5 +141,7 @@ for rootfile in map(removechars,listofrootfiles):
     print 'config name: %s' %cfg_name
     
     # Submit!
-    os.system('bsub -q %s -o /dev/null -u roberto.salerno@cern.ch %s' %(queue, script_name))
+    logfile="job_alcaElectrons_%s.log" %basename 
+    print 'logfile: %s' %logfile
+    os.system('bsub -q %s -o %s -u luca.mucibello@cern.ch %s' %(queue, logfile, script_name))
     
