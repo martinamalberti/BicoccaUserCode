@@ -52,6 +52,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+
 using namespace reco;
 using namespace std;
 using namespace edm;
@@ -160,8 +162,8 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("tkIsoBit"      ,m_tkIsoBit,     "tkIsoBit[10]/I") ;      
 //    m_minitree->Branch("hadIsoBit"     ,m_hadIsoBit,    "hadIsoBit[10]/I") ;    
 
-    m_minitree->Branch("ecalIsoBit"     ,m_ecalIsoBit,    "ecalIsoBit[10]/I") ;    
-    m_minitree->Branch("hcalIsoBit"     ,m_hcalIsoBit,    "hcalIsoBit[10]/I") ;    
+    m_minitree->Branch("ecalIsoValue"     ,m_ecalIsoValue,    "ecalIsoValue[10]/D") ;    
+    m_minitree->Branch("hcalIsoValue"     ,m_hcalIsoValue,    "hcalIsoValue[10]/D") ;    
 
     m_minitree->Branch("eleIdBit"      ,m_eleIdBit,     "eleIdBit[10]/I") ;      
     m_minitree->Branch("eleIdLooseBit" ,m_eleIdLooseBit,"eleIdLooseBit[10]/I") ;
@@ -176,6 +178,7 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
 
     //settiamo qualche branch di prova dei risultati dell' MCTruth
     m_minitree->Branch("eleTruthEta",m_eleTruthEta ,"eleTruthEta[10]/D") ;
+    m_minitree->Branch("eleFakeEta",m_eleFakeEta ,"eleFakeEta[10]/D") ;
     m_minitree->Branch("dimensioneMappa",&m_dimensioneMappa,"dimenensioneMappa/I") ;
 }     
 
@@ -255,15 +258,16 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_tkIsoBit[ii] = 0 ;  
  //       m_hadIsoBit[ii] = 0 ; 
  
-        m_ecalIsoBit[ii] = 0 ; 
-        m_hcalIsoBit[ii] = 0 ; 
+        m_ecalIsoValue[ii] = 0 ; 
+        m_hcalIsoValue[ii] = 0 ; 
 
         m_eleIdBit[ii] = 0 ;  
         m_eleIdLooseBit[ii] = 0 ;  
         m_eleIdTightBit[ii] = 0 ;  
         m_eleClass[ii] = 0 ; 
 //MCTruth
-        m_eleTruthEta[ii] = 0 ;
+        m_eleTruthEta[ii] = 4 ;
+        m_eleFakeEta[ii] = 4 ;
 
      }
    m_ptHat = -1 ;  
@@ -273,7 +277,7 @@ void testReferences::analyze (const edm::Event& iEvent,
    m_dimensioneMappa=-1;
   //take the collections
   typedef edm::RefVector<reco::PixelMatchGsfElectronCollection> GSFRefColl ;
-  edm::Handle<PixelMatchGsfElectronCollection> rawGSFHandle ;
+  edm::Handle<reco::PixelMatchGsfElectronCollection> rawGSFHandle ;
   iEvent.getByLabel (m_rawGSFInputTag,rawGSFHandle) ; 
   edm::Handle<GSFRefColl> ambiguityHandle ;
   iEvent.getByLabel (m_ambiguityInputTag,ambiguityHandle) ; 
@@ -290,7 +294,7 @@ void testReferences::analyze (const edm::Event& iEvent,
 
   edm::Handle<reco::CandViewDoubleAssociations> ecalIsolationHandle ;
   iEvent.getByLabel (m_EcalIsolationProducer_,ecalIsolationHandle) ; 
-  edm::Handle< reco::CandViewDoubleAssociations > hcalIsolationHandle ;
+  edm::Handle<reco::CandViewDoubleAssociations > hcalIsolationHandle ;
   iEvent.getByLabel (m_HcalIsolationProducer_,hcalIsolationHandle) ;
 
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
@@ -348,7 +352,7 @@ void testReferences::analyze (const edm::Event& iEvent,
    for (reco::CaloJetCollection::const_iterator iterJet = jetHandle->begin () ;
                                                 iterJet!= jetHandle->end () ; 
                                                 ++iterJet)
-     {      
+     {  
        if (m_jetNum < 50)
         {
           m_jetPT[m_jetNum]  = iterJet->pt () ;
@@ -397,37 +401,17 @@ void testReferences::analyze (const edm::Event& iEvent,
 
    m_ptHat = generated_event->event_scale();
    m_eleNum = rawGSFHandle->size () ;
-
-//MCTruth implementazione alternativa: ciclo sui membri della mappa stessa, key e val
-//facciamo una verifica facile facile: conto i reco e i mc: i reco dovranno dare lo stesso risultato che in eleNum (che e' giusto)
-//e invece gli mc-elettroni devono essere in minoreOuguale (perche' non tutti i miei pixelgsf saranno dei verio elettroni!!)
-//per controverifica la mappa deve essere grande quanto i miei eleNum!!
-//...ma scusa: allora verifichiamo semplicemente la dimensione della mappa e vediamo se e' proprio come eleNum!!
-  int counterMinchia = 0;
-  //non posso piu lavrare con candmatchmap!!!devo modificare l'accesso alla mappa che ora e' una genparticlemap
-/*  CandMatchMap::const_iterator i; 
-  for(i = electronMCMatchHandle->begin(); i != electronMCMatchHandle->end(); i++ )  
-    {
-    counterMinchia++;
-    }
-  m_dimensioneMappa = counterMinchia;
-*/
    //PG loop on the raw collection
    for (unsigned int i = 0; i < rawGSFHandle->size () ; ++i) 
      {
-//implementazione alla TwikiLista     
-     //le analisi degli oggetti matchati o meno devo farla qui dentro:
-     //infatti e' sulla collezione stessa di cui voglio verificare il match che devo ciclare:i rawGsfHandle-PixelMatchGsfElectronCollection    
-     //qui sotto non va: non posso convertire un reco::pixelmatchgsf a un'altra roba
-     CandidateRef candReco = (*rawGSFHandle)[i]; // get your reference to a candidate
+     PixelMatchGsfElectronRef candReco(rawGSFHandle,i);   
      GenParticleRef mcMatch = (*electronMCMatchHandle)[candReco];
      
      if( mcMatch.isNonnull() ) //i.e. ho beccato un elettrone vero!
        {
-       //controlla la classe Candidate per capire come usarne i membri
-       //perche' ora sia i miei PixelMatchGsfElectrons (candReco) sia i miei genParticleElectron (mcCandTruth,se ci sono) e' cosi' che li gestiro'
        m_eleTruthEta[i]= (*rawGSFHandle)[i].eta();
-       }else m_eleTruthEta[i]= 2.1;
+       //int pdgId = mcMatch->eta();
+       }else m_eleFakeEta[i]= (*rawGSFHandle)[i].eta();
 
       m_eleHE[i]   = (*rawGSFHandle)[i].hadronicOverEm();
       m_eleDeltaEta[i]   = (*rawGSFHandle)[i].deltaEtaSuperClusterTrackAtVtx();
@@ -578,10 +562,12 @@ void testReferences::analyze (const edm::Event& iEvent,
      else
        m_eleIdTightBit[i] = 0 ;
 
-     //anche qui devo creare l'escamotage che mi preservi la corrispondenza???
-     reco::CandViewDoubleAssociations::value_type iso=(*ecalIsolationHandle)[i];
-     double isoVal = iso.second;
-     m_ecalIsoBit[i]=isoVal;   
+     reco::CandViewDoubleAssociations::value_type isoEcal=(*ecalIsolationHandle)[i];
+     double isoEcalVal = isoEcal.second;
+     m_ecalIsoValue[i]=isoEcalVal;   
+     reco::CandViewDoubleAssociations::value_type isoHcal=(*hcalIsolationHandle)[i];
+     double isoHcalVal = isoHcal.second;
+     m_ecalIsoValue[i]=isoHcalVal;   
      
      } //PG loop on the raw collection
      

@@ -46,7 +46,7 @@ class testReferences : public edm::EDAnalyzer
    virtual void beginJob(edm::EventSetup const& iSetup);
    virtual void endJob();
    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
- 
+
  private:
 
     bool runOnChowder_;
@@ -136,8 +136,8 @@ class testReferences : public edm::EDAnalyzer
    int    m_ambiguityBit[10] ;  
    int    m_tkIsoBit[10] ;  
 //   int    m_hadIsoBit[10] ; 
-   int    m_ecalIsoBit[10] ;
-   int    m_hcalIsoBit[10] ;
+   double    m_ecalIsoValue[10] ;
+   double    m_hcalIsoValue[10] ;
    int    m_eleIdBit[10] ;  
    int    m_eleIdLooseBit[10] ;  
    int    m_eleIdTightBit[10] ;  
@@ -149,6 +149,7 @@ class testReferences : public edm::EDAnalyzer
    
 //MCTruth
   double  m_eleTruthEta[10] ;
+  double  m_eleFakeEta[10] ;
   int     m_dimensioneMappa ;
 } ;
 
