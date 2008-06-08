@@ -176,10 +176,10 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     
     csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
 
-    //settiamo qualche branch di prova dei risultati dell' MCTruth
-    m_minitree->Branch("eleTruthEta",m_eleTruthEta ,"eleTruthEta[10]/D") ;
-    m_minitree->Branch("eleFakeEta",m_eleFakeEta ,"eleFakeEta[10]/D") ;
-    m_minitree->Branch("dimensioneMappa",&m_dimensioneMappa,"dimenensioneMappa/I") ;
+    m_minitree->Branch("MCTruthMatchBit",m_MCTruthMatchBit,"MCTruthMatchBit[10]/I");
+    m_minitree->Branch("pdgIdTruth",m_pdgIdTruth,"pdgIdTruth[10]/I");
+    m_minitree->Branch("pdgIdMother",m_pdgIdMother,"pdgIdMother[10]/I");
+    m_minitree->Branch("DelatRMatch",m_DeltaRMatch,"DeltaRMatch[10]/D");
 }     
 
 
@@ -265,16 +265,18 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_eleIdLooseBit[ii] = 0 ;  
         m_eleIdTightBit[ii] = 0 ;  
         m_eleClass[ii] = 0 ; 
-//MCTruth
-        m_eleTruthEta[ii] = 4 ;
-        m_eleFakeEta[ii] = 4 ;
+
+        m_MCTruthMatchBit[ii] = -1 ;
+        m_pdgIdTruth[ii]  = 0 ; //e tale resta se non c'e' match con una genParticle
+        m_pdgIdMother[ii] = 0 ; //e tale resta se non c'e' match con una genParticle
+        m_DeltaRMatch[ii] = -1 ;
 
      }
    m_ptHat = -1 ;  
    m_eleNum = -1 ;
    m_jetNum = -1 ;
    m_SCNum = -1 ;
-   m_dimensioneMappa=-1;
+
   //take the collections
   typedef edm::RefVector<reco::PixelMatchGsfElectronCollection> GSFRefColl ;
   edm::Handle<reco::PixelMatchGsfElectronCollection> rawGSFHandle ;
@@ -286,8 +288,6 @@ void testReferences::analyze (const edm::Event& iEvent,
 //MC-Truth
   edm::Handle<GenParticleMatch> electronMCMatchHandle;
   iEvent.getByLabel(matchMap_,electronMCMatchHandle);
-  // create the extended matcher that includes automatic parent matching
-  //MCCandMatcher<PixelMatchGsfElectronCollection> match( * mcMatchMap) ;
 
 //  edm::Handle<GSFRefColl> hadIsoHandle ;
 //  iEvent.getByLabel (m_hadIsoInputTag,hadIsoHandle) ; 
@@ -404,14 +404,21 @@ void testReferences::analyze (const edm::Event& iEvent,
    //PG loop on the raw collection
    for (unsigned int i = 0; i < rawGSFHandle->size () ; ++i) 
      {
-     PixelMatchGsfElectronRef candReco(rawGSFHandle,i);   
-     GenParticleRef mcMatch = (*electronMCMatchHandle)[candReco];
      
-     if( mcMatch.isNonnull() ) //i.e. ho beccato un elettrone vero!
+     //MCTruth Analysis
+     //1)registrazione del bit di MCTruth match
+     //2)leggi il pdgId del MC-matched (sara' 11 quando il match e' con genElettroni)
+     //3)acchiappa la Madre del tuo matched
+     PixelMatchGsfElectronRef candReco(rawGSFHandle,i);   
+     GenParticleRef mcMatch = (*electronMCMatchHandle)[candReco];     
+     if( mcMatch.isNonnull() ) //i.e. l'algoritmo di match ha funzionato
        {
-       m_eleTruthEta[i]= (*rawGSFHandle)[i].eta();
+       m_MCTruthMatchBit[i] = 1 ;
+       m_pdgIdTruth[i]  = mcMatch->pdgId() ;
+       m_pdgIdMother[i] = mcMatch->mother(0)->pdgId() ;
+       //m_eleTruthEta[i]= (*rawGSFHandle)[i].eta();
        //int pdgId = mcMatch->eta();
-       }else m_eleFakeEta[i]= (*rawGSFHandle)[i].eta();
+       }else m_MCTruthMatchBit[i] = 0 ;
 
       m_eleHE[i]   = (*rawGSFHandle)[i].hadronicOverEm();
       m_eleDeltaEta[i]   = (*rawGSFHandle)[i].deltaEtaSuperClusterTrackAtVtx();
@@ -493,8 +500,9 @@ void testReferences::analyze (const edm::Event& iEvent,
               }
           
       
-      } //end fo the match
+      } //end of the match
 
+     m_DeltaRMatch[i] = deltaRMin ;
      m_jetPTMatch[i]  = jetPT ;
      m_jetEtaMatch[i] = jetEta ;
      m_jetPhiMatch[i] = jetPhi ;
@@ -567,7 +575,7 @@ void testReferences::analyze (const edm::Event& iEvent,
      m_ecalIsoValue[i]=isoEcalVal;   
      reco::CandViewDoubleAssociations::value_type isoHcal=(*hcalIsolationHandle)[i];
      double isoHcalVal = isoHcal.second;
-     m_ecalIsoValue[i]=isoHcalVal;   
+     m_hcalIsoValue[i]=isoHcalVal;   
      
      } //PG loop on the raw collection
      

@@ -146,11 +146,12 @@ class testReferences : public edm::EDAnalyzer
    int    m_eleNum ; 
    int    m_jetNum ;
    int    m_SCNum ; 
-   
+
+   double m_DeltaRMatch[10] ;   
 //MCTruth
-  double  m_eleTruthEta[10] ;
-  double  m_eleFakeEta[10] ;
-  int     m_dimensioneMappa ;
+   int   m_MCTruthMatchBit[10] ;  //1=matchAlgo worked, 0=matched with nothing
+   int   m_pdgIdTruth[10] ;
+   int   m_pdgIdMother[10] ;
 } ;
 
 #endif
