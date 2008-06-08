@@ -40,6 +40,7 @@ process analysis = {
    InputTag eleIdTight = electronIdTight
    InputTag eleIdRobust = electronIdRobust
    InputTag jet = iterativeCone5CaloJets
+   InputTag truthMatchMap = electronMCMatch
    InputTag EBsuperClusters = correctedHybridSuperClusters
    InputTag EEsuperClusters = correctedIslandEndcapSuperClusters
    InputTag barrelClusterShapeAssoc = hybridSuperClusters:hybridShapeAssoc
