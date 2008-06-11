@@ -144,6 +144,8 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("jetEta",m_jetEta ,"jetEta[50]/D");
     m_minitree->Branch("jetPhi",m_jetPhi ,"jetPhi[50]/D");
     m_minitree->Branch("jetFlav",m_jetFlav ,"jetFlav[50]/I");
+    m_minitree->Branch("jetHE",m_jetHE ,"jetHE[50]/F");
+    
     m_minitree->Branch("jetPTMatch" ,m_jetPTMatch  ,"jetPTMatch[10]/D" ); 
     m_minitree->Branch("jetEtaMatch",m_jetEtaMatch ,"jetEtaMatch[10]/D");
     m_minitree->Branch("jetPhiMatch",m_jetPhiMatch ,"jetPhiMatch[10]/D");
@@ -218,7 +220,8 @@ void testReferences::analyze (const edm::Event& iEvent,
         m_jetPT[ii] = 0 ;  
         m_jetEta[ii] = 0 ; 
         m_jetPhi[ii] = 0 ; 
-        m_jetFlav[ii] = 0 ; 
+        m_jetFlav[ii] = 0 ;
+	m_jetHE[ii] = 0 ; 
      }
    for (int ii = 0 ; ii < 30 ; ++ii)
      {     
@@ -360,6 +363,7 @@ void testReferences::analyze (const edm::Event& iEvent,
           m_jetPhi[m_jetNum] = iterJet->phi () ;
           JetFlavour jetFlavour = m_jfi.identifyBasedOnPartons(*(iterJet));
           m_jetFlav[m_jetNum] =  jetFlavour.flavour () ;
+	  m_jetHE[m_jetNum] = ( iterJet->energyFractionHadronic () )/( iterJet->emEnergyFraction () );
           ++m_jetNum ;
         }
      } //Loop over jet collection
