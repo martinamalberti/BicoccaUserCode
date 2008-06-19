@@ -36,8 +36,14 @@ int main (int argc, char ** argv)
   gStyle->SetPalette(1,0);
 
   TChain fChain ("elminitree") ;
+<<<<<<< mergeHandWeight.cpp
+  fChain.Add ("/misc/cms/users/mucib/FakeRateFase2NewProduction/*.root"); 
+  //fChain.Add ("/misc/cms/users/mucib/FakeRateFase2AllEvents/*.root"); 
+  //fChain.Add ("rfio:/castor/cern.ch/user/m/mucib/python/NewProductionRootuples/*.root");
+=======
   //fChain.Add ("/misc/cms/users/mucib/FakeRateFase2AllEvents/*.root"); 
   fChain.Add ("rfio:/castor/cern.ch/user/m/mucib/python/newProductionRootuples/*.root");
+>>>>>>> 1.4
   dati Input (&fChain) ;  
   std::cout << "numero di eventi linkati "<< fChain.GetEntries () << std::endl;
 
@@ -77,7 +83,7 @@ int main (int argc, char ** argv)
   std::map<int,histos*> istogrammi ;
   std::map<int,histos*> denomin ;
   std::map<int,rates*> rate ;
-  std::map<int,histos*> cumulate ;
+  std::map<int,histos*> cumulate ; //dell'histos uso solo gli istogr per le cumulative 
   //LM integrated histograms
   histosIntegral * istogrammiOverAll = new histosIntegral(1) ;
   histosIntegral * denominOverAll = new histosIntegral(2);
@@ -90,11 +96,15 @@ int main (int argc, char ** argv)
     {
     fChain.GetEntry (index) ;
     //for production problems consider only ptHat<600
+    //verify in new dataset
     if(Input.csa07Info.ptHat <= 600)
     {
     //LM consider only INTERISTING events
     if ( (Input.csa07Info.procId==11)||(Input.csa07Info.procId==12)||(Input.csa07Info.procId==13)||(Input.csa07Info.procId==28)||(Input.csa07Info.procId==53)||(Input.csa07Info.procId==68) )
       {
+      if (index==2285) std::cout<<"sono arrivato al 2285"<<std::endl;
+      if (index==2286) std::cout<<"sono arrivato al 2286"<<std::endl;
+      if (index==2287) std::cout<<"sono arrivato al 2287"<<std::endl;
       eventCounter++;
       //prendo i primi piu' importanti
       int pthatevent = 0 ;
@@ -129,6 +139,8 @@ int main (int argc, char ** argv)
       if (Input.csa07Info.ptHat >= 1000 && Input.csa07Info.ptHat < 1400)
           pthatevent = 1400 ;    
 
+      //std::cout<<"pthat event "<<pthatevent<<std::endl;
+   
       //se non ho ancora creato l'oggetto, crealo
       if (!denomin.count (pthatevent))
         {
@@ -174,8 +186,10 @@ int main (int argc, char ** argv)
 	     }
         } //PG end loop over jets per event
 
+     //std::cout<<"fuori dai jets"<<std::endl;
      if (!istogrammi.count (pthatevent))
         {
+	   
            histos* dummy = new histos(pthatevent,1) ;
            istogrammi[pthatevent] = dummy ;
 	   //LM automatically we know that we need new histograms for rate and cumulative distributions
@@ -189,7 +203,7 @@ int main (int argc, char ** argv)
       //PG loop over the electrons per event
       for (int i = 0 ; i < Input.eleNum ; ++i)
        {
-       
+
           int fIndex = 3 ;
           if (Input.jetFlavour[i] == 1 || Input.jetFlavour[i] == 2 || Input.jetFlavour[i] == 3 )
             {fIndex = 0 ;}
@@ -217,8 +231,12 @@ int main (int argc, char ** argv)
             } else selected = 0 ;
 */
           //PG amb resolving passed (qui c'e' il taglio su jet pt)
-          if (Input.ambiguityBit[i] && Input.jetmaxPT[i] > 30. && (fabs(Input.jetEtaMatch[i]<2.5)) && (fIndex!=3) )//&& (Input.eleClass[i] != 40)) 
+	  //LM: occhio, stai escludendo i jet failed flavourID
+          if (Input.ambiguityBit[i] && Input.jetmaxPT[i] > 30. && (fabs(Input.jetEtaMatch[i]<2.5)) ) //&& (fIndex!=3) )//&& (Input.eleClass[i] != 40)) 
             {
+	    if ( (Input.pdgIdTruth[i]==11)||(Input.pdgIdTruth[i]==-11) ) {istogrammi[pthatevent]->m_DeltaRMatchRealElectronPreselection->Fill(Input.DelatRMatch[i]) ;}
+	    else  {istogrammi[pthatevent]->m_DeltaRMatchMisElectronPreselection->Fill(Input.DelatRMatch[i]) ;}
+
               istogrammi[pthatevent]->m_e_sequence_resol_eta->Fill (Input.jetEtaMatch[i]) ;
               istogrammi[pthatevent]->m_e_sequence_resol_ptJ->Fill (Input.jetPTMatch[i]) ;
               istogrammi[pthatevent]->m_e_sequence_resol_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
@@ -248,7 +266,51 @@ int main (int argc, char ** argv)
                   istogrammi[pthatevent]->m_e_sequence_tkIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                 }
             } else selected = 0 ;
-//prima eID: Daskalakis
+	    
+//ecalIsolation	  
+	if (Input.ecalIsoValue[i]<0.02)
+	  {
+	        if (index==2286) std::cout<<"ma passa ecalIsol??"<<std::endl;
+
+	  if (selected == 1)
+	    {
+            istogrammi[pthatevent]->m_e_sequence_ecalIso_eta->Fill (Input.jetEtaMatch[i]) ;
+            istogrammi[pthatevent]->m_e_sequence_ecalIso_ptJ->Fill (Input.jetPTMatch[i]) ;
+           istogrammi[pthatevent]->m_e_sequence_ecalIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
+           istogrammi[pthatevent]->m_e_sequence_ecalIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;	    
+	    }
+	  }  else selected = 0 ;
+
+//hcalIsolation
+          if(Input.eleIsBarrel[i])
+	    {
+            if (Input.hcalIsoValue[i]<0.1)
+	      {
+	      if (selected == 1)
+	        {
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_eta->Fill (Input.jetEtaMatch[i]) ;
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_ptJ->Fill (Input.jetPTMatch[i]) ;
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;	    		
+		}
+  	      }  else selected = 0 ;
+            }
+	  else
+	    {
+            if (Input.hcalIsoValue[i]<0.075)
+	      {
+	      if (selected == 1)
+	        {
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_eta->Fill (Input.jetEtaMatch[i]) ;
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_ptJ->Fill (Input.jetPTMatch[i]) ;
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
+                istogrammi[pthatevent]->m_e_sequence_hcalIso_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;	    				
+		}
+  	      }  else selected = 0 ;
+	    
+	    }
+
+// eID: Daskalakis
 //dividere eID in EE e EB
           if(Input.eleIsBarrel[i])
 	    {
@@ -262,7 +324,7 @@ int main (int argc, char ** argv)
                   istogrammi[pthatevent]->m_e_sequence_eleIdDaskalakis_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                   istogrammi[pthatevent]->m_e_sequence_eleIdDaskalakis_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                   }
-              }
+              } else selected = 0 ;
 	    }
 	  else  
 	    {//EE daskalakis - covEtaEta + Robust
@@ -275,9 +337,12 @@ int main (int argc, char ** argv)
                 istogrammi[pthatevent]->m_e_sequence_eleIdDaskalakis_eta_flav[fIndex]->Fill (Input.jetEtaMatch[i]) ;
                 istogrammi[pthatevent]->m_e_sequence_eleIdDaskalakis_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
                 }
-              }
+              } else selected = 0 ;
 	    }
+
 //seconda eID: tight
+//obsoleta
+/*
           if ( (Input.eleIdTightBit[i]) )
 	    {
             if (selected == 1) 
@@ -288,16 +353,35 @@ int main (int argc, char ** argv)
               istogrammi[pthatevent]->m_e_sequence_eleIdTight_ptJ_flav[fIndex]->Fill (Input.jetPTMatch[i]) ;
               }
             }
-
+*/
+       //facciamo statistica solo degli elettroni che hanno passato tutte le selezioni: quelli cioe' che davvero ci farebbero da bias nel segnale:
+       if (selected == 1 )
+         {
+	 if ( (Input.pdgIdTruth[i]==11)||(Input.pdgIdTruth[i]==-11) ) {std::cout<<"real electron that passed all selection cuts"<<std::endl; istogrammi[pthatevent]->m_DeltaRMatchRealElectron->Fill(Input.DelatRMatch[i]) ;}
+	 else  {istogrammi[pthatevent]->m_DeltaRMatchMisElectron->Fill(Input.DelatRMatch[i]) ;}
+	 }
+	 
        }  //PG end loop of the electrons per event
-      
+
       }//end of interisting events
+           //std::cout<<"arrivo alla fine degli interisting events??"<<std::endl;
     }//end of ptHat<600 events  
+           //std::cout<<"arrivo dopo il controllo pthat min 600?? index "<<index<<std::endl;
     }//end of the loop over the events
     std::cout << "numero di eventi d'interesse "<< eventCounter << std::endl;
     
+//qui devo inserire l'errore, prima di riscalare gli istogrammi
+  for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
+       istoIt != istogrammi.end () ;
+       ++istoIt)
+    {(istoIt->second)->errorizzamituttoNum() ;}
+         
+  for (std::map<int,histos*>::iterator istoIt = denomin.begin () ;
+       istoIt != denomin.end () ;
+       ++istoIt)
+    {(istoIt->second)->errorizzamituttoDen() ;}
   
-  //rescale histo per pt hat: il flavour devo rinormalizzarlo a parte,perche il numeratore vuole il branchin
+  //rescale histo per pt hat
   for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
        istoIt != istogrammi.end () ;
        ++istoIt)
@@ -308,11 +392,12 @@ int main (int argc, char ** argv)
        ++istoIt)
     {(istoIt->second)->rescaleDen(rescale[istoIt->first]) ;}
    
-  //filling degli istogrammi di rate
-  for (std::map<int,rates*>::iterator istoIt = rate.begin () ;
+  //filling degli istogrammi di rate divisi per pthat: obsoleto
+/*  for (std::map<int,rates*>::iterator istoIt = rate.begin () ;
        istoIt != rate.end () ;
        ++istoIt)
     {
+    //eta filling
     for (int bin = 1 ; bin <=50 ; bin++)
       {
       if (  denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin) != 0. )
@@ -322,6 +407,8 @@ int main (int argc, char ** argv)
         (istoIt->second)->rate_eleIdTight_eta->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdTight_eta->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
         (istoIt->second)->rate_eleIdDaskalakis_eta->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdDaskalakis_eta->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
         (istoIt->second)->rate_minimumPT_eta->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_minimumPT_eta->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+        (istoIt->second)->rate_ecalIso_eta->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_ecalIso_eta->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+        (istoIt->second)->rate_hcalIso_eta->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_hcalIso_eta->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
         }
       else
         {
@@ -330,33 +417,39 @@ int main (int argc, char ** argv)
         (istoIt->second)->rate_minimumPT_eta->SetBinContent( bin , 0.);
         (istoIt->second)->rate_eleIdTight_eta->SetBinContent( bin , 0.);
         (istoIt->second)->rate_eleIdDaskalakis_eta->SetBinContent( bin , 0.);	
+        (istoIt->second)->rate_ecalIso_eta->SetBinContent( bin ,0.);
+        (istoIt->second)->rate_hcalIso_eta->SetBinContent( bin ,0.);
         }
       }
-      //eta flavour filling
-      for (int bin=1 ; bin<=50;bin++)
-        {
-        for (int f=0 ; f<5 ; f++)
+    //eta flavour filling
+    for (int bin=1 ; bin<=50;bin++)
+      {
+      for (int f=0 ; f<5 ; f++)
+	{
+        if (  denomin[istoIt->first]->m_e_sequence_resol_eta_flav[f]->GetBinContent(bin) != 0. )
 	  {
-          if (  denomin[istoIt->first]->m_e_sequence_resol_eta_flav[f]->GetBinContent(bin) != 0. )
-	    {
-            (istoIt->second)->rate_resol_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_resol_eta_flav[f]->GetBinContent(bin) /  denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
-            (istoIt->second)->rate_tkIso_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_tkIso_eta_flav[f]->GetBinContent(bin) /  denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
-            (istoIt->second)->rate_eleIdTight_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdTight_eta_flav[f]->GetBinContent(bin) /  denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
-            (istoIt->second)->rate_eleIdDaskalakis_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdDaskalakis_eta_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
-            (istoIt->second)->rate_minimumPT_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_minimumPT_eta_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
-            }
-          else
-            {
-            (istoIt->second)->rate_resol_eta_flav[f]->SetBinContent(bin , 0.);
-            (istoIt->second)->rate_tkIso_eta_flav[f]->SetBinContent( bin , 0.);
-            (istoIt->second)->rate_minimumPT_eta_flav[f]->SetBinContent( bin , 0.);
-            (istoIt->second)->rate_eleIdTight_eta_flav[f]->SetBinContent( bin , 0.);
-            (istoIt->second)->rate_eleIdDaskalakis_eta_flav[f]->SetBinContent( bin , 0.);
-            }	  
-	  }//end eta flavour filling
-	}
+          (istoIt->second)->rate_resol_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_resol_eta_flav[f]->GetBinContent(bin) /  denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+          (istoIt->second)->rate_tkIso_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_tkIso_eta_flav[f]->GetBinContent(bin) /  denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+          (istoIt->second)->rate_eleIdTight_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdTight_eta_flav[f]->GetBinContent(bin) /  denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+          (istoIt->second)->rate_eleIdDaskalakis_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdDaskalakis_eta_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+          (istoIt->second)->rate_minimumPT_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_minimumPT_eta_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+          (istoIt->second)->rate_ecalIso_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_ecalIso_eta_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+          (istoIt->second)->rate_hcalIso_eta_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_hcalIso_eta_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_eta->GetBinContent(bin)) ;
+          }
+        else
+          {
+          (istoIt->second)->rate_resol_eta_flav[f]->SetBinContent(bin , 0.);
+          (istoIt->second)->rate_tkIso_eta_flav[f]->SetBinContent( bin , 0.);
+          (istoIt->second)->rate_minimumPT_eta_flav[f]->SetBinContent( bin , 0.);
+          (istoIt->second)->rate_eleIdTight_eta_flav[f]->SetBinContent( bin , 0.);
+          (istoIt->second)->rate_eleIdDaskalakis_eta_flav[f]->SetBinContent( bin , 0.);
+          (istoIt->second)->rate_ecalIso_eta_flav[f]->SetBinContent( bin ,0.);
+          (istoIt->second)->rate_hcalIso_eta_flav[f]->SetBinContent( bin ,0.);
+          }	  
+	}//end eta flavour filling
+      }
       
-    //ptJ flavour filling  
+    //ptJ filling  
     for (int bin = 1 ; bin<=40 ; bin++)
       {      
       if ( denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin) != 0 )
@@ -366,6 +459,8 @@ int main (int argc, char ** argv)
         (istoIt->second)->rate_eleIdTight_ptJ->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdTight_ptJ->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
         (istoIt->second)->rate_eleIdDaskalakis_ptJ->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdDaskalakis_ptJ->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
         (istoIt->second)->rate_minimumPT_ptJ->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_minimumPT_ptJ->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
+        (istoIt->second)->rate_ecalIso_ptJ->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_ecalIso_ptJ->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
+        (istoIt->second)->rate_hcalIso_ptJ->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_hcalIso_ptJ->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
         }
       else
         {
@@ -374,6 +469,8 @@ int main (int argc, char ** argv)
         (istoIt->second)->rate_minimumPT_ptJ->SetBinContent( bin , 0.);
         (istoIt->second)->rate_eleIdTight_ptJ->SetBinContent( bin , 0.);
         (istoIt->second)->rate_eleIdDaskalakis_ptJ->SetBinContent( bin , 0.);
+        (istoIt->second)->rate_ecalIso_ptJ->SetBinContent( bin , 0.);
+        (istoIt->second)->rate_hcalIso_ptJ->SetBinContent( bin , 0.);
         }
       //Ptransverse flavour filling
       for (int f=0 ; f<5 ; f++)
@@ -385,6 +482,8 @@ int main (int argc, char ** argv)
           (istoIt->second)->rate_eleIdTight_ptJ_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdTight_ptJ_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
           (istoIt->second)->rate_eleIdDaskalakis_ptJ_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_eleIdDaskalakis_ptJ_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
           (istoIt->second)->rate_minimumPT_ptJ_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_minimumPT_ptJ_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
+          (istoIt->second)->rate_ecalIso_ptJ_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_ecalIso_ptJ_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
+          (istoIt->second)->rate_hcalIso_ptJ_flav[f]->SetBinContent( bin , istogrammi[istoIt->first]->m_e_sequence_hcalIso_ptJ_flav[f]->GetBinContent(bin) / denomin[istoIt->first]->m_e_sequence_resol_ptJ->GetBinContent(bin)) ;
           }
         else
           {
@@ -393,13 +492,16 @@ int main (int argc, char ** argv)
           (istoIt->second)->rate_minimumPT_ptJ_flav[f]->SetBinContent( bin , 0.);
           (istoIt->second)->rate_eleIdTight_ptJ_flav[f]->SetBinContent( bin , 0.);
           (istoIt->second)->rate_eleIdDaskalakis_ptJ_flav[f]->SetBinContent( bin , 0.);
+          (istoIt->second)->rate_ecalIso_ptJ_flav[f]->SetBinContent( bin , 0.);
+          (istoIt->second)->rate_hcalIso_ptJ_flav[f]->SetBinContent( bin , 0.);
           }	  
 	}//end ptJ flavour filling
       }//end filling rate
 
     }
+*/
     
-    //cumulative distributions per each pTHat: immagino di doverlo fare sulla Daskalakis (cut piu' efficiente)
+    //cumulative distributions per each pTHat: sugli elettroni che si salvano da eID
     float appoNum = 0.;
     float appoDen = 0.;
     for (std::map<int,histos*>::iterator istoIt = cumulate.begin () ;
@@ -419,17 +521,56 @@ int main (int argc, char ** argv)
         else (istoIt->second)->cumulativeAll->SetBinContent(bin,0.); 
 	}
       }
-//distribuzioni integrate sui ptHat:  
+//distribuzioni integrate sui ptHat:
+//qui devo settare l'errore istogramma per istogramma bin per bin, sommandolo in quadratura
+  //DeltaRMatch
+  for (int i=1 ; i<50 ; i++)
+  {
+    double appoFillMis  = 0. ;
+    double appoFillReal = 0. ;
+    double appoFillMisPre  = 0. ;
+    double appoFillRealPre = 0. ;
+    double appoFillMisError  = 0. ;
+    double appoFillRealError = 0. ;
+    double appoFillMisPreError  = 0. ;
+    double appoFillRealPreError = 0. ;
+    for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
+         istoIt != istogrammi.end () ;
+         ++istoIt)
+      {
+      appoFillMis  = appoFillMis  + (istoIt->second)->m_DeltaRMatchMisElectron->GetBinContent(i);
+      appoFillReal = appoFillReal + (istoIt->second)->m_DeltaRMatchRealElectron->GetBinContent(i);
+      appoFillMisPre  = appoFillMisPre  + (istoIt->second)->m_DeltaRMatchMisElectronPreselection->GetBinContent(i);
+      appoFillRealPre = appoFillRealPre + (istoIt->second)->m_DeltaRMatchRealElectronPreselection->GetBinContent(i);
+
+      appoFillMisError  = appoFillMisError  + pow( (istoIt->second)->m_DeltaRMatchMisElectron->GetBinError(i),2 );
+      appoFillRealError = appoFillRealError + pow( (istoIt->second)->m_DeltaRMatchRealElectron->GetBinError(i),2 );
+      appoFillMisPreError  = appoFillMisPreError  + pow( (istoIt->second)->m_DeltaRMatchMisElectronPreselection->GetBinError(i),2 );
+      appoFillRealPreError = appoFillRealPreError + pow( (istoIt->second)->m_DeltaRMatchRealElectronPreselection->GetBinError(i),2 );
+      }
+    istogrammiOverAll->m_DeltaRMatchMisElectron ->SetBinContent(i,appoFillMis );
+    istogrammiOverAll->m_DeltaRMatchRealElectron->SetBinContent(i,appoFillReal);  
+    istogrammiOverAll->m_DeltaRMatchMisElectronPreselection ->SetBinContent(i,appoFillMisPre );
+    istogrammiOverAll->m_DeltaRMatchRealElectronPreselection->SetBinContent(i,appoFillRealPre);  
+
+    istogrammiOverAll->m_DeltaRMatchMisElectron ->SetBinError(i,sqrt(appoFillMisError) );
+    istogrammiOverAll->m_DeltaRMatchRealElectron->SetBinError(i,sqrt(appoFillRealError) );  
+    istogrammiOverAll->m_DeltaRMatchMisElectronPreselection ->SetBinError(i,sqrt(appoFillMisPreError ) );
+    istogrammiOverAll->m_DeltaRMatchRealElectronPreselection->SetBinError(i,sqrt(appoFillRealPreError) );  
+  }
   //pT distributions
-  float appoFillResol , appoFillMinimumPT , appoFilleIdTight , appoFillTrackIso , appoFilleIdDaskalakis;
+  float appoFillResol , appoFillMinimumPT , appoFilleIdTight , appoFillTrackIso , appoFillEcalIso, appoFillHcalIso, appoFilleIdDaskalakis;
+  float appoFillResolError, appoFillMinimumPTError, appoFilleIdTightError, appoFillTrackIsoError, appoFillEcalIsoError, appoFillHcalIsoError, appoFilleIdDaskalakisError;
   //numeratore
   for (int i = 1 ; i<=40 ; i++)
     {
-    appoFillResol = 0.;
-    appoFillMinimumPT = 0.;
-    appoFilleIdTight = 0.;
-    appoFilleIdDaskalakis = 0.;
-    appoFillTrackIso = 0.;    
+    appoFillResol = 0.;         appoFillResolError = 0.;
+    appoFillMinimumPT = 0.;     appoFillMinimumPTError = 0.;
+    appoFilleIdTight = 0.;      appoFilleIdTightError = 0.;
+    appoFilleIdDaskalakis = 0.; appoFilleIdDaskalakisError = 0.;
+    appoFillTrackIso = 0.;      appoFillTrackIsoError = 0.;
+    appoFillEcalIso = 0.;       appoFillEcalIsoError = 0.;
+    appoFillHcalIso = 0.;       appoFillHcalIsoError = 0.;  
     //ciclo sui ptHat
     for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
          istoIt != istogrammi.end () ;
@@ -440,27 +581,52 @@ int main (int argc, char ** argv)
       appoFilleIdTight = appoFilleIdTight + (istoIt->second)->m_e_sequence_eleIdTight_ptJ->GetBinContent(i);
       appoFilleIdDaskalakis = appoFilleIdDaskalakis + (istoIt->second)->m_e_sequence_eleIdDaskalakis_ptJ->GetBinContent(i);    
       appoFillTrackIso = appoFillTrackIso + (istoIt->second)->m_e_sequence_tkIso_ptJ->GetBinContent(i);
+      appoFillEcalIso = appoFillEcalIso + (istoIt->second)->m_e_sequence_ecalIso_ptJ->GetBinContent(i);
+      appoFillHcalIso = appoFillHcalIso + (istoIt->second)->m_e_sequence_hcalIso_ptJ->GetBinContent(i);
+
+      appoFillResolError = appoFillResolError + pow(  (istoIt->second)->m_e_sequence_resol_ptJ->GetBinContent(i),2 );
+      appoFillMinimumPTError = appoFillMinimumPTError + pow(  (istoIt->second)->m_e_sequence_minimumPT_ptJ->GetBinContent(i),2 );
+      appoFilleIdTightError = appoFilleIdTightError + pow(  (istoIt->second)->m_e_sequence_eleIdTight_ptJ->GetBinContent(i),2 );
+      appoFilleIdDaskalakisError = appoFilleIdDaskalakisError + pow(  (istoIt->second)->m_e_sequence_eleIdDaskalakis_ptJ->GetBinContent(i),2 );    
+      appoFillTrackIsoError = appoFillTrackIsoError + pow(  (istoIt->second)->m_e_sequence_tkIso_ptJ->GetBinContent(i),2 );
+      appoFillEcalIsoError = appoFillEcalIsoError + pow(  (istoIt->second)->m_e_sequence_ecalIso_ptJ->GetBinContent(i),2 );
+      appoFillHcalIsoError = appoFillHcalIsoError + pow(  (istoIt->second)->m_e_sequence_hcalIso_ptJ->GetBinContent(i),2 );
       }
     istogrammiOverAll->m_e_sequence_resol_ptJ->SetBinContent(i,appoFillResol) ; 
     istogrammiOverAll->m_e_sequence_minimumPT_ptJ->SetBinContent(i,appoFillMinimumPT) ;      
     istogrammiOverAll->m_e_sequence_tkIso_ptJ->SetBinContent(i,appoFillTrackIso) ;      
     istogrammiOverAll->m_e_sequence_eleIdTight_ptJ->SetBinContent(i,appoFilleIdTight) ;        
     istogrammiOverAll->m_e_sequence_eleIdDaskalakis_ptJ->SetBinContent(i,appoFilleIdDaskalakis) ;                   
+    istogrammiOverAll->m_e_sequence_ecalIso_ptJ->SetBinContent(i,appoFillEcalIso) ;                   
+    istogrammiOverAll->m_e_sequence_hcalIso_ptJ->SetBinContent(i,appoFillHcalIso) ;                   
+
+    istogrammiOverAll->m_e_sequence_resol_ptJ->SetBinError(i,sqrt(appoFillResolError) ) ; 
+    istogrammiOverAll->m_e_sequence_minimumPT_ptJ->SetBinError(i,sqrt(appoFillMinimumPTError) ) ;      
+    istogrammiOverAll->m_e_sequence_tkIso_ptJ->SetBinError(i,sqrt(appoFillTrackIsoError) ) ;      
+    istogrammiOverAll->m_e_sequence_eleIdTight_ptJ->SetBinError(i,sqrt(appoFilleIdTightError) ) ;        
+    istogrammiOverAll->m_e_sequence_eleIdDaskalakis_ptJ->SetBinError(i,sqrt(appoFilleIdDaskalakisError) ) ;                   
+    istogrammiOverAll->m_e_sequence_ecalIso_ptJ->SetBinError(i,sqrt(appoFillEcalIsoError) ) ;                   
+    istogrammiOverAll->m_e_sequence_hcalIso_ptJ->SetBinError(i,sqrt(appoFillHcalIsoError) ) ;                   
    }
   //denominatore    
   for (int i = 1 ; i<=40 ; i++)
     {
-    appoFillResol = 0.;
+    appoFillResol = 0.; appoFillResolError = 0.;
     //ciclo sui ptHat
     for (std::map<int,histos*>::iterator istoIt = denomin.begin () ;
          istoIt != denomin.end () ;
          ++istoIt)
       {
       appoFillResol = appoFillResol + (istoIt->second)->m_e_sequence_resol_ptJ->GetBinContent(i);
+      appoFillResolError = appoFillResolError + pow( (istoIt->second)->m_e_sequence_resol_ptJ->GetBinError(i),2 );
       }
     denominOverAll->m_e_sequence_resol_ptJ->SetBinContent(i,appoFillResol) ;                   
+    denominOverAll->m_e_sequence_resol_ptJ->SetBinError(i,sqrt(appoFillResolError) );                   
     }
+    
   //numeratore/denominatore: rate sulle distribuzioni integrate
+  //da qui in poi devo settare gli errori isto per isto bin per bin, da propagazione:
+  //r=a/b -> Dr=sqrt((Da/b)^2+(a*Db/b^2)^2)
   for (int i = 1 ; i<=40 ; i++)
     {
     if (denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i) != 0. )
@@ -470,6 +636,30 @@ int main (int argc, char ** argv)
       rateOverAll->rate_tkIso_ptJ->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_ptJ->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i)) ;      
       rateOverAll->rate_eleIdTight_ptJ->SetBinContent(i,istogrammiOverAll->m_e_sequence_eleIdTight_ptJ->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i)) ;
       rateOverAll->rate_eleIdDaskalakis_ptJ->SetBinContent(i,istogrammiOverAll->m_e_sequence_eleIdDaskalakis_ptJ->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i)) ;
+      rateOverAll->rate_ecalIso_ptJ->SetBinContent(i,istogrammiOverAll->m_e_sequence_ecalIso_ptJ->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i)) ;
+      rateOverAll->rate_hcalIso_ptJ->SetBinContent(i,istogrammiOverAll->m_e_sequence_hcalIso_ptJ->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i)) ;
+
+      rateOverAll->rate_resol_ptJ->SetBinError( i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_resol_ptJ->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
+      rateOverAll->rate_minimumPT_ptJ->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_minimumPT_ptJ->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_minimumPT_ptJ->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
+      rateOverAll->rate_tkIso_ptJ->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_tkIso_ptJ->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_tkIso_ptJ->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
+      rateOverAll->rate_eleIdTight_ptJ->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_eleIdTight_ptJ->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_eleIdTight_ptJ->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
+      rateOverAll->rate_eleIdDaskalakis_ptJ->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_eleIdDaskalakis_ptJ->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_eleIdDaskalakis_ptJ->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
+      rateOverAll->rate_ecalIso_ptJ->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_ecalIso_ptJ->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_ecalIso_ptJ->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
+      rateOverAll->rate_hcalIso_ptJ->SetBinError(i,sqrt( 
+        pow(istogrammiOverAll->m_e_sequence_hcalIso_ptJ->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_hcalIso_ptJ->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
       }
     else
       {
@@ -478,6 +668,8 @@ int main (int argc, char ** argv)
       rateOverAll->rate_tkIso_ptJ->SetBinContent(i,0.) ;      
       rateOverAll->rate_eleIdTight_ptJ->SetBinContent(i,0.) ;      
       rateOverAll->rate_eleIdDaskalakis_ptJ->SetBinContent(i,0.) ;      
+      rateOverAll->rate_ecalIso_ptJ->SetBinContent(i,0.);
+      rateOverAll->rate_hcalIso_ptJ->SetBinContent(i,0.);
       }  
     }
     
@@ -485,7 +677,8 @@ int main (int argc, char ** argv)
   //considero la probabilita' che il fake sia dato da un certo flavour= num_flavour/denomin_totale: queste sommate (in stack) danno il rate totale
   //(altra cosa sarebbe num_flavour/denomin_flavour, cioe la prob che un jet di un certo flavour dia fake)
   float appoFillFlavour=0.;
-  //numeratore Flavour: considero solo il taglio di daskalakis
+  float appoFillFlavourError=0.;
+  //numeratore Flavour: considero solo il taglio di daskalakis, anzi la trackisolation che se no uccido la statistica
   //ciclo sui flavour
   for (int flav=0;flav<5;flav++)
     {
@@ -493,14 +686,17 @@ int main (int argc, char ** argv)
     for (int i = 1 ; i<=40 ; i++)
       {
       appoFillFlavour = 0.;
+      appoFillFlavourError = 0.;
       //ciclo sui ptHat
       for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
            istoIt != istogrammi.end () ;
            ++istoIt)
         { 
         appoFillFlavour = appoFillFlavour + (istoIt->second)->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinContent(i);
+        appoFillFlavourError = appoFillFlavourError + (istoIt->second)->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinError(i);
         }
       istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->SetBinContent(i,appoFillFlavour) ; 
+      istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->SetBinError(i,sqrt(appoFillFlavourError) ) ; 
       }
     }
   //denominatore Flavour
@@ -511,14 +707,17 @@ int main (int argc, char ** argv)
     for (int i = 1 ; i<=40 ; i++)
       {
       appoFillFlavour = 0.;
+      appoFillFlavourError = 0.;
       //ciclo sui ptHat
       for (std::map<int,histos*>::iterator istoIt = denomin.begin () ;
            istoIt != denomin.end () ;
            ++istoIt)
         { 
         appoFillFlavour = appoFillFlavour + (istoIt->second)->m_e_sequence_resol_ptJ_flav[flav]->GetBinContent(i);
+        appoFillFlavourError = appoFillFlavourError + (istoIt->second)->m_e_sequence_resol_ptJ_flav[flav]->GetBinError(i);
         }
       denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->SetBinContent(i,appoFillFlavour) ; 
+      denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->SetBinError(i,sqrt(appoFillFlavour) ) ; 
       }
     }
   //integral flavour rate
@@ -527,11 +726,23 @@ int main (int argc, char ** argv)
     for (int i = 1 ; i<=40 ; i++)
       {
       if (denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i) != 0. )
-        {rateOverAll->rate_tkIso_ptJ_flav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i));}
+        {
+	rateOverAll->rate_tkIso_ptJ_flav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i));
+        rateOverAll->rate_tkIso_ptJ_flav[flav]->SetBinError(i,sqrt(
+          pow(istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2) +     
+          pow( istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ->GetBinContent(i),2),2))); 
+
+	}
       else
         {rateOverAll->rate_tkIso_ptJ_flav[flav]->SetBinContent(i,0.);} 
       if (denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->GetBinContent(i) != 0.)     
-        {rateOverAll->rate_afterEverything_ptJ_flavOnflav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->GetBinContent(i));}
+        {
+	rateOverAll->rate_afterEverything_ptJ_flavOnflav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->GetBinContent(i));
+        rateOverAll->rate_tkIso_ptJ_flav[flav]->SetBinError(i,sqrt(
+          pow(istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinError(i)/denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->GetBinContent(i),2) +     
+          pow( istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[flav]->GetBinContent(i)*denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_ptJ_flav[flav]->GetBinContent(i),2),2))); 
+
+	}
       else
         {rateOverAll->rate_afterEverything_ptJ_flavOnflav[flav]->SetBinContent(i,0.);}		 
       }  
@@ -547,6 +758,16 @@ int main (int argc, char ** argv)
     appoFilleIdTight = 0.;
     appoFilleIdDaskalakis = 0.;
     appoFillTrackIso = 0.;
+    appoFillEcalIso = 0.;
+    appoFillHcalIso = 0.;
+
+    appoFillResolError = 0.;
+    appoFillMinimumPTError = 0.;
+    appoFilleIdTightError = 0.;
+    appoFilleIdDaskalakisError = 0.;
+    appoFillTrackIsoError = 0.;
+    appoFillEcalIsoError = 0.;
+    appoFillHcalIsoError = 0.;
       //ciclo sui ptHat
     for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
          istoIt != istogrammi.end () ;
@@ -557,25 +778,48 @@ int main (int argc, char ** argv)
       appoFilleIdTight = appoFilleIdTight + (istoIt->second)->m_e_sequence_eleIdTight_eta->GetBinContent(i);
       appoFilleIdDaskalakis = appoFilleIdDaskalakis + (istoIt->second)->m_e_sequence_eleIdDaskalakis_eta->GetBinContent(i);
       appoFillTrackIso = appoFillTrackIso + (istoIt->second)->m_e_sequence_tkIso_eta->GetBinContent(i);
+      appoFillEcalIso = appoFillEcalIso + (istoIt->second)->m_e_sequence_ecalIso_eta->GetBinContent(i);
+      appoFillHcalIso = appoFillHcalIso + (istoIt->second)->m_e_sequence_hcalIso_eta->GetBinContent(i);
+
+      appoFillResolError = appoFillResolError + pow(  (istoIt->second)->m_e_sequence_resol_eta->GetBinContent(i),2 ) ;
+      appoFillMinimumPTError = appoFillMinimumPTError + pow(  (istoIt->second)->m_e_sequence_minimumPT_eta->GetBinContent(i),2 ) ;
+      appoFilleIdTightError = appoFilleIdTightError + pow(  (istoIt->second)->m_e_sequence_eleIdTight_eta->GetBinContent(i),2 ) ;
+      appoFilleIdDaskalakisError = appoFilleIdDaskalakisError + pow(  (istoIt->second)->m_e_sequence_eleIdDaskalakis_eta->GetBinContent(i),2 ) ;
+      appoFillTrackIsoError = appoFillTrackIsoError + pow(  (istoIt->second)->m_e_sequence_tkIso_eta->GetBinContent(i),2 ) ;
+      appoFillEcalIsoError = appoFillEcalIsoError + pow(  (istoIt->second)->m_e_sequence_ecalIso_eta->GetBinContent(i),2 ) ;
+      appoFillHcalIsoError = appoFillHcalIsoError + pow(  (istoIt->second)->m_e_sequence_hcalIso_eta->GetBinContent(i),2 ) ;
       }
     istogrammiOverAll->m_e_sequence_resol_eta->SetBinContent(i,appoFillResol) ; 
     istogrammiOverAll->m_e_sequence_minimumPT_eta->SetBinContent(i,appoFillMinimumPT) ;      
     istogrammiOverAll->m_e_sequence_tkIso_eta->SetBinContent(i,appoFillTrackIso) ;      
     istogrammiOverAll->m_e_sequence_eleIdTight_eta->SetBinContent(i,appoFilleIdTight) ;                   
     istogrammiOverAll->m_e_sequence_eleIdDaskalakis_eta->SetBinContent(i,appoFilleIdDaskalakis) ;                   
+    istogrammiOverAll->m_e_sequence_ecalIso_eta->SetBinContent(i,appoFillEcalIso) ;                   
+    istogrammiOverAll->m_e_sequence_hcalIso_eta->SetBinContent(i,appoFillHcalIso) ;                   
+
+    istogrammiOverAll->m_e_sequence_resol_eta->SetBinError(i,sqrt(appoFillResolError) ) ; 
+    istogrammiOverAll->m_e_sequence_minimumPT_eta->SetBinError(i,sqrt(appoFillMinimumPTError) ) ;      
+    istogrammiOverAll->m_e_sequence_tkIso_eta->SetBinError(i,sqrt(appoFillTrackIsoError) ) ;      
+    istogrammiOverAll->m_e_sequence_eleIdTight_eta->SetBinError(i,sqrt(appoFilleIdTightError) ) ;                   
+    istogrammiOverAll->m_e_sequence_eleIdDaskalakis_eta->SetBinError(i,sqrt(appoFilleIdDaskalakisError) ) ;                   
+    istogrammiOverAll->m_e_sequence_ecalIso_eta->SetBinError(i,sqrt(appoFillEcalIsoError) ) ;                   
+    istogrammiOverAll->m_e_sequence_hcalIso_eta->SetBinError(i,sqrt(appoFillHcalIsoError) ) ;                   
     }
   //denominatore  
   for (int i = 1 ; i<=50 ; i++)
     {
     appoFillResol = 0.;
+    appoFillResolError = 0.;
     //ciclo sui ptHat
     for (std::map<int,histos*>::iterator istoIt = denomin.begin () ;
          istoIt != denomin.end () ;
          ++istoIt)
       {
       appoFillResol = appoFillResol + (istoIt->second)->m_e_sequence_resol_eta->GetBinContent(i);
+      appoFillResolError = appoFillResolError + pow( (istoIt->second)->m_e_sequence_resol_eta->GetBinError(i),2 ) ;
       }
     denominOverAll->m_e_sequence_resol_eta->SetBinContent(i,appoFillResol) ;                   
+    denominOverAll->m_e_sequence_resol_eta->SetBinError(i,sqrt(appoFillResolError) ) ;                   
     }
   //rate sulle distribuzioni integrate
   for (int i = 1 ; i<=50 ; i++)
@@ -587,6 +831,30 @@ int main (int argc, char ** argv)
       rateOverAll->rate_tkIso_eta->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_eta->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i)) ;      
       rateOverAll->rate_eleIdTight_eta->SetBinContent(i,istogrammiOverAll->m_e_sequence_eleIdTight_eta->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i)) ;
       rateOverAll->rate_eleIdDaskalakis_eta->SetBinContent(i,istogrammiOverAll->m_e_sequence_eleIdDaskalakis_eta->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i)) ;
+      rateOverAll->rate_ecalIso_eta->SetBinContent(i,istogrammiOverAll->m_e_sequence_ecalIso_eta->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i)) ;
+      rateOverAll->rate_hcalIso_eta->SetBinContent(i,istogrammiOverAll->m_e_sequence_hcalIso_eta->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i)) ;
+
+      rateOverAll->rate_resol_eta->SetBinError( i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_resol_eta->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_resol_eta->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
+      rateOverAll->rate_minimumPT_eta->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_minimumPT_eta->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_minimumPT_eta->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
+      rateOverAll->rate_tkIso_eta->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_tkIso_eta->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_tkIso_eta->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
+      rateOverAll->rate_eleIdTight_eta->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_eleIdTight_eta->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_eleIdTight_eta->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
+      rateOverAll->rate_eleIdDaskalakis_eta->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_eleIdDaskalakis_eta->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_eleIdDaskalakis_eta->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
+      rateOverAll->rate_ecalIso_eta->SetBinError(i,sqrt(
+        pow(istogrammiOverAll->m_e_sequence_ecalIso_eta->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_ecalIso_eta->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
+      rateOverAll->rate_hcalIso_eta->SetBinError(i,sqrt( 
+        pow(istogrammiOverAll->m_e_sequence_hcalIso_eta->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+        pow( istogrammiOverAll->m_e_sequence_hcalIso_eta->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
       }
     else
       {
@@ -595,10 +863,12 @@ int main (int argc, char ** argv)
       rateOverAll->rate_tkIso_eta->SetBinContent(i,0.) ;      
       rateOverAll->rate_eleIdTight_eta->SetBinContent(i,0.) ;      
       rateOverAll->rate_eleIdDaskalakis_eta->SetBinContent(i,0.) ;      
-      }  
+      rateOverAll->rate_ecalIso_eta->SetBinContent(i,0.);
+      rateOverAll->rate_hcalIso_eta->SetBinContent(i,0.);
+      } 
     }
   //eta flavour breakout
-  //numeratore Flavour: considero solo il taglio di daskalakis
+  //numeratore Flavour: considero solo il taglio di daskalakis,anzi no quello trackiso se no uccido la statistica
   //ciclo sui flavour
   for (int flav=0;flav<5;flav++)
     {
@@ -606,14 +876,17 @@ int main (int argc, char ** argv)
     for (int i = 1 ; i<=50 ; i++)
       {
       appoFillFlavour = 0.;
+      appoFillFlavourError = 0.;
       //ciclo sui ptHat
       for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
            istoIt != istogrammi.end () ;
            ++istoIt)
         { 
         appoFillFlavour = appoFillFlavour + (istoIt->second)->m_e_sequence_tkIso_eta_flav[flav]->GetBinContent(i);
+        appoFillFlavourError = appoFillFlavourError + pow( (istoIt->second)->m_e_sequence_tkIso_eta_flav[flav]->GetBinError(i),2 );
         }
       istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->SetBinContent(i,appoFillFlavour) ; 
+      istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->SetBinError(i,sqrt(appoFillFlavour) ) ; 
       }
     }
   //denominatore Flavour
@@ -624,14 +897,17 @@ int main (int argc, char ** argv)
     for (int i = 1 ; i<=50 ; i++)
       {
       appoFillFlavour = 0.;
+      appoFillFlavourError = 0.;
       //ciclo sui ptHat
       for (std::map<int,histos*>::iterator istoIt = denomin.begin () ;
            istoIt != denomin.end () ;
            ++istoIt)
         { 
         appoFillFlavour = appoFillFlavour + (istoIt->second)->m_e_sequence_resol_eta_flav[flav]->GetBinContent(i);
+        appoFillFlavourError = appoFillFlavourError + pow( (istoIt->second)->m_e_sequence_resol_eta_flav[flav]->GetBinError(i),2 ) ;
         }
       denominOverAll->m_e_sequence_resol_eta_flav[flav]->SetBinContent(i,appoFillFlavour) ; 
+      denominOverAll->m_e_sequence_resol_eta_flav[flav]->SetBinError(i,sqrt(appoFillFlavour) ) ; 
       }
     }
   //integral flavour rate
@@ -640,11 +916,21 @@ int main (int argc, char ** argv)
     for (int i = 1 ; i<=50 ; i++)
       {
       if (denominOverAll->m_e_sequence_resol_eta->GetBinContent(i) != 0. )
-        {rateOverAll->rate_tkIso_eta_flav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i));}
+        {
+	rateOverAll->rate_tkIso_eta_flav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i));
+        rateOverAll->rate_tkIso_eta_flav[flav]->SetBinError(i,sqrt(
+          pow(istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2) +     
+          pow(istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta->GetBinContent(i),2),2))); 
+	}
       else
         {rateOverAll->rate_tkIso_eta_flav[flav]->SetBinContent(i,0.);} 
       if (denominOverAll->m_e_sequence_resol_eta_flav[flav]->GetBinContent(i) != 0.)     
-        {rateOverAll->rate_afterEverything_eta_flavOnflav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta_flav[flav]->GetBinContent(i));}
+        {
+	rateOverAll->rate_afterEverything_eta_flavOnflav[flav]->SetBinContent(i,istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinContent(i)/denominOverAll->m_e_sequence_resol_eta_flav[flav]->GetBinContent(i));
+        rateOverAll->rate_tkIso_eta_flav[flav]->SetBinError(i,sqrt(
+          pow(istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinError(i)/denominOverAll->m_e_sequence_resol_eta_flav[flav]->GetBinContent(i),2) +     
+          pow(istogrammiOverAll->m_e_sequence_tkIso_eta_flav[flav]->GetBinContent(i)*denominOverAll->m_e_sequence_resol_eta_flav[flav]->GetBinError(i)/pow(denominOverAll->m_e_sequence_resol_eta_flav[flav]->GetBinContent(i),2),2))); 
+	}
       else
         {rateOverAll->rate_afterEverything_eta_flavOnflav[flav]->SetBinContent(i,0.);}		 
       }  
@@ -667,8 +953,9 @@ int main (int argc, char ** argv)
     //end cumulative sui pthat integrati
 //end distribuzioni integrate sui ptHat
 
-//plots: rate divisi per pTHat, rate integrati, cumulative divise per pTHat, cumulative integrate
-  TFile plotting("plotsEtaBug.root","RECREATE");
+//plots: rate divisi per pTHat [obsoleto], rate integrati, cumulative divise per pTHat, cumulative integrate, deltaRMatch
+  TFile plotting("plotsNewRootuples.root","RECREATE");
+
 
 /*  for (std::map<int,rates*>::iterator istoIt = rate.begin () ;
        istoIt != rate.end () ;
@@ -704,28 +991,37 @@ int main (int argc, char ** argv)
     {
     (istoIt->second)->cumulativeAll->Write();
     }
-*/    
+*/
+
   rateOverAll->rate_resol_ptJ->Write() ; 
   rateOverAll->rate_minimumPT_ptJ->Write() ;      
   rateOverAll->rate_tkIso_ptJ->Write() ;      
   rateOverAll->rate_eleIdTight_ptJ->Write() ;
-  rateOverAll->rate_eleIdDaskalakis_ptJ->Write() ;    
+  rateOverAll->rate_eleIdDaskalakis_ptJ->Write() ;
+  rateOverAll->rate_ecalIso_ptJ->Write();    
+  rateOverAll->rate_hcalIso_ptJ->Write();    
   rateOverAll->rate_resol_eta->Write() ; 
   rateOverAll->rate_minimumPT_eta->Write() ;      
   rateOverAll->rate_tkIso_eta->Write() ;      
   rateOverAll->rate_eleIdTight_eta->Write() ;         
   rateOverAll->rate_eleIdDaskalakis_eta->Write() ;         
+  rateOverAll->rate_ecalIso_eta->Write();
+  rateOverAll->rate_hcalIso_eta->Write();
   cumulateOverAll->cumulativeAll->Write() ;   
-
+  istogrammiOverAll->m_DeltaRMatchMisElectron->Write();
+  istogrammiOverAll->m_DeltaRMatchRealElectron->Write();
+  istogrammiOverAll->m_DeltaRMatchMisElectronPreselection->Write();
+  istogrammiOverAll->m_DeltaRMatchRealElectronPreselection->Write();
   for (int f=0 ; f<5 ; f++)
     {
-//    istogrammiOverAll->m_e_sequence_tkIso_ptJ_flav[f]->Write() ;
-//    denominOverAll->m_e_sequence_resol_ptJ_flav[f]->Write() ;
     rateOverAll->rate_tkIso_ptJ_flav[f]->Write() ;      
     rateOverAll->rate_tkIso_eta_flav[f]->Write() ;      
     rateOverAll->rate_afterEverything_ptJ_flavOnflav[f]->Write() ;
     rateOverAll->rate_afterEverything_eta_flavOnflav[f]->Write() ;
     }
+<<<<<<< mergeHandWeight.cpp
+     
+=======
     
   //salvo gli istogrammi di ecalIso divisi per pthat:
   for (std::map<int,histos*>::iterator istoIt = istogrammi.begin () ;
@@ -735,6 +1031,7 @@ int main (int argc, char ** argv)
       (istoIt->second)->m_e_sequence_hcalIso_eta->Write() ;
       (istoIt->second)->m_e_sequence_hcalIso_ptJ->Write() ;
     } 
+>>>>>>> 1.4
   plotting.Close();
 
 } // int main
