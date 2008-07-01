@@ -30,14 +30,14 @@ class testReferences : public edm::EDAnalyzer
 {
 
 
-  typedef struct {
+/*  typedef struct {
     Int_t procId;
     Float_t ptHat;
     Float_t filterEff;
     Float_t weight;
     Int_t trigBits[90];
   } CSA07Info;
-
+*/
  public:
  
    explicit testReferences(const edm::ParameterSet& conf);
@@ -52,8 +52,8 @@ class testReferences : public edm::EDAnalyzer
     bool runOnChowder_;
     std::string rootFileName_;
     TFile * rootFile_;
-    TBranch * csa07B_;
-    CSA07Info csa07Info_;
+    //TBranch * csa07B_;
+    //CSA07Info csa07Info_;
  
    typedef std::vector< HepMC::GenParticle * > GenPartVect;
    typedef std::vector< HepMC::GenParticle * >::const_iterator GenPartVectIt;
