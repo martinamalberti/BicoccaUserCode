@@ -34,10 +34,10 @@ struct dati
    double SCEta[30] ; 
    double SCPhi[30] ; 
    int    eleCharge[10] ; 
-   double jetPT[30] ;  
-   double jetEta[30] ; 
-   double jetPhi[30] ;    
-   int    jetFlav[30] ;    
+   double jetPT[50] ;  
+   double jetEta[50] ; 
+   double jetPhi[50] ;    
+   int    jetFlav[50] ;    
    double jetPTMatch[10] ;  
    double jetEtaMatch[10] ; 
    double jetPhiMatch[10] ; 
@@ -67,8 +67,14 @@ struct dati
    double eleHE[10];
    int eleIsBarrel[10];
    
-   int ecalIsoBit[10];
-   int hcalIsoBit[10];
+   double ecalIsoValue[10];
+   double hcalIsoValue[10];
+
+   int MCTruthMatchBit[10];
+   int pdgIdTruth[10];
+   int pdgIdMother[10];
+   double DelatRMatch[10];
+
 /*   
    double transverse(double appoEta, double appoVar)
      {
@@ -127,8 +133,12 @@ struct dati
    TBranch * b_eleDeltaEta ;
    TBranch * b_eleSigmaEtaEta ;
    TBranch * b_eleIsBarrel ;
-   TBranch * b_ecalIsoBit;
-   TBranch * b_hcalIsoBit;
+   TBranch * b_ecalIsoValue;
+   TBranch * b_hcalIsoValue;
+   TBranch * b_MCTruthMatchBit;
+   TBranch * b_pdgIdTruth;
+   TBranch * b_pdgIdMother;
+   TBranch * b_DelatRMatch;
 
   dati (TTree * fChain) 
     {
@@ -169,14 +179,19 @@ struct dati
       fChain->SetBranchAddress ("eleClass" ,eleClass) ;
       fChain->SetBranchAddress ("ptHat" ,&ptHat) ;
       fChain->SetBranchAddress ("eleNum" ,&eleNum) ;
-      fChain->SetBranchAddress ("CSA07B" ,&csa07Info) ;
-      fChain->SetBranchAddress ("eleHE" ,&eleHE) ;
-      fChain->SetBranchAddress ("eleDeltaPhi" ,&eleDeltaPhi) ;
-      fChain->SetBranchAddress ("eleDeltaEta" ,&eleDeltaEta) ;
-      fChain->SetBranchAddress ("eleSigmaEtaEta" ,&eleSigmaEtaEta) ;
-      fChain->SetBranchAddress ("eleIsBarrel" ,&eleIsBarrel) ;
-      fChain->SetBranchAddress ("ecalIsoBit"  ,&ecalIsoBit) ;
-      fChain->SetBranchAddress ("hcalIsoBit"  ,&hcalIsoBit) ;
+      fChain->SetBranchAddress ("CSA07B" ,&csa07Info) ; //questo va con o senza ampersand& ?? forse e' per questo che alcune cose non le leggiavamo
+      fChain->SetBranchAddress ("eleHE" ,eleHE) ;
+      fChain->SetBranchAddress ("eleDeltaPhi" ,eleDeltaPhi) ;
+      fChain->SetBranchAddress ("eleDeltaEta" ,eleDeltaEta) ;
+      fChain->SetBranchAddress ("eleSigmaEtaEta" ,eleSigmaEtaEta) ;
+      fChain->SetBranchAddress ("eleIsBarrel" ,eleIsBarrel) ;
+      fChain->SetBranchAddress ("ecalIsoValue"  ,ecalIsoValue) ;
+      fChain->SetBranchAddress ("hcalIsoValue"  ,hcalIsoValue) ;
+      fChain->SetBranchAddress ("MCTruthMatchBit", MCTruthMatchBit);
+      fChain->SetBranchAddress ("pdgIdTruth", pdgIdTruth);
+      fChain->SetBranchAddress ("pdgIdMother", pdgIdMother);
+      fChain->SetBranchAddress ("DelatRMatch", DelatRMatch);
+
 
       b_elePT = fChain->GetBranch("elePT");
       b_eleEta = fChain->GetBranch("eleEta");
@@ -215,12 +230,16 @@ struct dati
       b_eleNum = fChain->GetBranch("eleNum");
       b_CSA07B = fChain->GetBranch("CSA07B");
       b_eleHE = fChain->GetBranch("eleHE");   
-      b_eleDeltaPhi = fChain->GetBranch("eleDelatPhi");   
+      b_eleDeltaPhi = fChain->GetBranch("eleDeltaPhi");   
       b_eleDeltaEta = fChain->GetBranch("eleDeltaEta");   
       b_eleSigmaEtaEta = fChain->GetBranch("eleSigmaEtaEta");   
       b_eleIsBarrel = fChain->GetBranch("eleIsBarrel");   
-      b_ecalIsoBit = fChain->GetBranch("ecalIsoBit");
-      b_hcalIsoBit = fChain->GetBranch("hcalIsoBit");
+      b_ecalIsoValue = fChain->GetBranch("ecalIsoValue");
+      b_hcalIsoValue = fChain->GetBranch("hcalIsoValue");
+      b_MCTruthMatchBit = fChain->GetBranch("MCTruthMatchBit");
+      b_pdgIdTruth = fChain->GetBranch("pdgIdTruth");
+      b_pdgIdMother = fChain->GetBranch("pdgIdMother");
+      b_DelatRMatch = fChain->GetBranch("DelatRMatch");
   
     }     
 

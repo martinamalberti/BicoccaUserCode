@@ -4,7 +4,7 @@ salviamo, divisi per flavour (compresi i failed), gli istogrammi delle distribuz
 salviamo anche le distribuzioni percentuali, per vedere se (nelle tre distrubuzioni) cambia l'abbondanza relativa dei diversi flavour.
 Nota che prima di tutto bisogna lavoare a divisione in pthat, quindi riscalare e infine poter sommare le grandezze
 
-i plot sono svolti dalla macro macroPlotkinematic.cpp
+i plot sono svolti dalla macro macroKinematicPlot<varie>.cpp
 */
 #include <iostream>
 #include <fstream>
@@ -45,7 +45,10 @@ int main (int argc, char ** argv)
   gStyle->SetPalette(1,0);
 
   TChain fChain ("elminitree") ;
-  fChain.Add ("/misc/cms/users/mucib/FakeRateFase2AllEvents/*.root"); 
+  //fChain.Add ("/misc/cms/users/mucib/FakeRateFase2AllEvents/*.root"); 
+  //ora incateno rootuple da castor: sto lavorando @lxplus
+  fChain.Add ("rfio:/castor/cern.ch/user/m/mucib/python/NewProductionRootuples/*.root");
+  
   dati Input (&fChain) ;  
   std::cout << "numero di eventi linkati "<< fChain.GetEntries () << std::endl;
 
@@ -362,7 +365,7 @@ int main (int argc, char ** argv)
       else               phiPthatBreakoutPercent[(istoIt->first)]->SetBinContent(bin, 0.);
       }      
     }              
-  TFile fileToOpen("jetKinematic.root","RECREATE") ;
+  TFile fileToOpen("denominatorKinematic.root","RECREATE") ;
     std::cout<<"quarto debug"<<std::endl;
 
   for (std::map<int,TH1D*>::iterator istoIt = pTPthatBreakout.begin () ;
