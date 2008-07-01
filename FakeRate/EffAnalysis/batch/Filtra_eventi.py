@@ -25,6 +25,8 @@ process analysis = {
   untracked PSet maxEvents = {untracked int32 input = -1}
   untracked PSet options = {untracked bool wantSummary = true}
 
+ include "HiggsAnalysis/HiggsToWW2Leptons/data/HWWJetCleaner.cfi"
+
  module referenceTester = testReferences {
    bool runOnChowder = false
    InputTag genMetInputTag = genMet 
@@ -39,7 +41,7 @@ process analysis = {
    InputTag eleIdLoose = electronId
    InputTag eleIdTight = electronIdTight
    InputTag eleIdRobust = electronIdRobust
-   InputTag jet = iterativeCone5CaloJets
+   InputTag jet = cleanedJets
    InputTag truthMatchMap = electronMCMatch
    InputTag EBsuperClusters = correctedHybridSuperClusters
    InputTag EEsuperClusters = correctedIslandEndcapSuperClusters
@@ -62,7 +64,7 @@ process analysis = {
    
 }
 
-  path p = {referenceTester}
+  path p = {cleanedJets,referenceTester}
 }
 #PG FINE CFG FILE
     '''
@@ -142,7 +144,5 @@ for rootfile in map(removechars,listofrootfiles):
     print 'config name: %s' %cfg_name
     
     # Submit!
-    logfile="job_alcaElectrons_%s.log" %basename 
-    print 'logfile: %s' %logfile
-    os.system('bsub -q %s -o %s -u luca.mucibello@cern.ch %s' %(queue, logfile, script_name))
+    os.system('bsub -q %s -o /dev/null -u luca.mucibello@cern.ch %s' %(queue, script_name))
     
