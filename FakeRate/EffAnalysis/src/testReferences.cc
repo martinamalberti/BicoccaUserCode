@@ -1,3 +1,8 @@
+/*
+questa versione di testReferences.cc (e del relativo .h) sono intesi alla fase 2 della produzione Wmunu: oscurati i pezzi di csa07 e di hadIso(quest'ultimo proprio non serve
+piu', neanche per la produzione QCD)
+*/
+
 // user include files
 #include "FakeRate/EffAnalysis/interface/testReferences.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -176,7 +181,7 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("jetNum" ,&m_jetNum,"jetNum/I") ;
     m_minitree->Branch("SCNum" ,&m_SCNum,"SCNum/I") ;
     
-    csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
+    //csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
 
     m_minitree->Branch("MCTruthMatchBit",m_MCTruthMatchBit,"MCTruthMatchBit[10]/I");
     m_minitree->Branch("pdgIdTruth",m_pdgIdTruth,"pdgIdTruth[10]/I");
@@ -584,6 +589,7 @@ void testReferences::analyze (const edm::Event& iEvent,
      } //PG loop on the raw collection
      
 /*LM paste del csa07effanalyser.cc*/
+/*
   edm::Handle<int> procId;
   if (runOnChowder_) {
     iEvent.getByLabel("csa07EventWeightProducer", "AlpgenProcessID", procId);
@@ -619,6 +625,7 @@ void testReferences::analyze (const edm::Event& iEvent,
   for (unsigned int i = 0; i < 90; i++) {
     csa07Info_.trigBits[i] = triggerResults->accept(i);
   }
+  */
 /*LM fine dell'csa07effanalyser*/
 
      m_minitree->Fill();
