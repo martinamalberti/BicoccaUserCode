@@ -19,6 +19,6 @@
 
 <use name=root>
 <use name=rootcore>
-<library file="plugins.cc MuonAssociator.cc MuonAssociatorDelta.cc MuonAssociatorUpDown.cc MuonAssociatorEcalIP.cc EcalCosmicsTreeTest.cc EcalCosmicsTree.cc EcalDCCHeaderDisplay.cc EcalDigiDisplay.cc EcalMipGraphs.cc EcalMipHists.cc EcalPedHists.cc EcalPnGraphs.cc EcalURecHitHists.cc EcalCosmicsHists.cc EcalChannelAnalyzer.cc EcalTPGAnalyzer.cc EcalHexDisplay.cc EcalPulseShapeGrapher.cc" name=CRUZETCalibrationPlugins>
+<library file="plugins.cc MuonAssociator.cc MuonAssociatorDelta.cc MuonAssociatorUpDown.cc MuonAssociatorEcalIP.cc EcalCosmicsTreeTest.cc EcalCosmicsTree.cc" name=CRUZETCalibrationPlugins>
   <flags EDM_PLUGIN=1>
 </library>

@@ -12,7 +12,7 @@
 */
 
  
-#include "CaloOnlineTools/EcalTools/plugins/EcalCosmicsTree.h"
+#include "CRUZET/Calibration/plugins/EcalCosmicsTree.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"

@@ -29,10 +29,13 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
 
 
 class MuonAssociator: public edm::EDAnalyzer {
@@ -62,11 +65,11 @@ class MuonAssociator: public edm::EDAnalyzer {
      double detaDetID1,dphiDetID1,RDetID1,detaDetID2,dphiDetID2,RDetID2;
 
      double ECitPos, ECitNeg;
-          double ECitPosUP, ECitNegUP;
+     double ECitPosUP, ECitNegUP;
      double GPointPos, GPointNeg;
-
-
-
+     
+     
+     
      std::vector<EBDetId> findCosmicsInEvent (const edm::Event& , const edm::EventSetup& ) ;
 
      double minCosmicE1_ ; //PG GeV
