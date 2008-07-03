@@ -1,0 +1,41 @@
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include "CaloOnlineTools/EcalTools/plugins/EcalDigiDisplay.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalPnGraphs.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalDCCHeaderDisplay.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalMipGraphs.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalMipHists.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalChannelAnalyzer.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalPedHists.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalURecHitHists.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalCosmicsHists.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalTPGAnalyzer.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalHexDisplay.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalPulseShapeGrapher.h"
+
+#include "CaloOnlineTools/EcalTools/plugins/MuonAssociator.h"
+#include "CaloOnlineTools/EcalTools/plugins/MuonAssociatorDelta.h"
+#include "CaloOnlineTools/EcalTools/plugins/MuonAssociatorUpDown.h"
+#include "CaloOnlineTools/EcalTools/plugins/MuonAssociatorEcalIP.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalCosmicsTree.h"
+#include "CaloOnlineTools/EcalTools/plugins/EcalCosmicsTreeTest.h"
+
+
+DEFINE_FWK_MODULE(EcalDigiDisplay);
+DEFINE_FWK_MODULE(EcalPnGraphs);
+DEFINE_FWK_MODULE(EcalDCCHeaderDisplay);
+DEFINE_FWK_MODULE(EcalMipGraphs);
+DEFINE_FWK_MODULE(EcalMipHists);
+DEFINE_FWK_MODULE(EcalChannelAnalyzer);
+DEFINE_FWK_MODULE(EcalPedHists);
+DEFINE_FWK_MODULE(EcalURecHitHists);
+DEFINE_FWK_MODULE(EcalCosmicsHists);
+DEFINE_FWK_MODULE(EcalTPGAnalyzer);
+DEFINE_FWK_MODULE(EcalHexDisplay);
+DEFINE_FWK_MODULE(EcalPulseShapeGrapher);
+
+DEFINE_FWK_MODULE(MuonAssociator);
+DEFINE_FWK_MODULE(MuonAssociatorDelta);
+DEFINE_FWK_MODULE(MuonAssociatorUpDown);
+DEFINE_FWK_MODULE(MuonAssociatorEcalIP);
+DEFINE_FWK_MODULE(EcalCosmicsTree);
+DEFINE_FWK_MODULE(EcalCosmicsTreeTest);
