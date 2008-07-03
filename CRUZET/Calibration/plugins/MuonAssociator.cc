@@ -35,7 +35,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-#include "CaloOnlineTools/EcalTools/plugins/MuonAssociator.h"
+#include "CRUZET/Calibration/plugins/MuonAssociator.h"
 
 #include <vector>
 
@@ -559,7 +559,7 @@ int MuonAssociator::deltaPhi (int phi1, int phi2)
 
 
 //!PG find a cosmic in the event
-//!PG from http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/CCEcal/EcalCosmicRuns/CaloOnlineTools/EcalTools/plugins/EcalCosmicsHists.cc?revision=1.5&view=markup
+//!PG from http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/CCEcal/EcalCosmicRuns/CRUZET/Calibration/plugins/EcalCosmicsHists.cc?revision=1.5&view=markup
 std::vector<EBDetId>
 MuonAssociator::findCosmicsInEvent (const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
