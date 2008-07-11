@@ -179,6 +179,7 @@ struct dati
       fChain->SetBranchAddress ("eleClass" ,eleClass) ;
       fChain->SetBranchAddress ("ptHat" ,&ptHat) ;
       fChain->SetBranchAddress ("eleNum" ,&eleNum) ;
+
       fChain->SetBranchAddress ("CSA07B" ,&csa07Info) ; //questo va con o senza ampersand& ?? forse e' per questo che alcune cose non le leggiavamo
       fChain->SetBranchAddress ("eleHE" ,eleHE) ;
       fChain->SetBranchAddress ("eleDeltaPhi" ,eleDeltaPhi) ;
