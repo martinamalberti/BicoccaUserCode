@@ -25,6 +25,9 @@
 #include "TLegend.h"
 #include "TF1.h"
 #include "TApplication.h"
+#include "TStyle.h"
+
+
 
 double calcTheta (double eta) ;
 double calcEta (double theta) ;
@@ -103,9 +106,20 @@ double twopi  = 2*acos(-1.);
 
 int main (int argc, char** argv)
 {
+<<<<<<< readNtuple_3D_Cycle.cpp
+  gROOT->SetStyle("Plain");
+  gStyle->SetPalette(1);
+
+=======
   gROOT->SetStyle("Plain"); 
+>>>>>>> 1.2
   TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
+<<<<<<< readNtuple_3D_Cycle.cpp
+  chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
+  //chain->Add ("/data/deguio/CRUZET/MuonTreeLungTestMatrix_43439/MuonTreeLungTestMatrix_43439_*.root") ;
+=======
   chain->Add ("/afs/cern.ch/user/m/mattia/MuonTree_43439/MuonTree_43439_*.root") ;
+>>>>>>> 1.2
 
   EcalCosmicsAnalysisVariables treeVars ;
 
@@ -206,6 +220,12 @@ int main (int argc, char** argv)
   TH1F zero ("zero","zero",500,0.,100.);
   TH1F uno ("uno","uno",500,0.,100.);
   TH1F zeroPlusUno ("zeroPlusUno","zeroPlusUno",500,0.,100.);
+
+  TH2F Occupancy("Occupancy","Occupancy",170,-1.47,1.47,360,-3.14,3.14); 
+  
+
+
+
   //analysis SM by SM (5 by 5)
   TH1F *energy_rings[34];
   for(int ring = -17; ring < 17; ++ring)
@@ -386,6 +406,9 @@ int main (int argc, char** argv)
 	
 
       //-----------Filling Histos-----------------
+		
+		Occupancy.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0]); // il vett di 20 colonne è il cluster. Noi selezioniamo solo 2 cluster
+      Occupancy.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1]); // perciò così becchi cristalli sopra e sotto.
             
       
       //MATTIA
@@ -549,10 +572,13 @@ int main (int argc, char** argv)
     } //PG loop over entries 
   
   //Writing Histos
-  TFile out ("histos_3D_CycleLungTest_Matrix.root","recreate") ;
+  TFile out ("histos_3D_Cycle_Matrix.root","recreate") ;
   TDirectory* Rings = gDirectory->mkdir("Rings");
   TDirectory* Slices = gDirectory->mkdir("Slices");
 
+
+  Occupancy.SetOption("COLZ");
+  Occupancy.Write();
   ip3D.Write () ;
   ip2DXY.Write () ;
   ip2DYZ.Write () ;
