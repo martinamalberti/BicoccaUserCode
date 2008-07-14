@@ -103,10 +103,9 @@ double twopi  = 2*acos(-1.);
 
 int main (int argc, char** argv)
 {
-  gROOT->SetStyle("Plain");
-
+  gROOT->SetStyle("Plain"); 
   TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-  chain->Add ("/data/deguio/CRUZET/MuonTreeLungTestMatrix_43439/MuonTreeLungTestMatrix_43439_*.root") ;
+  chain->Add ("/afs/cern.ch/user/m/mattia/MuonTree_43439/MuonTree_43439_*.root") ;
 
   EcalCosmicsAnalysisVariables treeVars ;
 
@@ -173,8 +172,14 @@ int main (int argc, char** argv)
   TH2F Radius ("Radius","Radius",1000,-250.,250.,1000,-250.,250.) ;
   TH2F RadiusTop ("RadiusTop","RadiusTop",1000,-250.,250.,1000,-250.,250.) ;
   TH2F RadiusBot ("RadiusBot","RadiusBot",1000,-250.,250.,1000,-250.,250.) ;
-  //TH3F *Scan3D = new TH3F("Scan3D","Scan3D",500,-250.,250.,500,-250.,250.,700,-350.,350.) ;
+ //TH3F *Scan3D = new TH3F("Scan3D","Scan3D",500,-250.,250.,500,-250.,250.,700,-350.,350.) ;
 
+ //MATTIA
+  TH2F Occupancy("Occupancy","Occupancy",170,-1.47,1.47,360,-3.14,3.14); 
+  TH2F EnergyOnCrystals("EnergyOnCrystals","EnergyOnCrystals",170,-1.47,1.47,360,-3.14,3.14); 
+  TH2F EoPCrystals("EoPCrystals","EoPCrystals",170,-1.47,1.47,360,-3.14,3.14);
+  
+  
   TH1F dEondX_AllDir ("dEondX_AllDir","dEondX_AllDir",3000,0.,0.5) ;
   TH2F dEondXVSIP_AllDir  ("dEondXVSIP_AllDir","dEondXVSIP_AllDir",500,0.,500.,1000,0.,0.5) ;
   TH2F dEondXVSdX_AllDir ("dEondXVSdX_AllDir","dEondXVSdX_AllDir",100,0.,100.,1000,0.,0.5) ;
@@ -382,6 +387,15 @@ int main (int argc, char** argv)
 
       //-----------Filling Histos-----------------
             
+      
+      //MATTIA
+      Occupancy.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0]);
+      Occupancy.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1]);
+      EnergyOnCrystals.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterEnergy[0]);
+      EnergyOnCrystals.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1],treeVars.cosmicClusterEnergy[1]);
+      EoPCrystals.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0],enerTop/lunghTop);
+      EoPCrystals.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1],enerBot/lunghBot);
+      
       EVSdX.Fill(lunghTop,enerTop);
       EVSdX.Fill(lunghBot,enerBot);
       
@@ -412,6 +426,7 @@ int main (int argc, char** argv)
       RadiusBot.Fill(segmenti.at(1).first.x(),segmenti.at(1).first.y());
       RadiusBot.Fill(segmenti.at(1).second.x(),segmenti.at(1).second.y());
   
+     
 
       Radius.Fill(ext1.x(),ext1.y());
       Radius.Fill(ext2.x(),ext2.y());
@@ -576,6 +591,11 @@ int main (int argc, char** argv)
   uno.Write();
   zeroPlusUno.Write();
 
+  //MATTIA
+  Occupancy.Write();
+  EnergyOnCrystals.Write();
+  EoPCrystals.Write();
+  
   Rings->cd();
   for(int ring = 0; ring < 34; ++ring)
     energy_rings[ring] -> Write();

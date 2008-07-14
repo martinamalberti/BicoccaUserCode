@@ -42,7 +42,7 @@ double get2DThickness (double z);
 void setVectorOnECAL (TVector3 & vector, double eta, double phi, double radius = 129.) ;
 double superGausCumCauda (double *x, double *par);
 
-double twopi  = 2*acos(-1.);
+
 
 // ----------------------------------------------------
 

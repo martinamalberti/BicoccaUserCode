@@ -27,6 +27,7 @@
 #include "TApplication.h"
 #include "CRUtils.h"
 
+double twopi  = 2*acos(-1.);
 
 // ----------------------------------------------------
 
@@ -73,7 +74,7 @@ deltaPhi (double phi1, double phi2)
 {
   double deltaphi = fabs(phi1-phi2);
   if (deltaphi > twopi) deltaphi -= twopi;
-  if (deltaphi > twopi/2) deltaphi = twopi-deltaphi;
+  if (deltaphi > 3.1415926535 ) deltaphi = twopi-deltaphi;
   return deltaphi;
 }
 

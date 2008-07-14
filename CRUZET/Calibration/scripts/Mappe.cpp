@@ -32,6 +32,8 @@
 
 int main (int argc, char** argv)
 {
+
+
   gROOT->SetStyle("Plain"); 
   TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
   chain->Add ("/afs/cern.ch/user/m/mattia/MuonTree_43439/MuonTree_43439_*.root") ;
@@ -88,6 +90,12 @@ int main (int argc, char** argv)
 
   TApplication *theApp = new TApplication( "app", &argc, argv );
 
+  //eta phi
+  TH2F Occupancy("Occupancy","Occupancy",170,-1.47,1.47,360,-3.14,3.14); 
+  TH2F EnergyOnCrystals("EnergyOnCrystals","EnergyOnCrystals",170,-1.47,1.47,360,-3.14,3.14);
+  TH2F MeanEnergy("Occupancy","Occupancy",170,-85,85,360,0,360);  
+  TH2F EoPCrystals("EoPCrystals","EoPCrystals",170,-1.47,1.47,360,-3.14,3.14);
+  
  
   int nEvents = (int) chain->GetEntries () ;
   //PG loop over entries
@@ -97,12 +105,47 @@ int main (int argc, char** argv)
       if(iEvent%10000 == 0) std::cout << "event n. " << iEvent << std::endl;
       
       chain->GetEntry (iEvent) ;
+     
+     //base selections
+      if (treeVars.nCosmicsCluster != 2) continue ;
+      if(deltaPhi(treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterPhi[1]) < 3.14159265358979 / 2./*90gradi*/) continue; //TAGLIO IN DELTAPHI
       
+      
+      
+      Occupancy.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0]);
+      Occupancy.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1]);
+      EnergyOnCrystals.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterE1[0]);
+      EnergyOnCrystals.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1],treeVars.cosmicClusterE1[1]);
+     //EoPCrystals.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0],enerTop/lunghTop);
+     //EoPCrystals.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1],enerBot/lunghBot); 
+      
+      
+       
     } //PG loop over entries 
   
+    /*
+    //MF loop over crystals    
+    int nOverCrystals = 0; //numero eventi per cristallo
+    int EOverCrystals = 0; //energia x cristallo
+    for(int indexeta = 0 ; indexeta < 170 ; indexeta++)  // eta 170,-1.47,1.47,
+    for(int indexphi = 0 ; indexphi < 360 ; indexphi++)  // phi 360,-3.14,3.14
+    {
+    nOverCrystals = Occupancy.GetBinContent(indexeta,indexphi);
+    EOverCrystals = EnergyOnCrystals.GetBinContent(indexeta,indexphi);
+    MeanEnergy.Fill(-85+indexeta,indexphi,EOverCrystals/nOverCrystals);
+    }
+    
+    //MF loop over crystals
+   */
+    
   //Writing Histos
-  TFile out ("MATTIAhistos_3D_CycleLungTest_Matrix.root","recreate") ;
+  TFile out ("Mappe.root","recreate") ;
   TDirectory* Rings = gDirectory->mkdir("Rings");
   TDirectory* Slices = gDirectory->mkdir("Slices");
+  Occupancy.Write();
+  EnergyOnCrystals.Write();
+  EoPCrystals.Write();
+  MeanEnergy.Write();
+  
   return(0);
 }

@@ -99,7 +99,7 @@ double twopi  = 2*acos(-1.);
 int main ()
 {
   TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-  chain->Add ("/data/deguio/CRUZET/MuonTree_43439/MuonTree_43439_*.root") ;
+  chain->Add ("/afs/cern.ch/user/m/mattia/MuonTree_43439/MuonTree_43439_*.root") ;
 
   EcalCosmicsAnalysisVariables treeVars ;
 
