@@ -7,18 +7,19 @@ double getTrajLengthInXtal (const std::vector<GlobalPoint> & neckLace,
 {
   if (neckLace.size () < 2) return 0 ;
   double length = 0. ;
-  double step = (neckLace.at (0) - neckLace.at (1)).mag () ;
+  std::vector<GlobalPoint>::const_iterator start = neckLace.begin () ;
+  ++start ;
   //PG loop over steps
-  for (std::vector<GlobalPoint>::const_iterator nlIt = neckLace.begin () ;
+  for (std::vector<GlobalPoint>::const_iterator nlIt = start ;
        nlIt != neckLace.end () ;
        ++nlIt)
     {
       if (pGeometry->getSubdetectorGeometry (xtal)->getGeometry (xtal)->inside (*nlIt))  
         {
-          length += step ;
+          length += (*nlIt - *(nlIt-1)).mag () ;
         }
     } //PG loop over steps
-  length -= step/2. ;
+  length -= (*start - *neckLace.begin ()).mag ()/2. ;
   return length ;
 }                            
 
