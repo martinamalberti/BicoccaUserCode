@@ -1,7 +1,17 @@
 <bin name=MappeScram file="MappeScram.cpp">
   <use name=CRUZET/Calibration>
 
+#  <use name=Calibration/EcalCalibAlgos>
+ 
+  <flags LCGDICT_ARGS="--deep">
   
+</bin>
+
+
+
+<bin name=angoli file="angoli.cpp">
+  <use name=CRUZET/Calibration>
+
 #  <use name=Calibration/EcalCalibAlgos>
  
   <flags LCGDICT_ARGS="--deep">
