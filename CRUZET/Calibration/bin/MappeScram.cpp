@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>
+#include <stdexcept>
+#include <fstream>
+
 
 #include "TROOT.h"
 #include "TTree.h"
@@ -25,9 +28,22 @@
 #include "TLegend.h"
 #include "TF1.h"
 #include "TApplication.h"
-#include "CRUtils.h"
+#include "CRUZET/Calibration/interface/CRUtils.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
-// ----------------------------------------------------
+
+
+using namespace std;
+using namespace edm;
+
+
+std::vector<int> readFile (std::string configFile) ;
+std::string getNextLine   (std::ifstream & input) ;
+
+
 
 
 int main (int argc, char** argv)
@@ -92,9 +108,11 @@ int main (int argc, char** argv)
 
   //eta phi
   //TH2F Occupancy("Occupancy","Occupancy",170,-1.47,1.47,360,-3.14,3.14); 
-  TH2F Occupancy("Occupancy","Occupancy",170,-85.,85.,360,0.,360.); 
-  TH2F EnergyOnCrystals("EnergyOnCrystals","EnergyOnCrystals",170,-1.47,1.47,360,-3.14,3.14);
-  TH2F MeanEnergy("MeanEnergy","MeanEnergy",170,-85.,85.,360,0.,360.);  
+  TH2F Occupancy("Occupancy","Occupancy",360,1.,361.,170,-85.,86.); 
+  TH2F EnergyOnCrystals("EnergyOnCrystals","EnergyOnCrystals",360,1.,361.,170,-85.,86.);
+  TH2F E1overCluster("E1overCluster","E1overCluster",360,1.,361.,170,-85.,86.);
+  TH3F ClusterEnergy("ClusterEnergy","ClusterEnergy",170,-85.,85.,360,0.,360.,100,0.,1.);
+  TH2F MeanEnergy("MeanEnergy","MeanEnergy",360,1.,361.,170,-85.,86.);  
   TH2F EoPCrystals("EoPCrystals","EoPCrystals",170,-1.47,1.47,360,-3.14,3.14);
   
  
@@ -110,13 +128,12 @@ int main (int argc, char** argv)
      //base selections
       if (treeVars.nCosmicsCluster != 2) continue ;
       if(deltaPhi(treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterPhi[1]) < 3.14159265358979 / 2./*90gradi*/) continue; //TAGLIO IN DELTAPHI
-      EBDetId ciccio(treeVars.cosmicClusterMaxId);
+      EBDetId ciccio(treeVars.cosmicClusterMaxId[0]); //Passiamo dal rawId al detId
       //SOSTITUIRE POSIZIONE
-      Occupancy.Fill(ciccio.ieta(),ciccio.iphi());
-      //Occupancy.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0]);
-      //Occupancy.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1]);
-      EnergyOnCrystals.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterE1[0]);
-      EnergyOnCrystals.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1],treeVars.cosmicClusterE1[1]);
+      Occupancy.Fill(ciccio.iphi(),ciccio.ieta());
+      EnergyOnCrystals.Fill(ciccio.iphi(),ciccio.ieta(),treeVars.cosmicClusterE1[0]);
+      ClusterEnergy.Fill(ciccio.iphi(),ciccio.ieta(),treeVars.cosmicClusterEnergy[0]);
+      E1overCluster.Fill(ciccio.iphi(),ciccio.ieta(),treeVars.cosmicClusterE1[0]/treeVars.cosmicClusterEnergy[0]);
      //EoPCrystals.Fill(treeVars.cosmicClusterEta[0],treeVars.cosmicClusterPhi[0],enerTop/lunghTop);
      //EoPCrystals.Fill(treeVars.cosmicClusterEta[1],treeVars.cosmicClusterPhi[1],enerBot/lunghBot); 
       
@@ -131,8 +148,8 @@ int main (int argc, char** argv)
     for(int indexeta = 0 ; indexeta < 170 ; indexeta++)  // eta 170,-1.47,1.47,
     for(int indexphi = 0 ; indexphi < 360 ; indexphi++)  // phi 360,-3.14,3.14
     {
-    nOverCrystals = Occupancy.GetBinContent(indexeta,indexphi);
-    EOverCrystals = EnergyOnCrystals.GetBinContent(indexeta,indexphi);
+    nOverCrystals = Occupancy.GetBinContent(indexphi,indexeta);
+    EOverCrystals = EnergyOnCrystals.GetBinContent(indexphi,indexeta);
     if(nOverCrystals==0) EOverCrystals = 0;
     
     MeanEnergy.Fill(-85+indexeta,indexphi,EOverCrystals/nOverCrystals);
@@ -149,6 +166,7 @@ int main (int argc, char** argv)
   EnergyOnCrystals.Write();
   EoPCrystals.Write();
   MeanEnergy.Write();
-  
+  ClusterEnergy.Write();
+  E1overCluster.Write();
   return(0);
 }
