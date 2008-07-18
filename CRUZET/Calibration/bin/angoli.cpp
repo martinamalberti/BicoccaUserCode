@@ -19,7 +19,8 @@
 #include "TCanvas.h"
 #include "TClonesArray.h"
 #include "TString.h"
-#include "TGraph.h"
+// #include "TGraph.h"
+#include "TGraphErrors.h"
 #include "TFile.h"
 #include "TLorentzVector.h"
 #include "TH1.h"
@@ -29,119 +30,129 @@
 #include "TLegend.h"
 #include "TF1.h"
 #include "TApplication.h"
+#include "TStyle.h"
 #include "CRUZET/Calibration/interface/CRUtils.h"
 
 int main (int argc, char** argv)
 {
-  gROOT->SetStyle("Plain"); 
-	
+	gROOT->SetStyle("Plain"); 
+	gStyle->SetOptStat(111111); 
+	gStyle->SetOptFit(0111); 
+		
 	// Tree construction
-  TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-  chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
-
-  EcalCosmicsAnalysisVariables treeVars ;
-
-  chain->SetBranchAddress ("runId", &treeVars.runId) ;                           
-  chain->SetBranchAddress ("eventId", &treeVars.eventId) ;                       
-  chain->SetBranchAddress ("timeStampLow", &treeVars.timeStampLow) ;             
-  chain->SetBranchAddress ("timeStampHigh", &treeVars.timeStampHigh) ;           
-  chain->SetBranchAddress ("isECALL1", &treeVars.isECALL1) ;                     
-  chain->SetBranchAddress ("isHCALL1", &treeVars.isHCALL1) ;                     
-  chain->SetBranchAddress ("isDTL1", &treeVars.isDTL1) ;                         
-  chain->SetBranchAddress ("isRPCL1", &treeVars.isRPCL1) ;                       
-  chain->SetBranchAddress ("isCSCL1", &treeVars.isCSCL1) ;                       
-  chain->SetBranchAddress ("nCosmicsCluster", &treeVars.nCosmicsCluster) ;       
-  chain->SetBranchAddress ("cosmicClusterEnergy", treeVars.cosmicClusterEnergy) ;
-  chain->SetBranchAddress ("cosmicClusterE1", treeVars.cosmicClusterE1) ;        
-  chain->SetBranchAddress ("cosmicClusterE2", treeVars.cosmicClusterE2) ;        
-  chain->SetBranchAddress ("cosmicClusterE9", treeVars.cosmicClusterE9) ;        
-  chain->SetBranchAddress ("cosmicClusterE25", treeVars.cosmicClusterE25) ;      
-  chain->SetBranchAddress ("cosmicClusterTime", treeVars.cosmicClusterTime) ;    
-  chain->SetBranchAddress ("cosmicClusterEta", treeVars.cosmicClusterEta) ;      
-  chain->SetBranchAddress ("cosmicClusterPhi", treeVars.cosmicClusterPhi) ;      
-  chain->SetBranchAddress ("cosmicClusterXtals", treeVars.cosmicClusterXtals) ;  
-  chain->SetBranchAddress ("cosmicClusterXtalsAbove3Sigma", treeVars.cosmicClusterXtalsAbove3Sigma) ;    
-  chain->SetBranchAddress ("cosmicClusterMaxId", treeVars.cosmicClusterMaxId) ;      
-  chain->SetBranchAddress ("cosmicCluster2ndId", treeVars.cosmicCluster2ndId) ;      
-  chain->SetBranchAddress ("nRecoMuons", &treeVars.nRecoMuons) ;                     
-  chain->SetBranchAddress ("muonPt", treeVars.muonPt) ;                              
-  chain->SetBranchAddress ("muonEta", treeVars.muonEta) ;                            
-  chain->SetBranchAddress ("muonPhi", treeVars.muonPhi) ;                            
-  chain->SetBranchAddress ("muonNChi2", treeVars.muonNChi2) ;                        
-  chain->SetBranchAddress ("muonNDof", treeVars.muonNDof) ;                          
-  chain->SetBranchAddress ("muonNHits", treeVars.muonNHits) ;                        
-  chain->SetBranchAddress ("muonCharge", treeVars.muonCharge) ;                      
-  chain->SetBranchAddress ("muonQOverP", treeVars.muonQOverP) ;                      
-  chain->SetBranchAddress ("muond0", treeVars.muond0) ;                              
-  chain->SetBranchAddress ("muondz", treeVars.muondz) ;                              
-  chain->SetBranchAddress ("muonTkAtEcalEta", treeVars.muonTkAtEcalEta) ;            
-  chain->SetBranchAddress ("muonTkAtEcalPhi", treeVars.muonTkAtEcalPhi) ;            
-  chain->SetBranchAddress ("muonTkAtHcalEta", treeVars.muonTkAtHcalEta) ;            
-  chain->SetBranchAddress ("muonTkAtHcalPhi", treeVars.muonTkAtHcalPhi) ;            
-  chain->SetBranchAddress ("muonEcalEnergy3x3", treeVars.muonEcalEnergy3x3) ;        
-  chain->SetBranchAddress ("muonEcalEnergy5x5", treeVars.muonEcalEnergy5x5) ;        
-  chain->SetBranchAddress ("muonEcalEnergyCrossed", treeVars.muonEcalEnergyCrossed) ;
-  chain->SetBranchAddress ("muonHcalEnergy3x3", treeVars.muonHcalEnergy3x3) ;        
-  chain->SetBranchAddress ("muonHcalEnergyCrossed", treeVars.muonHcalEnergyCrossed) ;
-  chain->SetBranchAddress ("muonNCrossedEcalDetId", treeVars.muonNCrossedEcalDetId) ;
-  chain->SetBranchAddress ("muonMaxEneEcalDetIdCrossed", treeVars.muonMaxEneEcalDetIdCrossed) ; 
-  chain->SetBranchAddress ("cosmicClusterEnergyXtals", treeVars.cosmicClusterEnergyXtals) ;
-  chain->SetBranchAddress ("cosmicClusterLengthXtals_0", treeVars.cosmicClusterLengthXtals_0) ; 
-  chain->SetBranchAddress ("cosmicClusterLengthXtals_1", treeVars.cosmicClusterLengthXtals_1) ; 
+	TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
+	chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
+	
+	EcalCosmicsAnalysisVariables treeVars ;
+	
+	chain->SetBranchAddress ("runId", &treeVars.runId) ;                           
+	chain->SetBranchAddress ("eventId", &treeVars.eventId) ;                       
+	chain->SetBranchAddress ("timeStampLow", &treeVars.timeStampLow) ;             
+	chain->SetBranchAddress ("timeStampHigh", &treeVars.timeStampHigh) ;           
+	chain->SetBranchAddress ("isECALL1", &treeVars.isECALL1) ;                     
+	chain->SetBranchAddress ("isHCALL1", &treeVars.isHCALL1) ;                     
+	chain->SetBranchAddress ("isDTL1", &treeVars.isDTL1) ;                         
+	chain->SetBranchAddress ("isRPCL1", &treeVars.isRPCL1) ;                       
+	chain->SetBranchAddress ("isCSCL1", &treeVars.isCSCL1) ;                       
+	chain->SetBranchAddress ("nCosmicsCluster", &treeVars.nCosmicsCluster) ;       
+	chain->SetBranchAddress ("cosmicClusterEnergy", treeVars.cosmicClusterEnergy) ;
+	chain->SetBranchAddress ("cosmicClusterE1", treeVars.cosmicClusterE1) ;        
+	chain->SetBranchAddress ("cosmicClusterE2", treeVars.cosmicClusterE2) ;        
+	chain->SetBranchAddress ("cosmicClusterE9", treeVars.cosmicClusterE9) ;        
+	chain->SetBranchAddress ("cosmicClusterE25", treeVars.cosmicClusterE25) ;      
+	chain->SetBranchAddress ("cosmicClusterTime", treeVars.cosmicClusterTime) ;    
+	chain->SetBranchAddress ("cosmicClusterEta", treeVars.cosmicClusterEta) ;      
+	chain->SetBranchAddress ("cosmicClusterPhi", treeVars.cosmicClusterPhi) ;      
+	chain->SetBranchAddress ("cosmicClusterXtals", treeVars.cosmicClusterXtals) ;  
+	chain->SetBranchAddress ("cosmicClusterXtalsAbove3Sigma", treeVars.cosmicClusterXtalsAbove3Sigma) ;    
+	chain->SetBranchAddress ("cosmicClusterMaxId", treeVars.cosmicClusterMaxId) ;      
+	chain->SetBranchAddress ("cosmicCluster2ndId", treeVars.cosmicCluster2ndId) ;      
+	chain->SetBranchAddress ("nRecoMuons", &treeVars.nRecoMuons) ;                     
+	chain->SetBranchAddress ("muonPt", treeVars.muonPt) ;                              
+	chain->SetBranchAddress ("muonEta", treeVars.muonEta) ;                            
+	chain->SetBranchAddress ("muonPhi", treeVars.muonPhi) ;                            
+	chain->SetBranchAddress ("muonNChi2", treeVars.muonNChi2) ;                        
+	chain->SetBranchAddress ("muonNDof", treeVars.muonNDof) ;                          
+	chain->SetBranchAddress ("muonNHits", treeVars.muonNHits) ;                        
+	chain->SetBranchAddress ("muonCharge", treeVars.muonCharge) ;                      
+	chain->SetBranchAddress ("muonQOverP", treeVars.muonQOverP) ;                      
+	chain->SetBranchAddress ("muond0", treeVars.muond0) ;                              
+	chain->SetBranchAddress ("muondz", treeVars.muondz) ;                              
+	chain->SetBranchAddress ("muonTkAtEcalEta", treeVars.muonTkAtEcalEta) ;            
+	chain->SetBranchAddress ("muonTkAtEcalPhi", treeVars.muonTkAtEcalPhi) ;            
+	chain->SetBranchAddress ("muonTkAtHcalEta", treeVars.muonTkAtHcalEta) ;            
+	chain->SetBranchAddress ("muonTkAtHcalPhi", treeVars.muonTkAtHcalPhi) ;            
+	chain->SetBranchAddress ("muonEcalEnergy3x3", treeVars.muonEcalEnergy3x3) ;        
+	chain->SetBranchAddress ("muonEcalEnergy5x5", treeVars.muonEcalEnergy5x5) ;        
+	chain->SetBranchAddress ("muonEcalEnergyCrossed", treeVars.muonEcalEnergyCrossed) ;
+	chain->SetBranchAddress ("muonHcalEnergy3x3", treeVars.muonHcalEnergy3x3) ;        
+	chain->SetBranchAddress ("muonHcalEnergyCrossed", treeVars.muonHcalEnergyCrossed) ;
+	chain->SetBranchAddress ("muonNCrossedEcalDetId", treeVars.muonNCrossedEcalDetId) ;
+	chain->SetBranchAddress ("muonMaxEneEcalDetIdCrossed", treeVars.muonMaxEneEcalDetIdCrossed) ; 
+	chain->SetBranchAddress ("cosmicClusterEnergyXtals", treeVars.cosmicClusterEnergyXtals) ;
+	chain->SetBranchAddress ("cosmicClusterLengthXtals_0", treeVars.cosmicClusterLengthXtals_0) ; 
+	chain->SetBranchAddress ("cosmicClusterLengthXtals_1", treeVars.cosmicClusterLengthXtals_1) ; 
 	 //
 	int nEvents = (int) chain->GetEntries () ; 
 	std::cout << "events " << nEvents << std::endl;
 	std::cout << " " << std::endl;
-		//
+	 //
 	double ECALinRad = 129. ;
 	#define PI 3.14159265
-	const double deg = PI/180;
-//  	std::cout << "pi " << PI << " & deg " << deg << std::endl;
+	const double deg = PI/180; // 1 deg in radians
 	double g_deltaAlpha = 0.3 ;
 	TVector3 Vertex (0.,0.,0.);
+	 //	
 	TH1F diff_dEondX ("diff_dEondX","diff_dEondX Bot-Top",200,-0.2,0.2);
-	TH1F diff_dEondX_good ("diff_dEondX_good","diff_dEondX Bot-Top good", 200, -0.5, 0.5);
+	TH1F diff_dEondX_good ("diff_dEondX_good","diff_dEondX Bot-Top good", 200, -0.2, 0.2);
 	TH1F AngleTop ("AngleTop","AngleTop",180,0.,2*PI/2);
 	TH1F AngleBot ("AngleBot","AngleBot",180,0.,2*PI/2);
-	TH1F diff_Angle_TB ("diff_Angle_TB","diff_Angle_TB",100,0, 30*deg);
+	TH1F diff_Angle_TB ("diff_Angle_TB","diff_Angle_TB",100, 0, 45*deg);
 	TH1F Angle ("Angle","Angle", 180, 0., PI);
-	//creating histos for angle division of muon tracks
+	
+	 // creating histos for angle intervals division of muon tracks
 	double delta_angle; 
-	std::cout << "choose angular interval " << std::endl;
+	std::cout << "choose angular interval in deg ( 100° seems to be max TB angle... ) " << std::endl;
 	std::cin >> delta_angle;
 // 	std::cout << "delta_angle is "  << delta_angle << std::endl;
 	std::cout << " " << std::endl;
-	
+	 //
 	int nIntervals = (int) 100 / delta_angle ; 
-	std::cout << "nIntervals is (100° seems to be max TB angle) " << nIntervals << std::endl;
+	std::cout << "nIntervals is " << nIntervals << std::endl;
 	std::cout << " " << std::endl;
 	
-	double diff_angle_TB; 
-	std::cout << "choose the max difference for T B angle (deg)" << std::endl;
-	std::cin >> diff_angle_TB;
-	std::cout << "diff_angle_TB is " << diff_angle_TB << std::endl;
+	// creating vector of angles = medium point of each interval
+	std::vector <double> mean_angle_int;
 	
-	//create vector of histos
+	double diff_angle_TB; 
+	std::cout << "choose the max difference for TB angle in deg" << std::endl;
+	std::cin >> diff_angle_TB;
+// 	std::cout << "diff_angle_TB is " << diff_angle_TB << std::endl;
+
+	// create vector of histos
 	std::vector <TH1F*> diff_dEondX_int;
-	//create histos with different names and put them in vector
+	
+	// create histos with different names and put them in histo vector && fill the vector of medium points of intervals
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
    {  
 		char number[80];
 		sprintf (number, "diff_dEondX_%d", iInterval );
-		TH1F* temp = new TH1F(number, number,200,-2.,2.);
-		diff_dEondX_int.push_back (temp);
+		TH1F* temp = new TH1F(number, number, 200, -0.2, 0.2);
+		diff_dEondX_int.push_back(temp);
+		 //
+		mean_angle_int.push_back( (iInterval + iInterval+1)*delta_angle/2 );
+// 		std::cout << "medium point of " << iInterval << " interval is: " << mean_angle_int.at(iInterval) << std::endl;
    }
  
-		
-/***********************************************************************************************************************/	 
-	//------PG loop over entries------
-  for (int iEvent = 0 ; iEvent < nEvents ; ++iEvent)   
-  {
+/************************************************************************************************************************************/	 
+	//PG loop over entries
+	for (int iEvent = 0 ; iEvent < nEvents ; ++iEvent)    // 	for (int iEvent = 0 ; iEvent < 20 ; ++iEvent)    
+  	{
 		if(iEvent%10000 == 0) std::cout << "event n. " << iEvent << std::endl;
 		
 		chain->GetEntry (iEvent);
 		
-		//base selections
+		// base selections
 		if (treeVars.nCosmicsCluster != 2) continue ; // events 2 clusters
 		if(deltaPhi(treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterPhi[1]) < 2*PI / 4./*90gradi*/) continue; // DELTAPHI
 // std::cout << "num SC : " << treeVars.nCosmicsCluster << std::endl ;
@@ -243,32 +254,71 @@ int main (int argc, char** argv)
 	
 /***********************************************************************************************************************************/
 			
-		//filling histos
+		// filling histos
 		diff_dEondX.Fill(enerBot / lunghBot - enerTop / lunghTop); 
 		AngleTop.Fill(angleTop);
 		AngleBot.Fill(angleBot);
-		diff_Angle_TB.Fill(fabs(angleTop-angleBot));
+		diff_Angle_TB.Fill(fabs(angleTop-angleBot));  
 // 		if(iEvent%5000 == 0) std::cout << "diff_Angle_TB " << fabs(angleTop-angleBot) << std::endl;
 
-		//select events with minimun diff in TB angle to find cherenkov eff.
-		if( fabs(angleTop-angleBot) > diff_angle_TB*deg ) continue; 
-// 		if(iEvent%1000 == 0) std::cout << "diff_Angle_TB " << fabs(angleTop-angleBot) << std::endl;     // 5 deg = 0.0872665
+		// select events with minimun diff in TB angle to find cherenkov eff.  // Ideally you want only trajectories perfectly perpendicular to the 
+		if( fabs(angleTop-angleBot) > diff_angle_TB*deg ) continue;	           // cylinder axis 
 
 		diff_dEondX_good.Fill(enerBot / lunghBot - enerTop / lunghTop);
 		
-		//angle intervals
+		// define angle of muon trajectory 
 		double angle = (angleTop + angleBot)/2;  
 		Angle.Fill(angle);  
+// 	 	std::cout << "angle " << angle<< std::endl;
 // 		if(iEvent%5000 == 0) std::cout << "angle " << angle<< std::endl;
+
+		// define angle  intervals
 		for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 		{
-// 			if(iEvent%5000 == 0) std::cout << "interval: " << iInterval*5*deg <<" div "<< (iInterval+1)*5*deg << std::endl;
-			if( ! iInterval*delta_angle*deg < angle < (iInterval+1)*delta_angle*deg ) continue; 
+			if( iInterval*delta_angle*deg < angle && angle < (iInterval+1)*delta_angle*deg ) 
 				diff_dEondX_int.at(iInterval)->Fill(enerBot / lunghBot - enerTop / lunghTop);
 		}
 	}//PG loop over entries 
-  
-	//writing histos
+	
+	// fit histo of intervals
+	double norm = 1.;
+	double mean = 0.;
+	double sigma = 1.;
+	TF1 *gaussiana = new TF1("gaussiana","gaus", -0.2, 0.2);
+	std::vector <double> diff_dEondX_int_mean;
+	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
+	{
+		std::cout << " " << std::endl;
+		if(iInterval == 0) std::cout << "   integral " << diff_dEondX_int.at(iInterval)-> ComputeIntegral() << std::endl;
+// 		if(iInterval == 0) std::cout << "   mean " << diff_dEondX_int.at(iInterval)-> GetMean() << std::endl;
+		std::cout << " " << std::endl;
+		norm = diff_dEondX_int.at(iInterval)->ComputeIntegral();
+		gaussiana->SetParameter(0, norm);	
+		mean = diff_dEondX_int.at(iInterval)->GetMean();
+		gaussiana->SetParameter(1, mean);
+		sigma = diff_dEondX_int.at(iInterval)->GetRMS();
+		gaussiana->SetParameter(2, sigma);
+// 		std::cout << "sigma " << sigma << "    mean " << mean << std::endl;
+ 		diff_dEondX_int.at(iInterval)->Fit("gaussiana","R");
+		diff_dEondX_int_mean.push_back(gaussiana->GetParameter(1));
+// 		std::cout <<  " mean " << diff_dEondX_int_mean.at(iInterval) << std::endl;
+		diff_dEondX_int.at(iInterval)->Draw();
+		gaussiana->Draw();
+	}
+	
+	// final graph diff_dEondX to see cherenkov eff
+// 	TGraphErrors * cherenkov = new TGraphErrors( mean_angle_int, diff_dEondX_int_mean, 0, 0);
+	TGraphErrors * cherenkov = new TGraphErrors( mean_angle_int, diff_dEondX_int_mean, 0, 0);
+// 	cherenkov->SetTitle("taratura TDC LeCroy");
+// 	gr1->GetXaxis()->SetTitle("delay impulsatore (ns)");
+// 	gr1->GetYaxis()->SetTitle("tdc");
+// 	gr1->GetYaxis()->SetTitleOffset(1.48);
+// 	gr1->SetMarkerColor(kBlue);
+// 	gr1->SetMarkerStyle(21);
+// 	gr1->SetMarkerSize(0.7);
+// 	cherenkov->Draw("AP");
+	
+	//writing histos 
 	TFile out ("angoli_histos.root","recreate");
 	TDirectory* Intervals = gDirectory->mkdir("Intervals");
 		//
@@ -278,13 +328,21 @@ int main (int argc, char** argv)
 	diff_Angle_TB.Write();
 	diff_dEondX_good.Write();
 	Angle.Write();	
-		//
+	 //
 	Intervals->cd();
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
-		diff_dEondX_int[iInterval]-> Write();
+		diff_dEondX_int.at(iInterval)-> Write();
 	out.cd();
-		//
+	 
+	// write graph
+// 	cherenkov.Write();
+
 	out.Close();
 	
+	// deleting
+	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
+		delete diff_dEondX_int.at (iInterval);
+	delete gaussiana;	
+	 
 	return(0);
 }
