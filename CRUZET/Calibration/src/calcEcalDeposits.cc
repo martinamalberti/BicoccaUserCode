@@ -5,16 +5,31 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+
 
 
 std::vector<GlobalPoint> getHelixPoints (const edm::EventSetup& iSetup,
                                          const FreeTrajectoryState* innerState,
                                          const FreeTrajectoryState* outerState)
 {
-   SteppingHelixStateInfo trackOrigin (*innerState) ;
+  SteppingHelixStateInfo trackOrigin (*innerState) ;
    CachedTrajectory neckLace ;
    neckLace.setStateAtIP (trackOrigin) ;
    neckLace.reset_trajectory () ;
+
+   // setup propagator
+   edm::ESHandle<MagneticField> bField;
+   iSetup.get<IdealMagneticFieldRecord>().get(bField);
+   
+   SteppingHelixPropagator* prop  = new SteppingHelixPropagator(&*bField,anyDirection);
+   prop->setMaterialMode(false);
+   prop->applyRadX0Correction(true);
+   // prop->setDebug(true); // tmp
+   neckLace.setPropagator(prop);
+
+
 
    //PG set some params   
 //   double minR = ecalDetIdAssociator->volume ().minR () ;
@@ -41,7 +56,6 @@ std::vector<GlobalPoint> getHelixPoints (const edm::EventSetup& iSetup,
 
    edm::ESHandle<DetIdAssociator> ecalDetIdAssociator ;
    iSetup.get<DetIdAssociatorRecord> ().get ("EcalDetIdAssociator", ecalDetIdAssociator) ;
-   
 //   info.setCaloGeometry (theCaloGeometry_) ;
    
    double HOmaxR = -1. ; //PG FIXME
@@ -49,7 +63,7 @@ std::vector<GlobalPoint> getHelixPoints (const edm::EventSetup& iSetup,
    //PG FIXME questo non so a che cazzo serve   
    // If track extras exist and outerState is before HO maximum, then use outerState
    if (outerState) {
-     if (outerState->position ().perp ()<HOmaxR && fabs (outerState->position ().z ())<HOmaxZ) {
+      if (outerState->position ().perp ()<HOmaxR && fabs (outerState->position ().z ())<HOmaxZ) {
        LogTrace ("TrackAssociator") << "Using outerState as trackOrigin at Rho=" << outerState->position ().perp ()
              << "  Z=" << outerState->position ().z () << "\n" ;
        trackOrigin = SteppingHelixStateInfo (*outerState) ;
