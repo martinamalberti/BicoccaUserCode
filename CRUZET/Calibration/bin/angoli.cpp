@@ -19,7 +19,7 @@
 #include "TCanvas.h"
 #include "TClonesArray.h"
 #include "TString.h"
-// #include "TGraph.h"
+#include "TGraph.h"
 #include "TGraphErrors.h"
 #include "TFile.h"
 #include "TLorentzVector.h"
@@ -36,9 +36,7 @@
 int main (int argc, char** argv)
 {
 	gROOT->SetStyle("Plain"); 
-	gStyle->SetOptStat(111111); 
-	gStyle->SetOptFit(0111); 
-		
+
 	// Tree construction
 	TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
 	chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
@@ -112,17 +110,21 @@ int main (int argc, char** argv)
 	
 	 // creating histos for angle intervals division of muon tracks
 	double delta_angle; 
-	std::cout << "choose angular interval in deg ( 100° seems to be max TB angle... ) " << std::endl;
+	std::cout << "choose angular interval in deg ( 80° is the max TB angle ) " << std::endl;
 	std::cin >> delta_angle;
 // 	std::cout << "delta_angle is "  << delta_angle << std::endl;
 	std::cout << " " << std::endl;
 	 //
-	int nIntervals = (int) 100 / delta_angle ; 
+	int nIntervals = (int) (80. / delta_angle) ; 
 	std::cout << "nIntervals is " << nIntervals << std::endl;
 	std::cout << " " << std::endl;
 	
-	// creating vector of angles = medium point of each interval
-	std::vector <double> mean_angle_int;
+	// creating array of angles = medium point of each interval
+	double mean_angle_interv[50];
+	
+	// creating array of diff_dEondX = mean of each gaussian fit
+	double diff_dEondX_interv_mean[50];
+	double diff_dEondX_interv_sigma[50];
 	
 	double diff_angle_TB; 
 	std::cout << "choose the max difference for TB angle in deg" << std::endl;
@@ -130,18 +132,18 @@ int main (int argc, char** argv)
 // 	std::cout << "diff_angle_TB is " << diff_angle_TB << std::endl;
 
 	// create vector of histos
-	std::vector <TH1F*> diff_dEondX_int;
+	std::vector <TH1F*> diff_dEondX_histo_interv;
 	
 	// create histos with different names and put them in histo vector && fill the vector of medium points of intervals
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
    {  
 		char number[80];
 		sprintf (number, "diff_dEondX_%d", iInterval );
-		TH1F* temp = new TH1F(number, number, 200, -0.2, 0.2);
-		diff_dEondX_int.push_back(temp);
+		TH1F* temp = new TH1F(number, number, 200, -0.1, 0.1);
+		diff_dEondX_histo_interv.push_back(temp);
 		 //
-		mean_angle_int.push_back( (iInterval + iInterval+1)*delta_angle/2 );
-// 		std::cout << "medium point of " << iInterval << " interval is: " << mean_angle_int.at(iInterval) << std::endl;
+		mean_angle_interv[iInterval] = (iInterval + iInterval+1)*delta_angle/2 ;
+// 		std::cout << "medium point of " << iInterval << " interval is: " << mean_angle_interv[iInterval] << std::endl;
    }
  
 /************************************************************************************************************************************/	 
@@ -272,52 +274,60 @@ int main (int argc, char** argv)
 // 	 	std::cout << "angle " << angle<< std::endl;
 // 		if(iEvent%5000 == 0) std::cout << "angle " << angle<< std::endl;
 
-		// define angle  intervals
+		// define angle intervals
 		for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 		{
 			if( iInterval*delta_angle*deg < angle && angle < (iInterval+1)*delta_angle*deg ) 
-				diff_dEondX_int.at(iInterval)->Fill(enerBot / lunghBot - enerTop / lunghTop);
+				diff_dEondX_histo_interv.at(iInterval)->Fill(enerBot / lunghBot - enerTop / lunghTop);
 		}
 	}//PG loop over entries 
 	
-	// fit histo of intervals
-	double norm = 1.;
+	// fit histos of intervals
+	int peakBin = 0;
+	double norm = 100.;
 	double mean = 0.;
 	double sigma = 1.;
-	TF1 *gaussiana = new TF1("gaussiana","gaus", -0.2, 0.2);
-	std::vector <double> diff_dEondX_int_mean;
+	TF1 * gaussiana = new TF1("gaussiana","gaus", -0.2, 0.2);
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
-	{
-		std::cout << " " << std::endl;
-		if(iInterval == 0) std::cout << "   integral " << diff_dEondX_int.at(iInterval)-> ComputeIntegral() << std::endl;
-// 		if(iInterval == 0) std::cout << "   mean " << diff_dEondX_int.at(iInterval)-> GetMean() << std::endl;
-		std::cout << " " << std::endl;
-		norm = diff_dEondX_int.at(iInterval)->ComputeIntegral();
-		gaussiana->SetParameter(0, norm);	
-		mean = diff_dEondX_int.at(iInterval)->GetMean();
-		gaussiana->SetParameter(1, mean);
-		sigma = diff_dEondX_int.at(iInterval)->GetRMS();
-		gaussiana->SetParameter(2, sigma);
-// 		std::cout << "sigma " << sigma << "    mean " << mean << std::endl;
- 		diff_dEondX_int.at(iInterval)->Fit("gaussiana","R");
-		diff_dEondX_int_mean.push_back(gaussiana->GetParameter(1));
-// 		std::cout <<  " mean " << diff_dEondX_int_mean.at(iInterval) << std::endl;
-		diff_dEondX_int.at(iInterval)->Draw();
-		gaussiana->Draw();
+	{  
+// 	   peakBin = diff_dEondX_histo_interv.at(iInterval)->GetMaximumBin();
+// 		norm = diff_dEondX_histo_interv.at(iInterval)->GetMaximum();
+// 		norm = diff_dEondX_histo_interv.at(iInterval)->GetIntegral();
+// 		std::cout <<  " norm " << norm << "     " << *norm << std::endl;
+// 		mean = diff_dEondX_histo_interv.at(iInterval)->GetBinCenter(peakBin);
+		mean = diff_dEondX_histo_interv.at(iInterval)->GetMean();
+		sigma = diff_dEondX_histo_interv.at(iInterval)->GetRMS();
+// 		std::cout << " mean " << mean << " sigma " << sigma <<   " norm " << norm << std::endl;
+		gaussiana->SetParameters(norm, mean, sigma);
+
+ 		diff_dEondX_histo_interv.at(iInterval)->Fit("gaussiana","R");
+//  		diff_dEondX_histo_interv.at(iInterval)->Fit("gaussiana");
+		
+		diff_dEondX_interv_mean[iInterval] = gaussiana->GetParameter(1);
+		diff_dEondX_interv_sigma[iInterval] = gaussiana->GetParameter(2);
+// 		std::cout <<  " mean_aft_fit " << diff_dEondX_interv_mean[iInterval] << " sigma_aft_fit " << diff_dEondX_interv_sigma[iInterval] << std::endl;
 	}
 	
 	// final graph diff_dEondX to see cherenkov eff
-// 	TGraphErrors * cherenkov = new TGraphErrors( mean_angle_int, diff_dEondX_int_mean, 0, 0);
-	TGraphErrors * cherenkov = new TGraphErrors( mean_angle_int, diff_dEondX_int_mean, 0, 0);
-// 	cherenkov->SetTitle("taratura TDC LeCroy");
-// 	gr1->GetXaxis()->SetTitle("delay impulsatore (ns)");
-// 	gr1->GetYaxis()->SetTitle("tdc");
-// 	gr1->GetYaxis()->SetTitleOffset(1.48);
-// 	gr1->SetMarkerColor(kBlue);
-// 	gr1->SetMarkerStyle(21);
-// 	gr1->SetMarkerSize(0.7);
-// 	cherenkov->Draw("AP");
+	TCanvas* c1 = new TCanvas("c1", "c1", 0, 0, 500, 500);
+	TGraphErrors * cherenkov = new TGraphErrors(nIntervals, mean_angle_interv, diff_dEondX_interv_mean, 0, diff_dEondX_interv_sigma);
+	TF1 * g1 = new TF1("g1", "pol1", 0., 80.);
+
+	cherenkov->SetTitle("diff_dEondX Bot-Top");
+	cherenkov->GetXaxis()->SetTitle("angle (deg)");
+	cherenkov->GetYaxis()->SetTitle("diff_dEondX (?)");
+
+	cherenkov->SetMarkerColor(kBlue);
+	cherenkov->SetMarkerStyle(7);
 	
+   g1->SetParameters(0.0, 0.0);
+	g1->SetLineWidth(1); 
+	g1->SetLineColor(kRed); 
+	
+	c1->cd();
+   cherenkov->Draw("AP");
+   g1->Draw("same");
+
 	//writing histos 
 	TFile out ("angoli_histos.root","recreate");
 	TDirectory* Intervals = gDirectory->mkdir("Intervals");
@@ -331,17 +341,19 @@ int main (int argc, char** argv)
 	 //
 	Intervals->cd();
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
-		diff_dEondX_int.at(iInterval)-> Write();
+		diff_dEondX_histo_interv.at(iInterval)-> Write();
 	out.cd();
 	 
 	// write graph
-// 	cherenkov.Write();
+// 	cherenkov->Write("cherenkov");
+	c1->Write("c1");
+
 
 	out.Close();
 	
 	// deleting
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
-		delete diff_dEondX_int.at (iInterval);
+		delete diff_dEondX_histo_interv.at (iInterval);
 	delete gaussiana;	
 	 
 	return(0);
