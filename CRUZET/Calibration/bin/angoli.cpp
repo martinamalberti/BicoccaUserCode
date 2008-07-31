@@ -1,6 +1,5 @@
 //COMPILO c++ -o angoli -lm `root-config --cflags --libs --glibs` angoli.cc angoli.cpp
 
-
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -11,7 +10,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <fstream>
-
 
 #include "TROOT.h"
 #include "TTree.h"
