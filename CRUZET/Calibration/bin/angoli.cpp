@@ -31,22 +31,11 @@
 #include "TStyle.h"
 #include "CRUZET/Calibration/interface/CRUtils.h"
 
+
 int main (int argc, char** argv)
 {
 	gROOT->SetStyle("Plain"); 
-	gStyle->SetPalette(1);
-	gStyle->SetOptStat(111111); 
-	gStyle->SetOptFit(1111); 
-	gStyle->SetCanvasBorderMode(0);
-	gStyle->SetPadBorderMode(0);
-	gStyle->SetCanvasColor(10);
-	gStyle->SetPadColor(10);
-	gStyle->SetFillColor(10);
-	gStyle->SetStatColor(10);
-	gStyle->SetTitleFillColor(10);
-	gROOT->Reset(); 
-
-	// Tree construction
+	 // Tree construction
 	TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
 	chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
 	 //
@@ -103,48 +92,49 @@ int main (int argc, char** argv)
 	int nEvents = (int) chain->GetEntries () ; 
 	std::cout << "events " << nEvents << std::endl;
 	std::cout << " " << std::endl;
-	
+	 //
 	double ECALinRad = 129. ;
 	#define PI 3.14159265
-	const double deg = PI/180; // 1 deg in radians
+	const double deg = PI/180;  // 1 deg in radians
 	double g_deltaAlpha = 0.3 ;
 	TVector3 Vertex (0.,0.,0.);
 	 //	
 	TH1F diff_dEondX ("diff_dEondX","diff_dEondX Bot-Top",200,-0.2,0.2);
-	TH1F diff_dEondX_good ("diff_dEondX_good","diff_dEondX Bot-Top good", 200, -0.2, 0.2);
 	TH1F AngleTop ("AngleTop","AngleTop",180,0.,2*PI/2);
 	TH1F AngleBot ("AngleBot","AngleBot",180,0.,2*PI/2);
 	TH1F diff_Angle_TB ("diff_Angle_TB","diff_Angle_TB",100, 0, 45*deg);
-	TH1F Angle ("Angle","Angle", 180, 0., 90*deg); 
 	 //
 	TH2F AngleVsdiff_dEondX ("AngleVsdiff_dEondX", "AngleVsdiff_dEondX", 180, 0., 90*deg, 200, -0.2, 0.2);
 	TH2F Occupancy("Occupancy","Occupancy",360,1.,361.,170,-85.,86.); 
-	
-	// creating histos for angle intervals division of muon tracks
+	 // creating histos for angle intervals division of muon tracks
 	double delta_angle; 
 	std::cout << "choose angular interval in deg (def 7°) " << std::endl;
 	std::cin >> delta_angle;
-	std::cout << " " << std::endl;
 	 //
-	int nIntervals = (int) (80. / delta_angle) ;  // 80° semm to be the max TB angle  
-	std::cout << "nIntervals is " << nIntervals << std::endl;
+	int nIntervals = (int)(80. / delta_angle) ;  // 80° semm to be the max TB angle && *2 increase statistics
+	std::cout << "nIntervals is " << nIntervals <<  std::endl;
 	std::cout << " " << std::endl;
-	
-	// creating array of angles = medium point of each interval
+	 // create superposition of intervals
+	double superpos;  //  increase statistics
+	std::cout << "choose superposition of intervals (def. 0.5; no superposition 1 ) " << std::endl;
+	std::cin >> superpos;
+	nIntervals = (int)(nIntervals / superpos);  
+	std::cout << "nIntervals is now " << nIntervals << std::endl;
+	std::cout << " " << std::endl; 
+	 // creating array of angles = medium point of each interval
 	double mean_angle_interv[50];
-	
-	// creating array of diff_dEondX = mean of each gaussian fit
+	 // creating array of diff_dEondX = mean of each gaussian fit
 	double diff_dEondX_interv_mean[50];
 	double diff_dEondX_interv_sigma[50];
-	
+	 //
 	double diff_angle_TB; 
 	std::cout << "choose the max difference for TB angle in deg (def 5°)" << std::endl;
 	std::cin >> diff_angle_TB;
-
-	// create vector of histos
+	std::cout << " " << std::endl;	
+	std::cout << " " << std::endl;
+	 // create vector of histos
 	std::vector <TH1F*> diff_dEondX_histo_interv;
-	
-	// create histos with different names and put them in histo vector && fill the vector of medium points of intervals
+	 // create histos with different names and put them in histo vector && fill the vector of medium points of intervals
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
    {  
 		char number[80];
@@ -152,18 +142,19 @@ int main (int argc, char** argv)
 		TH1F* temp = new TH1F(number, number, 200, -0.1, 0.1);
 		diff_dEondX_histo_interv.push_back(temp);
 		 //
-		mean_angle_interv[iInterval] = (iInterval + iInterval+1)*delta_angle/2 ;
+		mean_angle_interv[iInterval] = (iInterval*superpos + iInterval*superpos+1)*delta_angle/2 ;
+		std::cout << iInterval*superpos*delta_angle << " - " <<<< (iInterval*superpos+1)*delta_angle << "  inter mean:" << mean_angle_interv[iInterval] << std::endl ;
    }
- 
-/************************************************************************************************************************************/	 
+	
+/**********************************************************************************************************************************************/	 
+
 	//PG loop over entries
 	for (int iEvent = 0 ; iEvent < nEvents ; ++iEvent)    // 	for (int iEvent = 0 ; iEvent < 20 ; ++iEvent)    
   	{
 		if(iEvent%10000 == 0) std::cout << "event n. " << iEvent << std::endl;
 		
 		chain->GetEntry (iEvent);
-		
-		// base selections
+		// CUT: base selections
 		if (treeVars.nCosmicsCluster != 2) continue ; // events 2 clusters
 		if(deltaPhi(treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterPhi[1]) < 2*PI / 4./*90gradi*/) continue; // DELTAPHI
 // std::cout << "num SC : " << treeVars.nCosmicsCluster << std::endl ;
@@ -265,31 +256,23 @@ int main (int argc, char** argv)
 	
 /************************************************************************************************************************************************/
 			
-		// filling histos
+		 // fill histos
 		diff_dEondX.Fill(enerBot / lunghBot - enerTop / lunghTop); 
 		AngleTop.Fill(angleTop);
 		AngleBot.Fill(angleBot);
 		diff_Angle_TB.Fill(fabs(angleTop-angleBot));  
-
-		// further selections:  events with minimun diff in TB angle to find cherenkov eff.  
+		 // CUT:  events with minimun diff in TB angle to find cherenkov eff.  
 		if( fabs(angleTop-angleBot) > diff_angle_TB*deg ) continue;	           
-
-		diff_dEondX_good.Fill(enerBot / lunghBot - enerTop / lunghTop);
-		
-		// define angle of muon trajectory 
+		 // define angle of muon trajectory 
 		double angle = (angleTop + angleBot)/2;  
-		Angle.Fill(angle);  
 		AngleVsdiff_dEondX.Fill(angle, enerBot / lunghBot - enerTop / lunghTop); 
-		// il vett di 20 colonne è il cluster. Noi selezioniamo solo 2 cluster perciò così becchi cristalli sopra e sotto.
-		Occupancy.Fill(treeVars.cosmicClusterEta[0]/deg,treeVars.cosmicClusterPhi[0]/deg);  
-      Occupancy.Fill(treeVars.cosmicClusterEta[1]/deg,treeVars.cosmicClusterPhi[1]/deg);  
-		Occupancy.SetDrawOption("COLZ");
-
-
-		// define angle intervals
+		 // 
+		Occupancy.Fill((treeVars.cosmicClusterPhi[0]+PI)/deg, treeVars.cosmicClusterEta[0]/deg);  // the vect of 20 columns is thecluster. we cut ev with 2 cluster, so [0]=1st clust [1]=2nd clust. Convert iphi [-pi,pi] -> [0,360]
+      Occupancy.Fill((treeVars.cosmicClusterPhi[1]+PI)/deg, treeVars.cosmicClusterEta[1]/deg);  
+		 // define angle intervals and fill interval histos
 		for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 		{
-			if( iInterval*delta_angle*deg < angle && angle < (iInterval+1)*delta_angle*deg ) 
+			if( iInterval*superpos*delta_angle*deg < angle  &&  angle < (iInterval*superpos + 1)*delta_angle*deg )
 				diff_dEondX_histo_interv.at(iInterval)->Fill(enerBot / lunghBot - enerTop / lunghTop);
 		}
 	}//PG loop over entries 
@@ -310,8 +293,7 @@ int main (int argc, char** argv)
 		diff_dEondX_interv_sigma[iInterval] = gaussiana->GetParameter(2);
 // 		std::cout <<  " mean_aft_fit " << diff_dEondX_interv_mean[iInterval] << " sigma_aft_fit " << diff_dEondX_interv_sigma[iInterval] << std::endl;
 	}
-	
-	// final graph diff_dEondX to see cherenkov eff
+	 // final graph diff_dEondX to see cherenkov eff
 	TCanvas* c1 = new TCanvas("c1", "c1", 0, 0, 500, 500);
 	TGraphErrors * cherenkov = new TGraphErrors(nIntervals, mean_angle_interv, diff_dEondX_interv_mean, 0, diff_dEondX_interv_sigma);
 	TF1 * g1 = new TF1("g1", "pol1", 0., 80.);
@@ -319,7 +301,7 @@ int main (int argc, char** argv)
 	cherenkov->SetTitle("diff_dEondX Bot-Top");
 	cherenkov->GetXaxis()->SetTitle("angle (deg)");
 	cherenkov->GetYaxis()->SetTitle("diff_dEondX (GeV/cm)");
-// 	cherenkov->GetYaxis()->SetTitleOffset(1.48);
+	cherenkov->GetYaxis()->SetTitleOffset(1.1);
 	 //
 	cherenkov->SetMarkerColor(kBlue);
 	cherenkov->SetMarkerStyle(7);
@@ -331,27 +313,29 @@ int main (int argc, char** argv)
 	c1->cd();
    cherenkov->Draw("AP");
    g1->Draw("same");
-
-	//writing histos 
-	TFile out ("angoli_1_histos.root","recreate");
+	 // writing histos 
+	TFile out ("angoli_histos.root","recreate");
 	TDirectory* Intervals = gDirectory->mkdir("Intervals");
 	 //
 	diff_dEondX.Write();
 	AngleTop.Write();
 	AngleBot.Write();
 	diff_Angle_TB.Write();
-	diff_dEondX_good.Write();
-	Angle.Write();
 	AngleVsdiff_dEondX.Write(); 	
-	Occupancy.Write();
+	 //
+	TCanvas * c2 = new TCanvas("c2", "c2", 0, 0, 500, 500);
+	c2->cd();
+	Occupancy.GetXaxis()->SetTitle("i#phi");
+	Occupancy.GetYaxis()->SetTitle("i#eta");
+	Occupancy.Draw("COLZ");
+	c2->Write("Occupancy");
 	 //
 	Intervals->cd();
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 		diff_dEondX_histo_interv.at(iInterval)-> Write();
 	out.cd();
-	 
-	// write graph
-	c1->Write("c1");
+	 // write graph
+	c1->Write("cherenkov");
 	 //
 	out.Close();
 	
