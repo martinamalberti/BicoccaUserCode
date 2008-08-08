@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalCosmicsTreeXtals.h,v 1.1 2008/07/03 12:12:50 deguio Exp $
+// $Id: EcalCosmicsTreeXtals.h,v 1.1 2008/07/22 08:35:46 deguio Exp $
 //
 //
 
@@ -170,6 +170,7 @@ class EcalCosmicsTreeXtals : public edm::EDAnalyzer {
   TFile* fileHisto;
   TH2F* radiografiaInnerState;
   TH2F* radiografiaOuterState;
+  TH1F* lunghezzaTotale;
   
   int naiveEvtNum_; 
   std::vector<int> l1Accepts_;

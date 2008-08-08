@@ -66,7 +66,8 @@ EcalCosmicsTreeXtals::EcalCosmicsTreeXtals(const edm::ParameterSet& iConfig) :
   runNum_(-1),
   fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("ecalCosmicHists"))),
   radiografiaInnerState ( new TH2F("radiografiaInnerState","radiografiaInnerState",4000,-1000.,1000.,4000,-1000.,1000.)),
-  radiografiaOuterState ( new TH2F("radiografiaOuterState","radiografiaOuterState",4000,-1000.,1000.,4000,-1000.,1000.))
+  radiografiaOuterState ( new TH2F("radiografiaOuterState","radiografiaOuterState",4000,-1000.,1000.,4000,-1000.,1000.)),
+  lunghezzaTotale ( new TH1F("lunghezzaTotale","lunghezzaTotale",800,0.,80.))
 {
   naiveEvtNum_ = 0;
   // TrackAssociator parameters
@@ -364,7 +365,9 @@ EcalCosmicsTreeXtals::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 //   trajectory_1 = getTrajectoryPoints(position.at(0),position.at(1),0.0001);
 
   int  numberOfCosmics = 0;
-  std::vector<DetId> totalVector;
+  std::vector<DetId> totalVector;  //loop over SuperClusters
+  std::cerr << "---------------------------------------------------------------------------" << std::endl;
+  std::cerr << "###1 number of superclusters = " << clusterCollection_p->size() << std::endl;
   for (reco::SuperClusterCollection::const_iterator clus = clusterCollection_p->begin(); clus != clusterCollection_p->end(); ++clus)
    {
      double energy = clus->energy();
@@ -444,11 +447,12 @@ EcalCosmicsTreeXtals::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	 nXtallo++;
        }
      //---------------Approccio matrice intorno al piu' energetico----------------
-     
+    
      //std::cout << "maxDetId eta, phi:" << maxDet.ieta() << " " << maxDet.iphi() << std::endl;
-     std::vector<DetId> matrix_id = matrixDetId( &*theCaloTopology, maxDet, -10, 10, -10, 10 );
+     std::vector<DetId> matrix_id = matrixDetId( &*theCaloTopology, maxDet, -25, 25, -25, 25 );
      totalVector.insert(totalVector.end(),matrix_id.begin(),matrix_id.end());
-     //cout << "matrix_id.size() = " << matrix_id.size() << endl;
+     //std::cerr << "matrix_id.size() = " << matrix_id.size() << std::endl;
+     //std::cerr << "totalVector.size() = " << totalVector.size() << std::endl;
      
      //-------------------------------------------------------------------------
 
@@ -496,31 +500,6 @@ EcalCosmicsTreeXtals::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   for(reco::TrackCollection::const_iterator recoTrack = recoTracks->begin(); recoTrack != recoTracks->end(); ++recoTrack)
     {
-      
-      //------Xtal Length------
-      FreeTrajectoryState innerState = tsTransform.innerFreeState(*recoTrack,&*bField);
-      FreeTrajectoryState outerState = tsTransform.outerFreeState(*recoTrack,&*bField);
-      
-      radiografiaInnerState->Fill(innerState.position().x(),innerState.position().y());
-      radiografiaOuterState->Fill(outerState.position().x(),outerState.position().y());
-      
-      std::vector<GlobalPoint> neckLace;
-      neckLace = getHelixPoints(iSetup,&innerState,&outerState);
-      
-      
-      std::cerr << "totalVector.size() = " << totalVector.size() << std::endl;
-      for(unsigned int ii = 0; ii < totalVector.size(); ++ii)
-	{
-	  double length = getTrajLengthInXtal(neckLace,totalVector.at(ii),pGeometry);
-	  //std::cerr << "-------------------->>>>>>>>>>>>  length = " << length << std::endl;
-	}
-      
-      
-
-      
-      
-      
-      
       //-------TrackAss----------
       
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, trackParameters_);
@@ -545,7 +524,9 @@ EcalCosmicsTreeXtals::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       for (unsigned int i=0; i<info.crossedEcalIds.size(); i++) 
 	{	 
 	  if (! (info.crossedEcalIds[i].det() == DetId::Ecal && info.crossedEcalIds[i].subdetId() == 1) ) 
-	    continue;
+	    {
+	      continue;
+	    }
 	  EcalRecHitCollection::const_iterator thishit = hits->find(info.crossedEcalIds[i]);
 	  if (thishit == hits->end()) 
 	    continue;
@@ -565,7 +546,44 @@ EcalCosmicsTreeXtals::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  myTreeVariables_.muonMaxEneEcalDetIdCrossed[numberOfRecoMuons] = maxDet;
 	}
       
-      ++numberOfRecoMuons;    
+      ++numberOfRecoMuons;   
+      
+      
+      
+      //------Xtal Length------
+      if(info.crossedEcalIds.size() == 0) 
+	{
+	  std::cerr << "===>>> OUT OF ECAL <<<===" << std::endl;
+	  continue;
+	}
+      FreeTrajectoryState innerState = tsTransform.innerFreeState(*recoTrack,&*bField);
+      FreeTrajectoryState outerState = tsTransform.outerFreeState(*recoTrack,&*bField);
+      
+      radiografiaInnerState->Fill(innerState.position().x(),innerState.position().y());
+      radiografiaOuterState->Fill(outerState.position().x(),outerState.position().y());
+      
+      std::vector<GlobalPoint> neckLace;
+      neckLace = calcEcalDeposit(iSetup,&innerState,&outerState,trackParameters_);
+      
+      std::cerr << "totalVector.size() = " << totalVector.size() << std::endl;
+      std::cerr << "neckLace.size() = " << neckLace.size() << std::endl;
+      
+      //for(unsigned int ii = 0; ii < neckLace.size(); ++ii)
+      //std::cerr << "neckLace.at(cont).x(), y(), z(), R = " << neckLace.at(ii).x() << " " << neckLace.at(ii).y() << " " << neckLace.at(ii).z() << " " << neckLace.at(ii).perp() << std::endl;
+      for(unsigned int ii = 0; ii < totalVector.size(); ++ii) 
+	{
+	  double length = getTrajLengthInXtal(neckLace,totalVector.at(ii),pGeometry);
+	  //std::cerr << "-------------------->>>>>>>>>>>>  length = " << length << std::endl;
+	}
+      double totalLength = getTrajLengthInXtals (neckLace,totalVector,pGeometry);
+      std::cerr << "-------------------->>>>>>>>>>>>  totalLength = " << totalLength << std::endl;
+      lunghezzaTotale->Fill(totalLength);
+
+
+
+
+
+ 
     }    
   tree_->Fill();
 }
@@ -636,6 +654,7 @@ EcalCosmicsTreeXtals::endJob()
   fileHisto->cd();
   radiografiaInnerState->Write();
   radiografiaOuterState->Write();
+  lunghezzaTotale->Write();
   fileHisto->Close();
 
 }
