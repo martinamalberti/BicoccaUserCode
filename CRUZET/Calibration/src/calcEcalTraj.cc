@@ -16,8 +16,10 @@ double getTrajLengthInXtal (const std::vector<GlobalPoint> & neckLace,
     {
       if (pGeometry->getSubdetectorGeometry (xtal)->getGeometry (xtal)->inside (*nlIt))  
         {
+	  //std::cerr << "-" ;
           length += (*nlIt - *(nlIt-1)).mag () ;
         }
+      //else std::cerr << "*" ;
     } //PG loop over steps
   //length -= (*start - *neckLace.begin ()).mag ()/2. ; //correzione utile?
   return length ;

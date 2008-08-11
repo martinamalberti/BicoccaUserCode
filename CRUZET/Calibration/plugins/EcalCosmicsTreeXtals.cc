@@ -575,15 +575,11 @@ EcalCosmicsTreeXtals::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  double length = getTrajLengthInXtal(neckLace,totalVector.at(ii),pGeometry);
 	  //std::cerr << "-------------------->>>>>>>>>>>>  length = " << length << std::endl;
 	}
-      double totalLength = getTrajLengthInXtals (neckLace,totalVector,pGeometry);
+      //double totalLength = getTrajLengthInXtals (neckLace,totalVector,pGeometry);
+      double totalLength = getTrajLengthInXtals (neckLace,info.crossedEcalIds,pGeometry);
       std::cerr << "-------------------->>>>>>>>>>>>  totalLength = " << totalLength << std::endl;
       lunghezzaTotale->Fill(totalLength);
 
-
-
-
-
- 
     }    
   tree_->Fill();
 }

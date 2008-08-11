@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 
 
@@ -19,8 +20,30 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
   
   CachedTrajectory neckLace ;
   neckLace.setStateAtIP (trackOrigin) ;
-
   
+  // access the calorimeter geometry
+  
+  edm::ESHandle<CaloGeometry> theCaloGeometry_;
+  iSetup.get<IdealGeometryRecord>().get(theCaloGeometry_);
+  if (!theCaloGeometry_.isValid()) 
+    throw cms::Exception("FatalError") << "Unable to find IdealGeometryRecord in event!\n";
+  
+  // get the tracking Geometry
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry_;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry_);
+  if (!theTrackingGeometry_.isValid()) 
+    throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
+  
+  const Propagator* ivProp_;
+  Propagator* defProp_;
+  bool useDefaultPropagator_;
+
+  ivProp_ = 0;
+  defProp_ = 0;
+  useDefaultPropagator_ = true;
+
+  //  if (useDefaultPropagator_ && ! defProp_ ) 
+  //    {
   // setup propagator
   edm::ESHandle<MagneticField> bField;
   iSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -28,19 +51,24 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
   prop->setMaterialMode(false);
   prop->applyRadX0Correction(true);
   // prop->setDebug(true); // tmp
-  neckLace.setPropagator(prop);
-
+  defProp_ = prop;
+  neckLace.setPropagator(defProp_);
+  //    }
+  
+  edm::ESHandle<DetIdAssociator> ecalDetIdAssociator;
+  edm::ESHandle<DetIdAssociator> hcalDetIdAssociator;
+  edm::ESHandle<DetIdAssociator>   hoDetIdAssociator;
+  edm::ESHandle<DetIdAssociator> caloDetIdAssociator;
+  edm::ESHandle<DetIdAssociator> muonDetIdAssociator;
+  
+  iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator);
+  iSetup.get<DetIdAssociatorRecord>().get("HcalDetIdAssociator", hcalDetIdAssociator);
+  iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator);
+  iSetup.get<DetIdAssociatorRecord>().get("CaloDetIdAssociator", caloDetIdAssociator);
+  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator);
+  
   neckLace.reset_trajectory () ;
   
-  
-  //dove vengono gi chiamati?
-  edm::ESHandle<DetIdAssociator> ecalDetIdAssociator ;
-  edm::ESHandle<DetIdAssociator> hoDetIdAssociator ;
-  edm::ESHandle<DetIdAssociator> muonDetIdAssociator;
-  iSetup.get<DetIdAssociatorRecord> ().get ("EcalDetIdAssociator", ecalDetIdAssociator) ;
-  iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator);
-  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator);
-
   
   //PG set some params   
   double HOmaxR = hoDetIdAssociator->volume().maxR();
@@ -95,10 +123,16 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
       return std::vector<GlobalPoint> () ;
     }
   
-  // get trajectory in ECAL
-  neckLace.findEcalTrajectory ( ecalDetIdAssociator->volume () ) ;
+//   // get trajectory in ECAL
+//   neckLace.findEcalTrajectory ( ecalDetIdAssociator->volume () ) ;//????????????????????????????????????????
+//   //neckLace.getTrajectory(neckLace,ecalDetIdAssociator->volume (),1000);
   
-  const std::vector<SteppingHelixStateInfo>& complicatePoints = neckLace.getEcalTrajectory () ;
+//   const std::vector<SteppingHelixStateInfo>& complicatePoints = neckLace.getEcalTrajectory () ;
+
+  std::vector<SteppingHelixStateInfo> complicatePoints;
+  neckLace.getTrajectory(complicatePoints,ecalDetIdAssociator->volume (),1000);
+  
+  std::cerr << "complicatePoints.size() = " << complicatePoints.size() << std::endl;;
     
   std::vector<GlobalPoint> simplePoints ;
   for (std::vector<SteppingHelixStateInfo>::const_iterator cpIt = complicatePoints.begin () ;
