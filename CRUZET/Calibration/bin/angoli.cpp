@@ -37,7 +37,8 @@ int main (int argc, char** argv)
 	gROOT->SetStyle("Plain"); 
 	 // Tree construction
 	TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-	chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
+// 	chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
+	chain->Add ("/tmp/snidero/EcalCosmicsTree50908.tree.root") ;
 	 //
 	EcalCosmicsAnalysisVariables treeVars ;
 	 //
@@ -50,19 +51,19 @@ int main (int argc, char** argv)
 	chain->SetBranchAddress ("isDTL1", &treeVars.isDTL1) ;                         
 	chain->SetBranchAddress ("isRPCL1", &treeVars.isRPCL1) ;                       
 	chain->SetBranchAddress ("isCSCL1", &treeVars.isCSCL1) ;                       
-	chain->SetBranchAddress ("nCosmicsCluster", &treeVars.nCosmicsCluster) ;       
-	chain->SetBranchAddress ("cosmicClusterEnergy", treeVars.cosmicClusterEnergy) ;
-	chain->SetBranchAddress ("cosmicClusterE1", treeVars.cosmicClusterE1) ;        
-	chain->SetBranchAddress ("cosmicClusterE2", treeVars.cosmicClusterE2) ;        
-	chain->SetBranchAddress ("cosmicClusterE9", treeVars.cosmicClusterE9) ;        
-	chain->SetBranchAddress ("cosmicClusterE25", treeVars.cosmicClusterE25) ;      
-	chain->SetBranchAddress ("cosmicClusterTime", treeVars.cosmicClusterTime) ;    
-	chain->SetBranchAddress ("cosmicClusterEta", treeVars.cosmicClusterEta) ;      
-	chain->SetBranchAddress ("cosmicClusterPhi", treeVars.cosmicClusterPhi) ;      
-	chain->SetBranchAddress ("cosmicClusterXtals", treeVars.cosmicClusterXtals) ;  
-	chain->SetBranchAddress ("cosmicClusterXtalsAbove3Sigma", treeVars.cosmicClusterXtalsAbove3Sigma) ;    
-	chain->SetBranchAddress ("cosmicClusterMaxId", treeVars.cosmicClusterMaxId) ;      
-	chain->SetBranchAddress ("cosmicCluster2ndId", treeVars.cosmicCluster2ndId) ;      
+	chain->SetBranchAddress ("nClusters", &treeVars.nCosmicsCluster) ;       
+	chain->SetBranchAddress ("clusterEnergy", treeVars.cosmicClusterEnergy) ;
+	chain->SetBranchAddress ("clusterE1", treeVars.cosmicClusterE1) ;        
+	chain->SetBranchAddress ("clusterE2", treeVars.cosmicClusterE2) ;        
+	chain->SetBranchAddress ("clusterE9", treeVars.cosmicClusterE9) ;        
+	chain->SetBranchAddress ("clusterE25", treeVars.cosmicClusterE25) ;      
+	chain->SetBranchAddress ("clusterTime", treeVars.cosmicClusterTime) ;    
+	chain->SetBranchAddress ("clusterEta", treeVars.cosmicClusterEta) ;      
+	chain->SetBranchAddress ("clusterPhi", treeVars.cosmicClusterPhi) ;      
+	chain->SetBranchAddress ("clusterXtals", treeVars.cosmicClusterXtals) ;  
+	chain->SetBranchAddress ("clusterXtalsAbove3Sigma", treeVars.cosmicClusterXtalsAbove3Sigma) ;    
+	chain->SetBranchAddress ("clusterMaxId", treeVars.cosmicClusterMaxId) ;      
+	chain->SetBranchAddress ("cluster2ndId", treeVars.cosmicCluster2ndId) ;      
 	chain->SetBranchAddress ("nRecoMuons", &treeVars.nRecoMuons) ;                     
 	chain->SetBranchAddress ("muonPt", treeVars.muonPt) ;                              
 	chain->SetBranchAddress ("muonEta", treeVars.muonEta) ;                            
@@ -85,9 +86,9 @@ int main (int argc, char** argv)
 	chain->SetBranchAddress ("muonHcalEnergyCrossed", treeVars.muonHcalEnergyCrossed) ;
 	chain->SetBranchAddress ("muonNCrossedEcalDetId", treeVars.muonNCrossedEcalDetId) ;
 	chain->SetBranchAddress ("muonMaxEneEcalDetIdCrossed", treeVars.muonMaxEneEcalDetIdCrossed) ; 
-	chain->SetBranchAddress ("cosmicClusterEnergyXtals", treeVars.cosmicClusterEnergyXtals) ;
-	chain->SetBranchAddress ("cosmicClusterLengthXtals_0", treeVars.cosmicClusterLengthXtals_0) ; 
-	chain->SetBranchAddress ("cosmicClusterLengthXtals_1", treeVars.cosmicClusterLengthXtals_1) ; 
+// 	chain->SetBranchAddress ("clusterEnergyXtals", treeVars.cosmicClusterEnergyXtals) ;
+// 	chain->SetBranchAddress ("clusterLengthXtals_0", treeVars.cosmicClusterLengthXtals_0) ; 
+// 	chain->SetBranchAddress ("clusterLengthXtals_1", treeVars.cosmicClusterLengthXtals_1) ; 
 	 //
 	int nEvents = (int) chain->GetEntries () ; 
 	std::cout << "events " << nEvents << std::endl;
@@ -286,7 +287,7 @@ int main (int argc, char** argv)
 	double norm = 100.;
 	double mean = 0.;
 	double sigma = 1.;
-	TF1 * gaussiana = new TF1("gaussiana","gaus", -0.2, 0.2);
+	TF1 * gaussiana = new TF1("gaussiana","gaus", -0.02, 0.02);
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 	{  
 		mean = diff_dEondX_histo_interv.at(iInterval)->GetMean();
