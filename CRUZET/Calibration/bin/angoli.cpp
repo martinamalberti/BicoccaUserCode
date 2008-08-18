@@ -1,5 +1,3 @@
-//COMPILO c++ -o angoli -lm `root-config --cflags --libs --glibs` angoli.cc angoli.cpp
-
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -39,6 +37,7 @@ int main (int argc, char** argv)
 	TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
 // 	chain->Add ("~/public/MuonTreeLungTestMatrix_43439_*.root") ;
 	chain->Add ("/tmp/snidero/EcalCosmicsTree50908.tree.root") ;
+//       chain->Add ("/afs/cern.ch/user/s/snidero/CMSSW_2_0_9/src/CRUZET/Calibration/bin/EcalCosmicsTree-50908.tree.root") ;
 	 //
 	EcalCosmicsAnalysisVariables treeVars ;
 	 //
@@ -86,6 +85,12 @@ int main (int argc, char** argv)
 	chain->SetBranchAddress ("muonHcalEnergyCrossed", treeVars.muonHcalEnergyCrossed) ;
 	chain->SetBranchAddress ("muonNCrossedEcalDetId", treeVars.muonNCrossedEcalDetId) ;
 	chain->SetBranchAddress ("muonMaxEneEcalDetIdCrossed", treeVars.muonMaxEneEcalDetIdCrossed) ; 
+	
+	chain->SetBranchAddress ("muonTkLengthInEcalDetail", treeVars.muonTkLengthInEcalDetail);
+	chain->SetBranchAddress ("muonMomentumX", treeVars.muonMomentumX) ;
+	chain->SetBranchAddress ("muonMomentumY", treeVars.muonMomentumY) ; 
+	chain->SetBranchAddress ("muonMomentumZ", treeVars.muonMomentumZ) ;
+	
 // 	chain->SetBranchAddress ("clusterEnergyXtals", treeVars.cosmicClusterEnergyXtals) ;
 // 	chain->SetBranchAddress ("clusterLengthXtals_0", treeVars.cosmicClusterLengthXtals_0) ; 
 // 	chain->SetBranchAddress ("clusterLengthXtals_1", treeVars.cosmicClusterLengthXtals_1) ; 
@@ -93,245 +98,304 @@ int main (int argc, char** argv)
 	int nEvents = (int) chain->GetEntries () ; 
 	std::cout << "events " << nEvents << std::endl;
 	std::cout << " " << std::endl;
-	 //
-	double ECALinRad = 129. ;
+	
+	
 	#define PI 3.14159265
 	const double deg = PI/180;  // 1 deg in radians
-	double g_deltaAlpha = 0.3 ;
-	TVector3 Vertex (0.,0.,0.);
-	 //	
-	TH1F dEondX("dEondX","dEondX", 100, 0., 0.05); 
-	TH1F diff_dEondX ("diff_dEondX Bot-Top before cuts","diff_dEondX Bot-Top before cuts",200,-0.2,0.2);
-	TH1F AngleTop ("AngleTop","AngleTop",180,0.,2*PI/2);
-	TH1F AngleBot ("AngleBot","AngleBot",180,0.,2*PI/2);
-	TH1F diff_Angle_TB ("diff_Angle_TB","diff_Angle_TB",100, 0, 45*deg);
+// 	TVector3 Vertex (0.,0.,0.);
+
+	TH1F dEondXAllEvents("dEondXAllEvents", "dEondXAllEvents", 130, 0., 0.07); 
+	TH1F dEondX("dEondX", "dEondX", 130, 0., 0.07);
+// 	TH1F dEondXTop("dEondXTop", "dEondXTop", 150, 0., 0.07); 
+// 	TH1F dEondXBottom("dEondXBottom", "dEondXBottom", 150, 0., 0.07); 		 
+	TH1F Angle("Angle", "Angle", 180, 0., PI);
+// 	TH1F AngleTop("AngleTop", "AngleTop", 180, 0., PI);
+// 	TH1F AngleBottom("AngleBottom", "AngleBottom", 180, 0., PI);
 	 //
-	TH2F AngleVsdiff_dEondX ("AngleVsdiff_dEondX", "AngleVsdiff_dEondX", 180, 0., 90*deg, 200, -0.2, 0.2);
 	TH2F Occupancy("Occupancy","Occupancy",360,-3.14,3.14,170,-1.47,1.47); 
-	 // creating histos for angle intervals division of muon tracks
-	double delta_angle; 
-	std::cout << "choose angular interval in deg (def 7°) " << std::endl;
-	std::cin >> delta_angle;
-	 //
-	int nIntervals = (int)(80. / delta_angle) ;  // 80° semm to be the max TB angle && *2 increase statistics
-	std::cout << "nIntervals is " << nIntervals <<  std::endl;
-	std::cout << " " << std::endl;
-	 // create superposition of intervals
-	double superpos;  //  increase statistics
-	std::cout << "choose superposition of intervals (def. 0.5; no superposition 1 ) " << std::endl;
-	std::cin >> superpos;
-	nIntervals = (int)(nIntervals / superpos);  
-	std::cout << "nIntervals is now " << nIntervals << std::endl;
-	std::cout << " " << std::endl; 
-	 // creating array of angles = medium point of each interval
-	double mean_angle_interv[50];
-	 // creating array of diff_dEondX = mean of each gaussian fit
-	double diff_dEondX_interv_mean[50];
-	double diff_dEondX_interv_sigma[50];
-	 //
-	double diff_angle_TB; 
-	std::cout << "choose the max difference for TB angle in deg (def 5°)" << std::endl;
-	std::cin >> diff_angle_TB;
+// 	TH2F OccupancyTop("OccupancyTop","OccupancyTop",360,-3.14,3.14,170,-1.47,1.47); 
+// 	TH2F OccupancyBottom("OccupancyBottom","OccupancyBottom",360,-3.14,3.14,170,-1.47,1.47); 
+
+	// define angle intervals
+	int AngleInterval = 7; 
+	double step = 1;
+	int nIntervals = (int)(90./AngleInterval/step);
+	std::cout << "n. of intervals: "<< nIntervals << std::endl; 
 	std::cout << " " << std::endl;	
-	std::cout << " " << std::endl;
-	 // create vector of histos
-	std::vector <TH1F*> diff_dEondX_histo_interv;
-	 // create histos with different names and put them in histo vector && fill the vector of medium points of intervals
-	std::cout << "the intervals are: " << std::endl; 
-	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
-   {  
+
+	// creating array of angles = medium point of each interval
+	double IntervalMeanAngle[50];
+	 
+	// creating array of peaks dEondX = mean of each gaussian fit
+	double IntervaldEondXPeakBottom[50];
+	double IntervaldEondXPeakErrorBottom[50];
+	double IntervaldEondXPeakTop[50];
+	double IntervaldEondXPeakErrorTop[50];
+	double IntervaldEondXPeakTBDiff[50];
+	double IntervaldEondXPeakErrorTBDiff[50];
+	double IntervaldEondXPeakTBRatio[50];
+	double IntervaldEondXPeakErrorTBRatio[50];
+	
+	 
+	// create vector of histos
+	std::vector <TH1F*> HistodEondXTop;		
+	std::vector <TH1F*> HistodEondXBottom;
+	 
+	// create histos with different names and put them into vector && fill angle array               
+	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval){  
+		
 		char number[80];
-		sprintf (number, "diff_dEondX_%d", iInterval );
-		TH1F* temp = new TH1F(number, number, 200, -0.1, 0.1);
-		diff_dEondX_histo_interv.push_back(temp);
-		 //
-		mean_angle_interv[iInterval] = (iInterval*superpos + iInterval*superpos+1)*delta_angle/2 ;
-		std::cout << iInterval*superpos*delta_angle << " - " << (iInterval*superpos+1)*delta_angle << " ;  interv mean:" << mean_angle_interv[iInterval] << std::endl ;
+		
+		sprintf (number, "dEondXTop_%d", iInterval );
+		TH1F* tempTop = new TH1F(number, number, 90, 0., 0.07);
+		HistodEondXTop.push_back(tempTop);
+		
+		sprintf (number, "dEondXBottom_%d", iInterval );
+		TH1F* tempBottom = new TH1F(number, number, 90, 0., 0.07);
+		HistodEondXBottom.push_back(tempBottom);
+		
+		IntervalMeanAngle[iInterval] = (iInterval*step + iInterval*step +1 )*AngleInterval/2 ;
+		std::cout << iInterval*AngleInterval*step << " - " << (iInterval*step+1)*AngleInterval << " ;  interv mean:" << (iInterval*step + iInterval*step +1 )*AngleInterval/2 << std::endl ;
    }
-	std::cout << " " << std::endl;
 	
-/**********************************************************************************************************************************************/	 
-
 	//PG loop over entries
-	for (int iEvent = 0 ; iEvent < nEvents ; ++iEvent)    // 	for (int iEvent = 0 ; iEvent < 20 ; ++iEvent)    
-  	{
+	for (int iEvent = 0 ; iEvent < nEvents ; ++iEvent)   
+	{
 		if(iEvent%10000 == 0) std::cout << "event n. " << iEvent << std::endl;
-		
 		chain->GetEntry (iEvent);
-		// CUT: base selections
-		if (treeVars.nCosmicsCluster != 2) continue ; // events 2 clusters
-		if(deltaPhi(treeVars.cosmicClusterPhi[0],treeVars.cosmicClusterPhi[1]) < 2*PI / 4./*90gradi*/) continue; // DELTAPHI
-// std::cout << "num SC : " << treeVars.nCosmicsCluster << std::endl ;
 		
-		//calculating muon trajectory
+		// fill histo
+		dEondXAllEvents.Fill( treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0] ); 
+		
+		// SELECTIONS 
+		if (treeVars.nCosmicsCluster != 1) continue ; 
+	
+		// get directions
 		TVector3 SC0_pos (0., 0., 0.) ;
-		setVectorOnECAL (SC0_pos, treeVars.cosmicClusterEta[0], treeVars.cosmicClusterPhi[0]) ;
-		TVector3 SC1_pos (0., 0., 0.) ;      
-		setVectorOnECAL (SC1_pos, treeVars.cosmicClusterEta[1], treeVars.cosmicClusterPhi[1]) ;
-					
-		double alpha3D = get3DAlpha (SC0_pos, SC1_pos) ;
-		TVector3 closestAppr3D = SC0_pos + alpha3D * (SC1_pos - SC0_pos) ;
-				
-		double alpha2DXY = get2DAlphaXY (SC0_pos, SC1_pos) ;
-		TVector3 closestAppr2DXY = SC0_pos + alpha2DXY * (SC1_pos - SC0_pos) ;
+		setVectorOnECAL (SC0_pos, treeVars.cosmicClusterEta[0], treeVars.cosmicClusterPhi[0]);
 		
-		double alpha2DYZ = get2DAlphaYZ (SC0_pos, SC1_pos) ;
-		TVector3 closestAppr2DYZ = SC0_pos + alpha2DYZ * (SC1_pos - SC0_pos) ;
-				
-		//-----intersez superficie interna--------------
-		std::pair <double,double> CrossAlphaIn = getAlphaEcalCross(SC0_pos, SC1_pos, ECALinRad);
-		if (CrossAlphaIn.first == 100. && CrossAlphaIn.second == 100.) continue;       //2clust con deltaPhi==0 a meta' altezza nell'xtal
-		TVector3 int1 = SC0_pos + CrossAlphaIn.first * (SC1_pos - SC0_pos);
-		TVector3 int2 = SC0_pos + CrossAlphaIn.second * (SC1_pos - SC0_pos);      
-
-		//-----intersez superficie esterna--------------
-		//       double averageAlpha = 0.5 * (CrossAlphaIn.first + CrossAlphaIn.second);
-		double averageAlpha = 0.5;
-		double alphaWhere1 = where (g_deltaAlpha, SC0_pos, SC1_pos, averageAlpha) ;
-		double alphaWhere2 = where (-1 * g_deltaAlpha, SC0_pos, SC1_pos, averageAlpha) ;
-		TVector3 ext1 = SC0_pos + alphaWhere1*(SC1_pos - SC0_pos) ;
-		TVector3 ext2 = SC0_pos + alphaWhere2*(SC1_pos - SC0_pos) ;
-
-		//-----      controlli sulla z-------------------
-		if(int1.z() > 300. || int1.z() < -300. || int2.z() > 300. || int2.z() < -300.) continue;  //controllo sulla Z delle intersezioni interne (inutile)
-		if(ext1.z() > 300. || ext1.z() < -300. || ext2.z() > 300. || ext2.z() < -300.) continue;  //controllo sulla Z delle intersezioni esterne
+		TVector3 MuonDir (treeVars.muonMomentumX[0], treeVars.muonMomentumY[0], treeVars.muonMomentumZ[0]);
 		
-		//------------ACCOPPIO LE INTERSEZIONI e le ORDINO------
-		std::vector <std::pair<TVector3,TVector3> > segmenti;                                     //il controllo sui 90gradi iniziale mi garantisce
-		if (ext1.DeltaR(int1) < ext1.DeltaR(int2)) 
-		{
-		std::pair<TVector3,TVector3> primo (int1, ext1);
-		std::pair<TVector3,TVector3> secondo (int2, ext2);
-		if(deltaPhi(primo.first.Phi(),2*PI/4.) > deltaPhi(secondo.first.Phi(),2*PI/4.)) std::swap(primo,secondo);  //primo el a phi + alto
-		segmenti.push_back(primo);
-		segmenti.push_back(secondo);
-		}
-		else
-		{
-		std::pair<TVector3,TVector3> primo (int1, ext2);
-		std::pair<TVector3,TVector3> secondo (int2, ext1);
-		if(deltaPhi(primo.first.Phi(),2*PI/4.) > deltaPhi(secondo.first.Phi(),2*PI/4.)) std::swap(primo,secondo);  //il primo elemento di segmenti e' a phi + alto
-		segmenti.push_back(primo);
-		segmenti.push_back(secondo);
-		}
-		double lunghTop = getEcalXLenght (segmenti.at(0).first,segmenti.at(0).second);  //sopra
-		double lunghBot = getEcalXLenght (segmenti.at(1).first,segmenti.at(1).second);  //sotto
-
-		//-------ASSOCIO LE ENERGIE ALLE COPPIE-----
-		double enerTop = 0.;
-		double enerBot = 0.;
-		if(segmenti.at(0).first.DeltaR(SC0_pos) < segmenti.at(0).first.DeltaR(SC1_pos))   // controllo con l'interno (first)
-		{
-		enerTop = treeVars.cosmicClusterEnergy[0];
-		enerBot = treeVars.cosmicClusterEnergy[1];
-		}
-			else 
-		{
-		enerTop = treeVars.cosmicClusterEnergy[1];
-		enerBot = treeVars.cosmicClusterEnergy[0];
-		}
-
-		/* *****************************************
-	
-		SOPRA INTERNO = segmenti.at(0).first()
-		SOPRA ESTERNO = segmenti.at(0).second()
-
-		SOTTO INTERNO = segmenti.at(1).first()
-		SOTTO ESTERNO = segmenti.at(1).second()
-
-		LUNGH SOPRA   = lunghTop
-		LUNGH SOTTO   = lunghBot
-
-		ENER  SOPRA   = enerTop
-		ENER  SOTTO   = enerBot
+		double angle;
+		angle = fabs( MuonDir.Angle( SC0_pos ) );
 		
-		****************************************** */
-
-		//------------CALCOLO E SELEZIONO ANGOLI------------
-		//double angle1 = (int2 - int1).Angle(Vertex - int1);
-		//double angle2 = (int1 - int2).Angle(Vertex - int2);
-
-		double angleTop = (segmenti.at(1).first - segmenti.at(0).first).Angle(Vertex - segmenti.at(0).first); //sotto - sopra
-		double angleBot = (segmenti.at(0).first - segmenti.at(1).first).Angle(Vertex - segmenti.at(1).first); //sopra - sotto
-
-
-		//if(angleTop < 0.436 || angleTop > 0.610) continue;       //compreso fra 25 e 35
-		//if(angleBot < 0.436 || angleBot > 0.610) continue;
-	
-/************************************************************************************************************************************************/
-			
-		 // fill histos
-		dEondX.Fill(enerBot / lunghBot); 
-		dEondX.Fill(enerTop / lunghTop);
-		diff_dEondX.Fill(enerBot / lunghBot - enerTop / lunghTop); 
-		AngleTop.Fill(angleTop);
-		AngleBot.Fill(angleBot);
-		diff_Angle_TB.Fill(fabs(angleTop-angleBot));  
-		 // CUT:  events with minimun diff in TB angle to find cherenkov eff.  
-		if( fabs(angleTop-angleBot) > diff_angle_TB*deg ) continue;	           
-		 // define angle of muon trajectory 
-		double angle = (angleTop + angleBot)/2;  
-		AngleVsdiff_dEondX.Fill(angle, enerBot / lunghBot - enerTop / lunghTop); 
-	    // the vect of 20 columns is thecluster. we cut ev with 2 cluster, so [0]=1st clust [1]=2nd clust. 
-		Occupancy.Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);  
-      Occupancy.Fill(treeVars.cosmicClusterPhi[1], treeVars.cosmicClusterEta[1]);  
-		 // define angle intervals and fill interval histos
-		for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
+		// fill histos
+		dEondX.Fill( treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0] ); 
+		Angle.Fill(angle);
+		Occupancy.Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);   
+		
+		// fill angle histos
+		if( treeVars.cosmicClusterPhi[0] > 0 )
 		{
-			if( iInterval*superpos*delta_angle*deg < angle  &&  angle < (iInterval*superpos + 1)*delta_angle*deg )
-				diff_dEondX_histo_interv.at(iInterval)->Fill(enerBot / lunghBot - enerTop / lunghTop);
+			for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
+			{
+				if( !( angle > iInterval*step*AngleInterval*deg  &&  angle < (iInterval*step+ 1)*AngleInterval*deg )  &&  
+					 !( angle > (180-(iInterval*step+1)*AngleInterval)*deg  &&  angle < (180-iInterval*step*AngleInterval)*deg ) ) continue;
+				{
+					HistodEondXTop.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0]);
+				}	
+			}
+		}	
+		
+		else 
+		{
+			for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
+			{
+				if( !( angle > iInterval*step*AngleInterval*deg  &&  angle < (iInterval*step+ 1)*AngleInterval*deg )  &&  
+					 !( angle > (180-(iInterval*step+1)*AngleInterval)*deg  &&  angle < (180-iInterval*step*AngleInterval)*deg ) ) continue;
+				{
+					HistodEondXBottom.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0]);
+				}	
+			}
 		}
+// 		// ----- SELECTIONS -------:  
+//  		if( !(angle > 55*deg && angle < 65*deg) && !(angle > 145*deg && angle < 155*deg)  ) continue;
+		
+		// divide Top Bottom && // refill histos
+// 		if( treeVars.cosmicClusterPhi[0] > 0 ){
+// 			dEondXTop.Fill( treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0] ); 
+// 			AngleTop.Fill(angle);
+// 			OccupancyTop.Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);  
+// 		}
+// 			
+// 		else{
+// 			dEondXBottom.Fill( treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0] ); 
+// 			AngleBottom.Fill(angle);
+// 			OccupancyBottom.Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);  
+// 		}
 	}//PG loop over entries 
 	
-	// fit histos of intervals
-	double norm = 100.;
-	double mean = 0.;
-	double sigma = 1.;
-	TF1 * gaussiana = new TF1("gaussiana","gaus", -0.02, 0.02);
+	
+	
+	// get the peak of dEondX
+	TF1 * gaussianast = new TF1("gaussianast","gaus", 0., 0.05);
+	gaussianast->SetLineColor(kBlue);
+	TF1 * gaussianand = new TF1("gaussianand","gaus", 0., 0.05);
+	gaussianand->SetLineColor(kRed);	
+	
+// 	TF1 * fTop = new TF1("fTop","gaus", 0.005, 0.014);
+// 	fTop->SetParameters(1000, 0.01, 0.001);
+// 	dEondXTop.Fit("fTop","R");
+// 	
+// 	TF1 * fBottom = new TF1("fBottom","gaus", 0.005, 0.014);
+// 	fBottom->SetParameters(1000, 0.01, 0.001);
+// 	dEondXBottom.Fit("fBottom","R");
+	
+	//DEBUG
+	double entries=0;
+	
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 	{  
-		mean = diff_dEondX_histo_interv.at(iInterval)->GetMean();
-		sigma = diff_dEondX_histo_interv.at(iInterval)->GetRMS();
-		gaussiana->SetParameters(norm, mean, sigma);
-		 //
- 		diff_dEondX_histo_interv.at(iInterval)->Fit("gaussiana","R");
-		diff_dEondX_interv_mean[iInterval] = gaussiana->GetParameter(1);
-		diff_dEondX_interv_sigma[iInterval] = gaussiana->GetParError(1);
-// 		diff_dEondX_interv_sigma[iInterval] = gaussiana->GetParError(1);
+		// histos entries
+		std::cout << entries << std::endl ;	
+		entries += HistodEondXTop.at(iInterval)->GetEntries();
+		std::cout << entries << std::endl ;	
+		entries += HistodEondXBottom.at(iInterval)->GetEntries();
+		std::cout << entries << std::endl ;
+		
+		// fit histos
+		gaussianast->SetRange(HistodEondXTop.at(iInterval)->GetMean() - 1.1*HistodEondXTop.at(iInterval)->GetRMS(), HistodEondXTop.at(iInterval)->GetMean() - 0.2*HistodEondXTop.at(iInterval)->GetRMS() );			
+		gaussianast->SetParameters( 100, HistodEondXTop.at(iInterval)->GetMean(), HistodEondXTop.at(iInterval)->GetRMS() );
+ 		HistodEondXTop.at(iInterval)->Fit("gaussianast","R");
+
+		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.6*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
+		gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );
+		HistodEondXTop.at(iInterval)->Fit("gaussianand","R+");
+		
+		IntervaldEondXPeakTop[iInterval] = gaussianand->GetParameter(1);
+		IntervaldEondXPeakErrorTop[iInterval] = gaussianand->GetParError(1);
+		
+		gaussianast->SetRange(HistodEondXBottom.at(iInterval)->GetMean() - 1.1*HistodEondXBottom.at(iInterval)->GetRMS(), HistodEondXBottom.at(iInterval)->GetMean() - 0.2*HistodEondXBottom.at(iInterval)->GetRMS() );	
+		gaussianast->SetParameters( 100, HistodEondXBottom.at(iInterval)->GetMean(), HistodEondXBottom.at(iInterval)->GetRMS() );
+		HistodEondXBottom.at(iInterval)->Fit("gaussianast","R");
+		
+		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.6*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
+		gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );		
+		HistodEondXBottom.at(iInterval)->Fit("gaussianand","R+");
+		
+		IntervaldEondXPeakBottom[iInterval] = gaussianand->GetParameter(1);
+		IntervaldEondXPeakErrorBottom[iInterval] = gaussianand->GetParError(1);
+		
+		IntervaldEondXPeakTBDiff[iInterval]=IntervaldEondXPeakTop[iInterval]  - IntervaldEondXPeakBottom[iInterval] ;
+		IntervaldEondXPeakErrorTBDiff[iInterval]=sqrt( pow(IntervaldEondXPeakErrorBottom[iInterval],2) + pow(IntervaldEondXPeakErrorTop[iInterval],2) );
+		
+		IntervaldEondXPeakTBRatio[iInterval]=IntervaldEondXPeakTop[iInterval]/IntervaldEondXPeakBottom[iInterval] ;
+		IntervaldEondXPeakErrorTBRatio[iInterval]=1/IntervaldEondXPeakBottom[iInterval] * sqrt( pow(IntervaldEondXPeakErrorBottom[iInterval],2) + pow(IntervaldEondXPeakTop[iInterval]/IntervaldEondXPeakBottom[iInterval]*IntervaldEondXPeakErrorBottom[iInterval], 2) );
+		
+// 		IntervaldEondXPeakDiff[iInterval]  = IntervaldEondXPeakTop[iInterval]  - IntervaldEondXPeakBottom[iInterval] 
+// 		IntervaldEondXPeakDiffError[iInterval]  = IntervaldEondXPeakErrorTop[iInterval]  + IntervaldEondXPeakErrorBottom[iInterval] 
 // 		std::cout <<  " mean_aft_fit " << diff_dEondX_interv_mean[iInterval] << " sigma_aft_fit " << diff_dEondX_interv_sigma[iInterval] << std::endl;
-	std::cout << " sigma media " << diff_dEondX_interv_mean[iInterval]/sqrt(diff_dEondX_histo_interv.at(iInterval)->GetEntries()) << " par err " << diff_dEondX_interv_sigma[iInterval] << std::endl;
+// 	std::cout << " sigma media " << diff_dEondX_interv_mean[iInterval]/sqrt(diff_dEondX_histo_interv.at(iInterval)->GetEntries()) << " par err " << diff_dEondX_interv_sigma[iInterval] << std::endl;
 	}
-	 // final graph diff_dEondX to see cherenkov eff
+
+	std::cout << " " << std::endl ;		
+	std::cout << " " << std::endl ;		
+	std::cout << entries << std::endl ;	
+	std::cout << " " << std::endl ;		
+	std::cout << " " << std::endl ;		
+	
 	TCanvas* c1 = new TCanvas("c1", "c1", 0, 0, 400, 400);
-	TGraphErrors * cherenkov = new TGraphErrors(nIntervals, mean_angle_interv, diff_dEondX_interv_mean, 0, diff_dEondX_interv_sigma);
-	TF1 * g1 = new TF1("g1", "pol1", 0., 80.);
-	 //
-	cherenkov->SetTitle("diff_dEondX Bot-Top");
-	cherenkov->GetXaxis()->SetTitle("angle (deg)");
-	cherenkov->GetYaxis()->SetTitle("diff_dEondX (GeV/cm)");
-	cherenkov->GetYaxis()->SetRangeUser(-0.01,0.01);
-	cherenkov->GetYaxis()->SetTitleOffset(1.1);
-	 //
-	cherenkov->SetMarkerColor(kBlue);
-	cherenkov->SetMarkerStyle(7);
-	 //
-   g1->SetParameters(0.0, 0.0);
-	g1->SetLineWidth(1); 
-	g1->SetLineColor(kRed); 
-	 //
+	TGraphErrors * gTop = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTop, 0, IntervaldEondXPeakErrorTop);
+	TGraphErrors * gBottom = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakBottom, 0, IntervaldEondXPeakErrorBottom);
+	TGraphErrors * gTBdiff = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTBDiff, 0, IntervaldEondXPeakErrorTBDiff);
+	
+	TCanvas* c2 = new TCanvas("c2", "c2", 0, 0, 400, 400);	
+	TGraphErrors * gTBratio = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTBRatio, 0, IntervaldEondXPeakErrorTBRatio);	
+// 	TGraphErrors * gdiffTB = new TGraphErrors(nIntervals, IntervalMeanAngle, (IntervaldEondXPeakTop - IntervaldEondXPeakBottom), 0, IntervaldEondXPeakErrorBottom);	
+	
+// 	TGraphErrors * gdiffTB = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTop-IntervaldEondXPeakBottom, 0, IntervaldEondXPeakErrorTop+IntervaldEondXPeakErrorBottom);
+// 	TF1 * g1 = new TF1("g1", "pol1", 0., 80.);
+	 
+// 	g->SetTitle("diff_dEondX Bot-Top");
+// 	cherenkov->GetXaxis()->SetTitle("angle (deg)");
+// 	cherenkov->GetYaxis()->SetTitle("diff_dEondX (GeV/cm)");
+// 	cherenkov->GetYaxis()->SetRangeUser(-0.01,0.01);
+// 	cherenkov->GetYaxis()->SetTitleOffset(1.1);
+
+	gTop->SetMarkerColor(kBlue);
+	gTop->SetMarkerStyle(7);
+	gBottom->SetMarkerColor(kRed);
+	gBottom->SetMarkerStyle(7);
+	
+	gTBdiff->SetMarkerColor(kMagenta);
+	gTBdiff->SetMarkerStyle(7);
+	gTBratio->SetMarkerColor(kGreen);
+	gTBratio->SetMarkerStyle(7);	
+
+
+//    g1->SetParameters(0.0, 0.0);
+// 	g1->SetLineWidth(1); 
+// 	g1->SetLineColor(kRed); 
+
 	c1->cd();
-   cherenkov->Draw("AP");
-   g1->Draw("same");
-	 // writing histos 
+   gTop->Draw("AP");
+	gBottom->Draw("P");
+	gTBdiff->Draw("P");
+	
+	c2->cd();
+	gTBratio->Draw("AP");
+
+	
+// 	// fit dEondX
+// 	TF1 * f = new TF1("f","gaus", 0.006, 0.014);
+// 	f->SetParameters(1000, 0.01, 0.001);
+// 	dEondX.Fit("f","R");
+// 	
+// 	TF1 * fTop = new TF1("fTop","gaus", 0.005, 0.014);
+// 	fTop->SetParameters(1000, 0.01, 0.001);
+// 	dEondXTop.Fit("fTop","R");
+// 	
+// 	TF1 * fBottom = new TF1("fBottom","gaus", 0.005, 0.014);
+// 	fBottom->SetParameters(1000, 0.01, 0.001);
+// 	dEondXBottom.Fit("fBottom","R");
+
+	
+	// writing on file 
 	TFile out ("angoli_histos.root","recreate");
-	TDirectory* Intervals = gDirectory->mkdir("Intervals");
-	 //
+	
+ 	TDirectory * Intervals = gDirectory->mkdir("Intervals");
+	
+	dEondXAllEvents.Write(); 
+	
 	dEondX.Write(); 
-	diff_dEondX.Write();
-	AngleTop.Write();
-	AngleBot.Write();
-	diff_Angle_TB.Write();
-	Occupancy.SetDrawOption("COLZ");
+	Angle.Write(); 
+	Occupancy.Write();
+	
+	Intervals->cd();
+	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
+	{
+		HistodEondXTop.at(iInterval)->Write();
+		HistodEondXBottom.at(iInterval)->Write();
+	}
+	out.cd();
+
+	c1->Write("FinalGraph");
+	c2->Write("FinalGraph_2");	
+	 
+	out.Close();
+	
+	// deleting
+	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
+	{ 
+		delete HistodEondXTop.at(iInterval);
+		delete HistodEondXBottom.at(iInterval);
+	}
+		
+// 	delete gaussianast;	
+
+	out.Close();
+	
+		 	
+// 	dEondXTop.Write(); 
+// 	AngleTop.Write(); 
+// 	OccupancyTop.Write();
+// 	
+// 	dEondXBottom.Write(); 
+// 	AngleBottom.Write(); 
+// 	OccupancyBottom.Write();
+	
+	
+/*	Occupancy.SetDrawOption("COLZ");
 	AngleVsdiff_dEondX.Write(); 	
 	 //
 	TCanvas * c2 = new TCanvas("c2", "c2", 0, 0, 400, 400);
@@ -345,15 +409,11 @@ int main (int argc, char** argv)
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 		diff_dEondX_histo_interv.at(iInterval)-> Write();
 	out.cd();
-	 // write graph
-	c1->Write("cherenkov");
-	 //
-	out.Close();
-	
-	// deleting
-	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
-		delete diff_dEondX_histo_interv.at (iInterval);
-	delete gaussiana;	
+
+
+*/	
 	 
 	return(0);
 }
+
+
