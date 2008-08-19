@@ -21,6 +21,7 @@
 
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
+#include "CRUZET/Calibration/interface/ClusterCalibTools.h"
 
 
 void fillEBMap (std::map<int,double> & EBxtlMap, //PG effective output
@@ -42,12 +43,21 @@ int main (int argc, char** argv)
   calibBlocks.push_back (new IMACalibBlock (10)) ;
   calibBlocks.push_back (new L3CalibBlock (10, 1)) ;
 
+  EBregionBuilder EBregionsTool (-85, 85, 5,
+                                 0, 20, 5) ;
+
 //  new IMACalibBlock (m_regions.at (region))
 //  new L3CalibBlock (m_regions.at (region), eventWeight)
 
+  //PG FIXME one has to read and save calibration coeffs
+  //PG FIXME read from xml files or DB directly
+  
+  //PG FIXME would it be possible to do it for rings or crystals
+  //PG FIXME in the same code?
+
   //PG build the regions to be calibrated
   //PG FIXME fill xtalRegionId, xtalPositionInRegion
-  //PG FIXME use the hashIndex
+  //PG FIXME use the hashIndex in the maps?
 
   TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
   chain->Add (argv[1]) ;
@@ -160,3 +170,5 @@ void fillEBMap (std::map<int,double> & EBxtlMap, //PG effective output
     
     }//PG loop over xtals
 }
+
+
