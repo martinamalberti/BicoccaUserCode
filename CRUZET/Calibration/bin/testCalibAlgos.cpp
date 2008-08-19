@@ -1,3 +1,4 @@
+#include <map>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -17,6 +18,9 @@
 #include "Calibration/EcalCalibAlgos/interface/VEcalCalibBlock.h"
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"
 #include "Calibration/EcalCalibAlgos/interface/L3CalibBlock.h"
+
+#include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
+#include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
 
 
 void fillEBMap (std::map<int,double> & EBxtlMap, //PG effective output
@@ -42,20 +46,74 @@ int main (int argc, char** argv)
 //  new L3CalibBlock (m_regions.at (region), eventWeight)
 
   //PG build the regions to be calibrated
-  //PG FIXME fill  xtalRegionId, xtalPositionInRegion
-    
-  int nEntries = -1 ;
+  //PG FIXME fill xtalRegionId, xtalPositionInRegion
+  //PG FIXME use the hashIndex
+
+  TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
+  chain->Add (argv[1]) ;
+
+  EcalCosmicsTreeContent treeVars ; 
+  setBranchAddresses (chain, treeVars) ;
+
+  int nEntries = chain->GetEntries () ;
+  std::cout << "FOUND " << nEntries << " ENTRIES\n" ;        
 
   //PG loop over entries
   for (int entry = 0 ; entry < nEntries ; ++entry)
     {
-       //PG get the matrix of crystals
-       //PG FIXME as a vector of DetID
-       
-       //PG fill the map of energies
-       //PG FIXME with the function
-       
-       //PG feed the calibration algorithm
+      chain->GetEntry (entry) ;
+      if (entry % 1000) std::cout << "reading entry " << entry << "\n" ; 
+
+      //PG association between muons and superclusters
+      //PG -------------------------------------------
+      
+      std::vector<ect::association> associations ;
+      ect::fillAssocVector (associations, treeVars) ;
+      ect::selectOnDR (associations, treeVars, 0.3) ;
+
+      //PG loop on associations vector
+      for (unsigned int i = 0 ; i < associations.size () ; ++i)
+        { 
+          //PG xtal - energy association map
+          std::map<int,double> EBxtlMap ;
+          
+          int SCindex = associations.at (i).second ;
+          
+          //PG FIXME find the region ID
+          
+          double ESubtract = 0. ;
+          
+          //PG loop over crystals in SUPERcluster
+          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ; 
+               XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] + 
+                          treeVars.nXtalsInSuperCluster[SCindex] ; 
+               ++XTLindex)
+            {
+              if (1) //PG FIXME if xtals do not fall in the right region
+                {
+                  EBxtlMap[treeVars.xtalHashedIndex[XTLindex]] = 
+                    treeVars.xtalEnergy[XTLindex] ;
+                }
+              else
+                {
+                  ESubtract += treeVars.xtalEnergy[XTLindex] ;
+                }  
+              //PG feed the calibration algo  
+            } //PG loop over crystals in SUPERcluster
+
+
+          //PG get the matrix of crystals
+          //PG FIXME as a vector of DetID to be understood
+          
+          //PG fill the map of energies
+          //PG FIXME with the function to be modified
+      
+      //PG feed the calibration algorithm
+
+          
+        } //PG loop on associations vector
+
+
     } //PG loop over entries
 
   //PG extract the solution of the calibration  
