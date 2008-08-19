@@ -98,9 +98,7 @@ int main (int argc, char** argv)
                 {
                   ESubtract += treeVars.xtalEnergy[XTLindex] ;
                 }  
-              //PG feed the calibration algo  
             } //PG loop over crystals in SUPERcluster
-
 
           //PG get the matrix of crystals
           //PG FIXME as a vector of DetID to be understood
@@ -108,7 +106,7 @@ int main (int argc, char** argv)
           //PG fill the map of energies
           //PG FIXME with the function to be modified
       
-      //PG feed the calibration algorithm
+          //PG feed the calibration algorithm
 
           
         } //PG loop on associations vector
