@@ -28,6 +28,10 @@ class EBregionBuilder
   //!LP Change the coordinate system
   int etaShifter (int) const ;
 
+  int xtalNumInRegion (int regionNum) const 
+    {
+      return m_regions.at (regionNum) ;
+    }
 
   private :
 
