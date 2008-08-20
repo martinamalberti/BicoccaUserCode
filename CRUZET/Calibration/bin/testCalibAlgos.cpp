@@ -43,21 +43,41 @@ int main (int argc, char** argv)
   calibBlocks.push_back (new IMACalibBlock (10)) ;
   calibBlocks.push_back (new L3CalibBlock (10, 1)) ;
 
-  EBregionBuilder EBregionsTool (-85, 85, 5,
-                                 0, 20, 5) ;
+  //PG FIXME parameters to be read from outside
+  EBregionBuilder EBregionsTool (-85, 85, 5, 0, 20, 5) ;
 
-//  new IMACalibBlock (m_regions.at (region))
-//  new L3CalibBlock (m_regions.at (region), eventWeight)
+  //PG single blocks calibrators
+  std::vector<VEcalCalibBlock *> EcalCalibBlocks ;
+
+  std::string algorithm = "IMA" ;
+
+  //PG loop over the regions set
+  for (int region = 0 ; 
+       region < EBregionsTool.EBregionsNum () ; 
+       ++region)
+    {   
+      if (algorithm == "IMA")
+        EcalCalibBlocks.push_back (
+            new IMACalibBlock (EBregionsTool.xtalNumInRegion (region))
+          ) ; 
+      else if (algorithm == "L3")
+        EcalCalibBlocks.push_back (
+            new L3CalibBlock (EBregionsTool.xtalNumInRegion (region), 
+                              1)
+          ) ; 
+      else
+        {
+          edm::LogError ("building") << algorithm 
+                          << " is not a valid calibration algorithm" ;
+          exit (1) ;    
+        }    
+    } //PG loop over the regions set
 
   //PG FIXME one has to read and save calibration coeffs
   //PG FIXME read from xml files or DB directly
   
   //PG FIXME would it be possible to do it for rings or crystals
   //PG FIXME in the same code?
-
-  //PG build the regions to be calibrated
-  //PG FIXME fill xtalRegionId, xtalPositionInRegion
-  //PG FIXME use the hashIndex in the maps?
 
   TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
   chain->Add (argv[1]) ;
