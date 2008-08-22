@@ -51,7 +51,7 @@ int main (int argc, char** argv)
 	chain->SetBranchAddress ("isDTL1", &treeVars.isDTL1) ;                         
 	chain->SetBranchAddress ("isRPCL1", &treeVars.isRPCL1) ;                       
 	chain->SetBranchAddress ("isCSCL1", &treeVars.isCSCL1) ;                       
-	chain->SetBranchAddress ("nClusters", &treeVars.nCosmicsCluster) ;       
+	chain->SetBranchAddress ("nClusters", &treeVars.nCosmicClusters) ;       
 	chain->SetBranchAddress ("clusterEnergy", treeVars.cosmicClusterEnergy) ;
 	chain->SetBranchAddress ("clusterE1", treeVars.cosmicClusterE1) ;        
 	chain->SetBranchAddress ("clusterE2", treeVars.cosmicClusterE2) ;        
@@ -93,21 +93,22 @@ int main (int argc, char** argv)
 	chain->SetBranchAddress ("muonMomentumZ", treeVars.muonMomentumZ) ;
 	
 	// declare variables 
-	int nEvents = (int) chain->GetEntries () ; 
+	int nEvents = (int) chain->GetEntries();
+	int nClusters = 0;
 	std::cout << "events " << nEvents << std::endl;
 	std::cout << " " << std::endl;
 	
 	#define PI 3.14159265
 	const double deg = PI/180;  // 1 deg in radians
 
-	TH1F dEondX("dEondX", "dEondX", 100, 0., 0.07);		 
+	TH1F dEondX("dEondX", "dEondX", 90, 0., 0.07);		 
 	TH1F Angle("Angle", "Angle", 180, 0., PI);
 	TH1F Length("Length","Length",100,-2,40); 	
 	 //
 	TH2F Occupancy("Occupancy","Occupancy",360,-3.14,3.14,170,-1.47,1.47); 
 
 	// define angle intervals
-	int AngleInterval = 7; 
+	int AngleInterval = 5; 
 	double step = 1; //superposition 1=no sup, 0.5=one half of superpos
 	int nIntervals = (int)(90./AngleInterval/step);
 	std::cout << "n. of intervals: "<< nIntervals << std::endl; 
@@ -138,11 +139,11 @@ int main (int argc, char** argv)
 		char number[80];
 		
 		sprintf (number, "dEondXTop_%d", iInterval );
-		TH1F* tempdEondXTop = new TH1F(number, number, 100, 0., 0.07);
+		TH1F* tempdEondXTop = new TH1F(number, number, 70, 0., 0.07);
 		HistodEondXTop.push_back(tempdEondXTop);
 		
 		sprintf (number, "dEondXBottom_%d", iInterval );
-		TH1F* tempdEondXBottom = new TH1F(number, number, 100, 0., 0.07);
+		TH1F* tempdEondXBottom = new TH1F(number, number, 70, 0., 0.07);
 		HistodEondXBottom.push_back(tempdEondXBottom);		
 		
 		sprintf (number, "OccupancyTop_%d", iInterval );
@@ -164,78 +165,47 @@ int main (int argc, char** argv)
 			
 		chain->GetEntry (iEvent);
 		
-		// selctions: length>0
-		if (treeVars.muonTkLengthInEcalDetail[0] < 1 ) continue; 
-			
-		// get directions
-		TVector3 SC0_pos (0., 0., 0.) ;
-		setVectorOnECAL (SC0_pos, treeVars.cosmicClusterEta[0], treeVars.cosmicClusterPhi[0]);
+		nClusters =  treeVars.nCosmicClusters; 
 		
-		TVector3 MuonDir (treeVars.muonMomentumX[0], treeVars.muonMomentumY[0], treeVars.muonMomentumZ[0]);
-		
-		double angle;
-		angle = fabs( MuonDir.Angle( SC0_pos ) );
-		
-		// fill histos 
-		dEondX.Fill( treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0] ); 
-		Angle.Fill(angle);
-		Length.Fill(treeVars.muonTkLengthInEcalDetail[0]);
-		Occupancy.Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);   
-		
-		for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
+		// loop over entry cluster
+		for (int iCluster = 0 ; iCluster < nClusters ; ++iCluster)   
 		{
-			if( !( angle > iInterval*step*AngleInterval*deg  &&  angle < (iInterval*step+ 1)*AngleInterval*deg )  &&  
-				 !( angle > (180-(iInterval*step+1)*AngleInterval)*deg  &&  angle < (180-iInterval*step*AngleInterval)*deg ) ) continue;
+			// SELECIONS: length>0
+// 			if (treeVars.muonTkLengthInEcalDetail[iCluster] < 20 || treeVars.muonTkLengthInEcalDetail[iCluster] > 30) continue; 
+			if (treeVars.muonTkLengthInEcalDetail[iCluster] < 1) continue; 
+				
+			// get directions
+			TVector3 SC0_pos (0., 0., 0.) ;
+			setVectorOnECAL (SC0_pos, treeVars.cosmicClusterEta[iCluster], treeVars.cosmicClusterPhi[iCluster]);
 			
-			if( treeVars.cosmicClusterPhi[0] > 0 )
-			{	
-				HistodEondXTop.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0]);
-				HistoOccupancyTop.at(iInterval)->Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);
-			}
-			else
+			TVector3 MuonDir (treeVars.muonMomentumX[iCluster], treeVars.muonMomentumY[iCluster], treeVars.muonMomentumZ[iCluster]);
+			
+			double angle;
+			angle = fabs( MuonDir.Angle( SC0_pos ) );
+			
+			// fill histos 
+			dEondX.Fill( treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster] ); 
+			Angle.Fill(angle);
+			Length.Fill(treeVars.muonTkLengthInEcalDetail[iCluster]);
+			Occupancy.Fill(treeVars.cosmicClusterPhi[iCluster], treeVars.cosmicClusterEta[iCluster]);   
+			
+			for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
 			{
-				HistodEondXBottom.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0]);  
-				HistoOccupancyBottom.at(iInterval)->Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);
-			}		
-		}
-		
-// 		// fill angle histos
-// 		if( treeVars.cosmicClusterPhi[0] > 0 )
-// 		{
-// 			for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
-// 			{
-// 				if( !( angle > iInterval*step*AngleInterval*deg  &&  angle < (iInterval*step+ 1)*AngleInterval*deg )  &&  
-// 					 !( angle > (180-(iInterval*step+1)*AngleInterval)*deg  &&  angle < (180-iInterval*step*AngleInterval)*deg ) ) continue;
-// 					 
-// 					HistodEondXTop.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0]);	
-// 			}
-// 		}	
-// 		
-// 		else 
-// 		{
-// 			for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
-// 			{
-// 				if( !( angle > iInterval*step*AngleInterval*deg  &&  angle < (iInterval*step+ 1)*AngleInterval*deg )  &&  
-// 					 !( angle > (180-(iInterval*step+1)*AngleInterval)*deg  &&  angle < (180-iInterval*step*AngleInterval)*deg ) ) continue;
-// 					
-// 					HistodEondXBottom.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0]);
-// 			}
-// 		}
-// 		// ----- SELECTIONS -------:  
-//  		if( !(angle > 55*deg && angle < 65*deg) && !(angle > 145*deg && angle < 155*deg)  ) continue;
-		
-		// divide Top Bottom && // refill histos
-// 		if( treeVars.cosmicClusterPhi[0] > 0 ){
-// 			dEondXTop.Fill( treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0] ); 
-// 			AngleTop.Fill(angle);
-// 			OccupancyTop.Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);  
-// 		}
-// 			
-// 		else{
-// 			dEondXBottom.Fill( treeVars.cosmicClusterEnergy[0] / treeVars.muonTkLengthInEcalDetail[0] ); 
-// 			AngleBottom.Fill(angle);
-// 			OccupancyBottom.Fill(treeVars.cosmicClusterPhi[0], treeVars.cosmicClusterEta[0]);  
-// 		}
+				if( !( angle > iInterval*step*AngleInterval*deg  &&  angle < (iInterval*step+ 1)*AngleInterval*deg )  &&  
+					!( angle > (180-(iInterval*step+1)*AngleInterval)*deg  &&  angle < (180-iInterval*step*AngleInterval)*deg ) ) continue;
+				
+				if( treeVars.cosmicClusterPhi[iCluster] > 0 )
+				{	
+					HistodEondXTop.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster]);
+					HistoOccupancyTop.at(iInterval)->Fill(treeVars.cosmicClusterPhi[iCluster], treeVars.cosmicClusterEta[iCluster]);
+				}
+				else
+				{
+					HistodEondXBottom.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster]);  
+					HistoOccupancyBottom.at(iInterval)->Fill(treeVars.cosmicClusterPhi[iCluster], treeVars.cosmicClusterEta[iCluster]);
+				}		
+			}
+		}// loop over entry cluster
 	}//PG loop over entries 
 	
 	double entries=0;
@@ -253,7 +223,7 @@ int main (int argc, char** argv)
 		gaussianast->SetParameters( 100, HistodEondXTop.at(iInterval)->GetMean(), HistodEondXTop.at(iInterval)->GetRMS() );
  		HistodEondXTop.at(iInterval)->Fit("gaussianast","R");
 
-		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.8*gaussianast->GetParameter(2) );	
+		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
 		gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );
 		HistodEondXTop.at(iInterval)->Fit("gaussianand","R+");
 		
@@ -264,7 +234,7 @@ int main (int argc, char** argv)
 		gaussianast->SetParameters( 100, HistodEondXBottom.at(iInterval)->GetMean(), HistodEondXBottom.at(iInterval)->GetRMS() );
 		HistodEondXBottom.at(iInterval)->Fit("gaussianast","R");
 		
-		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.8*gaussianast->GetParameter(2) );	
+		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
 		gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );		
 		HistodEondXBottom.at(iInterval)->Fit("gaussianand","R+");
 		
