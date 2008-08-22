@@ -114,10 +114,10 @@ int main (int argc, char** argv)
 	std::cout << "n. of intervals: "<< nIntervals << std::endl; 
 	std::cout << " " << std::endl;	
 
-	// creating array of angles = medium point of each interval
+	// create array of angles = medium point of each interval
 	double IntervalMeanAngle[50];
 	 
-	// creating array of peaks dEondX = mean of each gaussian fit
+	// create array of peaks dEondX = mean of each gaussian fit
 	double IntervaldEondXPeakBottom[50];
 	double IntervaldEondXPeakErrorBottom[50];
 	double IntervaldEondXPeakTop[50];
@@ -213,34 +213,67 @@ int main (int argc, char** argv)
 	// get the peak of dEondX
 	TF1 * gaussianast = new TF1("gaussianast","gaus", 0., 0.05);
 	gaussianast->SetLineColor(kBlue);
-	TF1 * land = new TF1("land", "landau", 0.005, 0.025);
+	
+	TF1 * gaussianand = new TF1("gaussianand","gaus", 0., 0.05);
+	gaussianand->SetLineColor(kRed);		
+	
+	TF1 * land = new TF1("land", "landau", 0., 0.05);
 	land->SetLineColor(kRed);	
 	
+	// fit histos
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 	{  
-		// fit histos
-		gaussianast->SetRange(HistodEondXTop.at(iInterval)->GetMean() - 1.1*HistodEondXTop.at(iInterval)->GetRMS(), HistodEondXTop.at(iInterval)->GetMean() - 0.3*HistodEondXTop.at(iInterval)->GetRMS() );			
+		// top
+		gaussianast->SetRange(HistodEondXTop.at(iInterval)->GetMean() - 1.1*HistodEondXTop.at(iInterval)->GetRMS(), HistodEondXTop.at(iInterval)->GetMean() - 0.*HistodEondXTop.at(iInterval)->GetRMS() );			
 		gaussianast->SetParameters( 100, HistodEondXTop.at(iInterval)->GetMean(), HistodEondXTop.at(iInterval)->GetRMS() );
  		HistodEondXTop.at(iInterval)->Fit("gaussianast","R+");
-
-// 		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
-		land->SetParameters( gaussianast->GetParameter(1), gaussianast->GetParameter(2) );
-		HistodEondXTop.at(iInterval)->Fit("land","R+");
 		
-		IntervaldEondXPeakTop[iInterval] = land->GetParameter(1);
-		IntervaldEondXPeakErrorTop[iInterval] = land->GetParError(1);
+		// gaus or landau 
+		if ( iInterval < 10)
+		{
+			gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.8*gaussianast->GetParameter(2) );	
+			gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );
+			HistodEondXTop.at(iInterval)->Fit("gaussianand","R");
+			
+			IntervaldEondXPeakTop[iInterval] = gaussianand->GetParameter(1);
+			IntervaldEondXPeakErrorTop[iInterval] = gaussianand->GetParError(1);
+		}
 		
-		gaussianast->SetRange(HistodEondXBottom.at(iInterval)->GetMean() - 1.1*HistodEondXBottom.at(iInterval)->GetRMS(), HistodEondXBottom.at(iInterval)->GetMean() - 0.3*HistodEondXBottom.at(iInterval)->GetRMS() );	
+		else
+		{
+			land->SetRange(gaussianast->GetParameter(1) - 1.4*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 3.7*gaussianast->GetParameter(2) );	
+			land->SetParameters( gaussianast->GetParameter(1), gaussianast->GetParameter(2) );
+			HistodEondXTop.at(iInterval)->Fit("land","R");
+			
+			IntervaldEondXPeakTop[iInterval] = land->GetParameter(1);
+			IntervaldEondXPeakErrorTop[iInterval] = land->GetParError(1);
+		}	
+		
+		// bottom
+		gaussianast->SetRange(HistodEondXBottom.at(iInterval)->GetMean() - 1.1*HistodEondXBottom.at(iInterval)->GetRMS(), HistodEondXBottom.at(iInterval)->GetMean() - 0.*HistodEondXBottom.at(iInterval)->GetRMS() );	
 		gaussianast->SetParameters( 100, HistodEondXBottom.at(iInterval)->GetMean(), HistodEondXBottom.at(iInterval)->GetRMS() );
-		HistodEondXBottom.at(iInterval)->Fit("gaussianast","R+");
+		HistodEondXBottom.at(iInterval)->Fit("gaussianast","R");
 		
-// 		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
-		land->SetParameters( gaussianast->GetParameter(1), gaussianast->GetParameter(2) );		
-		HistodEondXBottom.at(iInterval)->Fit("land","R+");
+		if ( iInterval < 10)
+		{
+			gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.8*gaussianast->GetParameter(2) );	
+			gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );		
+			HistodEondXBottom.at(iInterval)->Fit("gaussianand","R");
+			
+			IntervaldEondXPeakBottom[iInterval] = gaussianand->GetParameter(1);
+			IntervaldEondXPeakErrorBottom[iInterval] = gaussianand->GetParError(1);
+		}
 		
-		IntervaldEondXPeakBottom[iInterval] = land->GetParameter(1);
-		IntervaldEondXPeakErrorBottom[iInterval] = land->GetParError(1);
-		
+		else
+		{
+			land->SetRange(gaussianast->GetParameter(1) - 1.4*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 3.7*gaussianast->GetParameter(2) );	
+			land->SetParameters( gaussianast->GetParameter(1), gaussianast->GetParameter(2) );		
+			HistodEondXBottom.at(iInterval)->Fit("land","R");
+			
+			IntervaldEondXPeakBottom[iInterval] = land->GetParameter(1);
+			IntervaldEondXPeakErrorBottom[iInterval] = land->GetParError(1);
+		}	
+	
 		IntervaldEondXPeakTBDiff[iInterval]=IntervaldEondXPeakTop[iInterval]  - IntervaldEondXPeakBottom[iInterval] ;
 		IntervaldEondXPeakErrorTBDiff[iInterval]=sqrt( pow(IntervaldEondXPeakErrorBottom[iInterval],2) + pow(IntervaldEondXPeakErrorTop[iInterval],2) );
 		
@@ -267,32 +300,36 @@ int main (int argc, char** argv)
 	TGraphErrors * gBottom = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakBottom, 0, IntervaldEondXPeakErrorBottom);
 	
 	TCanvas* c2 = new TCanvas("c2", "c2", 0, 0, 400, 400);	
+	
+	c2->SetGridy();
+	c2->Draw();
+	
 	TGraphErrors * gTBdiff = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTBDiff, 0, IntervaldEondXPeakErrorTBDiff);
+	
+	gTBdiff->SetTitle("diff dEondX Top-Bot");
+	gTBdiff->GetXaxis()->SetTitle("angle (deg)");
+	gTBdiff->GetYaxis()->SetTitle("diff dEondX (GeV/cm)");
+	gTBdiff->GetYaxis()->SetRangeUser(-0.002,0.002);
+	gTBdiff->GetYaxis()->SetTitleOffset(1.5);
 	
 	TCanvas* c3 = new TCanvas("c3", "c3", 0, 0, 400, 400);	
 	TGraphErrors * gTBratio = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTBRatio, 0, IntervaldEondXPeakErrorTBRatio);	
-// 	TGraphErrors * gdiffTB = new TGraphErrors(nIntervals, IntervalMeanAngle, (IntervaldEondXPeakTop - IntervaldEondXPeakBottom), 0, IntervaldEondXPeakErrorBottom);	
-	
-// 	TGraphErrors * gdiffTB = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTop-IntervaldEondXPeakBottom, 0, IntervaldEondXPeakErrorTop+IntervaldEondXPeakErrorBottom);
-// 	TF1 * g1 = new TF1("g1", "pol1", 0., 80.);
-	 
-// 	g->SetTitle("diff_dEondX Bot-Top");
-// 	cherenkov->GetXaxis()->SetTitle("angle (deg)");
-// 	cherenkov->GetYaxis()->SetTitle("diff_dEondX (GeV/cm)");
-// 	cherenkov->GetYaxis()->SetRangeUser(-0.01,0.01);
-// 	cherenkov->GetYaxis()->SetTitleOffset(1.1);
 
 	gTop->SetMarkerColor(kBlue);
-	gTop->SetMarkerStyle(7);
+	gTop->SetMarkerStyle(21);
+	gTop->SetMarkerSize(0.7);	
+	
 	gBottom->SetMarkerColor(kRed);
-	gBottom->SetMarkerStyle(7);
-	
+	gBottom->SetMarkerStyle(21);
+	gBottom->SetMarkerSize(0.7);	
+		
 	gTBdiff->SetMarkerColor(kMagenta);
-	gTBdiff->SetMarkerStyle(7);
-	
+	gTBdiff->SetMarkerStyle(21);
+	gTBdiff->SetMarkerSize(0.7);	
+		
 	gTBratio->SetMarkerColor(kGreen);
-	gTBratio->SetMarkerStyle(7);	
-
+	gTBratio->SetMarkerStyle(21);	
+	gTBratio->SetMarkerSize(0.7);	
 	c1->cd();
    gTop->Draw("AP");
 	gBottom->Draw("P");
@@ -306,14 +343,14 @@ int main (int argc, char** argv)
 	// write on file 
 	TFile out ("angoli_histos.root","recreate");
 	
- 	TDirectory * Intervals = gDirectory->mkdir("Intervals");
-	
 	dEondX.Write(); 
 	Angle.Write(); 
    Length.Write();	
 	Occupancy.Write();
 	
+	TDirectory * Intervals = gDirectory->mkdir("Intervals");
 	Intervals->cd();
+	
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 	{
 		HistodEondXTop.at(iInterval)->Write();
@@ -341,26 +378,7 @@ int main (int argc, char** argv)
 		
 	delete gaussianast;	
 	delete land;			
-	
-/*	Occupancy.SetDrawOption("COLZ");
-	AngleVsdiff_dEondX.Write(); 	
-	 //
-	TCanvas * c2 = new TCanvas("c2", "c2", 0, 0, 400, 400);
-	c2->cd();
-	Occupancy.GetXaxis()->SetTitle("#phi");
-	Occupancy.GetYaxis()->SetTitle("#eta");
-	Occupancy.Draw("COLZ");
-	c2->Write("Occupancy");
-	 //
-	Intervals->cd();
-	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
-		diff_dEondX_histo_interv.at(iInterval)-> Write();
-	out.cd();
-
-
-*/	
 	 
 	return(0);
 }
-
 
