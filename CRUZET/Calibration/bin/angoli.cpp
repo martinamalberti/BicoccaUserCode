@@ -213,33 +213,33 @@ int main (int argc, char** argv)
 	// get the peak of dEondX
 	TF1 * gaussianast = new TF1("gaussianast","gaus", 0., 0.05);
 	gaussianast->SetLineColor(kBlue);
-	TF1 * gaussianand = new TF1("gaussianand","gaus", 0., 0.05);
-	gaussianand->SetLineColor(kRed);	
+	TF1 * land = new TF1("land", "landau", 0.005, 0.025);
+	land->SetLineColor(kRed);	
 	
 	for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval) 
 	{  
 		// fit histos
-		gaussianast->SetRange(HistodEondXTop.at(iInterval)->GetMean() - 1.1*HistodEondXTop.at(iInterval)->GetRMS(), HistodEondXTop.at(iInterval)->GetMean() - 0.2*HistodEondXTop.at(iInterval)->GetRMS() );			
+		gaussianast->SetRange(HistodEondXTop.at(iInterval)->GetMean() - 1.1*HistodEondXTop.at(iInterval)->GetRMS(), HistodEondXTop.at(iInterval)->GetMean() - 0.3*HistodEondXTop.at(iInterval)->GetRMS() );			
 		gaussianast->SetParameters( 100, HistodEondXTop.at(iInterval)->GetMean(), HistodEondXTop.at(iInterval)->GetRMS() );
- 		HistodEondXTop.at(iInterval)->Fit("gaussianast","R");
+ 		HistodEondXTop.at(iInterval)->Fit("gaussianast","R+");
 
-		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
-		gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );
-		HistodEondXTop.at(iInterval)->Fit("gaussianand","R+");
+// 		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
+		land->SetParameters( gaussianast->GetParameter(1), gaussianast->GetParameter(2) );
+		HistodEondXTop.at(iInterval)->Fit("land","R+");
 		
-		IntervaldEondXPeakTop[iInterval] = gaussianand->GetParameter(1);
-		IntervaldEondXPeakErrorTop[iInterval] = gaussianand->GetParError(1);
+		IntervaldEondXPeakTop[iInterval] = land->GetParameter(1);
+		IntervaldEondXPeakErrorTop[iInterval] = land->GetParError(1);
 		
-		gaussianast->SetRange(HistodEondXBottom.at(iInterval)->GetMean() - 1.1*HistodEondXBottom.at(iInterval)->GetRMS(), HistodEondXBottom.at(iInterval)->GetMean() - 0.2*HistodEondXBottom.at(iInterval)->GetRMS() );	
+		gaussianast->SetRange(HistodEondXBottom.at(iInterval)->GetMean() - 1.1*HistodEondXBottom.at(iInterval)->GetRMS(), HistodEondXBottom.at(iInterval)->GetMean() - 0.3*HistodEondXBottom.at(iInterval)->GetRMS() );	
 		gaussianast->SetParameters( 100, HistodEondXBottom.at(iInterval)->GetMean(), HistodEondXBottom.at(iInterval)->GetRMS() );
-		HistodEondXBottom.at(iInterval)->Fit("gaussianast","R");
+		HistodEondXBottom.at(iInterval)->Fit("gaussianast","R+");
 		
-		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
-		gaussianand->SetParameters( gaussianast->GetParameter(0), gaussianast->GetParameter(1), gaussianast->GetParameter(2) );		
-		HistodEondXBottom.at(iInterval)->Fit("gaussianand","R+");
+// 		gaussianand->SetRange(gaussianast->GetParameter(1) - 1.5*gaussianast->GetParameter(2), gaussianast->GetParameter(1) + 0.7*gaussianast->GetParameter(2) );	
+		land->SetParameters( gaussianast->GetParameter(1), gaussianast->GetParameter(2) );		
+		HistodEondXBottom.at(iInterval)->Fit("land","R+");
 		
-		IntervaldEondXPeakBottom[iInterval] = gaussianand->GetParameter(1);
-		IntervaldEondXPeakErrorBottom[iInterval] = gaussianand->GetParError(1);
+		IntervaldEondXPeakBottom[iInterval] = land->GetParameter(1);
+		IntervaldEondXPeakErrorBottom[iInterval] = land->GetParError(1);
 		
 		IntervaldEondXPeakTBDiff[iInterval]=IntervaldEondXPeakTop[iInterval]  - IntervaldEondXPeakBottom[iInterval] ;
 		IntervaldEondXPeakErrorTBDiff[iInterval]=sqrt( pow(IntervaldEondXPeakErrorBottom[iInterval],2) + pow(IntervaldEondXPeakErrorTop[iInterval],2) );
@@ -340,7 +340,7 @@ int main (int argc, char** argv)
 	}
 		
 	delete gaussianast;	
-	delete gaussianand;			
+	delete land;			
 	
 /*	Occupancy.SetDrawOption("COLZ");
 	AngleVsdiff_dEondX.Write(); 	
