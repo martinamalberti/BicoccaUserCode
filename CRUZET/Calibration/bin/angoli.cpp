@@ -170,9 +170,11 @@ int main (int argc, char** argv)
 		// loop over entry cluster
 		for (int iCluster = 0 ; iCluster < nClusters ; ++iCluster)   
 		{
-			// SELECIONS: length>0
-// 			if (treeVars.muonTkLengthInEcalDetail[iCluster] < 20 || treeVars.muonTkLengthInEcalDetail[iCluster] > 30) continue; 
-			if (treeVars.muonTkLengthInEcalDetail[iCluster] < 1) continue; 
+			// SELECIONS: 
+// 			if (treeVars.muonTkLengthInEcalDetail[iCluster] < 20 || treeVars.muonTkLengthInEcalDetail[iCluster] > 27) continue; 
+// 			if (treeVars.muonTkLengthInEcalDetail[iCluster] > 20 && treeVars.muonTkLengthInEcalDetail[iCluster] < 27) continue; 
+			if (treeVars.muonTkLengthInEcalDetail[iCluster] < 1) continue;   // length>0
+// 			if (treeVars.cosmicClusterXtals[iCluster] > 2) continue; 			
 				
 			// get directions
 			TVector3 SC0_pos (0., 0., 0.) ;
