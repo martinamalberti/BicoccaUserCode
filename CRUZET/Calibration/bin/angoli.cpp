@@ -100,14 +100,21 @@ int main (int argc, char** argv)
 	
 	#define PI 3.14159265
 	const double deg = PI/180;  // 1 deg in radians
+	const double xtalLength= 23. ; 
+	const double xtalWidth= 2.2 ;
+	
+	double angle = -99; 
+	double correct = -99; 
 
-	TH1F dEondX("dEondX", "dEondX", 90, 0., 0.07);		 
+	TH1F dEondX("dEondX", "dEondX", 90, 0., 0.07); 
 	TH1F Angle("Angle", "Angle", 180, 0., PI);
-	TH1F Length("Length","Length",100,-2,40); 	
+	TH1F Length("Length","Length",100,-2.,40.); 
+	TH1F Correct("Correct","Correct",40,0.,20.); 	
 
 	TH2F Occupancy("Occupancy","Occupancy",360,-3.14,3.14,170,-1.47,1.47); 
 	TH2F AngleVsEta("AngleVsEta","AngleVsEta",90, 0., 90., 170, -1.47, 1.47); 
-	TH2F AngleVsLength("AngleVsLength","AngleVsLength",90, 0., 90., 50, 0., 50.); 	
+	TH2F AngleVsLength("AngleVsLength","AngleVsLength",90, 0., 90., 50, 0., 50.);
+	TH2F AngleVsCorrect("AngleVsLength","AngleVsLength",90, 0., 90., 40, 0., 20.); 
 
 	// define angle intervals
 	int AngleInterval = 5; 
@@ -187,30 +194,36 @@ int main (int argc, char** argv)
 			
 			TVector3 MuonDir (treeVars.muonMomentumX[iCluster], treeVars.muonMomentumY[iCluster], treeVars.muonMomentumZ[iCluster]);
 			
-			double angle = -99;  
+			// calc angle 
 			angle = MuonDir.Angle( SC0_pos ) ;
 			if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]
 			
+			// calc correction in muon Track Length
+			correct =  treeVars.cosmicClusterXtals[iCluster] / ( xtalLength*tan(angle) / xtalWidth );  // second term = estimation n xtal crossed by muon 
+			 
+			
 			// fill histos 
-			dEondX.Fill( treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster] ); 
+			dEondX.Fill( treeVars.cosmicClusterEnergy[iCluster] / (treeVars.muonTkLengthInEcalDetail[iCluster] / correct) ); 
 			Angle.Fill(angle);
-			Length.Fill(treeVars.muonTkLengthInEcalDetail[iCluster]);
+			Length.Fill(treeVars.muonTkLengthInEcalDetail[iCluster] / correct);
 			Occupancy.Fill(treeVars.cosmicClusterPhi[iCluster], treeVars.cosmicClusterEta[iCluster]); 
 			AngleVsEta.Fill(angle/deg, treeVars.cosmicClusterEta[iCluster]); 
-			AngleVsLength.Fill(angle/deg, treeVars.muonTkLengthInEcalDetail[iCluster]);   
+			AngleVsLength.Fill(angle/deg, treeVars.muonTkLengthInEcalDetail[iCluster] / correct);   
+			AngleVsCorrect.Fill(angle/deg, correct);  
+			Correct.Fill(correct) ;
 			
 			for(int iInterval = 0 ; iInterval < nIntervals ; ++iInterval)
 			{
 				if( !( angle > iInterval*step*AngleInterval*deg  &&  angle < (iInterval*step+ 1)*AngleInterval*deg ) ) continue;
 				
-				if( treeVars.cosmicClusterPhi[iCluster] > 0 )
+				if( treeVars.cosmicClusterPhi[iCluster] > 0. )
 				{	
-					HistodEondXTop.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster]);
+					HistodEondXTop.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster] / correct);
 					HistoOccupancyTop.at(iInterval)->Fill(treeVars.cosmicClusterPhi[iCluster], treeVars.cosmicClusterEta[iCluster]);
 				}
 				else
 				{
-					HistodEondXBottom.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster]);  
+					HistodEondXBottom.at(iInterval)->Fill(treeVars.cosmicClusterEnergy[iCluster] / treeVars.muonTkLengthInEcalDetail[iCluster] / correct); 
 					HistoOccupancyBottom.at(iInterval)->Fill(treeVars.cosmicClusterPhi[iCluster], treeVars.cosmicClusterEta[iCluster]);
 				}		
 			}
@@ -304,7 +317,7 @@ int main (int argc, char** argv)
 
 	std::cout << " " << std::endl ;		
 	std::cout << " " << std::endl ;		
-	std::cout << " enties in all the interval histos " << entries << std::endl ;	
+	std::cout << "sum of enties in all the interval histos:  " << entries << std::endl ;	
 	std::cout << " " << std::endl ;		
 	std::cout << " " << std::endl ;		
 	
@@ -323,11 +336,11 @@ int main (int argc, char** argv)
 	
 	gTop->SetMarkerColor(kBlue);
 	gTop->SetMarkerStyle(21);
-	gTop->SetMarkerSize(0.7);	
+	gTop->SetMarkerSize(0.7);
 	
 	gBottom->SetMarkerColor(kRed);
 	gBottom->SetMarkerStyle(21);
-	gBottom->SetMarkerSize(0.7);	
+	gBottom->SetMarkerSize(0.7);
 	
    gTop->Draw("AP");
 	gBottom->Draw("P");
@@ -347,7 +360,7 @@ int main (int argc, char** argv)
 	
 	gTBdiff->SetMarkerColor(kMagenta);
 	gTBdiff->SetMarkerStyle(21);
-	gTBdiff->SetMarkerSize(0.7);	
+	gTBdiff->SetMarkerSize(0.7);
 	
 	gTBdiff->Draw("AP");
 	
@@ -355,7 +368,7 @@ int main (int argc, char** argv)
 	
 	
 	TCanvas* c3 = new TCanvas("c3", "c3", 0, 0, 400, 400);
-	c3->SetGridy();		
+	c3->SetGridy();
 	
 	TGraphErrors * gTBratio = new TGraphErrors(nIntervals, IntervalMeanAngle, IntervaldEondXPeakTBRatio, 0, IntervaldEondXPeakErrorTBRatio);	
 	gTBratio->SetTitle("ratio dEondX Top Bot");
@@ -363,19 +376,19 @@ int main (int argc, char** argv)
 	gTBratio->GetYaxis()->SetTitle("ratio dEondX (GeV/cm)");
 // 	gTBratio->GetYaxis()->SetRangeUser(-0.002,0.002);
 // 	gTBratio->GetYaxis()->SetTitleOffset(1.5);
-		
+
 	gTBratio->SetMarkerColor(kGreen);
-	gTBratio->SetMarkerStyle(21);	
-	gTBratio->SetMarkerSize(0.7);	
-		
+	gTBratio->SetMarkerStyle(21);
+	gTBratio->SetMarkerSize(0.7);
+
 	gTBratio->Draw("AP");
 	
 	
-	TCanvas* c4 = new TCanvas("c4", "c4", 0, 0, 400, 400);	
+	TCanvas* c4 = new TCanvas("c4", "c4", 0, 0, 400, 400);
 	c4->SetGridy();
 	
 	TGraph * gTentries = new TGraph(nIntervals, IntervalMeanAngle, IntervalEntriesTop);
-	TGraph * gBentries = new TGraph(nIntervals, IntervalMeanAngle, IntervalEntriesBottom);		
+	TGraph * gBentries = new TGraph(nIntervals, IntervalMeanAngle, IntervalEntriesBottom);
 	gTentries->SetTitle("entries dEondX Top Bot");
 	gTentries->GetXaxis()->SetTitle("#alpha (deg)");
 	gTentries->GetYaxis()->SetTitle("entries");
@@ -402,6 +415,8 @@ int main (int argc, char** argv)
 	Occupancy.Write();
 	AngleVsEta.Write(); 
 	AngleVsLength.Write();
+	Correct.Write();
+	AngleVsCorrect.Write();	
 	
 	TDirectory * Intervals = gDirectory->mkdir("Intervals");
 	Intervals->cd();
