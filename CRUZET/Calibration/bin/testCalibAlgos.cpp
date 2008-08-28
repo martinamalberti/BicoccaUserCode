@@ -23,6 +23,10 @@
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
 #include "CRUZET/Calibration/interface/ClusterCalibTools.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/foreach.hpp>
 
 void fillEBMap (std::map<int,double> & EBxtlMap, //PG effective output
                 double & pSubtract,              //PG effective output
@@ -39,6 +43,12 @@ void fillEBMap (std::map<int,double> & EBxtlMap, //PG effective output
 
 int main (int argc, char** argv)
 {
+
+  std::string fileName(argv[1]);
+  boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile(fileName);
+  boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet() ;
+  std::cout << parameterSet->dump () << std::endl ; //PG for testing
+
   std::vector<VEcalCalibBlock*> calibBlocks ;
   calibBlocks.push_back (new IMACalibBlock (10)) ;
   calibBlocks.push_back (new L3CalibBlock (10, 1)) ;
