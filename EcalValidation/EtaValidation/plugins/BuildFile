@@ -1,0 +1,4 @@
+<use name=EcalValidation/EtaValidation>
+<library file="*.cc" name=EtaAnalyzerEtaValidationPlugins>
+<flags EDM_PLUGIN=1>
+</library>
