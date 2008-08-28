@@ -9,28 +9,24 @@
 
 
 
-<bin name=angoli file="angoli.cpp">
-  <use name=CRUZET/Calibration>
-
+#<bin name=angoli file="angoli.cpp">
+# <use name=CRUZET/Calibration>
 #  <use name=Calibration/EcalCalibAlgos>
- 
-  <flags LCGDICT_ARGS="--deep">
-  
-</bin>
+#  <flags LCGDICT_ARGS="--deep">
+#</bin>
 
 
-//PG ---- test xtals cluster calibration algos --------------------------
+#//PG ---- test xtals cluster calibration algos --------------------------
 
 
-<bin name=testCalibAlgos file="testCalibAlgos.cpp">
-  <use name=CRUZET/Calibration>
-  <use name=Calibration/EcalCalibAlgos>
-  <flags LCGDICT_ARGS="--deep">
-  
-</bin>
+#<bin name=testCalibAlgos file="testCalibAlgos.cpp">
+# <use name=CRUZET/Calibration>
+#  <use name=Calibration/EcalCalibAlgos>
+#  <flags LCGDICT_ARGS="--deep">
+#</bin>
 
 
-//PG ---- single xtal calibration ---------------------------------------
+#//PG ---- single xtal calibration ---------------------------------------
 
 
 <bin name=singleXtalCalib file="singleXtalCalib.cpp">
