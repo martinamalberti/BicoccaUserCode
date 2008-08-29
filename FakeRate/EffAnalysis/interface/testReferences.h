@@ -30,14 +30,14 @@ class testReferences : public edm::EDAnalyzer
 {
 
 
-/*  typedef struct {
+  typedef struct {
     Int_t procId;
     Float_t ptHat;
     Float_t filterEff;
     Float_t weight;
     Int_t trigBits[90];
   } CSA07Info;
-*/
+
  public:
  
    explicit testReferences(const edm::ParameterSet& conf);
@@ -52,8 +52,8 @@ class testReferences : public edm::EDAnalyzer
     bool runOnChowder_;
     std::string rootFileName_;
     TFile * rootFile_;
-    //TBranch * csa07B_;
-    //CSA07Info csa07Info_;
+    TBranch * csa07B_;
+    CSA07Info csa07Info_;
  
    typedef std::vector< HepMC::GenParticle * > GenPartVect;
    typedef std::vector< HepMC::GenParticle * >::const_iterator GenPartVectIt;
@@ -80,6 +80,7 @@ class testReferences : public edm::EDAnalyzer
    edm::InputTag m_endcapClusterShapeAssocTag ;
    edm::InputTag m_superClusterEBInputTag ;
    edm::InputTag m_superClusterEEInputTag ;
+   edm::InputTag m_TriggerResults_;
 //MCTruth
    edm::InputTag matchMap_ ;
    int m_rawCounter ;
@@ -153,6 +154,14 @@ class testReferences : public edm::EDAnalyzer
    int   m_MCTruthMatchBit[10] ;  //1=matchAlgo worked, 0=matched with nothing
    int   m_pdgIdTruth[10] ;
    int   m_pdgIdMother[10] ;
+   
+///CC - HLT trigger bits   
+   int   m_HLT1jet;
+   int   m_HLT1jetPE1;
+   int   m_HLT1jetPE3;
+   int   m_HLT1jetPE5;
+   int   m_HLT1jetPE7;
+   
 } ;
 
 #endif

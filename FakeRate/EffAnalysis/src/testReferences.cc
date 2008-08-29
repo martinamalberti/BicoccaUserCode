@@ -3,6 +3,9 @@ questa versione di testReferences.cc (e del relativo .h) sono intesi alla fase 2
 piu', neanche per la produzione QCD)
 */
 
+///CC - modifico per inserire HLT bit in "elminitree"
+
+
 // user include files
 #include "FakeRate/EffAnalysis/interface/testReferences.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,6 +50,7 @@ piu', neanche per la produzione QCD)
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cmath>
 
 //LM include per il modulo dei pesi
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -58,6 +62,9 @@ piu', neanche per la produzione QCD)
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 using namespace reco;
 using namespace std;
@@ -87,7 +94,10 @@ testReferences::testReferences(const edm::ParameterSet& conf) :
    m_endcapClusterShapeAssocTag (conf.getParameter<edm::InputTag> ("endcapClusterShapeAssoc")),
    m_superClusterEBInputTag (conf.getParameter<edm::InputTag> ("EBsuperClusters")) ,
    m_superClusterEEInputTag (conf.getParameter<edm::InputTag> ("EEsuperClusters")) ,
-
+   m_TriggerResults_ (conf.getParameter<edm::InputTag> ("TriggerResults")) ,
+   
+   
+   
    //MC-Truth
    matchMap_ (conf.getParameter<edm::InputTag>("truthMatchMap")) ,
 
@@ -181,12 +191,19 @@ void testReferences::beginJob(edm::EventSetup const&iSetup)
     m_minitree->Branch("jetNum" ,&m_jetNum,"jetNum/I") ;
     m_minitree->Branch("SCNum" ,&m_SCNum,"SCNum/I") ;
     
-    //csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
+    csa07B_ = m_minitree->Branch("CSA07B", &csa07Info_, "procId/I:ptHat/F:filterEff/F:weight/F:trigBits[90]/I");
 
     m_minitree->Branch("MCTruthMatchBit",m_MCTruthMatchBit,"MCTruthMatchBit[10]/I");
     m_minitree->Branch("pdgIdTruth",m_pdgIdTruth,"pdgIdTruth[10]/I");
     m_minitree->Branch("pdgIdMother",m_pdgIdMother,"pdgIdMother[10]/I");
     m_minitree->Branch("DelatRMatch",m_DeltaRMatch,"DeltaRMatch[10]/D");
+    
+    ///CC - HLT Trigger bits branches
+    m_minitree->Branch("HLT1jetBit",&m_HLT1jet,"HLT1jetBit(200Gev)/I");
+    m_minitree->Branch("HLT1jetPE1Bit",&m_HLT1jetPE1,"HLT1jetBit(150Gev)/I");
+    m_minitree->Branch("HLT1jetPE3Bit",&m_HLT1jetPE3,"HLT1jetBit(110Gev)/I");
+    m_minitree->Branch("HLT1jetPE5Bit",&m_HLT1jetPE5,"HLT1jetBit(60Gev)/I");
+    m_minitree->Branch("HLT1jetPE7Bit",&m_HLT1jetPE7,"HLT1jetBit(30Gev)/I");
 }     
 
 
@@ -476,7 +493,6 @@ void testReferences::analyze (const edm::Event& iEvent,
       reco::CaloJetCollection::const_iterator closestJet ;
       reco::CaloJetCollection::const_iterator highestJet ;
       double deltaRMin = 99999. ;
-      const double pi = 3.14159 ;
       double  jetPT  = -1 ;
       double  jetEta = -99 ;
       double  jetPhi = -99 ; 
@@ -489,8 +505,8 @@ void testReferences::analyze (const edm::Event& iEvent,
           {      
              double deltaEta = iterJet->eta () - eleEta ;
              double deltaPhi = iterJet->phi () - elePhi ;
-             if (deltaPhi > pi) deltaPhi -= 2.*pi ;
-             if (deltaPhi < -pi) deltaPhi += 2.*pi ;         
+             if (deltaPhi > M_PI) deltaPhi -= 2.*M_PI ;
+             if (deltaPhi < -M_PI) deltaPhi += 2.*M_PI ;         
              double deltaR = sqrt (deltaEta*deltaEta + deltaPhi*deltaPhi) ;
              if(deltaR < deltaRMin) 
               {
@@ -589,7 +605,9 @@ void testReferences::analyze (const edm::Event& iEvent,
      } //PG loop on the raw collection
      
 /*LM paste del csa07effanalyser.cc*/
-/*
+
+///CC - rimetto questo
+
   edm::Handle<int> procId;
   if (runOnChowder_) {
     iEvent.getByLabel("csa07EventWeightProducer", "AlpgenProcessID", procId);
@@ -619,13 +637,47 @@ void testReferences::analyze (const edm::Event& iEvent,
   csa07Info_.weight = *weight;
 
 
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByLabel(edm::InputTag("TriggerResults","","HLT"), triggerResults);
-  if (triggerResults->size() > 90) throw cms::Exception("CSA07EffAnalyser: hardcoded trigger-bit size must be increased!");
-  for (unsigned int i = 0; i < 90; i++) {
-    csa07Info_.trigBits[i] = triggerResults->accept(i);
-  }
-  */
+  edm::Handle<edm::TriggerResults> TriggerResults;
+  iEvent.getByLabel(m_TriggerResults_, TriggerResults);
+  const edm::TriggerResults * HLT =  TriggerResults.product () ;
+
+  
+  TriggerNames triggerNames; 
+  std::vector<string>  hlNames; 
+  triggerNames.init(*HLT);
+  hlNames=triggerNames.triggerNames();
+
+  ///CC - contiene i nomi dei Trigger Bits
+  char trigbit[200];
+  const unsigned int n(hlNames.size());
+  
+  for (unsigned int i = 0; i<n;i++){
+    strcpy(trigbit, hlNames[i].c_str());
+    /*std::cout << "I nomi: ";
+    for(unsigned int k = 0; k < 200; k++){
+    	std::cout << trigbit[k];
+	if(trigbit[k] == '\0') break;
+	}
+     std::cout << std::endl;*/
+    
+    if (strcmp(trigbit,"HLT1jet")==0){               //std::cout << "***** DEBUG HLT  ptHat " << m_ptHat << std::endl ;
+    					             //std::cout << "DEBUG HLT  (200 Gev) " << (*HLT).accept(i) << std::endl ;
+						     m_HLT1jet = HLT->accept(i); }
+    if (strcmp(trigbit,"HLT1jetPE1")==0){            //std::cout << "DEBUG HLT  (150 Gev) " << (*HLT).accept(i) << std::endl ;
+    						     m_HLT1jetPE1 = HLT->accept(i); }
+    if (strcmp(trigbit,"HLT1jetPE3")==0){            //std::cout << "DEBUG HLT  (110 Gev) " << (*HLT).accept(i) << std::endl ;
+    						     m_HLT1jetPE3 = HLT->accept(i); }
+    if (strcmp(trigbit,"HLT1jetPE5")==0){            //std::cout << "DEBUG HLT  (60 Gev) " << (*HLT).accept(i) << std::endl ;
+    						     m_HLT1jetPE5 = HLT->accept(i); }
+    if (strcmp(trigbit,"CandHLT1jetPE7")==0){        //std::cout << "DEBUG HLT  (30 Gev) " << (*HLT).accept(i) << std::endl ;
+    						     m_HLT1jetPE7 = HLT->accept(i); }
+}
+
+  //if (TriggerResults->size() > 90) throw cms::Exception("CSA07EffAnalyser: hardcoded trigger-bit size must be increased!");
+  //for (unsigned int i = 0; i < 90; i++) {
+  //  csa07Info_.trigBits[i] = TriggerResults->accept(i);
+  //}
+  
 /*LM fine dell'csa07effanalyser*/
 
      m_minitree->Fill();
@@ -712,7 +764,6 @@ double testReferences::getEMMCComponent (reco::CaloJetCollection::const_iterator
     
     double etaJet = iterJet->eta();
     double phiJet = iterJet->phi();
-    const double pi = 3.14159 ;
     
     std::vector<const HepMC::GenParticle*> takenEM ; 
     std::vector<const HepMC::GenParticle*>::const_iterator itPart ;
@@ -757,8 +808,8 @@ double testReferences::getEMMCComponent (reco::CaloJetCollection::const_iterator
             
                  double deltaEta =  eta - etaJet ; 
                  double deltaPhi =  phi - phiJet ;
-                 if(deltaPhi > pi) deltaPhi -= 2.*pi ;
-                 if(deltaPhi < -pi) deltaPhi += 2.*pi ;         
+                 if(deltaPhi > M_PI) deltaPhi -= 2.*M_PI ;
+                 if(deltaPhi < -M_PI) deltaPhi += 2.*M_PI ;         
                  double deltaR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
                  if(deltaR < deltaCone) 
                    {             
