@@ -1,9 +1,9 @@
-#ifndef RecoEcal_Examples_EtaAnalyzer_h
-#define RecoEcal_Examples_EtaAnalyzer_h
+#ifndef EcalValidation_EtaValidation_EtaAnalyzer_h
+#define EcalValidation_EtaValidation_EtaAnalyzer_h
 /**\class EtaAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/08/28 09:54:54 $
+ ** $Date: 2008/08/28 12:52:42 $
  ** $Revision: 1.1 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
