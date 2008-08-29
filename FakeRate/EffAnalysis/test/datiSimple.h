@@ -67,6 +67,12 @@ struct dati
    double eleHE[10];
    int eleIsBarrel[10];
    
+   int HLT1jetBit ;
+   int HLT1jetPE1Bit ;
+   int HLT1jetPE3Bit ;
+   int HLT1jetPE5Bit ;
+   int HLT1jetPE7Bit ;
+
    double ecalIsoValue[10];
    double hcalIsoValue[10];
 
@@ -133,12 +139,18 @@ struct dati
    TBranch * b_eleDeltaEta ;
    TBranch * b_eleSigmaEtaEta ;
    TBranch * b_eleIsBarrel ;
-   TBranch * b_ecalIsoValue;
-   TBranch * b_hcalIsoValue;
-   TBranch * b_MCTruthMatchBit;
-   TBranch * b_pdgIdTruth;
-   TBranch * b_pdgIdMother;
-   TBranch * b_DelatRMatch;
+   TBranch * b_HLT1jetBit ;
+   TBranch * b_HLT1jetPE1Bit ;
+   TBranch * b_HLT1jetPE3Bit ;
+   TBranch * b_HLT1jetPE5Bit ;
+   TBranch * b_HLT1jetPE7Bit ;
+
+//   TBranch * b_ecalIsoValue;
+//   TBranch * b_hcalIsoValue;
+//   TBranch * b_MCTruthMatchBit;
+//   TBranch * b_pdgIdTruth;
+//   TBranch * b_pdgIdMother;
+//   TBranch * b_DelatRMatch;
 
   dati (TTree * fChain) 
     {
@@ -180,20 +192,27 @@ struct dati
       fChain->SetBranchAddress ("ptHat" ,&ptHat) ;
       fChain->SetBranchAddress ("eleNum" ,&eleNum) ;
 
-      fChain->SetBranchAddress ("CSA07B" ,&csa07Info) ; //questo va con o senza ampersand& ?? forse e' per questo che alcune cose non le leggiavamo
+      
+      fChain->SetBranchAddress ("CSA07B" ,&csa07Info) ; //questo va con o senza ampersand& ?? forse e' per questo che alcune cose non le leggevamo
+      
       fChain->SetBranchAddress ("eleHE" ,eleHE) ;
       fChain->SetBranchAddress ("eleDeltaPhi" ,eleDeltaPhi) ;
       fChain->SetBranchAddress ("eleDeltaEta" ,eleDeltaEta) ;
       fChain->SetBranchAddress ("eleSigmaEtaEta" ,eleSigmaEtaEta) ;
       fChain->SetBranchAddress ("eleIsBarrel" ,eleIsBarrel) ;
-      fChain->SetBranchAddress ("ecalIsoValue"  ,ecalIsoValue) ;
-      fChain->SetBranchAddress ("hcalIsoValue"  ,hcalIsoValue) ;
-      fChain->SetBranchAddress ("MCTruthMatchBit", MCTruthMatchBit);
-      fChain->SetBranchAddress ("pdgIdTruth", pdgIdTruth);
-      fChain->SetBranchAddress ("pdgIdMother", pdgIdMother);
-      fChain->SetBranchAddress ("DelatRMatch", DelatRMatch);
+//      fChain->SetBranchAddress ("ecalIsoValue"  ,ecalIsoValue) ;
+//      fChain->SetBranchAddress ("hcalIsoValue"  ,hcalIsoValue) ;
+//      fChain->SetBranchAddress ("MCTruthMatchBit", MCTruthMatchBit);
+//      fChain->SetBranchAddress ("pdgIdTruth", pdgIdTruth);
+//      fChain->SetBranchAddress ("pdgIdMother", pdgIdMother);
+//      fChain->SetBranchAddress ("DelatRMatch", DelatRMatch);
 
-
+      fChain->SetBranchAddress ("HLT1jetBit" , &HLT1jetBit) ;
+      fChain->SetBranchAddress ("HLT1jetPE1Bit" , &HLT1jetPE1Bit) ;
+      fChain->SetBranchAddress ("HLT1jetPE3Bit" , &HLT1jetPE3Bit) ;
+      fChain->SetBranchAddress ("HLT1jetPE5Bit" , &HLT1jetPE5Bit) ;
+      fChain->SetBranchAddress ("HLT1jetPE7Bit" , &HLT1jetPE7Bit) ;
+      
       b_elePT = fChain->GetBranch("elePT");
       b_eleEta = fChain->GetBranch("eleEta");
       b_elePhi = fChain->GetBranch("elePhi");
@@ -235,12 +254,22 @@ struct dati
       b_eleDeltaEta = fChain->GetBranch("eleDeltaEta");   
       b_eleSigmaEtaEta = fChain->GetBranch("eleSigmaEtaEta");   
       b_eleIsBarrel = fChain->GetBranch("eleIsBarrel");   
-      b_ecalIsoValue = fChain->GetBranch("ecalIsoValue");
-      b_hcalIsoValue = fChain->GetBranch("hcalIsoValue");
-      b_MCTruthMatchBit = fChain->GetBranch("MCTruthMatchBit");
-      b_pdgIdTruth = fChain->GetBranch("pdgIdTruth");
-      b_pdgIdMother = fChain->GetBranch("pdgIdMother");
-      b_DelatRMatch = fChain->GetBranch("DelatRMatch");
+
+      ///CC - aggiungo HLT1 bits
+      b_HLT1jetBit = fChain->GetBranch("HLT1jetBit");
+      b_HLT1jetPE1Bit = fChain->GetBranch("HLT1jetPE1Bit");
+      b_HLT1jetPE3Bit = fChain->GetBranch("HLT1jetPE3Bit");
+      b_HLT1jetPE5Bit = fChain->GetBranch("HLT1jetPE5Bit");
+      b_HLT1jetPE7Bit = fChain->GetBranch("HLT1jetPE7Bit");
+
+
+
+//      b_ecalIsoValue = fChain->GetBranch("ecalIsoValue");
+//      b_hcalIsoValue = fChain->GetBranch("hcalIsoValue");
+//      b_MCTruthMatchBit = fChain->GetBranch("MCTruthMatchBit");
+//      b_pdgIdTruth = fChain->GetBranch("pdgIdTruth");
+//      b_pdgIdMother = fChain->GetBranch("pdgIdMother");
+//      b_DelatRMatch = fChain->GetBranch("DelatRMatch");
   
     }     
 
