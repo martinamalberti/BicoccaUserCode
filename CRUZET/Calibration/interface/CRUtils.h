@@ -26,6 +26,8 @@
 #include "TLegend.h"
 #include "TF1.h"
 #include "TApplication.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
 
 double calcTheta (double eta) ;
 double calcEta (double theta) ;
@@ -40,8 +42,9 @@ std::pair<double,double> getAlphaEcalCross (const TVector3& G1,const TVector3& G
 double deltaPhi (double phi1,double phi2) ;
 double get2DThickness (double z);
 void setVectorOnECAL (TVector3 & vector, double eta, double phi, double radius = 129.) ;
+void  setMuonTkAtECAL (GlobalPoint & AtEcal, int MUindex, const EcalCosmicsTreeContent & event);
 double superGausCumCauda (double *x, double *par);
-
+double fitdEdx (TH1F* dEdx);
 
 
 // ----------------------------------------------------

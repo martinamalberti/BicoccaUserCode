@@ -26,6 +26,9 @@
 #include "TF1.h"
 #include "TApplication.h"
 #include "CRUZET/Calibration/interface/CRUtils.h"
+#include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
+#include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
+
 
 double twopi  = 2*acos(-1.);
 
@@ -45,6 +48,23 @@ setVectorOnECAL (TVector3 & vector, double eta, double phi, double radius)
 
 }
 
+// ----------------------------------------------------
+
+void  
+setMuonTkAtECAL (GlobalPoint & AtEcal , int MUindex, const EcalCosmicsTreeContent & event)
+{
+  const GlobalPoint muonInnerHit (event.muonInnerHitX[MUindex],
+				  event.muonInnerHitY[MUindex],
+				  event.muonInnerHitZ[MUindex]);
+ 
+  const GlobalPoint muonOuterHit (event.muonOuterHitX[MUindex],
+				  event.muonOuterHitY[MUindex],
+				  event.muonOuterHitZ[MUindex]);
+  
+  std::pair<GlobalPoint, GlobalPoint> muonTkAtEcal = ect::EtaPhiMuonAtEcal(muonInnerHit, muonOuterHit) ;
+
+  AtEcal = muonTkAtEcal.first;
+}
 
 // ----------------------------------------------------
 
@@ -273,4 +293,36 @@ alpha = par[3]
          exp (par[3] * par[3] + 2 * par[3] * (- x[0] + par[1])/par[2]) ; // exp decrescente
   return par[0] / (2 * par[2]*par[2]) *
          exp (-1 * (x[0]-par[1])*(x[0]-par[1])/(par[2]*par[2])) ; // gaus
+}
+
+// ------------------------------------------------------
+
+//parametri da settare 
+double fitdEdx (TH1F*  dEdx)
+{
+  // get the peak of dEondX
+  
+  float range_1neg = 1.1 ;
+  float range_1pos = 1.1 ;
+
+  float range_2neg = 1.5 ;
+  float range_2pos = 0.8 ;
+
+
+  TF1 * gaus1 = new TF1("gaus1","gaus", 0., 0.05);
+  gaus1->SetLineColor(kBlue);
+  
+  gaus1->SetRange(dEdx->GetMean() - range_1neg*dEdx->GetRMS(), dEdx->GetMean() - range_1pos*dEdx->GetRMS() );			
+  gaus1->SetParameters( 100, dEdx->GetMean(), dEdx->GetRMS() );
+  dEdx->Fit("gaus1","R+");
+  
+
+  TF1 * gaus2 = new TF1("gaus2", "landau", 0., 0.05);
+  gaus2->SetLineColor(kRed);
+
+  gaus2->SetRange( gaus1->GetParameter(1) - range_2neg*gaus1->GetParameter(2), gaus1->GetParameter(1) + range_2pos*gaus1->GetParameter(2) );	
+  gaus2->SetParameters( gaus1->GetParameter(0), gaus1->GetParameter(1), gaus1->GetParameter(2) );		
+  dEdx->Fit("gaus2","R");
+
+  return(gaus2->GetParameter(1));
 }
