@@ -6,10 +6,13 @@
 
 /** to build the regions where to run the calibration
   - all the methods have as input eta index defined in:
-    [-85,-1] U [1,85] and the conversion to a usable 
+    [-85,-1] U [1,85] (EBDetId::ieta ())
+    and the conversion to a usable 
     reference system [0,169] is done via etaShifter
   - all the methods have as input phi index defined in
-    [1,360]
+    [1,360] (EBDetId::iphi ())
+  - the hashed index is built on an eta index which spans
+    in [0,169] x [0,359]
 */
 class EBregionBuilder
 {
@@ -45,6 +48,18 @@ class EBregionBuilder
   int xtalNumInRegion (int regionNum) const 
     {
       return m_regions.at (regionNum) ;
+    }
+
+  int xtalRegionId (int index)  
+    {
+      int dummy = m_xtalRegionId[index] ;
+      return dummy ;
+    }
+
+  int xtalPositionInRegion (int index)  
+    {
+      int dummy = m_xtalPositionInRegion[index] ;
+      return dummy ;
     }
 
   private :

@@ -29,6 +29,18 @@
 #include <boost/foreach.hpp>
 
 
+/**
+TODOS
+
+- rendere univoca l'uso dell'indice di cristallo: rawId o hashed index?
+  - hashed index = + facile
+  - rawID = universale anche con EE
+
+
+*/
+
+
+
 int findRegion (EcalCosmicsTreeContent treeVars,
                 int SCindex,
                 EBregionBuilder & EBRegionsTool) ;
@@ -65,6 +77,11 @@ int main (int argc, char** argv)
   std::string algorithm = subPSetCalib.getParameter<std::string> ("algorithm") ;
   double minEnergyPerCrystal = subPSetCalib.getParameter<double> ("minEnergyPerCrystal") ;
   double maxEnergyPerCrystal = subPSetCalib.getParameter<double> ("maxEnergyPerCrystal") ;
+  double minCoeff = subPSetCalib.getParameter<double> ("minCoeff") ;
+  double maxCoeff = subPSetCalib.getParameter<double> ("maxCoeff") ;
+  int usingBlockSolver = subPSetCalib.getParameter<int> ("usingBlockSolver") ;
+
+//PG FIXME some assert to check the params
 
 //  EBregionBuilder EBRegionsTool (-85, -1, 2, 1, 181, 2) ;
   EBregionBuilder EBRegionsTool (etaMin, etaMax, etaStep, phiMin, phiMax, phiStep) ;
@@ -80,8 +97,6 @@ int main (int argc, char** argv)
         recalibMap[index] = 1. ;
 //        xtalNumOfHits[index] = 0 ;
       }
-
-
 
   //PG single blocks calibrators
   std::vector<VEcalCalibBlock *> EcalCalibBlocks ;
@@ -198,14 +213,6 @@ int main (int argc, char** argv)
                                    SCComponentsMap,
                                    EBNumberOfRegion) ;
 
-          //PG get the matrix of crystals
-          //PG FIXME as a vector of DetID to be understood
-
-          //PG fill the map of energies
-          //PG FIXME with the function to be modified
-
-          //PG feed the calibration algorithm
-
           EcalCalibBlocks.at (EBNumberOfRegion) -> Fill 
             (
               EBxtlMap.begin() , EBxtlMap.end (),
@@ -218,6 +225,23 @@ int main (int argc, char** argv)
     } //PG loop over entries
 
   //PG extract the solution of the calibration
+  //PG ---------------------------------------
+
+  for (std::vector<VEcalCalibBlock *>::iterator calibBlock = EcalCalibBlocks.begin () ;
+        calibBlock != EcalCalibBlocks.end () ;
+        ++calibBlock) 
+    (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) ;
+
+  //PG loop over the barrel xtals to get the coeffs
+  for (int eta=0; eta<170; ++eta)
+    for (int phi=0; phi<360; ++phi)
+      {
+        EBDetId xtalDetId = EBDetId::unhashIndex (eta*360+phi) ;
+        int index = xtalDetId.rawId () ;        
+        recalibMap[eta*360+phi] *= 
+            EcalCalibBlocks.at (EBRegionsTool.xtalRegionId (index))->at 
+              (EBRegionsTool.xtalPositionInRegion (index)) ;
+      } //PG loop over the barrel xtals to get the coeffs
 
 return 0 ;
 

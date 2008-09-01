@@ -60,7 +60,7 @@ EBregionBuilder::EBRegionDefinition ()
   int reg = -1 ;
   for (int it = 0 ; it < EBregionsNum () ; ++it) m_regions.push_back (0) ;   
   for (int eta = -85 ; eta < 86  ; ++eta)
-    for (int phi = 1 ; phi < 361 ; ++phi) //PG FIXME range to be understood
+    for (int phi = 0 ; phi < 360 ; ++phi) 
        {
          reg = EBRegionId (eta,phi) ;
          int etaLocal = etaShifter (eta) ;
