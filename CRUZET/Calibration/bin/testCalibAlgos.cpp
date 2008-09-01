@@ -70,6 +70,19 @@ int main (int argc, char** argv)
   EBregionBuilder EBRegionsTool (etaMin, etaMax, etaStep, phiMin, phiMax, phiStep) ;
 
 
+  //PG calibration coefficients for this step
+  std::map<int,double> recalibMap ;
+  for (int a=0; a<170; ++a)
+    for (int b=0; b<360; ++b)
+      {
+        //PG use the hashed index
+        int index = a*360+b ;
+        recalibMap[index] = 1. ;
+//        xtalNumOfHits[index] = 0 ;
+      }
+
+
+
   //PG single blocks calibrators
   std::vector<VEcalCalibBlock *> EcalCalibBlocks ;
 
@@ -169,8 +182,7 @@ int main (int argc, char** argv)
                    dummy < maxEnergyPerCrystal)
                 continue ;
 
-//PG FIXME la RICALIBRAZIONE!!!
-//              dummy *= m_recalibMap[det.rawId ()] ;     
+              dummy *= recalibMap[treeVars.xtalHashedIndex[XTLindex]] ;     
 
               //PG FIXME assuming there are no duplicates!
               SCComponentsMap[treeVars.xtalHashedIndex[XTLindex]] = dummy ;
