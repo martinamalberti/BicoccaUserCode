@@ -28,6 +28,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/foreach.hpp>
 
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
 
 /**
 TODOS
@@ -157,6 +160,8 @@ int main (int argc, char** argv)
   std::cout << ">>> testCalibAlgos::Found " << nEntries << " entries\n" ;
   std::cout << ">>> testCalibAlgos::TreeBuilding::end <<<" << std::endl;
 
+  TH2F eventsMap ("eventsMap","eventsMap",360,0,360,170,0,170) ;
+
   //PG loop over entries
   for (int entry = 0 ; entry < maxEvents ; ++entry)
     {
@@ -193,9 +198,12 @@ int main (int argc, char** argv)
             {
         
               double dummy = treeVars.xtalEnergy[XTLindex] ;
-              if ( dummy > minEnergyPerCrystal || 
-                   dummy < maxEnergyPerCrystal)
+              if ( dummy < minEnergyPerCrystal || 
+                   dummy > maxEnergyPerCrystal)
                 continue ;
+
+              eventsMap.Fill (treeVars.xtalHashedIndex[XTLindex]/360,
+                              treeVars.xtalHashedIndex[XTLindex]%360) ;
 
               dummy *= recalibMap[treeVars.xtalHashedIndex[XTLindex]] ;     
 
@@ -234,6 +242,9 @@ int main (int argc, char** argv)
         ++calibBlock) 
     (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) ;
 
+  TH2F calibCoeffMap ("calibCoeffMap","calibCoeffMap",360,0,360,170,0,170) ;
+  TH1F calibCoeff ("calibCoeff","calibCoeff",100,0,2) ;
+
   //PG loop over the barrel xtals to get the coeffs
   for (int eta=0; eta<170; ++eta)
     for (int phi=0; phi<360; ++phi)
@@ -241,12 +252,25 @@ int main (int argc, char** argv)
         EBDetId xtalDetId = EBDetId::unhashIndex (eta*360+phi) ;
         int index = xtalDetId.rawId () ; 
         if (EBRegionsTool.xtalRegionId (index) == -1) continue ;
+        std::cout << "inside region " << EBRegionsTool.xtalRegionId (index) << "\n" ;
         recalibMap[eta*360+phi] *= 
             EcalCalibBlocks.at (EBRegionsTool.xtalRegionId (index))->at 
               (EBRegionsTool.xtalPositionInRegion (index)) ;
+        std::cout << "    calib coeff " << recalibMap[eta*360+phi] << "\n" ;
+        calibCoeff.Fill (recalibMap[eta*360+phi]) ;      
+        calibCoeffMap.Fill (phi,eta,recalibMap[eta*360+phi]) ;      
       } //PG loop over the barrel xtals to get the coeffs
 
-return 0 ;
+  TFile outputHistos ("outputHistos.root","recreate") ;
+  outputHistos.cd () ;
+  calibCoeffMap.Write () ;
+  calibCoeff.Write () ;
+  eventsMap.Write () ;
+  outputHistos.Close () ;
+
+  //PG disegna la mappa
+
+  return 0 ;
 
 }
 
