@@ -8,6 +8,8 @@
   - all the methods have as input eta index defined in:
     [-85,-1] U [1,85] and the conversion to a usable 
     reference system [0,169] is done via etaShifter
+  - all the methods have as input phi index defined in
+    [1,360]
 */
 class EBregionBuilder
 {
@@ -25,8 +27,14 @@ class EBregionBuilder
   //! defines the limit for the tan of phi
   double giveLimit (int) ;
 
-  //! checks if the values of eta and phiare in EB or not
+  //! checks if the xtal is in the region to be calibrated
   int EBregionCheck (int eta, int phi) const ;
+
+  //! feeds the xtals map for the calib algo
+  void fillEBMap (std::map<int,double> & EBxtlMap,
+                  double & pSubtract,
+                  const std::map<int, double> & SCComponentsMap,
+                  int EBNumberOfRegion) ;
 
   //!LP Change the coordinate system
   int etaShifter (int) const ;

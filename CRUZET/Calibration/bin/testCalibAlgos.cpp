@@ -31,11 +31,10 @@
 
 int findRegion (EcalCosmicsTreeContent treeVars,
                 int SCindex,
-                EBregionBuilder EBRegionsTool) ;
+                EBregionBuilder & EBRegionsTool) ;
 
 
 //PG ------------------------------------------------------------------
-
 
 
 int main (int argc, char** argv)
@@ -64,6 +63,8 @@ int main (int argc, char** argv)
   int phiMax = subPSetCalib.getParameter<int> ("phiMax") ;
   int phiStep = subPSetCalib.getParameter<int> ("phiStep") ;
   std::string algorithm = subPSetCalib.getParameter<std::string> ("algorithm") ;
+  double minEnergyPerCrystal = subPSetCalib.getParameter<double> ("minEnergyPerCrystal") ;
+  double maxEnergyPerCrystal = subPSetCalib.getParameter<double> ("maxEnergyPerCrystal") ;
 
 //  EBregionBuilder EBRegionsTool (-85, -1, 2, 1, 181, 2) ;
   EBregionBuilder EBRegionsTool (etaMin, etaMax, etaStep, phiMin, phiMax, phiStep) ;
@@ -144,21 +145,43 @@ int main (int argc, char** argv)
       //PG loop on associations vector
       for (unsigned int i = 0 ; i < associations.size () ; ++i)
         {
-      int MUindex = associations.at (i).first ;
-      int SCindex = associations.at (i).second ;
+          int MUindex = associations.at (i).first ;
+          int SCindex = associations.at (i).second ;
+    
+          //PG find the region ID
+          int EBNumberOfRegion = findRegion (treeVars, SCindex, EBRegionsTool) ;
+          if (EBNumberOfRegion == -1) continue ;
+    
+          //PG build the map of the supercluster content
+          //PG -----------------------------------------
+          
+          std::map<int, double> SCComponentsMap ;
+          
+          //PG loop over xtals in supercluster
+          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+               XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                          treeVars.nXtalsInSuperCluster[SCindex] ;
+               ++XTLindex)
+            {
+        
+              double dummy = treeVars.xtalEnergy[XTLindex] ;
+              if ( dummy > minEnergyPerCrystal || 
+                   dummy < maxEnergyPerCrystal)
+                continue ;
 
+//PG FIXME la RICALIBRAZIONE!!!
+//              dummy *= m_recalibMap[det.rawId ()] ;     
 
-          //PG FIXME find the region ID
-      int EBNumberOfRegion = findRegion(treeVars, SCindex, EBRegionsTool) ;
-      if (EBNumberOfRegion == -1) continue ;
-
+              //PG FIXME assuming there are no duplicates!
+              SCComponentsMap[treeVars.xtalHashedIndex[XTLindex]] = dummy ;
+            } //PG loop over xtals in supercluster
 
           //PG xtal - energy association map
           std::map<int,double> EBxtlMap ;
-      double pSubtract ;
-//      EBRegionsTool.fillEBMap (EBxtlMap, pSubtract,
-//                   treeVars, SCindex,
-//                   EBNumberOfRegion) ;
+          double pSubtract ;
+//          EBRegionsTool.fillEBMap (EBxtlMap, pSubtract,
+//                       treeVars, SCindex,
+//                       EBNumberOfRegion) ;
 
           //PG get the matrix of crystals
           //PG FIXME as a vector of DetID to be understood
@@ -168,17 +191,14 @@ int main (int argc, char** argv)
 
           //PG feed the calibration algorithm
 
-
-
-      EcalCalibBlocks.at (EBNumberOfRegion) -> Fill (EBxtlMap.begin() , EBxtlMap.end (),
-                             treeVars.muonTkLengthInEcalDetail[MUindex],
-                             pSubtract) ;
-
-
-
+          EcalCalibBlocks.at (EBNumberOfRegion) -> Fill 
+            (
+              EBxtlMap.begin() , EBxtlMap.end (),
+              treeVars.muonTkLengthInEcalDetail[MUindex],
+              pSubtract
+            ) ;
 
         } //PG loop on associations vector
-
 
     } //PG loop over entries
 
@@ -192,43 +212,40 @@ return 0 ;
 //PG ------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
 //!Find the region to which the SC belongs
 int findRegion (EcalCosmicsTreeContent treeVars,
                 int SCindex,
-                EBregionBuilder EBRegionsTool)
+                EBregionBuilder & EBRegionsTool)
 {
   double dummyEnergy = 0. ;
   EBDetId dummyDetId ;
 
-  //PG loop over xtals
+  //PG find maximum xtal in supercluster
+  //PG ---------------------------------
+
+  //PG loop over xtals in supercluster
   for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
        XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
-     treeVars.nXtalsInSuperCluster[SCindex] ;
+                  treeVars.nXtalsInSuperCluster[SCindex] ;
        ++XTLindex)
     {
       if (treeVars.xtalEnergy[XTLindex] > dummyEnergy)
-    {
-      dummyEnergy = treeVars.xtalEnergy[XTLindex] ;
-      dummyDetId = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-    }
-    }
+        {
+          dummyEnergy = treeVars.xtalEnergy[XTLindex] ;
+          dummyDetId = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+        }
+    } //PG loop over xtals in supercluster
 
   int ieta = dummyDetId.ieta () ;
-  if (ieta < 0) ieta = ieta + 85;
-  else if (ieta > 0) ieta = ieta + 84;
   int iphi = dummyDetId.iphi () ;
+
+  //PG FIXME anche iphi va spostato?
 
   // std::cout << "ene = " << dummyEnergy << "   ieta/iphi = " << ieta << "," << iphi
   //         << "    RegID = "<< EBRegionsTool.EBRegionId(ieta, iphi) << std::endl;
 
-  return EBRegionsTool.EBRegionId(ieta, iphi);
+  return EBRegionsTool.EBRegionId (ieta, iphi) ;
 }
+
 
 

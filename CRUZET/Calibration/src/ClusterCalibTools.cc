@@ -60,7 +60,7 @@ EBregionBuilder::EBRegionDefinition ()
   int reg = -1 ;
   for (int it = 0 ; it < EBregionsNum () ; ++it) m_regions.push_back (0) ;   
   for (int eta = -85 ; eta < 86  ; ++eta)
-    for (int phi = 0 ; phi < 360 ; ++phi)
+    for (int phi = 1 ; phi < 361 ; ++phi) //PG FIXME range to be understood
        {
          reg = EBRegionId (eta,phi) ;
          int etaLocal = etaShifter (eta) ;
@@ -92,6 +92,41 @@ EBregionBuilder::EBregionCheck (int eta, int phi) const
 //--------------------------------------------
 
 
+//!Fills the map to be sent to the IMACalibBlock
+void 
+EBregionBuilder::fillEBMap (std::map<int,double> & EBxtlMap,
+                            double & pSubtract,
+                            const std::map<int, double> & SCComponentsMap,
+                            int EBNumberOfRegion)
+{
+  double dummy;
+  pSubtract = 0. ;
+
+  //PG loop over crystals in the reconstruction cluster  
+  for (std::map<int,double>::const_iterator xtalsIt = SCComponentsMap.begin () ;
+       xtalsIt != SCComponentsMap.end () ;
+       ++xtalsIt)
+     {
+       //PG FIXME assumed to be valid
+       //PG FIXME assumed to be in EB 
+       EBDetId det = EBDetId::unhashIndex (xtalsIt->first) ;
+
+       dummy = xtalsIt->second ;
+
+       if (m_xtalRegionId[det.rawId ()] == EBNumberOfRegion)
+            EBxtlMap[m_xtalPositionInRegion[det.rawId ()]] = dummy ;
+       else pSubtract += dummy ;
+   
+     } //PG loop over crystals in the reconstruction cluster
+
+  return ;
+  //PG FIXME qui bisognera' inserire il ctrl per non essere troppo lontano, il bordo insomma
+}
+
+
+//--------------------------------------------
+
+
 //!Shifts eta in other coordinates (from 0 to 170)
 int EBregionBuilder::etaShifter (int etaOld) const
    {
@@ -104,7 +139,8 @@ int EBregionBuilder::etaShifter (int etaOld) const
 //--------------------------------------------
 
 
-//!Shifts phi in other coordinates (from 0 to 359)
+//! Shifts phi in other coordinates (from 0 to 359)
+//! not used
 int EBregionBuilder::phiShifter (int phiOld) const
    {
      return phiOld - 1 ;
