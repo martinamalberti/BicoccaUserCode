@@ -157,13 +157,11 @@ int main (int argc, char** argv)
   std::cout << ">>> testCalibAlgos::Found " << nEntries << " entries\n" ;
   std::cout << ">>> testCalibAlgos::TreeBuilding::end <<<" << std::endl;
 
-
-
   //PG loop over entries
-  for (int entry = 0 ; entry < nEntries ; ++entry)
+  for (int entry = 0 ; entry < maxEvents ; ++entry)
     {
       chain->GetEntry (entry) ;
-      if (entry%1000 == 0) std::cout << "reading entry " << entry << "\n" ;
+      if (entry%10000 == 0) std::cout << "reading entry " << entry << "\n" ;
 
       //PG association between muons and superclusters
       //PG -------------------------------------------
@@ -226,6 +224,8 @@ int main (int argc, char** argv)
 
     } //PG loop over entries
 
+  std::cout << ">>> testCalibAlgos::loop on entries terminated <<<" << std::endl;
+
   //PG extract the solution of the calibration
   //PG ---------------------------------------
 
@@ -239,7 +239,8 @@ int main (int argc, char** argv)
     for (int phi=0; phi<360; ++phi)
       {
         EBDetId xtalDetId = EBDetId::unhashIndex (eta*360+phi) ;
-        int index = xtalDetId.rawId () ;        
+        int index = xtalDetId.rawId () ; 
+        if (EBRegionsTool.xtalRegionId (index) == -1) continue ;
         recalibMap[eta*360+phi] *= 
             EcalCalibBlocks.at (EBRegionsTool.xtalRegionId (index))->at 
               (EBRegionsTool.xtalPositionInRegion (index)) ;
