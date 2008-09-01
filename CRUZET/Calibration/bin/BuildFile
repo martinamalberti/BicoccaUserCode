@@ -19,11 +19,11 @@
 #//PG ---- test xtals cluster calibration algos --------------------------
 
 
-#<bin name=testCalibAlgos file="testCalibAlgos.cpp">
-# <use name=CRUZET/Calibration>
-#  <use name=Calibration/EcalCalibAlgos>
-#  <flags LCGDICT_ARGS="--deep">
-#</bin>
+<bin name=testCalibAlgos file="testCalibAlgos.cpp">
+ <use name=CRUZET/Calibration>
+  <use name=Calibration/EcalCalibAlgos>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
 
 
 #//PG ---- single xtal calibration ---------------------------------------
