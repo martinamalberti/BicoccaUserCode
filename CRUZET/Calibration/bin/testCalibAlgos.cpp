@@ -138,6 +138,7 @@ int main (int argc, char** argv)
     parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
   std::vector<std::string> inputFiles = 
    subPSetInput.getParameter<std::vector<std::string> > ("inputFiles") ;
+  int maxEvents = subPSetInput.getParameter<int> ("maxEvents") ;
   std::cout << "reading : " ;
   for (std::vector<std::string>::const_iterator listIt = inputFiles.begin () ;
        listIt != inputFiles.end () ;
@@ -152,6 +153,7 @@ int main (int argc, char** argv)
   EcalCosmicsTreeContent treeVars ;
   setBranchAddresses (chain, treeVars) ;
   int nEntries = chain->GetEntries () ;
+  if (maxEvents < 0) maxEvents = nEntries ;
   std::cout << ">>> testCalibAlgos::Found " << nEntries << " entries\n" ;
   std::cout << ">>> testCalibAlgos::TreeBuilding::end <<<" << std::endl;
 
