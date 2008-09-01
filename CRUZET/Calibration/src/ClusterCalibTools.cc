@@ -24,14 +24,15 @@ EBregionBuilder::EBregionBuilder (int etaStart, int etaEnd, int etaWidth,
 int 
 EBregionBuilder::EBRegionId (int etaXtl, int phiXtl) const 
 {
-  if (EBregionCheck (etaXtl,phiXtl)) return -1;
+  if (EBregionCheck (etaXtl, phiXtl)) return -1 ;
+  int etaLocal = etaShifter (etaXtl) ;
   int phifake = m_phiStartEB;
-  if (m_phiStartEB>m_phiEndEB) phifake = m_phiStartEB - 360 ;
+  if (m_phiStartEB > m_phiEndEB) phifake = m_phiStartEB - 360 ;
   int Nphi = (m_phiEndEB - phifake) / m_phiWidthEB ;
-  int etaI = (etaXtl - m_etaStart) / m_etaWidth ;  
+  int etaI = (etaLocal - m_etaStart) / m_etaWidth ;  
   int phiI = (phiXtl - m_phiStartEB) / m_phiWidthEB ; 
   int regionNumEB = phiI + Nphi * etaI ;
-  return (int) regionNumEB;
+  return static_cast<int> (regionNumEB) ;
 }
 
 
@@ -58,15 +59,16 @@ EBregionBuilder::EBRegionDefinition ()
 {
   int reg = -1 ;
   for (int it = 0 ; it < EBregionsNum () ; ++it) m_regions.push_back (0) ;   
-  for (int eta = 0 ; eta < 170  ; ++eta)
+  for (int eta = -85 ; eta < 86  ; ++eta)
     for (int phi = 0 ; phi < 360 ; ++phi)
        {
          reg = EBRegionId (eta,phi) ;
-         m_xtalRegionId[EBDetId::unhashIndex (eta*360+phi).rawId ()] = reg ; 
-         if (reg==-1) continue;
-         m_xtalPositionInRegion[EBDetId::unhashIndex (eta*360+phi).rawId ()] = 
+         int etaLocal = etaShifter (eta) ;
+         m_xtalRegionId[EBDetId::unhashIndex (etaLocal*360+phi).rawId ()] = reg ; 
+         if (reg == -1) continue;
+         m_xtalPositionInRegion[EBDetId::unhashIndex (etaLocal*360+phi).rawId ()] = 
            m_regions.at (reg) ;
-         ++m_regions.at (reg);
+         ++m_regions.at (reg) ;
        }
 }
 
@@ -78,8 +80,9 @@ EBregionBuilder::EBRegionDefinition ()
 int 
 EBregionBuilder::EBregionCheck (int eta, int phi) const 
  {
-   if (eta < m_etaStart) return 1 ;
-   if (eta >= m_etaEnd)   return 2 ;
+   int etaLocal = etaShifter (eta) ;
+   if (etaLocal < m_etaStart) return 1 ;
+   if (etaLocal >= m_etaEnd)   return 2 ;
    if (phi < m_phiStartEB) return 3 ;
    if (phi >= m_phiEndEB)   return 4 ;
    return 0 ;
@@ -94,5 +97,16 @@ int EBregionBuilder::etaShifter (int etaOld) const
    {
      if (etaOld < 0) return etaOld + 85;
      else if (etaOld > 0) return etaOld + 84;
+   }
+
+
+
+//--------------------------------------------
+
+
+//!Shifts phi in other coordinates (from 0 to 359)
+int EBregionBuilder::phiShifter (int phiOld) const
+   {
+     return phiOld - 1 ;
    }
 

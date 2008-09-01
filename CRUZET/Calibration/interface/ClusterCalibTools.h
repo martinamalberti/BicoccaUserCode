@@ -5,6 +5,9 @@
 #include <vector>
 
 /** to build the regions where to run the calibration
+  - all the methods have as input eta index defined in:
+    [-85,-1] U [1,85] and the conversion to a usable 
+    reference system [0,169] is done via etaShifter
 */
 class EBregionBuilder
 {
@@ -22,11 +25,14 @@ class EBregionBuilder
   //! defines the limit for the tan of phi
   double giveLimit (int) ;
 
-  //! checks if the values of ics and ips are in EE or not
+  //! checks if the values of eta and phiare in EB or not
   int EBregionCheck (int eta, int phi) const ;
 
   //!LP Change the coordinate system
   int etaShifter (int) const ;
+
+  //!PG Change the coordinate system
+  int phiShifter (int) const ;
 
   int xtalNumInRegion (int regionNum) const 
     {
