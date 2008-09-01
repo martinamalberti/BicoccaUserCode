@@ -62,7 +62,8 @@ EBregionBuilder::EBRegionDefinition ()
   for (int eta = -85 ; eta < 86  ; ++eta)
     for (int phi = 0 ; phi < 360 ; ++phi) 
        {
-         reg = EBRegionId (eta,phi) ;
+         if (eta == 0) continue ;
+         reg = EBRegionId (eta,phi+1) ;
          int etaLocal = etaShifter (eta) ;
          m_xtalRegionId[EBDetId::unhashIndex (etaLocal*360+phi).rawId ()] = reg ; 
          if (reg == -1) continue;
@@ -82,9 +83,9 @@ EBregionBuilder::EBregionCheck (int eta, int phi) const
  {
    int etaLocal = etaShifter (eta) ;
    if (etaLocal < m_etaStart) return 1 ;
-   if (etaLocal >= m_etaEnd)   return 2 ;
+   if (etaLocal >= m_etaEnd) return 2 ;
    if (phi < m_phiStartEB) return 3 ;
-   if (phi >= m_phiEndEB)   return 4 ;
+   if (phi >= m_phiEndEB) return 4 ;
    return 0 ;
  }
 
