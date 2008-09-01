@@ -176,12 +176,15 @@ int main (int argc, char** argv)
               SCComponentsMap[treeVars.xtalHashedIndex[XTLindex]] = dummy ;
             } //PG loop over xtals in supercluster
 
+          //PG run the calib algo
+          //PG ------------------
+          
           //PG xtal - energy association map
           std::map<int,double> EBxtlMap ;
           double pSubtract ;
-//          EBRegionsTool.fillEBMap (EBxtlMap, pSubtract,
-//                       treeVars, SCindex,
-//                       EBNumberOfRegion) ;
+          EBRegionsTool.fillEBMap (EBxtlMap, pSubtract,
+                                   SCComponentsMap,
+                                   EBNumberOfRegion) ;
 
           //PG get the matrix of crystals
           //PG FIXME as a vector of DetID to be understood
