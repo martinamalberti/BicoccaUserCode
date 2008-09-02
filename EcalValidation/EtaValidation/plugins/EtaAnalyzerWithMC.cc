@@ -73,7 +73,9 @@ void
 
  edm::Service<TFileService> fs;
 
- hNphotons_ = fs->make<TH1F>("hNphotons"," Number of photons",10,0, 10);
+ hNphotonsFromEta_ = fs->make<TH1F>("hNphotonsFromEta"," Number of photons from Eta",10,0, 10);
+ hNphotonsInEvent_ = fs->make<TH1F>("hNphotonsInEvent"," Number of photons in an Event",10,0, 10);
+ hNEtaInEvent_ = fs->make<TH1F>("hNEtaInEvent"," Number of Eta in an Event",10,0, 10);
 
  hSCe1_    = fs->make<TH1F>("hSCe1"," SC Energy ",200,0., 100.);
 
@@ -81,13 +83,24 @@ void
  hSCet2_    = fs->make<TH1F>("hSCet2"," SC Et ",200,0., 100.);
   
  hInvMass_  = fs->make<TH1F>("hInvMass","Invariant mass",1000, 0., 1.);
+ 
+ hInvMassEtaPh_  = fs->make<TH1F>("hInvMassEtaPh","Invariant mass Eta Photon",1000, 0., 1.);
+ hInvMassEtaPhCMatch_  = fs->make<TH1F>("hInvMassEtaPhCMatch","Invariant mass Eta Photon match C",1000, 0., 1.);
+ 
  hInvMassEta_  = fs->make<TH1F>("hInvMassEta","Invariant mass Eta",1000, 0., 1.);
- hInvMassEtaBarrel_  = fs->make<TH1F>("hInvMassEtaBarrel","Invariant mass Eta Barrel",1000, 0., 1.);
- hInvMassEtaEndcap_  = fs->make<TH1F>("hInvMassEtaEndcap","Invariant mass Eta Endcap",1000, 0., 1.);
+ hInvMassEtaBB_  = fs->make<TH1F>("hInvMassEtaBB","Invariant mass Eta Barrel Barrel",1000, 0., 1.);
+ hInvMassEtaEE_  = fs->make<TH1F>("hInvMassEtaEE","Invariant mass Eta Endcap Endcap",1000, 0., 1.);
+ hInvMassEtaEB_  = fs->make<TH1F>("hInvMassEtaEB","Invariant mass Eta Endcap Barrel",1000, 0., 1.);
  hInvMassNoEta_  = fs->make<TH1F>("hInvMassNoEta","Invariant mass No Eta",1000, 0., 1.);
  hInvMassNoEtaBarrel_  = fs->make<TH1F>("hInvMassNoEtaBarrel","Invariant mass No Eta Barrel",1000, 0., 1.);
  hInvMassNoEtaEndcap_  = fs->make<TH1F>("hInvMassNoEtaEndcap","Invariant mass No Eta Endcap",1000, 0., 1.);
  
+ hInvMassPi0_  = fs->make<TH1F>("hInvMassPi0","Invariant mass Pi0",1000, 0., 1.);
+ hInvMassPi0BB_  = fs->make<TH1F>("hInvMassPi0BB","Invariant mass Pi0 Barrel Barrel",1000, 0., 1.);
+ hInvMassPi0EE_  = fs->make<TH1F>("hInvMassPi0EE","Invariant mass Pi0 Endcap Endcap",1000, 0., 1.);
+ hInvMassPi0EB_  = fs->make<TH1F>("hInvMassPi0EB","Invariant mass Pi0 Endcap Barrel",1000, 0., 1.);
+ hInvMassNoPi0_  = fs->make<TH1F>("hInvMassNoPi0","Invariant mass No Pi0",1000, 0., 1.);
+
  hEtaPhEnergy_  = fs->make<TH1F>("hEtaPhEnergy","Eta Photon Energy",1000, 0., 1.); 
  hKindOfParticle_ = fs->make<TH2F>("hKindOfParticle","Kind of Generated Particles",10000,0,10000,10,0,10);
  hKindOfGeneratedParticle_ = fs->make<TH2F>("hKindOfGeneratedParticle","Kind of Generated Particles from an Eta",10000,0,10000,10,0,10);
@@ -100,6 +113,68 @@ void
   
  hIsolation_ = fs->make<TH1F>("hIsolation","Isolation",1000, 0., 10.);
 
+ hInvMassMCAndC_ = fs->make<TH2F>("hInvMassMCAndC","Invariant Mass MC Truth and Cluster",1000, 0., 1.,1000, 0., 1.);
+ 
+ 
+ //---- Tree creation ----
+ tTreeUtilities_ = fs->make<TTree>("tTreeUtilities","tTreeUtilities");
+ 
+ etaC_ = new std::vector<double>;
+ thetaC_ = new std::vector<double>;
+ phiC_ = new std::vector<double>;
+ S4oS9C_ = new std::vector<double>;
+ S4C_ = new std::vector<double>;
+ S9C_ = new std::vector<double>;
+ S16C_ = new std::vector<double>;
+ S25C_ = new std::vector<double>;
+ pxC_ = new std::vector<double>;
+ pyC_ = new std::vector<double>;
+ pzC_ = new std::vector<double>;
+ etC_ = new std::vector<double>;
+ HitsC_ = new std::vector<int>;
+
+ numPh_ = new std::vector<int>;
+ thetaPh_ = new std::vector<double>;
+ etaPh_ = new std::vector<double>;
+ phiPh_ = new std::vector<double>;
+ pxPh_ = new std::vector<double>;
+ pyPh_ = new std::vector<double>;
+ pzPh_ = new std::vector<double>;
+ 
+ //---- ---- Clusters ---- C = cluster ----
+ tTreeUtilities_->Branch("numC_",&numC_,"numC_/I");
+ tTreeUtilities_->Branch("numCB_",&numCB_,"numCB_/I");
+ tTreeUtilities_->Branch("numCE_",&numCE_,"numCE_/I");
+ tTreeUtilities_->Branch("etaC_","std::vector<double>",&etaC_);
+ tTreeUtilities_->Branch("thetaC_","std::vector<double>",&thetaC_);
+ tTreeUtilities_->Branch("phiC_","std::vector<double>",&phiC_);
+ tTreeUtilities_->Branch("S4oS9C_","std::vector<double>",&S4oS9C_);
+ tTreeUtilities_->Branch("S4C_","std::vector<double>",&S4C_);
+ tTreeUtilities_->Branch("S9C_","std::vector<double>",&S9C_);
+ tTreeUtilities_->Branch("S16C_","std::vector<double>",&S16C_);
+ tTreeUtilities_->Branch("S25C_","std::vector<double>",&S25C_);
+ tTreeUtilities_->Branch("pxC_","std::vector<double>",&pxC_);
+ tTreeUtilities_->Branch("pyC_","std::vector<double>",&pyC_);
+ tTreeUtilities_->Branch("pzC_","std::vector<double>",&pzC_);
+ tTreeUtilities_->Branch("etC_","std::vector<double>",&etC_);
+ tTreeUtilities_->Branch("HitsC_","std::vector<int>",&HitsC_);
+ //---- ---- Photons from Eta ---- 
+ tTreeUtilities_->Branch("numEta_",&numEta_,"numEta_/I");
+ tTreeUtilities_->Branch("numPh_","std::vector<int>",&numPh_);
+ tTreeUtilities_->Branch("thetaPh_","std::vector<double>",&thetaPh_);
+ tTreeUtilities_->Branch("etaPh_","std::vector<double>",&etaPh_);
+ tTreeUtilities_->Branch("phiPh_","std::vector<double>",&phiPh_);
+ tTreeUtilities_->Branch("pxPh_","std::vector<double>",&pxPh_);
+ tTreeUtilities_->Branch("pyPh_","std::vector<double>",&pyPh_);
+ tTreeUtilities_->Branch("pzPh_","std::vector<double>",&pzPh_);
+  
+ 
+ //---- name of axis ----
+ 
+ hInvMassMCAndC_->GetXaxis()->SetTitle("Energy MC");
+ hInvMassMCAndC_->GetYaxis()->SetTitle("Energy Cluster");
+ 
+ 
   }
 
 
@@ -112,40 +187,127 @@ void
    edm::LogInfo("PhotonAnalyzer") << "Analyzing event number: " << evt.id() << "\n";
 
 
+     //---- clear the vectors ----
+   
+   etaC_->clear();
+   thetaC_->clear();
+   phiC_->clear();
+   S4oS9C_->clear();
+   S4C_->clear();
+   S9C_->clear();
+   S16C_->clear();
+   S25C_->clear();
+   pxC_->clear();
+   pyC_->clear();
+   pzC_->clear();
+   etC_->clear();
+   HitsC_->clear();
+   numPh_->clear();
+   thetaPh_->clear();
+   etaPh_->clear();
+   phiPh_->clear();
+   pxPh_->clear();
+   pyPh_->clear();
+   pzPh_->clear();
  
+   
+//    if (!(etaC_->empty())) etaC_->clear();
+//    if (!(thetaC_->empty())) thetaC_->clear();
+//    if (!(phiC_->empty())) phiC_->clear();
+//    if (!(S4oS9C_->empty())) S4oS9C_->clear();
+//    if (!(S4C_->empty())) S4C_->clear();
+//    if (!(S9C_->empty())) S9C_->clear();
+//    if (!(S16C_->empty())) S16C_->clear();
+//    if (!(S25C_->empty())) S25C_->clear();
+//    if (!(pxC_->empty())) pxC_->clear();
+//    if (!(pyC_->empty())) pyC_->clear();
+//    if (!(pzC_->empty())) pzC_->clear();
+//    if (!(etC_->empty())) etC_->clear();
+//    if (!(HitsC_->empty())) HitsC_->clear();
+//    if (!(numPh_->empty())) numPh_->clear();
+//    if (!(thetaPh_->empty())) thetaPh_->clear();
+//    if (!(etaPh_->empty())) etaPh_->clear();
+//    if (!(phiPh_->empty())) phiPh_->clear();
+//    if (!(pxPh_->empty())) pxPh_->clear();
+//    if (!(pyPh_->empty())) pyPh_->clear();
+//    if (!(pzPh_->empty())) pzPh_->clear();
+ 
+   
   /// Get the MC truth
    Handle< HepMCProduct > hepProd ;
    evt.getByLabel( "source",  hepProd ) ;
    const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
 
 
-   std::vector<HepMC::GenParticle*> genPhotons;
-
-   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
+   std::vector<HepMC::GenParticle*> genPhotonsEta;
+   std::vector<HepMC::GenParticle*> genPhotonsPi0;
    
-//     genPhotons.push_back((*p));
+
+   
+   //---- Eta selection ----
+
+   numEta_ = 0;
+   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
     hKindOfParticle_->Fill((*p)->pdg_id(),(*p)->status());
     if ( !( (*p)->pdg_id() == 221 && (*p)->status() == 2 )  )  continue;
-//     if ( !( (*p)->pdg_id() == 221 && (*p)->status() == 1 )  )  continue;
+    numEta_++;
+    //---- photons from eta 
+    //---- loop over daughters
     
-    // photons from eta 
-      //loop over daughters
+    math::XYZTLorentzVector pPh(0,0,0,0);
     
+    
+    int nGammaFromEta = 0;
     
     for (HepMC::GenVertex::particle_iterator d = (*p)->end_vertex()->particles_begin(HepMC::children); d != (*p)->end_vertex()->particles_end(HepMC::children); ++d){
-     
      hKindOfGeneratedParticle_->Fill((*d)->pdg_id(),(*d)->status());
-    
-//     for (HepMC::GenVertex::particle_iterator d = (*p)->end_vertex()->particles_begin(HepMC::children); d != (*p)->end_vertex()->particles_end(HepMC::children); ++d){
      if ((abs((*d)->pdg_id()) == 22) && (*d)->status()==1)  {
-      genPhotons.push_back((*d));
+      
+      //---- fill the TTree ----
+      thetaPh_->push_back((*d)->momentum().theta());
+      etaPh_->push_back((*d)->momentum().eta());
+      phiPh_->push_back((*d)->momentum().phi());
+      pxPh_->push_back((*d)->momentum().x());
+      pyPh_->push_back((*d)->momentum().y());
+      pzPh_->push_back((*d)->momentum().z());
+      
+      
+      //---- Invariant Mass ----
+      math::XYZTLorentzVector p_temp((*d)->momentum().x(),(*d)->momentum().y(),(*d)->momentum().z(),(*d)->momentum().t());
+      pPh = pPh + p_temp;
+      
+      genPhotonsEta.push_back((*d));
+      nGammaFromEta++;
       hEtaPhEnergy_->Fill(1);
      }
     }
-    hNphotons_->Fill(genPhotons.size());
+    
+    float InvMass = pPh.mag();
+    hInvMassEtaPh_->Fill(InvMass);
+    numPh_->push_back(nGammaFromEta);
+    hNphotonsFromEta_->Fill(nGammaFromEta);
+
    }
 
+   hNphotonsInEvent_->Fill(genPhotonsEta.size());
+   hNEtaInEvent_->Fill(numEta_);
 
+
+   
+   //---- Pi0 selection ----   
+   
+   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
+    hKindOfParticle_->Fill((*p)->pdg_id(),(*p)->status());
+    if ( !( (*p)->pdg_id() == 111 && (*p)->status() == 2 )  )  continue;
+     //---- photons from pi0 
+     //---- loop over daughters
+    for (HepMC::GenVertex::particle_iterator d = (*p)->end_vertex()->particles_begin(HepMC::children); d != (*p)->end_vertex()->particles_end(HepMC::children); ++d){
+     hKindOfGeneratedParticle_->Fill((*d)->pdg_id(),(*d)->status());
+     if ((abs((*d)->pdg_id()) == 22) && (*d)->status()==1)  {
+      genPhotonsPi0.push_back((*d));
+     }
+    }
+   }
 
 
 
@@ -215,13 +377,13 @@ void
    }
 
    
-   
+   int jClus = 0;
    //---- Endcap reduction ----
    for(reco::BasicClusterCollection::const_iterator aClus = islandEndcapBasicClusters->begin(); aClus != islandEndcapBasicClusters->end(); aClus++) {
  
     reco::BasicCluster bc = reco::BasicCluster(*aClus);
-    reco::BasicClusterRef clusterRef( pIslandEndcapBasicClusters,iClus);
-    iClus++;
+    reco::BasicClusterRef clusterRefEE( pIslandEndcapBasicClusters,jClus);
+    jClus++;
 
     float theta = 2. * atan(exp(-aClus->position().eta()));
     float p0x = aClus->energy() * sin(theta) * cos(aClus->position().phi());
@@ -229,14 +391,14 @@ void
     float p0z = aClus->energy() * cos(theta);
     float et = sqrt( p0x*p0x + p0y*p0y);
 
-    seedShpItrEE = endcapClShHandle->find(clusterRef);
+    seedShpItrEE = endcapClShHandle->find(clusterRefEE);
     reco::ClusterShapeRef seedShapeRef = (*seedShpItrEE).val;
-//     if ( bc.getHitsByDetId().size() > 5) hS4oS9_->Fill( seedShapeRef->e2x2()/seedShapeRef->e3x3() );
-// 
-//     // qualche selezione 
-//     if (et < MinClusterEt_  ) continue; // photon pt
-//     localClusters.push_back(bc);
-//     S4oS9.push_back((seedShapeRef->e2x2()/seedShapeRef->e3x3()));
+    if ( bc.getHitsByDetId().size() > 5) hS4oS9_->Fill( seedShapeRef->e2x2()/seedShapeRef->e3x3() );
+
+    // qualche selezione 
+    if (et < MinClusterEt_  ) continue; // photon pt
+    localClusters.push_back(bc);
+    S4oS9.push_back((seedShapeRef->e2x2()/seedShapeRef->e3x3()));
    }
 
 
@@ -306,43 +468,162 @@ void
      float dPhi = 0.1;
      float R = 0.1;
      bool flagOK = false;
-     for (std::vector<HepMC::GenParticle*>::iterator iterator_genPhotons = genPhotons.begin();
-          iterator_genPhotons != genPhotons.end(); iterator_genPhotons++){
-//            HepMC::GenParticle phot(*iterator_genPhotons);
-           
-//            std::cerr << "Eta Cerr = " << (*iterator_genPhotons)->momentum().eta() << std::endl;
-           
-           float etaPh = (*iterator_genPhotons)->momentum().eta();
-           float phiPh = (*iterator_genPhotons)->momentum().phi();
+     for (std::vector<HepMC::GenParticle*>::iterator iterator_genPhotonsEta = genPhotonsEta.begin(); iterator_genPhotonsEta != genPhotonsEta.end(); iterator_genPhotonsEta++){
+      float etaPh = (*iterator_genPhotonsEta)->momentum().eta();
+      float phiPh = (*iterator_genPhotonsEta)->momentum().phi();
   
-           float etaBC2 = bc2.position().eta();
-           float phiBC2 = bc2.position().phi();
-           float etaBC1 = bc1.position().eta();
-           float phiBC1 = bc1.position().phi();
+      float etaBC2 = bc2.position().eta();
+      float phiBC2 = bc2.position().phi();
+      float etaBC1 = bc1.position().eta();
+      float phiBC1 = bc1.position().phi();
            
-           if (((etaPh-etaBC1)*(etaPh-etaBC1) + (phiPh-phiBC1)*(phiPh-phiBC1)) < R*R){
-            for (std::vector<HepMC::GenParticle*>::iterator iterator_genPhotonsIn = genPhotons.begin();
-                 iterator_genPhotonsIn != genPhotons.end(); iterator_genPhotonsIn++){
-                  float etaPhIn = (*iterator_genPhotonsIn)->momentum().eta();
-                  float phiPhIn = (*iterator_genPhotonsIn)->momentum().phi();
-                  if (((etaPhIn-etaBC2)*(etaPhIn-etaBC2) + (phiPhIn-phiBC2)*(phiPhIn-phiBC2)) < R*R){
-                   hInvMassEta_->Fill(InvMass);
-                   if (etaBC2*etaBC2 > 1.49*1.49) hInvMassEtaEndcap_->Fill(InvMass);
-                   else hInvMassEtaBarrel_->Fill(InvMass);
-                   flagOK = true;
-                  }
-                 }
-           }  
-          }
-          if (!flagOK) {
-           hInvMassNoEta_->Fill(InvMass); //---- two photons that are not due to an eta ----
-           if (bc1.position().eta() * bc1.position().eta() > 1.49*1.49) hInvMassNoEtaEndcap_->Fill(InvMass);
-           else hInvMassNoEtaBarrel_->Fill(InvMass);
-          }
+      if (((etaPh-etaBC1)*(etaPh-etaBC1) + deltaPhi(phiPh,phiBC1)* deltaPhi(phiPh,phiBC1)) < R*R){
+       for (std::vector<HepMC::GenParticle*>::iterator iterator_genPhotonsEtaIn = genPhotonsEta.begin();
+            iterator_genPhotonsEtaIn != genPhotonsEta.end(); iterator_genPhotonsEtaIn++){
+             float etaPhIn = (*iterator_genPhotonsEtaIn)->momentum().eta();
+             float phiPhIn = (*iterator_genPhotonsEtaIn)->momentum().phi();
+             if (((etaPhIn-etaBC2)*(etaPhIn-etaBC2) + deltaPhi(phiPhIn,phiBC2)* deltaPhi(phiPhIn,phiBC2)) < R*R){
+              
+              math::XYZTLorentzVector p_temp1((*iterator_genPhotonsEta)->momentum().x(),(*iterator_genPhotonsEta)->momentum().y(),(*iterator_genPhotonsEta)->momentum().z(),(*iterator_genPhotonsEta)->momentum().t());
+              math::XYZTLorentzVector p_temp2((*iterator_genPhotonsEtaIn)->momentum().x(),(*iterator_genPhotonsEtaIn)->momentum().y(),(*iterator_genPhotonsEtaIn)->momentum().z(),(*iterator_genPhotonsEtaIn)->momentum().t());
+              math::XYZTLorentzVector pPh_Tot = p_temp1 + p_temp2;
+              float InvMassMCTruth = pPh_Tot.mag();
+              hInvMassEtaPhCMatch_->Fill(InvMassMCTruth);
+              hInvMassEta_->Fill(InvMass);
+              hInvMassMCAndC_->Fill(InvMassMCTruth,InvMass);
+              if ((etaBC2*etaBC2 > 1.49*1.49) && (etaBC1*etaBC1 > 1.49*1.49)) hInvMassEtaEE_->Fill(InvMass);
+              if ((etaBC2*etaBC2 > 1.49*1.49) && (etaBC1*etaBC1 < 1.49*1.49)) hInvMassEtaEB_->Fill(InvMass);
+              if ((etaBC2*etaBC2 < 1.49*1.49) && (etaBC1*etaBC1 < 1.49*1.49)) hInvMassEtaBB_->Fill(InvMass);
+              flagOK = true;
+             }
+            }
+      }  
+     }
+     if (!flagOK) {
+      hInvMassNoEta_->Fill(InvMass); //---- two photons that are not due to an eta ----
+      if (bc1.position().eta() * bc1.position().eta() > 1.49*1.49) hInvMassNoEtaEndcap_->Fill(InvMass);
+      else hInvMassNoEtaBarrel_->Fill(InvMass);
+     }
+          
+          
+          //---- check if there is a matching between a photon coming from Pi0 and a basiccluster ----
+     flagOK = false;
+     for (std::vector<HepMC::GenParticle*>::iterator iterator_genPhotonsPi0 = genPhotonsPi0.begin(); iterator_genPhotonsPi0 != genPhotonsPi0.end(); iterator_genPhotonsPi0++){
+      float etaPh = (*iterator_genPhotonsPi0)->momentum().eta();
+      float phiPh = (*iterator_genPhotonsPi0)->momentum().phi();
+  
+      float etaBC2 = bc2.position().eta();
+      float phiBC2 = bc2.position().phi();
+      float etaBC1 = bc1.position().eta();
+      float phiBC1 = bc1.position().phi();
+           
+      if (((etaPh-etaBC1)*(etaPh-etaBC1) + deltaPhi(phiPh,phiBC1)* deltaPhi(phiPh,phiBC1)) < R*R){
+       for (std::vector<HepMC::GenParticle*>::iterator iterator_genPhotonsPi0In = genPhotonsPi0.begin();
+            iterator_genPhotonsPi0In != genPhotonsPi0.end(); iterator_genPhotonsPi0In++){
+             float etaPhIn = (*iterator_genPhotonsPi0In)->momentum().eta();
+             float phiPhIn = (*iterator_genPhotonsPi0In)->momentum().phi();
+             if (((etaPhIn-etaBC2)*(etaPhIn-etaBC2) + deltaPhi(phiPhIn,phiBC2)* deltaPhi(phiPhIn,phiBC2)) < R*R){
+              hInvMassPi0_->Fill(InvMass);
+              if ((etaBC2*etaBC2 > 1.49*1.49) && (etaBC1*etaBC1 > 1.49*1.49)) hInvMassPi0EE_->Fill(InvMass);
+              if ((etaBC2*etaBC2 > 1.49*1.49) && (etaBC1*etaBC1 < 1.49*1.49)) hInvMassPi0EB_->Fill(InvMass);
+              if ((etaBC2*etaBC2 < 1.49*1.49) && (etaBC1*etaBC1 < 1.49*1.49)) hInvMassPi0BB_->Fill(InvMass);
+              flagOK = true;
+             }
+            }
+      }  
+     }
+     if (!flagOK) {
+      hInvMassNoPi0_->Fill(InvMass); //---- two photons that are not due to Pi0 ----
+     }
+          
+          
+          
           
     }
-  
    }
+   
+    //---- TTree Analysis ----
+  
+   numC_ = 0;
+   iClus = 0;
+  //---- Barrel ----
+   numCB_ = 0;
+   for(reco::BasicClusterCollection::const_iterator aClus = islandBarrelBasicClusters->begin(); aClus != islandBarrelBasicClusters->end(); aClus++) {
+    numC_++;
+    numCB_++;
+    reco::BasicCluster bc = reco::BasicCluster(*aClus);
+    reco::BasicClusterRef clusterRef( pIslandBarrelBasicClusters,iClus);
+    iClus++;
+    
+    float theta = 2. * atan(exp(-aClus->position().eta()));
+    float p0x = aClus->energy() * sin(theta) * cos(aClus->position().phi());
+    float p0y = aClus->energy() * sin(theta) * sin(aClus->position().phi());
+    float p0z = aClus->energy() * cos(theta);
+    float et = sqrt( p0x*p0x + p0y*p0y);
+    
+    thetaC_->push_back(theta);
+    etaC_->push_back(aClus->position().eta());
+    pxC_->push_back(p0x);
+    pyC_->push_back(p0y);
+    pzC_->push_back(p0z);
+    etC_->push_back(sqrt( p0x*p0x + p0y*p0y));
+    HitsC_->push_back(bc.getHitsByDetId().size());
+    
+    seedShpItr = barrelClShpHandle->find(clusterRef);
+    reco::ClusterShapeRef seedShapeRef = (*seedShpItr).val;
+    
+    S4C_->push_back(seedShapeRef->e2x2());
+    S9C_->push_back(seedShapeRef->e3x3());
+    S16C_->push_back(seedShapeRef->e4x4());
+    S25C_->push_back(seedShapeRef->e5x5());
+    S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
+   }
+
+   
+   
+   
+   
+   
+   
+   
+   
+      
+   jClus = 0;
+   //---- Endcap reduction ----
+   numCE_ = 0;
+   for(reco::BasicClusterCollection::const_iterator aClus = islandEndcapBasicClusters->begin(); aClus != islandEndcapBasicClusters->end(); aClus++) {
+    numC_++;
+    numCE_++;
+    reco::BasicCluster bc = reco::BasicCluster(*aClus);
+    reco::BasicClusterRef clusterRefEE( pIslandEndcapBasicClusters,jClus);
+    jClus++;
+
+    float theta = 2. * atan(exp(-aClus->position().eta()));
+    float p0x = aClus->energy() * sin(theta) * cos(aClus->position().phi());
+    float p0y = aClus->energy() * sin(theta) * sin(aClus->position().phi());
+    float p0z = aClus->energy() * cos(theta);
+    float et = sqrt( p0x*p0x + p0y*p0y);
+
+    thetaC_->push_back(theta);
+    etaC_->push_back(aClus->position().eta());
+    pxC_->push_back(p0x);
+    pyC_->push_back(p0y);
+    pzC_->push_back(p0z);
+    etC_->push_back(sqrt( p0x*p0x + p0y*p0y));
+    HitsC_->push_back(bc.getHitsByDetId().size());
+    
+    seedShpItrEE = endcapClShHandle->find(clusterRefEE);
+    reco::ClusterShapeRef seedShapeRef = (*seedShpItrEE).val;
+    
+    S4C_->push_back(seedShapeRef->e2x2());
+    S9C_->push_back(seedShapeRef->e3x3());
+    S16C_->push_back(seedShapeRef->e4x4());
+    S25C_->push_back(seedShapeRef->e5x5());
+    S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
+   }
+
+   tTreeUtilities_->Fill();
+   
     }
 
     float EtaAnalyzerWithMC::etaTransformation(  float EtaParticle , float Zvertex)  {
@@ -378,13 +659,51 @@ void
     }
 
 
+    
+    
+    
+//========================================================================
+    double
+       EtaAnalyzerWithMC::deltaPhi(double phi1,double phi2) {
+//========================================================================
+     double deltaphi = fabs(phi1-phi2);  
+     if (deltaphi > 6.283185) deltaphi -= 6.283185;  
+     if (deltaphi > 3.1415926535 ) deltaphi = 6.283185 - deltaphi;  
+     return deltaphi; 
+       }
 
+ 
+ 
+    
+    
 
 //========================================================================
-    void
-      EtaAnalyzerWithMC::endJob() {
+       void
+         EtaAnalyzerWithMC::endJob() {
 //========================================================================
 
+        delete etaC_;
+        delete thetaC_;
+        delete phiC_;
+        delete S4oS9C_;
+        delete S4C_;
+        delete S9C_;
+        delete S16C_;
+        delete S25C_;
+        delete pxC_;
+        delete pyC_;
+        delete pzC_;
+        delete etC_;
+        delete HitsC_;
 
+        delete numPh_;
+        delete thetaPh_;
+        delete etaPh_;
+        delete phiPh_;
+        delete pxPh_;
+        delete pyPh_;
+        delete pzPh_;
+        
+        
 
-      }
+         }
