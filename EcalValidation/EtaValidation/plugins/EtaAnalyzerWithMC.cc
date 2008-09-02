@@ -132,7 +132,8 @@ void
  pzC_ = new std::vector<double>;
  etC_ = new std::vector<double>;
  HitsC_ = new std::vector<int>;
-
+ HitsEnergyC_ = new std::vector<double>;
+ 
  numPh_ = new std::vector<int>;
  thetaPh_ = new std::vector<double>;
  etaPh_ = new std::vector<double>;
@@ -158,6 +159,8 @@ void
  tTreeUtilities_->Branch("pzC_","std::vector<double>",&pzC_);
  tTreeUtilities_->Branch("etC_","std::vector<double>",&etC_);
  tTreeUtilities_->Branch("HitsC_","std::vector<int>",&HitsC_);
+ tTreeUtilities_->Branch("HitsEnergyC_","std::vector<double>",&HitsEnergyC_);
+ 
  //---- ---- Photons from Eta ---- 
  tTreeUtilities_->Branch("numEta_",&numEta_,"numEta_/I");
  tTreeUtilities_->Branch("numPh_","std::vector<int>",&numPh_);
@@ -202,6 +205,8 @@ void
    pzC_->clear();
    etC_->clear();
    HitsC_->clear();
+   HitsEnergyC_->clear();
+   
    numPh_->clear();
    thetaPh_->clear();
    etaPh_->clear();
@@ -210,29 +215,6 @@ void
    pyPh_->clear();
    pzPh_->clear();
  
-   
-//    if (!(etaC_->empty())) etaC_->clear();
-//    if (!(thetaC_->empty())) thetaC_->clear();
-//    if (!(phiC_->empty())) phiC_->clear();
-//    if (!(S4oS9C_->empty())) S4oS9C_->clear();
-//    if (!(S4C_->empty())) S4C_->clear();
-//    if (!(S9C_->empty())) S9C_->clear();
-//    if (!(S16C_->empty())) S16C_->clear();
-//    if (!(S25C_->empty())) S25C_->clear();
-//    if (!(pxC_->empty())) pxC_->clear();
-//    if (!(pyC_->empty())) pyC_->clear();
-//    if (!(pzC_->empty())) pzC_->clear();
-//    if (!(etC_->empty())) etC_->clear();
-//    if (!(HitsC_->empty())) HitsC_->clear();
-//    if (!(numPh_->empty())) numPh_->clear();
-//    if (!(thetaPh_->empty())) thetaPh_->clear();
-//    if (!(etaPh_->empty())) etaPh_->clear();
-//    if (!(phiPh_->empty())) phiPh_->clear();
-//    if (!(pxPh_->empty())) pxPh_->clear();
-//    if (!(pyPh_->empty())) pyPh_->clear();
-//    if (!(pzPh_->empty())) pzPh_->clear();
- 
-   
   /// Get the MC truth
    Handle< HepMCProduct > hepProd ;
    evt.getByLabel( "source",  hepProd ) ;
@@ -543,7 +525,18 @@ void
    }
    
     //---- TTree Analysis ----
-  
+ 
+   const EBRecHitCollection* barrelHitsCollection = 0;
+   edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
+   evt.getByLabel (barrelEcalHits_,barrelRecHitsHandle) ;
+   barrelHitsCollection = barrelRecHitsHandle.product () ;
+   
+   const EERecHitCollection* endcapHitsCollection = 0;
+   edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
+   evt.getByLabel (endcapEcalHits_,endcapRecHitsHandle) ;
+   endcapHitsCollection = endcapRecHitsHandle.product () ;
+   
+    
    numC_ = 0;
    iClus = 0;
   //---- Barrel ----
@@ -563,11 +556,29 @@ void
     
     thetaC_->push_back(theta);
     etaC_->push_back(aClus->position().eta());
+    phiC_->push_back(aClus->position().phi());
     pxC_->push_back(p0x);
     pyC_->push_back(p0y);
     pzC_->push_back(p0z);
     etC_->push_back(sqrt( p0x*p0x + p0y*p0y));
     HitsC_->push_back(bc.getHitsByDetId().size());
+
+//     std::cerr << std::endl << "Entro" << std::endl;
+    std::vector<DetId> vector_DetId_temp = bc.getHitsByDetId();
+    for (std::vector<DetId>::const_iterator iteratorDetId = vector_DetId_temp.begin(); iteratorDetId != vector_DetId_temp.end(); iteratorDetId++){
+//      std::cerr << "  Appena Entrato    " << std::endl;
+     EBRecHitCollection::const_iterator itrechit;
+     itrechit = barrelHitsCollection->find(*iteratorDetId);
+//      std::cerr << "  Entrato    " << std::endl;
+     if (itrechit == barrelHitsCollection->end()) continue;
+     double dummy = 0;
+     dummy = itrechit->energy () ;
+//      std::cerr << std::endl << "energy = " << dummy << std::endl;
+     HitsEnergyC_->push_back(dummy);
+//      std::cerr << "    buttato" << std::endl;
+    }
+    
+//     std::cerr << " Uscito" << std::endl;
     
     seedShpItr = barrelClShpHandle->find(clusterRef);
     reco::ClusterShapeRef seedShapeRef = (*seedShpItr).val;
@@ -606,12 +617,23 @@ void
 
     thetaC_->push_back(theta);
     etaC_->push_back(aClus->position().eta());
+    phiC_->push_back(aClus->position().phi());
     pxC_->push_back(p0x);
     pyC_->push_back(p0y);
     pzC_->push_back(p0z);
     etC_->push_back(sqrt( p0x*p0x + p0y*p0y));
     HitsC_->push_back(bc.getHitsByDetId().size());
     
+    std::vector<DetId> vector_DetId_temp = bc.getHitsByDetId();
+    for (std::vector<DetId>::const_iterator iteratorDetId = vector_DetId_temp.begin(); iteratorDetId != vector_DetId_temp.end(); iteratorDetId++){
+     EERecHitCollection::const_iterator itrechit;
+     itrechit = endcapHitsCollection->find(*iteratorDetId);
+     if (itrechit == barrelHitsCollection->end()) continue;
+     double dummy = 0;
+     dummy = itrechit->energy () ;
+     HitsEnergyC_->push_back(dummy);
+    }
+
     seedShpItrEE = endcapClShHandle->find(clusterRefEE);
     reco::ClusterShapeRef seedShapeRef = (*seedShpItrEE).val;
     
@@ -624,8 +646,11 @@ void
 
    tTreeUtilities_->Fill();
    
-    }
+  }
 
+    
+    
+    
     float EtaAnalyzerWithMC::etaTransformation(  float EtaParticle , float Zvertex)  {
 
 
@@ -658,6 +683,7 @@ void
   //---end
     }
 
+    
 
     
     
@@ -667,8 +693,8 @@ void
        EtaAnalyzerWithMC::deltaPhi(double phi1,double phi2) {
 //========================================================================
      double deltaphi = fabs(phi1-phi2);  
-     if (deltaphi > 6.283185) deltaphi -= 6.283185;  
-     if (deltaphi > 3.1415926535 ) deltaphi = 6.283185 - deltaphi;  
+     if (deltaphi > TWOPI) deltaphi -= TWOPI;  
+     if (deltaphi > PI ) deltaphi = TWOPI - deltaphi;  
      return deltaphi; 
        }
 
@@ -695,7 +721,8 @@ void
         delete pzC_;
         delete etC_;
         delete HitsC_;
-
+        delete HitsEnergyC_;
+        
         delete numPh_;
         delete thetaPh_;
         delete etaPh_;

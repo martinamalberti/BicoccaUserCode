@@ -134,6 +134,7 @@ class EtaAnalyzerWithMC : public edm::EDAnalyzer {
   std::vector<double> * pzC_;
   std::vector<double> * etC_;
   std::vector<int> * HitsC_;
+  std::vector<double> * HitsEnergyC_;
   
   int numEta_;
   std::vector<int> * numPh_; //---- number of photons for each Eta ----
