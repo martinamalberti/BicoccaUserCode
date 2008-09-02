@@ -1,0 +1,5 @@
+<use name=boost>
+<bin name=TreeAnalysis file="TreeAnalysis.cpp">
+  <use name=EcalValidation/EtaValidation>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
