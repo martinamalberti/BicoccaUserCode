@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
 #include "EtaAnalyzer.h"
+#include "EtaAnalyzerWithMC.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -13,3 +14,4 @@ DEFINE_SEAL_MODULE();
 typedef Merger<reco::SuperClusterCollection> EgammaSuperClusterMerger;
 DEFINE_FWK_MODULE( EgammaSuperClusterMerger );
 DEFINE_ANOTHER_FWK_MODULE(EtaAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(EtaAnalyzerWithMC);
