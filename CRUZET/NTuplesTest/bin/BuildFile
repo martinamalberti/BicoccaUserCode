@@ -26,4 +26,8 @@
   <use name=CaloOnlineTools/EcalTools>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+<bin name= matchLinECAL file="XtalsDistr.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
 
