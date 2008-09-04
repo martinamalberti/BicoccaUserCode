@@ -289,7 +289,7 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
   ASSOccupancyXtals.Write() ;
   ASSaveEnergyMap.Write();
   ASSaveEnergyMapVsPhi.Write();
-  aSSaveEnergyMapVsEta.Write();
+  ASSaveEnergyMapVsEta.Write();
 
 
   saving.Close () ;
