@@ -298,7 +298,7 @@ alpha = par[3]
 // ------------------------------------------------------
 
 //parametri da settare 
-double fitdEdx (TH1F*  dEdx)
+std::pair<double,double>  fitdEdx (TH1F*  dEdx)
 {
   // get the peak of dEondX
   
@@ -312,17 +312,19 @@ double fitdEdx (TH1F*  dEdx)
   TF1 * gaus1 = new TF1("gaus1","gaus", 0., 0.05);
   gaus1->SetLineColor(kBlue);
   
-  gaus1->SetRange(dEdx->GetMean() - range_1neg*dEdx->GetRMS(), dEdx->GetMean() - range_1pos*dEdx->GetRMS() );			
-  gaus1->SetParameters( 100, dEdx->GetMean(), dEdx->GetRMS() );
-  dEdx->Fit("gaus1","R+");
+  gaus1->SetRange(dEdx->GetMean() - range_1neg * dEdx->GetRMS(), dEdx->GetMean() + range_1pos * dEdx->GetRMS() );			
+  gaus1->SetParameters(100,dEdx->GetMean(), dEdx->GetRMS() );
+  dEdx->Fit("gaus1","RL+");
   
 
-  TF1 * gaus2 = new TF1("gaus2", "landau", 0., 0.05);
-  gaus2->SetLineColor(kRed);
+  TF1 * landau1 = new TF1("landau1", "landau", 0., 0.05);
+  landau1->SetLineColor(kRed);
 
-  gaus2->SetRange( gaus1->GetParameter(1) - range_2neg*gaus1->GetParameter(2), gaus1->GetParameter(1) + range_2pos*gaus1->GetParameter(2) );	
-  gaus2->SetParameters( gaus1->GetParameter(0), gaus1->GetParameter(1), gaus1->GetParameter(2) );		
-  dEdx->Fit("gaus2","R");
+  landau1->SetRange(gaus1->GetParameter(1) - range_2neg * gaus1->GetParameter(2), gaus1->GetParameter(1) + range_2pos * gaus1->GetParameter(2) );	
+  landau1->SetParameters(100,gaus1->GetParameter(1), gaus1->GetParameter(2));
+  dEdx->Fit("landau","RL");
 
-  return(gaus2->GetParameter(1));
+  std::pair<double,double> PairReturn(landau1->GetParameter(1),landau1->GetParError(1));
+  return PairReturn;
 }
+

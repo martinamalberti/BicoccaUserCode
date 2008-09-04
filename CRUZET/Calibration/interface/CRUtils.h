@@ -25,6 +25,7 @@
 #include "TText.h"
 #include "TLegend.h"
 #include "TF1.h"
+#include "TGraphErrors.h"
 #include "TApplication.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
@@ -44,7 +45,7 @@ double get2DThickness (double z);
 void setVectorOnECAL (TVector3 & vector, double eta, double phi, double radius = 129.) ;
 void  setMuonTkAtECAL (GlobalPoint & AtEcal, int MUindex, const EcalCosmicsTreeContent & event);
 double superGausCumCauda (double *x, double *par);
-double fitdEdx (TH1F* dEdx);
+std::pair<double,double> fitdEdx (TH1F* dEdx);
 
 
 // ----------------------------------------------------
