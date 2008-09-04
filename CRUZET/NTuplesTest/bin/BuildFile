@@ -22,4 +22,8 @@
   <use name=CaloOnlineTools/EcalTools>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+<bin name= matchLinECAL file="matchLinECAL.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
 
