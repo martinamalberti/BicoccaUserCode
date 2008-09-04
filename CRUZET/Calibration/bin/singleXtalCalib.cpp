@@ -86,29 +86,29 @@ int main (int argc, char** argv)
 //  }
 // else {
  char inputRootName[100];
- for (int i=1; i< 10; i++) {
-//  for (int i=1; i< 46; i++) {
+//  for (int i=1; i< 10; i++) {
+ for (int i=1; i< 46; i++) {
   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-50908%i.tree.root",i); 
    //   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Cosmic/EcalCosmicsTree-50908%i.tree.root",i); 
   chain->Add (inputRootName);
   std::cout << "Open: " << inputRootName << std::endl;
  }
  
-//  for (int i=1; i< 48; i++) {
-//   if (i!=28 && i!=35){
-//   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50911Global/50911_%d.tree.root",i); 
-//    //   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Cosmic/EcalCosmicsTree-50908%i.tree.root",i); 
-//   chain->Add (inputRootName);
-//   std::cout << "Open: " << inputRootName << std::endl;
-//   }
-//  }
-//  
-//  for (int i=1; i< 39; i++) {
-//   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/51503Global/EcalCosmicsTree-51503%d.tree.root",i); 
-//    //   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Cosmic/EcalCosmicsTree-50908%i.tree.root",i); 
-//   chain->Add (inputRootName);
-//   std::cout << "Open: " << inputRootName << std::endl;
-//  }
+ for (int i=1; i< 48; i++) {
+  if (i!=28 && i!=35){
+   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50911Global/50911_%d.tree.root",i); 
+   //   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Cosmic/EcalCosmicsTree-50908%i.tree.root",i); 
+   chain->Add (inputRootName);
+   std::cout << "Open: " << inputRootName << std::endl;
+  }
+ }
+ 
+ for (int i=1; i< 39; i++) {
+  sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/51503Global/EcalCosmicsTree-51503%d.tree.root",i); 
+   //   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Cosmic/EcalCosmicsTree-50908%i.tree.root",i); 
+  chain->Add (inputRootName);
+  std::cout << "Open: " << inputRootName << std::endl;
+ }
  
  
  
@@ -261,9 +261,13 @@ int main (int argc, char** argv)
  //AM ---- loop over dEdx_Histos ---- single crystal ----
  for (std::map<int, TH1F*>::iterator mapIt = dEdx_Histos.begin (); mapIt != dEdx_Histos.end ();++mapIt)
  {
-  mapIt->second->Write();
      //   mapIt->second->Fit ("gaus") ;
 
+  int numEntry = mapIt->second->GetEntries();
+  if ( numEntry > 10 ) {
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+  }
      // get the peak of dEondX (da controllare con piu' statistica anche i "puntatori")
      // XtalCoeff_map[mapIt->first] = fitdEdx(mapIt->second);
      
@@ -277,11 +281,11 @@ int main (int argc, char** argv)
  //AM ---- loop over dEdx_Histos ---- Ring ----
  for (std::map<int, TH1F*>::iterator mapIt = dEdx_Ring_Histos.begin (); mapIt != dEdx_Ring_Histos.end ();++mapIt)
  {
-  mapIt->second->Write();
      //   mapIt->second->Fit ("gaus") ;
 
      // get the peak of dEondX (da controllare con piu' statistica anche i "puntatori")
   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+  mapIt->second->Write();
   double mean_pair = MeanAndErrorPair.first;
   double Error_pair = MeanAndErrorPair.second;
    
@@ -297,10 +301,10 @@ int main (int argc, char** argv)
  std::cerr << "     Creo TProfile ...." << std::endl;
 
  TProfile Coeff("Coeff","Coefficients in the ring",171, -85, 85);
- double Xcoeff[171];
- double errXcoeff[171];
- double Ycoeff[171];
- double errYcoeff[171];
+ Double_t Xcoeff[171];
+ Double_t errXcoeff[171];
+ Double_t Ycoeff[171];
+ Double_t errYcoeff[171];
  
  for (int kk=0; kk<171;kk++){
   int numberIEta = kk - 85;
@@ -308,33 +312,44 @@ int main (int argc, char** argv)
   errXcoeff[kk] = 0;
   std::map<int, double>::iterator RingCoeff_map_iter = RingCoeff_map.find(numberIEta);
   std::map<int, double>::iterator RingCoeffError_map_iter = RingCoeffError_map.find(numberIEta);
-  if (RingCoeff_map_iter == RingCoeff_map.end()){
+  if (RingCoeff_map_iter != RingCoeff_map.end()){
    std::cerr << "   Sono entrato con ieta = " << numberIEta << std::endl;
    Ycoeff[kk] = RingCoeff_map_iter->second;
    std::cerr << "   Y =  " << Ycoeff[kk];
-   Ycoeff[kk] = RingCoeff_map[RingCoeff_map_iter->first];
-   std::cerr << " e poi  Y =  " << Ycoeff[kk];
-   Ycoeff[kk] = RingCoeff_map[numberIEta];
-   std::cerr << " e poi  ancora Y =  " << Ycoeff[kk] << std::endl;
+//    Ycoeff[kk] = RingCoeff_map[RingCoeff_map_iter->first];
+//    std::cerr << " e poi  Y =  " << Ycoeff[kk];
+//    Ycoeff[kk] = RingCoeff_map[numberIEta];
+//    std::cerr << " e poi  iEta = " << numberIEta << " ancora Y =  " << Ycoeff[kk] << std::endl;
    errYcoeff[kk] = RingCoeffError_map_iter->second;
   }
   else {
    Ycoeff[kk] = 0;
    errYcoeff[kk] = 0;
   }
-  std::cerr << "     numberIEta = " << numberIEta << " Ycoeff[kk] = " << Ycoeff[kk];
-  std::cerr << "   errYcoeff[numberIEta] = " << errYcoeff[kk] << std::endl;
+//   std::cerr << "     numberIEta = " << numberIEta << " Ycoeff[kk] = " << Ycoeff[kk];
+//   std::cerr << "   errYcoeff[numberIEta] = " << errYcoeff[kk] << std::endl;
  }
  
  std::cerr << "     Creo TGraphErrors ...." << std::endl;
  
- TGraphErrors CoeffErrors(171,Xcoeff,errXcoeff,Ycoeff,errYcoeff);
- CoeffErrors.SetName("TGraphErrorsCoefficients");
+ TGraphErrors TGraphErrorsCoefficients;
+ TGraphErrorsCoefficients.SetName("TGraphErrorsCoefficients");
+ TGraphErrorsCoefficients.SetTitle("TGraphErrorsCoefficients");
+ int counterCoeff = 0;
+ for (int kk=0; kk<171;kk++){
+  TGraphErrorsCoefficients.SetPoint(counterCoeff,Xcoeff[kk],Ycoeff[kk]);
+  TGraphErrorsCoefficients.SetPointError(counterCoeff,errXcoeff[kk],errYcoeff[kk]);
+  counterCoeff++;
+  std::cerr << "     numberIEta = " << Xcoeff[kk] << " Ycoeff[kk] = " << Ycoeff[kk];
+  std::cerr << "   errYcoeff[numberIEta] = " << errYcoeff[kk] << std::endl;
+ }
+
+ 
  
  for (std::map<int, TH1F*>::iterator mapIt = dEdx_Ring_Histos.begin (); mapIt != dEdx_Ring_Histos.end ();++mapIt)
  {
   
-  std::cerr << " Map[" << mapIt->first << "] = " << RingCoeff_map[mapIt->first] << std::endl;
+//   std::cerr << " Map[" << mapIt->first << "] = " << RingCoeff_map[mapIt->first] << std::endl;
   Coeff.Fill(mapIt->first,RingCoeff_map[mapIt->first]);
  }
 
@@ -375,9 +390,9 @@ int main (int argc, char** argv)
  Coeff.GetYaxis()->SetTitle("dE/dx");
  Coeff.Write();
  
- CoeffErrors.GetXaxis()->SetTitle("i#eta");
- CoeffErrors.GetYaxis()->SetTitle("dE/dx and Errors");
- CoeffErrors.Write();
+ TGraphErrorsCoefficients.GetXaxis()->SetTitle("i#eta");
+ TGraphErrorsCoefficients.GetYaxis()->SetTitle("dE/dx and Errors");
+ TGraphErrorsCoefficients.Write();
  
    
    
