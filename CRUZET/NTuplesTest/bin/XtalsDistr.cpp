@@ -41,7 +41,7 @@ int main ()
 
 
 
-    std::cout << ">>> Entering CosmicTreeTest program <<<" << std::endl;
+  std::cout << ">>> Entering CosmicTreeTest program <<<" << std::endl;
 
   TH2F SCdistr ("SCdistr","SCdistr",360,-3.1416,3.1416,170,-1.5,1.5) ;
   TH2F OccupancyXtals ("OccupancyXtals","OccupancyXtals",360,1.,360.,172,-86.,86.) ;     
@@ -49,6 +49,13 @@ int main ()
   TProfile2D aveEnergyMap ("aveEnergyMap","aveEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile aveEnergyMapVsEta ("aveEnergyMapVsEta", "aveEnergyMapVsEta", 172, -86, 86);
   TProfile aveEnergyMapVsPhi ("aveEnergyMapVsPhi", "aveEnergyMapVsPhi", 360, 1, 360);
+  
+  
+   TH2F ASSOccupancyXtals ("ASSOccupancyXtals","ASSOccupancyXtals",360,1.,360.,172,-86.,86.) ;     
+  TH2F ASSxtalEnergyMap("ASSxtalEnergyMap","ASSxtalEnergyMap",360,1.,361.,172,-86.,86.);     
+  TProfile2D ASSaveEnergyMap ("ASSaveEnergyMap","ASSaveEnergyMap",360,1.,361.,172,-86.,86.);     
+  TProfile ASSaveEnergyMapVsEta ("ASSaveEnergyMapVsEta", "ASSaveEnergyMapVsEta", 172, -86, 86);
+  TProfile ASSaveEnergyMapVsPhi ("ASSaveEnergyMapVsPhi", "ASSaveEnergyMapVsPhi", 360, 1, 360);
   
   TH1F Emax ("Emax","Emax",100,0.,1.) ;
   TH1F Emin ("Emin","Emin",100,0.,1.) ;
@@ -157,6 +164,24 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
 	  angle = MuonDir.Angle( SC0_pos ) ;
 	  if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
 	  Angle.Fill(angle);
+	 
+	 
+	 for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+               XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+		 treeVars.nXtalsInSuperCluster[SCindex] ;
+               ++XTLindex)
+            {
+	    EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+	    ASSOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
+	    ASSxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+	    ASSaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+	    ASSaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
+	    ASSaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
+	    
+	                  
+	      }
+	  
+	  
 	}
 	
 
@@ -198,7 +223,7 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
 	      }
           SuperClusterEnergy.Fill(SCEnergy);
          //PLOTS CON CUTS
-	   if ( (SCEnergy <= EnergyMaxCUT) && (SCEnergy >= EnergyMinCUT) )	//MF loop on crystals with CUTS    
+	   if ( (SCEnergy <= EnergyMaxCUT) && (SCEnergy >= EnergyMinCUT) && (angle >= angleMIN) && (angle <= angleMAX))	//MF loop on crystals with CUTS    
 
 	   { 
               
@@ -260,6 +285,13 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
   SuperClusterEnergy.Write();
   cutaveEnergyMapVsPhi.Write();
   cutaveEnergyMapVsEta.Write();
+  ASSxtalEnergyMap.Write();
+  ASSOccupancyXtals.Write() ;
+  ASSaveEnergyMap.Write();
+  ASSaveEnergyMapVsPhi.Write();
+  aSSaveEnergyMapVsEta.Write();
+
+
   saving.Close () ;
 
   return 0 ;
@@ -269,7 +301,7 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
 double 
 calcTheta (double eta) 
 {
-  return 2 * atan (exp ( -1 * eta)) ;
+  return 2 * atan (exp ( -1 * eta)) ;ASS
 }
 
 
