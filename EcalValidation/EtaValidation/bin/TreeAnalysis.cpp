@@ -32,13 +32,23 @@ int main (int argc, char** argv)
  bool flagOutput = false;
  std::string outputRootName = "outputHistos.root";
  std::string testName = "-o";
+ 
  if (argc>2){
-  if (argv[1] == testName) {
+  if (argv[1] ==  testName) {
    outputRootName = argv[2];
    flagOutput = true;
+   std::cerr << " Name Output file = " << outputRootName << std::endl;
   }
  }
-  
+ if (argc>4){
+  if (argv[3] ==  testName) {
+   outputRootName = argv[4];
+   flagOutput = true;
+   std::cerr << " Name Output file = " << outputRootName << std::endl;
+  }
+ }
+ 
+ 
  //---- input File ---- where finding input parameters ---- 
   
  //---- Input Variables ----
@@ -233,8 +243,12 @@ int main (int argc, char** argv)
  TH1F hInvMassEtaCMCTruth("hInvMassEtaCMCTruth","Invariant mass Eta from Clusters. Match with MC Truth",1000, 0., 1.);
  TH1F hInvMassEtaC("hInvMassEtaC","Invariant mass Eta from Clusters",1000, 0., 1.);
  TH2F hInvMassEtaC_numC("hInvMassEtaC_numC","Invariant mass Eta from Clusters versus number of cluster selected",1000, 0., 1.,100, 0., 100.);
-
-  
+ TH1F hPhotonPt("hPhotonPt","Photon pt",10000, 0., 10.);
+ TH1F hClusterPt("hClusterPt","Single Cluster pt",30000, 0., 30.);
+ TH1F hNPhoton("hNPhoton","number of photons per eta from MC Truth",100, 0., 100.);
+ TH1F hPtSum("hPtSum","Summed cluster pt",40000, 0., 40.);
+ TH1F hInvMassEta2C("hInvMassEta2C","Invariant mass Eta two cluster selection",1000, 0., 1.); 
+ 
  //---- Input Variables Loaded ----
  std::cerr << std::endl; 
  std::cerr << " R = " << R << std::endl; 
@@ -257,13 +271,14 @@ int main (int argc, char** argv)
  for (int entry = 0 ; entry < nEntries ; ++entry)
  {
   chain->GetEntry (entry) ;
-//   std::cout << "------> reading entry " << entry << " <------\n" ;
+  if (entry%10000 == 0) std::cout << "------> reading entry " << entry << " <------\n" ;
   
   //---- loop over etas ----
   int counterPhotons = 0;
   for (int ii=0; ii<numEta_; ii++){
    math::XYZTLorentzVector pPh(0,0,0,0);
    math::XYZTLorentzVector pC(0,0,0,0);
+   hNPhoton.Fill(numPh_->at(ii));
    //---- loop over photons generating an eta ----
    for (int jj=0; jj<numPh_->at(ii); jj++){
     double pxPh = pxPh_->at(counterPhotons);
@@ -277,8 +292,7 @@ int main (int argc, char** argv)
    //---- loop over clusters ----
     for (int kk=0; kk<numC_; kk++){
      double etaC1 = etaC_->at(kk);
-     double phiC1 = phiC_->at(kk); //---- per ora non funzionava il riempimento :D
-//      double phiC1 = 1;
+     double phiC1 = phiC_->at(kk);
      double RC1Q = (etaPh - etaC1) * (etaPh - etaC1) + (phiPh - phiC1) * (phiPh - phiC1); //---- Q at the end stands for ^2 ----
      if (RC1Q < RQ) { //---- found a cluster near a photon ----
       double pxC = pxC_->at(kk);
@@ -292,6 +306,8 @@ int main (int argc, char** argv)
     counterPhotons++;
    }//---- end loop photons generating an eta ----
    //---- result in histograms ----
+   double ptPh = sqrt(pPh.x() * pPh.x() + pPh.y() * pPh.y());
+   hPhotonPt.Fill(ptPh);
    double InvMassPh = pPh.mag();
    hInvMassEtaPh.Fill(InvMassPh);
    double InvMassC = pC.mag();
@@ -305,27 +321,83 @@ int main (int argc, char** argv)
  //---- no MC Truth analysis ----
  
  //---- loop entries ----
- for (int entry = 0 ; entry < nEntries ; ++entry)
+ for (int entry = 0 ; entry < nEntries ; ++entry) //---- TEST VELOCE ----
  {
   chain->GetEntry (entry) ;
-//   std::cout << "------> reading entry " << entry << " <------\n" ;
+  if (entry%10000 == 0) std::cout << "------> No MC Truth ---- reading entry " << entry << " <------\n" ;
   
   std::vector<int> numC_Selected;
   math::XYZTLorentzVector pC(0,0,0,0);
- //---- loop over clusters ----
+ 
+  int numberC1;
+  int numberC2;
+  double EnergyPair;
+  
+  TTree PairCluster("PairCluster","PairCluster");
+  PairCluster.Branch("numberC1",&numberC1,"numberC1/I");
+  PairCluster.Branch("numberC2",&numberC2,"numberC2/I");
+  PairCluster.Branch("EnergyPair",&EnergyPair,"EnergyPair/D");
+  
+  //---- loop over clusters ----
   for (int kk=0; kk<numC_; kk++){
    double etaC1 = etaC_->at(kk);
-   double phiC1 = phiC_->at(kk); //---- per ora non funzionava il riempimento :D
-//    double phiC1 = 1;
+   double phiC1 = phiC_->at(kk);
    double pxC = pxC_->at(kk);
    double pyC = pyC_->at(kk);
    double pzC = pzC_->at(kk);
    double ptC = sqrt(pxC*pxC + pyC*pyC);
    double EnergyC = sqrt(pxC*pxC + pyC*pyC + pzC*pzC);
    double etaC = etaC_->at(kk);
-   double phiC = phiC_->at(kk);//---- per ora non funzionava il riempimento :D
-//    double phiC = 1;
+   double phiC = phiC_->at(kk);
    
+   numberC1 = kk;
+   math::XYZTLorentzVector pC2C_1(pxC,pyC,pzC,EnergyC);
+   
+   //---- save all pair-photons ----
+   for (int ll=0; ll<numC_; ll++){
+    if (ll!=kk) {
+     double pxCIn = pxC_->at(ll);
+     double pyCIn = pyC_->at(ll);
+     double pzCIn = pzC_->at(ll);
+     double EnergyCIn = sqrt(pxCIn*pxCIn + pyCIn*pyCIn + pzCIn*pzCIn);
+     math::XYZTLorentzVector pC2C_2(pxCIn,pyCIn,pzCIn,EnergyCIn);
+     math::XYZTLorentzVector pC2C_sum = pC2C_1 + pC2C_2;
+     numberC2 = ll;
+     EnergyPair = pC2C_sum.mag();
+     PairCluster.Fill();
+    }
+   }
+   
+   
+   //---- pair-photon tree analysis ----
+   int numberC1After;
+   int numberC2After;
+   double EnergyPairAfter;
+   int nEntriesTreePairCluster = PairCluster.GetEntries () ;
+   PairCluster.SetBranchAddress("numberC1",&numberC1After);
+   PairCluster.SetBranchAddress("numberC2",&numberC2After);
+   PairCluster.SetBranchAddress("EnergyPair",&EnergyPairAfter);
+
+   int pairNumber = -1;
+   double EnergyPairAfterTemp = 0;
+   double EnergyPairEta = 0.547853; //---- from PDG ----
+   for (int entryTree = 0 ; entryTree < nEntriesTreePairCluster ; ++entryTree)
+   {
+    PairCluster.GetEntry(entryTree);
+    //---- near to eta energy ----
+    if (((EnergyPairAfter-EnergyPairEta) * (EnergyPairAfter-EnergyPairEta)) < ((EnergyPairAfterTemp-EnergyPairEta) * (EnergyPairAfterTemp-EnergyPairEta))) {
+     pairNumber = entryTree;
+     EnergyPairAfterTemp = EnergyPairAfter;
+    }
+   }
+      
+   if (pairNumber != -1){//---- if I've found a cluster-pair ----
+    PairCluster.GetEntry(pairNumber);
+    hInvMassEta2C.Fill(EnergyPairAfter);
+   }
+   
+   
+   hClusterPt.Fill(ptC);
    //---- pt-Cluster cut ----
    if (ptC > ptC_Cut){
     //---- S4oS9C_-Cluster cut ----
@@ -350,8 +422,7 @@ int main (int argc, char** argv)
   for (std::vector<int>::iterator numC_Selected_iterator = numC_Selected.begin(); numC_Selected_iterator != numC_Selected.end(); numC_Selected_iterator++){
    int num = *numC_Selected_iterator;
    double etaC = etaC_->at(num);
-   double phiC = phiC_->at(num);  //---- per ora non funzionava il riempimento :D    
-//    double phiC = 1;     
+   double phiC = phiC_->at(num);
    for(int hh=0; hh<numC_; hh++)
    {
     bool flagIsolation = true;
@@ -361,8 +432,7 @@ int main (int argc, char** argv)
     if (!flagIsolation) 
     {
      double etaCIn = etaC_->at(hh);
-     double phiCIn = phiC_->at(hh);//---- per ora non funzionava il riempimento :D
-//      double phiCIn = 1;
+     double phiCIn = phiC_->at(hh);
      double R = sqrt((etaCIn-etaC)*(etaCIn-etaC) + (phiCIn-phiC)*(phiCIn-phiC));
      double deta = fabs(etaCIn - etaC);
      double et = etC_->at(hh);
@@ -371,7 +441,8 @@ int main (int argc, char** argv)
    }
   }
    //---- iso/pt-coppia cut ----
-  if (iso/ptSum > iso_Cut) {
+  if ((iso/ptSum) > iso_Cut) {
+   hPtSum.Fill(ptSum);
     //---- pt-coppia cut ----
    if (ptSum > ptSum_Cut)
     if (InvMassSum != 0) {
@@ -404,6 +475,21 @@ int main (int argc, char** argv)
  hInvMassEtaC_numC.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEtaC_numC.GetYaxis()->SetTitle("Number of Cluster selected");
  hInvMassEtaC_numC.Write();
+ 
+ hPhotonPt.GetXaxis()->SetTitle("pT (GeV)");
+ hPhotonPt.Write();
+ hClusterPt.GetXaxis()->SetTitle("pT (GeV)");
+ hClusterPt.Write();
+ 
+ hNPhoton.GetXaxis()->SetTitle("number of photons per #eta");
+ hNPhoton.Write();
+   
+ hPtSum.GetXaxis()->SetTitle("pT (GeV)");
+ hPtSum.Write();
+
+ hInvMassEta2C.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassEta2C.Write();
+ 
  
  saving.Close ();
  delete chain;
