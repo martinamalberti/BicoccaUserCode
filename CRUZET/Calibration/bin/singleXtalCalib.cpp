@@ -210,7 +210,7 @@ int main (int argc, char** argv)
      stm << dummy.rawId();
      std::string TH1FName = "dEdX_" +  stm.str();
      std::string TH1FNameDescription = "dE over dX -> rawId = " + stm.str();
-     dEdx_Histos[dummy.rawId()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),1000,0,2);
+     dEdx_Histos[dummy.rawId()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
          
          //---- AM Ring ----
@@ -220,7 +220,7 @@ int main (int argc, char** argv)
      stm << dummy.ieta();
      std::string TH1FName = "dEdX_Ring" +  stm.str();
      std::string TH1FNameDescription = "dE over dX Ring -> ieta = " + stm.str();
-     dEdx_Ring_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),1000,0,2);
+     dEdx_Ring_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
          
          
@@ -263,14 +263,13 @@ int main (int argc, char** argv)
  {
      //   mapIt->second->Fit ("gaus") ;
 
-  int numEntry = mapIt->second->GetEntries();
-  if ( numEntry > 10 ) {
+   if( (mapIt->second->GetEntries()) < 15 ) continue;
    std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
    mapIt->second->Write();
-  }
-     // get the peak of dEondX (da controllare con piu' statistica anche i "puntatori")
-     // XtalCoeff_map[mapIt->first] = fitdEdx(mapIt->second);
-     
+   
+   // get the peak of dEondX (da controllare con piu' statistica anche i "puntatori")
+   // XtalCoeff_map[mapIt->first] = fitdEdx(mapIt->second);
+   
  }  //AM ---- end loop over dEdx_Histos single crystal ----
 
 
@@ -313,14 +312,14 @@ int main (int argc, char** argv)
   std::map<int, double>::iterator RingCoeff_map_iter = RingCoeff_map.find(numberIEta);
   std::map<int, double>::iterator RingCoeffError_map_iter = RingCoeffError_map.find(numberIEta);
   if (RingCoeff_map_iter != RingCoeff_map.end()){
-   std::cerr << "   Sono entrato con ieta = " << numberIEta << std::endl;
-   Ycoeff[kk] = RingCoeff_map_iter->second;
-   std::cerr << "   Y =  " << Ycoeff[kk];
+    std::cerr << "   Sono entrato con ieta = " << numberIEta << std::endl;
+    Ycoeff[kk] = RingCoeff_map_iter->second;
+    std::cerr << "   Y =  " << Ycoeff[kk];
 //    Ycoeff[kk] = RingCoeff_map[RingCoeff_map_iter->first];
 //    std::cerr << " e poi  Y =  " << Ycoeff[kk];
 //    Ycoeff[kk] = RingCoeff_map[numberIEta];
 //    std::cerr << " e poi  iEta = " << numberIEta << " ancora Y =  " << Ycoeff[kk] << std::endl;
-   errYcoeff[kk] = RingCoeffError_map_iter->second;
+    errYcoeff[kk] = RingCoeffError_map_iter->second;
   }
   else {
    Ycoeff[kk] = 0;
