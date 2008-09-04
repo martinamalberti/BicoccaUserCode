@@ -305,11 +305,11 @@ std::pair<double,double>  fitdEdx (TH1F*  dEdx)
   float range_1neg = 1.1 ;
   float range_1pos = 1.1 ;
 
-  float range_2neg = 1.5 ;
-  float range_2pos = 0.8 ;
+  float range_2neg = 1.1 ;
+  float range_2pos = 1.4 ;
 
 
-  TF1 * gaus1 = new TF1("gaus1","gaus", 0., 0.05);
+  TF1 * gaus1 = new TF1("gaus1","gaus", 0., 0.1);
   gaus1->SetLineColor(kBlue);
   
   gaus1->SetRange(dEdx->GetMean() - range_1neg * dEdx->GetRMS(), dEdx->GetMean() + range_1pos * dEdx->GetRMS() );			
@@ -317,12 +317,12 @@ std::pair<double,double>  fitdEdx (TH1F*  dEdx)
   dEdx->Fit("gaus1","RL+");
   
 
-  TF1 * landau1 = new TF1("landau1", "landau", 0., 0.05);
+  TF1 * landau1 = new TF1("landau1", "landau", 0., 0.1);
   landau1->SetLineColor(kRed);
 
   landau1->SetRange(gaus1->GetParameter(1) - range_2neg * gaus1->GetParameter(2), gaus1->GetParameter(1) + range_2pos * gaus1->GetParameter(2) );	
   landau1->SetParameters(100,gaus1->GetParameter(1), gaus1->GetParameter(2));
-  dEdx->Fit("landau","RL");
+  dEdx->Fit("landau1","RL+");
 
   std::pair<double,double> PairReturn(landau1->GetParameter(1),landau1->GetParError(1));
   return PairReturn;
