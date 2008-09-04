@@ -301,7 +301,7 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
 double 
 calcTheta (double eta) 
 {
-  return 2 * atan (exp ( -1 * eta)) ;ASS
+  return 2 * atan (exp ( -1 * eta)) ;
 }
 
 
