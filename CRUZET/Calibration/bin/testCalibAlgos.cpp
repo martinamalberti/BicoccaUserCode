@@ -160,10 +160,15 @@ int main (int argc, char** argv)
   std::cout << ">>> testCalibAlgos::TreeBuilding::end <<<" << std::endl;
 
   TH2F eventsMap ("eventsMap","eventsMap",360,0,360,170,0,170) ;
+  eventsMap.GetXaxis () -> SetTitle ("iPhi") ;  
+  eventsMap.GetYaxis () -> SetTitle ("iEta") ; 
 
   //PG several loops on the dataset
   for (int iLoop = 0 ; iLoop < numberOfLoops ; ++iLoop)
     {
+    
+      std::cout << "Loop " << iLoop + 1 << "\n" ;
+      
       //PG reset the calibration blocks
       //PG ----------------------------
 
@@ -220,8 +225,8 @@ int main (int argc, char** argv)
                        dummy > maxEnergyPerCrystal)
                     continue ;
       
-                  eventsMap.Fill (treeVars.xtalHashedIndex[XTLindex]/360,
-                                  treeVars.xtalHashedIndex[XTLindex]%360) ;
+                  eventsMap.Fill (treeVars.xtalHashedIndex[XTLindex]%360,
+                                  treeVars.xtalHashedIndex[XTLindex]/360) ;
       
                   dummy *= recalibMap[treeVars.xtalHashedIndex[XTLindex]] ;     
       
@@ -261,6 +266,9 @@ int main (int argc, char** argv)
         (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) ;
       
       TH2F calibCoeffMap ("calibCoeffMap","calibCoeffMap",360,0,360,170,0,170) ;
+      calibCoeffMap.GetXaxis () -> SetTitle ("iPhi") ;  
+      calibCoeffMap.GetYaxis () -> SetTitle ("iEta") ; 
+
       TH1F calibCoeff ("calibCoeff","calibCoeff",100,0,2) ;
       
       //PG loop over the barrel xtals to get the coeffs
@@ -270,11 +278,11 @@ int main (int argc, char** argv)
             EBDetId xtalDetId = EBDetId::unhashIndex (eta*360+phi) ;
             int index = xtalDetId.rawId () ; 
             if (EBRegionsTool.xtalRegionId (index) == -1) continue ;
-            std::cout << "inside region " << EBRegionsTool.xtalRegionId (index) << "\n" ;
+            //std::cout << "inside region " << EBRegionsTool.xtalRegionId (index) << "\n" ;
             recalibMap[eta*360+phi] *= 
                 EcalCalibBlocks.at (EBRegionsTool.xtalRegionId (index))->at 
                   (EBRegionsTool.xtalPositionInRegion (index)) ;
-            std::cout << "    calib coeff " << recalibMap[eta*360+phi] << "\n" ;
+            //std::cout << "    calib coeff " << recalibMap[eta*360+phi] << "\n" ;
             calibCoeff.Fill (recalibMap[eta*360+phi]) ;      
             calibCoeffMap.Fill (phi,eta,recalibMap[eta*360+phi]) ;      
           } //PG loop over the barrel xtals to get the coeffs
@@ -334,6 +342,8 @@ int findRegion (EcalCosmicsTreeContent treeVars,
 
   // std::cout << "ene = " << dummyEnergy << "   ieta/iphi = " << ieta << "," << iphi
   //         << "    RegID = "<< EBRegionsTool.EBRegionId(ieta, iphi) << std::endl;
+
+  if (dummyEnergy < 0.0) return -1 ;
 
   return EBRegionsTool.EBRegionId (ieta, iphi) ;
 }
