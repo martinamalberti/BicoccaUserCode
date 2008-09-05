@@ -24,22 +24,39 @@
 
 
 //! main program
-int main ()
+int main (int argc, char** argv)
 {
 
-
-
-
+  std::string outputRootName = "changeme.root" ;
+  std::string testName = "-o";
+  if (argc>2){
+      if (argv[1] == testName) {
+        outputRootName = argv[2] ;
+      }
+  }
+  
+  std::string testHelp = "--help";
+  if (argc==2){
+      if (argv[1] == testHelp) {
+          std::cout << "Help" << std::endl ;
+          std::cout << " --help : display help" << std::endl ;
+          std::cout << " -o : output root file name (eg histograms.root)" << std::endl ;
+          std::cout << " name of input file : list name of input files ntuples" << std::endl ;     
+          exit(1);
+      }
+  }
+    
+  if (argc < 2)
+    {
+      std::cerr << "ERROR : ntuple name missing" << std::endl ;
+      exit (1) ;
+    }
 
   //MF CUTS VALUES!
   double EnergyMaxCUT = 2;
   double EnergyMinCUT = 1;
   double angleMAX = 50;
   double angleMIN = 10;
-
-
-
-
 
   std::cout << ">>> Entering CosmicTreeTest program <<<" << std::endl;
 
@@ -50,8 +67,7 @@ int main ()
   TProfile aveEnergyMapVsEta ("aveEnergyMapVsEta", "aveEnergyMapVsEta", 172, -86, 86);
   TProfile aveEnergyMapVsPhi ("aveEnergyMapVsPhi", "aveEnergyMapVsPhi", 360, 1, 360);
   
-  
-   TH2F ASSOccupancyXtals ("ASSOccupancyXtals","ASSOccupancyXtals",360,1.,360.,172,-86.,86.) ;     
+  TH2F ASSOccupancyXtals ("ASSOccupancyXtals","ASSOccupancyXtals",360,1.,360.,172,-86.,86.) ;     
   TH2F ASSxtalEnergyMap("ASSxtalEnergyMap","ASSxtalEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile2D ASSaveEnergyMap ("ASSaveEnergyMap","ASSaveEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile ASSaveEnergyMapVsEta ("ASSaveEnergyMapVsEta", "ASSaveEnergyMapVsEta", 172, -86, 86);
@@ -61,9 +77,7 @@ int main ()
   TH1F Emin ("Emin","Emin",100,0.,1.) ;
   TH1F Angle("Angle", "Angle", 180, 0., 3.1415);
   TH1F SuperClusterEnergy ("SuperClusterEnergy","SuperClusterEnergy",100,0.,5.) ;
-	 
-	 
-	 
+     
   TH2F cutOccupancyXtals ("cutOccupancyXtals","cutOccupancyXtals",360,1.,360.,172,-86.,86.) ;     
   TH2F cutxtalEnergyMap("cutxtalEnergyMap","cutxtalEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile2D cutaveEnergyMap ("cutaveEnergyMap","cutaveEnergyMap",360,1.,361.,172,-86.,86.);     
@@ -73,56 +87,13 @@ int main ()
   
   // Tree construction
   TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-  chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509081.tree.root"); 
-chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509082.tree.root"); 
-chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509083.tree.root"); 
-chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509084.tree.root"); 
-chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509085.tree.root"); 
-chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509086.tree.root"); 
-chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509088.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509089.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090810.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090811.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090812.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090813.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090814.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090815.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090816.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090817.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090818.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090819.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090820.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090821.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090822.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090823.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090824.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090825.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090826.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090827.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090828.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090829.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090830.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090831.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090832.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090833.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090834.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090835.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090836.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090837.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090838.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090839.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090840.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090841.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090842.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090843.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090844.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090845.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090846.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090847.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090848.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090849.tree.root"); 
-// chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-5090850.tree.root"); 
+
+  if (argv[1] == testName) {
+      for (int i=3; i< (argc); i++) chain->Add (argv[i]) ;
+  }
+  else{
+      for (int i=1; i< (argc); i++) chain->Add (argv[i]) ;
+  }
  
   EcalCosmicsTreeContent treeVars ; 
   setBranchAddresses (chain, treeVars) ;
@@ -130,9 +101,7 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
 
-
-  
-  double EnergyMax = 0;		
+  double EnergyMax = 0;        
   double EnergyMin = 0;
   
   //PG loop over entries
@@ -140,7 +109,7 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
     {
       chain->GetEntry (entry) ;
 
-     //MF Selections on angles	
+     //MF Selections on angles    
      //MF association between muons and superclusters
  
       std::vector<ect::association> associations ;
@@ -152,43 +121,38 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
 
       //PG loop on associations vector
       for (unsigned int i = 0 ; i < associations.size () ; ++i)
-	{
-	  int MUindex = associations.at (i).first  ;
-	  int SCindex = associations.at (i).second; 	
-	  if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0		
-	  TVector3 SC0_pos (0., 0., 0.) ;
-	  setVectorOnECAL (SC0_pos, treeVars.superClusterEta[SCindex], treeVars.superClusterPhi[SCindex],1);
-			
-	  TVector3 MuonDir (treeVars.muonMomentumX[MUindex], treeVars.muonMomentumY[MUindex], treeVars.muonMomentumZ[MUindex]);
-			
-	  angle = MuonDir.Angle( SC0_pos ) ;
-	  if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
-	  Angle.Fill(angle);
-	 
-	 
-	 for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+        {
+          int MUindex = associations.at (i).first  ;
+          int SCindex = associations.at (i).second;     
+          if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0        
+          TVector3 SC0_pos (0., 0., 0.) ;
+          setVectorOnECAL (SC0_pos, 
+                           treeVars.superClusterEta[SCindex], 
+                           treeVars.superClusterPhi[SCindex],
+                           1) ;
+                
+          TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
+                            treeVars.muonMomentumY[MUindex], 
+                            treeVars.muonMomentumZ[MUindex]) ;
+                
+          angle = MuonDir.Angle( SC0_pos ) ;
+          if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
+          Angle.Fill(angle);
+         
+          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
                XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
-		 treeVars.nXtalsInSuperCluster[SCindex] ;
+                          treeVars.nXtalsInSuperCluster[SCindex] ;
                ++XTLindex)
             {
-	    EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-	    ASSOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
-	    ASSxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-	    ASSaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-	    ASSaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
-	    ASSaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
-	    
-	                  
-	      }
-	  
-	  
-	}
-	
-
-
-
-
-
+              EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+              ASSOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
+              ASSxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+              ASSaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+              ASSaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
+              ASSaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
+            }
+        }
+    
       //PG loop on superclusters
       for (int SCindex = 0 ; 
            SCindex < treeVars.nSuperClusters ; 
@@ -196,76 +160,57 @@ chain->Add("/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-509087.tre
         {
           SCdistr.Fill (treeVars.superClusterPhi[SCindex],
                         treeVars.superClusterEta[SCindex]) ;             
-	
-			
-	 double SCEnergy = 0;		
-	 EnergyMax = 0;		
-	 EnergyMin = 0;
-	//MF loop on crystals in SClusters	
-	for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+    
+                  
+          double SCEnergy = 0;        
+          EnergyMax = 0;        
+          EnergyMin = 0;
+          //MF loop on crystals in SClusters    
+          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
                XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
-		 treeVars.nXtalsInSuperCluster[SCindex] ;
+                          treeVars.nXtalsInSuperCluster[SCindex] ;
                ++XTLindex)
             {
-	    EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-	    OccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
-	    xtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-	    aveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-	    aveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
-	    aveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
-	    SCEnergy = SCEnergy + treeVars.xtalEnergy[XTLindex];
-	    
-	    //MF determino energia max ed energia minima
-	    if (treeVars.xtalEnergy[XTLindex] >= EnergyMax) EnergyMax = treeVars.xtalEnergy[XTLindex];
-	    if (XTLindex == treeVars.xtalIndexInSuperCluster[SCindex]) EnergyMin = treeVars.xtalEnergy[XTLindex];
-	    if (treeVars.xtalEnergy[XTLindex] <= EnergyMin) EnergyMin = treeVars.xtalEnergy[XTLindex];
-	                    
-	      }
-          SuperClusterEnergy.Fill(SCEnergy);
-         //PLOTS CON CUTS
-	   if ( (SCEnergy <= EnergyMaxCUT) && (SCEnergy >= EnergyMinCUT) && (angle >= angleMIN) && (angle <= angleMAX))	//MF loop on crystals with CUTS    
-
-	   { 
+              EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+              OccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
+              xtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+              aveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+              aveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
+              aveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
+              SCEnergy = SCEnergy + treeVars.xtalEnergy[XTLindex];
               
-	                       for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
-                                    XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] + treeVars.nXtalsInSuperCluster[SCindex] ;
-                                    ++XTLindex)
-                                {
-	                         EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-	    	                 cutOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
-	   	                 cutxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-	   	                 cutaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-	    	                 cutaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
-	  	                 cutaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
-	                         }     
-
-	    }
-
-
-	Emax.Fill(EnergyMax);
-	Emin.Fill(EnergyMin);
-
-	//std::cout << "energy max , min " << EnergyMax << " " << EnergyMin << std::e
-	    
-	
-	    
+              //MF determino energia max ed energia minima
+              if (treeVars.xtalEnergy[XTLindex] >= EnergyMax) EnergyMax = treeVars.xtalEnergy[XTLindex];
+              if (XTLindex == treeVars.xtalIndexInSuperCluster[SCindex]) EnergyMin = treeVars.xtalEnergy[XTLindex];
+              if (treeVars.xtalEnergy[XTLindex] <= EnergyMin) EnergyMin = treeVars.xtalEnergy[XTLindex];
+            }
+          SuperClusterEnergy.Fill(SCEnergy);
+          //PLOTS CON CUTS
+          if ( (SCEnergy <= EnergyMaxCUT) && 
+               (SCEnergy >= EnergyMinCUT) && 
+               (angle >= angleMIN) && 
+               (angle <= angleMAX))    //MF loop on crystals with CUTS    
+            { 
+               for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+                    XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] + 
+                               treeVars.nXtalsInSuperCluster[SCindex] ;
+                    ++XTLindex)
+                 {
+                   EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+                   cutOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
+                   cutxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+                   cutaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+                   cutaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
+                   cutaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
+                 }     
+            }
+          Emax.Fill(EnergyMax);
+          Emin.Fill(EnergyMin);
+       
+          //std::cout << "energy max , min " << EnergyMax << " " << EnergyMin << std::e
+              
         } //PG loop on superclusters
-	
-	
-
-      
-
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
+     
     } //PG loop over entries
 
   TFile saving ("XtalsOutput.root","recreate") ;
