@@ -29,7 +29,9 @@ int main (int argc, char** argv)
 {
  std::map<int, TH1F *> dEdx_Histos ;
  std::map<int, TH1F *> dEdx_Ring_Histos ;
-
+ std::map<int, TH1F *> dEdx_Ring_1M_Up_Histos ;
+ std::map<int, TH1F *> dEdx_Ring_1M_Down_Histos ;
+ 
  int nEntries = -1 ;
 
   //---- AM Command line input ----
@@ -121,7 +123,7 @@ int main (int argc, char** argv)
  setBranchAddresses (chain, treeVars) ;
  nEntries = chain->GetEntries () ;
    
- TH1F dEdx_Tutti("dEdx_Tutti","dEdx_Tutti",1000,0,2);
+ TH1F dEdx_Tutti("dEdx_Tutti","dEdx_Tutti",10000,0,2);
  TH1F dE_Tutti("dE_Tutti","dE_Tutti",1000,0,2);
  TH1F dX_Tutti("dX_Tutti","dX_Tutti",1000,0.,25.);  
 
@@ -214,6 +216,8 @@ int main (int argc, char** argv)
     }
          
          //---- AM Ring ----
+    std::map<int, TH1F *>::iterator dEdx_Ring_1M_Histos_iter = dEdx_Ring_1M_Histos.find(dummy.ieta());
+
     std::map<int, TH1F *>::iterator dEdx_Ring_Histos_iter = dEdx_Ring_Histos.find(dummy.ieta());
     if (dEdx_Ring_Histos_iter == dEdx_Ring_Histos.end()) {
      std::ostringstream stm;
@@ -239,7 +243,11 @@ int main (int argc, char** argv)
       
          //---- AM Ring ----
     dEdx_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
-         
+    if (dummy.iphi() < 110 && dummy.iphi() > 70) dEdx_Ring_1M_Up_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    if (dummy.iphi() < 290 && dummy.iphi() > 250) dEdx_Ring_1M_Down_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    
+    
+    
          
     dE_Tutti.Fill(treeVars.xtalEnergy[XTLindex]);
     dX_Tutti.Fill(treeVars.xtalTkLength[XTLindex]);
@@ -256,16 +264,35 @@ int main (int argc, char** argv)
  saving.cd () ;
 
  //---- dE/dx map from the fit ---- single crystal ----
- std::map<int, float> XtalCoeff_map ;
+ std::map<int, double> XtalCoeff_map ;
+ std::map<int, double> XtalCoeffError_map ;
+ 
+ TH2F dEdXEtaPhi ("dEdXEtaPhi","dEdXEtaPhi",360,1,361,171,-85,86) ;
  
  //AM ---- loop over dEdx_Histos ---- single crystal ----
  for (std::map<int, TH1F*>::iterator mapIt = dEdx_Histos.begin (); mapIt != dEdx_Histos.end ();++mapIt)
  {
      //   mapIt->second->Fit ("gaus") ;
 
-   if( (mapIt->second->GetEntries()) < 15 ) continue;
+  if( (mapIt->second->GetEntries()) > 20 ){
    std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
    mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
+   XtalCoeff_map[mapIt->first] = mean_pair;
+   XtalCoeffError_map[mapIt->first] = Error_pair;
+   
+   //---- fill histogram ----
+   
+   EBDetId dummyMy(mapIt->first);
+   std::cerr << " iphi =  " << dummyMy.iphi() << " ieta = " << dummyMy.ieta() << " -> dEdX = " << mean_pair << std::endl;
+   dEdXEtaPhi.Fill(dummyMy.iphi(),dummyMy.ieta(),mean_pair);
+  }
+  else {
+   XtalCoeff_map[mapIt->first] = 0;
+   XtalCoeffError_map[mapIt->first] = 0;
+  }
+   
    
    // get the peak of dEondX (da controllare con piu' statistica anche i "puntatori")
    // XtalCoeff_map[mapIt->first] = fitdEdx(mapIt->second);
@@ -283,13 +310,20 @@ int main (int argc, char** argv)
      //   mapIt->second->Fit ("gaus") ;
 
      // get the peak of dEondX (da controllare con piu' statistica anche i "puntatori")
-  std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
-  mapIt->second->Write();
-  double mean_pair = MeanAndErrorPair.first;
-  double Error_pair = MeanAndErrorPair.second;
+  
+  if (mapIt->second->GetEntries() > 15) {
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
    
-  RingCoeff_map[mapIt->first] = mean_pair;
-  RingCoeffError_map[mapIt->first] = Error_pair;
+   RingCoeff_map[mapIt->first] = mean_pair;
+   RingCoeffError_map[mapIt->first] = Error_pair;
+  }
+  else {
+   RingCoeff_map[mapIt->first] = 0;
+   RingCoeffError_map[mapIt->first] = 0;
+  }
  }  //AM ---- end loop over dEdx_Histos Ring ----
 
  
@@ -312,14 +346,14 @@ int main (int argc, char** argv)
   std::map<int, double>::iterator RingCoeff_map_iter = RingCoeff_map.find(numberIEta);
   std::map<int, double>::iterator RingCoeffError_map_iter = RingCoeffError_map.find(numberIEta);
   if (RingCoeff_map_iter != RingCoeff_map.end()){
-    std::cerr << "   Sono entrato con ieta = " << numberIEta << std::endl;
-    Ycoeff[kk] = RingCoeff_map_iter->second;
-    std::cerr << "   Y =  " << Ycoeff[kk];
+   std::cerr << "   Sono entrato con ieta = " << numberIEta << std::endl;
+   Ycoeff[kk] = RingCoeff_map_iter->second;
+   std::cerr << "   Y =  " << Ycoeff[kk];
 //    Ycoeff[kk] = RingCoeff_map[RingCoeff_map_iter->first];
 //    std::cerr << " e poi  Y =  " << Ycoeff[kk];
 //    Ycoeff[kk] = RingCoeff_map[numberIEta];
 //    std::cerr << " e poi  iEta = " << numberIEta << " ancora Y =  " << Ycoeff[kk] << std::endl;
-    errYcoeff[kk] = RingCoeffError_map_iter->second;
+   errYcoeff[kk] = RingCoeffError_map_iter->second;
   }
   else {
    Ycoeff[kk] = 0;
@@ -392,6 +426,10 @@ int main (int argc, char** argv)
  TGraphErrorsCoefficients.GetXaxis()->SetTitle("i#eta");
  TGraphErrorsCoefficients.GetYaxis()->SetTitle("dE/dx and Errors");
  TGraphErrorsCoefficients.Write();
+ 
+ dEdXEtaPhi.GetXaxis()->SetTitle("i#phi");
+ dEdXEtaPhi.GetYaxis()->SetTitle("i#eta");
+ dEdXEtaPhi.Write();
  
    
    
