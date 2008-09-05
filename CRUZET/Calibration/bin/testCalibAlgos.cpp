@@ -82,6 +82,7 @@ int main (int argc, char** argv)
   double maxEnergyPerCrystal = subPSetCalib.getParameter<double> ("maxEnergyPerCrystal") ;
   double minCoeff = subPSetCalib.getParameter<double> ("minCoeff") ;
   double maxCoeff = subPSetCalib.getParameter<double> ("maxCoeff") ;
+  double dEOdx = subPSetCalib.getParameter<double> ("dEOdx") ;
   int usingBlockSolver = subPSetCalib.getParameter<int> ("usingBlockSolver") ;
 
 //PG FIXME some assert to check the params
@@ -127,7 +128,7 @@ int main (int argc, char** argv)
 
 
 
-  //PG FIXME one has to read and save calibration coeffs
+  //PG FIXME one has to read and save calibration coeffs 
   //PG FIXME read from xml files or DB directly
 
   //PG FIXME would it be possible to do it for rings or crystals
@@ -147,7 +148,7 @@ int main (int argc, char** argv)
        listIt != inputFiles.end () ;
        ++listIt)
     {
-      std::cout << *listIt << " " ;
+      std::cout << *listIt << " " << std::endl ;
       chain->Add (listIt->c_str ()) ;
     }
 
@@ -224,7 +225,7 @@ int main (int argc, char** argv)
           EcalCalibBlocks.at (EBNumberOfRegion) -> Fill 
             (
               EBxtlMap.begin() , EBxtlMap.end (),
-              treeVars.muonTkLengthInEcalDetail[MUindex],
+              treeVars.muonTkLengthInEcalDetail[MUindex] * dEOdx,
               pSubtract
             ) ;
 
