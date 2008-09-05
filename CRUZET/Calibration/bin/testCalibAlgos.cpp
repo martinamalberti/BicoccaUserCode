@@ -84,12 +84,12 @@ int main (int argc, char** argv)
   double maxCoeff = subPSetCalib.getParameter<double> ("maxCoeff") ;
   double dEOdx = subPSetCalib.getParameter<double> ("dEOdx") ;
   int usingBlockSolver = subPSetCalib.getParameter<int> ("usingBlockSolver") ;
+  int numberOfLoops = subPSetCalib.getParameter<int> ("numberOfLoops") ;
 
 //PG FIXME some assert to check the params
 
 //  EBregionBuilder EBRegionsTool (-85, -1, 2, 1, 181, 2) ;
   EBregionBuilder EBRegionsTool (etaMin, etaMax, etaStep, phiMin, phiMax, phiStep) ;
-
 
   //PG calibration coefficients for this step
   std::map<int,double> recalibMap ;
@@ -126,8 +126,6 @@ int main (int argc, char** argv)
         }
     } //PG loop over the regions set
 
-
-
   //PG FIXME one has to read and save calibration coeffs 
   //PG FIXME read from xml files or DB directly
 
@@ -163,111 +161,137 @@ int main (int argc, char** argv)
 
   TH2F eventsMap ("eventsMap","eventsMap",360,0,360,170,0,170) ;
 
-  //PG loop over entries
-  for (int entry = 0 ; entry < maxEvents ; ++entry)
+  //PG several loops on the dataset
+  for (int iLoop = 0 ; iLoop < numberOfLoops ; ++iLoop)
     {
-      chain->GetEntry (entry) ;
-      if (entry%10000 == 0) std::cout << "reading entry " << entry << "\n" ;
+      //PG reset the calibration blocks
+      //PG ----------------------------
 
-      //PG association between muons and superclusters
-      //PG -------------------------------------------
+      for (std::vector<VEcalCalibBlock *>::iterator calibBlock = EcalCalibBlocks.begin () ;
+            calibBlock != EcalCalibBlocks.end () ;
+            ++calibBlock) 
+        (*calibBlock)->reset () ;
 
-      std::vector<ect::association> associations ;
-      ect::fillAssocVector (associations, treeVars) ;
-      ect::selectOnDR (associations, treeVars, 0.3) ;
+      //PG reset the histograms
+      //PG --------------------
 
-      //PG loop on associations vector
-      for (unsigned int i = 0 ; i < associations.size () ; ++i)
+      eventsMap.Reset () ;
+
+      //PG loop on the calibration entries
+      //PG -------------------------------
+
+      //PG loop over entries
+      for (int entry = 0 ; entry < maxEvents ; ++entry)
         {
-          int MUindex = associations.at (i).first ;
-          int SCindex = associations.at (i).second ;
-    
-          //PG find the region ID
-          int EBNumberOfRegion = findRegion (treeVars, SCindex, EBRegionsTool) ;
-          if (EBNumberOfRegion == -1) continue ;
-    
-          //PG build the map of the supercluster content
-          //PG -----------------------------------------
-          
-          std::map<int, double> SCComponentsMap ;
-          
-          //PG loop over xtals in supercluster
-          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
-               XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
-                          treeVars.nXtalsInSuperCluster[SCindex] ;
-               ++XTLindex)
+          chain->GetEntry (entry) ;
+          if (entry%10000 == 0) std::cout << "reading entry " << entry << "\n" ;
+      
+          //PG association between muons and superclusters
+          //PG -------------------------------------------
+      
+          std::vector<ect::association> associations ;
+          ect::fillAssocVector (associations, treeVars) ;
+          ect::selectOnDR (associations, treeVars, 0.3) ;
+      
+          //PG loop on associations vector
+          for (unsigned int i = 0 ; i < associations.size () ; ++i)
             {
+              int MUindex = associations.at (i).first ;
+              int SCindex = associations.at (i).second ;
         
-              double dummy = treeVars.xtalEnergy[XTLindex] ;
-              if ( dummy < minEnergyPerCrystal || 
-                   dummy > maxEnergyPerCrystal)
-                continue ;
+              //PG find the region ID
+              int EBNumberOfRegion = findRegion (treeVars, SCindex, EBRegionsTool) ;
+              if (EBNumberOfRegion == -1) continue ;
+        
+              //PG build the map of the supercluster content
+              //PG -----------------------------------------
+              
+              std::map<int, double> SCComponentsMap ;
+              
+              //PG loop over xtals in supercluster
+              for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+                   XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                              treeVars.nXtalsInSuperCluster[SCindex] ;
+                   ++XTLindex)
+                {
+            
+                  double dummy = treeVars.xtalEnergy[XTLindex] ;
+                  if ( dummy < minEnergyPerCrystal || 
+                       dummy > maxEnergyPerCrystal)
+                    continue ;
+      
+                  eventsMap.Fill (treeVars.xtalHashedIndex[XTLindex]/360,
+                                  treeVars.xtalHashedIndex[XTLindex]%360) ;
+      
+                  dummy *= recalibMap[treeVars.xtalHashedIndex[XTLindex]] ;     
+      
+                  //PG FIXME assuming there are no duplicates!
+                  SCComponentsMap[treeVars.xtalHashedIndex[XTLindex]] = dummy ;
+                } //PG loop over xtals in supercluster
+      
+              //PG run the calib algo
+              //PG ------------------
+              
+              //PG xtal - energy association map
+              std::map<int,double> EBxtlMap ;
+              double pSubtract ;
+              EBRegionsTool.fillEBMap (EBxtlMap, pSubtract,
+                                       SCComponentsMap,
+                                       EBNumberOfRegion) ;
+      
+              EcalCalibBlocks.at (EBNumberOfRegion) -> Fill 
+                (
+                  EBxtlMap.begin() , EBxtlMap.end (),
+                  treeVars.muonTkLengthInEcalDetail[MUindex] * dEOdx,
+                  pSubtract
+                ) ;
+      
+            } //PG loop on associations vector
+      
+        } //PG loop over entries
+      
+      std::cout << ">>> testCalibAlgos::loop on entries terminated <<<" << std::endl;
+      
+      //PG extract the solution of the calibration
+      //PG ---------------------------------------
+      
+      for (std::vector<VEcalCalibBlock *>::iterator calibBlock = EcalCalibBlocks.begin () ;
+            calibBlock != EcalCalibBlocks.end () ;
+            ++calibBlock) 
+        (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) ;
+      
+      TH2F calibCoeffMap ("calibCoeffMap","calibCoeffMap",360,0,360,170,0,170) ;
+      TH1F calibCoeff ("calibCoeff","calibCoeff",100,0,2) ;
+      
+      //PG loop over the barrel xtals to get the coeffs
+      for (int eta=0; eta<170; ++eta)
+        for (int phi=0; phi<360; ++phi)
+          {
+            EBDetId xtalDetId = EBDetId::unhashIndex (eta*360+phi) ;
+            int index = xtalDetId.rawId () ; 
+            if (EBRegionsTool.xtalRegionId (index) == -1) continue ;
+            std::cout << "inside region " << EBRegionsTool.xtalRegionId (index) << "\n" ;
+            recalibMap[eta*360+phi] *= 
+                EcalCalibBlocks.at (EBRegionsTool.xtalRegionId (index))->at 
+                  (EBRegionsTool.xtalPositionInRegion (index)) ;
+            std::cout << "    calib coeff " << recalibMap[eta*360+phi] << "\n" ;
+            calibCoeff.Fill (recalibMap[eta*360+phi]) ;      
+            calibCoeffMap.Fill (phi,eta,recalibMap[eta*360+phi]) ;      
+          } //PG loop over the barrel xtals to get the coeffs
+      
+      //PG save the histograms
+      //PG -------------------
 
-              eventsMap.Fill (treeVars.xtalHashedIndex[XTLindex]/360,
-                              treeVars.xtalHashedIndex[XTLindex]%360) ;
+      char nome[80] ; 
+      sprintf (nome,"outputHistos_%d.root", iLoop) ;
+      TFile outputHistos (nome, "recreate") ;
+      outputHistos.cd () ;
+      calibCoeffMap.Write () ;
+      calibCoeff.Write () ;
+      eventsMap.Write () ;
+      outputHistos.Close () ;
 
-              dummy *= recalibMap[treeVars.xtalHashedIndex[XTLindex]] ;     
-
-              //PG FIXME assuming there are no duplicates!
-              SCComponentsMap[treeVars.xtalHashedIndex[XTLindex]] = dummy ;
-            } //PG loop over xtals in supercluster
-
-          //PG run the calib algo
-          //PG ------------------
-          
-          //PG xtal - energy association map
-          std::map<int,double> EBxtlMap ;
-          double pSubtract ;
-          EBRegionsTool.fillEBMap (EBxtlMap, pSubtract,
-                                   SCComponentsMap,
-                                   EBNumberOfRegion) ;
-
-          EcalCalibBlocks.at (EBNumberOfRegion) -> Fill 
-            (
-              EBxtlMap.begin() , EBxtlMap.end (),
-              treeVars.muonTkLengthInEcalDetail[MUindex] * dEOdx,
-              pSubtract
-            ) ;
-
-        } //PG loop on associations vector
-
-    } //PG loop over entries
-
-  std::cout << ">>> testCalibAlgos::loop on entries terminated <<<" << std::endl;
-
-  //PG extract the solution of the calibration
-  //PG ---------------------------------------
-
-  for (std::vector<VEcalCalibBlock *>::iterator calibBlock = EcalCalibBlocks.begin () ;
-        calibBlock != EcalCalibBlocks.end () ;
-        ++calibBlock) 
-    (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) ;
-
-  TH2F calibCoeffMap ("calibCoeffMap","calibCoeffMap",360,0,360,170,0,170) ;
-  TH1F calibCoeff ("calibCoeff","calibCoeff",100,0,2) ;
-
-  //PG loop over the barrel xtals to get the coeffs
-  for (int eta=0; eta<170; ++eta)
-    for (int phi=0; phi<360; ++phi)
-      {
-        EBDetId xtalDetId = EBDetId::unhashIndex (eta*360+phi) ;
-        int index = xtalDetId.rawId () ; 
-        if (EBRegionsTool.xtalRegionId (index) == -1) continue ;
-        std::cout << "inside region " << EBRegionsTool.xtalRegionId (index) << "\n" ;
-        recalibMap[eta*360+phi] *= 
-            EcalCalibBlocks.at (EBRegionsTool.xtalRegionId (index))->at 
-              (EBRegionsTool.xtalPositionInRegion (index)) ;
-        std::cout << "    calib coeff " << recalibMap[eta*360+phi] << "\n" ;
-        calibCoeff.Fill (recalibMap[eta*360+phi]) ;      
-        calibCoeffMap.Fill (phi,eta,recalibMap[eta*360+phi]) ;      
-      } //PG loop over the barrel xtals to get the coeffs
-
-  TFile outputHistos ("outputHistos.root","recreate") ;
-  outputHistos.cd () ;
-  calibCoeffMap.Write () ;
-  calibCoeff.Write () ;
-  eventsMap.Write () ;
-  outputHistos.Close () ;
+    } //PG several loops on the dataset
 
   //PG disegna la mappa
 
