@@ -216,8 +216,26 @@ int main (int argc, char** argv)
     }
          
          //---- AM Ring ----
-    std::map<int, TH1F *>::iterator dEdx_Ring_1M_Histos_iter = dEdx_Ring_1M_Histos.find(dummy.ieta());
-
+    //---- up ring ----
+    std::map<int, TH1F *>::iterator dEdx_Ring_1M_Up_Histos_iter = dEdx_Ring_1M_Up_Histos.find(dummy.ieta());
+    if (dEdx_Ring_1M_Up_Histos_iter == dEdx_Ring_1M_Up_Histos.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dEdX_Ring_Up" +  stm.str();
+     std::string TH1FNameDescription = "dE over dX Ring Up -> ieta = " + stm.str();
+     dEdx_Ring_1M_Up_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+    //---- down ring ----
+    std::map<int, TH1F *>::iterator dEdx_Ring_1M_Down_Histos_iter = dEdx_Ring_1M_Down_Histos.find(dummy.ieta());
+    if (dEdx_Ring_1M_Down_Histos_iter == dEdx_Ring_1M_Down_Histos.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dEdX_Ring_Down" +  stm.str();
+     std::string TH1FNameDescription = "dE over dX Ring Down -> ieta = " + stm.str();
+     dEdx_Ring_1M_Down_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+    
+    //---- all ring ----
     std::map<int, TH1F *>::iterator dEdx_Ring_Histos_iter = dEdx_Ring_Histos.find(dummy.ieta());
     if (dEdx_Ring_Histos_iter == dEdx_Ring_Histos.end()) {
      std::ostringstream stm;
@@ -300,6 +318,95 @@ int main (int argc, char** argv)
  }  //AM ---- end loop over dEdx_Histos single crystal ----
 
 
+ 
+ //---- dE/dx slice of the Ring ----
+ 
+ std::map<int, double> RingCoeffUp_map ;
+ std::map<int, double> RingCoeffUpError_map ;
+ 
+ std::map<int, double> RingCoeffDown_map ;
+ std::map<int, double> RingCoeffDownError_map ;
+ 
+ //AM ---- loop over dEdx_Histos ---- Slice Ring ----
+ //---- UP ----
+ for (std::map<int, TH1F*>::iterator mapIt = dEdx_Ring_1M_Up_Histos.begin (); mapIt != dEdx_Ring_1M_Up_Histos.end ();++mapIt)
+ {
+  if (mapIt->second->GetEntries() > 15) {
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
+   RingCoeffUp_map[mapIt->first] = mean_pair;
+   RingCoeffUpError_map[mapIt->first] = Error_pair;
+  }
+  else {
+   RingCoeffUp_map[mapIt->first] = 0;
+   RingCoeffUpError_map[mapIt->first] = 0;
+  }
+ }
+ //---- DOWN ----  
+ for (std::map<int, TH1F*>::iterator mapIt = dEdx_Ring_1M_Down_Histos.begin (); mapIt != dEdx_Ring_1M_Down_Histos.end ();++mapIt)
+ {
+  if (mapIt->second->GetEntries() > 15) {
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
+   RingCoeffDown_map[mapIt->first] = mean_pair;
+   RingCoeffDownError_map[mapIt->first] = Error_pair;
+  }
+  else {
+   RingCoeffDown_map[mapIt->first] = 0;
+   RingCoeffDownError_map[mapIt->first] = 0;
+  }
+ } //AM ---- end loop over dEdx_Histos ---- Slice Ring ----
+
+ //---- TGraphErrors UP ----
+ TGraphErrors CoeffUP;
+ CoeffUP.SetName("CoeffUP");
+ CoeffUP.SetTitle("CoeffUP");
+ int counterCoeffUP = 0;
+ for (int kk=0; kk<171;kk++){
+  int numberIEta = kk - 85;
+  std::map<int, double>::iterator RingCoeffUp_map_iter = RingCoeffUp_map.find(numberIEta);
+  std::map<int, double>::iterator RingCoeffUpError_map_iter = RingCoeffUpError_map.find(numberIEta);
+  if (RingCoeffUp_map_iter != RingCoeffUp_map.end()){
+   CoeffUP.SetPoint(counterCoeffUP,numberIEta,RingCoeffUp_map_iter->second);
+   CoeffUP.SetPointError(counterCoeffUP,0,RingCoeffUpError_map_iter->second);
+   counterCoeffUP++;
+  }
+  else {
+   CoeffUP.SetPoint(counterCoeffUP,numberIEta,0);
+   CoeffUP.SetPointError(counterCoeffUP,0,0);
+   counterCoeffUP++;
+  }
+ }
+ 
+ //---- TGraphErrors DOWN ----
+ TGraphErrors CoeffDOWN;
+ CoeffDOWN.SetName("CoeffDOWN");
+ CoeffDOWN.SetTitle("CoeffDOWN");
+ int counterCoeffDOWN = 0;
+ for (int kk=0; kk<171;kk++){
+  int numberIEta = kk - 85;
+  std::map<int, double>::iterator RingCoeffDown_map_iter = RingCoeffDown_map.find(numberIEta);
+  std::map<int, double>::iterator RingCoeffDownError_map_iter = RingCoeffDownError_map.find(numberIEta);
+  if (RingCoeffDown_map_iter != RingCoeffDown_map.end()){
+   CoeffDOWN.SetPoint(counterCoeffDOWN,numberIEta,RingCoeffDown_map_iter->second);
+   CoeffDOWN.SetPointError(counterCoeffDOWN,0,RingCoeffDownError_map_iter->second);
+   counterCoeffDOWN++;
+  }
+  else {
+   CoeffDOWN.SetPoint(counterCoeffDOWN,numberIEta,0);
+   CoeffDOWN.SetPointError(counterCoeffDOWN,0,0);
+   counterCoeffDOWN++;
+  }
+ }
+  
+  
+ 
+ 
+ 
   //---- dE/dx map from the fit ---- Ring ----
  std::map<int, double> RingCoeff_map ;
  std::map<int, double> RingCoeffError_map ;
@@ -424,15 +531,26 @@ int main (int argc, char** argv)
  Coeff.Write();
  
  TGraphErrorsCoefficients.GetXaxis()->SetTitle("i#eta");
- TGraphErrorsCoefficients.GetYaxis()->SetTitle("dE/dx and Errors");
+ TGraphErrorsCoefficients.GetYaxis()->SetTitle("dE/dx");
  TGraphErrorsCoefficients.Write();
  
  dEdXEtaPhi.GetXaxis()->SetTitle("i#phi");
  dEdXEtaPhi.GetYaxis()->SetTitle("i#eta");
  dEdXEtaPhi.Write();
  
-   
-   
+ CoeffDOWN.GetXaxis()->SetTitle("i#eta");
+ CoeffDOWN.GetYaxis()->SetTitle("dE/dx");
+ CoeffDOWN.Write();
+
+ CoeffUP.GetXaxis()->SetTitle("i#eta");
+ CoeffUP.GetYaxis()->SetTitle("dE/dx");
+ CoeffUP.Write();
+
+ 
+ 
+ 
+ 
+    
  saving.Close () ;
  delete chain ;
  return 0 ;
