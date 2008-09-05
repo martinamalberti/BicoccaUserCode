@@ -66,13 +66,7 @@ int main (int argc, char** argv)
   TProfile2D aveEnergyMap ("aveEnergyMap","aveEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile aveEnergyMapVsEta ("aveEnergyMapVsEta", "aveEnergyMapVsEta", 172, -86, 86);
   TProfile aveEnergyMapVsPhi ("aveEnergyMapVsPhi", "aveEnergyMapVsPhi", 360, 1, 360);
-  
-  TH2F ASSOccupancyXtals ("ASSOccupancyXtals","ASSOccupancyXtals",360,1.,360.,172,-86.,86.) ;     
-  TH2F ASSxtalEnergyMap("ASSxtalEnergyMap","ASSxtalEnergyMap",360,1.,361.,172,-86.,86.);     
-  TProfile2D ASSaveEnergyMap ("ASSaveEnergyMap","ASSaveEnergyMap",360,1.,361.,172,-86.,86.);     
-  TProfile ASSaveEnergyMapVsEta ("ASSaveEnergyMapVsEta", "ASSaveEnergyMapVsEta", 172, -86, 86);
-  TProfile ASSaveEnergyMapVsPhi ("ASSaveEnergyMapVsPhi", "ASSaveEnergyMapVsPhi", 360, 1, 360);
-  
+    
   TH1F Emax ("Emax","Emax",100,0.,1.) ;
   TH1F Emin ("Emin","Emin",100,0.,1.) ;
   TH1F Angle("Angle", "Angle", 180, 0., 3.1415);
@@ -115,15 +109,14 @@ int main (int argc, char** argv)
       std::vector<ect::association> associations ;
       ect::fillAssocVector (associations, treeVars) ;
       ect::selectOnDR (associations, treeVars, 0.3) ;
-
       
       double angle = -99;  
 
       //PG loop on associations vector
       for (unsigned int i = 0 ; i < associations.size () ; ++i)
         {
-          int MUindex = associations.at (i).first  ;
-          int SCindex = associations.at (i).second;     
+          int MUindex = associations.at (i).first ;
+          int SCindex = associations.at (i).second ;     
           if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0        
           TVector3 SC0_pos (0., 0., 0.) ;
           setVectorOnECAL (SC0_pos, 
@@ -139,33 +132,13 @@ int main (int argc, char** argv)
           if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
           Angle.Fill(angle);
          
-          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
-               XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
-                          treeVars.nXtalsInSuperCluster[SCindex] ;
-               ++XTLindex)
-            {
-              EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-              ASSOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
-              ASSxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-              ASSaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-              ASSaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
-              ASSaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
-            }
-        }
-    
-      //PG loop on superclusters
-      for (int SCindex = 0 ; 
-           SCindex < treeVars.nSuperClusters ; 
-           ++SCindex)
-        {
           SCdistr.Fill (treeVars.superClusterPhi[SCindex],
                         treeVars.superClusterEta[SCindex]) ;             
-    
                   
           double SCEnergy = 0;        
           EnergyMax = 0;        
           EnergyMin = 0;
-          //MF loop on crystals in SClusters    
+
           for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
                XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
                           treeVars.nXtalsInSuperCluster[SCindex] ;
@@ -185,6 +158,7 @@ int main (int argc, char** argv)
               if (treeVars.xtalEnergy[XTLindex] <= EnergyMin) EnergyMin = treeVars.xtalEnergy[XTLindex];
             }
           SuperClusterEnergy.Fill(SCEnergy);
+
           //PLOTS CON CUTS
           if ( (SCEnergy <= EnergyMaxCUT) && 
                (SCEnergy >= EnergyMinCUT) && 
@@ -203,14 +177,12 @@ int main (int argc, char** argv)
                    cutaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
                    cutaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
                  }     
-            }
+            } //PLOTS CON CUTS
           Emax.Fill(EnergyMax);
           Emin.Fill(EnergyMin);
-       
-          //std::cout << "energy max , min " << EnergyMax << " " << EnergyMin << std::e
-              
-        } //PG loop on superclusters
-     
+
+        } //PG loop on associations vector
+    
     } //PG loop over entries
 
   TFile saving ("XtalsOutput.root","recreate") ;
@@ -230,11 +202,6 @@ int main (int argc, char** argv)
   SuperClusterEnergy.Write();
   cutaveEnergyMapVsPhi.Write();
   cutaveEnergyMapVsEta.Write();
-  ASSxtalEnergyMap.Write();
-  ASSOccupancyXtals.Write() ;
-  ASSaveEnergyMap.Write();
-  ASSaveEnergyMapVsPhi.Write();
-  ASSaveEnergyMapVsEta.Write();
 
 
   saving.Close () ;
