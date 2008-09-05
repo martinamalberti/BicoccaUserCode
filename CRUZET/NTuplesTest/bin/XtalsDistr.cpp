@@ -53,10 +53,11 @@ int main (int argc, char** argv)
     }
 
   //MF CUTS VALUES!
-  double EnergyMaxCUT = 2;
-  double EnergyMinCUT = 1;
-  double angleMAX = 50;
-  double angleMIN = 10;
+  double EnergyMaxCUT = 15;
+  double EnergyMinCUT = 0;
+  double angleMAX = 0.3925;
+  double angleMIN = 0.;
+
 
   std::cout << ">>> Entering CosmicTreeTest program <<<" << std::endl;
 
@@ -66,12 +67,13 @@ int main (int argc, char** argv)
   TProfile2D aveEnergyMap ("aveEnergyMap","aveEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile aveEnergyMapVsEta ("aveEnergyMapVsEta", "aveEnergyMapVsEta", 172, -86, 86);
   TProfile aveEnergyMapVsPhi ("aveEnergyMapVsPhi", "aveEnergyMapVsPhi", 360, 1, 360);
-    
+
+  
   TH1F Emax ("Emax","Emax",100,0.,1.) ;
   TH1F Emin ("Emin","Emin",100,0.,1.) ;
   TH1F Angle("Angle", "Angle", 180, 0., 3.1415);
   TH1F SuperClusterEnergy ("SuperClusterEnergy","SuperClusterEnergy",100,0.,5.) ;
-     
+  
   TH2F cutOccupancyXtals ("cutOccupancyXtals","cutOccupancyXtals",360,1.,360.,172,-86.,86.) ;     
   TH2F cutxtalEnergyMap("cutxtalEnergyMap","cutxtalEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile2D cutaveEnergyMap ("cutaveEnergyMap","cutaveEnergyMap",360,1.,361.,172,-86.,86.);     
@@ -118,12 +120,13 @@ int main (int argc, char** argv)
           int MUindex = associations.at (i).first ;
           int SCindex = associations.at (i).second ;     
           if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0        
-          TVector3 SC0_pos (0., 0., 0.) ;
-          setVectorOnECAL (SC0_pos, 
-                           treeVars.superClusterEta[SCindex], 
-                           treeVars.superClusterPhi[SCindex],
-                           1) ;
-                
+          //TVector3 SC0_pos (0., 0., 0.) ;
+          //setVectorOnECAL (SC0_pos, 
+          //                 treeVars.superClusterEta[SCindex], 
+          //                 treeVars.superClusterPhi[SCindex],
+          //                 1) ;
+          TVector3 SC0_pos (treeVars.superClusterX[SCindex], treeVars.superClusterY[SCindex], treeVars.superClusterZ[SCindex]) ; 
+	       
           TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
                             treeVars.muonMomentumY[MUindex], 
                             treeVars.muonMomentumZ[MUindex]) ;
@@ -158,7 +161,6 @@ int main (int argc, char** argv)
               if (treeVars.xtalEnergy[XTLindex] <= EnergyMin) EnergyMin = treeVars.xtalEnergy[XTLindex];
             }
           SuperClusterEnergy.Fill(SCEnergy);
-
           //PLOTS CON CUTS
           if ( (SCEnergy <= EnergyMaxCUT) && 
                (SCEnergy >= EnergyMinCUT) && 
@@ -183,9 +185,10 @@ int main (int argc, char** argv)
 
         } //PG loop on associations vector
     
+	
     } //PG loop over entries
 
-  TFile saving ("XtalsOutput.root","recreate") ;
+  TFile saving ("XtalsOutputs.root","recreate") ;
   saving.cd () ;  
   SCdistr.Write () ;
   Emax.Write();
@@ -202,8 +205,6 @@ int main (int argc, char** argv)
   SuperClusterEnergy.Write();
   cutaveEnergyMapVsPhi.Write();
   cutaveEnergyMapVsEta.Write();
-
-
   saving.Close () ;
 
   return 0 ;
@@ -213,7 +214,7 @@ int main (int argc, char** argv)
 double 
 calcTheta (double eta) 
 {
-  return 2 * atan (exp ( -1 * eta)) ;
+  return 2 * atan (exp ( -1 * eta));
 }
 
 
