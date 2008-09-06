@@ -22,7 +22,6 @@ while (<USERCONFIG>)
     $User_Preferences{$var} = $value;
   }
 
-
 #$sourceCfgFile = $User_Preferences{"sourceCfgFile"} ;
 #$numberOfSouces = $User_Preferences{"numberOfSources"} ;
 $sources = $User_Preferences{"sources"} ;
@@ -71,38 +70,39 @@ if (! (-e $sources))
 #PG and the bsub job
 for ($source = 0 ; $source < @Input_Root_Files ; $source++)
   {
-    @path = split (/\//, $Input_Root_Files[$section]) ;
+    @path = split (/\//, $Input_Root_Files[$source]) ;
     print $path[@path-1]."\n" ;
     #PG trovo la desinenza
     @pieces = split (/\./, $sourceCfgFile) ;
     #PG prepare the output file name
     $nomeFile = $path[@path-1] ;
+    $nomeFile =~ s/"\'"// ;
+    $nomeFile =~ s/","// ;
 
     $cfgFileName = $nomeFile ;
     $cfgFileName =~ s/root/cfg/ ;
-    $cfgFileName =~ s/'// ;
     $cfgFileName = $sources."/".$cfgFileName ;
 
     $jobFileName = $nomeFile ;
     $jobFileName =~ s/root/job/ ;
-    $jobFileName =~ s/'// ;
     $jobFileName = $sources."/".$jobFileName ;
 
     $ntupleFileName = $nomeFile ;
-    $ntupleFileName =~ s/root/ntuple/ ;
-    $ntupleFileName =~ s/'// ;
+    $ntupleFileName =~ s/root/ntuple.root/ ;
 
     print " | ".$nomeFile."\n" ;
     print " | ".$cfgFileName."\n" ;
     print " | ".$jobFileName."\n" ;
     print " | ".$ntupleFileName."\n" ;
 
+    $cleaned = $Input_Root_Files[$source] ;
+    $cleaned =~ s/\'// ;
+    $cleaned =~ s/,// ;
     $tempo = $sources."/tempo" ;
-    system ("cat ".$templateCfgFile." | sed -e s%FILENAME_PLACEHOLDER%".$Input_Root_Files[$section]."% > ".$tempo) ;
+    system ("cat ".$templateCfgFile." | sed -e s%FILENAME_PLACEHOLDER%".$cleaned."% > ".$tempo) ;
     $tempo2 = $sources."/tempo2" ;
     system ("cat ".$tempo." | sed -e s%NTUPLENAME_PLACEHOLDER%".$ntupleFileName."% > ".$tempo2) ;
     $tempo3 = $sources."/tempo3" ;
-    $runNb = 9999 ;
     system ("cat ".$tempo2." | sed -e s%RUNNB_PLACEHOLDER%".$runNb."% > ".$tempo3) ;
     system ("mv ".$tempo3." ".$cfgFileName) ;
     system ("rm ".$sources."/tempo*") ;
@@ -112,14 +112,16 @@ for ($source = 0 ; $source < @Input_Root_Files ; $source++)
     print JOBFILE "cd ".$CMSSWFolder."\n" ;
     print JOBFILE "cmsenv\n" ;
     print JOBFILE "cd -\n" ;
+#    print JOBFILE "cmsRun ".$cfgFileName." > /dev/null\n" ;
     print JOBFILE "cmsRun ".$cfgFileName."\n" ;
     print JOBFILE "ls\n" ;
     print JOBFILE "rfcp ".$ntupleFileName."-".$runNb.".tree.root ".$castorFolder."\n" ;
+#    print JOBFILE "rfcp ".$ntupleFileName." ".$castorFolder."\n" ;
     close (JOBFILE);
     system ("chmod 755 ".$jobFileName."\n") ;
 
-    print ("bsub -q cmsprs ".$jobFileName."\n") ;
-    system ("bsub -q cmsprs ".$jobFileName) ;
+    print ("bsub -u pietro.govoni@gmail.com -q cmsprs ".$jobFileName."\n") ;
+    system ("bsub -u pietro.govoni@gmail.com -q cmsprs ".$jobFileName) ;
 
   } #PG loop over the array of sources
 
