@@ -59,7 +59,24 @@ int main (int argc, char** argv)
   double angleMIN = 0.;
 
 
-  std::cout << ">>> Entering CosmicTreeTest program <<<" << std::endl;
+  std::cout << ">>> Entering XtalsDistr program <<<" << std::endl;
+
+  
+  // Tree construction
+  TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
+
+  if (argv[1] == testName) {
+      for (int i=3; i< (argc); i++) chain->Add (argv[i]) ;
+  }
+  else{
+      for (int i=1; i< (argc); i++) chain->Add (argv[i]) ;
+  }
+ 
+  EcalCosmicsTreeContent treeVars ; 
+  setBranchAddresses (chain, treeVars) ;
+
+  int nEntries = chain->GetEntries () ;
+  std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
 
   TH2F SCdistr ("SCdistr","SCdistr",360,-3.1416,3.1416,170,-1.5,1.5) ;
   TH2F OccupancyXtals ("OccupancyXtals","OccupancyXtals",360,1.,360.,172,-86.,86.) ;     
@@ -79,23 +96,6 @@ int main (int argc, char** argv)
   TProfile2D cutaveEnergyMap ("cutaveEnergyMap","cutaveEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile cutaveEnergyMapVsEta ("cutaveEnergyMapVsEta", "cutaveEnergyMapVsEta", 172, -86, 86);
   TProfile cutaveEnergyMapVsPhi ("cutaveEnergyMapVsPhi", "cutaveEnergyMapVsPhi", 360, 1, 360);
-  
-  
-  // Tree construction
-  TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-
-  if (argv[1] == testName) {
-      for (int i=3; i< (argc); i++) chain->Add (argv[i]) ;
-  }
-  else{
-      for (int i=1; i< (argc); i++) chain->Add (argv[i]) ;
-  }
- 
-  EcalCosmicsTreeContent treeVars ; 
-  setBranchAddresses (chain, treeVars) ;
-
-  int nEntries = chain->GetEntries () ;
-  std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
 
   double EnergyMax = 0;        
   double EnergyMin = 0;
@@ -105,6 +105,7 @@ int main (int argc, char** argv)
     {
       chain->GetEntry (entry) ;
 
+      if (entry % 10000 == 0) std::cout << "reading entry " << entry << std::endl ;
      //MF Selections on angles    
      //MF association between muons and superclusters
  
@@ -113,19 +114,22 @@ int main (int argc, char** argv)
       ect::selectOnDR (associations, treeVars, 0.3) ;
       
       double angle = -99;  
-
+      
       //PG loop on associations vector
       for (unsigned int i = 0 ; i < associations.size () ; ++i)
         {
           int MUindex = associations.at (i).first ;
           int SCindex = associations.at (i).second ;     
-          if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0        
+//PG FIXME come mai c'era questo taglio?
+//          if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0        
           //TVector3 SC0_pos (0., 0., 0.) ;
           //setVectorOnECAL (SC0_pos, 
           //                 treeVars.superClusterEta[SCindex], 
           //                 treeVars.superClusterPhi[SCindex],
           //                 1) ;
-          TVector3 SC0_pos (treeVars.superClusterX[SCindex], treeVars.superClusterY[SCindex], treeVars.superClusterZ[SCindex]) ; 
+          TVector3 SC0_pos (treeVars.superClusterX[SCindex], 
+                            treeVars.superClusterY[SCindex], 
+                            treeVars.superClusterZ[SCindex]) ; 
 	       
           TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
                             treeVars.muonMomentumY[MUindex], 
@@ -188,7 +192,7 @@ int main (int argc, char** argv)
 	
     } //PG loop over entries
 
-  TFile saving ("XtalsOutputs.root","recreate") ;
+  TFile saving (outputRootName.c_str () ,"recreate") ;
   saving.cd () ;  
   SCdistr.Write () ;
   Emax.Write();
