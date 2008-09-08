@@ -121,7 +121,7 @@ for ($source = 0 ; $source < @Input_Root_Files ; $source++)
     system ("chmod 755 ".$jobFileName."\n") ;
 
     print ("bsub -u pietro.govoni@gmail.com -q cmsprs ".$jobFileName."\n") ;
-    system ("bsub -u pietro.govoni@gmail.com -q cmsprs ".$jobFileName) ;
+    system ("bsub -u pietro.govoni@gmail.com -q cmsprs -o /dev/null ".$jobFileName) ;
 
   } #PG loop over the array of sources
 
