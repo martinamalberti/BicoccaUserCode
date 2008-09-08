@@ -31,6 +31,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TFile.h"
+#include "TLorentzVector.h"
 
 /**
 TODOS
@@ -44,9 +45,13 @@ TODOS
 
 
 
-int findRegion (EcalCosmicsTreeContent treeVars,
+int findRegion (const EcalCosmicsTreeContent & treeVars,
                 int SCindex,
                 EBregionBuilder & EBRegionsTool) ;
+
+int
+findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
+                 int SCindex) ;
 
 
 //PG ------------------------------------------------------------------
@@ -159,6 +164,12 @@ int main (int argc, char** argv)
   std::cout << ">>> testCalibAlgos::Found " << nEntries << " entries\n" ;
   std::cout << ">>> testCalibAlgos::TreeBuilding::end <<<" << std::endl;
 
+  edm::ParameterSet subPSetSelections =  
+    parameterSet->getParameter<edm::ParameterSet> ("selections") ;
+  double cut_angle_MU_SC = subPSetSelections.getParameter<double> ("cut_angle_MU_SC") ;
+  double cut_min_maxEnergy = subPSetSelections.getParameter<double> ("cut_min_maxEnergy") ;
+
+
   TH2F eventsMap ("eventsMap","eventsMap",360,0,360,170,0,170) ;
   eventsMap.GetXaxis () -> SetTitle ("iPhi") ;  
   eventsMap.GetYaxis () -> SetTitle ("iEta") ; 
@@ -204,8 +215,38 @@ int main (int argc, char** argv)
               int MUindex = associations.at (i).first ;
               int SCindex = associations.at (i).second ;
         
+              //PG selections
+              //PG ----------
+                            
+              TVector3 SC0_pos (treeVars.superClusterX[SCindex], 
+                                treeVars.superClusterY[SCindex], 
+                                treeVars.superClusterZ[SCindex]) ; 
+    	       
+              TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
+                                treeVars.muonMomentumY[MUindex], 
+                                treeVars.muonMomentumZ[MUindex]) ;
+                    
+              double angle = MuonDir.Angle (SC0_pos) ;
+              if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
+              if (angle > cut_angle_MU_SC) continue ;              
+
+
+              int MaxXTLindex = findMaxXtalInSC (treeVars, SCindex) ;
+              if (MaxXTLindex < 0) continue ;
+              if (treeVars.xtalEnergy[MaxXTLindex] < 0.) continue ;
+              if (treeVars.xtalEnergy[MaxXTLindex] < cut_min_maxEnergy) continue ;
+            
+              //PG geometry
+              //PG --------
+                            
               //PG find the region ID
-              int EBNumberOfRegion = findRegion (treeVars, SCindex, EBRegionsTool) ;
+//              int EBNumberOfRegion = findRegion (treeVars, SCindex, EBRegionsTool) ;
+
+              EBDetId dummyDetId = EBDetId::unhashIndex (treeVars.xtalHashedIndex[MaxXTLindex]) ;
+              int ieta = dummyDetId.ieta () ;
+              int iphi = dummyDetId.iphi () ;
+              int EBNumberOfRegion = EBRegionsTool.EBRegionId (ieta, iphi) ;
+
               if (EBNumberOfRegion == -1) continue ;
         
               //PG build the map of the supercluster content
@@ -312,15 +353,31 @@ int main (int argc, char** argv)
 
 
 //!Find the region to which the SC belongs
-int findRegion (EcalCosmicsTreeContent treeVars,
+int findRegion (const EcalCosmicsTreeContent & treeVars,
                 int SCindex,
                 EBregionBuilder & EBRegionsTool)
 {
-  double dummyEnergy = 0. ;
-  EBDetId dummyDetId ;
 
-  //PG find maximum xtal in supercluster
-  //PG ---------------------------------
+  int XTLindex = findMaxXtalInSC (treeVars, SCindex) ;
+  if (XTLindex < 0) return XTLindex ;
+  if (treeVars.xtalEnergy[XTLindex] < 0.) return -1 ;
+
+  EBDetId dummyDetId = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+  int ieta = dummyDetId.ieta () ;
+  int iphi = dummyDetId.iphi () ;
+  return EBRegionsTool.EBRegionId (ieta, iphi) ;
+}
+
+
+//PG ------------------------------------------------------------------
+
+
+int
+findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
+                 int SCindex)
+{
+  double dummyEnergy = 0. ;
+  int maxXtalIndex = -1 ;
 
   //PG loop over xtals in supercluster
   for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
@@ -331,22 +388,11 @@ int findRegion (EcalCosmicsTreeContent treeVars,
       if (treeVars.xtalEnergy[XTLindex] > dummyEnergy)
         {
           dummyEnergy = treeVars.xtalEnergy[XTLindex] ;
-          dummyDetId = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+          maxXtalIndex = XTLindex ;
         }
     } //PG loop over xtals in supercluster
 
-  int ieta = dummyDetId.ieta () ;
-  int iphi = dummyDetId.iphi () ;
-
-  //PG FIXME anche iphi va spostato?
-
-  // std::cout << "ene = " << dummyEnergy << "   ieta/iphi = " << ieta << "," << iphi
-  //         << "    RegID = "<< EBRegionsTool.EBRegionId(ieta, iphi) << std::endl;
-
-  if (dummyEnergy < 0.0) return -1 ;
-
-  return EBRegionsTool.EBRegionId (ieta, iphi) ;
+  return maxXtalIndex ;
 }
-
 
 
