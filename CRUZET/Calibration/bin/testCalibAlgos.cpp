@@ -13,6 +13,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "Calibration/Tools/interface/calibXMLwriter.h"
 
 //PG for the cluster-based calibration 
 #include "Calibration/EcalCalibAlgos/interface/VEcalCalibBlock.h"
@@ -342,7 +343,17 @@ int main (int argc, char** argv)
 
     } //PG several loops on the dataset
 
-  //PG disegna la mappa
+  //PG Writes the coeffs onto an XML file
+  calibXMLwriter barrelWriter (EcalBarrel) ;
+
+  for (int eta=0; eta<170; ++eta)
+    for (int phi=0; phi<360; ++phi)
+      {
+        int index = eta*360+phi ;
+        EBDetId xtalDetId = EBDetId::unhashIndex (index) ;
+        barrelWriter.writeLine (xtalDetId, 
+                                recalibMap[index]) ;
+      }
 
   return 0 ;
 
