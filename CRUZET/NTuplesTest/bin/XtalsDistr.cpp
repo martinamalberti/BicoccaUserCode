@@ -58,11 +58,20 @@ int main (int argc, char** argv)
 
 
   //MF CUTS VALUES ON ANGLES AND SC ENERGY
-  double EnergyMaxCUT = subPSetSelections.getParameter<double> ("EnergyMaxCUT") ;
-  double EnergyMinCUT = subPSetSelections.getParameter<double> ("EnergyMinCUT") ;
+  
+  //cuts on SC Energy
+  double EnergyMaxSC = subPSetSelections.getParameter<double> ("EnergyMaxSC") ;
+  double EnergyMinSC = subPSetSelections.getParameter<double> ("EnergyMinSC") ;
+  
+  //cuts on Angle Muon / SCdirection
   double angleMAX = subPSetSelections.getParameter<double> ("angleMAX") ;
   double angleMIN = subPSetSelections.getParameter<double> ("angleMIN") ;
  
+  //cuts on Xtal Energy
+  double XtalMaxEnergy = subPSetSelections.getParameter<double> ("XtalMaxEnergy") ;
+  
+  //cuts on Windows
+  double phiWINDOW    = subPSetSelections.getParameter<double> ("phiWINDOW") ;
 
   std::cout << ">>> Entering XtalsDistr program <<<" << std::endl;
 
@@ -83,6 +92,7 @@ int main (int argc, char** argv)
   TH1F Emax ("Emax","Emax",100,0.,1.) ;
   TH1F Emin ("Emin","Emin",100,0.,1.) ;
   TH1F Angle("Angle", "Angle", 180, 0., 3.1415);
+ 
   TH1F AngleWCutEnergy("AngleWCutEnergy", "AngleWCutEnergy", 180, 0., 3.1415);
 
   TH1F SuperClusterEnergyWCutAngle ("SuperClusterEnergyWCutAngle","SuperClusterEnergyWCutAngle",100,0.,5.) ;
@@ -97,8 +107,8 @@ int main (int argc, char** argv)
 
 
   
-  double EnergyMax = 0;		
-  double EnergyMin = 0;
+  double XtalEnergyMax = 0;		
+  double XtalEnergyMin = 0;
   
   //PG loop over entries
   for (int entry = 0 ; entry < nEntries ; ++entry)
@@ -131,16 +141,22 @@ int main (int argc, char** argv)
           TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
                             treeVars.muonMomentumY[MUindex], 
                             treeVars.muonMomentumZ[MUindex]) ;
-                
+          
+	  
+	  double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
+ 	  if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;
+	  
+	  
+	        
           angle = MuonDir.Angle( SC0_pos ) ;
           if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
           Angle.Fill(angle);
 	  
 	 
 	  double SCEnergy = 0;		
-	  EnergyMax = 0;		
-	  EnergyMin = 0;
-	 
+	  XtalEnergyMax = 0;		
+	  XtalEnergyMin = 0;
+	  
 	  //loop su cristalli di Supercluster Associato
 	  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
                XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
@@ -157,13 +173,13 @@ int main (int argc, char** argv)
 	    
 	        SCEnergy = SCEnergy + treeVars.xtalEnergy[XTLindex];	    
 	        //MF determino energia max ed energia minima dei cristalli
-	        if (treeVars.xtalEnergy[XTLindex] >= EnergyMax) EnergyMax = treeVars.xtalEnergy[XTLindex];
-	        if (XTLindex == treeVars.xtalIndexInSuperCluster[SCindex]) EnergyMin = treeVars.xtalEnergy[XTLindex];
-	        if (treeVars.xtalEnergy[XTLindex] <= EnergyMin) EnergyMin = treeVars.xtalEnergy[XTLindex];     
+	        if (treeVars.xtalEnergy[XTLindex] >= XtalEnergyMax) XtalEnergyMax = treeVars.xtalEnergy[XTLindex];
+	        if (XTLindex == treeVars.xtalIndexInSuperCluster[SCindex]) XtalEnergyMin = treeVars.xtalEnergy[XTLindex];
+	        if (treeVars.xtalEnergy[XTLindex] <= XtalEnergyMin) XtalEnergyMin = treeVars.xtalEnergy[XTLindex];     
 	    }
 	    
-	 Emax.Fill(EnergyMax);
-	 Emin.Fill(EnergyMin);    
+	 Emax.Fill(XtalEnergyMax);
+	 Emin.Fill(XtalEnergyMin);    
 	 AngleVsSCEnergy.Fill(angle,treeVars.superClusterRawEnergy[SCindex]);
 	 SuperClusterEnergy.Fill(treeVars.superClusterRawEnergy[SCindex]);
 	 //MF Energy with selections on angles
@@ -175,11 +191,11 @@ int main (int argc, char** argv)
  
           EnergySConTrackLength.Fill(treeVars.superClusterRawEnergy[SCindex]/treeVars.muonTkLengthInEcalDetail[MUindex]);
          //MF Angle with selections on energy
-	 if((SCEnergy <= EnergyMaxCUT) && (SCEnergy >= EnergyMinCUT)) AngleWCutEnergy.Fill(angle);
+	 if((XtalEnergyMax >= XtalMaxEnergy) && (SCEnergy <= EnergyMaxSC) && (SCEnergy >= EnergyMinSC)) AngleWCutEnergy.Fill(angle);
 	 
 	 
 	 //PLOTS CON CUTS
-	   if ( (SCEnergy <= EnergyMaxCUT) && (SCEnergy >= EnergyMinCUT) && (angle >= angleMIN) && (angle <= angleMAX))	//MF loop on crystals with CUTS    
+	   if ( (XtalEnergyMax >= XtalMaxEnergy) && (SCEnergy <= EnergyMaxSC) && (SCEnergy >= EnergyMinSC) && (angle >= angleMIN) && (angle <= angleMAX))	//MF loop on crystals with CUTS    
 
 	   { 
               
