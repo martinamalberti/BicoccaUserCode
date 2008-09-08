@@ -170,7 +170,9 @@ int main (int argc, char** argv)
   double cut_angle_MU_SC = subPSetSelections.getParameter<double> ("cut_angle_MU_SC") ;
   double cut_min_maxEnergy = subPSetSelections.getParameter<double> ("cut_min_maxEnergy") ;
 
-
+  TH1F eventsVsEta ("eventsVsEta","eventsVsEta",170,0,170) ;
+  TH1F eventsVsPhi ("eventsVsPhi","eventsVsPhi",360,0,360) ;
+  TH1F eventsPerXtal ("eventsPerXtal","eventsPerXtal", 200, 0, 200) ;
   TH2F eventsMap ("eventsMap","eventsMap",360,0,360,170,0,170) ;
   eventsMap.GetXaxis () -> SetTitle ("iPhi") ;  
   eventsMap.GetYaxis () -> SetTitle ("iEta") ; 
@@ -192,6 +194,9 @@ int main (int argc, char** argv)
       //PG reset the histograms
       //PG --------------------
 
+      // count number of events per xtal
+      std::map<int,int> XtalEvents ;
+
       eventsMap.Reset () ;
 
       //PG loop on the calibration entries
@@ -209,7 +214,7 @@ int main (int argc, char** argv)
           std::vector<ect::association> associations ;
           ect::fillAssocVector (associations, treeVars) ;
           ect::selectOnDR (associations, treeVars, 0.3) ;
-      
+
           //PG loop on associations vector
           for (unsigned int i = 0 ; i < associations.size () ; ++i)
             {
@@ -267,6 +272,11 @@ int main (int argc, char** argv)
                        dummy > maxEnergyPerCrystal)
                     continue ;
       
+                  if ( XtalEvents.find(treeVars.xtalHashedIndex[XTLindex]) == XtalEvents.end() )
+                    XtalEvents[treeVars.xtalHashedIndex[XTLindex]] = 0 ;
+                  XtalEvents[treeVars.xtalHashedIndex[XTLindex]] += 1 ;
+                  eventsVsPhi.Fill (treeVars.xtalHashedIndex[XTLindex]%360) ;
+                  eventsVsEta.Fill (treeVars.xtalHashedIndex[XTLindex]/360) ;
                   eventsMap.Fill (treeVars.xtalHashedIndex[XTLindex]%360,
                                   treeVars.xtalHashedIndex[XTLindex]/360) ;
       
@@ -289,7 +299,7 @@ int main (int argc, char** argv)
               EcalCalibBlocks.at (EBNumberOfRegion) -> Fill 
                 (
                   EBxtlMap.begin() , EBxtlMap.end (),
-                  treeVars.muonTkLengthInEcalDetail[MUindex] * dEOdx,
+                  treeVars.muonTkLengthInEcalApprox[MUindex] * dEOdx,
                   pSubtract
                 ) ;
       
@@ -307,11 +317,18 @@ int main (int argc, char** argv)
             ++calibBlock) 
         (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) ;
       
+      for (std::map<int,int>::const_iterator mapIt = XtalEvents.begin();
+           mapIt != XtalEvents.end(); ++mapIt)
+      {
+        eventsPerXtal.Fill (mapIt->second) ;
+      }
+      
       TH2F calibCoeffMap ("calibCoeffMap","calibCoeffMap",360,0,360,170,0,170) ;
       calibCoeffMap.GetXaxis () -> SetTitle ("iPhi") ;  
       calibCoeffMap.GetYaxis () -> SetTitle ("iEta") ; 
 
       TH1F calibCoeff ("calibCoeff","calibCoeff",100,0,2) ;
+      TH1F calibCoeff_noBorder ("calibCoeff_noBorder","calibCoeff_noBorder",100,0,2) ;
       
       //PG loop over the barrel xtals to get the coeffs
       for (int eta=0; eta<170; ++eta)
@@ -326,6 +343,11 @@ int main (int argc, char** argv)
                   (EBRegionsTool.xtalPositionInRegion (index)) ;
             //std::cout << "    calib coeff " << recalibMap[eta*360+phi] << "\n" ;
             calibCoeff.Fill (recalibMap[eta*360+phi]) ;      
+            if ( (eta > etaMin+2) && (eta < etaMax-2) &&
+                 (phi > phiMin+2) && (phi < phiMax-2) )
+              calibCoeff_noBorder.Fill (recalibMap[eta*360+phi]) ;
+            )
+            
             calibCoeffMap.Fill (phi,eta,recalibMap[eta*360+phi]) ;      
           } //PG loop over the barrel xtals to get the coeffs
       
@@ -338,7 +360,11 @@ int main (int argc, char** argv)
       outputHistos.cd () ;
       calibCoeffMap.Write () ;
       calibCoeff.Write () ;
+      calibCoeff_noBorder.Write () ;
       eventsMap.Write () ;
+      eventsPerXtal.Write () ;
+      eventsVsPhi.Write () ;
+      eventsVsEta.Write () ;
       outputHistos.Close () ;
 
     } //PG several loops on the dataset
