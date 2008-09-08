@@ -30,4 +30,8 @@
   <use name=CaloOnlineTools/EcalTools>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+<bin name= cloning file="cloning.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
 
