@@ -37,7 +37,7 @@ int main (int argc, char** argv)
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
   std::cout << parameterSet->dump () << std::endl ; //PG for testing
   
-  edm::ParameterSet subPSetCalib =  parameterSet->getParameter<edm::ParameterSet> ("clusterCalib") ;
+  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
   edm::ParameterSet subPSetInput =  
     parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
   std::vector<std::string> inputFiles = 
@@ -58,10 +58,10 @@ int main (int argc, char** argv)
 
 
   //MF CUTS VALUES ON ANGLES AND SC ENERGY
-  double EnergyMaxCUT = subPSetCalib.getParameter<double> ("EnergyMaxCUT") ;
-  double EnergyMinCUT = subPSetCalib.getParameter<double> ("EnergyMinCUT") ;
-  double angleMAX = subPSetCalib.getParameter<double> ("angleMAX") ;
-  double angleMIN = subPSetCalib.getParameter<double> ("angleMIN") ;
+  double EnergyMaxCUT = subPSetSelections.getParameter<double> ("EnergyMaxCUT") ;
+  double EnergyMinCUT = subPSetSelections.getParameter<double> ("EnergyMinCUT") ;
+  double angleMAX = subPSetSelections.getParameter<double> ("angleMAX") ;
+  double angleMIN = subPSetSelections.getParameter<double> ("angleMIN") ;
  
 
   std::cout << ">>> Entering XtalsDistr program <<<" << std::endl;
