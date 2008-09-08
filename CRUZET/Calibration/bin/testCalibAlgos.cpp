@@ -169,7 +169,9 @@ int main (int argc, char** argv)
     parameterSet->getParameter<edm::ParameterSet> ("selections") ;
   double cut_angle_MU_SC = subPSetSelections.getParameter<double> ("cut_angle_MU_SC") ;
   double cut_min_maxEnergy = subPSetSelections.getParameter<double> ("cut_min_maxEnergy") ;
-
+  int stat_max_evt_xtl = subPSetSelections.getParameter<int> ("stat_max_evt_xtl") ;
+  int stat_selector = subPSetSelections.getParameter<int> ("stat_selector") ;
+  
   TH1F eventsVsEta ("eventsVsEta","eventsVsEta",170,0,170) ;
   TH1F eventsVsPhi ("eventsVsPhi","eventsVsPhi",360,0,360) ;
   TH1F eventsPerXtal ("eventsPerXtal","eventsPerXtal", 200, 0, 200) ;
@@ -196,6 +198,17 @@ int main (int argc, char** argv)
 
       // count number of events per xtal
       std::map<int,int> XtalEvents ;
+      //PG FIXME to be done only in the range of interest
+      for (int a=0; a<170; ++a)
+        for (int b=0; b<360; ++b)
+          {
+            //PG use the hashed index
+            int index = a*360+b ;
+            XtalEvents[index] = 0 ;
+    //        xtalNumOfHits[index] = 0 ;
+          }
+
+
 
       eventsMap.Reset () ;
 
@@ -207,6 +220,9 @@ int main (int argc, char** argv)
         {
           chain->GetEntry (entry) ;
           if (entry%10000 == 0) std::cout << "reading entry " << entry << "\n" ;
+          if (stat_selector >= 0 &&
+              entry % 2 == stat_selector) 
+            continue ;
       
           //PG association between muons and superclusters
           //PG -------------------------------------------
@@ -235,7 +251,6 @@ int main (int argc, char** argv)
               double angle = MuonDir.Angle (SC0_pos) ;
               if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
               if (angle > cut_angle_MU_SC) continue ;              
-
 
               int MaxXTLindex = findMaxXtalInSC (treeVars, SCindex) ;
               if (MaxXTLindex < 0) continue ;
@@ -271,9 +286,11 @@ int main (int argc, char** argv)
                   if ( dummy < minEnergyPerCrystal || 
                        dummy > maxEnergyPerCrystal)
                     continue ;
+
+                  if (stat_max_evt_xtl > 0 &&
+                      XtalEvents[treeVars.xtalHashedIndex[XTLindex]] >= stat_max_evt_xtl)
+                    continue ;
       
-                  if ( XtalEvents.find(treeVars.xtalHashedIndex[XTLindex]) == XtalEvents.end() )
-                    XtalEvents[treeVars.xtalHashedIndex[XTLindex]] = 0 ;
                   XtalEvents[treeVars.xtalHashedIndex[XTLindex]] += 1 ;
                   eventsVsPhi.Fill (treeVars.xtalHashedIndex[XTLindex]%360) ;
                   eventsVsEta.Fill (treeVars.xtalHashedIndex[XTLindex]/360) ;
@@ -346,7 +363,6 @@ int main (int argc, char** argv)
             if ( (eta > etaMin+2) && (eta < etaMax-2) &&
                  (phi > phiMin+2) && (phi < phiMax-2) )
               calibCoeff_noBorder.Fill (recalibMap[eta*360+phi]) ;
-            )
             
             calibCoeffMap.Fill (phi,eta,recalibMap[eta*360+phi]) ;      
           } //PG loop over the barrel xtals to get the coeffs
