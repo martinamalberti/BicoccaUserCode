@@ -98,7 +98,7 @@ int main (int argc, char** argv)
 // else {
  char inputRootName[100];
  
- /*
+
  //  for (int i=1; i< 10; i++) {
  for (int i=1; i< 46; i++) {
   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-50908%i.tree.root",i); 
@@ -122,10 +122,10 @@ int main (int argc, char** argv)
   chain->Add (inputRootName);
   std::cout << "Open: " << inputRootName << std::endl;
  }
- */
+
  
  
-  
+ /*  
  char buffer[1000];
  char inputName[1000];
  sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/test/elencoNtupleC_50908.txt");
@@ -382,11 +382,11 @@ int main (int argc, char** argv)
  
  
   // }
-
+  */
  
  
  
- std::cerr << "  Starting analysis ..." << std::endl;
+ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  
  
   
@@ -456,15 +456,10 @@ int main (int argc, char** argv)
 
         //---- Cut on Crystal Energy ---- minimum and maximum energy ----
        double dummyEnergy = treeVars.xtalEnergy[XTLindex];       
-       if (treeVars.xtalTkLength[XTLindex] > 0) dEdxVsEnergy.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalEnergy[XTLindex]);
+       if (treeVars.xtalTkLength[XTLindex] > 0) 
+	 dEdxVsEnergy.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalEnergy[XTLindex]);
        if ( dummyEnergy < EnergyPerCrystal_Min_Cut || dummyEnergy > EnergyPerCrystal_Max_Cut) continue;
 
-       
-       
-       
-       
-       
-       
        //check the link Xtal with max energy  == Xtal with max length
        
        if(treeVars.xtalEnergy[XTLindex] > dummyEmax) 
@@ -497,7 +492,7 @@ int main (int argc, char** argv)
        double xtalEta = dummy.ieta() * 0.0175;
        if(dummy.ieta() < 0.) xtalEta = (dummy.ieta()+1.) * 0.0175;
        double xtalPhi = (dummy.iphi()-1.) * 0.0175;
-       if(xtalPhi > PI) xtalPhi = 2*PI - xtalPhi;
+       if(xtalPhi > PI) xtalPhi -= 2*PI;
        setVectorOnECAL (Xtal_pos, xtalEta, xtalPhi, 131.);
 	
        TVector3 MuonDirf (0., 1., 0.);
@@ -527,6 +522,8 @@ int main (int argc, char** argv)
        if(dummy.iphi() > 180)muon_down.Fill(angle*180. /PI);       
        else if(dummy.iphi() <= 180)muon_up.Fill(angle*180. /PI);       
 
+
+       if(angle > 90.) continue;
 
        //control plots
        xtalX.Fill(Xtal_pos.x());
@@ -628,12 +625,16 @@ int main (int argc, char** argv)
       
          //---- AM Ring ----
     dEdx_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
-    if (dummy.iphi() < 120 && dummy.iphi() > 80) dEdx_Ring_1M_Up_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
-    if (dummy.iphi() < 300 && dummy.iphi() > 260) dEdx_Ring_1M_Down_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    if (dummy.iphi() < 120 && dummy.iphi() > 80) 
+      dEdx_Ring_1M_Up_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    if (dummy.iphi() < 300 && dummy.iphi() > 260) 
+      dEdx_Ring_1M_Down_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
     //---- + Energy Cut ----
     dEdx_Ring_Histos_EnergyCut[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
-    if (dummy.iphi() < 120 && dummy.iphi() > 80) dEdx_Ring_1M_Up_Histos_EnergyCut[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
-    if (dummy.iphi() < 300 && dummy.iphi() > 260) dEdx_Ring_1M_Down_Histos_EnergyCut[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    if (dummy.iphi() < 120 && dummy.iphi() > 80) 
+      dEdx_Ring_1M_Up_Histos_EnergyCut[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    if (dummy.iphi() < 300 && dummy.iphi() > 260) 
+      dEdx_Ring_1M_Down_Histos_EnergyCut[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
 
     dE_Tutti.Fill(treeVars.xtalEnergy[XTLindex]);
     dX_Tutti.Fill(treeVars.xtalTkLength[XTLindex]);
