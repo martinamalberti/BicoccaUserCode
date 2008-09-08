@@ -88,7 +88,7 @@ int main (int argc, char** argv)
 //  }
 // else {
  char inputRootName[100];
-//  for (int i=1; i< 10; i++) {
+ //  for (int i=1; i< 10; i++) {
  for (int i=1; i< 46; i++) {
   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-50908%i.tree.root",i); 
    //   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Cosmic/EcalCosmicsTree-50908%i.tree.root",i); 
@@ -112,11 +112,6 @@ int main (int argc, char** argv)
   std::cout << "Open: " << inputRootName << std::endl;
  }
  
- 
- 
- 
- 
- 
   // }
  
  EcalCosmicsTreeContent treeVars ; 
@@ -127,15 +122,25 @@ int main (int argc, char** argv)
  TH1F dE_Tutti("dE_Tutti","dE_Tutti",1000,0,2);
  TH1F dX_Tutti("dX_Tutti","dX_Tutti",1000,0.,25.);  
 
- // TH2F dEvsAlpha_Tutti("dEvsAlpha_Tutti","dEvsAlpha_Tutti",200, 0., 90., 1000,0. ,2. );
+ TH1F alpha_up("alpha_up", "alpha_up", 180, 0., 180.);
+ TH1F alpha_down("alpha_down", "alpha_down", 180, 0., 180.);
+
+ TH1F muon_up("muon_up", "muon_up", 180, 0., 180.);
+ TH1F muon_down("muon_down", "muon_down", 180, 0., 180.);
+
+ TH2F EtaPhi_events("EtaPhi_events", "EtaPhi_events", 171, -85., 86, 360, 1., 361.);
+ TProfile2D EtaPhi_alpha_xtal("EtaPhi_alpha_xtal", "EtaPhi_alpha_xtal", 171, -85., 86, 360, 1., 361.);
+ TProfile2D EtaPhi_alpha_xtalMU("EtaPhi_alpha_xtalMU", "EtaPhi_alpha_xtalMU", 171, -85., 86, 360, 1., 361.);
+ TProfile2D EtaPhi_alpha_MU("EtaPhi_alpha_MU", "EtaPhi_alpha_MU", 171, -85., 86, 360, 1., 361.);
+
  TProfile dEvsAlpha_Tutti("dEvsAlpha_Tutti","dEvsAlpha_Tutti",100, 0., 90.);
  TProfile dXvsAlpha_Tutti("dXvsAlpha_Tutti","dXvsAlpha_Tutti",100, 0., 90.);
-
- // TProfile dEdx_alpha("dEdx_alpha", "dEdx_alpha", 20, 0., 1.6 );
  TProfile dEdx_alpha("dEdx_alpha", "dEdx_alpha", 100, 0., 90. );
- // TH2F dEdx_alpha("dEdx_alpha", "dEdx_alpha", 200, 0., 90., 100, 0., 3. );
- //TH1F dEdx_alpha("dEdx_alpha", "dEdx_alpha", 20, 0., PI/2 );
+ 
+ TH1F xtalX("xtalX", "xtalX", 300, -150., 150. );
  TH1F xtalY("xtalY", "xtalY", 300, -150., 150. );
+ TH1F xtalZ("xtalZ", "xtalZ", 800, -400., 400. );
+
  TH1F muonY("muonY", "muonY", 300, -150., 150. );
 
  TH2F occupancyEnergy ("occupancyEnergy","single crystals counting Energy",180,0,360,171,-85,86) ;
@@ -158,54 +163,100 @@ int main (int argc, char** argv)
   {
    int SCindex = associations.at (i).second ;
  
-     //PG loop over crystals <-- in case the calib is based on single
-     //PG                        xtal deposit
+   //PG loop over crystals <-- in case the calib is based on single
+   //PG                        xtal deposit
+
+   float dummyEmax = 0.;
+   float dummyLmax = 0.;
+   bool XtalOk = true;
+
    for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
         XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
           treeVars.nXtalsInSuperCluster[SCindex] ; ++XTLindex)
-   {
-    if(treeVars.xtalTkLength[XTLindex] == -1) continue;
-    
-         //PG find a unique index for each xtal --> rawId()
-    EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;   
+     {
+       if(treeVars.xtalTkLength[XTLindex] == -1) continue;
+       
+       //check the link Xtal with max energy  == Xtal with max length
+       
+       if(treeVars.xtalEnergy[XTLindex] > dummyEmax) 
+	 {
+	   dummyEmax = treeVars.xtalEnergy[XTLindex];	      
+	   dummyLmax = treeVars.xtalTkLength[XTLindex];	      
+	 }
+       if(treeVars.xtalTkLength[XTLindex] > dummyLmax) XtalOk = false;
+     }
+
+   if(XtalOk == false)continue;
+   
+   for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+        XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+          treeVars.nXtalsInSuperCluster[SCindex] ; ++XTLindex)
+     {
+       if(treeVars.xtalTkLength[XTLindex] == -1) continue;
+       
+       //energy deposited reasonable wrt the expected one
+       if(2.*treeVars.xtalEnergy[XTLindex]< treeVars.xtalTkLength[XTLindex]*0.0125) continue;
+       
+       //PG find a unique index for each xtal --> rawId()
+       EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;   
          
          //taglio in phi o eta?
          //      if( (dummy.iphi() < 80) || (dummy.iphi() > 100) ) continue; 
 
          //get Xtal direction
-    TVector3 Xtal_pos (0., 0., 0.) ;
-    setVectorOnECAL (Xtal_pos, dummy.ieta(), dummy.iphi(), 130);
+       TVector3 Xtal_pos (0., 0., 0.) ;
+       double xtalEta = dummy.ieta() * 0.0175;
+       if(dummy.ieta() < 0.) xtalEta = (dummy.ieta()+1.) * 0.0175;
+       double xtalPhi = (dummy.iphi()-1.) * 0.0175;
+       if(xtalPhi > PI) xtalPhi = 2*PI - xtalPhi;
+       setVectorOnECAL (Xtal_pos, xtalEta, xtalPhi, 131.);
+	
+       TVector3 MuonDirf (0., 1., 0.);
+       float angle = MuonDirf.Angle( Xtal_pos ) ;
+       if(angle > PI ) angle -= PI ;       
+       if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]       
+              
+       EtaPhi_alpha_xtal.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
 
-    int MUindex = associations.at (i).first  ;
-                         
-         //get Muon direction at ECAL
-         //GlobalPoint AtEcal;
-         //setMuonTkAtECAL(AtEcal, MUindex, treeVars);
-      
-         // get muon direction
-         //TVector3 MuonDir (AtEcal.x(), AtEcal.y(), AtEcal.z());
-    TVector3 MuonDir (treeVars.muonMomentumX[MUindex], treeVars.muonMomentumY[MUindex], treeVars.muonMomentumZ[MUindex]);
-         
-         // calc angle 
-    float angle = MuonDir.Angle( Xtal_pos ) ;
-    if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]
-    dEdx_alpha.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
-         
-         //control plots
-    xtalY.Fill(Xtal_pos.y());
-    muonY.Fill(MuonDir.y());
-    
-    dEvsAlpha_Tutti.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex]);
-    dXvsAlpha_Tutti.Fill(angle*180./PI, treeVars.xtalTkLength[XTLindex]);
-         //define alpha cuts - to be done
+       int MUindex = associations.at (i).first  ;
+       TVector3 MuonDir ( treeVars.muonMomentumX[MUindex],  treeVars.muonMomentumY[MUindex],  treeVars.muonMomentumZ[MUindex]);
+       angle = MuonDir.Angle( Xtal_pos ) ;
+       if(angle > PI ) angle -= PI ;       
+       if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]       
+       
+       if(dummy.iphi() > 180)alpha_down.Fill(angle*180. /PI);       
+       else if(dummy.iphi() <= 180)alpha_up.Fill(angle*180. /PI);       
+       EtaPhi_alpha_xtalMU.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
+       dEdx_alpha.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
+       EtaPhi_events.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
+
+       TVector3 Xtal_posf (0., 1., 0.) ;
+       angle = MuonDir.Angle( Xtal_posf ) ;
+       if(angle > PI ) angle -= PI ;       
+       if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]       
+       EtaPhi_alpha_MU.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
+       if(dummy.iphi() > 180)muon_down.Fill(angle*180. /PI);       
+       else if(dummy.iphi() <= 180)muon_up.Fill(angle*180. /PI);       
+
+
+       //control plots
+       xtalX.Fill(Xtal_pos.x());
+       xtalY.Fill(Xtal_pos.y());
+       xtalZ.Fill(Xtal_pos.z());
+       
+       muonY.Fill(MuonDir.y());
+       
+       dEvsAlpha_Tutti.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex]);
+       dXvsAlpha_Tutti.Fill(angle*180./PI, treeVars.xtalTkLength[XTLindex]);
+       //define alpha cuts - to be done
 
          
-         //----------------------------------------
+       //----------------------------------------
          
-         //PG verify if the xtal index is already present in the dEdx_Histos map
-         //PG    (if not, add it)         
-         
-         //---- AM Single crystal ----
+       //PG verify if the xtal index is already present in the dEdx_Histos map
+       //PG    (if not, add it)         
+       
+       //---- AM Single crystal ----
     std::map<int, TH1F *>::iterator dEdx_Histos_iter = dEdx_Histos.find(dummy.rawId());
     if (dEdx_Histos_iter == dEdx_Histos.end()) {
      std::ostringstream stm;
@@ -501,10 +552,43 @@ int main (int argc, char** argv)
  
  //---- Saving histograms ----
  //---- dEdx_Histos.
+
  dEdx_alpha.GetXaxis()->SetTitle("#alpha");
  dEdx_alpha.Write();
 
+ alpha_up.GetXaxis()->SetTitle("#alpha");
+ alpha_up.Write();
+
+ alpha_down.GetXaxis()->SetTitle("#alpha");
+ alpha_down.Write();
+
+ muon_up.GetXaxis()->SetTitle("#alpha");
+ muon_up.Write();
+
+ muon_down.GetXaxis()->SetTitle("#alpha");
+ muon_down.Write();
+
+
+ EtaPhi_events.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_events.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_events.Write();
+
+ EtaPhi_alpha_xtal.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_alpha_xtal.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_alpha_xtal.Write();
+
+ EtaPhi_alpha_xtalMU.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_alpha_xtalMU.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_alpha_xtalMU.Write();
+
+ EtaPhi_alpha_MU.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_alpha_MU.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_alpha_MU.Write();
+
+ xtalX.Write();
  xtalY.Write();
+ xtalZ.Write();
+
  muonY.Write();
  dEvsAlpha_Tutti.Write();
  dXvsAlpha_Tutti.Write();
