@@ -18,86 +18,86 @@
 #include "TLorentzVector.h"
 #include "TApplication.h"
 
+//MF read CFG files includes5
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/foreach.hpp>
+
+
 #include "CRUZET/Calibration/interface/CRUtils.h"
 
 //#include "CRUZET/Calibration/interface/AssociationUtils.h"
 
-
-//! main program
 int main (int argc, char** argv)
 {
 
-  std::string outputRootName = "changeme.root" ;
-  std::string testName = "-o";
-  if (argc>2){
-      if (argv[1] == testName) {
-        outputRootName = argv[2] ;
-      }
-  }
+  std::string fileName (argv[1]) ;
+  boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
+  boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
+  std::cout << parameterSet->dump () << std::endl ; //PG for testing
   
-  std::string testHelp = "--help";
-  if (argc==2){
-      if (argv[1] == testHelp) {
-          std::cout << "Help" << std::endl ;
-          std::cout << " --help : display help" << std::endl ;
-          std::cout << " -o : output root file name (eg histograms.root)" << std::endl ;
-          std::cout << " name of input file : list name of input files ntuples" << std::endl ;     
-          exit(1);
-      }
-  }
-    
-  if (argc < 2)
-    {
-      std::cerr << "ERROR : ntuple name missing" << std::endl ;
-      exit (1) ;
-    }
+  edm::ParameterSet subPSetCalib =  parameterSet->getParameter<edm::ParameterSet> ("clusterCalib") ;
+  edm::ParameterSet subPSetInput =  
+    parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
+  std::vector<std::string> inputFiles = 
+   subPSetInput.getParameter<std::vector<std::string> > ("inputFiles") ;
+  std::cout << "reading : " ;
 
-  //MF CUTS VALUES!
-  double EnergyMaxCUT = 15;
-  double EnergyMinCUT = 0;
-  double angleMAX = 0.3925;
-  double angleMIN = 0.;
-
-
-  std::cout << ">>> Entering XtalsDistr program <<<" << std::endl;
-
-  
-  // Tree construction
-  TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-
-  if (argv[1] == testName) {
-      for (int i=3; i< (argc); i++) chain->Add (argv[i]) ;
-  }
-  else{
-      for (int i=1; i< (argc); i++) chain->Add (argv[i]) ;
-  }
- 
+  TChain *chain = new TChain ("EcalCosmicsAnalysis") ;
   EcalCosmicsTreeContent treeVars ; 
   setBranchAddresses (chain, treeVars) ;
+
+  for (std::vector<std::string>::const_iterator listIt = inputFiles.begin () ;
+       listIt != inputFiles.end () ;
+       ++listIt)
+    {
+      std::cout << *listIt << " " << std::endl ;
+      chain->Add (listIt->c_str ()) ;
+    }
+
+
+  //MF CUTS VALUES ON ANGLES AND SC ENERGY
+  double EnergyMaxCUT = subPSetCalib.getParameter<double> ("EnergyMaxCUT") ;
+  double EnergyMinCUT = subPSetCalib.getParameter<double> ("EnergyMinCUT") ;
+  double angleMAX = subPSetCalib.getParameter<double> ("angleMAX") ;
+  double angleMIN = subPSetCalib.getParameter<double> ("angleMIN") ;
+ 
+
+  std::cout << ">>> Entering XtalsDistr program <<<" << std::endl;
 
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
 
   TH2F SCdistr ("SCdistr","SCdistr",360,-3.1416,3.1416,170,-1.5,1.5) ;
+
+  TH1F EnergySConTrackLength ("EnergySConTrackLength","EnergySConTrackLength", 500, 0., 0.5) ;    
+  
   TH2F OccupancyXtals ("OccupancyXtals","OccupancyXtals",360,1.,360.,172,-86.,86.) ;     
   TH2F xtalEnergyMap("xtalEnergyMap","xtalEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile2D aveEnergyMap ("aveEnergyMap","aveEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile aveEnergyMapVsEta ("aveEnergyMapVsEta", "aveEnergyMapVsEta", 172, -86, 86);
   TProfile aveEnergyMapVsPhi ("aveEnergyMapVsPhi", "aveEnergyMapVsPhi", 360, 1, 360);
+  TH2F EnergySCVSTrackLength ("EnergySCVSTrackLength", "EnergySCVSTrackLength", 400, 0., 40., 500,0., 5.);
 
-  
   TH1F Emax ("Emax","Emax",100,0.,1.) ;
   TH1F Emin ("Emin","Emin",100,0.,1.) ;
   TH1F Angle("Angle", "Angle", 180, 0., 3.1415);
+  TH1F AngleWCutEnergy("AngleWCutEnergy", "AngleWCutEnergy", 180, 0., 3.1415);
+
+  TH1F SuperClusterEnergyWCutAngle ("SuperClusterEnergyWCutAngle","SuperClusterEnergyWCutAngle",100,0.,5.) ;
   TH1F SuperClusterEnergy ("SuperClusterEnergy","SuperClusterEnergy",100,0.,5.) ;
-  
+  TH2F AngleVsSCEnergy ("AngleVsSCEnergy","AngleVsSCEnergy",360, 0., 3.1415, 500,0.,5.) ;     
+
   TH2F cutOccupancyXtals ("cutOccupancyXtals","cutOccupancyXtals",360,1.,360.,172,-86.,86.) ;     
   TH2F cutxtalEnergyMap("cutxtalEnergyMap","cutxtalEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile2D cutaveEnergyMap ("cutaveEnergyMap","cutaveEnergyMap",360,1.,361.,172,-86.,86.);     
   TProfile cutaveEnergyMapVsEta ("cutaveEnergyMapVsEta", "cutaveEnergyMapVsEta", 172, -86, 86);
   TProfile cutaveEnergyMapVsPhi ("cutaveEnergyMapVsPhi", "cutaveEnergyMapVsPhi", 360, 1, 360);
 
-  double EnergyMax = 0;        
+
+  
+  double EnergyMax = 0;		
   double EnergyMin = 0;
   
   //PG loop over entries
@@ -106,27 +106,24 @@ int main (int argc, char** argv)
       chain->GetEntry (entry) ;
 
       if (entry % 10000 == 0) std::cout << "reading entry " << entry << std::endl ;
-     //MF Selections on angles    
-     //MF association between muons and superclusters
+
  
       std::vector<ect::association> associations ;
       ect::fillAssocVector (associations, treeVars) ;
       ect::selectOnDR (associations, treeVars, 0.3) ;
+
       
       double angle = -99;  
       
       //PG loop on associations vector
       for (unsigned int i = 0 ; i < associations.size () ; ++i)
+
         {
           int MUindex = associations.at (i).first ;
           int SCindex = associations.at (i).second ;     
-//PG FIXME come mai c'era questo taglio?
-//          if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0        
-          //TVector3 SC0_pos (0., 0., 0.) ;
-          //setVectorOnECAL (SC0_pos, 
-          //                 treeVars.superClusterEta[SCindex], 
-          //                 treeVars.superClusterPhi[SCindex],
-          //                 1) ;
+          
+	  //if (treeVars.muonTkLengthInEcalDetail[MUindex] < 1) continue;   // length > 0        
+
           TVector3 SC0_pos (treeVars.superClusterX[SCindex], 
                             treeVars.superClusterY[SCindex], 
                             treeVars.superClusterZ[SCindex]) ; 
@@ -138,61 +135,84 @@ int main (int argc, char** argv)
           angle = MuonDir.Angle( SC0_pos ) ;
           if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
           Angle.Fill(angle);
-         
-          SCdistr.Fill (treeVars.superClusterPhi[SCindex],
-                        treeVars.superClusterEta[SCindex]) ;             
-                  
-          double SCEnergy = 0;        
-          EnergyMax = 0;        
-          EnergyMin = 0;
-
-          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+	  
+	 
+	  double SCEnergy = 0;		
+	  EnergyMax = 0;		
+	  EnergyMin = 0;
+	 
+	  //loop su cristalli di Supercluster Associato
+	  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
                XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
-                          treeVars.nXtalsInSuperCluster[SCindex] ;
+		 treeVars.nXtalsInSuperCluster[SCindex] ;
                ++XTLindex)
             {
-              EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-              OccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
-              xtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-              aveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-              aveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
-              aveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
-              SCEnergy = SCEnergy + treeVars.xtalEnergy[XTLindex];
-              
-              //MF determino energia max ed energia minima
-              if (treeVars.xtalEnergy[XTLindex] >= EnergyMax) EnergyMax = treeVars.xtalEnergy[XTLindex];
-              if (XTLindex == treeVars.xtalIndexInSuperCluster[SCindex]) EnergyMin = treeVars.xtalEnergy[XTLindex];
-              if (treeVars.xtalEnergy[XTLindex] <= EnergyMin) EnergyMin = treeVars.xtalEnergy[XTLindex];
-            }
-          SuperClusterEnergy.Fill(SCEnergy);
-          //PLOTS CON CUTS
-          if ( (SCEnergy <= EnergyMaxCUT) && 
-               (SCEnergy >= EnergyMinCUT) && 
-               (angle >= angleMIN) && 
-               (angle <= angleMAX))    //MF loop on crystals with CUTS    
-            { 
-               for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
-                    XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] + 
-                               treeVars.nXtalsInSuperCluster[SCindex] ;
-                    ++XTLindex)
-                 {
-                   EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-                   cutOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
-                   cutxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-                   cutaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
-                   cutaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
-                   cutaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
-                 }     
-            } //PLOTS CON CUTS
-          Emax.Fill(EnergyMax);
-          Emin.Fill(EnergyMin);
+                EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+	        OccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
+	        xtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+	        aveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+	        aveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
+	        aveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
+	    
+	    
+	        SCEnergy = SCEnergy + treeVars.xtalEnergy[XTLindex];	    
+	        //MF determino energia max ed energia minima dei cristalli
+	        if (treeVars.xtalEnergy[XTLindex] >= EnergyMax) EnergyMax = treeVars.xtalEnergy[XTLindex];
+	        if (XTLindex == treeVars.xtalIndexInSuperCluster[SCindex]) EnergyMin = treeVars.xtalEnergy[XTLindex];
+	        if (treeVars.xtalEnergy[XTLindex] <= EnergyMin) EnergyMin = treeVars.xtalEnergy[XTLindex];     
+	    }
+	    
+	 Emax.Fill(EnergyMax);
+	 Emin.Fill(EnergyMin);    
+	 AngleVsSCEnergy.Fill(angle,treeVars.superClusterRawEnergy[SCindex]);
+	 SuperClusterEnergy.Fill(treeVars.superClusterRawEnergy[SCindex]);
+	 //MF Energy with selections on angles
+	 if((angle >= angleMIN) && (angle <= angleMAX)) 
+	 {
+	 SuperClusterEnergyWCutAngle.Fill(treeVars.superClusterRawEnergy[SCindex]);
+	  }
+         EnergySCVSTrackLength.Fill(treeVars.muonTkLengthInEcalDetail[MUindex], treeVars.superClusterRawEnergy[SCindex]);
+ 
+          EnergySConTrackLength.Fill(treeVars.superClusterRawEnergy[SCindex]/treeVars.muonTkLengthInEcalDetail[MUindex]);
+         //MF Angle with selections on energy
+	 if((SCEnergy <= EnergyMaxCUT) && (SCEnergy >= EnergyMinCUT)) AngleWCutEnergy.Fill(angle);
+	 
+	 
+	 //PLOTS CON CUTS
+	   if ( (SCEnergy <= EnergyMaxCUT) && (SCEnergy >= EnergyMinCUT) && (angle >= angleMIN) && (angle <= angleMAX))	//MF loop on crystals with CUTS    
 
-        } //PG loop on associations vector
-    
+	   { 
+              
+	        for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+                     XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] + treeVars.nXtalsInSuperCluster[SCindex] ;
+                     ++XTLindex)
+                     {
+	             EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
+	    	     cutOccupancyXtals.Fill(dummy.iphi(), dummy.ieta());
+	   	     cutxtalEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+	   	     cutaveEnergyMap.Fill(dummy.iphi(), dummy.ieta(), treeVars.xtalEnergy[XTLindex]);
+	    	     cutaveEnergyMapVsEta.Fill(dummy.ieta(),treeVars.xtalEnergy[XTLindex]);
+	  	     cutaveEnergyMapVsPhi.Fill(dummy.iphi(),treeVars.xtalEnergy[XTLindex]);
+
+	             }     
+
+	    }
+
+
+
+	  
+	  
+       }
+
+
+  
+	
+
+ 
 	
     } //PG loop over entries
 
-  TFile saving (outputRootName.c_str () ,"recreate") ;
+  TFile saving ("OutputXtals.root" ,"recreate") ;
   saving.cd () ;  
   SCdistr.Write () ;
   Emax.Write();
@@ -206,11 +226,16 @@ int main (int argc, char** argv)
   cutOccupancyXtals.Write() ;
   cutaveEnergyMap.Write();
   Angle.Write();
+  SuperClusterEnergyWCutAngle.Write();
   SuperClusterEnergy.Write();
   cutaveEnergyMapVsPhi.Write();
   cutaveEnergyMapVsEta.Write();
+  AngleWCutEnergy.Write();
+  EnergySCVSTrackLength.Write();
+  EnergySConTrackLength.Write();
+  AngleVsSCEnergy.Write();
   saving.Close () ;
-
+  
   return 0 ;
 }
 
