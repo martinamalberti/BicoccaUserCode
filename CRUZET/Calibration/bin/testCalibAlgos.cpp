@@ -23,6 +23,7 @@
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
 #include "CRUZET/Calibration/interface/ClusterCalibTools.h"
+#include "CRUZET/Calibration/interface/coeffSaver.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
@@ -72,8 +73,7 @@ int main (int argc, char** argv)
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet() ;
   std::cout << parameterSet->dump () << std::endl ; //PG for testing
 
-  edm::ParameterSet subPSetCalib =  
-    parameterSet->getParameter<edm::ParameterSet> ("clusterCalib") ;
+  edm::ParameterSet subPSetCalib = parameterSet->getParameter<edm::ParameterSet> ("clusterCalib") ;
   int etaMin = subPSetCalib.getParameter<int> ("etaMin") ;
   int etaMax = subPSetCalib.getParameter<int> ("etaMax") ;
   int etaStep = subPSetCalib.getParameter<int> ("etaStep") ;
@@ -383,17 +383,20 @@ int main (int argc, char** argv)
     } //PG several loops on the dataset
 
   //PG Writes the coeffs onto an XML file
-  calibXMLwriter barrelWriter (EcalBarrel) ;
+  //calibXMLwriter barrelWriter (EcalBarrel) ;
+  coeffSaver out; 
+  int dum = out.save("out.txt", recalibMap);
 
-  for (int eta=0; eta<170; ++eta)
-    for (int phi=0; phi<360; ++phi)
-      {
-        int index = eta*360+phi ;
-        EBDetId xtalDetId = EBDetId::unhashIndex (index) ;
-        barrelWriter.writeLine (xtalDetId, 
-                                recalibMap[index]) ;
-      }
-
+//  for (int eta=0; eta<170; ++eta)
+  //  for (int phi=0; phi<360; ++phi)
+    //  {
+      //  int index = eta*360+phi ;
+       // EBDetId xtalDetId = EBDetId::unhashIndex (index) ;
+    //    barrelWriter.writeLine (xtalDetId, 
+                                //recalibMap[index]) ; 
+	//		OUTFile << index  << recalibMap[index];
+     // }
+  //OUTFile.close();
   return 0 ;
 
 }
