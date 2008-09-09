@@ -46,7 +46,7 @@ EcalCosmicsTree::EcalCosmicsTree(const edm::ParameterSet& iConfig) :
   l1GTReadoutRecTag_ (iConfig.getUntrackedParameter<std::string>("L1GlobalReadoutRecord","gtDigis")),
   muonTracksCollection_ (iConfig.getParameter<edm::InputTag>("muonTracksCollection")),
   runNum_(-1),
-  fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("ecalCosmicHists")))
+  fileName_ (iConfig.getUntrackedParameter<std::string>("fileName", std::string("ecalCosmicNtuple")))
 {
   naiveEvtNum_ = 0;
   // TrackAssociator parameters
