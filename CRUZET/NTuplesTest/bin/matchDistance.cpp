@@ -9,6 +9,12 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+//MF read CFG files includes5
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/foreach.hpp>
+
 //PG root includes
 #include "TChain.h"
 #include "TH1.h"
@@ -19,49 +25,37 @@
 //! main program
 int main (int argc, char** argv)
 {
-  
-  std::string outputRootName = "changeme.root" ;
-  std::string testName = "-o";
-  if (argc>2){
-      if (argv[1] == testName) {
-        outputRootName = argv[2] ;
-      }
-  }
-  
-  std::string testHelp = "--help";
-  if (argc==2){
-      if (argv[1] == testHelp) {
-          std::cout << "Help" << std::endl ;
-          std::cout << " --help : display help" << std::endl ;
-          std::cout << " -o : output root file name (eg histograms.root)" << std::endl ;
-          std::cout << " name of input file : list name of input files ntuples" << std::endl ;     
-          exit(1);
-      }
-  }
-    
-  if (argc < 2)
-    {
-      std::cerr << "ERROR : ntuple name missing" << std::endl ;
-      exit (1) ;
-    }
+  std::string outputRootName = "OutputMatchDistance.root" ;
 
   TH1F matchDR ("matchDR","matchDR",100,0,1) ;
   TProfile2D matchDRMap ("matchDRMap","matchDRMap",360,-3.1416,3.1416,170,-1.5,1.5) ;
            
-  // Tree construction
-  TChain * chain = new TChain ("EcalCosmicsAnalysis") ;
-  
-  if (argv[1] == testName) {
-      for (int i=3; i< (argc); i++) chain->Add (argv[i]) ;
-  }
-  else{
-      for (int i=1; i< (argc); i++) chain->Add (argv[i]) ;
-  }
-        
-  //   chain->Add (argv[1]) ;
 
+  std::string fileName (argv[1]) ;
+  boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
+  boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
+  std::cout << parameterSet->dump () << std::endl ; //PG for testing
+  
+  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
+  edm::ParameterSet subPSetInput =  
+    parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
+  std::vector<std::string> inputFiles = 
+   subPSetInput.getParameter<std::vector<std::string> > ("inputFiles") ;
+  std::cout << "reading : " ;
+
+  TChain *chain = new TChain ("EcalCosmicsAnalysis") ;
   EcalCosmicsTreeContent treeVars ; 
   setBranchAddresses (chain, treeVars) ;
+
+  for (std::vector<std::string>::const_iterator listIt = inputFiles.begin () ;
+       listIt != inputFiles.end () ;
+       ++listIt)
+    {
+      std::cout << *listIt << " " << std::endl ;
+      chain->Add (listIt->c_str ()) ;
+    }
+
+
 
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
@@ -70,6 +64,8 @@ int main (int argc, char** argv)
   for (int entry = 0 ; entry < nEntries ; ++entry)
     {
       chain->GetEntry (entry) ;
+      if (entry % 100000 == 0) std::cout << "reading entry " << entry << std::endl ;
+
 
       std::vector<ect::association> associations ;
       ect::fillAssocVector (associations, treeVars) ;
