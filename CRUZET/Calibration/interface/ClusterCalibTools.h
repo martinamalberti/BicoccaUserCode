@@ -107,4 +107,18 @@ double
 calcLengthInSC (const EcalCosmicsTreeContent & treeVars,
                 int SCindex) ;
 
+double
+calcVetoSingle (const EcalCosmicsTreeContent & treeVars,
+                int SCindex,
+                int maxXtalIndex) ;
+
+double
+calcVetoDouble (const EcalCosmicsTreeContent & treeVars,
+                int SCindex,
+                std::pair<int,int> maxXtals) ;
+
+double
+checkCouple (const EcalCosmicsTreeContent & treeVars,
+             std::pair<int,int> maxXtals) ;
+
 #endif

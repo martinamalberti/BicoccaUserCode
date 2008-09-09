@@ -231,6 +231,97 @@ calcLengthInSC (const EcalCosmicsTreeContent & treeVars,
 }
 
 
+//PG ------------------------------------------------------------------
 
 
+double
+calcVetoSingle (const EcalCosmicsTreeContent & treeVars,
+                int SCindex,
+                int maxXtalIndex)
+{
+  double vetoEnergy = 0. ;
+
+  int maxIeta = treeVars.xtalHashedIndex[maxXtalIndex] / 360 ;
+  int maxIphi = treeVars.xtalHashedIndex[maxXtalIndex] % 360 ;
+
+  //PG loop over xtals in supercluster
+  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+       XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                  treeVars.nXtalsInSuperCluster[SCindex] ;
+       ++XTLindex)
+    {
+      //PG not the central one
+      if (XTLindex == maxXtalIndex) continue ;
+      //PG only the border ones
+      int xtalIeta = treeVars.xtalHashedIndex[XTLindex] / 360 ;
+      int xtalIphi = treeVars.xtalHashedIndex[XTLindex] % 360 ;
+      if (abs (xtalIeta - maxIeta) > 1 || 
+          abs (xtalIphi - maxIphi) > 1) continue ;      
+      vetoEnergy += treeVars.xtalEnergy[XTLindex] ;
+    } //PG loop over xtals in supercluster
+
+  return vetoEnergy ;
+}
+
+
+//PG ------------------------------------------------------------------
+
+
+double
+calcVetoDouble (const EcalCosmicsTreeContent & treeVars,
+                int SCindex,
+                std::pair<int,int> maxXtals)
+{
+  double vetoEnergy = 0. ;
+
+  if (checkCouple (treeVars, maxXtals)) return -1. ;
+
+  int maxIeta1 = treeVars.xtalHashedIndex[maxXtals.first] / 360 ;
+  int maxIphi1 = treeVars.xtalHashedIndex[maxXtals.first] % 360 ;
+  int maxIeta2 = treeVars.xtalHashedIndex[maxXtals.second] / 360 ;
+  int maxIphi2 = treeVars.xtalHashedIndex[maxXtals.second] % 360 ;
+
+  //PG loop over xtals in supercluster
+  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+       XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                  treeVars.nXtalsInSuperCluster[SCindex] ;
+       ++XTLindex)
+    {
+      //PG not the central one
+      if (XTLindex == maxXtals.first ||
+          XTLindex == maxXtals.second) continue ;
+      //PG only the border ones
+      
+      //PG FIXME to be done
+      
+      int xtalIeta = treeVars.xtalHashedIndex[XTLindex] / 360 ;
+      int xtalIphi = treeVars.xtalHashedIndex[XTLindex] % 360 ;
+      if ( (abs (xtalIeta - maxIeta1) > 1 || 
+            abs (xtalIphi - maxIphi1) > 1) &&
+           (abs (xtalIeta - maxIeta2) > 1 || 
+            abs (xtalIphi - maxIphi2) > 1) ) 
+        continue ;      
+      vetoEnergy += treeVars.xtalEnergy[XTLindex] ;
+    } //PG loop over xtals in supercluster
+
+  return vetoEnergy ;
+}
+
+
+//PG ------------------------------------------------------------------
+
+
+double
+checkCouple (const EcalCosmicsTreeContent & treeVars,
+             std::pair<int,int> maxXtals)
+{
+  int maxIeta1 = treeVars.xtalHashedIndex[maxXtals.first] / 360 ;
+  int maxIphi1 = treeVars.xtalHashedIndex[maxXtals.first] % 360 ;
+  int maxIeta2 = treeVars.xtalHashedIndex[maxXtals.second] / 360 ;
+  int maxIphi2 = treeVars.xtalHashedIndex[maxXtals.second] % 360 ;
+
+  if (abs (maxIeta1 - maxIeta2) > 1 ||
+      abs (maxIphi1 - maxIphi2) > 1) return 0 ;
+  return 1 ;
+}
 
