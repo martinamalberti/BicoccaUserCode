@@ -103,5 +103,8 @@ std::pair <int,int>
 findMaxXtalsInSC (const EcalCosmicsTreeContent & treeVars,
                   int SCindex) ;
 
+double
+calcLengthInSC (const EcalCosmicsTreeContent & treeVars,
+                int SCindex) ;
 
 #endif

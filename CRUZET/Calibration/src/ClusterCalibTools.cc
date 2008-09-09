@@ -209,4 +209,28 @@ findMaxXtalsInSC (const EcalCosmicsTreeContent & treeVars,
 }
 
 
+//PG ------------------------------------------------------------------
+
+
+double
+calcLengthInSC (const EcalCosmicsTreeContent & treeVars,
+                int SCindex)
+{
+  double length = 0. ;
+
+  //PG loop over xtals in supercluster
+  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+       XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                  treeVars.nXtalsInSuperCluster[SCindex] ;
+       ++XTLindex)
+    {
+      length += treeVars.xtalTkLength[XTLindex] ;
+    } //PG loop over xtals in supercluster
+
+  return length ;
+}
+
+
+
+
 
