@@ -4,6 +4,9 @@
 #include <map>
 #include <vector>
 
+#include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
+
+
 /** to build the regions where to run the calibration
   - all the methods have as input eta index defined in:
     [-85,-1] U [1,85] (EBDetId::ieta ())
@@ -90,5 +93,15 @@ class EBregionBuilder
   
 
 } ;
+
+
+int
+findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
+                 int SCindex) ;
+
+std::pair <int,int>
+findMaxXtalsInSC (const EcalCosmicsTreeContent & treeVars,
+                  int SCindex) ;
+
 
 #endif

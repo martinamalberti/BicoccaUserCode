@@ -147,3 +147,66 @@ int EBregionBuilder::phiShifter (int phiOld) const
      return phiOld - 1 ;
    }
 
+
+//PG ------------------------------------------------------------------
+
+
+int
+findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
+                 int SCindex)
+{
+  double dummyEnergy = 0. ;
+  int maxXtalIndex = -1 ;
+
+  //PG loop over xtals in supercluster
+  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+       XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                  treeVars.nXtalsInSuperCluster[SCindex] ;
+       ++XTLindex)
+    {
+      if (treeVars.xtalEnergy[XTLindex] > dummyEnergy)
+        {
+          dummyEnergy = treeVars.xtalEnergy[XTLindex] ;
+          maxXtalIndex = XTLindex ;
+        }
+    } //PG loop over xtals in supercluster
+
+  return maxXtalIndex ;
+}
+
+
+//PG ------------------------------------------------------------------
+
+
+std::pair <int,int>
+findMaxXtalsInSC (const EcalCosmicsTreeContent & treeVars,
+                  int SCindex)
+{
+  double dummyEnergy = 0. ;
+  int maxXtalIndex = -1 ;
+  double dummySecondEnergy = 0. ;
+  int secondMaxXtalIndex = -1 ;
+
+  //PG loop over xtals in supercluster
+  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+       XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                  treeVars.nXtalsInSuperCluster[SCindex] ;
+       ++XTLindex)
+    {
+      if (treeVars.xtalEnergy[XTLindex] > dummyEnergy)
+        {
+          dummySecondEnergy = dummyEnergy ;
+          secondMaxXtalIndex = maxXtalIndex ;
+          dummyEnergy = treeVars.xtalEnergy[XTLindex] ;
+          maxXtalIndex = XTLindex ;
+        } else {
+          dummySecondEnergy = treeVars.xtalEnergy[XTLindex] ;
+          secondMaxXtalIndex = XTLindex ;
+        }
+    } //PG loop over xtals in supercluster
+
+  return std::pair <int,int> (maxXtalIndex,secondMaxXtalIndex) ;
+}
+
+
+

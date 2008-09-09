@@ -50,10 +50,7 @@ int findRegion (const EcalCosmicsTreeContent & treeVars,
                 int SCindex,
                 EBregionBuilder & EBRegionsTool) ;
 
-int
-findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
-                 int SCindex) ;
-
+                  
 
 //PG ------------------------------------------------------------------
 
@@ -420,32 +417,3 @@ int findRegion (const EcalCosmicsTreeContent & treeVars,
   int iphi = dummyDetId.iphi () ;
   return EBRegionsTool.EBRegionId (ieta, iphi) ;
 }
-
-
-//PG ------------------------------------------------------------------
-
-
-int
-findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
-                 int SCindex)
-{
-  double dummyEnergy = 0. ;
-  int maxXtalIndex = -1 ;
-
-  //PG loop over xtals in supercluster
-  for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
-       XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
-                  treeVars.nXtalsInSuperCluster[SCindex] ;
-       ++XTLindex)
-    {
-      if (treeVars.xtalEnergy[XTLindex] > dummyEnergy)
-        {
-          dummyEnergy = treeVars.xtalEnergy[XTLindex] ;
-          maxXtalIndex = XTLindex ;
-        }
-    } //PG loop over xtals in supercluster
-
-  return maxXtalIndex ;
-}
-
-
