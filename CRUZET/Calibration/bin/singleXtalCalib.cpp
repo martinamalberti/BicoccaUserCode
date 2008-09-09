@@ -3,8 +3,16 @@
 #include <sstream>
 #include <fstream>
 #include <cmath>
+<<<<<<< singleXtalCalib.cpp
 #include <iostream>
 #include <strstream>
+
+
+
+=======
+#include <iostream>
+#include <strstream>
+>>>>>>> 1.11
 
 #include "TH1.h"
 #include "TChain.h"
@@ -24,30 +32,53 @@
 #include <iostream>
 #include "TH2.h"
 #include "TProfile.h"
+#include "TSystem.h"
+
 
 #define PI 3.14159265
 
 int main (int argc, char** argv)
 {
+<<<<<<< singleXtalCalib.cpp
+ 
+ double EnergyPerCrystal_Min_Cut = 0.05; //---- 0.05 GeV --> 50 MeV
+ double EnergyPerCrystal_Max_Cut = 2.0; //---- 2 GeV
+ 
+=======
  double EnergyPerCrystal_Min_Cut = 0.05; //---- 0.05 GeV --> 50 MeV
  double EnergyPerCrystal_Max_Cut = 2.0; //---- 2 GeV
 
+>>>>>>> 1.11
  std::map<int, TH1F *> dEdx_Histos ;
  std::map<int, TH1F *> dEdx_Ring_Histos ;
  std::map<int, TH1F *> dEdx_Ring_1M_Up_Histos ;
  std::map<int, TH1F *> dEdx_Ring_1M_Down_Histos ;
+<<<<<<< singleXtalCalib.cpp
+
+ std::map<int, TH1F *> dE_Histos ;
+ std::map<int, TH1F *> dE_Ring_Histos ;
+ std::map<int, TH1F *> dE_Ring_1M_Up_Histos ;
+ std::map<int, TH1F *> dE_Ring_1M_Down_Histos ;
+ 
+ std::map<int, TH1F *> dEdx_Ring_Histos_EnergyCut ;
+ std::map<int, TH1F *> dEdx_Ring_1M_Up_Histos_EnergyCut ;
+ std::map<int, TH1F *> dEdx_Ring_1M_Down_Histos_EnergyCut ;
+
+  
+=======
  
  std::map<int, TH1F *> dEdx_Ring_Histos_EnergyCut ;
  std::map<int, TH1F *> dEdx_Ring_1M_Up_Histos_EnergyCut ;
  std::map<int, TH1F *> dEdx_Ring_1M_Down_Histos_EnergyCut ;
  
+>>>>>>> 1.11
  int nEntries = -1 ;
 
   //---- AM Command line input ----
   
 //  for (int i=0; i<argc; i++)
  
- std::string outputRootName = "outputHistos.root";
+ std::string outputRootName = "outputHistos8SepXCastor.root";
  std::string testNameOutput = "-o";
  if (argc>2){
   if (argv[1] == testNameOutput) {
@@ -55,6 +86,10 @@ int main (int argc, char** argv)
   }
  }
   
+ std::cout << outputRootName << std::endl;
+ 
+ 
+ 
 //  std::string testHelp = "--help";
 //  if (argc==2){
 //   if (argv[1] == testHelp) {
@@ -97,9 +132,357 @@ int main (int argc, char** argv)
 //  }
 // else {
  char inputRootName[100];
+<<<<<<< singleXtalCalib.cpp
+//  for (int i=1; i< 10; i++) {
+ 
+ 
+ 
+ 
+ 
+  
+ 
+ //---------------------------------------------------------
+ //---------------------- Input Files ----------------------
+ //---------------------------------------------------------
+
+ 
+ 
+ char buffer[1000];
+ char inputName[1000];
+
+ 
+ //--------------------- 
+ //---- Cloned Tree ----
+ //--------------------- 
+ 
+//  std::string inputNameDirectory = "/tmp/govoni/50908Cosmic";
+ std::string inputNameDirectory = "/data/cosmics";
+ 
+   
+ std::string Command2Line = "ls " + inputNameDirectory + " > temp.txt";
+ std::cout << Command2Line << std::endl;
+ gSystem->Exec(Command2Line.c_str());
+
+ 
+ ifstream fileC_50908_Cloned("temp.txt");
+ std::cerr << " Reading  " << inputNameDirectory << " ... " << std::endl;
+ while (!fileC_50908_Cloned.eof()){
+  fileC_50908_Cloned.getline (&buffer[0],1000);
+  std::istrstream line(buffer);
+  std::string uselessString;
+  int uselessInt;
+  std::string treeName; 
+  line >> treeName;
+  sprintf(inputName,"%s/%s",inputNameDirectory.c_str(),treeName.c_str());
+  std::cerr << "  File ->  " << treeName;
+  std::cerr << "  File ->  " << inputName << std::endl;
+  chain->Add (inputName);
+ }
+
+ 
+ Command2Line = "rm temp.txt";
+ gSystem->Exec(Command2Line.c_str());
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ /*
+ 
+ sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/elencoNtupleC_50908.txt");
+ ifstream fileC_50908(inputName);
+ std::cerr << " Reading  " << inputName << " ... " << std::endl;
+ while (!fileC_50908.eof()){
+  fileC_50908.getline (&buffer[0],1000);
+  std::istrstream line(buffer);
+  std::string uselessString;
+  int uselessInt;
+  //---- eg: -rw-r--r--   1 govoni   zh                     305501 Sep 07 18:12 0007034F-6E4F-DD11-BFD3-000423D99160.ntuple.root-50908.tree.root
+  line >> uselessString; //---- -rw-r--r--
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 1
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- govoni
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessString; //---- zh
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 305501
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- Sep
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 07
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- 18:12
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  
+  std::string treeName; 
+  line >> treeName;
+  sprintf(inputName,"/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_50908/%s",treeName.c_str());
+  std::cerr << "  File ->  " << treeName << std::endl;
+  std::cerr << "  File ->  " << inputName << std::endl;
+  chain->Add (inputName);
+ }
+
+ 
+ 
+ sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/elencoNtupleC_50911.txt");
+ ifstream fileC_50911(inputName);
+ std::cerr << " Reading  " << inputName << " ... " << std::endl;
+ while (!fileC_50911.eof()){
+  fileC_50911.getline (&buffer[0],1000);
+  std::istrstream line(buffer);
+  std::string uselessString;
+  int uselessInt;
+  line >> uselessString; //---- -rw-r--r--
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 1
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- govoni
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessString; //---- zh
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 305501
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- Sep
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 07
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- 18:12
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  std::string treeName; 
+  line >> treeName;
+  sprintf(inputName,"/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_50911/%s",treeName.c_str());
+  std::cerr << "  File ->  " << treeName << std::endl;
+  std::cerr << "  File ->  " << inputName << std::endl;
+  chain->Add (inputName);
+ }
+ 
+ 
+
+ sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/elencoNtupleC_50914.txt");
+ ifstream fileC_50914(inputName);
+ std::cerr << " Reading  " << inputName << " ... " << std::endl;
+ while (!fileC_50914.eof()){
+  fileC_50914.getline (&buffer[0],1000);
+  std::istrstream line(buffer);
+  std::string uselessString;
+  int uselessInt;
+  line >> uselessString; //---- -rw-r--r--
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 1
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- govoni
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessString; //---- zh
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 305501
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- Sep
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 07
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- 18:12
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  std::string treeName; 
+  line >> treeName;
+  sprintf(inputName,"/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_50914/%s",treeName.c_str());
+  std::cerr << "  File ->  " << treeName << std::endl;
+  std::cerr << "  File ->  " << inputName << std::endl;
+  chain->Add (inputName);
+ }
+ 
+ 
+ 
+ sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/elencoNtupleC_51020.txt");
+ ifstream fileC_51020(inputName);
+ std::cerr << " Reading  " << inputName << " ... " << std::endl;
+ while (!fileC_51020.eof()){
+  fileC_51020.getline (&buffer[0],1000);
+  std::istrstream line(buffer);
+  std::string uselessString;
+  int uselessInt;
+  line >> uselessString; //---- -rw-r--r--
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 1
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- govoni
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessString; //---- zh
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 305501
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- Sep
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 07
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- 18:12
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  std::string treeName; 
+  line >> treeName;
+  sprintf(inputName,"/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_51020/%s",treeName.c_str());
+  std::cerr << "  File ->  " << treeName << std::endl;
+  std::cerr << "  File ->  " << inputName << std::endl;
+  chain->Add (inputName);
+ }
+ 
+ 
+ 
+ sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/elencoNtupleC_51047.txt");
+ ifstream fileC_51047(inputName);
+ std::cerr << " Reading  " << inputName << " ... " << std::endl;
+ while (!fileC_51047.eof()){
+  fileC_51047.getline (&buffer[0],1000);
+  std::istrstream line(buffer);
+  std::string uselessString;
+  int uselessInt;
+  line >> uselessString; //---- -rw-r--r--
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 1
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- govoni
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessString; //---- zh
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 305501
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- Sep
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 07
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- 18:12
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  std::string treeName; 
+  line >> treeName;
+  sprintf(inputName,"/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_51047/%s",treeName.c_str());
+  std::cerr << "  File ->  " << treeName << std::endl;
+  std::cerr << "  File ->  " << inputName << std::endl;
+  chain->Add (inputName);
+ }
+ 
+ 
+ 
+ sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/elencoNtupleC_51087.txt");
+ ifstream fileC_51087(inputName);
+ std::cerr << " Reading  " << inputName << " ... " << std::endl;
+ while (!fileC_51087.eof()){
+  fileC_51087.getline (&buffer[0],1000);
+  std::istrstream line(buffer);
+  std::string uselessString;
+  int uselessInt;
+  line >> uselessString; //---- -rw-r--r--
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 1
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- govoni
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessString; //---- zh
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 305501
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- Sep
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  line >> uselessInt; //---- 07
+  std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+  line >> uselessString; //---- 18:12
+  std::cerr << "  uselessString ->  " << uselessString << std::endl;
+  std::string treeName; 
+  line >> treeName;
+  sprintf(inputName,"/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_51087/%s",treeName.c_str());
+  std::cerr << "  File ->  " << treeName << std::endl;
+  std::cerr << "  File ->  " << inputName << std::endl;
+  chain->Add (inputName);
+ }
+ 
+ 
+ 
+ 
+ 
+//  sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/elencoNtupleC_51332.txt");
+//  ifstream fileC_51332(inputName);
+//  std::cerr << " Reading  " << inputName << " ... " << std::endl;
+//  while (!fileC_51332.eof()){
+//   fileC_51332.getline (&buffer[0],1000);
+//   std::istrstream line(buffer);
+//   std::string uselessString;
+//   int uselessInt;
+//   line >> uselessString; //---- -rw-r--r--
+//   std::cerr << "  uselessString ->  " << uselessString << std::endl;
+//   line >> uselessInt; //---- 1
+//   std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+//   line >> uselessString; //---- govoni
+//   std::cerr << "  uselessString ->  " << uselessString << std::endl;
+//   line >> uselessString; //---- zh
+//   std::cerr << "  uselessString ->  " << uselessString << std::endl;
+//   line >> uselessInt; //---- 305501
+//   std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+//   line >> uselessString; //---- Sep
+//   std::cerr << "  uselessString ->  " << uselessString << std::endl;
+//   line >> uselessInt; //---- 07
+//   std::cerr << "  uselessInt ->  " << uselessInt << std::endl;
+//   line >> uselessString; //---- 18:12
+//   std::cerr << "  uselessString ->  " << uselessString << std::endl;
+//   std::string treeName; 
+//   line >> treeName;
+//   sprintf(inputName,"/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_51332/%s",treeName.c_str());
+//   std::cerr << "  File ->  " << treeName << std::endl;
+//   std::cerr << "  File ->  " << inputName << std::endl;
+//   chain->Add (inputName);
+//  }
+ 
+ 
+ */
+ 
+ 
+  //------------------------------------------------------------
+ //---------------------- End Input Files ----------------------
+ //-------------------------------------------------------------
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+//  chain->Add("/castor/cern.ch/user/g/govoni/CRUZET/ntuples/C_50908/FED6583E-424F-DD11-B129-001617DBCF90.ntuple.root-50908.tree.root");
+ 
+ 
+ /*
+ 
+=======
  
 
  //  for (int i=1; i< 10; i++) {
+>>>>>>> 1.11
  for (int i=1; i< 46; i++) {
   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Global/EcalCosmicsTree-50908%i.tree.root",i); 
    //   sprintf (inputRootName,"/castor/cern.ch/user/m/mattia/50908Cosmic/EcalCosmicsTree-50908%i.tree.root",i); 
@@ -269,6 +652,7 @@ int main (int argc, char** argv)
   chain->Add (inputName);
  }
  
+ */ 
  
  
  sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/test/elencoNtupleC_51047.txt");
@@ -342,7 +726,17 @@ int main (int argc, char** argv)
  
  
  
+  // }
  
+ 
+ std::cerr << "  Starting analysis ..." << std::endl;
+ 
+ //---- AM Initiate output file ----
+ TFile saving (outputRootName.c_str(),"recreate") ;
+ saving.cd ();
+ 
+<<<<<<< singleXtalCalib.cpp
+=======
 //  sprintf(inputName,"/afs/cern.ch/user/a/amassiro/scratch0/Cruzet/Calibration/CMSSW_2_0_12/src/CRUZET/Calibration/test/elencoNtupleC_51332.txt");
 //  ifstream fileC_51332(inputName);
 //  std::cerr << " Reading  " << inputName << " ... " << std::endl;
@@ -384,6 +778,7 @@ int main (int argc, char** argv)
   // }
   */
  
+>>>>>>> 1.11
  
  
  std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
@@ -412,6 +807,11 @@ int main (int argc, char** argv)
  TProfile dEvsAlpha_Tutti("dEvsAlpha_Tutti","dEvsAlpha_Tutti",100, 0., 90.);
  TProfile dXvsAlpha_Tutti("dXvsAlpha_Tutti","dXvsAlpha_Tutti",100, 0., 90.);
  TProfile dEdx_alpha("dEdx_alpha", "dEdx_alpha", 100, 0., 90. );
+<<<<<<< singleXtalCalib.cpp
+ 
+ TH2F dEdxVsEnergy ("dEdxVsEnergy","dE/dx versus Crystal Energy",10000,0,2,1000,0,2) ;
+ 
+=======
  
  TH1F xtalX("xtalX", "xtalX", 300, -150., 150. );
  TH1F xtalY("xtalY", "xtalY", 300, -150., 150. );
@@ -421,8 +821,13 @@ int main (int argc, char** argv)
 
  TH2F dEdxVsEnergy ("dEdxVsEnergy","dE/dx versus Crystal Energy",10000,0,2,1000,0,2);
  
+>>>>>>> 1.11
  TH2F occupancyEnergy ("occupancyEnergy","single crystals counting Energy",180,0,360,171,-85,86) ;
  TH2F occupancy ("occupancy","single crystals counting",360,1,361,171,-85,86) ;
+ 
+ 
+ 
+ 
  
  //PG loop over entries
  for (int entry = 0 ; entry < nEntries ; ++entry)
@@ -440,6 +845,34 @@ int main (int argc, char** argv)
   for (unsigned int i = 0 ; i < associations.size () ; ++i)
   {
    int SCindex = associations.at (i).second ;
+<<<<<<< singleXtalCalib.cpp
+   float dummyEmax = 0.;
+   float dummyLmax = 0.;
+   int numCrystalEMax = -1;
+   int numCrystalLMax = -1;
+   bool XtalOk = true;
+
+   for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+        XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+          treeVars.nXtalsInSuperCluster[SCindex] ; ++XTLindex)
+   {
+    if(treeVars.xtalTkLength[XTLindex] == -1) continue;
+    //check the link Xtal with max energy  == Xtal with max length
+    if(treeVars.xtalEnergy[XTLindex] > dummyEmax) 
+    {
+     numCrystalEMax = XTLindex;   
+    }
+    if(treeVars.xtalTkLength[XTLindex] > dummyLmax) {
+     numCrystalLMax = XTLindex;   
+     }
+   }
+   if (numCrystalEMax == numCrystalLMax) XtalOk = true;
+   else XtalOk = false;
+   
+   
+   if(XtalOk == false) continue;
+   
+=======
  
    //PG loop over crystals <-- in case the calib is based on single
    //PG                        xtal deposit
@@ -448,9 +881,76 @@ int main (int argc, char** argv)
    float dummyLmax = 0.;
    bool XtalOk = true;
 
+>>>>>>> 1.11
    for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
         XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
           treeVars.nXtalsInSuperCluster[SCindex] ; ++XTLindex)
+<<<<<<< singleXtalCalib.cpp
+   {
+    if(treeVars.xtalTkLength[XTLindex] == -1) continue;
+    //---- Cut on Crystal Energy ---- minimum and maximum energy ----
+    double dummyEnergy = treeVars.xtalEnergy[XTLindex];
+    
+    if (treeVars.xtalTkLength[XTLindex] > 0) dEdxVsEnergy.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalEnergy[XTLindex]);
+    
+    if ( dummyEnergy < EnergyPerCrystal_Min_Cut || dummyEnergy > EnergyPerCrystal_Max_Cut) continue;
+    
+    if(3.*treeVars.xtalEnergy[XTLindex] < treeVars.xtalTkLength[XTLindex] * 0.0125) continue;
+    
+    //---- PG find a unique index for each xtal --> rawId()
+    EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;   
+   
+    //---- get Xtal direction
+    TVector3 Xtal_pos (0., 0., 0.) ;
+    
+    double xtalEta = (dummy.ieta() - 0.5) * 0.0175;
+    if(dummy.ieta() < 0.) xtalEta = (dummy.ieta() + 0.5) * 0.0175;
+    double xtalPhi = (dummy.iphi() - 10) * 0.0175;
+    if(xtalPhi > PI) xtalPhi = - 2*PI + xtalPhi;
+    setVectorOnECAL (Xtal_pos, xtalEta, xtalPhi, 131.);
+    
+    //---- Crystal direction ----
+    TVector3 MuonDirf (0., 1., 0.);
+    float angle = MuonDirf.Angle( Xtal_pos ) ;
+    if(angle > PI ) angle -= PI ;       
+    if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]       
+              
+    EtaPhi_alpha_xtal.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
+
+    //---- Muon and Crystal direction ----
+    int MUindex = associations.at (i).first  ;
+    TVector3 MuonDir ( treeVars.muonMomentumX[MUindex],  treeVars.muonMomentumY[MUindex],  treeVars.muonMomentumZ[MUindex]);
+    angle = MuonDir.Angle( Xtal_pos ) ;
+    if(angle > PI ) angle -= PI ;       
+    if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]       
+       
+    if(dummy.iphi() < 10 || dummy.iphi() > 190) alpha_down.Fill(angle*180. /PI);       
+    else alpha_up.Fill(angle*180. /PI);       
+    EtaPhi_alpha_xtalMU.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
+    dEdx_alpha.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
+    EtaPhi_events.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
+
+    //---- Muon direction ----
+    TVector3 Xtal_posf (0., 1., 0.) ;
+    angle = MuonDir.Angle( Xtal_posf ) ;
+    if(angle > PI ) angle -= PI ;       
+    if( angle > PI/2. ) angle = PI - angle; // angle belongs to [0:90]       
+    EtaPhi_alpha_MU.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
+    if(dummy.iphi() < 10 || dummy.iphi() > 190) muon_down.Fill(angle*180. /PI);       
+    else muon_up.Fill(angle*180. /PI);       
+
+   
+    
+    
+       
+   //-------------------------------- define alpha cuts - to be done
+
+         
+  //PG verify if the xtal index is already present in the dEdx_Histos map
+  //PG    (if not, add it)         
+         
+         //---- AM Single crystal ----
+=======
      {
        if(treeVars.xtalTkLength[XTLindex] == -1) continue;
 
@@ -543,6 +1043,7 @@ int main (int argc, char** argv)
        //PG    (if not, add it)         
        
        //---- AM Single crystal ----
+>>>>>>> 1.11
     std::map<int, TH1F *>::iterator dEdx_Histos_iter = dEdx_Histos.find(dummy.rawId());
     if (dEdx_Histos_iter == dEdx_Histos.end()) {
      std::ostringstream stm;
@@ -552,7 +1053,7 @@ int main (int argc, char** argv)
      dEdx_Histos[dummy.rawId()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
          
-         //---- AM Ring ----
+         //---- AM Ring ---- dE/dx ----
     //---- up ring ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Up_Histos_iter = dEdx_Ring_1M_Up_Histos.find(dummy.ieta());
     if (dEdx_Ring_1M_Up_Histos_iter == dEdx_Ring_1M_Up_Histos.end()) {
@@ -562,6 +1063,8 @@ int main (int argc, char** argv)
      std::string TH1FNameDescription = "dE over dX Ring Up -> ieta = " + stm.str();
      dEdx_Ring_1M_Up_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
+<<<<<<< singleXtalCalib.cpp
+    
     //---- ---- + Energy Cut ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Up_Histos_EnergyCut_iter = dEdx_Ring_1M_Up_Histos_EnergyCut.find(dummy.ieta());
     if (dEdx_Ring_1M_Up_Histos_EnergyCut_iter == dEdx_Ring_1M_Up_Histos_EnergyCut.end()) {
@@ -571,6 +1074,17 @@ int main (int argc, char** argv)
      std::string TH1FNameDescription = "dE over dX Ring Up EnergyCut -> ieta = " + stm.str();
      dEdx_Ring_1M_Up_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
+=======
+    //---- ---- + Energy Cut ----
+    std::map<int, TH1F *>::iterator dEdx_Ring_1M_Up_Histos_EnergyCut_iter = dEdx_Ring_1M_Up_Histos_EnergyCut.find(dummy.ieta());
+    if (dEdx_Ring_1M_Up_Histos_EnergyCut_iter == dEdx_Ring_1M_Up_Histos_EnergyCut.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dEdX_Ring_Up_EnergyCut" +  stm.str();
+     std::string TH1FNameDescription = "dE over dX Ring Up EnergyCut -> ieta = " + stm.str();
+     dEdx_Ring_1M_Up_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+>>>>>>> 1.11
     //---- down ring ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Down_Histos_iter = dEdx_Ring_1M_Down_Histos.find(dummy.ieta());
     if (dEdx_Ring_1M_Down_Histos_iter == dEdx_Ring_1M_Down_Histos.end()) {
@@ -580,6 +1094,17 @@ int main (int argc, char** argv)
      std::string TH1FNameDescription = "dE over dX Ring Down -> ieta = " + stm.str();
      dEdx_Ring_1M_Down_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
+<<<<<<< singleXtalCalib.cpp
+    //---- ---- + Energy Cut ----
+    std::map<int, TH1F *>::iterator dEdx_Ring_1M_Down_Histos_EnergyCut_iter = dEdx_Ring_1M_Down_Histos_EnergyCut.find(dummy.ieta());
+    if (dEdx_Ring_1M_Down_Histos_EnergyCut_iter == dEdx_Ring_1M_Down_Histos_EnergyCut.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dEdX_Ring_Down_EnergyCut" +  stm.str();
+     std::string TH1FNameDescription = "dE over dX Ring Down EnergyCut -> ieta = " + stm.str();
+     dEdx_Ring_1M_Down_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+=======
       //---- ---- + Energy Cut ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Down_Histos_EnergyCut_iter = dEdx_Ring_1M_Down_Histos_EnergyCut.find(dummy.ieta());
     if (dEdx_Ring_1M_Down_Histos_EnergyCut_iter == dEdx_Ring_1M_Down_Histos_EnergyCut.end()) {
@@ -589,6 +1114,7 @@ int main (int argc, char** argv)
      std::string TH1FNameDescription = "dE over dX Ring Down EnergyCut -> ieta = " + stm.str();
      dEdx_Ring_1M_Down_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
+>>>>>>> 1.11
     
     //---- all ring ----
     std::map<int, TH1F *>::iterator dEdx_Ring_Histos_iter = dEdx_Ring_Histos.find(dummy.ieta());
@@ -599,6 +1125,71 @@ int main (int argc, char** argv)
      std::string TH1FNameDescription = "dE over dX Ring -> ieta = " + stm.str();
      dEdx_Ring_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
     }
+<<<<<<< singleXtalCalib.cpp
+    std::map<int, TH1F *>::iterator dEdx_Ring_Histos_EnergyCut_iter = dEdx_Ring_Histos_EnergyCut.find(dummy.ieta());
+    if (dEdx_Ring_Histos_EnergyCut_iter == dEdx_Ring_Histos_EnergyCut.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dEdX_Ring_EnergyCut" +  stm.str();
+     std::string TH1FNameDescription = "dE over dX Ring EnergyCut-> ieta = " + stm.str();
+     dEdx_Ring_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+    
+    
+    
+    //---- dE ----
+    std::map<int, TH1F *>::iterator dE_Histos_iter = dE_Histos.find(dummy.rawId());
+    if (dE_Histos_iter == dE_Histos.end()) {
+     std::ostringstream stm;
+     stm << dummy.rawId();
+     std::string TH1FName = "dE_" +  stm.str();
+     std::string TH1FNameDescription = "dE -> rawId = " + stm.str();
+     dE_Histos[dummy.rawId()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+    
+    
+    //---- AM ---- Ring ---- dE ----
+    
+     //---- up ring ----
+    std::map<int, TH1F *>::iterator dE_Ring_1M_Up_Histos_iter = dE_Ring_1M_Up_Histos.find(dummy.ieta());
+    if (dE_Ring_1M_Up_Histos_iter == dE_Ring_1M_Up_Histos.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dE_Ring_Up" +  stm.str();
+     std::string TH1FNameDescription = "dE Ring Up -> ieta = " + stm.str();
+     dE_Ring_1M_Up_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+    
+    //---- down ring ----
+    std::map<int, TH1F *>::iterator dE_Ring_1M_Down_Histos_iter = dE_Ring_1M_Down_Histos.find(dummy.ieta());
+    if (dE_Ring_1M_Down_Histos_iter == dE_Ring_1M_Down_Histos.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dE_Ring_Down" +  stm.str();
+     std::string TH1FNameDescription = "dE Ring Down -> ieta = " + stm.str();
+     dE_Ring_1M_Down_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+    //---- all ring ----
+    std::map<int, TH1F *>::iterator dE_Ring_Histos_iter = dE_Ring_Histos.find(dummy.ieta());
+    if (dE_Ring_Histos_iter == dE_Ring_Histos.end()) {
+     std::ostringstream stm;
+     stm << dummy.ieta();
+     std::string TH1FName = "dE_Ring" +  stm.str();
+     std::string TH1FNameDescription = "dE Ring -> ieta = " + stm.str();
+     dE_Ring_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+=======
     //---- ---- + Energy Cut ----
     std::map<int, TH1F *>::iterator dEdx_Ring_Histos_EnergyCut_iter = dEdx_Ring_Histos_EnergyCut.find(dummy.ieta());
     if (dEdx_Ring_Histos_EnergyCut_iter == dEdx_Ring_Histos_EnergyCut.end()) {
@@ -614,15 +1205,29 @@ int main (int argc, char** argv)
          
          //    std::cout << " hashedIndex = " << dummy.hashedIndex();
          
+>>>>>>> 1.11
          //PG fill the histo with the E/L for the xtal
          //      if (treeVars.xtalTkLength[XTLindex] != 0) {
     dEdx_Tutti.Fill(treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
          //      }
          //        if(treeVars.xtalTkLength[XTLindex] >0 ) 
          
-         //---- AM Single crystal ----
+    //---- AM ---- dE/dx ---- Single crystal ----
     dEdx_Histos[dummy.rawId()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
       
+<<<<<<< singleXtalCalib.cpp
+    //---- AM ---- dE ---- Single crystal ----
+    dE_Histos[dummy.rawId()]->Fill(treeVars.xtalEnergy[XTLindex]);
+    
+    
+    //---- AM Ring ---- dE/dx ----
+    dEdx_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    if (dummy.iphi() < 120 && dummy.iphi() > 80) dEdx_Ring_1M_Up_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    if (dummy.iphi() < 300 && dummy.iphi() > 260) dEdx_Ring_1M_Down_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+
+    dE_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]);
+    
+=======
          //---- AM Ring ----
     dEdx_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
     if (dummy.iphi() < 120 && dummy.iphi() > 80) 
@@ -636,9 +1241,9 @@ int main (int argc, char** argv)
     if (dummy.iphi() < 300 && dummy.iphi() > 260) 
       dEdx_Ring_1M_Down_Histos_EnergyCut[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
 
+>>>>>>> 1.11
     dE_Tutti.Fill(treeVars.xtalEnergy[XTLindex]);
     dX_Tutti.Fill(treeVars.xtalTkLength[XTLindex]);
-
     occupancy.Fill (dummy.iphi (), dummy.ieta ()) ;
     occupancyEnergy.Fill (dummy.iphi (),dummy.ieta (),treeVars.xtalEnergy[XTLindex]);
    }
@@ -646,16 +1251,60 @@ int main (int argc, char** argv)
  } //PG loop over entries
 
 
- //---- AM Initiate output file ----
- TFile saving (outputRootName.c_str(),"recreate") ;
- saving.cd () ;
+ 
 
+ 
  //---- dE/dx map from the fit ---- single crystal ----
  std::map<int, double> XtalCoeff_map ;
  std::map<int, double> XtalCoeffError_map ;
  
  TH2F dEdXEtaPhi ("dEdXEtaPhi","dEdXEtaPhi",360,1,361,171,-85,86) ;
  
+<<<<<<< singleXtalCalib.cpp
+ int MinXtal_cut = 20;
+//  for (MinXtal_cut = 10; MinXtal_cut<100; MinXtal_cut++){
+//  //AM ---- loop over dEdx_Histos ---- single crystal ----
+//   for (std::map<int, TH1F*>::iterator mapIt = dEdx_Histos.begin (); mapIt != dEdx_Histos.end ();++mapIt)
+//   {
+//      //   mapIt->second->Fit ("gaus") ;
+//    if( (mapIt->second->GetEntries()) > MinXtal_cut ){
+//     std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+//     mapIt->second->Write();
+//     double mean_pair = MeanAndErrorPair.first;
+//     double Error_pair = MeanAndErrorPair.second;
+//     XtalCoeff_map[mapIt->first] = mean_pair;
+//     XtalCoeffError_map[mapIt->first] = Error_pair;
+//    //---- fill histogram ----
+//     EBDetId dummyMy(mapIt->first);
+//     std::cerr << " iphi =  " << dummyMy.iphi() << " ieta = " << dummyMy.ieta() << " -> dEdX = " << mean_pair << std::endl;
+//     dEdXEtaPhi.SetBinContent(dummyMy.iphi(),dummyMy.ieta(),mean_pair);
+//    }
+//    else {
+//     XtalCoeff_map[mapIt->first] = 0;
+//     XtalCoeffError_map[mapIt->first] = 0;
+//    }
+//   }  //AM ---- end loop over dEdx_Histos single crystal ----
+// 
+//   char titleGraph[1000];
+//   sprintf(titleGraph,"MinXtal_cut=%i",MinXtal_cut);
+//   dEdXEtaPhi.SetTitle(titleGraph);
+//   dEdXEtaPhi.Draw("colz");
+//   gPad->Update();
+//   gPad->SaveAs("3D.gif+");
+//   gPad->SaveAs("3D.gif+");
+//   gPad->SaveAs("3D.gif+");
+//   gPad->SaveAs("3D.gif+");
+//   gPad->SaveAs("3D.gif+");
+//   gPad->SaveAs("3D.gif+");
+//   
+//   for (int iieta = -85; iieta<86; iieta++)
+//    for (int iiphi = 0; iiphi<361; iiphi++)
+//     dEdXEtaPhi.SetBinContent(iiphi,iieta,0);
+//  }
+//  
+ 
+ MinXtal_cut = 20;
+=======
  int MinXtal_cut = 20;
 //  for (MinXtal_cut = 10; MinXtal_cut<100; MinXtal_cut++){
 //  //AM ---- loop over dEdx_Histos ---- single crystal ----
@@ -699,6 +1348,7 @@ int main (int argc, char** argv)
  //  
  
  MinXtal_cut = 20;
+>>>>>>> 1.11
  for (std::map<int, TH1F*>::iterator mapIt = dEdx_Histos.begin (); mapIt != dEdx_Histos.end ();++mapIt)
  {
      //   mapIt->second->Fit ("gaus") ;
@@ -720,7 +1370,9 @@ int main (int argc, char** argv)
   }
  }  //AM ---- end loop over dEdx_Histos single crystal ----
 
-
+ 
+ 
+ 
  
  //---- dE/dx slice of the Ring ----
  
@@ -806,6 +1458,202 @@ int main (int argc, char** argv)
   }
  }
   
+ 
+ 
+ //------------------------------------------------
+ //---------------------- dE ----------------------
+ //------------------------------------------------
+  
+ //---- dE map from the fit ---- single crystal ----
+ std::map<int, double> dEXtalCoeff_map ;
+ std::map<int, double> dEXtalCoeffError_map ;
+
+ TH2F dEEtaPhi ("dEEtaPhi","dEEtaPhi",360,1,361,171,-85,86) ;
+
+ MinXtal_cut = 20;
+ //AM ---- loop over dE_Histos single crystal ----
+ for (std::map<int, TH1F*>::iterator mapIt = dE_Histos.begin (); mapIt != dE_Histos.end ();++mapIt)
+ {
+  if( (mapIt->second->GetEntries()) > MinXtal_cut ){
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
+   dEXtalCoeff_map[mapIt->first] = mean_pair;
+   dEXtalCoeffError_map[mapIt->first] = Error_pair;
+   //---- fill histogram ----
+   EBDetId dummyMy(mapIt->first);
+   std::cerr << " iphi =  " << dummyMy.iphi() << " ieta = " << dummyMy.ieta() << " -> dE = " << mean_pair << std::endl;
+   dEEtaPhi.Fill(dummyMy.iphi(),dummyMy.ieta(),mean_pair);
+  }
+  else {
+   dEXtalCoeff_map[mapIt->first] = 0;
+   dEXtalCoeffError_map[mapIt->first] = 0;
+  }
+ }  //AM ---- end loop over dE_Histos single crystal ----
+
+ 
+  //---- dE slice of the Ring ----
+ 
+ std::map<int, double> dERingCoeffUp_map ;
+ std::map<int, double> dERingCoeffUpError_map ;
+ 
+ std::map<int, double> dERingCoeffDown_map ;
+ std::map<int, double> dERingCoeffDownError_map ;
+ 
+ //AM ---- loop over dE_Histos ---- Slice Ring ----
+ //---- UP ----
+ for (std::map<int, TH1F*>::iterator mapIt = dE_Ring_1M_Up_Histos.begin (); mapIt != dE_Ring_1M_Up_Histos.end ();++mapIt)
+ {
+  if (mapIt->second->GetEntries() > 15) {
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
+   dERingCoeffUp_map[mapIt->first] = mean_pair;
+   dERingCoeffUpError_map[mapIt->first] = Error_pair;
+  }
+  else {
+   dERingCoeffUp_map[mapIt->first] = 0;
+   dERingCoeffUpError_map[mapIt->first] = 0;
+  }
+ }
+ //---- DOWN ----  
+ for (std::map<int, TH1F*>::iterator mapIt = dE_Ring_1M_Down_Histos.begin (); mapIt != dE_Ring_1M_Down_Histos.end ();++mapIt)
+ {
+  if (mapIt->second->GetEntries() > 15) {
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
+   dERingCoeffDown_map[mapIt->first] = mean_pair;
+   dERingCoeffDownError_map[mapIt->first] = Error_pair;
+  }
+  else {
+   dERingCoeffDown_map[mapIt->first] = 0;
+   dERingCoeffDownError_map[mapIt->first] = 0;
+  }
+ } //AM ---- end loop over dE_Histos ---- Slice Ring ----
+
+ //---- TGraphErrors UP ----
+ TGraphErrors dECoeffUP;
+ dECoeffUP.SetName("dECoeffUP");
+ dECoeffUP.SetTitle("dECoeffUP");
+ int dECounterCoeffUP = 0;
+ for (int kk=0; kk<171;kk++){
+  int numberIEta = kk - 85;
+  std::map<int, double>::iterator dERingCoeffUp_map_iter = dERingCoeffUp_map.find(numberIEta);
+  std::map<int, double>::iterator dERingCoeffUpError_map_iter = dERingCoeffUpError_map.find(numberIEta);
+  if (dERingCoeffUp_map_iter != dERingCoeffUp_map.end()){
+   dECoeffUP.SetPoint(dECounterCoeffUP,numberIEta,dERingCoeffUp_map_iter->second);
+   dECoeffUP.SetPointError(dECounterCoeffUP,0,dERingCoeffUpError_map_iter->second);
+   dECounterCoeffUP++;
+  }
+  else {
+   dECoeffUP.SetPoint(dECounterCoeffUP,numberIEta,0);
+   dECoeffUP.SetPointError(dECounterCoeffUP,0,0);
+   dECounterCoeffUP++;
+  }
+ }
+ 
+ //---- TGraphErrors DOWN ----
+ TGraphErrors dECoeffDOWN;
+ dECoeffDOWN.SetName("dECoeffDOWN");
+ dECoeffDOWN.SetTitle("dECoeffDOWN");
+ int dECounterCoeffDOWN = 0;
+ for (int kk=0; kk<171;kk++){
+  int numberIEta = kk - 85;
+  std::map<int, double>::iterator dERingCoeffDown_map_iter = dERingCoeffDown_map.find(numberIEta);
+  std::map<int, double>::iterator dERingCoeffDownError_map_iter = dERingCoeffDownError_map.find(numberIEta);
+  if (dERingCoeffDown_map_iter != dERingCoeffDown_map.end()){
+   dECoeffDOWN.SetPoint(dECounterCoeffDOWN,numberIEta,dERingCoeffDown_map_iter->second);
+   dECoeffDOWN.SetPointError(dECounterCoeffDOWN,0,dERingCoeffDownError_map_iter->second);
+   dECounterCoeffDOWN++;
+  }
+  else {
+   dECoeffDOWN.SetPoint(dECounterCoeffDOWN,numberIEta,0);
+   dECoeffDOWN.SetPointError(dECounterCoeffDOWN,0,0);
+   dECounterCoeffDOWN++;
+  }
+ }
+  
+ 
+ 
+ 
+ //---- dE map from the fit ---- All Ring ----
+ std::map<int, double> dERingCoeff_map ;
+ std::map<int, double> dERingCoeffError_map ;
+ 
+ //AM ---- loop over dE_Histos ---- Ring ----
+ for (std::map<int, TH1F*>::iterator mapIt = dE_Ring_Histos.begin (); mapIt != dE_Ring_Histos.end ();++mapIt)
+ {
+  if (mapIt->second->GetEntries() > 15) {
+   std::pair<double,double> MeanAndErrorPair = fitdEdx(mapIt->second);
+   mapIt->second->Write();
+   double mean_pair = MeanAndErrorPair.first;
+   double Error_pair = MeanAndErrorPair.second;
+   dERingCoeff_map[mapIt->first] = mean_pair;
+   dERingCoeffError_map[mapIt->first] = Error_pair;
+  }
+  else {
+   dERingCoeff_map[mapIt->first] = 0;
+   dERingCoeffError_map[mapIt->first] = 0;
+  }
+ }  //AM ---- end loop over dE_Histos Ring ----
+
+ TGraphErrors dECoeff;
+ dECoeff.SetName("dECoeff");
+ dECoeff.SetTitle("dECoeff");
+ int dECounterCoeff = 0;
+ for (int kk=0; kk<171;kk++){
+  int numberIEta = kk - 85;
+  std::map<int, double>::iterator dERingCoeff_map_iter = dERingCoeff_map.find(numberIEta);
+  std::map<int, double>::iterator dERingCoeffError_map_iter = dERingCoeffError_map.find(numberIEta);
+  if (dERingCoeff_map_iter != dERingCoeff_map.end()){
+   dECoeff.SetPoint(dECounterCoeff,numberIEta,dERingCoeff_map_iter->second);
+   dECoeff.SetPointError(dECounterCoeff,0,dERingCoeffError_map_iter->second);
+   dECounterCoeff++;
+  }
+  else {
+   dECoeff.SetPoint(dECounterCoeff,numberIEta,0);
+   dECoeff.SetPointError(dECounterCoeff,0,0);
+   dECounterCoeff++;
+  }
+ }
+  
+ 
+ //----------------------------------------------------
+ //---------------------- End dE ----------------------
+ //----------------------------------------------------
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
   
  
  
@@ -904,6 +1752,9 @@ int main (int argc, char** argv)
  
  //---- Saving histograms ----
  //---- dEdx_Histos.
+<<<<<<< singleXtalCalib.cpp
+ 
+=======
 
  dEdx_alpha.GetXaxis()->SetTitle("#alpha");
  dEdx_alpha.Write();
@@ -945,6 +1796,7 @@ int main (int argc, char** argv)
  dEvsAlpha_Tutti.Write();
  dXvsAlpha_Tutti.Write();
 
+>>>>>>> 1.11
  dEdx_Tutti.GetXaxis()->SetTitle("dE/dX");
  dEdx_Tutti.Write();
  
@@ -982,12 +1834,76 @@ int main (int argc, char** argv)
  CoeffUP.GetYaxis()->SetTitle("dE/dx");
  CoeffUP.Write();
 
+<<<<<<< singleXtalCalib.cpp
+ dEdxVsEnergy.GetXaxis()->SetTitle("dE/dx");
+ dEdxVsEnergy.GetYaxis()->SetTitle("E");
+ dEdxVsEnergy.Write();
+ 
+ 
+ //---- dE Graphs ----  
+ 
+ dECoeff.GetXaxis()->SetTitle("i#eta");
+ dECoeff.GetYaxis()->SetTitle("dE");
+ dECoeff.Write();
+
+ dECoeffDOWN.GetXaxis()->SetTitle("i#eta");
+ dECoeffDOWN.GetYaxis()->SetTitle("dE");
+ dECoeffDOWN.Write();
+ 
+ dECoeffUP.GetXaxis()->SetTitle("i#eta");
+ dECoeffUP.GetYaxis()->SetTitle("dE");
+ dECoeffUP.Write();
+ 
+ dEEtaPhi.GetXaxis()->SetTitle("i#phi");
+ dEEtaPhi.GetYaxis()->SetTitle("i#eta");
+ dEEtaPhi.Write();
+
+ 
+ //---- Alpha Graphs ----
+ 
+ dEdx_alpha.GetXaxis()->SetTitle("#alpha");
+ dEdx_alpha.Write();
+
+ alpha_up.GetXaxis()->SetTitle("#alpha");
+ alpha_up.Write();
+
+ alpha_down.GetXaxis()->SetTitle("#alpha");
+ alpha_down.Write();
+
+ muon_up.GetXaxis()->SetTitle("#alpha");
+ muon_up.Write();
+
+ muon_down.GetXaxis()->SetTitle("#alpha");
+ muon_down.Write();
+
+ EtaPhi_events.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_events.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_events.Write();
+
+ EtaPhi_alpha_xtal.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_alpha_xtal.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_alpha_xtal.Write();
+
+ EtaPhi_alpha_xtalMU.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_alpha_xtalMU.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_alpha_xtalMU.Write();
+
+ EtaPhi_alpha_MU.GetXaxis()->SetTitle("i #eta");
+ EtaPhi_alpha_MU.GetYaxis()->SetTitle("i #phi");
+ EtaPhi_alpha_MU.Write();
+ 
+ //---- end Graphs ----
+ 
+=======
  dEdxVsEnergy.GetXaxis()->SetTitle("dE/dx");
  dEdxVsEnergy.GetYaxis()->SetTitle("E");
  dEdxVsEnergy.Write();
     
+>>>>>>> 1.11
  saving.Close () ;
  delete chain ;
  return 0 ;
 
 }
+
+
