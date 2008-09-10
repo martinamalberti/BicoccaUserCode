@@ -23,6 +23,7 @@
 
 //! main program
 int main (int argc, char** argv)
+
 {
   std::string outputRootName = "OutputSCdistr.root" ;
   
@@ -52,7 +53,9 @@ int main (int argc, char** argv)
     }
 
   TH2F SCdistr ("SCdistr","SCdistr",360,-3.1416,3.1416,170,-1.5,1.5) ;
-
+  TH2F SCradiusMap ("SCradiusMap","SCradiusMap",360,-3.1416,3.1416,170,-1.5,1.5) ;
+  TH1F SCradius("SCradius","SCradius",900,1.10,2.) ;
+  double radius;
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
 
@@ -63,18 +66,27 @@ int main (int argc, char** argv)
       if (entry % 100000 == 0) std::cout << "reading entry " << entry << std::endl ;
 
       //PG loop on superclusters
-      for (int SCindex = 0 ; 
-           SCindex < treeVars.nSuperClusters ; 
-           ++SCindex)
+      for (int SCindex = 0 ; SCindex <= treeVars.nSuperClusters ; ++SCindex)
         {
+	  radius = sqrt (
+             (treeVars.superClusterX[SCindex]*treeVars.superClusterX[SCindex]) +
+             (treeVars.superClusterY[SCindex]*treeVars.superClusterY[SCindex]  )  
+          ) ;
           SCdistr.Fill (treeVars.superClusterPhi[SCindex],
-                        treeVars.superClusterEta[SCindex]) ;             
+                        treeVars.superClusterEta[SCindex]) ;
+	  SCradiusMap.Fill (treeVars.superClusterPhi[SCindex],
+                        treeVars.superClusterEta[SCindex],
+			radius) ;
+	  SCradius.Fill(radius);
+	              
         } //PG loop on superclusters
     } //PG loop over entries
 
   TFile saving (outputRootName.c_str (),"recreate") ;
   saving.cd () ;  
   SCdistr.Write () ;
+  SCradius.Write();
+  SCradiusMap.Write();
   saving.Close () ;
 
   return 0 ;
