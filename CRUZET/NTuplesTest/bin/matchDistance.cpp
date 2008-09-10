@@ -22,14 +22,18 @@
 #include "TProfile2D.h"
 #include "TFile.h"
 
+//MF read CFG files includes5
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/foreach.hpp>
+
+
+#include "CRUZET/Calibration/interface/CRUtils.h"
+
 //! main program
 int main (int argc, char** argv)
 {
-  std::string outputRootName = "OutputMatchDistance.root" ;
-
-  TH1F matchDR ("matchDR","matchDR",100,0,1) ;
-  TProfile2D matchDRMap ("matchDRMap","matchDRMap",360,-3.1416,3.1416,170,-1.5,1.5) ;
-           
 
   std::string fileName (argv[1]) ;
   boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
@@ -55,6 +59,14 @@ int main (int argc, char** argv)
       chain->Add (listIt->c_str ()) ;
     }
 
+  TH1F matchDR ("matchDR","matchDR",100,0,1) ;
+
+  TProfile2D matchDRMap ("matchDRMap","matchDRMap",360,-3.1416,3.1416,170,-1.5,1.5) ;
+  TProfile matchDRvsEtaSopra("matchDRvsEtaSopra","matchDRvsEtaSopra", 170,-1.5,1.5); 
+  TProfile matchDRvsEtaSotto("matchDRvsEtaSotto","matchDRvsEtaSotto", 170,-1.5,1.5);       
+  TProfile matchDEtavsEtaSopra("matchDEtavsEtaSopra","matchDEtavsEtaSopra", 170,-1.5,1.5); 
+  TProfile matchDEtavsEtaSotto("matchDEtavsEtaSotto","matchDEtavsEtaSotto", 170,-1.5,1.5);         
+  TProfile matchDRvsPhi("matchDRvsPhi","matchDRvsPhi", 360,-3.1416,3.1416);        
 
 
   int nEntries = chain->GetEntries () ;
@@ -100,12 +112,33 @@ int main (int argc, char** argv)
           matchDRMap.Fill (treeVars.superClusterPhi[SCindex],
                            treeVars.superClusterEta[SCindex],
                            deltaR) ;
+	  if(treeVars.superClusterPhi[SCindex]>0) 
+	  			{
+	  		        matchDRvsEtaSopra.Fill (treeVars.superClusterEta[SCindex],
+                                deltaR) ;
+			        matchDEtavsEtaSopra.Fill (treeVars.superClusterEta[SCindex],
+                                (muonTkAtEcal.first.eta () - treeVars.superClusterEta[SCindex])) ;
+			   	} 
+	  if(treeVars.superClusterPhi[SCindex]<=0) 
+	                        {
+	 	 		matchDEtavsEtaSotto.Fill (treeVars.superClusterEta[SCindex],
+                                (muonTkAtEcal.first.eta () - treeVars.superClusterEta[SCindex])) ; 
+			        }
+	  matchDRvsPhi.Fill (treeVars.superClusterPhi[SCindex],
+                           deltaR) ;
         }
     } //PG loop over entries
 
-  TFile saving (outputRootName.c_str (),"recreate") ;
+  TFile saving ("matchOutput.root","recreate") ;
   saving.cd () ;  
   matchDR.Write () ;
+  matchDRvsEtaSotto.Write();
+  matchDRvsEtaSopra.Write();
+  matchDEtavsEtaSotto.Write();
+  matchDEtavsEtaSopra.Write();
+
+  matchDRvsPhi.Write();
+
   matchDRMap.Write ("matchDRMap") ;
   saving.Close () ;
 
