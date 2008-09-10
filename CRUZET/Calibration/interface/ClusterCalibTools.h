@@ -100,6 +100,11 @@ int
 findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
                  int SCindex) ;
 
+//! find the maximum cluster in the supercluster
+int
+findMaxClusterInSC (const EcalCosmicsTreeContent & treeVars,
+                    int SCindex) ;
+
 //! find the two maximum crystals in the supercluster
 std::pair <int,int>
 findMaxXtalsInSC (const EcalCosmicsTreeContent & treeVars,

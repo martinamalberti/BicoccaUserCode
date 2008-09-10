@@ -175,6 +175,35 @@ findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
 }
 
 
+
+
+//PG ------------------------------------------------------------------
+
+
+int
+findMaxClusterInSC (const EcalCosmicsTreeContent & treeVars,
+                    int SCindex)
+{
+  double dummyEnergy = 0. ;
+  int maxClusterIndex = -1 ;
+
+  //PG loop over xtals in supercluster
+  for (int CLUSTERindex = treeVars.clusterIndexInSuperCluster[SCindex] ;
+       CLUSTERindex < treeVars.clusterIndexInSuperCluster[SCindex] +
+                      treeVars.nClustersInSuperCluster[SCindex] ;
+       ++CLUSTERindex)
+    {
+      if (treeVars.clusterEnergy[CLUSTERindex] > dummyEnergy)
+        {
+          dummyEnergy = treeVars.clusterEnergy[CLUSTERindex] ;
+          maxClusterIndex = CLUSTERindex ;
+        }
+    } //PG loop over xtals in supercluster
+
+  return maxClusterIndex ;
+}
+
+
 //PG ------------------------------------------------------------------
 
 
