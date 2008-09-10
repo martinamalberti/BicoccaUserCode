@@ -144,16 +144,16 @@ int main (int argc, char** argv)
  ifstream fileC_50908_Cloned("temp.txt");
  std::cerr << " Reading  " << inputNameDirectory << " ... " << std::endl;
  while (!fileC_50908_Cloned.eof()){
-  fileC_50908_Cloned.getline (&buffer[0],1000);
-  std::istrstream line(buffer);
-  std::string uselessString;
-  int uselessInt;
-  std::string treeName; 
-  line >> treeName;
-  sprintf(inputName,"%s%s",inputNameDirectory.c_str(),treeName.c_str());
-  std::cerr << "  File ->  " << treeName;
-  std::cerr << "  File ->  " << inputName << std::endl;
-  chain->Add (inputName);
+   fileC_50908_Cloned.getline (&buffer[0],1000);
+   std::istrstream line(buffer);
+   std::string uselessString;
+   int uselessInt;
+   std::string treeName; 
+   line >> treeName;
+   sprintf(inputName,"%s%s",inputNameDirectory.c_str(),treeName.c_str());
+   std::cerr << "  File ->  " << treeName;
+   std::cerr << "  File ->  " << inputName << std::endl;
+   chain->Add (inputName);
  }
 
  
@@ -246,7 +246,9 @@ std::cerr << " Starting analysis ..." << std::endl;
  setBranchAddresses (chain, treeVars) ;
  nEntries = chain->GetEntries () ;
    
- TH1F dEdx_Tutti("dEdx_Tutti","dEdx_Tutti",10000,0,2);
+ TH1F dEdx_Tutti("dEdx_Tutti","dEdx_Tutti",1000,0,0.2);
+ TH1F dEdx_down("dEdx_down","dEdx_down",1000,0,0.2);
+ TH1F dEdx_up("dEdx_up","dEdx_up",1000,0,0.2);
  TH1F dE_Tutti("dE_Tutti","dE_Tutti",1000,0,2);
  TH1F dX_Tutti("dX_Tutti","dX_Tutti",1000,0.,25.);  
 
@@ -263,9 +265,14 @@ std::cerr << " Starting analysis ..." << std::endl;
 
  TProfile dEvsAlpha_Tutti("dEvsAlpha_Tutti","dEvsAlpha_Tutti",100, 0., 90.);
  TProfile dXvsAlpha_Tutti("dXvsAlpha_Tutti","dXvsAlpha_Tutti",100, 0., 90.);
- TProfile dEdx_alpha("dEdx_alpha", "dEdx_alpha", 100, 0., 90. );
+ TH2F dEdx_alpha("dEdx_alpha", "dEdx_alpha", 100, 0., 90., 100, 0., 0.2 );
+ TH2F dEdx_alpha_up("dEdx_alpha_up", "dEdx_alpha_up", 100, 0., 90., 100,0., 0.2 );
+ TH2F dEdx_alpha_down("dEdx_alpha_down", "dEdx_alpha_down", 100, 0., 90., 100, 0., 0.2 );
  
  TH2F dEdxVsEnergy ("dEdxVsEnergy","dE/dx versus Crystal Energy",10000,0,2,1000,0,2);
+ TH2F dEdxVsEnergy_up ("dEdxVsEnergy_up","dE/dx versus Crystal Energy #phi - up",10000,0,2,1000,0,2);
+ TH2F dEdxVsEnergy_down ("dEdxVsEnergy_down","dE/dx versus Crystal Energy #phi - down",10000,0,2,1000,0,2);
+
  TH2F dEdxVsdX ("dEdxVsdX","dE/dx versus dX",10000,0,2,1000,0,25);
  TH2F dEdxVsdXUP ("dEdxVsdXUP","dE/dx versus dX",10000,0,2,1000,0,25);
  TH2F dEdxVsdXDOWN ("dEdxVsdXDOWN","dE/dx versus dX",10000,0,2,1000,0,25);
@@ -294,7 +301,7 @@ std::cerr << " Starting analysis ..." << std::endl;
    float dummyLmax = 0.;
    int numCrystalEMax = -1;
    int numCrystalLMax = -1;
-   bool XtalOk = true;
+   bool SclOk = false;
    
    for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
         XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
@@ -302,6 +309,7 @@ std::cerr << " Starting analysis ..." << std::endl;
    {
     if(treeVars.xtalTkLength[XTLindex] == -1) continue;
     //check the link Xtal with max energy  == Xtal with max length
+    //
     if(treeVars.xtalEnergy[XTLindex] > dummyEmax) 
     {
      numCrystalEMax = XTLindex;   
@@ -310,32 +318,41 @@ std::cerr << " Starting analysis ..." << std::endl;
      numCrystalLMax = XTLindex;   
      }
    }
-   if (numCrystalEMax == numCrystalLMax) XtalOk = true;
-   else XtalOk = false;
-   
-   
-   if(XtalOk == false) continue;
+   if (numCrystalEMax != numCrystalLMax) 
+     {
+       if(3.*treeVars.xtalEnergy[numCrystalLMax] < treeVars.xtalTkLength[numCrystalLMax] * 0.0125) SclOk = false;
+     }
+   else SclOk = true;
+      
+   if(SclOk == false) continue;
    
    for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
         XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
           treeVars.nXtalsInSuperCluster[SCindex] ; ++XTLindex)
    {
     if(treeVars.xtalTkLength[XTLindex] == -1) continue;
+
+    //---- PG find a unique index for each xtal --> rawId()
+    EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;   
+
     //---- Cut on Crystal Energy ---- minimum and maximum energy ----
     double dummyEnergy = treeVars.xtalEnergy[XTLindex];
     
     if (treeVars.xtalTkLength[XTLindex] > 0) {
       dEdxVsEnergy.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalEnergy[XTLindex]);
       dEdxVsdX.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalTkLength[XTLindex]);
+      if(dummy.iphi() < 10 || dummy.iphi() > 190) {
+	dEdxVsEnergy_down.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalEnergy[XTLindex]);
+	dEdxVsdXDOWN.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalTkLength[XTLindex]);
       }
+      else {
+	dEdxVsdXUP.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalTkLength[XTLindex]);
+	dEdxVsEnergy_up.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalEnergy[XTLindex]);
+      }
+    }
     
     if ( dummyEnergy < EnergyPerCrystal_Min_Cut || dummyEnergy > EnergyPerCrystal_Max_Cut) continue;
     
-    if(3.*treeVars.xtalEnergy[XTLindex] < treeVars.xtalTkLength[XTLindex] * 0.0125) continue;
-    
-    //---- PG find a unique index for each xtal --> rawId()
-    EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;   
-   
     //---- get Xtal direction
     TVector3 Xtal_pos (0., 0., 0.) ;
     
@@ -364,6 +381,8 @@ std::cerr << " Starting analysis ..." << std::endl;
     else alpha_up.Fill(angle*180. /PI);       
     EtaPhi_alpha_xtalMU.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
     dEdx_alpha.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
+    if(dummy.iphi() < 10 || dummy.iphi() > 190) dEdx_alpha_down.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);       
+    else dEdx_alpha_up.Fill(angle*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);       
     EtaPhi_events.Fill(dummy.ieta(), dummy.iphi(), angle*180./PI);
 
     //---- Muon direction ----
@@ -376,7 +395,7 @@ std::cerr << " Starting analysis ..." << std::endl;
     else muon_up.Fill(angle*180. /PI);       
 
     //-------------------------------- define alpha cuts - to be done
-    if(angle > 40.) continue;
+    if(angle > 10.) continue;
          
     
     //---- AM Single crystal ----
@@ -504,7 +523,10 @@ std::cerr << " Starting analysis ..." << std::endl;
     
     //PG fill the histo with the E/L for the xtal
     dEdx_Tutti.Fill(treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
+    if(dummy.iphi() < 10 || dummy.iphi() > 190) dEdx_down.Fill(treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);       
+    else dEdx_up.Fill(treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);       
     
+
     //---- AM ---- dE/dx ---- Single crystal ----
        dEdx_Histos[dummy.rawId()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
     
@@ -947,6 +969,12 @@ std::cerr << " Starting analysis ..." << std::endl;
  
  dEdx_Tutti.GetXaxis()->SetTitle("dE/dX");
  dEdx_Tutti.Write();
+
+ dEdx_down.GetXaxis()->SetTitle("dE/dX");
+ dEdx_down.Write();
+
+ dEdx_up.GetXaxis()->SetTitle("dE/dX");
+ dEdx_up.Write();
  
  dE_Tutti.GetXaxis()->SetTitle("dE");
  dE_Tutti.Write();
@@ -986,11 +1014,26 @@ std::cerr << " Starting analysis ..." << std::endl;
  dEdxVsEnergy.GetXaxis()->SetTitle("dE/dx");
  dEdxVsEnergy.GetYaxis()->SetTitle("E");
  dEdxVsEnergy.Write();
+
+ dEdxVsEnergy_up.GetXaxis()->SetTitle("dE/dx");
+ dEdxVsEnergy_up.GetYaxis()->SetTitle("E");
+ dEdxVsEnergy_up.Write();
+
+ dEdxVsEnergy_down.GetXaxis()->SetTitle("dE/dx");
+ dEdxVsEnergy_down.GetYaxis()->SetTitle("E");
+ dEdxVsEnergy_down.Write();
  
  dEdxVsdX.GetXaxis()->SetTitle("dE/dx");
  dEdxVsdX.GetYaxis()->SetTitle("dX");
  dEdxVsdX.Write();
- 
+
+ dEdxVsdXUP.GetXaxis()->SetTitle("dE/dx");
+ dEdxVsdXUP.GetYaxis()->SetTitle("dX");
+ dEdxVsdXUP.Write();
+
+ dEdxVsdXDOWN.GetXaxis()->SetTitle("dE/dx");
+ dEdxVsdXDOWN.GetYaxis()->SetTitle("dX");
+ dEdxVsdXDOWN.Write();
  
  //---- dE Graphs ----  
   
@@ -1015,6 +1058,12 @@ std::cerr << " Starting analysis ..." << std::endl;
  
  dEdx_alpha.GetXaxis()->SetTitle("#alpha");
  dEdx_alpha.Write();
+
+ dEdx_alpha_up.GetXaxis()->SetTitle("#alpha");
+ dEdx_alpha_up.Write();
+
+ dEdx_alpha_down.GetXaxis()->SetTitle("#alpha");
+ dEdx_alpha_down.Write();
 
  alpha_up.GetXaxis()->SetTitle("#alpha");
  alpha_up.Write();
