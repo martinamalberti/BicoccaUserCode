@@ -1,11 +1,11 @@
-<bin name=MappeScram file="MappeScram.cpp">
-  <use name=CRUZET/Calibration>
+#<bin name=MappeScram file="MappeScram.cpp">
+#  <use name=CRUZET/Calibration>
 
 #  <use name=Calibration/EcalCalibAlgos>
  
   <flags LCGDICT_ARGS="--deep">
-  
-</bin>
+#  
+#</bin>
 
 
 
@@ -29,7 +29,16 @@
 #//PG ---- single xtal calibration ---------------------------------------
 
 
-<bin name=singleXtalCalib file="singleXtalCalib.cpp">
-  <use name=CRUZET/Calibration>
+#<bin name=singleXtalCalib file="singleXtalCalib.cpp">
+#  <use name=CRUZET/Calibration>
+#  <flags LCGDICT_ARGS="--deep">
+#</bin>
+
+#//MF ---- coeffcompare --------------------------
+
+<bin name=txtCompare file="txtCompare.cpp">
+ <use name=CRUZET/Calibration>
+  <use name=Calibration/EcalCalibAlgos>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+
