@@ -131,7 +131,7 @@ int main (int argc, char** argv)
       double phiSum = 0. ; 
       double phiSumSq = 0. ; 
       double N = 0. ;
-      for (int iphi = EBphiStart ; iphi <= EBphiEnd ; ++iphi)
+      for (int iphi = (EBphiStart -1); iphi < (EBphiEnd -1); ++iphi)
       {
       
       
