@@ -385,7 +385,9 @@ int main (int argc, char** argv)
   //PG Writes the coeffs onto an XML file
   //calibXMLwriter barrelWriter (EcalBarrel) ;
   coeffSaver out; 
-  int dum = out.save("out.txt", recalibMap);
+if(stat_selector < 0 )  int dum = out.save("out.txt", recalibMap);
+if(stat_selector == 0 )  int dum = out.save("pari.txt", recalibMap);
+if(stat_selector == 1 )  int dum = out.save("dispari.txt", recalibMap);
 
 //  for (int eta=0; eta<170; ++eta)
   //  for (int phi=0; phi<360; ++phi)
