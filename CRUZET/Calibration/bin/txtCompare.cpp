@@ -94,7 +94,7 @@ int main (int argc, char** argv)
  
   std::fstream File1("/afs/cern.ch/user/m/mattia/CMSSW_2_0_12/src/CRUZET/Calibration/bin/pari.txt");
   std::fstream File2("/afs/cern.ch/user/m/mattia/CMSSW_2_0_12/src/CRUZET/Calibration/bin/dispari.txt");
-  
+  std::cout << EBetaStart << " " << EBetaEnd;
   //MF leggo txt
   for(int i=0; i <= 61200; i++)
   {
@@ -112,12 +112,12 @@ int main (int argc, char** argv)
   
   
    // ECAL barrel
-  TH1F EBCompareCoeffDistr ("EBCompareCoeff","EBCompareCoeff",1000,0,2) ;
-  TH2F EBCompareCoeffMap ("EBCompareCoeffMap","EBCompareCoeffMap",360,1,361,171,-85,86) ;
+  TH1F EBCompareCoeffDistr ("EBCompareCoeff","EBCompareCoeff",200,0,2) ;
+  TH2F EBCompareCoeffMap ("EBCompareCoeffMap","EBCompareCoeffMap",360,0,360,170,0,170) ;
   TH2F EBCompareCoeffEtaTrend ("EBCompareCoeffEtaTrend","EBCompareCoeffEtaTrend",
-                               171,-85,86,500,0,2) ;
+                               170,0,170,500,0,2) ;
   TProfile EBCompareCoeffEtaProfile ("EBCompareCoeffEtaProfile","EBCompareCoeffEtaProfile",
-                                     171,-85,86,0,2) ;
+                                     170,0,170,0,2) ;
   TH1F EBCompareCoeffDistr_M1 ("EBCompareCoeff_M1","EBCompareCoeff_M1",1000,0,2) ;
   TH1F EBCompareCoeffDistr_M2 ("EBCompareCoeff_M2","EBCompareCoeff_M2",1000,0,2) ;
   TH1F EBCompareCoeffDistr_M3 ("EBCompareCoeff_M3","EBCompareCoeff_M3",1000,0,2) ;
@@ -143,8 +143,8 @@ int main (int argc, char** argv)
          
 	 
 	 // in our txt files coefficients are ordered by ieta*360+iphi 
-	  if (!EBDetId::validDetId (ieta,iphi)) continue ;
-          EBDetId det = EBDetId (ieta,iphi,EBDetId::ETAPHIMODE) ;
+	//  if (!EBDetId::validDetId (ieta,iphi)) continue ;
+          // EBDetId det = EBDetId (ieta,iphi,EBDetId::ETAPHIMODE) ;
           double factor = (CoeffOdd.find (ieta*360+iphi)->second ) * (CoeffEven.find (ieta*360+iphi)->second) ;
           if (power != 1 && factor != 0) 
               factor = (CoeffOdd.find (ieta*360+iphi)->second) / (CoeffEven.find (ieta*360+iphi)->second);
