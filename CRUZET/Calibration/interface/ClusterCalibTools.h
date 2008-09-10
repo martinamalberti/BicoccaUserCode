@@ -95,28 +95,34 @@ class EBregionBuilder
 } ;
 
 
+//! find the maximum crystal in the supercluster
 int
 findMaxXtalInSC (const EcalCosmicsTreeContent & treeVars,
                  int SCindex) ;
 
+//! find the two maximum crystals in the supercluster
 std::pair <int,int>
 findMaxXtalsInSC (const EcalCosmicsTreeContent & treeVars,
                   int SCindex) ;
 
+//! calculates length in ECAL by summing single crystals contribution
 double
 calcLengthInSC (const EcalCosmicsTreeContent & treeVars,
                 int SCindex) ;
 
+//! calculate the energy around the maxXtalIndex crystal
 double
 calcVetoSingle (const EcalCosmicsTreeContent & treeVars,
                 int SCindex,
                 int maxXtalIndex) ;
 
+//! calculate the energy in the crystals around the pair of crystals
 double
 calcVetoDouble (const EcalCosmicsTreeContent & treeVars,
                 int SCindex,
                 std::pair<int,int> maxXtals) ;
 
+//! check if the two crystals are close to each other
 double
 checkCouple (const EcalCosmicsTreeContent & treeVars,
              std::pair<int,int> maxXtals) ;
