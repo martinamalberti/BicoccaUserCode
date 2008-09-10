@@ -34,11 +34,11 @@ int main (int argc, char** argv)
   double EnergyPerCrystal_Min_Cut = 0.05; //---- 0.05 GeV --> 50 MeV
   double EnergyPerCrystal_Max_Cut = 2.0; //---- 2 GeV
  
-  //  std::map<int, TH1F *> dEdx_Histos ;
-  //  std::map<int, TH1F *> dEdx_Ring_Histos ;
+  std::map<int, TH1F *> dEdx_Histos ;
+  std::map<int, TH1F *> dEdx_Ring_Histos ;
   std::map<int, TH1F *> dEdx_Ring_1M_Up_Histos ;
   std::map<int, TH1F *> dEdx_Ring_1M_Down_Histos ;
-  /*  
+ 
   std::map<int, TH1F *> dE_Histos ;
   std::map<int, TH1F *> dE_Ring_Histos ;
   std::map<int, TH1F *> dE_Ring_1M_Up_Histos ;
@@ -47,8 +47,7 @@ int main (int argc, char** argv)
   std::map<int, TH1F *> dEdx_Ring_Histos_EnergyCut ;
   std::map<int, TH1F *> dEdx_Ring_1M_Up_Histos_EnergyCut ;
   std::map<int, TH1F *> dEdx_Ring_1M_Down_Histos_EnergyCut ;
-  */  
-  
+ 
   int nEntries = -1 ;
   
   //---- AM Command line input ----
@@ -130,14 +129,14 @@ int main (int argc, char** argv)
  //--------------------- 
  //---- Cloned Tree ----
  //--------------------- 
- 
- /*
+
 
 //  std::string inputNameDirectory = "/tmp/govoni/50908Cosmic";
- std::string inputNameDirectory = "/data/cosmics";
+ std::string inputNameDirectory = "";
+ std::string inputNameSearch = "/data/cosmics/cloned_G*";
  
    
- std::string Command2Line = "ls " + inputNameDirectory + " > temp.txt";
+ std::string Command2Line = "ls " + inputNameSearch + " > temp.txt";
  std::cout << Command2Line << std::endl;
  gSystem->Exec(Command2Line.c_str());
 
@@ -151,7 +150,7 @@ int main (int argc, char** argv)
   int uselessInt;
   std::string treeName; 
   line >> treeName;
-  sprintf(inputName,"%s/%s",inputNameDirectory.c_str(),treeName.c_str());
+  sprintf(inputName,"%s%s",inputNameDirectory.c_str(),treeName.c_str());
   std::cerr << "  File ->  " << treeName;
   std::cerr << "  File ->  " << inputName << std::endl;
   chain->Add (inputName);
@@ -161,7 +160,7 @@ int main (int argc, char** argv)
  Command2Line = "rm temp.txt";
  gSystem->Exec(Command2Line.c_str());
  
- */
+
  //------------------------------------------------------------
  //---------------------- End Input Files ----------------------
  //-------------------------------------------------------------
@@ -197,6 +196,9 @@ int main (int argc, char** argv)
 
  // da castor nuove NTuple (cloned)
  
+ 
+ 
+ /*
  sprintf(inputName,"/afs/cern.ch/user/a/amartell/public/perAmassi/CRUZET_elenco/listaCosmic.txt");
  //sprintf(inputName,"/afs/cern.ch/user/a/amartell/public/perAmassi/CRUZET_elenco/listaGlobal.txt");
  ifstream fileC_51047(inputName);
@@ -231,10 +233,10 @@ int main (int argc, char** argv)
   std::cerr << "  File ->  " << inputName << std::endl;
   chain->Add (inputName);
  }
+ */
  
  
- 
-std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl; 
+std::cerr << " Starting analysis ..." << std::endl; 
  
  //---- AM Initiate output file ----
  TFile saving (outputRootName.c_str(),"recreate") ;
@@ -264,6 +266,9 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  TProfile dEdx_alpha("dEdx_alpha", "dEdx_alpha", 100, 0., 90. );
  
  TH2F dEdxVsEnergy ("dEdxVsEnergy","dE/dx versus Crystal Energy",10000,0,2,1000,0,2);
+ TH2F dEdxVsdX ("dEdxVsdX","dE/dx versus dX",10000,0,2,1000,0,25);
+ TH2F dEdxVsdXUP ("dEdxVsdXUP","dE/dx versus dX",10000,0,2,1000,0,25);
+ TH2F dEdxVsdXDOWN ("dEdxVsdXDOWN","dE/dx versus dX",10000,0,2,1000,0,25);
  TH2F occupancyEnergy ("occupancyEnergy","single crystals counting Energy",180,0,360,171,-85,86) ;
  TH2F occupancy ("occupancy","single crystals counting",360,1,361,171,-85,86) ;
  
@@ -319,8 +324,10 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
     //---- Cut on Crystal Energy ---- minimum and maximum energy ----
     double dummyEnergy = treeVars.xtalEnergy[XTLindex];
     
-    if (treeVars.xtalTkLength[XTLindex] > 0) 
+    if (treeVars.xtalTkLength[XTLindex] > 0) {
       dEdxVsEnergy.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalEnergy[XTLindex]);
+      dEdxVsdX.Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex],treeVars.xtalTkLength[XTLindex]);
+      }
     
     if ( dummyEnergy < EnergyPerCrystal_Min_Cut || dummyEnergy > EnergyPerCrystal_Max_Cut) continue;
     
@@ -369,9 +376,9 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
     else muon_up.Fill(angle*180. /PI);       
 
     //-------------------------------- define alpha cuts - to be done
-    if(angle > 90.) continue;
+    if(angle > 40.) continue;
          
-    /* 
+    
     //---- AM Single crystal ----
     std::map<int, TH1F *>::iterator dEdx_Histos_iter = dEdx_Histos.find(dummy.rawId());
     if (dEdx_Histos_iter == dEdx_Histos.end()) {
@@ -380,8 +387,9 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dEdX_" +  stm.str();
      std::string TH1FNameDescription = "dE over dX -> rawId = " + stm.str();
      dEdx_Histos[dummy.rawId()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dEdx_Histos[dummy.rawId()]->SetDirectory(0);
     }
-    */
+   
     //---- AM Ring ---- dE/dx ----
     //---- up ring ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Up_Histos_iter = dEdx_Ring_1M_Up_Histos.find(dummy.ieta());
@@ -391,8 +399,8 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
       std::string TH1FName = "dEdX_Ring_Up" +  stm.str();
       std::string TH1FNameDescription = "dE over dX Ring Up -> ieta = " + stm.str();
       dEdx_Ring_1M_Up_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+      dEdx_Ring_1M_Up_Histos[dummy.ieta()]->SetDirectory(0);
     }
-    /*
     //---- ---- + Energy Cut ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Up_Histos_EnergyCut_iter = dEdx_Ring_1M_Up_Histos_EnergyCut.find(dummy.ieta());
     if (dEdx_Ring_1M_Up_Histos_EnergyCut_iter == dEdx_Ring_1M_Up_Histos_EnergyCut.end()) {
@@ -401,8 +409,9 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dEdX_Ring_Up_EnergyCut" +  stm.str();
      std::string TH1FNameDescription = "dE over dX Ring Up EnergyCut -> ieta = " + stm.str();
      dEdx_Ring_1M_Up_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dEdx_Ring_1M_Up_Histos_EnergyCut[dummy.ieta()]->SetDirectory(0);
     }
-    */
+    
     //---- down ring ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Down_Histos_iter = dEdx_Ring_1M_Down_Histos.find(dummy.ieta());
     if (dEdx_Ring_1M_Down_Histos_iter == dEdx_Ring_1M_Down_Histos.end()) {
@@ -411,8 +420,9 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dEdX_Ring_Down" +  stm.str();
      std::string TH1FNameDescription = "dE over dX Ring Down -> ieta = " + stm.str();
      dEdx_Ring_1M_Down_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dEdx_Ring_1M_Down_Histos[dummy.ieta()]->SetDirectory(0);
     }
-    /*
+    
     //---- ---- + Energy Cut ----
     std::map<int, TH1F *>::iterator dEdx_Ring_1M_Down_Histos_EnergyCut_iter = dEdx_Ring_1M_Down_Histos_EnergyCut.find(dummy.ieta());
     if (dEdx_Ring_1M_Down_Histos_EnergyCut_iter == dEdx_Ring_1M_Down_Histos_EnergyCut.end()) {
@@ -421,9 +431,8 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dEdX_Ring_Down_EnergyCut" +  stm.str();
      std::string TH1FNameDescription = "dE over dX Ring Down EnergyCut -> ieta = " + stm.str();
      dEdx_Ring_1M_Down_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dEdx_Ring_1M_Down_Histos_EnergyCut[dummy.ieta()]->SetDirectory(0);
     }
-    */
-    /*
     //---- all ring ----
     std::map<int, TH1F *>::iterator dEdx_Ring_Histos_iter = dEdx_Ring_Histos.find(dummy.ieta());
     if (dEdx_Ring_Histos_iter == dEdx_Ring_Histos.end()) {
@@ -432,6 +441,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dEdX_Ring" +  stm.str();
      std::string TH1FNameDescription = "dE over dX Ring -> ieta = " + stm.str();
      dEdx_Ring_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dEdx_Ring_Histos[dummy.ieta()]->SetDirectory(0);
     }
 
     std::map<int, TH1F *>::iterator dEdx_Ring_Histos_EnergyCut_iter = dEdx_Ring_Histos_EnergyCut.find(dummy.ieta());
@@ -441,11 +451,10 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dEdX_Ring_EnergyCut" +  stm.str();
      std::string TH1FNameDescription = "dE over dX Ring EnergyCut-> ieta = " + stm.str();
      dEdx_Ring_Histos_EnergyCut[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dEdx_Ring_Histos_EnergyCut[dummy.ieta()]->SetDirectory(0);
     }
-    */
     //---- dE ----
 
-    /*
     std::map<int, TH1F *>::iterator dE_Histos_iter = dE_Histos.find(dummy.rawId());
     if (dE_Histos_iter == dE_Histos.end()) {
      std::ostringstream stm;
@@ -453,6 +462,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dE_" +  stm.str();
      std::string TH1FNameDescription = "dE -> rawId = " + stm.str();
      dE_Histos[dummy.rawId()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dE_Histos[dummy.rawId()]->SetDirectory(0);
     }
     
      
@@ -466,6 +476,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
       std::string TH1FName = "dE_Ring_Up" +  stm.str();
       std::string TH1FNameDescription = "dE Ring Up -> ieta = " + stm.str();
       dE_Ring_1M_Up_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+      dE_Ring_1M_Up_Histos[dummy.ieta()]->SetDirectory(0);
     }
     
     //---- down ring ----
@@ -476,6 +487,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dE_Ring_Down" +  stm.str();
      std::string TH1FNameDescription = "dE Ring Down -> ieta = " + stm.str();
      dE_Ring_1M_Down_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dE_Ring_1M_Down_Histos[dummy.ieta()]->SetDirectory(0);
     }
     //---- all ring ----
     std::map<int, TH1F *>::iterator dE_Ring_Histos_iter = dE_Ring_Histos.find(dummy.ieta());
@@ -485,29 +497,29 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
      std::string TH1FName = "dE_Ring" +  stm.str();
      std::string TH1FNameDescription = "dE Ring -> ieta = " + stm.str();
      dE_Ring_Histos[dummy.ieta()] = new TH1F(TH1FName.c_str(),TH1FNameDescription.c_str(),100,0,0.2);
+     dE_Ring_Histos[dummy.ieta()]->SetDirectory(0);
     }
     
     
-    */
-
+    
     //PG fill the histo with the E/L for the xtal
     dEdx_Tutti.Fill(treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
     
     //---- AM ---- dE/dx ---- Single crystal ----
-    //    dEdx_Histos[dummy.rawId()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+       dEdx_Histos[dummy.rawId()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
     
     //---- AM ---- dE ---- Single crystal ----
-    // dE_Histos[dummy.rawId()]->Fill(treeVars.xtalEnergy[XTLindex]);
+    dE_Histos[dummy.rawId()]->Fill(treeVars.xtalEnergy[XTLindex]);
       
         
     //---- AM Ring ---- dE/dx ----
-    // dEdx_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
+    dEdx_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
     if (dummy.iphi() < 120 && dummy.iphi() > 80) 
       dEdx_Ring_1M_Up_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
     if (dummy.iphi() < 300 && dummy.iphi() > 260) 
       dEdx_Ring_1M_Down_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]/treeVars.xtalTkLength[XTLindex]);
 
-    // dE_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]);
+    dE_Ring_Histos[dummy.ieta()]->Fill(treeVars.xtalEnergy[XTLindex]);
     
     dE_Tutti.Fill(treeVars.xtalEnergy[XTLindex]);
     dX_Tutti.Fill(treeVars.xtalTkLength[XTLindex]);
@@ -519,7 +531,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  
 
  
- /*
+
  
  //---- dE/dx map from the fit ---- single crystal ----
  std::map<int, double> XtalCoeff_map ;
@@ -590,7 +602,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
   }
  }  //AM ---- end loop over dEdx_Histos single crystal ----
 
- */
+
  
  
  
@@ -684,7 +696,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  //---------------------- dE ----------------------
  //------------------------------------------------
 
- /*
+ 
   
  //---- dE map from the fit ---- single crystal ----
  std::map<int, double> dEXtalCoeff_map ;
@@ -843,12 +855,12 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
   }
  }
   
- */
+ 
  //----------------------------------------------------
  //---------------------- End dE ----------------------
  //----------------------------------------------------
 
- /*
+ 
  
  //---- dE/dx map from the fit ---- Ring ----
  std::map<int, double> RingCoeff_map ;
@@ -927,7 +939,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  {
   Coeff.Fill(mapIt->first,RingCoeff_map[mapIt->first]);
  }
- */
+ 
 
  
  //---- Saving histograms ----
@@ -950,7 +962,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  occupancy.GetYaxis()->SetTitle("i#eta");
  occupancy.Write ();
  
- /*
+ 
  Coeff.GetXaxis()->SetTitle("i#eta");
  Coeff.GetYaxis()->SetTitle("dE/dx");
  Coeff.Write();
@@ -958,12 +970,11 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  TGraphErrorsCoefficients.GetXaxis()->SetTitle("i#eta");
  TGraphErrorsCoefficients.GetYaxis()->SetTitle("dE/dx");
  TGraphErrorsCoefficients.Write();
- */
- /*
+ 
  dEdXEtaPhi.GetXaxis()->SetTitle("i#phi");
  dEdXEtaPhi.GetYaxis()->SetTitle("i#eta");
  dEdXEtaPhi.Write();
- */
+ 
  CoeffDOWN.GetXaxis()->SetTitle("i#eta");
  CoeffDOWN.GetYaxis()->SetTitle("dE/dx");
  CoeffDOWN.Write();
@@ -976,9 +987,13 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  dEdxVsEnergy.GetYaxis()->SetTitle("E");
  dEdxVsEnergy.Write();
  
+ dEdxVsdX.GetXaxis()->SetTitle("dE/dx");
+ dEdxVsdX.GetYaxis()->SetTitle("dX");
+ dEdxVsdX.Write();
+ 
  
  //---- dE Graphs ----  
- /* 
+  
  dECoeff.GetXaxis()->SetTitle("i#eta");
  dECoeff.GetYaxis()->SetTitle("dE");
  dECoeff.Write();
@@ -995,7 +1010,7 @@ std::cerr << " >>>>>>>>>>>>>> Starting analysis ..." << std::endl;
  dEEtaPhi.GetYaxis()->SetTitle("i#eta");
  dEEtaPhi.Write();
 
- */
+ 
  //---- Alpha Graphs ----
  
  dEdx_alpha.GetXaxis()->SetTitle("#alpha");
