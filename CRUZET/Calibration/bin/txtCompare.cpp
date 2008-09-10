@@ -67,8 +67,8 @@ int main (int argc, char** argv)
   std::cout << parameterSet->dump () << std::endl ; //PG for testing
 
   edm::ParameterSet subPSetCalib = parameterSet->getParameter<edm::ParameterSet> ("clusterCalib") ;
-  int EBetaStart = subPSetCalib.getParameter<int> ("etaMin") ;
-  int EBetaEnd = subPSetCalib.getParameter<int> ("etaMax") ;
+  int EBetaStart = etaShifter(subPSetCalib.getParameter<int> ("etaMin") );
+  int EBetaEnd = etaShifter(subPSetCalib.getParameter<int> ("etaMax")) ;
   int etaStep = subPSetCalib.getParameter<int> ("etaStep") ;
   int EBphiStart = subPSetCalib.getParameter<int> ("phiMin") ;
   int EBphiEnd = subPSetCalib.getParameter<int> ("phiMax") ;
