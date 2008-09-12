@@ -112,12 +112,13 @@ int main (int argc, char** argv)
   
   
    // ECAL barrel
-  TH1F EBCompareCoeffDistr ("EBCompareCoeff","EBCompareCoeff",200,0,2) ;
+  TH1F EBCompareCoeffDistr ("EBCompareCoeff","EBCompareCoeff",400,-2,2) ;
+  TH2F EBCompareCoeffScatterPlot ("EBCompareCoeffScatterPlot","EBCompareCoeffScatterPlot",200,0,2,200,0,2);
   TH2F EBCompareCoeffMap ("EBCompareCoeffMap","EBCompareCoeffMap",360,0,360,170,0,170) ;
   TH2F EBCompareCoeffEtaTrend ("EBCompareCoeffEtaTrend","EBCompareCoeffEtaTrend",
-                               170,0,170,500,0,2) ;
+                               170,0,170,500,-2,2) ;
   TProfile EBCompareCoeffEtaProfile ("EBCompareCoeffEtaProfile","EBCompareCoeffEtaProfile",
-                                     170,0,170,0,2) ;
+                                     170,0,170,-2,2) ;
   TH1F EBCompareCoeffDistr_M1 ("EBCompareCoeff_M1","EBCompareCoeff_M1",1000,0,2) ;
   TH1F EBCompareCoeffDistr_M2 ("EBCompareCoeff_M2","EBCompareCoeff_M2",1000,0,2) ;
   TH1F EBCompareCoeffDistr_M3 ("EBCompareCoeff_M3","EBCompareCoeff_M3",1000,0,2) ;
@@ -147,10 +148,10 @@ int main (int argc, char** argv)
           // EBDetId det = EBDetId (ieta,iphi,EBDetId::ETAPHIMODE) ;
           double factor = (CoeffOdd.find (ieta*360+iphi)->second ) * (CoeffEven.find (ieta*360+iphi)->second) ;
           if (power != 1 && factor != 0) 
-              factor = (CoeffOdd.find (ieta*360+iphi)->second) / (CoeffEven.find (ieta*360+iphi)->second);
+              factor = 2* ((CoeffOdd.find (ieta*360+iphi)->second)-(CoeffEven.find (ieta*360+iphi)->second)) / ((CoeffEven.find (ieta*360+iphi)->second)+(CoeffOdd.find(ieta*360+iphi)->second));
 	  
         std::cout << " ieta = " << ieta  << " iphi = " << iphi << " iEBcalibMap --> " << CoeffOdd.find (ieta*360+iphi)->second;
-        std::cout << " iEBscalibMap --> " << CoeffEven.find (ieta*360+iphi)->second << std::endl;
+        std::cout << " iEBscalibMap --> " << CoeffEven.find (ieta*360+iphi)->second << "relative factor" << factor << std::endl;
 
           
           phiSum += factor ;
@@ -159,6 +160,7 @@ int main (int argc, char** argv)
           EBCompareCoeffDistr.Fill (factor) ;
           EBCompareCoeffMap.Fill (iphi,ieta,factor) ;
           EBCompareCoeffEtaTrend.Fill (ieta,factor) ;
+	  EBCompareCoeffScatterPlot.Fill(CoeffEven.find (ieta*360+iphi)->second, CoeffOdd.find (ieta*360+iphi)->second);
           EBCompareCoeffEtaProfile.Fill (ieta,factor) ;
           if (abs(ieta) < 26) EBCompareCoeffDistr_M1.Fill (factor) ;
           else if (abs(ieta) < 46) EBCompareCoeffDistr_M2.Fill (factor) ;
@@ -180,7 +182,7 @@ int main (int argc, char** argv)
   EBCompareCoeffMap.GetXaxis()->SetTitle("i#phi");
   EBCompareCoeffMap.GetYaxis()->SetTitle("i#eta");
   EBCompareCoeffMap.Write () ;
-  
+  EBCompareCoeffScatterPlot.Write();
   EBCompareCoeffDistr.Write () ;  
   EBCompareCoeffEtaTrend.Write () ;
   EBCompareCoeffEtaProfile.Write () ;
