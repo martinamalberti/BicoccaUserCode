@@ -242,7 +242,7 @@ void Langau() {
 //  TFile *_file0 = TFile::Open("HistoGlobalNUOVO2.root");
 
 //  TFile *_file0 = TFile::Open("HistoGlobalOGGID0.root");
- TFile *_file0 = TFile::Open("HistoGlobal14Sep.root");
+ TFile *_file0 = TFile::Open("15SepBis.root");
  
  TCanvas *Pippo  = new TCanvas("Pippo","Pippo",300,30,800,800);
    
@@ -387,8 +387,123 @@ void Langau() {
  fitsnr->Draw("lsame");
    
    
+ 
+   //----------------------------------------------------
+ 
+ 
+ TCanvas *PippoUp  = new TCanvas("PippoUp","PippoUp",300,30,800,800);
+   
+ PippoUp->Divide(2,2);
+ PippoUp->cd(1);
+   
+    
+ dEdx_ULB->Rebin(8);
+   
+ sv[2] = 1000. / dEdx_ULB->GetEntries();
+ TF1 *fitsnr = langaufit(&dEdx_ULB,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf);
+ 
+ langaupro(fp,SNRPeak,SNRFWHM);
+
+ printf("Fitting done\nPlotting results...\n");
+
+   // Global style settings
+ gStyle->SetOptStat(1111);
+ gStyle->SetOptFit(111);
+ gStyle->SetLabelSize(0.03,"dEdX");
+ gStyle->SetLabelSize(0.03,"counts");
+
+ dEdx_ULB->GetXaxis()->SetRange(0.,0.2);
+ dEdx_ULB->Draw();
+ fitsnr->Draw("lsame");
+   
    
    //----------------------------------------------------
+   
+   
+ PippoUp->cd(2);
+ dEdx_URB->Rebin(8);
+   
+ sv[2] = 1000. / dEdx_URB->GetEntries();
+ TF1 *fitsnr = langaufit(&dEdx_URB,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf);
+ langaupro(fp,SNRPeak,SNRFWHM);
+
+ printf("Fitting done\nPlotting results...\n");
+
+   // Global style settings
+ gStyle->SetOptStat(1111);
+ gStyle->SetOptFit(111);
+ gStyle->SetLabelSize(0.03,"dEdX");
+ gStyle->SetLabelSize(0.03,"counts");
+
+   
+ dEdx_URB->GetXaxis()->SetRange(0.,0.2);
+ dEdx_URB->Draw();
+ fitsnr->Draw("lsame");
+   
+   
+   //----------------------------------------------------
+   
+ PippoUp->cd(3);
+ dEdx_URF->Rebin(8);
+   
+ sv[2] = 1000. / dEdx_URF->GetEntries();
+ TF1 *fitsnr = langaufit(&dEdx_URF,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf);
+ langaupro(fp,SNRPeak,SNRFWHM);
+
+ printf("Fitting done\nPlotting results...\n");
+
+   // Global style settings
+ gStyle->SetOptStat(1111);
+ gStyle->SetOptFit(111);
+ gStyle->SetLabelSize(0.03,"dEdX");
+ gStyle->SetLabelSize(0.03,"counts");
+
+   
+ dEdx_URF->GetXaxis()->SetRange(0.,0.2);
+ dEdx_URF->Draw();
+ fitsnr->Draw("lsame");
+
+      //----------------------------------------------------
+   
+ PippoUp->cd(4);
+ dEdx_ULF->Rebin(8);
+ sv[2] = 1000. / dEdx_ULF->GetEntries();
+ TF1 *fitsnr = langaufit(&dEdx_ULF,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf);
+ langaupro(fp,SNRPeak,SNRFWHM);
+
+ printf("Fitting done\nPlotting results...\n");
+
+   // Global style settings
+ gStyle->SetOptStat(1111);
+ gStyle->SetOptFit(111);
+ gStyle->SetLabelSize(0.03,"dEdX");
+ gStyle->SetLabelSize(0.03,"counts");
+
+   
+ dEdx_ULF->GetXaxis()->SetRange(0.,0.2);
+ dEdx_ULF->Draw();
+ fitsnr->Draw("lsame");
+   
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ //----------------------------------------------------
+ 
+ 
+ 
+ 
+ 
    
  TCanvas *Uno  = new TCanvas();
  Uno->Divide(2,2);
@@ -467,5 +582,45 @@ void Langau() {
  CoeffUL->SetMarkerStyle(20);
  CoeffUL->Draw("ap");
       
+ 
+ 
+   //----------------------------------------------------
+   
+ TCanvas *boh  = new TCanvas();
+ boh->Divide(4,2);
+ boh->cd(1);
+ dEdxSingleXtal_Tutti_40Up->SetFillColor(kBlue);
+ dEdxSingleXtal_Tutti_40Up->Draw();
+   
+ boh->cd(2);
+ dEdxSingleXtal_Tutti_30Up->SetFillColor(kBlue);
+ dEdxSingleXtal_Tutti_30Up->Draw();
+   
+ boh->cd(3);
+ dEdxSingleXtal_Tutti_20Up->SetFillColor(kBlue);
+ dEdxSingleXtal_Tutti_20Up->Draw();
+ boh->cd(4);
+ dEdxSingleXtal_Tutti_10Up->SetFillColor(kBlue);
+ dEdxSingleXtal_Tutti_10Up->Draw();
+      
+ 
+ 
+ boh->cd(5);
+ dEdxSingleXtal_Tutti_40Down->SetFillColor(kRed);
+ dEdxSingleXtal_Tutti_40Down->Draw();
+   
+ boh->cd(6);
+ dEdxSingleXtal_Tutti_30Down->SetFillColor(kRed);
+ dEdxSingleXtal_Tutti_30Down->Draw();
+   
+ boh->cd(7);
+ dEdxSingleXtal_Tutti_20Down->SetFillColor(kRed);
+ dEdxSingleXtal_Tutti_20Down->Draw();
+ 
+ boh->cd(8);
+ dEdxSingleXtal_Tutti_10Down->SetFillColor(kRed);
+ dEdxSingleXtal_Tutti_10Down->Draw();
+
+ 
  
 }
