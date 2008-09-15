@@ -8,6 +8,10 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/foreach.hpp>
 
 //MF read CFG files includes5
 #include "FWCore/Utilities/interface/Exception.h"
@@ -35,12 +39,13 @@
 int main (int argc, char** argv)
 {
 
+  std::string outputRootName = "matchDistance.root" ;
   std::string fileName (argv[1]) ;
   boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
   std::cout << parameterSet->dump () << std::endl ; //PG for testing
   
-  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
+  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("selections") ;
   edm::ParameterSet subPSetInput =  
     parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
   std::vector<std::string> inputFiles = 
@@ -54,7 +59,7 @@ int main (int argc, char** argv)
   for (std::vector<std::string>::const_iterator listIt = inputFiles.begin () ;
        listIt != inputFiles.end () ;
        ++listIt)
-    {
+    {   
       std::cout << *listIt << " " << std::endl ;
       chain->Add (listIt->c_str ()) ;
     }
@@ -67,7 +72,6 @@ int main (int argc, char** argv)
   TProfile matchDEtavsEtaSopra("matchDEtavsEtaSopra","matchDEtavsEtaSopra", 170,-1.5,1.5); 
   TProfile matchDEtavsEtaSotto("matchDEtavsEtaSotto","matchDEtavsEtaSotto", 170,-1.5,1.5);         
   TProfile matchDRvsPhi("matchDRvsPhi","matchDRvsPhi", 360,-3.1416,3.1416);        
-
 
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    

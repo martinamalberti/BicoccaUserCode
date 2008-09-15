@@ -18,7 +18,7 @@
 #include "TLorentzVector.h"
 #include "TApplication.h"
 
-//MF read CFG files includes5
+//MF read CFG files includes
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,7 +37,7 @@ int main (int argc, char** argv)
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
   std::cout << parameterSet->dump () << std::endl ; //PG for testing
   
-  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
+  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("selections") ;
   edm::ParameterSet subPSetInput =  
     parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
   std::vector<std::string> inputFiles = 
@@ -122,7 +122,6 @@ int main (int argc, char** argv)
       ect::fillAssocVector (associations, treeVars) ;
       ect::selectOnDR (associations, treeVars, 0.3) ;
 
-      
       double angle = -99;  
       
       //PG loop on associations vector
@@ -141,13 +140,10 @@ int main (int argc, char** argv)
           TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
                             treeVars.muonMomentumY[MUindex], 
                             treeVars.muonMomentumZ[MUindex]) ;
-          
-	  
-	  double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
- 	  if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;
-	  
-	  
-	        
+          	  
+          double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
+          if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;
+        
           angle = MuonDir.Angle( SC0_pos ) ;
           if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
           Angle.Fill(angle);

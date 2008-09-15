@@ -8,6 +8,10 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/foreach.hpp>
 
 //MF read CFG files includes5
 #include "FWCore/Utilities/interface/Exception.h"
@@ -25,15 +29,12 @@
 int main (int argc, char** argv)
 
 {
-  std::string outputRootName = "OutputSCdistr.root" ;
-  
-  
   std::string fileName (argv[1]) ;
   boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
   std::cout << parameterSet->dump () << std::endl ; //PG for testing
-  
-  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
+
+//  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
   edm::ParameterSet subPSetInput =  
     parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
   std::vector<std::string> inputFiles = 
@@ -52,10 +53,13 @@ int main (int argc, char** argv)
       chain->Add (listIt->c_str ()) ;
     }
 
+  std::string outputRootName = "SCdistr.root" ;
+
   TH2F SCdistr ("SCdistr","SCdistr",360,-3.1416,3.1416,170,-1.5,1.5) ;
   TH2F SCradiusMap ("SCradiusMap","SCradiusMap",360,-3.1416,3.1416,170,-1.5,1.5) ;
   TH1F SCradius("SCradius","SCradius",900,1.10,2.) ;
   double radius;
+
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
 
