@@ -115,6 +115,9 @@ void
 
  hInvMassMCAndC_ = fs->make<TH2F>("hInvMassMCAndC","Invariant Mass MC Truth and Cluster",1000, 0., 1.,1000, 0., 1.);
  
+ hEnBCVsSumEnergyEndCap_ = fs->make<TH2F>("hEnBCVsSumEnergyEndCap","EndCap: Energy BC vs Sum Xtals Energy",1000, 0., 100.,1000, 0., 100.);
+ hEnBCVsSumEnergyBarrel_ = fs->make<TH2F>("hEnBCVsSumEnergyBarrel","Barrel: Energy BC vs Sum Xtals Energy",1000, 0., 100.,1000, 0., 100.);
+ 
  
  //---- Tree creation ----
  tTreeUtilities_ = fs->make<TTree>("tTreeUtilities","tTreeUtilities");
@@ -131,6 +134,7 @@ void
  pyC_ = new std::vector<double>;
  pzC_ = new std::vector<double>;
  etC_ = new std::vector<double>;
+ eC_ = new std::vector<double>;
  HitsC_ = new std::vector<int>;
  HitsEnergyC_ = new std::vector<double>;
  
@@ -158,6 +162,7 @@ void
  tTreeUtilities_->Branch("pyC_","std::vector<double>",&pyC_);
  tTreeUtilities_->Branch("pzC_","std::vector<double>",&pzC_);
  tTreeUtilities_->Branch("etC_","std::vector<double>",&etC_);
+ tTreeUtilities_->Branch("eC_","std::vector<double>",&eC_);
  tTreeUtilities_->Branch("HitsC_","std::vector<int>",&HitsC_);
  tTreeUtilities_->Branch("HitsEnergyC_","std::vector<double>",&HitsEnergyC_);
  
@@ -204,6 +209,7 @@ void
    pyC_->clear();
    pzC_->clear();
    etC_->clear();
+   eC_->clear();
    HitsC_->clear();
    HitsEnergyC_->clear();
    
@@ -252,7 +258,6 @@ void
       pxPh_->push_back((*d)->momentum().x());
       pyPh_->push_back((*d)->momentum().y());
       pzPh_->push_back((*d)->momentum().z());
-      
       
       //---- Invariant Mass ----
       math::XYZTLorentzVector p_temp((*d)->momentum().x(),(*d)->momentum().y(),(*d)->momentum().z(),(*d)->momentum().t());
@@ -517,10 +522,6 @@ void
      if (!flagOK) {
       hInvMassNoPi0_->Fill(InvMass); //---- two photons that are not due to Pi0 ----
      }
-          
-          
-          
-          
     }
    }
    
@@ -552,7 +553,7 @@ void
     float p0x = aClus->energy() * sin(theta) * cos(aClus->position().phi());
     float p0y = aClus->energy() * sin(theta) * sin(aClus->position().phi());
     float p0z = aClus->energy() * cos(theta);
-    float et = sqrt( p0x*p0x + p0y*p0y);
+    double et = sqrt( p0x*p0x + p0y*p0y);
     
     thetaC_->push_back(theta);
     etaC_->push_back(aClus->position().eta());
@@ -560,9 +561,11 @@ void
     pxC_->push_back(p0x);
     pyC_->push_back(p0y);
     pzC_->push_back(p0z);
-    etC_->push_back(sqrt( p0x*p0x + p0y*p0y));
+    etC_->push_back(et);
+    eC_->push_back(aClus->energy());
     HitsC_->push_back(bc.getHitsByDetId().size());
 
+    double SumEnergy = 0;
 //     std::cerr << std::endl << "Entro" << std::endl;
     std::vector<DetId> vector_DetId_temp = bc.getHitsByDetId();
     for (std::vector<DetId>::const_iterator iteratorDetId = vector_DetId_temp.begin(); iteratorDetId != vector_DetId_temp.end(); iteratorDetId++){
@@ -573,12 +576,17 @@ void
      if (itrechit == barrelHitsCollection->end()) continue;
      double dummy = 0;
      dummy = itrechit->energy () ;
+     SumEnergy += dummy;
 //      std::cerr << std::endl << "energy = " << dummy << std::endl;
      HitsEnergyC_->push_back(dummy);
 //      std::cerr << "    buttato" << std::endl;
     }
     
 //     std::cerr << " Uscito" << std::endl;
+    
+    
+    hEnBCVsSumEnergyBarrel_-> Fill(aClus->energy(),SumEnergy);
+    
     
     seedShpItr = barrelClShpHandle->find(clusterRef);
     reco::ClusterShapeRef seedShapeRef = (*seedShpItr).val;
@@ -622,7 +630,10 @@ void
     pyC_->push_back(p0y);
     pzC_->push_back(p0z);
     etC_->push_back(sqrt( p0x*p0x + p0y*p0y));
+    eC_->push_back(aClus->energy());
     HitsC_->push_back(bc.getHitsByDetId().size());
+    
+    double SumEnergy = 0;
     
     std::vector<DetId> vector_DetId_temp = bc.getHitsByDetId();
     for (std::vector<DetId>::const_iterator iteratorDetId = vector_DetId_temp.begin(); iteratorDetId != vector_DetId_temp.end(); iteratorDetId++){
@@ -631,9 +642,12 @@ void
      if (itrechit == barrelHitsCollection->end()) continue;
      double dummy = 0;
      dummy = itrechit->energy () ;
+     SumEnergy += dummy;
      HitsEnergyC_->push_back(dummy);
     }
 
+    hEnBCVsSumEnergyEndCap_-> Fill(aClus->energy(),SumEnergy);
+      
     seedShpItrEE = endcapClShHandle->find(clusterRefEE);
     reco::ClusterShapeRef seedShapeRef = (*seedShpItrEE).val;
     
@@ -720,6 +734,7 @@ void
         delete pyC_;
         delete pzC_;
         delete etC_;
+        delete eC_;
         delete HitsC_;
         delete HitsEnergyC_;
         

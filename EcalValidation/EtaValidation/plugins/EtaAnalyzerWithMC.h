@@ -3,8 +3,8 @@
 /**\class EtaAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/08/28 12:52:42 $
- ** $Revision: 1.1 $
+ ** $Date: 2008/09/02 15:03:24 $
+ ** $Revision: 1.3 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -116,6 +116,8 @@ class EtaAnalyzerWithMC : public edm::EDAnalyzer {
 
   TH2F* hInvMassMCAndC_;
   
+  TH2F* hEnBCVsSumEnergyEndCap_;
+  TH2F* hEnBCVsSumEnergyBarrel_;
   
   TTree * tTreeUtilities_;
   int numC_;
@@ -133,6 +135,7 @@ class EtaAnalyzerWithMC : public edm::EDAnalyzer {
   std::vector<double> * pyC_;
   std::vector<double> * pzC_;
   std::vector<double> * etC_;
+  std::vector<double> * eC_;
   std::vector<int> * HitsC_;
   std::vector<double> * HitsEnergyC_;
   
