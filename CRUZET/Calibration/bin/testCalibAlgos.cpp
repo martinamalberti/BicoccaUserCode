@@ -91,7 +91,6 @@ int main (int argc, char** argv)
 
 //PG FIXME some assert to check the params
 
-//  EBregionBuilder EBRegionsTool (-85, -1, 2, 1, 181, 2) ;
   EBregionBuilder EBRegionsTool (etaMin, etaMax, etaStep, phiMin, phiMax, phiStep) ;
 
   //PG calibration coefficients for this step
@@ -329,7 +328,9 @@ int main (int argc, char** argv)
       for (std::vector<VEcalCalibBlock *>::iterator calibBlock = EcalCalibBlocks.begin () ;
             calibBlock != EcalCalibBlocks.end () ;
             ++calibBlock) 
-        (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) ;
+        std::cout << "block " << calibBlock - EcalCalibBlocks.begin () 
+                  << " solved w/ code : " << (*calibBlock)->solve (usingBlockSolver, minCoeff, maxCoeff) 
+                  << std::endl ;
       
       for (std::map<int,int>::const_iterator mapIt = XtalEvents.begin();
            mapIt != XtalEvents.end(); ++mapIt)
@@ -385,9 +386,9 @@ int main (int argc, char** argv)
   //PG Writes the coeffs onto an XML file
   //calibXMLwriter barrelWriter (EcalBarrel) ;
   coeffSaver out; 
-if(stat_selector < 0 )  int dum = out.save("out.txt", recalibMap);
-if(stat_selector == 0 )  int dum = out.save("pari.txt", recalibMap);
-if(stat_selector == 1 )  int dum = out.save("dispari.txt", recalibMap);
+  if(stat_selector < 0 ) out.save ("out.txt", recalibMap) ;
+  if(stat_selector == 0 ) out.save ("pari.txt", recalibMap) ;
+  if(stat_selector == 1 ) out.save ("dispari.txt", recalibMap) ;
 
 //  for (int eta=0; eta<170; ++eta)
   //  for (int phi=0; phi<360; ++phi)

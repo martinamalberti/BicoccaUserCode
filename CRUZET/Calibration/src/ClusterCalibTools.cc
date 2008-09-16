@@ -45,6 +45,7 @@ EBregionBuilder::EBregionsNum () const
 {
   int phi = m_phiStartEB ;
   if (m_phiStartEB > m_phiEndEB) phi = m_phiStartEB - 360 ;
+
   return ( (m_etaEnd - m_etaStart) / m_etaWidth) * 
          ( (m_phiEndEB - phi) / m_phiWidthEB) ; 
 }
