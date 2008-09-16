@@ -5,6 +5,7 @@
 
 #include "EtaAnalyzer.h"
 #include "EtaAnalyzerWithMC.h"
+#include "EtaAnalyzerWithMCTreeGenerator.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -15,3 +16,4 @@ typedef Merger<reco::SuperClusterCollection> EgammaSuperClusterMerger;
 DEFINE_FWK_MODULE( EgammaSuperClusterMerger );
 DEFINE_ANOTHER_FWK_MODULE(EtaAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(EtaAnalyzerWithMC);
+DEFINE_ANOTHER_FWK_MODULE(EtaAnalyzerWithMCTreeGenerator);
