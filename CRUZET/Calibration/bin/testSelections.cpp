@@ -124,15 +124,22 @@ int main (int argc, char** argv)
               int iphi = dummyDetId.iphi () ;
 
               std::cout << "cluster num in SC: " 
-                        << treeVars.nClustersInSuperCluster << std::endl ;
-                        
-//              int maxXTL = findMaxXtalinSC (treeVars, SCindex) ;
-
-              EBDetId det = EBDetId::unhashIndex (treeVars.xtalHashedIndex[findMaxXtalInSC (treeVars, SCindex)]) ;
-                        
-              std::cout << " " << treeVars.clusterMaxId[findMaxClusterInSC (treeVars, SCindex)]
-                        << " " << det.rawId () 
+                        << treeVars.nClustersInSuperCluster[SCindex] 
                         << std::endl ;
+                        
+              EBDetId det = EBDetId::unhashIndex (
+                  treeVars.xtalHashedIndex[findMaxXtalInSC (treeVars, SCindex)]
+                ) ;
+              std::cout << "confronto_maxXtalInSC (" 
+                        << det.ieta () << "," 
+                        << det.iphi () << ") " ;
+              
+              EBDetId det2 (treeVars.clusterMaxId[findMaxClusterInSC (treeVars, SCindex)]) ;
+              std::cout << "<-> (" << det2.ieta () << "," << det2.iphi () << ")" << std::endl ;
+ 
+ 
+                                            
+              std::cout << "maxClusterIndex: " << findMaxClusterInSC (treeVars, SCindex) << std::endl ;
             } //PG loop on associations vector
       
         } //PG loop over entries
