@@ -39,10 +39,10 @@ int main (int argc, char** argv)
  double Cut_Angle_Mu_Xtal = 180.; //---- degrees ----
  double Cut_D0 = 5000.; //----
  double Cut_Dz = 5000.; //----
- double EnergyMaxCrystal_Min_Cut = 0.050; //---- 0.05 GeV --> 50 MeV
+ double EnergyMaxCrystal_Min_Cut = 0.025; //---- 0.05 GeV --> 50 MeV
  double EnergyMaxCrystal_Max_Cut = 8.0; //---- 2 GeV
 
- double EnergyPerCrystal_Min_Cut = 0.025; //---- 0.025 GeV --> 25 MeV
+ double EnergyPerCrystal_Min_Cut = 0.0250; //---- 0.025 GeV --> 25 MeV
  double EnergyPerCrystal_Max_Cut = 8.0; //---- 2 GeV
 
 
@@ -147,7 +147,7 @@ int main (int argc, char** argv)
 
 //  std::string inputNameDirectory = "/tmp/govoni/50908Cosmic";
  std::string inputNameDirectory = "";
- std::string inputNameSearch = "/data/CRUZET/ntuples4/cloned_C*";
+ std::string inputNameSearch = "/data/CRUZET/ntuples4/cloned_G*";
 
  std::string Command2Line = "ls " + inputNameSearch + " > temp.txt";
  std::cout << Command2Line << std::endl;
@@ -269,7 +269,7 @@ int main (int argc, char** argv)
  TH1F dEdxSingleXtal_Tutti_20Down("dEdxSingleXtal_Tutti_20Down","dEdxSingleXtal_Tutti",1000,0,0.2);
  TH1F dEdxSingleXtal_Tutti_10Down("dEdxSingleXtal_Tutti_10Down","dEdxSingleXtal_Tutti",1000,0,0.2);
  
- 
+ //TH2F dEvsdX 
  
  TH1F dEdx_Tutti("dEdx_Tutti","dEdx_Tutti",1000,0,0.2);
  TH1F dEdx_down("dEdx_down","dEdx_down",1000,0,0.2);
@@ -305,11 +305,14 @@ int main (int argc, char** argv)
  TProfile2D EtaPhi_alpha_xtalMU("EtaPhi_alpha_xtalMU", "EtaPhi_alpha_xtalMU", 171, -85., 86, 360, 1., 361.);
  TProfile2D EtaPhi_alpha_MU("EtaPhi_alpha_MU", "EtaPhi_alpha_MU", 171, -85., 86, 360, 1., 361.);
 
+
  TProfile dEvsAlpha_Tutti("dEvsAlpha_Tutti","dEvsAlpha_Tutti",100, 0., 90.);
  TProfile dXvsAlpha_Tutti("dXvsAlpha_Tutti","dXvsAlpha_Tutti",100, 0., 90.);
  TH2F dEdx_alpha("dEdx_alpha", "dEdx_alpha", 100, 0., 90., 100, 0., 0.2 );
  TH2F dEdx_alpha_up("dEdx_alpha_up", "dEdx_alpha_up", 100, 0., 90., 100,0., 0.2 );
  TH2F dEdx_alpha_down("dEdx_alpha_down", "dEdx_alpha_down", 100, 0., 90., 100, 0., 0.2 );
+
+ TProfile2D dEdx("dEdx", "dEdx",171, -85., 86, 360, 1., 361.);
 
  TH2F dEdxVsEnergy ("dEdxVsEnergy","dE/dx versus Crystal Energy",10000,0,2,1000,0,2);
  TH2F dEdxVsEnergy_up ("dEdxVsEnergy_up","dE/dx versus Crystal Energy #phi - up",10000,0,2,1000,0,2);
@@ -356,6 +359,7 @@ int main (int argc, char** argv)
  TH1F dX_URB("dX_URB","dX_URB",1000,0,2.);
  TH1F dX_URF("dX_URF","dX_URF",1000,0,2.);
 
+ TH1F dummyDistrib("dummyDistrib","dummyDistrib", 1000, -100., 100);
 
  //PG loop over entries
  for (int entry = 0 ; entry < nEntries ; ++entry)
@@ -378,12 +382,16 @@ int main (int argc, char** argv)
    int numCrystalEMax = -1;
    int numCrystalLMax = -1;
    bool SclOk = false;
+   double dummyLength = 0;
 
    for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
         XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
           treeVars.nXtalsInSuperCluster[SCindex] ; ++XTLindex)
    {
     if(treeVars.xtalTkLength[XTLindex] == -1) continue;
+
+    dummyLength+= treeVars.xtalTkLength[XTLindex];
+
     //---- check the link Xtal with max energy  == Xtal with max length ----
     if(treeVars.xtalEnergy[XTLindex] > dummyEmax) 
     {
@@ -393,13 +401,21 @@ int main (int argc, char** argv)
      numCrystalLMax = XTLindex;
     }
    }
-   if (numCrystalEMax != numCrystalLMax) 
+
+   //   if( abs(treeVars.muonTkLengthInEcalDetail[associations.at(i).first] - dummyLength) > 0.5) continue;
+
+   if ( (numCrystalEMax != numCrystalLMax) && (numCrystalEMax != -1) && (numCrystalLMax != -1)) 
    { //---------------------- CHE TEST E' ? --------------------------------
     if(3.*treeVars.xtalEnergy[numCrystalLMax] < treeVars.xtalTkLength[numCrystalLMax] * 0.0125) SclOk = false;
    }
    else SclOk = true;
+   
+   if((numCrystalEMax == -1) || (numCrystalLMax == -1)) SclOk = false;
 
    if(SclOk == false) continue;
+
+   dummyDistrib.Fill( treeVars.muonTkLengthInEcalDetail[associations.at(i).first] - dummyLength);
+
 
    //---- cut on min/max energy of the maximum energy crytal ----
    if ( treeVars.xtalEnergy[numCrystalLMax] < EnergyMaxCrystal_Min_Cut || treeVars.xtalEnergy[numCrystalLMax] > EnergyMaxCrystal_Max_Cut) continue;
@@ -444,6 +460,7 @@ int main (int argc, char** argv)
     if(dummy.iphi() < 10 || dummy.iphi() > 190) dEdx_alpha_down.Fill(angle_Mu_Xtal*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
     else dEdx_alpha_up.Fill(angle_Mu_Xtal*180./PI, treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
     EtaPhi_events.Fill(dummy.ieta(), dummy.iphi(), angle_Mu_Xtal*180./PI);
+    dEdx.Fill(dummy.ieta(), dummy.iphi(), treeVars.xtalEnergy[XTLindex] / treeVars.xtalTkLength[XTLindex]);
 
     //---- Muon direction ---- angle Muon / Sky ----
     TVector3 Xtal_posf (0., 1., 0.) ;
@@ -814,10 +831,14 @@ int main (int argc, char** argv)
    dEdXEtaPhi.Fill(dummyMy.iphi(),dummyMy.ieta(),mean_pair);
    dEdxSingleXtal_Tutti.Fill(mean_pair);
    
-   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 40*40) dEdxSingleXtal_Tutti_40.Fill(mean_pair);
-   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 30*30) dEdxSingleXtal_Tutti_30.Fill(mean_pair);
-   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 20*20) dEdxSingleXtal_Tutti_20.Fill(mean_pair);
-   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 10*10) dEdxSingleXtal_Tutti_10.Fill(mean_pair);
+   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 40*40)
+     dEdxSingleXtal_Tutti_40.Fill(mean_pair);
+   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 30*30) 
+     dEdxSingleXtal_Tutti_30.Fill(mean_pair);
+   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 20*20) 
+     dEdxSingleXtal_Tutti_20.Fill(mean_pair);
+   if (((dummyMy.iphi() < 300 && dummyMy.iphi() > 260) || (dummyMy.iphi() < 120 && dummyMy.iphi() > 80)) && dummyMy.ieta() * dummyMy.ieta() < 10*10) 
+     dEdxSingleXtal_Tutti_10.Fill(mean_pair);
    
    
    
@@ -1579,8 +1600,9 @@ int main (int argc, char** argv)
  dEdxSingleXtal_Tutti_20Down.Write();
  dEdxSingleXtal_Tutti_10Down.GetXaxis()->SetTitle("dE/dx");
  dEdxSingleXtal_Tutti_10Down.Write();
- 
 
+ dummyDistrib.Write(); 
+ dEdx.Write();
  //---- end Graphs ----
 
  saving.Close () ;
