@@ -3,8 +3,8 @@
 /**\class EtaAnalyzerMCTreeGenerator
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/09/02 15:03:24 $
- ** $Revision: 1.3 $
+ ** $Date: 2008/09/16 10:01:36 $
+ ** $Revision: 1.1 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -62,6 +62,25 @@ class EtaAnalyzerWithMCTreeGenerator : public edm::EDAnalyzer {
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
 
+//   edm::InputTag islandBarrelBasicClusters_;
+//   edm::InputTag islandBarrelShapeAssoc_;
+//   edm::InputTag islandEndcapBasicClusters_;
+//   edm::InputTag islandEndcapShapeAssoc_;
+
+  std::string islandBarrelBasicClustersProducer_;       
+  std::string islandBarrelBasicClusters_;       
+
+  std::string islandBarrelShapeAssocProducer_;       
+  std::string islandBarrelShapeAssoc_;       
+
+  std::string islandEndcapBasicClustersProducer_;       
+  std::string islandEndcapBasicClusters_;       
+
+  std::string islandEndcapShapeAssocProducer_;       
+  std::string islandEndcapShapeAssoc_;       
+
+  
+    
   double MinClusterEt_;
   double MinPtGamma_;
   double MinPtGammaPair_ ;

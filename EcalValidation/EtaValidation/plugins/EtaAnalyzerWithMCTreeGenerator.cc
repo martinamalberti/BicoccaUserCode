@@ -39,8 +39,23 @@ EtaAnalyzerWithMCTreeGenerator::EtaAnalyzerWithMCTreeGenerator( const edm::Param
  barrelEcalHits_   = ps.getParameter<edm::InputTag>("barrelEcalHits");
  endcapEcalHits_   = ps.getParameter<edm::InputTag>("endcapEcalHits");
 
+//  islandBarrelBasicClusters_ = ps.getParameter<edm::InputTag>("islandBarrelBasicClusters");
+//  islandBarrelShapeAssoc_ = ps.getParameter<edm::InputTag>("islandBarrelShapeAssoc");
+//  islandEndcapBasicClusters_= ps.getParameter<edm::InputTag>("islandEndcapBasicClusters");
+//  islandEndcapShapeAssoc_= ps.getParameter<edm::InputTag>("islandEndcapShapeAssoc");
 
-
+ islandBarrelBasicClustersProducer_ = ps.getParameter<std::string>("islandBarrelBasicClustersProducer");
+ islandBarrelBasicClusters_ = ps.getParameter<std::string>("islandBarrelBasicClusters");
+ 
+ islandBarrelShapeAssocProducer_ = ps.getParameter<std::string>("islandBarrelShapeAssocProducer");
+ islandBarrelShapeAssoc_ = ps.getParameter<std::string>("islandBarrelShapeAssoc");
+ 
+ islandEndcapBasicClustersProducer_ = ps.getParameter<std::string>("islandEndcapBasicClustersProducer");
+ islandEndcapBasicClusters_ = ps.getParameter<std::string>("islandEndcapBasicClusters");
+ 
+ islandEndcapShapeAssocProducer_ = ps.getParameter<std::string>("islandEndcapShapeAssocProducer");
+ islandEndcapShapeAssoc_ = ps.getParameter<std::string>("islandEndcapShapeAssoc");
+ 
  mcProducer_ = ps.getParameter<std::string>("mcProducer");
   //mcCollection_ = ps.getParameter<std::string>("mcCollection");
  vertexProducer_ = ps.getParameter<std::string>("primaryVertexProducer");
@@ -198,16 +213,20 @@ void
 
   // USO I BASIC CLUSTERS invece DEI FOTONI
   // loop over basic clusters
+   
+    
   //---- basic cluster Barrel ----   
    Handle<reco::BasicClusterCollection> pIslandBarrelBasicClusters;
   //evt.getByLabel(islandBCProd_, islandBCColl_, pIslandBarrelBasicClusters);
-   evt.getByLabel("islandBasicClusters", "islandBarrelBasicClusters",pIslandBarrelBasicClusters);
+   evt.getByLabel(islandBarrelBasicClustersProducer_,islandBarrelBasicClusters_,pIslandBarrelBasicClusters);
+//    evt.getByLabel("islandBasicClusters","islandBarrelBasicClusters",pIslandBarrelBasicClusters);
    const reco::BasicClusterCollection* islandBarrelBasicClusters = pIslandBarrelBasicClusters.product();
 
 
   //---- Get association maps linking BasicClusters to ClusterShape
    edm::Handle<reco::BasicClusterShapeAssociationCollection> barrelClShpHandle;
-   evt.getByLabel("islandBasicClusters", "islandBarrelShapeAssoc", barrelClShpHandle);
+   evt.getByLabel(islandBarrelShapeAssocProducer_,islandBarrelShapeAssoc_, barrelClShpHandle);
+//    evt.getByLabel("islandBasicClusters","islandBarrelShapeAssoc", barrelClShpHandle);
    reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
 
    
@@ -216,13 +235,15 @@ void
    //---- basic cluster Endcap ----   
    
    Handle<reco::BasicClusterCollection> pIslandEndcapBasicClusters;
-   evt.getByLabel("islandBasicClusters", "islandEndcapBasicClusters",pIslandEndcapBasicClusters);
+   evt.getByLabel(islandEndcapBasicClustersProducer_,islandEndcapBasicClusters_,pIslandEndcapBasicClusters);
+//    evt.getByLabel("islandBasicClusters","islandEndcapBasicClusters",pIslandEndcapBasicClusters);
    const reco::BasicClusterCollection* islandEndcapBasicClusters = pIslandEndcapBasicClusters.product();
 
 
   //Get association maps linking BasicClusters to ClusterShape
    edm::Handle<reco::BasicClusterShapeAssociationCollection> endcapClShHandle;
-   evt.getByLabel("islandBasicClusters", "islandEndcapShapeAssoc", endcapClShHandle);
+   evt.getByLabel(islandEndcapShapeAssocProducer_,islandEndcapShapeAssoc_, endcapClShHandle);
+//    evt.getByLabel("islandBasicClusters","islandEndcapShapeAssoc", endcapClShHandle);
    reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItrEE;
 
    
