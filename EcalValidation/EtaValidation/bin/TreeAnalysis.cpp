@@ -752,7 +752,7 @@ int main (int argc, char** argv)
      if (flagMCMatchAfter) hIsolationMC.Fill(iso/ptSum_After);
      hIsolation.Fill(iso/ptSum_After);
         
-     if ((iso/ptSum_After) > iso_Cut) {
+     if ((iso/ptSum_After) < iso_Cut) {
       if (flagMCMatchAfter) hInvMassEta2CMC.Fill(EnergyPairAfter);
       if (flagMCMatchAfter) hInvMassEta2PtSumMC.Fill(EnergyPairAfter,ptSum_Cut);
       hInvMassEta2PtSum.Fill(ptSum_Cut,EnergyPairAfter);
