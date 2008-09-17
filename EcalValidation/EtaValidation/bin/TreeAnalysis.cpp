@@ -354,7 +354,9 @@ int main (int argc, char** argv)
 
  TH1F hAngleC("hAngleC","Angle between two BC. After ALL CUTS",3600, 0., 2.*PI);
  
- 
+ TH2F hInvMassEta2PtSumMC("hInvMassEta2PtSumMC","MC Match. Invariant mass Eta two cluster selection versus PtC_Sum. All Cuts",1000, 0., 1.,1000, 0., 100.); 
+ TH2F hInvMassEta2PtSum("hInvMassEta2PtSum","Invariant mass Eta two cluster selection versus PtC_Sum. All Cuts",1000, 0., 1.,1000, 0., 100.); 
+
  
  
  
@@ -614,7 +616,7 @@ int main (int argc, char** argv)
    math::XYZTLorentzVector pC2C_1(pxC1,pyC1,pzC1,EnergyC1);
    
    //---- save all pair-photons ----
-   for (int ll=kk; ll<numC_; ll++){ //---- inizio da kk così non rischio di avere doppioni ----
+   for (int ll=kk+1; ll<numC_; ll++){ //---- inizio da kk così non rischio di avere doppioni ----
     if (ll!=kk) {
      double pxCIn = pxC_->at(ll);
      double pyCIn = pyC_->at(ll);
@@ -717,7 +719,7 @@ int main (int argc, char** argv)
     
     
     //---- pt-Cluster cut Cluster 1 and Cluster 2 ----
-   if ((ptC1_After > ptC_Cut) && (ptC1_After > ptC_Cut)) {
+   if ((ptC1_After > ptC_Cut) && (ptC2_After > ptC_Cut)) {
 
     if (flagMCMatchAfter) hInvMassEta2CAndS4oS9CMC.Fill(EnergyPairAfter,S4oS9C_->at(numberC1After));
     hInvMassEta2CAndS4oS9C.Fill(EnergyPairAfter,S4oS9C_->at(numberC1After));
@@ -752,7 +754,9 @@ int main (int argc, char** argv)
         
      if ((iso/ptSum_After) > iso_Cut) {
       if (flagMCMatchAfter) hInvMassEta2CMC.Fill(EnergyPairAfter);
-      hInvMassEta2C.Fill(EnergyPairAfter);
+      if (flagMCMatchAfter) hInvMassEta2PtSumMC.Fill(EnergyPairAfter,ptSum_Cut);
+      hInvMassEta2PtSum.Fill(ptSum_Cut,EnergyPairAfter);
+      if (ptSum_After < ptSum_Cut) hInvMassEta2C.Fill(EnergyPairAfter);
       hAngleC.Fill(angle_C_After); //---- cut on angle has been performed in pair filling ----
      }//---- end Isolatio cut ----        
     }//---- end S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
@@ -819,7 +823,16 @@ int main (int argc, char** argv)
  hAngle.GetXaxis()->SetTitle("Angle between BC (rad)");
  hAngle.Write();
   
+ hInvMassEta2PtSum.GetYaxis()->SetTitle("Pt_Sum (GeV)");
+ hInvMassEta2PtSum.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassEta2PtSum.Write();
+ 
+  
  //---- MC Match ----
+ hInvMassEta2PtSumMC.GetYaxis()->SetTitle("Pt_Sum (GeV)");
+ hInvMassEta2PtSumMC.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassEta2PtSumMC.Write();
+ 
  hInvMassEta2CETNoCutsMC.GetYaxis()->SetTitle("Et (GeV)");
  hInvMassEta2CETNoCutsMC.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2CETNoCutsMC.Write();
