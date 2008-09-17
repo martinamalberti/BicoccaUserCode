@@ -323,12 +323,12 @@ int main (int argc, char** argv)
  TH1F hInvMassEtaCMCTruth("hInvMassEtaCMCTruth","Invariant mass Eta from Clusters. Match with MC Truth",1000, 0., 1.);
  
  TH1F hAngleC_MCMatch("hAngleC_MCMatch","Angle between the two photons from BC and MC matching",3600, 0., 2.*PI);
- TH1F hNPhoton("hNPhoton","number of photons per eta from MC Truth",100, 0., 100.);
- TH1F hPhotonPt("hPhotonPt","Photon pt",10000, 0., 10.);
+ TH1F hNPhoton("hNPhoton","number of photons per eta from MC Truth",100, 0., 10.);
+ TH1F hPhotonPt("hPhotonPt","Photon pt",10000, 0., 100.);
  
  //---- Data Analysis ---- before cuts -----
  TH1F hAngle("hAngle","Angle between two BC, any pair of 2 BC",3600, 0., 2.*PI);
- TH1F hInvMassEta2CNoCuts("hInvMassEta2CNoCuts","Invariant mass Eta two cluster selection. NO CUTS",1000, 0., 1.);  
+ TH1F hInvMassEta2CNoCuts("hInvMassEta2CNoCuts","Invariant mass Eta two cluster selection. CUTS on the first cluster",1000, 0., 1.);  
  TH2F hInvMassEta2CETNoCuts("hInvMassEta2CETNoCuts","Invariant mass Eta two cluster selection Vs Et. No Cuts.",1000, 0., 1.,1000, 0., 10.); 
  TH2F hInvMassEta2CETNoCutsMC("hInvMassEta2CETNoCutsMC","MC match. Invariant mass Eta two cluster selection vs Et. No Cuts.",1000, 0., 1.,1000, 0., 10.); 
  TH2F h2CPtC1AndPtC2("h2CPtC1AndPtC2","PtC1 versus PtC2. No Cuts",1000, 0., 10.,1000, 0., 10.); 
@@ -343,16 +343,21 @@ int main (int argc, char** argv)
  TH2F hInvMassEta2CAndPtCMC("hInvMassEta2CAndPtCMC","MC match. Invariant mass Eta two cluster selection versus PtC. Cuts PtC and S4oS9.",1000, 0., 1.,1000, 0., 10.);   
  TH2F hInvMassEta2CAndPtC("hInvMassEta2CAndPtC","Invariant mass Eta two cluster selection versus PtC. Cuts PtC and S4oS9.",1000, 0., 1.,1000, 0., 10.); 
 
- TH2F hInvMassEta2CAndIsolationMC("hInvMassEta2CAndIsolationMC","MC match. Invariant mass Eta two cluster selection versus Iso/PtSum. Cut ON",1000, 0., 1.,1000, 0., 10.);
- TH2F hInvMassEta2CAndIsolation("hInvMassEta2CAndIsolation","Invariant mass Eta two cluster selection versus Iso/PtSum. Cut ON",1000, 0., 1.,1000, 0., 10.);
+ TH2F hInvMassEta2CAndIsolationMC("hInvMassEta2CAndIsolationMC","MC match. Invariant mass Eta two cluster selection versus Iso/PtSum. Cut ON",1000, 0., 1.,1000, 0., 3.);
+ TH2F hInvMassEta2CAndIsolation("hInvMassEta2CAndIsolation","Invariant mass Eta two cluster selection versus Iso/PtSum. Cut ON",1000, 0., 1.,1000, 0., 3.);
    
- TH1F hIsolation("hIsolation","Isolation after all other cuts",1000, 0., 10.);
- TH1F hIsolationMC("hIsolationMC","MC match. Isolation after all other cuts",1000, 0., 10.);  
+ TH1F hIsolation("hIsolation","Isolation after all other cuts",1000, 0., 5.);
+ TH1F hIsolationMC("hIsolationMC","MC match. Isolation after all other cuts",1000, 0., 5.);  
   
- TH1F hInvMassEta2C("hInvMassEta2C","Invariant mass Eta two cluster selection. After ALL CUTS",1000, 0., 1.); 
+ TH1F hAngleC("hAngleC","Angle between two BC. After cuts on the first cluster",3600, 0., 2.*PI);
+ 
  TH1F hInvMassEta2CMC("hInvMassEta2CMC","MC match. Invariant mass Eta two cluster selection. After ALL CUTS",1000, 0., 1.); 
-
- TH1F hAngleC("hAngleC","Angle between two BC. After ALL CUTS",3600, 0., 2.*PI);
+ //-------------------- Final Graph --------------------
+ TH1F hInvMassEta2C("hInvMassEta2C","Invariant mass Eta two cluster selection. After ALL CUTS",1000, 0., 1.); 
+ TH1F hInvMassEta2CEE("hInvMassEta2CEE","Invariant mass Eta two cluster selection. After ALL CUTS. Endcap - Endcap",1000, 0., 1.); 
+ TH1F hInvMassEta2CEB("hInvMassEta2CEB","Invariant mass Eta two cluster selection. After ALL CUTS Barrel - Barrel",1000, 0., 1.); 
+ TH1F hInvMassEta2CBB("hInvMassEta2CBB","Invariant mass Eta two cluster selection. After ALL CUTS. Endcap - Barrel",1000, 0., 1.); 
+ //-----------------------------------------------------
  
  
  
@@ -672,7 +677,7 @@ int main (int argc, char** argv)
        //---- Angle cut ----
      if (angle_C < angle_Cut) {
     //---- pt-Cluster cut Cluster 1 and Cluster 2 ----
-      if ((ptC1 > ptC_Cut) && (ptC2 > ptC_Cut)) {
+      if (ptC2 > ptC_Cut) {
 
        if (flagMCMatch) hInvMassEta2CAndS4oS9CMC.Fill(EnergyPair,S4oS9C_->at(numberC1));
        hInvMassEta2CAndS4oS9C.Fill(EnergyPair,S4oS9C_->at(numberC1));
@@ -682,7 +687,7 @@ int main (int argc, char** argv)
      
      
      //---- S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
-       if ((S4oS9C_->at(numberC1) > S4oS9C_Cut) && (S4oS9C_->at(numberC2) > S4oS9C_Cut)){
+       if (S4oS9C_->at(numberC2) > S4oS9C_Cut){
       
         if (flagMCMatch) hInvMassEta2CAndPtCMC.Fill(EnergyPair,ptC1);
         hInvMassEta2CAndPtC.Fill(EnergyPair,ptC1);
@@ -708,6 +713,14 @@ int main (int argc, char** argv)
         if ((iso/ptSum) < iso_Cut) {
          if (flagMCMatch) hInvMassEta2CMC.Fill(EnergyPair);
          hInvMassEta2C.Fill(EnergyPair);
+         //---- Barrel - Barrel ----
+         if (fabs(etaC2) < 1.49 && fabs(etaC1) < 1.49) hInvMassEta2CBB.Fill(EnergyPair);
+         //---- Endcap - Barrel ----
+         if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
+         //---- Endcap - Endcap ----
+         if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
+         
+           
         }//---- end Isolatio cut ----        
        }//---- end S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
       }//---- end pt-Cluster cut Cluster 1 and Cluster 2 
@@ -731,6 +744,16 @@ int main (int argc, char** argv)
  hInvMassEta2C.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2C.Write();
   
+ hInvMassEta2CEE.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassEta2CEE.Write();
+
+ hInvMassEta2CBB.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassEta2CBB.Write();
+
+ hInvMassEta2CEB.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassEta2CEB.Write();
+
+ 
  hInvMassEta2CNoCuts.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2CNoCuts.Write();
   
