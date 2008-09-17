@@ -3,3 +3,13 @@
   <use name=EcalValidation/EtaValidation>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+
+<bin name=TreeAnalysisFast file="TreeAnalysisFast.cpp">
+  <use name=EcalValidation/EtaValidation>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
+
+<bin name=TreeAnalysisFastest file="TreeAnalysisFastest.cpp">
+  <use name=EcalValidation/EtaValidation>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
