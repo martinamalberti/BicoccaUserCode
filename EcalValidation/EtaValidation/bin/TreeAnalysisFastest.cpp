@@ -70,6 +70,7 @@ int main (int argc, char** argv)
  double dPhi_C_Cut = 0.1; //---- dPhi to match MC and Cluster
  
  
+ double S9oS25C_Cut = 0.85; //---- S4oS9C_-Cluster cut ----
  double S4oS9C_Cut = 0.85; //---- S4oS9C_-Cluster cut ----
  double ptC_Cut = 1.;      //---- pt-Cluster cut ----
  double ptSum_Cut = 2.;    //---- pt-coppia cut ---- 
@@ -111,6 +112,7 @@ int main (int argc, char** argv)
   ifstream file(inputName.c_str());
   
   std::string variableNameR = "R";
+  std::string variableNameS9oS25C_Cut = "S9oS25C_Cut";
   std::string variableNameS4oS9C_Cut = "S4oS9C_Cut";
   std::string variableNamePtC_Cut = "ptC_Cut";
   std::string variableNamePtSum_Cut = "ptSum_Cut";
@@ -138,6 +140,7 @@ int main (int argc, char** argv)
    std::cerr << "  File ->  " << variableName << "  =  " << variableValue << std::endl;
    if (variableName == variableNameR) R = variableValue;
    if (variableName == variableNameS4oS9C_Cut) S4oS9C_Cut = variableValue;
+   if (variableName == variableNameS9oS25C_Cut) S9oS25C_Cut = variableValue;
    if (variableName == variableNamePtC_Cut) ptC_Cut = variableValue;
    if (variableName == variableNamePtSum_Cut) ptSum_Cut = variableValue;
    if (variableName == variableNameMax_Cut) RMax_Cut = variableValue;
@@ -335,6 +338,8 @@ int main (int argc, char** argv)
  
   //---- Data Analysis ---- after cuts -----
  TH2F hInvMassEta2CAndS4oS9C("hInvMassEta2CAndS4oS9C","Invariant mass Eta two cluster selection versus S4oS9. Cuts PtC.",1000, 0., 1.,1000, 0., 10.);
+ TH2F hInvMassEta2CAndS9oS25("hInvMassEta2CAndS9oS25","Invariant mass Eta two cluster selection versus S9oS25. ALL BUT REALLY ALL CUT",1000, 0., 1.,1000, 0., 10.);
+
  TH2F hInvMassEta2CAndS4oS9CMC("hInvMassEta2CAndS4oS9CMC","MC match. Invariant mass Eta two cluster selection versus S4oS9. Cuts PtC.",1000, 0., 1.,1000, 0., 10.);
  
  TH3F hInvMassEta2CAndS4oS9CAndPtC("hInvMassEta2CAndS4oS9CAndPtC","Invariant mass Eta two cluster selection versus S4oS9 and PtC. Cuts PtC",100, 0., 1.,100, 0., 10.,100, 0., 10.); 
@@ -355,9 +360,11 @@ int main (int argc, char** argv)
  //-------------------- Final Graph --------------------
  TH1F hInvMassEta2C("hInvMassEta2C","Invariant mass Eta two cluster selection. After ALL CUTS",1000, 0., 1.); 
  TH1F hInvMassEta2CEE("hInvMassEta2CEE","Invariant mass Eta two cluster selection. After ALL CUTS. Endcap - Endcap",1000, 0., 1.); 
- TH1F hInvMassEta2CEB("hInvMassEta2CEB","Invariant mass Eta two cluster selection. After ALL CUTS Barrel - Barrel",1000, 0., 1.); 
- TH1F hInvMassEta2CBB("hInvMassEta2CBB","Invariant mass Eta two cluster selection. After ALL CUTS. Endcap - Barrel",1000, 0., 1.); 
+ TH1F hInvMassEta2CBB("hInvMassEta2CBB","Invariant mass Eta two cluster selection. After ALL CUTS Barrel - Barrel",1000, 0., 1.); 
+ TH1F hInvMassEta2CEB("hInvMassEta2CEB","Invariant mass Eta two cluster selection. After ALL CUTS. Endcap - Barrel",1000, 0., 1.); 
  //-----------------------------------------------------
+ TH1F hAngleEnd("hAngleEnd","Angle between two BC. After ALL cuts",3600, 0., 2.*PI);
+ TH1F hAngleREnd("hAngleREnd","Angle R (eta,phi) between two BC. After ALL cuts",3600, 0., 2.*PI);
  
  
  
@@ -366,6 +373,7 @@ int main (int argc, char** argv)
  //---- Input Variables Loaded ----
  std::cerr << "Input Variables Loaded: " << std::endl; 
  std::cerr << " R = " << R << std::endl; 
+ std::cerr << " S9oS25C_Cut = " << S9oS25C_Cut << std::endl; 
  std::cerr << " S4oS9C_Cut = " << S4oS9C_Cut << std::endl; 
  std::cerr << " ptC_Cut = " << ptC_Cut << std::endl; 
  std::cerr << " ptSum_Cut = " << ptSum_Cut << std::endl; 
@@ -591,7 +599,7 @@ int main (int argc, char** argv)
   int numberC1;
   int numberC2;
   double EnergyPair;
-  bool flagMCMatch;
+  bool flagMCMatch = false;
   double angle_C;
   
   //---- loop over clusters ----
@@ -642,7 +650,7 @@ int main (int argc, char** argv)
      //---- check if cluster pair correspond to a MC photon pair from eta ----
      for (int entryMC = 0 ; entryMC < nEntriesMC ; ++entryMC){
       ClusterPairCMC.GetEntry(entryMC);
-      if (numEntry == entry) {
+      if (numEntryAfter == entry) {
        if (((FirstCluster == ll) && (SecondCluster == kk)) || ((FirstCluster == kk) && (SecondCluster == ll))) flagMCMatch  = true;
        else flagMCMatch = false; 
       }
@@ -711,15 +719,24 @@ int main (int argc, char** argv)
         hIsolation.Fill(iso/ptSum);
         
         if ((iso/ptSum) < iso_Cut) {
-         if (flagMCMatch) hInvMassEta2CMC.Fill(EnergyPair);
-         hInvMassEta2C.Fill(EnergyPair);
-         //---- Barrel - Barrel ----
-         if (fabs(etaC2) < 1.49 && fabs(etaC1) < 1.49) hInvMassEta2CBB.Fill(EnergyPair);
-         //---- Endcap - Barrel ----
-         if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
-         //---- Endcap - Endcap ----
-         if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
          
+         hInvMassEta2CAndS9oS25.Fill(EnergyPair,S9C_->at(numberC1) / S25C_->at(numberC1));    
+         //---- cut S9oS25 ----
+         if ((S9C_->at(numberC1) / S25C_->at(numberC1) > S9oS25C_Cut) && (S9C_->at(numberC2) / S25C_->at(numberC2) > S9oS25C_Cut))
+         {
+          hAngleEnd.Fill(angle_C);
+          double R_forHisto = sqrt((etaC1-etaC2)*(etaC1-etaC2) + deltaPhi(phiC1,phiC2) * deltaPhi(phiC1,phiC2));
+          hAngleREnd.Fill(angle_C);
+          
+          if (flagMCMatch) hInvMassEta2CMC.Fill(EnergyPair);
+          hInvMassEta2C.Fill(EnergyPair);
+         //---- Barrel - Barrel ----
+          if (fabs(etaC2) < 1.49 && fabs(etaC1) < 1.49) hInvMassEta2CBB.Fill(EnergyPair);
+         //---- Endcap - Barrel ----
+          if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
+         //---- Endcap - Endcap ----
+          if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
+         }
            
         }//---- end Isolatio cut ----        
        }//---- end S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
@@ -768,7 +785,11 @@ int main (int argc, char** argv)
  hInvMassEta2CAndPtC.GetYaxis()->SetTitle("PtC (GeV)");
  hInvMassEta2CAndPtC.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2CAndPtC.Write();
-  
+ 
+ hInvMassEta2CAndS9oS25.GetYaxis()->SetTitle("S9oS25");
+ hInvMassEta2CAndS9oS25.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassEta2CAndS9oS25.Write();  
+   
  hInvMassEta2CAndS4oS9C.GetYaxis()->SetTitle("S4oS9");
  hInvMassEta2CAndS4oS9C.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2CAndS4oS9C.Write();
@@ -794,7 +815,13 @@ int main (int argc, char** argv)
 
  hAngleC.GetXaxis()->SetTitle("Angle between BC (rad)");
  hAngleC.Write();
-  
+ 
+ hAngleEnd.GetXaxis()->SetTitle("Angle between BC (rad)");
+ hAngleEnd.Write();
+ 
+ hAngleREnd.GetXaxis()->SetTitle("Angle R (eta/phi) between BC");
+ hAngleREnd.Write();
+ 
  hAngle.GetXaxis()->SetTitle("Angle between BC (rad)");
  hAngle.Write();
   
@@ -844,6 +871,7 @@ int main (int argc, char** argv)
  
  TTree Cuts("Cuts","Cuts");
  Cuts.Branch("R",&R,"R/D");
+ Cuts.Branch("S9oS25C_Cut",&S9oS25C_Cut,"S9oS25C_Cut/D");
  Cuts.Branch("S4oS9C_Cut",&S4oS9C_Cut,"S4oS9C_Cut/D");
  Cuts.Branch("ptC_Cut",&ptC_Cut,"ptC_Cut/D");
  Cuts.Branch("ptSum_Cut",&ptSum_Cut,"ptSum_Cut/D");
