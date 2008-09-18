@@ -87,7 +87,9 @@ int main (int argc, char** argv)
  double dPhi_eta = 0.1;
  double ptPh_Cut = 1.;      //---- pt-Photon cut ----
  
- int N_events = 10; //----numeber of events to analize -> -1 = all ----
+ int N_events = 10; //---- number of events to analize -> -1 = all ----
+ 
+ int OmegaSearch = 0; //---- 0 -> no Omega ---- 1 -> si Omega ----
  
  
  std::string inputName;
@@ -128,6 +130,8 @@ int main (int argc, char** argv)
   std::string variableNameDEta_eta = "dEta_eta";
   std::string variableNameDPhi_eta = "dPhi_eta";
   std::string variableNamePtPh_Cut = "ptPh_Cut";
+  std::string variableNameOmegaSearch = "OmegaSearch";
+
   
   std::cerr << " Reading  " << inputName << " ... " << std::endl;
   while (!file.eof()){
@@ -155,6 +159,7 @@ int main (int argc, char** argv)
    if (variableName == variableNameDEta_eta) dEta_eta = variableValue;
    if (variableName == variableNameDPhi_eta) dPhi_eta = variableValue;
    if (variableName == variableNamePtPh_Cut) ptPh_Cut = variableValue;
+   if (variableName == variableNameOmegaSearch) OmegaSearch = variableValue;
   }
  }
  
@@ -366,7 +371,7 @@ int main (int argc, char** argv)
  TH1F hAngleEnd("hAngleEnd","Angle between two BC. After ALL cuts",3600, 0., 2.*PI);
  TH1F hAngleREnd("hAngleREnd","Angle R (eta,phi) between two BC. After ALL cuts",3600, 0., 2.*PI);
  
- 
+ TH1F hInvMassOmegaC("hInvMassOmegaC","Invariant mass Omega three cluster selection.",1000, 0., 1.); 
  
  
  
@@ -389,8 +394,10 @@ int main (int argc, char** argv)
  std::cerr << " dEta_eta = " << dEta_eta << std::endl;
  std::cerr << " dPhi_eta = " << dPhi_eta << std::endl;
  std::cerr << " ptPh_Cut = " << ptPh_Cut << std::endl;
+ std::cerr << " OmegaSearch = " << OmegaSearch << std::endl;
  
- 
+  
+  
  
  double RQ = R*R;
  double R_etaQ = R_eta*R_eta;
@@ -736,8 +743,27 @@ int main (int argc, char** argv)
           if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
          //---- Endcap - Endcap ----
           if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
-         }
-           
+         
+          //---- search for Omega peak ----
+          if (OmegaSearch != 0){
+           for (int ll=0; ll<numC_; ll++){
+            if ((ll!=numberC1) && (ll!=numberC2)) {
+             double etaC3 = etaC_->at(ll);
+             double phiC3 = phiC_->at(ll);
+             double pxC3 = pxC_->at(ll);
+             double pyC3 = pyC_->at(ll);
+             double pzC3 = pzC_->at(ll);
+             double ptC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
+             double EnergyC3 = sqrt(pxC3*pxC3 + pyC3*pyC3 + pzC3*pzC3);
+             double EnergyTC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
+             math::XYZTLorentzVector pC2C_3(pxC3,pyC3,pzC3,EnergyC3);
+             math::XYZTLorentzVector pC_Omega = pCsum + pC2C_3;
+             double EnergyOmega = pC_Omega.mag();
+             hInvMassOmegaC.Fill(EnergyOmega);
+            }
+           }
+          }//---- end search for Omega peak ----
+         }//---- end cut S9oS25 ----
         }//---- end Isolatio cut ----        
        }//---- end S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
       }//---- end pt-Cluster cut Cluster 1 and Cluster 2 
@@ -751,6 +777,8 @@ int main (int argc, char** argv)
  TFile saving (outputRootName.c_str (),"recreate") ;
  saving.cd () ;
 
+ hInvMassOmegaC.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hInvMassOmegaC.Write();
  
  hInvMassEtaPh.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEtaPh.Write();
