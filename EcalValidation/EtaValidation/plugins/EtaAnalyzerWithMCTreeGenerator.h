@@ -3,13 +3,14 @@
 /**\class EtaAnalyzerMCTreeGenerator
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/09/16 10:01:36 $
- ** $Revision: 1.1 $
+ ** $Date: 2008/09/17 13:56:43 $
+ ** $Revision: 1.2 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
 //
 //
+
 
 
 // system include files
