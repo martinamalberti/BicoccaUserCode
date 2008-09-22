@@ -356,6 +356,7 @@ int main (int argc, char** argv)
  TH1F hAngleC_MCMatch("hAngleC_MCMatch","Angle between the two photons from BC and MC matching",3600, 0., 2.*PI);
  TH1F hNPhoton("hNPhoton","number of photons per eta from MC Truth",100, 0., 10.);
  TH1F hPhotonPt("hPhotonPt","Photon pt",10000, 0., 100.);
+ TH1F hSinglePhotonPt("hSinglePhotonPt","Single Photon pt",1000, 0., 40.);
  TH1F hNEtaPerEvent("hNEtaPerEvent","number of etas per event",1000, 0., 1000.);
  
  TH1F hS9oS25MC_1("hS9oS25MC_1","MC Data. C_1 S9oS25",1000, 0., 10.);
@@ -377,6 +378,12 @@ int main (int argc, char** argv)
  
  TH2F hS4oS9VsS9oS25CMC_1("hS4oS9VsS9oS25CMC_1","MC Data. Cluster S4oS9 and S4oS9 C_1",1000, 0., 2.,1000, 0., 2.); 
  TH2F hS4oS9VsS9oS25CMC_2("hS4oS9VsS9oS25CMC_2","MC Data. Cluster S4oS9 and S4oS9 C_2",1000, 0., 2.,1000, 0., 2.); 
+ 
+ TH2F hEtSumPh_MC("hEtSumPh_MC","MC Data. Et Sum two photons selection",2000, 0., 2.,1000, 0., 10.); 
+ TH2F hEtSumC_MC("hEtSumC_MC","MC Data. Et Sum two cluster selection",2000, 0., 2.,1000, 0., 10.); 
+ 
+ 
+ 
  
  //---- Data Analysis ---- before cuts -----
  TH1F hAngle("hAngle","Angle between two BC, any pair of 2 BC",3600, 0., 2.*PI);
@@ -420,11 +427,12 @@ int main (int argc, char** argv)
  TH2F hInvMassEtaVsAngleR2C_NoCut("hInvMassEtaVsAngleR2C_NoCut","Invariant mass Eta two cluster selection versus AngleR. Cut OFF. 1 C cut",2000, 0., 2.,1000, 0., 3.);
  TH1F hInvMassEta2C_Trial("hInvMassEta2C_Trial","Invariant mass Eta two cluster selection. After ALL CUTS. Trial R > R_cut",1000, 0., 1.);
  TH1F hInvMassPi02C_Trial("hInvMassPi02C_Trial","Invariant mass Pi0 two cluster selection. After ALL CUTS. Trial R < R_cut",1000, 0., 1.);
- TH1F hInvMassOmegaC("hInvMassOmegaC","Invariant mass Omega three cluster selection.",10000, 0., 10.); 
+ TH1F hInvMassOmegaC("hInvMassOmegaC","Invariant mass Omega three cluster selection.",4000, 0., 5.); 
  
  TH1F hR_2C_Eta_MC("hR_2C_Eta_MC","MC Data. Angle R (eta,phi) between two photons. After Eta direction cut",3600, 0., 2.*PI);
  TH1F hR_2C_MC("hR_2C_MC","MC Data. Angle R (eta,phi) between two photons.",3600, 0., 2.*PI);
    
+ TH2F hPtSumVsInvMass("hPtSumVsInvMass","Invariant mass Eta two cluster selection versus PtSum. Cut On",2000, 0., 2.,4000, 0., 10.);
  
  
  //---- Input Variables Loaded ----
@@ -533,7 +541,7 @@ int main (int argc, char** argv)
 
     hAngleEtaMC.Fill(fabs(etaPh_Angle_1-etaPh_Angle_2));
     hAnglePhiMC.Fill(fabs(phiPh_Angle_1-phiPh_Angle_2));
-        
+      
    }
    //---- end calculate angle between two photons from Eta MC ----
    
@@ -554,7 +562,7 @@ int main (int argc, char** argv)
     double etaPh = etaPh_->at(counterPhotons);
     double phiPh = phiPh_->at(counterPhotons);
     pPh = pPh + pPh_temp;
-    
+    hSinglePhotonPt.Fill(ptPh);
     double bestTestValueRCQ = 100000;
    //---- loop over clusters ----
     for (int kk=0; kk<numC_; kk++){
@@ -609,7 +617,7 @@ int main (int argc, char** argv)
 //     std::cerr << "Quattro -> counterPh1 = " << counterPh1 << " counterPh2 = " << counterPh2 << " NumPh = " << numPh_->at(ii) << " NumTotPh = " << numberPhotons << std::endl;
     double InvMassPh = pPh.mag();
     double InvMassC = pC.mag();
-        
+    
     double S4oS9_MC_1 = S4C_->at(FirstCluster) / S9C_->at(FirstCluster);
     double S4oS9_MC_2 = S4C_->at(SecondCluster) / S9C_->at(SecondCluster);
     hS4oS9MC_1.Fill(S4oS9_MC_1);
@@ -678,6 +686,10 @@ int main (int argc, char** argv)
     hR_eta_C.Fill(sqrt(R_etaQ_C));
     hR_2C_MC.Fill(sqrt(R_eta_2C));
     if (flagEtaDirection) hR_2C_Eta_MC.Fill(sqrt(R_eta_2C));
+   
+    hEtSumPh_MC.Fill(pPh_Eta.mag(),pPh_Eta.Pt());
+    hEtSumC_MC.Fill(pC.mag(),pC.Pt());
+   
    }
    //---- end match composite cluster <-> eta ----
    
@@ -856,90 +868,95 @@ int main (int argc, char** argv)
         if (flagMCMatch) hInvMassEta2CAndPtCMC.Fill(EnergyPair,ptC1);
         hInvMassEta2CAndPtC.Fill(EnergyPair,ptC1);
       
-      //---- Isolatio cut ----
-        double iso = 0;
-        for (int pp=0; pp<numC_; pp++){
-         if ((pp!=numberC1) && (pp!=numberC2)) {
-          double etaCIso = etaC_->at(pp);
-          double phiCIso = phiC_->at(pp);
-          double R = sqrt((etaCIso-etaSum)*(etaCIso-etaSum) + deltaPhi(phiCIso,phiSum) * deltaPhi(phiCIso,phiSum));
-          double deta = fabs(etaCIso - etaSum);
-          double et = etC_->at(pp);
-          if ( (R < RMax_Cut)  && (deta < DeltaEtaMax_Cut) && (et > et_Cut)  ) iso = iso + et ;
+        hPtSumVsInvMass.Fill(EnergyPair,ptSum);
+        
+     //---- ptSum cut ----
+        if (ptSum > ptSum_Cut){
+         //---- Isolatio cut ----
+         double iso = 0;
+         for (int pp=0; pp<numC_; pp++){
+          if ((pp!=numberC1) && (pp!=numberC2)) {
+           double etaCIso = etaC_->at(pp);
+           double phiCIso = phiC_->at(pp);
+           double R = sqrt((etaCIso-etaSum)*(etaCIso-etaSum) + deltaPhi(phiCIso,phiSum) * deltaPhi(phiCIso,phiSum));
+           double deta = fabs(etaCIso - etaSum);
+           double et = etC_->at(pp);
+           if ( (R < RMax_Cut)  && (deta < DeltaEtaMax_Cut) && (et > et_Cut)  ) iso = iso + et ;
+          }
          }
-        }
         
-        if (flagMCMatch) hInvMassEta2CAndIsolationMC.Fill(EnergyPair,iso/ptSum);
-        hInvMassEta2CAndIsolation.Fill(EnergyPair,iso/ptSum);
-        if (flagMCMatch) hIsolationMC.Fill(iso/ptSum);
-        hIsolation.Fill(iso/ptSum);
+         if (flagMCMatch) hInvMassEta2CAndIsolationMC.Fill(EnergyPair,iso/ptSum);
+         hInvMassEta2CAndIsolation.Fill(EnergyPair,iso/ptSum);
+         if (flagMCMatch) hIsolationMC.Fill(iso/ptSum);
+         hIsolation.Fill(iso/ptSum);
         
-        if ((iso/ptSum) < iso_Cut) {
+         if ((iso/ptSum) < iso_Cut) {
          
-         hInvMassEta2CAndS9oS25.Fill(EnergyPair,S9C_->at(numberC1) / S25C_->at(numberC1));    
+          hInvMassEta2CAndS9oS25.Fill(EnergyPair,S9C_->at(numberC1) / S25C_->at(numberC1));    
          //---- cut S9oS25 ----
-         if ((S9C_->at(numberC1) / S25C_->at(numberC1) > S9oS25C_Cut) && (S9C_->at(numberC2) / S25C_->at(numberC2) > S9oS25C_Cut))
-         {
-          hAngleEnd.Fill(angle_C);
+          if ((S9C_->at(numberC1) / S25C_->at(numberC1) > S9oS25C_Cut) && (S9C_->at(numberC2) / S25C_->at(numberC2) > S9oS25C_Cut))
+          {
+           hAngleEnd.Fill(angle_C);
 //           double R_forHisto = sqrt((etaC1-etaC2)*(etaC1-etaC2) + deltaPhi(phiC1,phiC2) * deltaPhi(phiC1,phiC2));
-          hAngleREnd.Fill(R_forHisto);
+           hAngleREnd.Fill(R_forHisto);
           
-          if (flagMCMatch) hInvMassEta2CMC.Fill(EnergyPair);
-          if (R_forHisto > angleR_Cut) hInvMassEta2C_Trial.Fill(EnergyPair);
-          else hInvMassPi02C_Trial.Fill(EnergyPair);
-          hInvMassEtaVsAngleR2C.Fill(R_forHisto,EnergyPair);
+           if (flagMCMatch) hInvMassEta2CMC.Fill(EnergyPair);
+           if (R_forHisto > angleR_Cut) hInvMassEta2C_Trial.Fill(EnergyPair);
+           else hInvMassPi02C_Trial.Fill(EnergyPair);
+           hInvMassEtaVsAngleR2C.Fill(R_forHisto,EnergyPair);
           
-          hInvMassEta2C.Fill(EnergyPair);
+           hInvMassEta2C.Fill(EnergyPair);
          //---- Barrel - Barrel ----
-          if (fabs(etaC2) < 1.49 && fabs(etaC1) < 1.49) hInvMassEta2CBB.Fill(EnergyPair);
+           if (fabs(etaC2) < 1.49 && fabs(etaC1) < 1.49) hInvMassEta2CBB.Fill(EnergyPair);
          //---- Endcap - Barrel ----
-          if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
+           if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
          //---- Endcap - Endcap ----
-          if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
+           if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
          
           
           
           //---- search for Omega peak ----
-          if (OmegaSearch != 0){
-           for (int zz=0; zz<numC_; zz++){
-            if ((zz!=numberC1) && (zz!=numberC2)) {
-             double etaC3 = etaC_->at(zz);
-             double phiC3 = phiC_->at(zz);
-             double thetaC3 = Eta2Theta(etaC3);
-             double pxC3;
-             double pyC3;
-             double pzC3;
-             if (E3x3 == 1) {
-              double energy_temp = S9C_->at(zz);
-              pxC3 = energy_temp * sin(thetaC3) * cos(phiC3);
-              pyC3 = energy_temp * sin(thetaC3) * sin(phiC3);
-              pzC3 = energy_temp * cos(thetaC3);
-             }
-             else {
-              pxC3 = pxC_->at(zz);
-              pyC3 = pyC_->at(zz);
-              pzC3 = pzC_->at(zz);
-             }
-             double ptC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
-             double EnergyC3 = sqrt(pxC3*pxC3 + pyC3*pyC3 + pzC3*pzC3);
-             double EnergyTC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
-             if (R_forHisto < 0.1){ //---- if the first two cluster are near ----
-              if (ptC3 > ptC_Cut/5.){
-               if (S4oS9C_->at(zz) > S4oS9C_Cut){
-                if (S9C_->at(zz) / S25C_->at(zz) > S9oS25C_Cut) {
-                 math::XYZTLorentzVector pC2C_3(pxC3,pyC3,pzC3,EnergyC3);
-                 math::XYZTLorentzVector pC_Omega = pCsum + pC2C_3;
-                 double EnergyOmega = pC_Omega.mag();
-                 hInvMassOmegaC.Fill(EnergyOmega);
+           if (OmegaSearch != 0){
+            for (int zz=0; zz<numC_; zz++){
+             if ((zz!=numberC1) && (zz!=numberC2)) {
+              double etaC3 = etaC_->at(zz);
+              double phiC3 = phiC_->at(zz);
+              double thetaC3 = Eta2Theta(etaC3);
+              double pxC3;
+              double pyC3;
+              double pzC3;
+              if (E3x3 == 1) {
+               double energy_temp = S9C_->at(zz);
+               pxC3 = energy_temp * sin(thetaC3) * cos(phiC3);
+               pyC3 = energy_temp * sin(thetaC3) * sin(phiC3);
+               pzC3 = energy_temp * cos(thetaC3);
+              }
+              else {
+               pxC3 = pxC_->at(zz);
+               pyC3 = pyC_->at(zz);
+               pzC3 = pzC_->at(zz);
+              }
+              double ptC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
+              double EnergyC3 = sqrt(pxC3*pxC3 + pyC3*pyC3 + pzC3*pzC3);
+              double EnergyTC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
+              if (R_forHisto < 0.1){ //---- if the first two cluster are near ----
+               if (ptC3 > ptC_Cut/5.){
+                if (S4oS9C_->at(zz) > S4oS9C_Cut){
+                 if (S9C_->at(zz) / S25C_->at(zz) > S9oS25C_Cut) {
+                  math::XYZTLorentzVector pC2C_3(pxC3,pyC3,pzC3,EnergyC3);
+                  math::XYZTLorentzVector pC_Omega = pCsum + pC2C_3;
+                  double EnergyOmega = pC_Omega.mag();
+                  hInvMassOmegaC.Fill(EnergyOmega);
+                 }
                 }
                }
               }
              }
             }
-           }
-          }//---- end search for Omega peak ----
-         }//---- end cut S9oS25 ----
-        }//---- end Isolatio cut ----        
+           }//---- end search for Omega peak ----
+          }//---- end cut S9oS25 ----
+         }//---- end Isolatio cut ---- 
+        }//---- end ptSum cut  ----
        }//---- end S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
       }//---- end pt-Cluster cut Cluster 1 and Cluster 2 
      }//---- end cut Angle cut ----
@@ -1076,6 +1093,13 @@ int main (int argc, char** argv)
  hPhotonPt.GetXaxis()->SetTitle("Pt of summed photons from Eta (GeV/c)");
  hPhotonPt.Write();
 
+ hPtSumVsInvMass.GetXaxis()->SetTitle("Invariant Mass (GeV)");
+ hPtSumVsInvMass.GetYaxis()->SetTitle("Pt of summed photons from Eta (GeV/c)");
+ hPtSumVsInvMass.Write();
+ 
+ hSinglePhotonPt.GetXaxis()->SetTitle("Pt of single photon from Eta (GeV/c)");
+ hSinglePhotonPt.Write();
+ 
  hS9oS25VsEnergyCMC_1.GetYaxis()->SetTitle("S9oS25");
  hS9oS25VsEnergyCMC_1.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hS9oS25VsEnergyCMC_1.Write();
@@ -1133,6 +1157,14 @@ int main (int argc, char** argv)
  hNEtaPerEvent.GetXaxis()->SetTitle("Number of etas per event");
  hNEtaPerEvent.Write();
  
+ hEtSumPh_MC.GetXaxis()->SetTitle("Inv Mass (GeV)");
+ hEtSumPh_MC.GetYaxis()->SetTitle("Pt (GeV)");
+ hEtSumPh_MC.Write();
+ 
+ hEtSumC_MC.GetXaxis()->SetTitle("Inv Mass (GeV)");
+ hEtSumC_MC.GetYaxis()->SetTitle("Pt (GeV)");
+ hEtSumC_MC.Write();
+   
   
  hInvMassEtaVsAngleR2C.GetYaxis()->SetTitle("Inv Mass (GeV)");
  hInvMassEtaVsAngleR2C.GetXaxis()->SetTitle("Angle R (eta/phi) between BC");
