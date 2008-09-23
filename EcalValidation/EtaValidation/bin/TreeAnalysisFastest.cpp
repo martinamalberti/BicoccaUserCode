@@ -13,6 +13,11 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
  
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <boost/foreach.hpp>
+
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -44,28 +49,12 @@ double Eta2Theta(double Eta) {
 
 
 //! main program
-int main (int argc, char** argv)
+int main (int argc, char* argv[])
 {
  
  //---- output File ---- where saving histograms ---- 
- bool flagOutput = false;
+
  std::string outputRootName = "outputHistos.root";
- std::string testName = "-o";
- 
- if (argc>2){
-  if (argv[1] ==  testName) {
-   outputRootName = argv[2];
-   flagOutput = true;
-   std::cerr << " Name Output file = " << outputRootName << std::endl;
-  }
- }
- if (argc>4){
-  if (argv[3] ==  testName) {
-   outputRootName = argv[4];
-   flagOutput = true;
-   std::cerr << " Name Output file = " << outputRootName << std::endl;
-  }
- }
  
  
  //---- input File ---- where finding input parameters ---- 
@@ -102,102 +91,55 @@ int main (int argc, char** argv)
  
  
  
- std::string inputName;
- bool flagInput = false;
- std::string testNameInput = "-i";
- if (argc>2){
-  if (argv[1] ==  testNameInput) {
-   inputName = argv[2];
-   flagInput = true;
-   std::cerr << " Name input file variables = " << inputName << std::endl;
-  }
- }
- if (argc>4){
-  if (argv[3] ==  testNameInput) {
-   inputName = argv[4];
-   flagInput = true;
-   std::cerr << " Name input file variables = " << inputName << std::endl;
-  }
- }
- if (flagInput){
-  char buffer[1000];
-  ifstream file(inputName.c_str());
-  
-  std::string variableNameR = "R";
-  std::string variableNameS9oS25_MC_Cut = "S9oS25_MC_Cut";
-  std::string variableNameS4oS9_MC_Cut = "S4oS9_MC_Cut";
-  std::string variableNameS9oS25C_Cut = "S9oS25C_Cut";
-  std::string variableNameS4oS9C_Cut = "S4oS9C_Cut";
-  std::string variableNamePtC_Cut = "ptC_Cut";
-  std::string variableNamePtSum_Cut = "ptSum_Cut";
-  std::string variableNameMax_Cut = "RMax_Cut";
-  std::string variableNameDeltaEtaMax_Cut = "DeltaEtaMax_Cut";
-  std::string variableNameEt_Cut = "et_Cut";
-  std::string variableNameIso_Cut = "iso_Cut";
-  std::string variableNameAngle_Cut = "angle_Cut";
-  std::string variableNameR_eta = "R_eta";
-  std::string variableNameN_events = "N_events";
-  std::string variableNameDEta_C_Cut = "dEta_C_Cut";
-  std::string variableNameDPhi_C_Cut = "dPhi_C_Cut";
-  std::string variableNameDEta_eta = "dEta_eta";
-  std::string variableNameDPhi_eta = "dPhi_eta";
-  std::string variableNamePtPh_Cut = "ptPh_Cut";
-  std::string variableNameOmegaSearch = "OmegaSearch";
-  std::string variableNameAngleR_Cut = "angleR_Cut";
-  std::string variableNameE3x3 = "E3x3";
-  
-  std::cerr << " Reading  " << inputName << " ... " << std::endl;
-  while (!file.eof()){
-   file.getline (&buffer[0],1000);
-   std::istrstream line(buffer);
-   std::string variableName;
-   line >> variableName;
-   double variableValue;
-   line >> variableValue;
-   std::cerr << "  File ->  " << variableName << "  =  " << variableValue << std::endl;
-   if (variableName == variableNameR) R = variableValue;
-   if (variableName == variableNameS4oS9C_Cut) S4oS9C_Cut = variableValue;
-   if (variableName == variableNameS9oS25C_Cut) S9oS25C_Cut = variableValue;
-   if (variableName == variableNamePtC_Cut) ptC_Cut = variableValue;
-   if (variableName == variableNamePtSum_Cut) ptSum_Cut = variableValue;
-   if (variableName == variableNameMax_Cut) RMax_Cut = variableValue;
-   if (variableName == variableNameDeltaEtaMax_Cut) DeltaEtaMax_Cut = variableValue;
-   if (variableName == variableNameEt_Cut) et_Cut = variableValue;
-   if (variableName == variableNameIso_Cut) iso_Cut = variableValue;
-   if (variableName == variableNameAngle_Cut) angle_Cut = variableValue;
-   if (variableName == variableNameR_eta) R_eta = variableValue;
-   if (variableName == variableNameN_events) N_events = variableValue;
-   if (variableName == variableNameDEta_C_Cut) dEta_C_Cut = variableValue;
-   if (variableName == variableNameDPhi_C_Cut) dPhi_C_Cut = variableValue;
-   if (variableName == variableNameDEta_eta) dEta_eta = variableValue;
-   if (variableName == variableNameDPhi_eta) dPhi_eta = variableValue;
-   if (variableName == variableNamePtPh_Cut) ptPh_Cut = variableValue;
-   if (variableName == variableNameOmegaSearch) OmegaSearch = variableValue;
-   if (variableName == variableNameS9oS25_MC_Cut) S9oS25_MC_Cut = variableValue;
-   if (variableName == variableNameS4oS9_MC_Cut) S4oS9_MC_Cut = variableValue;
-   if (variableName == variableNameAngleR_Cut) angleR_Cut = variableValue;
-   if (variableName == variableNameE3x3) E3x3 = variableValue;
-  }
- }
  
- std::string testHelp = "--help";
- if (argc==2){
-  if (argv[1] == testHelp) {
-   std::cout << "Help" << std::endl ;
-   std::cout << " --help : display help" << std::endl ;
-   std::cout << " -o : output root file name (eg histograms.root)" << std::endl ;
-   std::cout << " -i : input file name with cuts values (eg Cuts.txt)" << std::endl ;
-   std::cout << " name of input file : list name of input files ntuples" << std::endl ;     
-   exit(1);
-  }
- }
-    
- if (argc < 2)
- {
-  std::cerr << "ERROR : ntuple name missing" << std::endl ;
-  exit (1) ;
- }
+ 
+ 
+ //---- loading cuts ----
+ 
+ std::string fileName (argv[1]) ;
+ boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile(fileName) ;
+ boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
+   
+ edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
 
+ R = subPSetSelections.getParameter<double> ("R") ;
+ S4oS9C_Cut = subPSetSelections.getParameter<double> ("S4oS9C_Cut") ;
+ S9oS25C_Cut = subPSetSelections.getParameter<double> ("S9oS25C_Cut") ;
+ ptC_Cut = subPSetSelections.getParameter<double> ("ptC_Cut") ;
+ ptSum_Cut = subPSetSelections.getParameter<double> ("ptSum_Cut") ;
+ RMax_Cut = subPSetSelections.getParameter<double> ("RMax_Cut") ;
+ DeltaEtaMax_Cut = subPSetSelections.getParameter<double> ("DeltaEtaMax_Cut") ;
+ et_Cut = subPSetSelections.getParameter<double> ("et_Cut") ;
+ iso_Cut = subPSetSelections.getParameter<double> ("iso_Cut") ;
+ angle_Cut = subPSetSelections.getParameter<double> ("angle_Cut") ;
+ R_eta = subPSetSelections.getParameter<double> ("R_eta") ;
+ N_events = subPSetSelections.getParameter<int> ("N_events") ;
+ dEta_C_Cut = subPSetSelections.getParameter<double> ("dEta_C_Cut") ;
+ dPhi_C_Cut = subPSetSelections.getParameter<double> ("dPhi_C_Cut") ;
+ dEta_eta = subPSetSelections.getParameter<double> ("dEta_eta") ;
+ dPhi_eta = subPSetSelections.getParameter<double> ("dPhi_eta") ;
+ ptPh_Cut = subPSetSelections.getParameter<double> ("ptPh_Cut") ;
+ OmegaSearch = subPSetSelections.getParameter<int> ("OmegaSearch") ;
+ S9oS25_MC_Cut = subPSetSelections.getParameter<double> ("S9oS25_MC_Cut") ;
+ S4oS9_MC_Cut = subPSetSelections.getParameter<double> ("S4oS9_MC_Cut") ;
+ angleR_Cut = subPSetSelections.getParameter<double> ("angleR_Cut") ;
+ E3x3 = subPSetSelections.getParameter<int> ("E3x3") ;
+
+ 
+  
+ //---- output file ----
+ 
+ edm::ParameterSet subPSetOutput = parameterSet->getParameter<edm::ParameterSet> ("outputTree") ;
+ outputRootName = subPSetOutput.getParameter<std::string> ("TreeName") ;
+
+ //---- input file ----
+
+ edm::ParameterSet subPSetInput = parameterSet->getParameter<edm::ParameterSet> ("inputTree") ;
+ std::vector<std::string> inputFiles = subPSetInput.getParameter<std::vector<std::string> > ("inputFiles") ;
+
+ 
+ 
+ 
  
  
  TChain * chain = new TChain ("simplePhotonAnalyzer/tTreeUtilities") ;
@@ -290,23 +232,13 @@ int main (int argc, char** argv)
  
  std::cerr << "---- End Tree initialization ---- " << std::endl; 
  
- 
- 
- if (flagOutput && flagInput){
-  for (int i=5; i<argc ; i++){
-   chain->Add (argv[i]);
-  }
+ int numberInput = 0;
+ for (std::vector<std::string>::const_iterator listIt = inputFiles.begin () ; listIt != inputFiles.end () ; ++listIt) {
+  numberInput++;
+  chain->Add (listIt->c_str ()) ;
+  if (numberInput%4 == 0) std::cerr << "Input number " << numberInput << " ... " << listIt->c_str () << std::endl;
  }
- if ((flagOutput && !flagInput) || ((!flagOutput && flagInput))){
-  for (int i=3; i<argc ; i++){
-   chain->Add (argv[i]);
-  }
- }
- if (!flagOutput && !flagInput){
-  for (int i=1; i<argc ; i++){
-   chain->Add (argv[i]);
-  }
- }
+
  
  
  std::cerr << "---- End Chain initialization ---- " << std::endl; 
@@ -314,36 +246,6 @@ int main (int argc, char** argv)
  
  
  //---- Histograms ----
-
-
-
-//  TH1F hInvMassEtaC("hInvMassEtaC","Invariant mass Eta from Clusters",1000, 0., 1.);
-//  TH2F hInvMassEtaC_numC("hInvMassEtaC_numC","Invariant mass Eta from Clusters versus number of cluster selected",1000, 0., 1.,100, 0., 100.);
-//  TH1F hPhotonPt("hPhotonPt","Photon pt",10000, 0., 10.);
-//  TH1F hClusterPt("hClusterPt","Single Cluster pt",30000, 0., 30.);
-
-//  TH1F hPtSum("hPtSum","Summed cluster pt",40000, 0., 40.);
-//  TH1F hInvMassEta2CNoCuts("hInvMassEta2CNoCuts","Invariant mass Eta two cluster selection. No Cuts",1000, 0., 1.); 
- //  
-
-
-//  TH2F hInvMassEta2CAndPtC1("hInvMassEta2CAndPtC1","Invariant mass Eta two cluster selection versus PtC1. No Cuts.",1000, 0., 1.,1000, 0., 10.); 
-
-//  TH2F hInvMassEta2CAndS4oS9C2("hInvMassEta2CAndS4oS9C2","Invariant mass Eta two cluster selection versus S4oS9. Cuts PtC1 e S4oS9 e PtC2.",1000, 0., 1.,1000, 0., 10.); 
-
-//  TH1F hIsolation("hIsolation","Isolation after all other cuts",1000, 0., 10.);
-//  TH1F hAngle("hAngle","Angle between two BC, any pair of 2 BC",3600, 0., 2.*PI);
- //  
-//  //---- MC matching ----
-
-//  TH2F hInvMassEta2CAndPtC1MC("hInvMassEta2CAndPtC1MC","MC match. Invariant mass Eta two cluster selection versus PtC1. No Cuts.",1000, 0., 1.,1000, 0., 10.); 
-//  TH2F hInvMassEta2CAndS4oS9C1MC("hInvMassEta2CAndS4oS9C1MC","MC match. Invariant mass Eta two cluster selection versus S4oS9. Cuts PtC1.",1000, 0., 1.,1000, 0., 10.);
-//  TH2F hInvMassEta2CAndPtC2MC("hInvMassEta2CAndPtC2MC","MC match. Invariant mass Eta two cluster selection versus PtC2. Cuts PtC1 e S4oS9.",1000, 0., 1.,1000, 0., 10.); 
-//  TH2F hInvMassEta2CAndS4oS9C2MC("hInvMassEta2CAndS4oS9C2MC","MC match. Invariant mass Eta two cluster selection versus S4oS9. Cuts PtC1 e S4oS9 e PtC2.",1000, 0., 1.,1000, 0., 10.); 
-
-
-
- 
  
  //---- MC Analysis and MC matching ---- 
  TH1F hAngleMC("hAngleMC","MC Data. Angle between the two photons from eta",3600, 0., 2.*PI);
