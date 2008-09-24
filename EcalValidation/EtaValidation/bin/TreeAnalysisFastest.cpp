@@ -55,7 +55,7 @@ int main (int argc, char* argv[])
  //---- output File ---- where saving histograms ---- 
 
  std::string outputRootName = "outputHistos.root";
- 
+ std::string inputType = "simplePhotonAnalyzer/tTreeUtilities";
  
  //---- input File ---- where finding input parameters ---- 
   
@@ -69,6 +69,8 @@ int main (int argc, char* argv[])
  double S9oS25C_Cut = 0.85; //---- S4oS9C_-Cluster cut ----
  double S4oS9C_Cut = 0.85; //---- S4oS9C_-Cluster cut ----
  double ptC_Cut = 1.;      //---- pt-Cluster cut ----
+ double ptC_EE_Cut = 1.;      //---- pt-Cluster cut ---- EndCap ----
+ 
  double ptSum_Cut = 2.;    //---- pt-coppia cut ---- 
  
  double RMax_Cut = 0.2;            //---- RMax_Cut cut ---- isolation ----
@@ -77,6 +79,7 @@ int main (int argc, char* argv[])
  double iso_Cut = 0.4;             //---- iso/pt-coppia cut ---- isolation ----
  
  double angle_Cut = 0.105; //---- ~6° ---- Angle between two SC ----
+ double angle_Min_Cut = 0.105; //---- minimum angle between two SC ----
  double angleR_Cut = 0.5; //---- ~6° ---- Angle between two SC in Eta/Phi plane ---- 
  
  double R_eta = 0.1; //---- summed cluster match with MC
@@ -102,28 +105,30 @@ int main (int argc, char* argv[])
    
  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
 
- R = subPSetSelections.getParameter<double> ("R") ;
- S4oS9C_Cut = subPSetSelections.getParameter<double> ("S4oS9C_Cut") ;
- S9oS25C_Cut = subPSetSelections.getParameter<double> ("S9oS25C_Cut") ;
- ptC_Cut = subPSetSelections.getParameter<double> ("ptC_Cut") ;
- ptSum_Cut = subPSetSelections.getParameter<double> ("ptSum_Cut") ;
- RMax_Cut = subPSetSelections.getParameter<double> ("RMax_Cut") ;
- DeltaEtaMax_Cut = subPSetSelections.getParameter<double> ("DeltaEtaMax_Cut") ;
- et_Cut = subPSetSelections.getParameter<double> ("et_Cut") ;
- iso_Cut = subPSetSelections.getParameter<double> ("iso_Cut") ;
- angle_Cut = subPSetSelections.getParameter<double> ("angle_Cut") ;
- R_eta = subPSetSelections.getParameter<double> ("R_eta") ;
- N_events = subPSetSelections.getParameter<int> ("N_events") ;
- dEta_C_Cut = subPSetSelections.getParameter<double> ("dEta_C_Cut") ;
- dPhi_C_Cut = subPSetSelections.getParameter<double> ("dPhi_C_Cut") ;
- dEta_eta = subPSetSelections.getParameter<double> ("dEta_eta") ;
- dPhi_eta = subPSetSelections.getParameter<double> ("dPhi_eta") ;
- ptPh_Cut = subPSetSelections.getParameter<double> ("ptPh_Cut") ;
- OmegaSearch = subPSetSelections.getParameter<int> ("OmegaSearch") ;
- S9oS25_MC_Cut = subPSetSelections.getParameter<double> ("S9oS25_MC_Cut") ;
- S4oS9_MC_Cut = subPSetSelections.getParameter<double> ("S4oS9_MC_Cut") ;
- angleR_Cut = subPSetSelections.getParameter<double> ("angleR_Cut") ;
- E3x3 = subPSetSelections.getParameter<int> ("E3x3") ;
+ R = subPSetSelections.getUntrackedParameter<double> ("R",R) ;
+ S4oS9C_Cut = subPSetSelections.getUntrackedParameter<double> ("S4oS9C_Cut",S4oS9C_Cut) ;
+ S9oS25C_Cut = subPSetSelections.getUntrackedParameter<double> ("S9oS25C_Cut",S9oS25C_Cut) ;
+ ptC_Cut = subPSetSelections.getUntrackedParameter<double> ("ptC_Cut",ptC_Cut) ;
+ ptC_EE_Cut = subPSetSelections.getUntrackedParameter<double> ("ptC_EE_Cut",ptC_EE_Cut) ;
+ ptSum_Cut = subPSetSelections.getUntrackedParameter<double> ("ptSum_Cut",ptSum_Cut) ;
+ RMax_Cut = subPSetSelections.getUntrackedParameter<double> ("RMax_Cut",RMax_Cut) ;
+ DeltaEtaMax_Cut = subPSetSelections.getUntrackedParameter<double> ("DeltaEtaMax_Cut",DeltaEtaMax_Cut) ;
+ et_Cut = subPSetSelections.getUntrackedParameter<double> ("et_Cut",et_Cut) ;
+ iso_Cut = subPSetSelections.getUntrackedParameter<double> ("iso_Cut",iso_Cut) ;
+ angle_Cut = subPSetSelections.getUntrackedParameter<double> ("angle_Cut",angle_Cut) ;
+ angle_Min_Cut = subPSetSelections.getUntrackedParameter<double> ("angle_Min_Cut",angle_Min_Cut) ;
+ R_eta = subPSetSelections.getUntrackedParameter<double> ("R_eta",R_eta) ;
+ N_events = subPSetSelections.getUntrackedParameter<int> ("N_events",N_events) ;
+ dEta_C_Cut = subPSetSelections.getUntrackedParameter<double> ("dEta_C_Cut",dEta_C_Cut) ;
+ dPhi_C_Cut = subPSetSelections.getUntrackedParameter<double> ("dPhi_C_Cut",dPhi_C_Cut) ;
+ dEta_eta = subPSetSelections.getUntrackedParameter<double> ("dEta_eta",dEta_eta) ;
+ dPhi_eta = subPSetSelections.getUntrackedParameter<double> ("dPhi_eta",dPhi_eta) ;
+ ptPh_Cut = subPSetSelections.getUntrackedParameter<double> ("ptPh_Cut",ptPh_Cut) ;
+ OmegaSearch = subPSetSelections.getUntrackedParameter<int> ("OmegaSearch",OmegaSearch) ;
+ S9oS25_MC_Cut = subPSetSelections.getUntrackedParameter<double> ("S9oS25_MC_Cut",S9oS25_MC_Cut) ;
+ S4oS9_MC_Cut = subPSetSelections.getUntrackedParameter<double> ("S4oS9_MC_Cut",S4oS9_MC_Cut) ;
+ angleR_Cut = subPSetSelections.getUntrackedParameter<double> ("angleR_Cut",angleR_Cut) ;
+ E3x3 = subPSetSelections.getUntrackedParameter<int> ("E3x3",E3x3) ;
 
  
   
@@ -132,17 +137,15 @@ int main (int argc, char* argv[])
  edm::ParameterSet subPSetOutput = parameterSet->getParameter<edm::ParameterSet> ("outputTree") ;
  outputRootName = subPSetOutput.getParameter<std::string> ("TreeName") ;
 
+ 
  //---- input file ----
 
  edm::ParameterSet subPSetInput = parameterSet->getParameter<edm::ParameterSet> ("inputTree") ;
  std::vector<std::string> inputFiles = subPSetInput.getParameter<std::vector<std::string> > ("inputFiles") ;
-
  
+ inputType = subPSetInput.getUntrackedParameter<std::string> ("inputType",inputType) ;
  
- 
- 
- 
- TChain * chain = new TChain ("simplePhotonAnalyzer/tTreeUtilities") ;
+ TChain * chain = new TChain (inputType.c_str()) ;
  
  int numC_;
  int numCB_;
@@ -316,14 +319,18 @@ int main (int argc, char* argv[])
  
  TH1F hInvMassEta2CMC("hInvMassEta2CMC","MC match. Invariant mass Eta two cluster selection. After ALL CUTS",1000, 0., 1.); 
  //-------------------- Final Graph --------------------
- TH1F hInvMassEta2C("hInvMassEta2C","Invariant mass Eta two cluster selection. After ALL CUTS",1000, 0., 1.); 
+ TH1F hInvMassEta2C("hInvMassEta2C","Invariant mass Eta two cluster selection. After ALL CUTS",1000, 0., 1.);
  TH1F hInvMassEta2CEE("hInvMassEta2CEE","Invariant mass Eta two cluster selection. After ALL CUTS. Endcap - Endcap",1000, 0., 1.); 
  TH1F hInvMassEta2CBB("hInvMassEta2CBB","Invariant mass Eta two cluster selection. After ALL CUTS Barrel - Barrel",1000, 0., 1.); 
  TH1F hInvMassEta2CEB("hInvMassEta2CEB","Invariant mass Eta two cluster selection. After ALL CUTS. Endcap - Barrel",1000, 0., 1.); 
+ TH1F hInvMassEta2C_MinAngleCut("hInvMassEta2C_MinAngleCut","Invariant mass Eta two cluster selection. After ALL CUTS. Min angle cut",1000, 0., 1.);
  //-----------------------------------------------------
  TH1F hAngleEnd("hAngleEnd","Angle between two BC. After ALL cuts",3600, 0., 2.*PI);
  TH1F hAngleREnd("hAngleREnd","Angle R (eta,phi) between two BC. After ALL cuts",3600, 0., 2.*PI);
+
  
+ TH2F hInvMassEtaVsAngle("hInvMassEtaVsAngle","Invariant mass Eta two cluster selection versus Angle (rad). Cut ON",2000, 0., 2.,1000, 0., 6.28);
+  
  TH2F hInvMassEtaVsAngleR2C("hInvMassEtaVsAngleR2C","Invariant mass Eta two cluster selection versus AngleR. Cut ON",2000, 0., 2.,1000, 0., 3.);
  
  TH2F hInvMassEtaVsAngleR2C_NoCut("hInvMassEtaVsAngleR2C_NoCut","Invariant mass Eta two cluster selection versus AngleR. Cut OFF. 1 C cut",2000, 0., 2.,1000, 0., 3.);
@@ -336,6 +343,12 @@ int main (int argc, char* argv[])
    
  TH2F hPtSumVsInvMass("hPtSumVsInvMass","Invariant mass Eta two cluster selection versus PtSum. Cut On",2000, 0., 2.,4000, 0., 10.);
  
+ TH2F hInvMassVsInvMass("hInvMassVsInvMass","Invariant mass Eta two cluster BC versus E3x3.",2000, 0., 2.,2000, 0., 2.);
+ 
+ TH2F hNumHitVsAngle("hNumHitVsAngle","Num Xtal vs Angle",100, 0., 6.28,1000, 0., 100);
+ TH2F hNumHitVsAngleR("hNumHitVsAngleR","Num Xtal vs Angle R",100, 0., 10,1000, 0., 100);
+ TH2F hNumHitVsAngleR_Cut("hNumHitVsAngleR_Cut","Num Xtal vs Angle R After Cuts",1000, 0., 10.,1000, 0., 100);
+
  
  //---- Input Variables Loaded ----
  std::cerr << "Input Variables Loaded: " << std::endl; 
@@ -345,12 +358,14 @@ int main (int argc, char* argv[])
  std::cerr << " S9oS25C_Cut = " << S9oS25C_Cut << std::endl; 
  std::cerr << " S4oS9C_Cut = " << S4oS9C_Cut << std::endl; 
  std::cerr << " ptC_Cut = " << ptC_Cut << std::endl; 
+ std::cerr << " ptC_EE_Cut = " << ptC_EE_Cut << std::endl;
  std::cerr << " ptSum_Cut = " << ptSum_Cut << std::endl; 
  std::cerr << " RMax_Cut = " << RMax_Cut << std::endl; 
  std::cerr << " DeltaEtaMax_Cut = " << DeltaEtaMax_Cut << std::endl; 
  std::cerr << " et_Cut = " << et_Cut << std::endl; 
  std::cerr << " iso_Cut = " << iso_Cut << std::endl;
  std::cerr << " angle_Cut = " << angle_Cut << std::endl;
+ std::cerr << " angle_Min_Cut = " << angle_Min_Cut << std::endl;
  std::cerr << " R_eta = " << R_eta << std::endl;
  std::cerr << " N_events = " << N_events << std::endl;
  std::cerr << " dEta_C_Cut = " << dEta_C_Cut << std::endl;
@@ -633,7 +648,7 @@ int main (int argc, char* argv[])
  for (int entry = 0 ; entry < N_events ; ++entry) //---- TEST VELOCE ----
  {
   chain->GetEntry (entry) ;
-  if (entry%100 == 0) std::cout << "------> No MC Truth ---- reading entry " << entry << " <------\n" ;
+  if (entry%1000 == 0) std::cout << "------> No MC Truth ---- reading entry " << entry << " <------\n" ;
   
   std::vector<int> numC_Selected;
   math::XYZTLorentzVector pC(0,0,0,0);
@@ -675,56 +690,56 @@ int main (int argc, char* argv[])
    
    
    //---- cuts as soon as possible ----
-   if (ptC1 < ptC_Cut) continue;
-   if (S4oS9C_->at(numberC1) < S4oS9C_Cut) continue;
+   if ((etaC1*etaC1 > 1.560*1.560 && ptC1 > ptC_EE_Cut) || (etaC1*etaC1 < 1.4442*1.4442 && ptC1 > ptC_Cut)) {
+    if (S4oS9C_->at(numberC1) > S4oS9C_Cut) {
    
    //---- inner loop over cluster ----
-   for (int ll=kk+1; ll<numC_; ll++){ //---- inizio da kk così non rischio di avere doppioni ----
-     double etaC2 = etaC_->at(ll);
-     double phiC2 = phiC_->at(ll);
-     double thetaC2 = Eta2Theta(etaC2);
-     double pxC2;
-     double pyC2;
-     double pzC2;
-     if (E3x3 == 1) {
-      double energy_temp = S9C_->at(ll);
-      pxC2 = energy_temp * sin(thetaC2) * cos(phiC2);
-      pyC2 = energy_temp * sin(thetaC2) * sin(phiC2);
-      pzC2 = energy_temp * cos(thetaC2);
-     }
-     else {
-      pxC2 = pxC_->at(ll);
-      pyC2 = pyC_->at(ll);
-      pzC2 = pzC_->at(ll);
-     }
+     for (int ll=kk+1; ll<numC_; ll++){ //---- inizio da kk così non rischio di avere doppioni ----
+      double etaC2 = etaC_->at(ll);
+      double phiC2 = phiC_->at(ll);
+      double thetaC2 = Eta2Theta(etaC2);
+      double pxC2;
+      double pyC2;
+      double pzC2;
+      if (E3x3 == 1) {
+       double energy_temp = S9C_->at(ll);
+       pxC2 = energy_temp * sin(thetaC2) * cos(phiC2);
+       pyC2 = energy_temp * sin(thetaC2) * sin(phiC2);
+       pzC2 = energy_temp * cos(thetaC2);
+      }
+      else {
+       pxC2 = pxC_->at(ll);
+       pyC2 = pyC_->at(ll);
+       pzC2 = pzC_->at(ll);
+      }
      
-     double ptC2 = sqrt(pxC2*pxC2 + pyC2*pyC2);
-     double EnergyC2 = sqrt(pxC2*pxC2 + pyC2*pyC2 + pzC2*pzC2);
-     double EnergyTC2 = sqrt(pxC2*pxC2 + pyC2*pyC2);
-     math::XYZTLorentzVector pC2C_2(pxC2,pyC2,pzC2,EnergyC2);
+      double ptC2 = sqrt(pxC2*pxC2 + pyC2*pyC2);
+      double EnergyC2 = sqrt(pxC2*pxC2 + pyC2*pyC2 + pzC2*pzC2);
+      double EnergyTC2 = sqrt(pxC2*pxC2 + pyC2*pyC2);
+      math::XYZTLorentzVector pC2C_2(pxC2,pyC2,pzC2,EnergyC2);
      
-     math::XYZTLorentzVector pCsum = pC2C_1 + pC2C_2;
-     numberC2 = ll;
-     double etaSum = pCsum.eta();
-     double phiSum = pCsum.phi();
-     double pxSum = pCsum.x();
-     double pySum = pCsum.y();
-     double pzSum = pCsum.z();
-     double ptSum = sqrt(pxSum * pxSum + pySum * pySum);
-     double EnergySum = sqrt(pxSum * pxSum + pySum * pySum + pzSum * pzSum);
-     EnergyPair = pCsum.mag();
+      math::XYZTLorentzVector pCsum = pC2C_1 + pC2C_2;
+      numberC2 = ll;
+      double etaSum = pCsum.eta();
+      double phiSum = pCsum.phi();
+      double pxSum = pCsum.x();
+      double pySum = pCsum.y();
+      double pzSum = pCsum.z();
+      double ptSum = sqrt(pxSum * pxSum + pySum * pySum);
+      double EnergySum = sqrt(pxSum * pxSum + pySum * pySum + pzSum * pzSum);
+      EnergyPair = pCsum.mag();
      
-     double R_forHisto = sqrt((etaC1-etaC2)*(etaC1-etaC2) + deltaPhi(phiC1,phiC2) * deltaPhi(phiC1,phiC2));
-     hInvMassEtaVsAngleR2C_NoCut.Fill(R_forHisto,EnergyPair);
+      double R_forHisto = sqrt((etaC1-etaC2)*(etaC1-etaC2) + deltaPhi(phiC1,phiC2) * deltaPhi(phiC1,phiC2));
+      hInvMassEtaVsAngleR2C_NoCut.Fill(R_forHisto,EnergyPair);
      
      //---- check if cluster pair correspond to a MC photon pair from eta ----
-     for (int entryMC = 0 ; entryMC < nEntriesMC ; ++entryMC){
-      ClusterPairCMC.GetEntry(entryMC);
-      if (numEntryAfter == entry) {
-       if (((FirstCluster == ll) && (SecondCluster == kk)) || ((FirstCluster == kk) && (SecondCluster == ll))) flagMCMatch  = true;
-       else flagMCMatch = false; 
+      for (int entryMC = 0 ; entryMC < nEntriesMC ; ++entryMC){
+       ClusterPairCMC.GetEntry(entryMC);
+       if (numEntryAfter == entry) {
+        if (((FirstCluster == ll) && (SecondCluster == kk)) || ((FirstCluster == kk) && (SecondCluster == ll))) flagMCMatch  = true;
+        else flagMCMatch = false; 
+       }
       }
-     }
      
      
      
@@ -733,138 +748,205 @@ int main (int argc, char* argv[])
      //--------------
      
      //---- some graphs before cuts ----
-     hInvMassEta2CNoCuts.Fill(EnergyPair);
-     hInvMassEta2CETNoCuts.Fill(EnergyPair,ptC1); //---- save only first cluster -> second cluster selected after ----
-     if (flagMCMatch) { //---- save only first cluster -> second cluster selected after ----
-      hInvMassEta2CETNoCutsMC.Fill(EnergyPair,ptC1);
-     }
-     h2CPtC1AndPtC2.Fill(ptC1,ptC2);
+      hInvMassEta2CNoCuts.Fill(EnergyPair);
+      hInvMassEta2CETNoCuts.Fill(EnergyPair,ptC1); //---- save only first cluster -> second cluster selected after ----
+      if (flagMCMatch) { //---- save only first cluster -> second cluster selected after ----
+       hInvMassEta2CETNoCutsMC.Fill(EnergyPair,ptC1);
+      }
+      h2CPtC1AndPtC2.Fill(ptC1,ptC2);
     //---- end some graphs before cuts ----
     
     //---- add cuts ----
     //---- cut in pair -> both Clusters ----
      
      //---- angle ----
-     double cosAngle = pxC2 * pxC1 + pyC2 * pyC1 + pzC2 * pzC1;
-     if (EnergyC2!=0 && EnergyC1!=0) cosAngle = cosAngle / (EnergyC2 * EnergyC1);
-     else cosAngle = 0; //---- -> 90° -> rejected ----
-     angle_C = acos(cosAngle);
-     hAngle.Fill(angle_C);
-     if (flagMCMatch) hAngleC_MCMatch.Fill(angle_C);
-     hAngleC.Fill(angle_C); //---- cut on angle has been performed in pair filling ----
+      double cosAngle = pxC2 * pxC1 + pyC2 * pyC1 + pzC2 * pzC1;
+      if (EnergyC2!=0 && EnergyC1!=0) cosAngle = cosAngle / (EnergyC2 * EnergyC1);
+      else cosAngle = 0; //---- -> 90° -> rejected ----
+      angle_C = acos(cosAngle);
+      hAngle.Fill(angle_C);
+      if (flagMCMatch) hAngleC_MCMatch.Fill(angle_C);
+      hAngleC.Fill(angle_C); //---- cut on angle has been performed in pair filling ----
+      
+      hNumHitVsAngleR.Fill(R_forHisto,HitsC_->at(numberC1));
+      hNumHitVsAngle.Fill(angle_C,HitsC_->at(numberC1));
+      
+      
        //---- Angle cut ----
-     if (angle_C < angle_Cut) {
+      if (angle_C < angle_Cut) {
     //---- pt-Cluster cut Cluster 1 and Cluster 2 ----
-      if (ptC2 > ptC_Cut) {
+       if ((etaC2*etaC2 > 1.560*1.560 && ptC2 > ptC_EE_Cut) || (etaC2*etaC2 < 1.4442*1.4442 && ptC2 > ptC_Cut)) {
 
-       if (flagMCMatch) hInvMassEta2CAndS4oS9CMC.Fill(EnergyPair,S4oS9C_->at(numberC1));
-       hInvMassEta2CAndS4oS9C.Fill(EnergyPair,S4oS9C_->at(numberC1));
+        if (flagMCMatch) hInvMassEta2CAndS4oS9CMC.Fill(EnergyPair,S4oS9C_->at(numberC1));
+        hInvMassEta2CAndS4oS9C.Fill(EnergyPair,S4oS9C_->at(numberC1));
      
-       hInvMassEta2CAndS4oS9CAndPtC.Fill(EnergyPair,S4oS9C_->at(numberC1),ptC1);
-       hEta2CS4oS9CAndPtC.Fill(S4oS9C_->at(numberC1),ptC1);
+        hInvMassEta2CAndS4oS9CAndPtC.Fill(EnergyPair,S4oS9C_->at(numberC1),ptC1);
+        hEta2CS4oS9CAndPtC.Fill(S4oS9C_->at(numberC1),ptC1);
      
      
      //---- S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
-       if (S4oS9C_->at(numberC2) > S4oS9C_Cut){
+        if (S4oS9C_->at(numberC2) > S4oS9C_Cut){
       
-        if (flagMCMatch) hInvMassEta2CAndPtCMC.Fill(EnergyPair,ptC1);
-        hInvMassEta2CAndPtC.Fill(EnergyPair,ptC1);
+         if (flagMCMatch) hInvMassEta2CAndPtCMC.Fill(EnergyPair,ptC1);
+         hInvMassEta2CAndPtC.Fill(EnergyPair,ptC1);
       
-        hPtSumVsInvMass.Fill(EnergyPair,ptSum);
+         hPtSumVsInvMass.Fill(EnergyPair,ptSum);
         
      //---- ptSum cut ----
-        if (ptSum > ptSum_Cut){
+         if (ptSum > ptSum_Cut){
          //---- Isolatio cut ----
-         double iso = 0;
-         for (int pp=0; pp<numC_; pp++){
-          if ((pp!=numberC1) && (pp!=numberC2)) {
-           double etaCIso = etaC_->at(pp);
-           double phiCIso = phiC_->at(pp);
-           double R = sqrt((etaCIso-etaSum)*(etaCIso-etaSum) + deltaPhi(phiCIso,phiSum) * deltaPhi(phiCIso,phiSum));
-           double deta = fabs(etaCIso - etaSum);
-           double et = etC_->at(pp);
-           if ( (R < RMax_Cut)  && (deta < DeltaEtaMax_Cut) && (et > et_Cut)  ) iso = iso + et ;
+          double iso = 0;
+          for (int pp=0; pp<numC_; pp++){
+           if ((pp!=numberC1) && (pp!=numberC2)) {
+            double etaCIso = etaC_->at(pp);
+            double phiCIso = phiC_->at(pp);
+            double R = sqrt((etaCIso-etaSum)*(etaCIso-etaSum) + deltaPhi(phiCIso,phiSum) * deltaPhi(phiCIso,phiSum));
+            double deta = fabs(etaCIso - etaSum);
+            double et = etC_->at(pp);
+            if ( (R < RMax_Cut)  && (deta < DeltaEtaMax_Cut) && (et > et_Cut)  ) iso = iso + et ;
+           }
           }
-         }
         
-         if (flagMCMatch) hInvMassEta2CAndIsolationMC.Fill(EnergyPair,iso/ptSum);
-         hInvMassEta2CAndIsolation.Fill(EnergyPair,iso/ptSum);
-         if (flagMCMatch) hIsolationMC.Fill(iso/ptSum);
-         hIsolation.Fill(iso/ptSum);
+          if (flagMCMatch) hInvMassEta2CAndIsolationMC.Fill(EnergyPair,iso/ptSum);
+          hInvMassEta2CAndIsolation.Fill(EnergyPair,iso/ptSum);
+          if (flagMCMatch) hIsolationMC.Fill(iso/ptSum);
+          hIsolation.Fill(iso/ptSum);
         
-         if ((iso/ptSum) < iso_Cut) {
+          if ((iso/ptSum) < iso_Cut) {
          
-          hInvMassEta2CAndS9oS25.Fill(EnergyPair,S9C_->at(numberC1) / S25C_->at(numberC1));    
+           hInvMassEta2CAndS9oS25.Fill(EnergyPair,S9C_->at(numberC1) / S25C_->at(numberC1));    
          //---- cut S9oS25 ----
-          if ((S9C_->at(numberC1) / S25C_->at(numberC1) > S9oS25C_Cut) && (S9C_->at(numberC2) / S25C_->at(numberC2) > S9oS25C_Cut))
-          {
-           hAngleEnd.Fill(angle_C);
+           if ((S9C_->at(numberC1) / S25C_->at(numberC1) > S9oS25C_Cut) && (S9C_->at(numberC2) / S25C_->at(numberC2) > S9oS25C_Cut))
+           {
+            hAngleEnd.Fill(angle_C);
 //           double R_forHisto = sqrt((etaC1-etaC2)*(etaC1-etaC2) + deltaPhi(phiC1,phiC2) * deltaPhi(phiC1,phiC2));
-           hAngleREnd.Fill(R_forHisto);
+            hAngleREnd.Fill(R_forHisto);
           
-           if (flagMCMatch) hInvMassEta2CMC.Fill(EnergyPair);
-           if (R_forHisto > angleR_Cut) hInvMassEta2C_Trial.Fill(EnergyPair);
-           else hInvMassPi02C_Trial.Fill(EnergyPair);
-           hInvMassEtaVsAngleR2C.Fill(R_forHisto,EnergyPair);
+            hNumHitVsAngleR_Cut.Fill(R_forHisto,HitsC_->at(numberC1));
+            if (flagMCMatch) hInvMassEta2CMC.Fill(EnergyPair);
+            if (R_forHisto > angleR_Cut) hInvMassEta2C_Trial.Fill(EnergyPair);
+            else hInvMassPi02C_Trial.Fill(EnergyPair);
+            hInvMassEtaVsAngleR2C.Fill(R_forHisto,EnergyPair);
           
-           hInvMassEta2C.Fill(EnergyPair);
+            hInvMassEtaVsAngle.Fill(angle_C,EnergyPair);
+            if (angle_C > angle_Min_Cut) {
+             hInvMassEta2C_MinAngleCut.Fill(EnergyPair);
+            }
+          
+            //---- Inv Mass with the other method ----
+            
+            double etaC1_temp = etaC_->at(numberC1);
+            double phiC1_temp = phiC_->at(numberC1);
+            double thetaC1_temp = Eta2Theta(etaC1_temp);
+            double pxC1_temp;
+            double pyC1_temp;
+            double pzC1_temp;
+   
+            if (E3x3 == 1) {
+             pxC1_temp = pxC_->at(numberC1);
+             pyC1_temp = pyC_->at(numberC1);
+             pzC1_temp = pzC_->at(numberC1);
+            
+            }
+            else {
+             double energy_temp = S9C_->at(numberC1);
+             pxC1_temp = energy_temp * sin(thetaC1_temp) * cos(phiC1_temp);
+             pyC1_temp = energy_temp * sin(thetaC1_temp) * sin(phiC1_temp);
+             pzC1_temp = energy_temp * cos(thetaC1_temp);
+            }
+   
+            double EnergyC1_temp = sqrt(pxC1_temp*pxC1_temp + pyC1_temp*pyC1_temp + pzC1_temp*pzC1_temp);
+   
+            math::XYZTLorentzVector pC2C_1_temp(pxC1_temp,pyC1_temp,pzC1_temp,EnergyC1_temp);
+   
+               
+            double etaC2_temp = etaC_->at(numberC2);
+            double phiC2_temp = phiC_->at(numberC2);
+            double thetaC2_temp = Eta2Theta(etaC2);
+            double pxC2_temp;
+            double pyC2_temp;
+            double pzC2_temp;
+            if (E3x3 == 1) {
+             pxC2_temp = pxC_->at(numberC2);
+             pyC2_temp = pyC_->at(numberC2);
+             pzC2_temp = pzC_->at(numberC2);
+            }
+            else {
+             double energy_temp = S9C_->at(numberC2);
+             pxC2_temp = energy_temp * sin(thetaC2_temp) * cos(phiC2_temp);
+             pyC2_temp = energy_temp * sin(thetaC2_temp) * sin(phiC2_temp);
+             pzC2_temp = energy_temp * cos(thetaC2_temp);
+            }
+            double EnergyC2_temp = sqrt(pxC2_temp*pxC2_temp + pyC2_temp*pyC2_temp + pzC2_temp*pzC2_temp);
+            math::XYZTLorentzVector pC2C_2_temp(pxC2_temp,pyC2_temp,pzC2_temp,EnergyC2_temp);
+     
+            math::XYZTLorentzVector pCsum_temp = pC2C_1_temp + pC2C_2_temp;
+
+            double EnergyPair_temp = pCsum_temp.mag();
+            
+            hInvMassVsInvMass.Fill(EnergyPair,EnergyPair_temp);  
+            //---- end Inv Mass with the other method ----
+            
+            hInvMassEta2C.Fill(EnergyPair);
          //---- Barrel - Barrel ----
-           if (fabs(etaC2) < 1.49 && fabs(etaC1) < 1.49) hInvMassEta2CBB.Fill(EnergyPair);
+            if (fabs(etaC2) < 1.49 && fabs(etaC1) < 1.49) hInvMassEta2CBB.Fill(EnergyPair);
          //---- Endcap - Barrel ----
-           if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
+            if ((fabs(etaC2) < 1.49 && fabs(etaC1) > 1.49) || (fabs(etaC2) > 1.49 && fabs(etaC1) < 1.49)) hInvMassEta2CEB.Fill(EnergyPair);
          //---- Endcap - Endcap ----
-           if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
+            if (fabs(etaC2) > 1.49 && fabs(etaC1) > 1.49) hInvMassEta2CEE.Fill(EnergyPair);
          
           
           
           //---- search for Omega peak ----
-           if (OmegaSearch != 0){
-            for (int zz=0; zz<numC_; zz++){
-             if ((zz!=numberC1) && (zz!=numberC2)) {
-              double etaC3 = etaC_->at(zz);
-              double phiC3 = phiC_->at(zz);
-              double thetaC3 = Eta2Theta(etaC3);
-              double pxC3;
-              double pyC3;
-              double pzC3;
-              if (E3x3 == 1) {
-               double energy_temp = S9C_->at(zz);
-               pxC3 = energy_temp * sin(thetaC3) * cos(phiC3);
-               pyC3 = energy_temp * sin(thetaC3) * sin(phiC3);
-               pzC3 = energy_temp * cos(thetaC3);
-              }
-              else {
-               pxC3 = pxC_->at(zz);
-               pyC3 = pyC_->at(zz);
-               pzC3 = pzC_->at(zz);
-              }
-              double ptC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
-              double EnergyC3 = sqrt(pxC3*pxC3 + pyC3*pyC3 + pzC3*pzC3);
-              double EnergyTC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
-              if (R_forHisto < 0.1){ //---- if the first two cluster are near ----
-               if (ptC3 > ptC_Cut/5.){
-                if (S4oS9C_->at(zz) > S4oS9C_Cut){
-                 if (S9C_->at(zz) / S25C_->at(zz) > S9oS25C_Cut) {
-                  math::XYZTLorentzVector pC2C_3(pxC3,pyC3,pzC3,EnergyC3);
-                  math::XYZTLorentzVector pC_Omega = pCsum + pC2C_3;
-                  double EnergyOmega = pC_Omega.mag();
-                  hInvMassOmegaC.Fill(EnergyOmega);
+            if (OmegaSearch != 0){
+             for (int zz=0; zz<numC_; zz++){
+              if ((zz!=numberC1) && (zz!=numberC2)) {
+               double etaC3 = etaC_->at(zz);
+               double phiC3 = phiC_->at(zz);
+               double thetaC3 = Eta2Theta(etaC3);
+               double pxC3;
+               double pyC3;
+               double pzC3;
+               if (E3x3 == 1) {
+                double energy_temp = S9C_->at(zz);
+                pxC3 = energy_temp * sin(thetaC3) * cos(phiC3);
+                pyC3 = energy_temp * sin(thetaC3) * sin(phiC3);
+                pzC3 = energy_temp * cos(thetaC3);
+               }
+               else {
+                pxC3 = pxC_->at(zz);
+                pyC3 = pyC_->at(zz);
+                pzC3 = pzC_->at(zz);
+               }
+               double ptC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
+               double EnergyC3 = sqrt(pxC3*pxC3 + pyC3*pyC3 + pzC3*pzC3);
+               double EnergyTC3 = sqrt(pxC3*pxC3 + pyC3*pyC3);
+               if (R_forHisto < 0.1){ //---- if the first two cluster are near ----
+                if (ptC3 > ptC_Cut/5.){
+                 if (S4oS9C_->at(zz) > S4oS9C_Cut){
+                  if (S9C_->at(zz) / S25C_->at(zz) > S9oS25C_Cut) {
+                   math::XYZTLorentzVector pC2C_3(pxC3,pyC3,pzC3,EnergyC3);
+                   math::XYZTLorentzVector pC_Omega = pCsum + pC2C_3;
+                   double EnergyOmega = pC_Omega.mag();
+                   hInvMassOmegaC.Fill(EnergyOmega);
+                  }
                  }
                 }
                }
               }
              }
-            }
-           }//---- end search for Omega peak ----
-          }//---- end cut S9oS25 ----
-         }//---- end Isolatio cut ---- 
-        }//---- end ptSum cut  ----
-       }//---- end S4oS9C_-Cluster cut Cluster 1 and Cluster 2 ----
-      }//---- end pt-Cluster cut Cluster 1 and Cluster 2 
-     }//---- end cut Angle cut ----
-   }//---- end inner loop over cluster ----
+            }//---- end search for Omega peak ----
+           }//---- end cut S9oS25 ----
+          }//---- end Isolatio cut ---- 
+         }//---- end ptSum cut  ----
+        }//---- end S4oS9C_-Cluster cut  Cluster 2 ----
+       }//---- end pt-Cluster cut Cluster 2 ----
+      }//---- end cut Angle cut ----
+     }//---- end inner loop over cluster ----
+    }//---- end S4oS9C_-Cluster cut Cluster 1 ----
+   }//---- end pt-Cluster cut Cluster 1 ---- 
   }//---- end loop clusters ----
- } //---- end loop entries ----
+ }//---- end loop entries ----
  
  
  //---- save in file ---- 
@@ -895,10 +977,36 @@ int main (int argc, char* argv[])
  
  hInvMassEta2CNoCuts.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2CNoCuts.Write();
+ 
+ 
+ hNumHitVsAngle.GetYaxis()->SetTitle("num Xtal");
+ hNumHitVsAngle.GetXaxis()->SetTitle("Angle (rad)");
+ hNumHitVsAngle.Write();
+
+ hNumHitVsAngleR.GetYaxis()->SetTitle("num Xtal");
+ hNumHitVsAngleR.GetXaxis()->SetTitle("Angle R (eta/phi)");
+ hNumHitVsAngleR.Write();
+ 
+ hNumHitVsAngleR_Cut.GetYaxis()->SetTitle("num Xtal");
+ hNumHitVsAngleR_Cut.GetXaxis()->SetTitle("Angle R (eta/phi)");
+ hNumHitVsAngleR_Cut.Write();
+ 
   
+  
+ if (E3x3 == 1) {
+  hInvMassVsInvMass.GetYaxis()->SetTitle("Invariant Mass BC (GeV)");
+  hInvMassVsInvMass.GetXaxis()->SetTitle("Invariant Mass E3x3(GeV)");
+ }
+ else {
+  hInvMassVsInvMass.GetYaxis()->SetTitle("Invariant Mass E3x3 (GeV)");
+  hInvMassVsInvMass.GetXaxis()->SetTitle("Invariant Mass BC (GeV)");
+ }
+ hInvMassVsInvMass.Write();
+ 
  hInvMassEta2CETNoCuts.GetYaxis()->SetTitle("Et (GeV)");
  hInvMassEta2CETNoCuts.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2CETNoCuts.Write();
+  
   
  hInvMassEta2CAndIsolation.GetYaxis()->SetTitle("iso/PtSum");
  hInvMassEta2CAndIsolation.GetXaxis()->SetTitle("Invariant Mass (GeV)");
@@ -1082,7 +1190,14 @@ int main (int argc, char* argv[])
  hInvMassPi02C_Trial.GetXaxis()->SetTitle("Inv Mass (GeV)");
  hInvMassPi02C_Trial.Write();
   
+ hInvMassEta2C_MinAngleCut.GetXaxis()->SetTitle("Inv Mass (GeV)");
+ hInvMassEta2C_MinAngleCut.Write();
  
+ hInvMassEtaVsAngle.GetYaxis()->SetTitle("Inv Mass (GeV)");
+ hInvMassEtaVsAngle.GetXaxis()->SetTitle("Angle between BC (rad)");
+ hInvMassEtaVsAngle.Write();
+ 
+   
  //---- Save Cuts in File ----
  
  TTree Cuts("Cuts","Cuts");
@@ -1092,6 +1207,7 @@ int main (int argc, char* argv[])
  Cuts.Branch("S9oS25C_Cut",&S9oS25C_Cut,"S9oS25C_Cut/D");
  Cuts.Branch("S4oS9C_Cut",&S4oS9C_Cut,"S4oS9C_Cut/D");
  Cuts.Branch("ptC_Cut",&ptC_Cut,"ptC_Cut/D");
+ Cuts.Branch("ptC_EE_Cut",&ptC_EE_Cut,"ptC_EE_Cut/D");
  Cuts.Branch("ptSum_Cut",&ptSum_Cut,"ptSum_Cut/D");
  Cuts.Branch("RMax_Cut",&RMax_Cut,"RMax_Cut/D");
  Cuts.Branch("DeltaEtaMax_Cut",&DeltaEtaMax_Cut,"DeltaEtaMax_Cut/D");
