@@ -55,7 +55,8 @@ int main (int argc, char** argv)
   double angleMIN = subPSetSelections.getParameter<double> ("angleMIN") ;
  
   //cuts on Xtal Energy
-  double XtalMaxEnergy = subPSetSelections.getParameter<double> ("XtalMaxEnergy") ;
+  double XtalMaxEnergyMin = subPSetSelections.getParameter<double> ("XtalMaxEnergyMin") ;
+  double XtalMaxEnergyMax = subPSetSelections.getParameter<double> ("XtalMaxEnergyMax") ;
   double XtalMinEnergy = subPSetSelections.getParameter<double> ("XtalMinEnergy") ;
   
   //cuts on Windows
@@ -80,7 +81,7 @@ int main (int argc, char** argv)
       chain->Add (listIt->c_str ()) ;
     }
 
-  TProfile2D aveEopMap ("aveEopMap","aveEopMap",360,1.,361.,172,-86.,86.); 
+  TProfile2D aveEoxMap ("aveEoxMap","aveEoxMap",360,1.,361.,172,-86.,86.); 
 
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
@@ -112,6 +113,40 @@ int main (int argc, char** argv)
                             treeVars.muonMomentumY[MUindex], 
                             treeVars.muonMomentumZ[MUindex]) ;
 
+          float dummyEmax = 0.;
+          float dummyLmax = 0.;
+          int numCrystalEMax = -1;
+          int numCrystalLMax = -1;
+          bool SclOk = false;
+          double dummyLength = 0;
+       
+          for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
+               XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
+                          treeVars.nXtalsInSuperCluster[SCindex] ; 
+               ++XTLindex)
+            {
+              if(treeVars.xtalTkLength[XTLindex] == -1) continue;
+          
+              dummyLength+= treeVars.xtalTkLength[XTLindex];
+          
+              //---- check the link Xtal with max energy  == Xtal with max length ----
+              if (treeVars.xtalEnergy[XTLindex] > dummyEmax) numCrystalEMax = XTLindex;
+              if(treeVars.xtalTkLength[XTLindex] > dummyLmax) numCrystalLMax = XTLindex;
+            }
+       
+          //   if( abs(treeVars.muonTkLengthInEcalDetail[associations.at(i).first] - dummyLength) > 0.5) continue;
+       
+          if ( (numCrystalEMax != numCrystalLMax) && 
+               (numCrystalEMax != -1) && 
+               (numCrystalLMax != -1)) 
+          {
+            if ( 3.*treeVars.xtalEnergy[numCrystalLMax] < 
+                 treeVars.xtalTkLength[numCrystalLMax] * 0.0125) SclOk = false;
+          }
+          else SclOk = true;
+          if ((numCrystalEMax == -1) || (numCrystalLMax == -1)) SclOk = false;
+          if(SclOk == false) continue;
+
           double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
           if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;
 
@@ -121,7 +156,6 @@ int main (int argc, char** argv)
           double angle = MuonDir.Angle ( SC0_pos ) ;
           if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
 
-
           if ((angle < angleMIN) || (angle >= angleMAX)) continue ;
 
           if ((treeVars.superClusterRawEnergy[SCindex] >= EnergyMaxSC) || 
@@ -130,8 +164,9 @@ int main (int argc, char** argv)
           std::pair <int,int> maxima = findMaxXtalsInSC (treeVars, SCindex) ;
           double XtalEnergyMax = treeVars.xtalEnergy[maxima.first] ;
 
-          if ((XtalEnergyMax < XtalMaxEnergy)) continue ;
-
+          if ((XtalEnergyMax < XtalMaxEnergyMin) || 
+              (XtalEnergyMax >= XtalMaxEnergyMax)) continue ;
+          
           //loop su cristalli di Supercluster Associato
           for (int XTLindex = treeVars.xtalIndexInSuperCluster[SCindex] ;
                    XTLindex < treeVars.xtalIndexInSuperCluster[SCindex] +
@@ -140,23 +175,23 @@ int main (int argc, char** argv)
             {
               if (treeVars.xtalEnergy[XTLindex] < XtalMinEnergy) continue ;               
               if (treeVars.xtalTkLength[XTLindex] <= 0.) continue ;
-              double eop = treeVars.xtalEnergy[XTLindex] / 
+              double eox = treeVars.xtalEnergy[XTLindex] / 
                            treeVars.xtalTkLength[XTLindex] ;
               EBDetId dummy = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLindex]) ;
-              aveEopMap.Fill (dummy.iphi (), dummy.ieta (), eop) ;
+              aveEoxMap.Fill (dummy.iphi (), dummy.ieta (), eox) ;
             }
         }
     } //PG loop over entries
 
-  TH1F aveEopDistr ("aveEopDistr","aveEopDistr",500,0,0.5) ;
+  TH1F aveEoxDistr ("aveEoxDistr","aveEoxDistr",500,0,0.5) ;
   for (int phiIndex = 1 ; phiIndex < 361 ; ++phiIndex)
     for (int etaIndex = 1 ; etaIndex < 173 ; ++etaIndex)
-      aveEopDistr.Fill (aveEopMap.GetBinContent (phiIndex,etaIndex)) ;
+      aveEoxDistr.Fill (aveEoxMap.GetBinContent (phiIndex,etaIndex)) ;
 
-  TFile saving ("singleXtalEop.root","recreate") ;
+  TFile saving ("singleXtalEox.root","recreate") ;
   saving.cd () ;  
-  aveEopMap.Write () ;
-  aveEopDistr.Write () ;
+  aveEoxMap.Write () ;
+  aveEoxDistr.Write () ;
   saving.Close () ;
 
   return 0 ;

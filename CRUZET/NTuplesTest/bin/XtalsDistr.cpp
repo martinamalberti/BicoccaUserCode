@@ -68,10 +68,11 @@ int main (int argc, char** argv)
   double angleMIN = subPSetSelections.getParameter<double> ("angleMIN") ;
  
   //cuts on Xtal Energy
-  double XtalMaxEnergy = subPSetSelections.getParameter<double> ("XtalMaxEnergy") ;
+  double XtalMaxEnergy = subPSetSelections.getParameter<double> ("XtalMaxEnergyMin") ;
   
   //cuts on Windows
   double phiWINDOW    = subPSetSelections.getParameter<double> ("phiWINDOW") ;
+  double ietaMAX    = subPSetSelections.getUntrackedParameter<int> ("ietaMAX",85) ;
 
   std::cout << ">>> Entering XtalsDistr program <<<" << std::endl;
 
@@ -143,6 +144,9 @@ int main (int argc, char** argv)
           	  
           double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
           if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;
+
+          int SCieta = SC0_pos.Eta () / 0.0175 ;
+          if (fabs (SCieta) > ietaMAX) continue ;
         
           angle = MuonDir.Angle( SC0_pos ) ;
           if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
