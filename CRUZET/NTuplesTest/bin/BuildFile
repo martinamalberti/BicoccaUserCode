@@ -1,3 +1,15 @@
+<bin name=HighEnergyDistr file="HighEnergyDistr.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
+<bin name=countSingles file="countSingles.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
+<bin name=timingPlots file="timingPlots.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
 <bin name=effCalc file="effCalc.cpp">
   <use name=CaloOnlineTools/EcalTools>
   <flags LCGDICT_ARGS="--deep">
