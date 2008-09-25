@@ -36,7 +36,7 @@ int main (int argc, char* argv[])
   boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
   
-  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
+  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("selections") ;
 
   edm::ParameterSet subPSetOutput =  
     parameterSet->getParameter<edm::ParameterSet> ("outputNtuple") ;
