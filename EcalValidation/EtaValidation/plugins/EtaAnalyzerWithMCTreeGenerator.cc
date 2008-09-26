@@ -104,7 +104,9 @@ void
  pzC_ = new std::vector<double>;
  etC_ = new std::vector<double>;
  HitsC_ = new std::vector<int>;
+//  HitsXtalSeedRawIdC_ = new std::vector<int>;
  HitsEnergyC_ = new std::vector<double>;
+ HitsRawIdC_ = new std::vector<int>;
  
  numPh_ = new std::vector<int>;
  thetaPh_ = new std::vector<double>;
@@ -132,6 +134,7 @@ void
  tTreeUtilities_->Branch("etC_","std::vector<double>",&etC_);
  tTreeUtilities_->Branch("HitsC_","std::vector<int>",&HitsC_);
  tTreeUtilities_->Branch("HitsEnergyC_","std::vector<double>",&HitsEnergyC_);
+ tTreeUtilities_->Branch("HitsRawIdC_","std::vector<int>",&HitsRawIdC_);
  
  //---- ---- Photons from Eta ---- 
  tTreeUtilities_->Branch("numEta_",&numEta_,"numEta_/I");
@@ -172,6 +175,7 @@ void
    etC_->clear();
    HitsC_->clear();
    HitsEnergyC_->clear();
+   HitsRawIdC_->clear();
    
    numPh_->clear();
    thetaPh_->clear();
@@ -294,6 +298,8 @@ void
      double dummy = 0;
      dummy = itrechit->energy () ;
      HitsEnergyC_->push_back(dummy);
+     int dummyRawId = itrechit->id().rawId();
+     HitsRawIdC_->push_back(dummyRawId);
     }
     seedShpItr = barrelClShpHandle->find(clusterRef);
     reco::ClusterShapeRef seedShapeRef = (*seedShpItr).val;
@@ -339,6 +345,8 @@ void
      double dummy = 0;
      dummy = itrechit->energy () ;
      HitsEnergyC_->push_back(dummy);
+     int dummyRawId = itrechit->id().rawId();
+     HitsRawIdC_->push_back(dummyRawId);
     }
 
     seedShpItrEE = endcapClShHandle->find(clusterRefEE);
@@ -429,6 +437,7 @@ void
         delete etC_;
         delete HitsC_;
         delete HitsEnergyC_;
+        delete HitsRawIdC_;
         
         delete numPh_;
         delete thetaPh_;

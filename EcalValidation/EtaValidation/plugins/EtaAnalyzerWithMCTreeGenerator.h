@@ -3,8 +3,8 @@
 /**\class EtaAnalyzerMCTreeGenerator
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/09/17 13:56:43 $
- ** $Revision: 1.2 $
+ ** $Date: 2008/09/19 08:41:06 $
+ ** $Revision: 1.3 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -112,6 +112,7 @@ class EtaAnalyzerWithMCTreeGenerator : public edm::EDAnalyzer {
   std::vector<double> * etC_;
   std::vector<int> * HitsC_;
   std::vector<double> * HitsEnergyC_;
+  std::vector<int> * HitsRawIdC_;
   
   int numEta_;
   std::vector<int> * numPh_; //---- number of photons for each Eta ----
