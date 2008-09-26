@@ -28,6 +28,7 @@
 #include "TH3.h"
 #include "TChain.h"
 #include "TFile.h"
+#include "TRandom3.h"
 
 #define PI 3.14159265
 #define TWOPI 6.28318530
@@ -51,6 +52,8 @@ double Eta2Theta(double Eta) {
 //! main program
 int main (int argc, char* argv[])
 {
+ //---- random ----
+ TRandom *gRandom = new TRandom3(429);
  
  //---- output File ---- where saving histograms ---- 
 
@@ -92,7 +95,7 @@ int main (int argc, char* argv[])
  int OmegaSearch = 0; //---- 0 -> no Omega ---- 1 -> si Omega ----
  int E3x3 = 0; //---- 0 -> basic cluster ---- 1 -> si Energy 3x3 ----
  
- 
+ double Scalib = -1; //---- percentuale di scalibrazione: -1 -> calibrato ----
  
  
  
@@ -129,7 +132,7 @@ int main (int argc, char* argv[])
  S4oS9_MC_Cut = subPSetSelections.getUntrackedParameter<double> ("S4oS9_MC_Cut",S4oS9_MC_Cut) ;
  angleR_Cut = subPSetSelections.getUntrackedParameter<double> ("angleR_Cut",angleR_Cut) ;
  E3x3 = subPSetSelections.getUntrackedParameter<int> ("E3x3",E3x3) ;
-
+ Scalib = subPSetSelections.getUntrackedParameter<double> ("Scalib",Scalib) ;
  
   
  //---- output file ----
@@ -286,8 +289,19 @@ int main (int argc, char* argv[])
  
  TH2F hEtSumPh_MC("hEtSumPh_MC","MC Data. Et Sum two photons selection",2000, 0., 2.,1000, 0., 10.); 
  TH2F hEtSumC_MC("hEtSumC_MC","MC Data. Et Sum two cluster selection",2000, 0., 2.,1000, 0., 10.); 
+
  
+  
+ TH2F hE3x3VsReal_1_MC("hE3x3VsReal_1_MC","MC Data. First Cluster E single cluster selection E3x3 vs real energy",2000, 0., 20.,2000, 0., 20.); 
+ TH2F hE3x3VsReal_2_MC("hE3x3VsReal_2_MC","MC Data. Second Cluster E single cluster selection E3x3 vs real energy",2000, 0., 20.,2000, 0., 20.); 
+ TH2F hE3x3VsReal_MC("hE3x3VsReal_MC","MC Data. Cluster E single cluster selection E3x3 vs real energy",2000, 0., 20.,2000, 0., 20.); 
  
+ TH2F hBCVsReal_1_MC("hBCVsReal_1_MC","MC Data. First Cluster E single cluster selection BC vs real energy",2000, 0., 20.,2000, 0., 20.); 
+ TH2F hBCVsReal_2_MC("hBCVsReal_2_MC","MC Data. Second Cluster E single cluster selection BC vs real energy",2000, 0., 20.,2000, 0., 20.); 
+ TH2F hBCVsReal_MC("hBCVsReal_MC","MC Data. Cluster E single cluster selection BC vs real energy",2000, 0., 20.,2000, 0., 20.); 
+ 
+ TH1F hBCOverReal_MC("hBCOverReal_MC","MC Data. Cluster E single cluster selection BC over Real energy",3600, 0., 2.*PI);
+ TH1F hE3x3OverReal_MC("hE3x3OverReal_MC","MC Data. Cluster E single cluster selection E3x3 over Real energy",1000, 0., 2.);
  
  
  //---- Data Analysis ---- before cuts -----
@@ -376,6 +390,8 @@ int main (int argc, char* argv[])
  std::cerr << " OmegaSearch = " << OmegaSearch << std::endl;
  std::cerr << " angleR_Cut = " << angleR_Cut << std::endl;
  std::cerr << " E3x3 = " << E3x3 << std::endl;
+ std::cerr << " Scalib = " << Scalib << std::endl;
+ std::cerr << " outputRootName = " << outputRootName << std::endl;
  
  
  double RQ = R*R;
@@ -481,7 +497,8 @@ int main (int argc, char* argv[])
     pPh = pPh + pPh_temp;
     hSinglePhotonPt.Fill(ptPh);
     double bestTestValueRCQ = 100000;
-   //---- loop over clusters ----
+    
+    //---- loop over clusters ----
     for (int kk=0; kk<numC_; kk++){
      double etaC1 = etaC_->at(kk);
      double phiC1 = phiC_->at(kk);
@@ -517,9 +534,28 @@ int main (int argc, char* argv[])
        pzC = energy_temp * cos(thetaC1);
       }
       else {
-       pxC= pxC_->at(kk);
-       pyC = pyC_->at(kk);
-       pzC = pzC_->at(kk);
+       if (Scalib > 0) {
+        double energy_temp = 0;
+        int counterXtal = 0;
+        for (int ww=0; ww < numC_; ww++){
+         for (int ihit = 0; ihit < HitsC_->at(ww); ihit++){
+          if (ww == kk) {
+           double EnHit = HitsEnergyC_->at(counterXtal); 
+           EnHit = EnHit * (gRandom->Gaus(1.,Scalib)); // ---- "manual" scalibration ----
+           energy_temp = energy_temp + EnHit;
+          }
+          counterXtal++;
+         }
+        }
+        pxC = energy_temp * sin(thetaC1) * cos(phiC1);
+        pyC = energy_temp * sin(thetaC1) * sin(phiC1);
+        pzC = energy_temp * cos(thetaC1);
+       }
+       else {
+        pxC= pxC_->at(kk);
+        pyC = pyC_->at(kk);
+        pzC = pzC_->at(kk);
+       }
       }
       double EnergyC = sqrt(pxC*pxC + pyC*pyC + pzC*pzC);
       math::XYZTLorentzVector pC_temp(pxC,pyC,pzC,EnergyC);
@@ -606,7 +642,51 @@ int main (int argc, char* argv[])
    
     hEtSumPh_MC.Fill(pPh_Eta.mag(),pPh_Eta.Pt());
     hEtSumC_MC.Fill(pC.mag(),pC.Pt());
-   
+        
+    
+    
+    if (flagEtaDirection){
+     
+     //---- BC ----
+     //---- first cluster ----
+     double pxC1_temp_MC = pxC_->at(FirstCluster);
+     double pyC1_temp_MC = pyC_->at(FirstCluster);
+     double pzC1_temp_MC = pzC_->at(FirstCluster);
+     double EnergyC1_temp_MC = sqrt(pxC1_temp_MC*pxC1_temp_MC + pyC1_temp_MC*pyC1_temp_MC + pzC1_temp_MC*pzC1_temp_MC);
+//     math::XYZTLorentzVector pC1_temp_MC(pxC1_temp_MC,pyC1_temp_MC,pzC1_temp_MC,EnergyC1_temp_MC);
+   //---- Second cluster ----
+     double pxC2_temp_MC = pxC_->at(SecondCluster);
+     double pyC2_temp_MC = pyC_->at(SecondCluster);
+     double pzC2_temp_MC = pzC_->at(SecondCluster);
+     double EnergyC2_temp_MC = sqrt(pxC2_temp_MC*pxC2_temp_MC + pyC2_temp_MC*pyC2_temp_MC + pzC2_temp_MC*pzC2_temp_MC);
+//     math::XYZTLorentzVector pC2_temp_MC(pxC2_temp_MC,pyC2_temp_MC,pzC2_temp_MC,EnergyC2_temp_MC);
+    
+     hBCVsReal_1_MC.Fill(EnergyC1_temp_MC,EnergyPh1);
+     hBCVsReal_2_MC.Fill(EnergyC2_temp_MC,EnergyPh2);
+     
+     hBCVsReal_MC.Fill(EnergyC1_temp_MC,EnergyPh1);
+     hBCVsReal_MC.Fill(EnergyC2_temp_MC,EnergyPh2);
+    
+     if (EnergyPh1 >0) hBCOverReal_MC.Fill(EnergyC1_temp_MC/EnergyPh1);
+     if (EnergyPh2 >0) hBCOverReal_MC.Fill(EnergyC2_temp_MC/EnergyPh2);
+     
+     //---- E3x3 ----
+     //---- first cluster ----
+     double EnergyE3x31_temp_MC = S9C_->at(FirstCluster);
+   //---- Second cluster ----
+     double EnergyE3x32_temp_MC = S9C_->at(SecondCluster);
+    
+     hE3x3VsReal_1_MC.Fill(EnergyE3x31_temp_MC,EnergyPh1);
+     hE3x3VsReal_2_MC.Fill(EnergyE3x32_temp_MC,EnergyPh2);
+     
+     hE3x3VsReal_MC.Fill(EnergyE3x31_temp_MC,EnergyPh1);
+     hE3x3VsReal_MC.Fill(EnergyE3x32_temp_MC,EnergyPh2); 
+     
+     if (EnergyPh1 >0) hE3x3OverReal_MC.Fill(EnergyE3x31_temp_MC/EnergyPh1);
+     if (EnergyPh2 >0) hE3x3OverReal_MC.Fill(EnergyE3x32_temp_MC/EnergyPh2);
+    }
+    
+    
    }
    //---- end match composite cluster <-> eta ----
    
@@ -620,6 +700,8 @@ int main (int argc, char* argv[])
     hInvMassEtaPh.Fill(InvMassPh);
     double InvMassC = pC.mag();
     if (InvMassC != 0) hInvMassEtaCMCTruth.Fill(InvMassC); //---- if zero -> no clusters found ----
+   
+   
    }
   }
   //---- end loop over etas ----
@@ -676,9 +758,28 @@ int main (int argc, char* argv[])
     pzC1 = energy_temp * cos(thetaC1);
    }
    else {
-    pxC1 = pxC_->at(kk);
-    pyC1 = pyC_->at(kk);
-    pzC1 = pzC_->at(kk);
+    if (Scalib > 0) {
+     double energy_temp = 0;
+     int counterXtal = 0;
+     for (int ww=0; ww < numC_; ww++){
+      for (int ihit = 0; ihit < HitsC_->at(ww); ihit++){
+       if (ww == kk) {
+        double EnHit = HitsEnergyC_->at(counterXtal); 
+        EnHit = EnHit * (gRandom->Gaus(1.,Scalib)); // ---- "manual" scalibration ----
+        energy_temp = energy_temp + EnHit;
+       }
+       counterXtal++;
+      }
+     }
+     pxC1 = energy_temp * sin(thetaC1) * cos(phiC1);
+     pyC1 = energy_temp * sin(thetaC1) * sin(phiC1);
+     pzC1 = energy_temp * cos(thetaC1);
+    }
+    else {
+     pxC1 = pxC_->at(kk);
+     pyC1 = pyC_->at(kk);
+     pzC1 = pzC_->at(kk);
+    }
    }
    
    double ptC1 = sqrt(pxC1*pxC1 + pyC1*pyC1);
@@ -708,9 +809,28 @@ int main (int argc, char* argv[])
        pzC2 = energy_temp * cos(thetaC2);
       }
       else {
-       pxC2 = pxC_->at(ll);
-       pyC2 = pyC_->at(ll);
-       pzC2 = pzC_->at(ll);
+       if (Scalib > 0) {
+        double energy_temp = 0;
+        int counterXtal = 0;
+        for (int ww=0; ww < numC_; ww++){
+         for (int ihit = 0; ihit < HitsC_->at(ww); ihit++){
+          if (ww == ll) {
+           double EnHit = HitsEnergyC_->at(counterXtal); 
+           EnHit = EnHit * (gRandom->Gaus(1.,Scalib)); // ---- "manual" scalibration ----
+           energy_temp = energy_temp + EnHit;
+          }
+          counterXtal++;
+         }
+        }
+        pxC2 = energy_temp * sin(thetaC2) * cos(phiC2);
+        pyC2 = energy_temp * sin(thetaC2) * sin(phiC2);
+        pzC2 = energy_temp * cos(thetaC2);
+       }
+       else {
+        pxC2 = pxC_->at(ll);
+        pyC2 = pyC_->at(ll);
+        pzC2 = pzC_->at(ll);
+       }
       }
      
       double ptC2 = sqrt(pxC2*pxC2 + pyC2*pyC2);
@@ -846,7 +966,6 @@ int main (int argc, char* argv[])
              pxC1_temp = pxC_->at(numberC1);
              pyC1_temp = pyC_->at(numberC1);
              pzC1_temp = pzC_->at(numberC1);
-            
             }
             else {
              double energy_temp = S9C_->at(numberC1);
@@ -1063,6 +1182,39 @@ int main (int argc, char* argv[])
  hR_2C_MC.GetXaxis()->SetTitle("Angle between photons (rad)");
  hR_2C_MC.Write();
   
+ 
+ 
+ hE3x3VsReal_MC.GetYaxis()->SetTitle("E Real (GeV)");
+ hE3x3VsReal_MC.GetXaxis()->SetTitle("E E3x3 (GeV)");
+ hE3x3VsReal_MC.Write();
+ 
+ hE3x3VsReal_1_MC.GetYaxis()->SetTitle("E Real (GeV)");
+ hE3x3VsReal_1_MC.GetXaxis()->SetTitle("E E3x3 (GeV)");
+ hE3x3VsReal_1_MC.Write();
+ 
+ hE3x3VsReal_2_MC.GetYaxis()->SetTitle("E Real (GeV)");
+ hE3x3VsReal_2_MC.GetXaxis()->SetTitle("E E3x3 (GeV)");
+ hE3x3VsReal_2_MC.Write();
+
+ hE3x3OverReal_MC.GetXaxis()->SetTitle("E_E3x3 / E_True");
+ hE3x3OverReal_MC.Write();
+ 
+ hBCVsReal_MC.GetYaxis()->SetTitle("E Real (GeV)");
+ hBCVsReal_MC.GetXaxis()->SetTitle("E BC (GeV)");
+ hBCVsReal_MC.Write();
+ 
+ hBCVsReal_1_MC.GetYaxis()->SetTitle("E Real (GeV)");
+ hBCVsReal_1_MC.GetXaxis()->SetTitle("E BC (GeV)");
+ hBCVsReal_1_MC.Write();
+ 
+ hBCVsReal_2_MC.GetYaxis()->SetTitle("E Real (GeV)");
+ hBCVsReal_2_MC.GetXaxis()->SetTitle("E BC (GeV)");
+ hBCVsReal_2_MC.Write();
+
+ hBCOverReal_MC.GetXaxis()->SetTitle("E_BC / E_True");
+ hBCOverReal_MC.Write();
+ 
+ 
  hInvMassEta2CETNoCutsMC.GetYaxis()->SetTitle("Et (GeV)");
  hInvMassEta2CETNoCutsMC.GetXaxis()->SetTitle("Invariant Mass (GeV)");
  hInvMassEta2CETNoCutsMC.Write();
@@ -1224,6 +1376,8 @@ int main (int argc, char* argv[])
  Cuts.Branch("angleR_Cut",&angleR_Cut,"angleR_Cut/D");
  Cuts.Branch("OmegaSearch",&OmegaSearch,"OmegaSearch/I");
  Cuts.Branch("E3x3",&E3x3,"E3x3/I");
+ Cuts.Branch("Scalib",&Scalib,"Scalib/D");
+ 
  
  Cuts.Fill();
  Cuts.Write();
