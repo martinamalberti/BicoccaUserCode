@@ -3,8 +3,8 @@
 /**\class EtaAnalyzerMCTreeGenerator
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/09/19 08:41:06 $
- ** $Revision: 1.3 $
+ ** $Date: 2008/09/26 14:36:23 $
+ ** $Revision: 1.4 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -26,9 +26,33 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//---- local containment corrections ----
+#include "CondFormats/EcalCorrections/interface/EcalGlobalShowerContainmentCorrectionsVsEta.h"
+#include "CondFormats/DataRecord/interface/EcalGlobalShowerContainmentCorrectionsVsEtaRcd.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+
+
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
+
+#include "CondFormats/EcalCorrections/interface/EcalGlobalShowerContainmentCorrectionsVsEta.h"
+#include "CondFormats/DataRecord/interface/EcalGlobalShowerContainmentCorrectionsVsEtaRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+
+
+
+
+
+
+
 
 #include <string>
 #include "TH1.h"
@@ -110,6 +134,9 @@ class EtaAnalyzerWithMCTreeGenerator : public edm::EDAnalyzer {
   std::vector<double> * pyC_;
   std::vector<double> * pzC_;
   std::vector<double> * etC_;
+  std::vector<double> * covEtaEtaC_;//---- appena aggiunti ----
+  std::vector<double> * covEtaPhiC_;//---- appena aggiunti ----
+  std::vector<double> * covPhiPhiC_;//---- appena aggiunti ----
   std::vector<int> * HitsC_;
   std::vector<double> * HitsEnergyC_;
   std::vector<int> * HitsRawIdC_;

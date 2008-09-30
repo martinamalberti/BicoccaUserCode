@@ -107,6 +107,10 @@ void
 //  HitsXtalSeedRawIdC_ = new std::vector<int>;
  HitsEnergyC_ = new std::vector<double>;
  HitsRawIdC_ = new std::vector<int>;
+ covEtaEtaC_ = new std::vector<double>;
+ covEtaPhiC_ = new std::vector<double>;
+ covPhiPhiC_ = new std::vector<double>;
+ 
  
  numPh_ = new std::vector<int>;
  thetaPh_ = new std::vector<double>;
@@ -135,6 +139,10 @@ void
  tTreeUtilities_->Branch("HitsC_","std::vector<int>",&HitsC_);
  tTreeUtilities_->Branch("HitsEnergyC_","std::vector<double>",&HitsEnergyC_);
  tTreeUtilities_->Branch("HitsRawIdC_","std::vector<int>",&HitsRawIdC_);
+ tTreeUtilities_->Branch("covEtaEtaC_","std::vector<double>",&covEtaEtaC_);
+ tTreeUtilities_->Branch("covEtaPhiC_","std::vector<double>",&covEtaPhiC_);
+ tTreeUtilities_->Branch("covPhiPhiC_","std::vector<double>",&covPhiPhiC_);
+ 
  
  //---- ---- Photons from Eta ---- 
  tTreeUtilities_->Branch("numEta_",&numEta_,"numEta_/I");
@@ -176,6 +184,9 @@ void
    HitsC_->clear();
    HitsEnergyC_->clear();
    HitsRawIdC_->clear();
+   covEtaEtaC_->clear();
+   covEtaPhiC_->clear();
+   covPhiPhiC_->clear();
    
    numPh_->clear();
    thetaPh_->clear();
@@ -305,10 +316,31 @@ void
     reco::ClusterShapeRef seedShapeRef = (*seedShpItr).val;
     
     S4C_->push_back(seedShapeRef->e2x2());
-    S9C_->push_back(seedShapeRef->e3x3());
+    
+    
+    //---- add correction ----
+    double e3x3;
+    double e5x5;
+    edm::ESHandle<EcalGlobalShowerContainmentCorrectionsVsEta> pCorr;
+    es.get<EcalGlobalShowerContainmentCorrectionsVsEtaRcd>().get(pCorr);
+
+    EBDetId aId(seedShapeRef->eMaxId());
+    e3x3 = pCorr->correction3x3(aId);
+    e5x5 = pCorr->correction5x5(aId);
+    
+    if (e3x3>0) S9C_->push_back(seedShapeRef->e3x3() / e3x3);
+    else S9C_->push_back(seedShapeRef->e3x3());
+    if (e3x3>0) std::cerr << " NON CORRETTO = " << seedShapeRef->e3x3() << "   Corretto = " << seedShapeRef->e3x3() / e3x3 <<  " e3x3 = " << e3x3 << std::endl;
+    S9C_->push_back(e3x3);
     S16C_->push_back(seedShapeRef->e4x4());
-    S25C_->push_back(seedShapeRef->e5x5());
+    if (e5x5>0) S25C_->push_back(seedShapeRef->e5x5() / e5x5);
+    else S25C_->push_back(seedShapeRef->e5x5());
     S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
+    
+    covEtaEtaC_->push_back(seedShapeRef->covEtaEta());
+    covEtaPhiC_->push_back(seedShapeRef->covEtaPhi());
+    covPhiPhiC_->push_back(seedShapeRef->covPhiPhi());
+    
    }
    
       
@@ -357,6 +389,11 @@ void
     S16C_->push_back(seedShapeRef->e4x4());
     S25C_->push_back(seedShapeRef->e5x5());
     S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
+    
+    covEtaEtaC_->push_back(seedShapeRef->covEtaEta());
+    covEtaPhiC_->push_back(seedShapeRef->covEtaPhi());
+    covPhiPhiC_->push_back(seedShapeRef->covPhiPhi());
+    
    }
 
    tTreeUtilities_->Fill();
@@ -438,7 +475,10 @@ void
         delete HitsC_;
         delete HitsEnergyC_;
         delete HitsRawIdC_;
-        
+        delete covEtaEtaC_;
+        delete covEtaPhiC_;
+        delete covPhiPhiC_;
+                
         delete numPh_;
         delete thetaPh_;
         delete etaPh_;
@@ -446,7 +486,5 @@ void
         delete pxPh_;
         delete pyPh_;
         delete pzPh_;
-        
-        
 
          }
