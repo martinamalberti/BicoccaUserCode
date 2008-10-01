@@ -1,0 +1,5 @@
+<bin name=cerenkov file="cerenkov.cpp">
+ <use name=CRUZET/Cerenkov>
+  <flags LCGDICT_ARGS="--deep">
+ </bin>
+
