@@ -3,8 +3,8 @@
 /**\class EtaAnalyzerMCTreeGenerator
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/09/26 14:36:23 $
- ** $Revision: 1.4 $
+ ** $Date: 2008/09/30 12:25:36 $
+ ** $Revision: 1.5 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -46,14 +46,22 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+
+//---- Geometry
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 
 
-
-
-
-
-
+#include <map>
 #include <string>
 #include "TH1.h"
 #include "TH2.h"
@@ -134,12 +142,22 @@ class EtaAnalyzerWithMCTreeGenerator : public edm::EDAnalyzer {
   std::vector<double> * pyC_;
   std::vector<double> * pzC_;
   std::vector<double> * etC_;
-  std::vector<double> * covEtaEtaC_;//---- appena aggiunti ----
-  std::vector<double> * covEtaPhiC_;//---- appena aggiunti ----
-  std::vector<double> * covPhiPhiC_;//---- appena aggiunti ----
+  std::vector<double> * covEtaEtaC_;
+  std::vector<double> * covEtaPhiC_;
+  std::vector<double> * covPhiPhiC_;
   std::vector<int> * HitsC_;
+  std::vector<int> * HitsXtalSeedRawIdC_;
+  std::vector<double> * HitsXtalSeedEnergyC_;
   std::vector<double> * HitsEnergyC_;
   std::vector<int> * HitsRawIdC_;
+  std::vector<double> *energy3x3_;
+  std::vector<unsigned int> *energy3x3DetId_;
+  std::vector<double> *energy5x5_;
+  std::vector<unsigned int> *energy5x5DetId_;
+//   std::map<int,std::vector<double> > *energy3x3_;
+//   std::map<int,std::vector<unsigned int> > *energy3x3DetId_;
+//   std::map<int,std::vector<double> > *energy5x5_;
+//   std::map<int,std::vector<unsigned int> > *energy5x5DetId_;
   
   int numEta_;
   std::vector<int> * numPh_; //---- number of photons for each Eta ----

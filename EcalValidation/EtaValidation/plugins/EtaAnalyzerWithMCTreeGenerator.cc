@@ -104,13 +104,18 @@ void
  pzC_ = new std::vector<double>;
  etC_ = new std::vector<double>;
  HitsC_ = new std::vector<int>;
-//  HitsXtalSeedRawIdC_ = new std::vector<int>;
+ HitsXtalSeedRawIdC_ = new std::vector<int>;
+ HitsXtalSeedEnergyC_ = new std::vector<double>;
  HitsEnergyC_ = new std::vector<double>;
  HitsRawIdC_ = new std::vector<int>;
  covEtaEtaC_ = new std::vector<double>;
  covEtaPhiC_ = new std::vector<double>;
  covPhiPhiC_ = new std::vector<double>;
  
+ energy3x3_ = new std::vector<double>;
+ energy3x3DetId_ = new std::vector<unsigned int>;
+ energy5x5_ = new std::vector<double>;
+ energy5x5DetId_ = new std::vector<unsigned int>;
  
  numPh_ = new std::vector<int>;
  thetaPh_ = new std::vector<double>;
@@ -143,6 +148,17 @@ void
  tTreeUtilities_->Branch("covEtaPhiC_","std::vector<double>",&covEtaPhiC_);
  tTreeUtilities_->Branch("covPhiPhiC_","std::vector<double>",&covPhiPhiC_);
  
+ tTreeUtilities_->Branch("energy3x3_","std::vector<double>",&energy3x3_);
+ tTreeUtilities_->Branch("energy3x3DetId_","std::vector<unsigned int>",&energy3x3DetId_);
+ tTreeUtilities_->Branch("energy5x5_","std::vector<double>",&energy5x5_);
+ tTreeUtilities_->Branch("energy5x5DetId_","std::vector<unsigned int>",&energy5x5DetId_);
+
+//  tTreeUtilities_->Branch("energy3x3_","std::map<int,std::vector<double>>",&energy3x3_);
+//  tTreeUtilities_->Branch("energy3x3DetId_","std::map<int,std::vector<unsigned int>>",&energy3x3DetId_);
+//  tTreeUtilities_->Branch("energy5x5_","std::map<int,std::vector<double>>",&energy5x5_);
+//  tTreeUtilities_->Branch("energy5x5DetId_","std::map<int,std::vector<unsigned int>>",&energy5x5DetId_);
+ tTreeUtilities_->Branch("HitsXtalSeedRawIdC_","std::vector<int>",&HitsXtalSeedRawIdC_);
+ tTreeUtilities_->Branch("HitsXtalSeedEnergyC_","std::vector<double>",&HitsXtalSeedEnergyC_);
  
  //---- ---- Photons from Eta ---- 
  tTreeUtilities_->Branch("numEta_",&numEta_,"numEta_/I");
@@ -182,11 +198,18 @@ void
    pzC_->clear();
    etC_->clear();
    HitsC_->clear();
+   HitsXtalSeedRawIdC_->clear();
+   HitsXtalSeedEnergyC_->clear();
    HitsEnergyC_->clear();
    HitsRawIdC_->clear();
    covEtaEtaC_->clear();
    covEtaPhiC_->clear();
    covPhiPhiC_->clear();
+   energy3x3_->clear();
+   energy3x3DetId_->clear();
+   energy5x5_->clear();
+   energy5x5DetId_->clear();
+
    
    numPh_->clear();
    thetaPh_->clear();
@@ -317,8 +340,12 @@ void
     
     S4C_->push_back(seedShapeRef->e2x2());
     
-    
-    //---- add correction ----
+    covEtaEtaC_->push_back(seedShapeRef->covEtaEta());
+    covEtaPhiC_->push_back(seedShapeRef->covEtaPhi());
+    covPhiPhiC_->push_back(seedShapeRef->covPhiPhi());
+
+     
+    //---- add correction Eta ----
     double e3x3;
     double e5x5;
     edm::ESHandle<EcalGlobalShowerContainmentCorrectionsVsEta> pCorr;
@@ -328,19 +355,81 @@ void
     e3x3 = pCorr->correction3x3(aId);
     e5x5 = pCorr->correction5x5(aId);
     
-    if (e3x3>0) S9C_->push_back(seedShapeRef->e3x3() / e3x3);
-    else S9C_->push_back(seedShapeRef->e3x3());
-    if (e3x3>0) std::cerr << " NON CORRETTO = " << seedShapeRef->e3x3() << "   Corretto = " << seedShapeRef->e3x3() / e3x3 <<  " e3x3 = " << e3x3 << std::endl;
-    S9C_->push_back(e3x3);
+//     if (e3x3>0) S9C_->push_back(seedShapeRef->e3x3() / e3x3);
+//     else 
+     S9C_->push_back(seedShapeRef->e3x3());
+//     S9C_->push_back(e3x3);
     S16C_->push_back(seedShapeRef->e4x4());
-    if (e5x5>0) S25C_->push_back(seedShapeRef->e5x5() / e5x5);
-    else S25C_->push_back(seedShapeRef->e5x5());
+//     if (e5x5>0) S25C_->push_back(seedShapeRef->e5x5() / e5x5);
+//     else 
+     S25C_->push_back(seedShapeRef->e5x5());
     S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
     
-    covEtaEtaC_->push_back(seedShapeRef->covEtaEta());
-    covEtaPhiC_->push_back(seedShapeRef->covEtaPhi());
-    covPhiPhiC_->push_back(seedShapeRef->covPhiPhi());
+     
     
+    //---- save each energy deposit in 5x5 matrix ----
+    //---- copied from: http://cmslxr.fnal.gov/lxr/source/RecoEcal/EgammaCoreTools/src/ClusterShapeAlgo.cc#110  
+    
+    /* //---- After 21X ----
+    edm::ESHandle<CaloGeometry> geoHandle;
+    es.get<CaloGeometryRecord>().get(geoHandle);
+    const CaloSubdetectorGeometry *geometry_p;
+    CaloSubdetectorTopology *topology_p;
+    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    topology_p = new EcalBarrelTopology(geoHandle);
+    */
+
+    edm::ESHandle<CaloGeometry> geoHandle;
+    es.get<IdealGeometryRecord>().get(geoHandle);
+    const CaloSubdetectorGeometry *geometry_p;
+    CaloSubdetectorTopology *topology_p;
+    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    topology_p = new EcalBarrelTopology(geoHandle);
+
+    HitsXtalSeedRawIdC_->push_back(seedShapeRef->eMaxId());
+    HitsXtalSeedEnergyC_->push_back(seedShapeRef->eMax());
+    EcalRecHit tempEcalRecHit;
+    CaloNavigator<DetId> posCurrent = CaloNavigator<DetId>(seedShapeRef->eMaxId(),topology_p);
+    std::pair<DetId, double> energyMap[5][5];
+    for(int x = 0; x < 5; x++){
+     for(int y = 0; y < 5; y++)
+     {
+      posCurrent.home();
+      posCurrent.offsetBy(-2+x,-2+y);
+      if((*posCurrent != DetId(0)) && (barrelHitsCollection->find(*posCurrent) != barrelHitsCollection->end()))
+      {
+       EcalRecHitCollection::const_iterator itt = barrelHitsCollection->find(*posCurrent);
+       tempEcalRecHit = *itt;
+//        ((*energy5x5_)[numC_-1]).push_back(tempEcalRecHit.energy());
+//        ((*energy5x5DetId_)[numC_-1]).push_back(tempEcalRecHit.id());
+       (*energy5x5_).push_back(tempEcalRecHit.energy());
+       (*energy5x5DetId_).push_back(tempEcalRecHit.id());
+       energyMap[y][x] = std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy()); 
+       if (x<4 && x>0 && y<4 && y>0) {
+//         ((*energy3x3_)[numC_-1]).push_back(tempEcalRecHit.energy());
+//         ((*energy3x3DetId_)[numC_-1]).push_back(tempEcalRecHit.id());
+        energy3x3_->push_back(tempEcalRecHit.energy());
+        (*energy3x3DetId_).push_back(tempEcalRecHit.id());
+       }
+  
+      }
+      else{
+       energyMap[y][x] = std::make_pair(DetId(0), 0); 
+       (*energy5x5_).push_back(0);
+       (*energy5x5DetId_).push_back(0);
+       if (x<4 && x>0 && y<4 && y>0) {
+        energy3x3_->push_back(0);
+        (*energy3x3DetId_).push_back(0);
+       }
+      }
+//       ((*energy5x5_)[numC_]).push_back((energyMap[y][x]).second);
+//       ((*energy5x5DetId_)[numC_]).push_back((unsigned int) ((energyMap[y][x]).first.rawId()));
+//       if (x<4 && x>1 && y<4 && y>1) {
+//        ((*energy3x3_)[numC_]).push_back((energyMap[y][x]).second);
+//        ((*energy3x3DetId_)[numC_]).push_back((unsigned int) ((energyMap[y][x]).first.rawId()));
+//       }
+     }
+    }
    }
    
       
@@ -373,7 +462,7 @@ void
     for (std::vector<DetId>::const_iterator iteratorDetId = vector_DetId_temp.begin(); iteratorDetId != vector_DetId_temp.end(); iteratorDetId++){
      EERecHitCollection::const_iterator itrechit;
      itrechit = endcapHitsCollection->find(*iteratorDetId);
-     if (itrechit == barrelHitsCollection->end()) continue;
+     if (itrechit == endcapHitsCollection->end()) continue;
      double dummy = 0;
      dummy = itrechit->energy () ;
      HitsEnergyC_->push_back(dummy);
@@ -385,25 +474,102 @@ void
     reco::ClusterShapeRef seedShapeRef = (*seedShpItrEE).val;
     
     S4C_->push_back(seedShapeRef->e2x2());
-    S9C_->push_back(seedShapeRef->e3x3());
+//     S9C_->push_back(seedShapeRef->e3x3());
     S16C_->push_back(seedShapeRef->e4x4());
-    S25C_->push_back(seedShapeRef->e5x5());
-    S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
+//     S25C_->push_back(seedShapeRef->e5x5());
+//     S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
     
     covEtaEtaC_->push_back(seedShapeRef->covEtaEta());
     covEtaPhiC_->push_back(seedShapeRef->covEtaPhi());
     covPhiPhiC_->push_back(seedShapeRef->covPhiPhi());
     
+    //---- add correction Eta ----
+    double e3x3;
+    double e5x5;
+    edm::ESHandle<EcalGlobalShowerContainmentCorrectionsVsEta> pCorr;
+    es.get<EcalGlobalShowerContainmentCorrectionsVsEtaRcd>().get(pCorr);
+
+    EEDetId aId(seedShapeRef->eMaxId());
+    e3x3 = pCorr->correction3x3(aId);
+    e5x5 = pCorr->correction5x5(aId);
+    
+//     if (e3x3>0) S9C_->push_back(seedShapeRef->e3x3() / e3x3);
+//     else 
+     S9C_->push_back(seedShapeRef->e3x3());
+//     S9C_->push_back(e3x3);
+    S16C_->push_back(seedShapeRef->e4x4());
+//     if (e5x5>0) S25C_->push_back(seedShapeRef->e5x5() / e5x5);
+//     else
+     S25C_->push_back(seedShapeRef->e5x5());
+    S4oS9C_->push_back(seedShapeRef->e2x2()/seedShapeRef->e3x3());
+
+  //---- save each energy deposit in 5x5 matrix ----
+    //---- copied from: http://cmslxr.fnal.gov/lxr/source/RecoEcal/EgammaCoreTools/src/ClusterShapeAlgo.cc#110  
+    
+    
+    /* //---- After 21X ----
+    edm::ESHandle<CaloGeometry> geoHandle;
+    es.get<CaloGeometryRecord>().get(geoHandle);
+    const CaloSubdetectorGeometry *geometry_p;
+    CaloSubdetectorTopology *topology_p;
+    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    topology_p = new EcalEndcapTopology(geoHandle);
+    */
+    
+    edm::ESHandle<CaloGeometry> geoHandle;
+    es.get<IdealGeometryRecord>().get(geoHandle);
+    const CaloSubdetectorGeometry *geometry_p;
+    CaloSubdetectorTopology *topology_p;
+    geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    topology_p = new EcalEndcapTopology(geoHandle);
+
+    HitsXtalSeedRawIdC_->push_back(seedShapeRef->eMaxId());
+    HitsXtalSeedEnergyC_->push_back(seedShapeRef->eMax());
+    EcalRecHit tempEcalRecHit;
+    CaloNavigator<DetId> posCurrent = CaloNavigator<DetId>(seedShapeRef->eMaxId(),topology_p);
+    std::pair<DetId, double> energyMap[5][5];
+    for(int x = 0; x < 5; x++){
+     for(int y = 0; y < 5; y++)
+     {
+      posCurrent.home();
+      posCurrent.offsetBy(-2+x,-2+y);
+      if((*posCurrent != DetId(0)) && (endcapHitsCollection->find(*posCurrent) != endcapHitsCollection->end()))
+      {
+       EcalRecHitCollection::const_iterator itt = endcapHitsCollection->find(*posCurrent);
+       tempEcalRecHit = *itt;
+       energyMap[y][x] = std::make_pair(tempEcalRecHit.id(),tempEcalRecHit.energy()); 
+       (*energy5x5_).push_back((energyMap[y][x]).second);
+       (*energy5x5DetId_).push_back((unsigned int) ((energyMap[y][x]).first.rawId()));
+//       ((*energy5x5_)[numC_-1]).push_back((energyMap[y][x]).second);
+//       ((*energy5x5DetId_)[numC_-1]).push_back((unsigned int) ((energyMap[y][x]).first.rawId()));
+       if (x<4 && x>0 && y<4 && y>0) {
+//        ((*energy3x3_)[numC_-1]).push_back((energyMap[y][x]).second);
+//        ((*energy3x3DetId_)[numC_-1]).push_back((unsigned int) ((energyMap[y][x]).first.rawId()));
+        energy3x3_->push_back((energyMap[y][x]).second);
+        (*energy3x3DetId_).push_back((unsigned int) ((energyMap[y][x]).first.rawId()));
+       }
+      }
+      else{
+       energyMap[y][x] = std::make_pair(DetId(0), 0); 
+       (*energy5x5_).push_back(0);
+       (*energy5x5DetId_).push_back(0);
+       if (x<4 && x>0 && y<4 && y>0) {
+        energy3x3_->push_back(0);
+        (*energy3x3DetId_).push_back(0);
+       }
+      }
+     }
+    }
    }
 
    tTreeUtilities_->Fill();
    
-  }
+    }
 
     
     
     
-  float EtaAnalyzerWithMCTreeGenerator::etaTransformation(  float EtaParticle , float Zvertex)  {
+    float EtaAnalyzerWithMCTreeGenerator::etaTransformation(  float EtaParticle , float Zvertex)  {
 
 
   //---Definitions for ECAL
@@ -473,12 +639,18 @@ void
         delete pzC_;
         delete etC_;
         delete HitsC_;
+        delete HitsXtalSeedRawIdC_;
+        delete HitsXtalSeedEnergyC_;
         delete HitsEnergyC_;
         delete HitsRawIdC_;
         delete covEtaEtaC_;
         delete covEtaPhiC_;
         delete covPhiPhiC_;
-                
+        delete energy3x3_;        
+        delete energy5x5_;        
+        delete energy3x3DetId_;        
+        delete energy5x5DetId_;        
+        
         delete numPh_;
         delete thetaPh_;
         delete etaPh_;
