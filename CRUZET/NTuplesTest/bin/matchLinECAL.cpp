@@ -57,6 +57,7 @@ int main (int argc, char** argv)
     }
 
   TProfile2D lengthMap ("lengthMap","lengthMap",360,-3.1416,3.1416,170,-1.5,1.5) ;
+  TH1F Hlength ("Hlength","Hlength",300,0,30) ;
 
   int nEntries = chain->GetEntries () ;
   std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
@@ -96,6 +97,7 @@ int main (int argc, char** argv)
           lengthMap.Fill (muonTkAtEcal.first.phi (),
                           muonTkAtEcal.first.eta (),
                           length) ;
+          Hlength.Fill (length) ;
         } //PG loop on associations vector
 
 
@@ -105,6 +107,7 @@ int main (int argc, char** argv)
   TFile saving (outputRootName.c_str (),"recreate") ;
   saving.cd () ;  
   lengthMap.Write ("lengthMap") ;
+  Hlength.Write () ;
   saving.Close () ;
 
   return 0 ;
