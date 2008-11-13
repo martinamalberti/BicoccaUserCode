@@ -10,7 +10,7 @@ Description: <one line class summary>
 Implementation:
 <Notes on implementation>
  */
-// $Id: deltaR.h,v 1.1 2008/11/12 18:54:47 govoni Exp $
+// $Id: deltaR.h,v 1.2 2008/11/13 13:02:50 govoni Exp $
 //
 
 // system include files
@@ -99,5 +99,7 @@ class deltaR : public edm::EDAnalyzer
       TrackAssociatorParameters trackParameters_ ;
       
       TH1F * m_deltaRSCMu ;
+      
+      int m_totalMuons ;
     
 } ;
