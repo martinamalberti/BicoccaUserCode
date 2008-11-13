@@ -10,11 +10,7 @@ Description: <one line class summary>
 Implementation:
 <Notes on implementation>
  */
-//
-// Original Authors:  Federico DE GUIO Caterina DOGLIONI Paolo MERIDIANI
-//         Created:  Mo Jul 14 5:46:22 CEST 2008
-// $Id: deltaR.h,v 1.3 2008/09/05 13:58:54 deguio Exp $
-//
+// $Id: deltaR.h,v 1.1 2008/11/12 18:54:47 govoni Exp $
 //
 
 // system include files
@@ -36,23 +32,16 @@ Implementation:
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
-#include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalTrackLengthMeasurement.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -84,6 +73,8 @@ Implementation:
 //
 
 
+
+
 class deltaR : public edm::EDAnalyzer 
 {
    public:
@@ -104,11 +95,9 @@ class deltaR : public edm::EDAnalyzer
       edm::InputTag endcapSuperClusterCollection_ ;
       edm::InputTag muonTracksCollection_ ;
   
-      std::string fileName_ ;
-      
       TrackDetectorAssociator trackAssociator_ ;
       TrackAssociatorParameters trackParameters_ ;
+      
+      TH1F * m_deltaRSCMu ;
     
-      TFile* file_ ;
-      TTree* tree_ ;      
 } ;

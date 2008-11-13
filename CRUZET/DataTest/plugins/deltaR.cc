@@ -6,6 +6,7 @@
 /**\class deltaR deltaR.cc
 
 Description: <one line class summary>
+// $Id: deltaR.h,v 1.1 2008/11/12 18:54:47 govoni Exp $
 
  */
 
@@ -22,6 +23,7 @@ Description: <one line class summary>
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
+#include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
 
 #include <vector>
 
@@ -34,18 +36,15 @@ using namespace std ;
 deltaR::deltaR (const edm::ParameterSet& iConfig) :
   barrelSuperClusterCollection_ (iConfig.getParameter<edm::InputTag> ("barrelSuperclusterCollection")),
   endcapSuperClusterCollection_ (iConfig.getParameter<edm::InputTag> ("endcapSuperclusterCollection")),
-  muonTracksCollection_ (iConfig.getParameter<edm::InputTag> ("muonTracksCollection")),
-  fileName_ (iConfig.getUntrackedParameter<std::string> ("fileName", std::string ("ecalCosmicTree.root")))
+  muonTracksCollection_ (iConfig.getParameter<edm::InputTag> ("muonTracksCollection"))
 {
   edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet> ("TrackAssociatorParameters") ;
   trackParameters_.loadParameters ( trkParameters ) ;
   trackAssociator_.useDefaultPropagator () ;
 
-//  // Create File
-////  fileName_ += "-"+intToString (runNum_)+".tree.root" ;
-//  file_ = new TFile (fileName_.c_str () , "RECREATE") ;
-//  file_->cd () ;
-//PG sost con TFileService?
+  edm::Service<TFileService> fileService ;
+  m_deltaRSCMu = fileService->make<TH1F> ("deltaRSCMu","deltaRSCMu",1000,0,5) ;
+
 }
 
 
@@ -97,23 +96,25 @@ void deltaR::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
           *recoTrack, 
           trackParameters_) ;
 
-      info.trkGlobPosAtEcal.eta () ;
-      info.trkGlobPosAtEcal.phi () ;
+      double e1 = info.trkGlobPosAtEcal.eta () ;
+      double p1 = info.trkGlobPosAtEcal.phi () ;
       
       //PG loop on superclusters
       for (reco::SuperClusterCollection::const_iterator sclus = bscHandle->begin () ; 
            sclus != bscHandle->end () ; 
            ++sclus) 
         {
-           sclus->position ().eta () ;
-           sclus->position ().phi () ;        
+           double e2 = sclus->position ().eta () ;
+           double p2 = sclus->position ().phi () ;      
+           
+           double delta = sqrt (ect::deltaRsq ( e1,  p1,  e2,  p2)) ;
+           
+           m_deltaRSCMu->Fill (delta) ;  
         } //PG loop on superclusters
     
     } //PG loop over muons
 
 
-
-//  tree_->Fill () ;
 }
 
 
@@ -126,7 +127,6 @@ deltaR::endJob ()
 //  file_->cd () ;
 //  tree_->Write () ;
 //  file_->Close () ;
-
 }
 
 
