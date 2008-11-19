@@ -6,7 +6,7 @@
 /**\class deltaR deltaR.cc
 
 Description: <one line class summary>
-// $Id: deltaR.cc,v 1.2 2008/11/13 13:02:50 govoni Exp $
+// $Id: deltaR.cc,v 1.3 2008/11/13 17:33:37 govoni Exp $
 
  */
 
@@ -45,7 +45,8 @@ deltaR::deltaR (const edm::ParameterSet& iConfig) :
 
   edm::Service<TFileService> fileService ;
   m_deltaRSCMu = fileService->make<TH1F> ("deltaRSCMu","deltaRSCMu",1000,0,5) ;
-
+  m_deltaPhiSCMu = fileService->make<TH1F> ("deltaPhiSCMu","deltaPhiSCMu",1000,0,5) ;
+  m_deltaEtaSCMu = fileService->make<TH1F> ("deltaEtaSCMu","deltaEtaSCMu",1000,0,5) ;
 }
 
 
@@ -128,6 +129,8 @@ void deltaR::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
       associations.push_back (couple (recoTrack,closestSC)) ;
       used.at (closestSC - bscHandle->begin ()) = 1 ;
       m_deltaRSCMu->Fill (sqrt (distanceSq)) ;
+      m_deltaEtaSCMu->Fill (fabs (e1 - closestSC->position ().eta ())) ;
+      m_deltaPhiSCMu->Fill (ect::deltaPhi (p1, closestSC->position ().phi ())) ;
       ++m_totalMuons ;
     } //PG loop over muons
 
