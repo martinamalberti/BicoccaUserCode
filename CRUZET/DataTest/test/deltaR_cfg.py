@@ -70,7 +70,7 @@ import FWCore.Modules.printContent_cfi
 process.dumpEv = FWCore.Modules.printContent_cfi.printContent.clone()
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 process.gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-process.load("CaloOnlineTools.EcalTools.ecalCosmicsHists_cfi")
+#process.load("CaloOnlineTools.EcalTools.ecalCosmicsHists_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
