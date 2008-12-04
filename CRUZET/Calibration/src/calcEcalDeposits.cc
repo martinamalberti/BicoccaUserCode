@@ -16,15 +16,20 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
 					  const FreeTrajectoryState* outerState,
 					  const TrackAssociatorParameters& parameters)
 {
+  if (! parameters.useEcal && ! parameters.useCalo && ! parameters.useHcal &&
+      ! parameters.useHO && ! parameters.useMuon )
+    throw cms::Exception("ConfigurationError") << 
+      "Configuration error! No subdetector was selected for the track association.";
+  
+  
   SteppingHelixStateInfo trackOrigin (*innerState) ;
   
   CachedTrajectory neckLace ;
   neckLace.setStateAtIP (trackOrigin) ;
   
-  // access the calorimeter geometry
-  
+  // access the calorimeter geometry & INIT
   edm::ESHandle<CaloGeometry> theCaloGeometry_;
-  iSetup.get<IdealGeometryRecord>().get(theCaloGeometry_);
+  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry_);
   if (!theCaloGeometry_.isValid()) 
     throw cms::Exception("FatalError") << "Unable to find IdealGeometryRecord in event!\n";
   
@@ -40,20 +45,21 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
 
   ivProp_ = 0;
   defProp_ = 0;
-  useDefaultPropagator_ = true;
+  useDefaultPropagator_ = true;   //???????CORRETTO????????
 
-  //  if (useDefaultPropagator_ && ! defProp_ ) 
-  //    {
-  // setup propagator
-  edm::ESHandle<MagneticField> bField;
-  iSetup.get<IdealMagneticFieldRecord>().get(bField);
-  SteppingHelixPropagator* prop  = new SteppingHelixPropagator(&*bField,anyDirection);
-  prop->setMaterialMode(false);
-  prop->applyRadX0Correction(true);
-  // prop->setDebug(true); // tmp
-  defProp_ = prop;
-  neckLace.setPropagator(defProp_);
-  //    }
+  if (useDefaultPropagator_ && ! defProp_ ) {
+    // setup propagator
+    edm::ESHandle<MagneticField> bField;
+    iSetup.get<IdealMagneticFieldRecord>().get(bField);
+    SteppingHelixPropagator* prop  = new SteppingHelixPropagator(&*bField,anyDirection);
+    prop->setMaterialMode(false);
+    prop->applyRadX0Correction(true);
+    // prop->setDebug(true); // tmp
+    defProp_ = prop;
+    ivProp_ = prop;
+    neckLace.setPropagator(defProp_);
+  }
+  //------end INIT-----
   
   edm::ESHandle<DetIdAssociator> ecalDetIdAssociator;
   edm::ESHandle<DetIdAssociator> hcalDetIdAssociator;
@@ -73,15 +79,22 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
   //PG set some params   
   double HOmaxR = hoDetIdAssociator->volume().maxR();
   double HOmaxZ = hoDetIdAssociator->volume().maxZ();
-  double minR = ecalDetIdAssociator->volume ().minR () ;
-  double minZ = ecalDetIdAssociator->volume ().minZ () ;
+  double minR = ecalDetIdAssociator->volume().minR () ;
+  double minZ = ecalDetIdAssociator->volume().minZ () ;
   neckLace.setMaxHORadius (HOmaxR) ;
   neckLace.setMaxHOLength (HOmaxZ*2.) ;
   neckLace.setMinDetectorRadius (minR) ;
   neckLace.setMinDetectorLength (minZ*2.) ;
   double maxR (0) ;
   double maxZ (0) ;
+
+  //-------CHECK----------
+
+  std::cerr << "minR, maxR, minZ, maxZ : " << ecalDetIdAssociator->volume().minR () << "; "  << ecalDetIdAssociator->volume().maxR () << "; "  << ecalDetIdAssociator->volume().minZ () << "; "  << ecalDetIdAssociator->volume().maxZ () << std::endl;
+
+  //-------CHECK----------
   
+
   if (parameters.useMuon) {
     maxR = muonDetIdAssociator->volume ().maxR () ;
     maxZ = muonDetIdAssociator->volume ().maxZ () ;
@@ -95,27 +108,19 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
     neckLace.setMaxDetectorLength (HOmaxZ*2.) ;
   }
   
-
-  //info.setCaloGeometry (theCaloGeometry_) ;
-  
-  //double HOmaxR = -1. ; //PG FIXME
-  //double HOmaxZ = -1. ; //PG FIXME  
   // If track extras exist and outerState is before HO maximum, then use outerState
   if (outerState) {
     if (outerState->position ().perp ()<HOmaxR && fabs (outerState->position ().z ())<HOmaxZ) {
-      LogTrace ("TrackAssociator") << "Using outerState as trackOrigin at Rho=" << outerState->position ().perp ()
-				   << "  Z=" << outerState->position ().z () << "\n" ;
+      std::cerr << "Using outerState as trackOrigin at Rho=" << outerState->position ().perp ()
+		<< "  Z=" << outerState->position ().z () << "\n" ;
       trackOrigin = SteppingHelixStateInfo (*outerState) ;
     }
     else if (innerState) {
-      LogTrace ("TrackAssociator") << "Using innerState as trackOrigin at Rho=" << innerState->position ().perp ()
-				   << "  Z=" << innerState->position ().z () << "\n" ;
+      std::cerr << "Using innerState as trackOrigin at Rho=" << innerState->position ().perp ()
+		<< "  Z=" << innerState->position ().z () << "\n" ;
       trackOrigin = SteppingHelixStateInfo (*innerState) ;
     }
   }
-  
-  // propagateAll fills the cached trajectory with the array of points along the helix.
-  // if failed, we should return a failure value 
   
   if ( ! neckLace.propagateAll (trackOrigin) ) 
     {
@@ -123,16 +128,12 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
       return std::vector<GlobalPoint> () ;
     }
   
-//   // get trajectory in ECAL
-//   neckLace.findEcalTrajectory ( ecalDetIdAssociator->volume () ) ;//????????????????????????????????????????
-//   //neckLace.getTrajectory(neckLace,ecalDetIdAssociator->volume (),1000);
-  
-//   const std::vector<SteppingHelixStateInfo>& complicatePoints = neckLace.getEcalTrajectory () ;
-
+  //-----da ComplicatePoints a SimplePoints------
+  std::cerr << "---------->> GetTraj <<---------" << std::endl;
   std::vector<SteppingHelixStateInfo> complicatePoints;
   neckLace.getTrajectory(complicatePoints,ecalDetIdAssociator->volume (),1000);
   
-  std::cerr << "complicatePoints.size() = " << complicatePoints.size() << std::endl;;
+  std::cerr << "complicatePoints.size() = " << complicatePoints.size() << std::endl;
     
   std::vector<GlobalPoint> simplePoints ;
   for (std::vector<SteppingHelixStateInfo>::const_iterator cpIt = complicatePoints.begin () ;
