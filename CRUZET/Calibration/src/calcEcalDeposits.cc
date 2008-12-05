@@ -11,7 +11,7 @@
 
 
 
-std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
+std::vector<SteppingHelixStateInfo> calcEcalDeposit (const edm::EventSetup& iSetup,
 					  const FreeTrajectoryState* innerState,
 					  const FreeTrajectoryState* outerState,
 					  const TrackAssociatorParameters& parameters)
@@ -69,9 +69,9 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
   
   iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator);
   iSetup.get<DetIdAssociatorRecord>().get("HcalDetIdAssociator", hcalDetIdAssociator);
-  iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator);
-  iSetup.get<DetIdAssociatorRecord>().get("CaloDetIdAssociator", caloDetIdAssociator);
-  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator);
+   iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator);
+   iSetup.get<DetIdAssociatorRecord>().get("CaloDetIdAssociator", caloDetIdAssociator);
+   iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator);
   
   neckLace.reset_trajectory () ;
   
@@ -88,13 +88,7 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
   double maxR (0) ;
   double maxZ (0) ;
 
-  //-------CHECK----------
-
-  std::cerr << "minR, maxR, minZ, maxZ : " << ecalDetIdAssociator->volume().minR () << "; "  << ecalDetIdAssociator->volume().maxR () << "; "  << ecalDetIdAssociator->volume().minZ () << "; "  << ecalDetIdAssociator->volume().maxZ () << std::endl;
-
-  //-------CHECK----------
   
-
   if (parameters.useMuon) {
     maxR = muonDetIdAssociator->volume ().maxR () ;
     maxZ = muonDetIdAssociator->volume ().maxZ () ;
@@ -111,40 +105,31 @@ std::vector<GlobalPoint> calcEcalDeposit (const edm::EventSetup& iSetup,
   // If track extras exist and outerState is before HO maximum, then use outerState
   if (outerState) {
     if (outerState->position ().perp ()<HOmaxR && fabs (outerState->position ().z ())<HOmaxZ) {
-      std::cerr << "Using outerState as trackOrigin at Rho=" << outerState->position ().perp ()
-		<< "  Z=" << outerState->position ().z () << "\n" ;
-      trackOrigin = SteppingHelixStateInfo (*outerState) ;
+      LogTrace("TrackAssociator") << "Using outerState as trackOrigin at Rho=" << outerState->position().perp()
+				  << "  Z=" << outerState->position().z() << "\n";
+      trackOrigin = SteppingHelixStateInfo(*outerState);
     }
     else if (innerState) {
-      std::cerr << "Using innerState as trackOrigin at Rho=" << innerState->position ().perp ()
-		<< "  Z=" << innerState->position ().z () << "\n" ;
-      trackOrigin = SteppingHelixStateInfo (*innerState) ;
+      LogTrace("TrackAssociator") << "Using innerState as trackOrigin at Rho=" << innerState->position().perp()
+				  << "  Z=" << innerState->position().z() << "\n";
+      trackOrigin = SteppingHelixStateInfo(*innerState);
     }
   }
   
   if ( ! neckLace.propagateAll (trackOrigin) ) 
     {
       std::cerr << "===>>> FALLIMENTO <<<===" << std::endl;
-      return std::vector<GlobalPoint> () ;
+      return std::vector<SteppingHelixStateInfo> () ;
     }
   
-  //-----da ComplicatePoints a SimplePoints------
+  //-----returns Complicated Points------
   std::cerr << "---------->> GetTraj <<---------" << std::endl;
   std::vector<SteppingHelixStateInfo> complicatePoints;
-  neckLace.getTrajectory(complicatePoints,ecalDetIdAssociator->volume (),1000);
+  neckLace.getTrajectory(complicatePoints,ecalDetIdAssociator->volume (),500);
   
   std::cerr << "complicatePoints.size() = " << complicatePoints.size() << std::endl;
     
-  std::vector<GlobalPoint> simplePoints ;
-  for (std::vector<SteppingHelixStateInfo>::const_iterator cpIt = complicatePoints.begin () ;
-       cpIt != complicatePoints.end () ;
-       ++cpIt)
-    {
-      GlobalPoint dummy (cpIt->position ()) ;
-      simplePoints.push_back (dummy) ;
-    }
-  
-  return simplePoints ;
+  return complicatePoints ;
 }
 
 
