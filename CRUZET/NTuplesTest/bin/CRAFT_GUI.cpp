@@ -174,7 +174,10 @@ int main (int argc, char** argv)
       muXY_entry.SetPoint (MUindex, treeVars.muonEntryPointInEcalX[MUindex], treeVars.muonEntryPointInEcalY[MUindex]) ;
       muXY_exit.SetPoint (MUindex, treeVars.muonExitPointInEcalX[MUindex], treeVars.muonExitPointInEcalY[MUindex]) ;
       
-
+      std::cout << "EntryPoint   " << treeVars.muonEntryPointInEcalX[MUindex] << "   "
+                                   << treeVars.muonEntryPointInEcalY[MUindex] << std::endl ;
+      std::cout << "ExitPoint   " << treeVars.muonExitPointInEcalX[MUindex] << "   "
+                                  << treeVars.muonExitPointInEcalY[MUindex] << std::endl ;
 
 
 
@@ -203,6 +206,7 @@ int main (int argc, char** argv)
       for (int i = 0; i < treeVars.muonNeckLace[MUindex]; ++i)
       {
         //if (treeVars.muonNeckLaceInsideXtal[MUindex][i] == 1)
+        //if (treeVars.muonLeg[MUindex] == -1)
         {
           muXY_neckLace.SetPoint (nPoints, treeVars.muonNeckLaceX[MUindex][i], treeVars.muonNeckLaceY[MUindex][i]) ;
 
@@ -270,10 +274,10 @@ int main (int argc, char** argv)
   muXY_outer.SetMarkerStyle (8) ;
   muXY_outer.SetMarkerColor (kBlue) ;
   muXY_outer.Draw ("P,same") ;
-  muXY_entry.SetMarkerStyle (7) ;
+  muXY_entry.SetMarkerStyle (22) ;
   muXY_entry.SetMarkerColor (kGreen) ;
   muXY_entry.Draw ("P,same") ;
-  muXY_exit.SetMarkerStyle (7) ;
+  muXY_exit.SetMarkerStyle (22) ;
   muXY_exit.SetMarkerColor (kBlue) ;
   muXY_exit.Draw ("P,same") ;
   muXY_closest.SetMarkerStyle (8) ;
