@@ -109,9 +109,9 @@ int main (int argc, char** argv)
                             treeVars.superClusterY[SCindex], 
                             treeVars.superClusterZ[SCindex]) ; 
 	       
-          TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
-                            treeVars.muonMomentumY[MUindex], 
-                            treeVars.muonMomentumZ[MUindex]) ;
+          TVector3 MuonDir (treeVars.muonPx[MUindex], 
+                            treeVars.muonPy[MUindex], 
+                            treeVars.muonPz[MUindex]) ;
 
           float dummyEmax = 0.;
           float dummyLmax = 0.;
