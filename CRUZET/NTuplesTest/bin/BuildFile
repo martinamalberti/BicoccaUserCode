@@ -38,6 +38,10 @@
   <use name=CaloOnlineTools/EcalTools>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+<bin name= matchLinXTAL file="matchLinXTAL.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
 <bin name= XtalsDistr file="XtalsDistr.cpp">
   <use name=CaloOnlineTools/EcalTools>
   <flags LCGDICT_ARGS="--deep">
