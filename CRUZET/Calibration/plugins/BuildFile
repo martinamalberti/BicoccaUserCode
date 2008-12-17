@@ -19,6 +19,6 @@
 
 <use name=root>
 <use name=rootcore>
-<library file="plugins.cc MuonAssociator.cc MuonAssociatorDelta.cc MuonAssociatorUpDown.cc MuonAssociatorEcalIP.cc EcalCosmicsTreeTest.cc EcalCosmicsTree.cc EcalCosmicsTreeXtals.cc" name=CRUZETCalibrationPlugins>
+<library file="plugins.cc MuonAssociator.cc MuonAssociatorDelta.cc MuonAssociatorUpDown.cc MuonAssociatorEcalIP.cc " name=CRUZETCalibrationPlugins>
   <flags EDM_PLUGIN=1>
 </library>
