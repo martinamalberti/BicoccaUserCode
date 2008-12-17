@@ -102,9 +102,9 @@ int main (int argc, char** argv)
                                 treeVars.superClusterY[SCindex], 
                                 treeVars.superClusterZ[SCindex]) ; 
     	       
-              TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
-                                treeVars.muonMomentumY[MUindex], 
-                                treeVars.muonMomentumZ[MUindex]) ;
+              TVector3 MuonDir (treeVars.muonPx[MUindex], 
+                                treeVars.muonPy[MUindex], 
+                                treeVars.muonPz[MUindex]) ;
                     
               double angle = MuonDir.Angle (SC0_pos) ;
               if( angle > 3.1415/2. ) angle = 3.1415 - angle; // angle belongs to [0:90]
