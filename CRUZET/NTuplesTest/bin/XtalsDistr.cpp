@@ -145,7 +145,7 @@ int main (int argc, char** argv)
           double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
           if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;
 
-          int SCieta = SC0_pos.Eta () / 0.0175 ;
+          int SCieta = int (SC0_pos.Eta () / 0.0175) ;
           if (fabs (SCieta) > ietaMAX) continue ;
         
           angle = MuonDir.Angle( SC0_pos ) ;
