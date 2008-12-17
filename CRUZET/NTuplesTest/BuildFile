@@ -1,4 +1,5 @@
 <use name=CaloOnlineTools/EcalTools>
+<use name=CRUZET/Calibration>
 <use name=CalibCalorimetry/CaloMiscalibTools>
 <use name=Calibration/Tools>
 <use name=CondCore/DBCommon>
@@ -44,6 +45,7 @@
 
 <export>
   <lib name=CRUZETNTuplesTest>
+  <use name=CRUZET/Calibration>
   <use name=CaloOnlineTools/EcalTools>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
