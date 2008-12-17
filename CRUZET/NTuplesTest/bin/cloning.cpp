@@ -25,7 +25,7 @@
 #include <boost/foreach.hpp>
 
 
-#include "CRUZET/Calibration/interface/CRUtils.h"
+#include "CRUZET/NTuplesTest/interface/CRUtils.h"
 
 //#include "CRUZET/Calibration/interface/AssociationUtils.h"
 
@@ -36,7 +36,7 @@ int main (int argc, char* argv[])
   boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
   
-  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("selections") ;
+  //edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("selections") ;
 
   edm::ParameterSet subPSetOutput =  
     parameterSet->getParameter<edm::ParameterSet> ("outputNtuple") ;
@@ -78,12 +78,14 @@ int main (int argc, char* argv[])
      {
        chain->GetEntry (i) ;
        if (i % 10000 == 0) std::cout << "reading entry " << i << std::endl ;
-       std::vector<ect::association> associations ;
-       ect::fillAssocVector (associations, treeVars) ;
-       ect::selectOnDR (associations, treeVars, 0.3) ;
-     
-       if (associations.size () > 0) newtree->Fill () ;
-    }
+       
+       //std::vector<ect::association> associations ;
+       //ect::fillAssocVector (associations, treeVars) ;
+       //ect::selectOnDR (associations, treeVars, 0.3) ;
+       //if (associations.size () > 0) newtree->Fill () ;
+    
+       if (treeVars.nRecoMuons > 0) newtree->Fill () ;
+   }
 
    newtree->Print();
    newtree->AutoSave();
