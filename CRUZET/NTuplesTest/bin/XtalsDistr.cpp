@@ -138,9 +138,9 @@ int main (int argc, char** argv)
                             treeVars.superClusterY[SCindex], 
                             treeVars.superClusterZ[SCindex]) ; 
 	       
-          TVector3 MuonDir (treeVars.muonMomentumX[MUindex], 
-                            treeVars.muonMomentumY[MUindex], 
-                            treeVars.muonMomentumZ[MUindex]) ;
+          TVector3 MuonDir (treeVars.muonPx[MUindex], 
+                            treeVars.muonPy[MUindex], 
+                            treeVars.muonPz[MUindex]) ;
           	  
           double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
           if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;

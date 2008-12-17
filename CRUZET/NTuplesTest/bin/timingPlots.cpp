@@ -106,13 +106,13 @@ int main (int argc, char** argv)
       //PG angle between the two muons
       //PG ---------------------------
 
-      TVector3 MuonDirUP (treeVars.muonMomentumX[MUindexUP], 
-                          treeVars.muonMomentumY[MUindexUP], 
-                          treeVars.muonMomentumZ[MUindexUP]) ;
+      TVector3 MuonDirUP (treeVars.muonPx[MUindexUP], 
+                          treeVars.muonPy[MUindexUP], 
+                          treeVars.muonPz[MUindexUP]) ;
 
-      TVector3 MuonDirDOWN (treeVars.muonMomentumX[MUindexDOWN], 
-                            treeVars.muonMomentumY[MUindexDOWN], 
-                            treeVars.muonMomentumZ[MUindexDOWN]) ;
+      TVector3 MuonDirDOWN (treeVars.muonPx[MUindexDOWN], 
+                            treeVars.muonPy[MUindexDOWN], 
+                            treeVars.muonPz[MUindexDOWN]) ;
 
       double MUangle = MuonDirUP.Angle (MuonDirDOWN) ;
       muonsAngle.Fill (MUangle) ;
