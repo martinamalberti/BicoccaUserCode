@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFKinematics.h,v 1.1 2008/12/19 13:31:47 govoni Exp $
+// $Id: VBFKinematics.h,v 1.1 2008/12/19 14:08:41 govoni Exp $
 //
 //
 
@@ -141,6 +141,10 @@ class VBFKinematics : public edm::EDAnalyzer {
       edm::InputTag m_electronIDInputTag ;
       edm::InputTag m_muInputTag ;
       edm::InputTag m_metInputTag ;
+
+      TH1F * m_jet_eta ;
+      TH1F * m_ele_eta ;
+      TH1F * m_mu_eta ;
 
 };
 
