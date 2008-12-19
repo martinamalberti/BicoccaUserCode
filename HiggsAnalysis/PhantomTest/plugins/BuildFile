@@ -1,0 +1,5 @@
+<use name=HiggsAnalysis/PhantomTest>
+
+<library file="plugins.cc VBFTrivialAnalysis.cc" name=HiggsAnalysisPhantomTestPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
