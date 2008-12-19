@@ -19,7 +19,15 @@ process.options = cms.untracked.PSet(
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.trivialReader = cms.EDFilter("VBFKinematics",
+#process.tagJets = cms.EDProducer ("VBFJetTagger",
+#    jetInputTag  = cms.InputTag ("iterativeCone5CaloJets"),
+#    tagJetsName = cms.string ("tagJets"),
+#    jetEtaMax = cms.double (5) ,
+#    jetPtMin = cms.double (15), # GeV
+#    gatherConeSize = cms.double (0.1)
+#)
+
+process.kinematics = cms.EDAnalyzer("VBFKinematics",
     eleIDInputTag = cms.InputTag("electronId"),
     GSFInputTag = cms.InputTag("pixelMatchGsfElectrons"),
     muInputTag = cms.InputTag("muons"),
@@ -27,5 +35,6 @@ process.trivialReader = cms.EDFilter("VBFKinematics",
     metInputTag = cms.InputTag("met")
 )
 
-process.reading = cms.Path(process.trivialReader)
+process.reading = cms.Path(process.kinematics)
+#process.reading = cms.Path(process.tagJets, process.kinematics)
 

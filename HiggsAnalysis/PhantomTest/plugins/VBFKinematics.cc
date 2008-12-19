@@ -1,4 +1,4 @@
-// $Id: VBFKinematics.cc,v 1.1 2008/12/19 14:08:41 govoni Exp $
+// $Id: VBFKinematics.cc,v 1.2 2008/12/19 14:28:33 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/PhantomTest/plugins/VBFKinematics.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -44,13 +44,13 @@ void
 VBFKinematics::analyze (const edm::Event& iEvent, 
                              const edm::EventSetup& iSetup)
 {
-  // Get the tag jets
-  edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
-  iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
-  for (int index = 0; index < jetTagsHandle->size () ; ++index)
-    {
-      m_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
-    }
+//  // Get the tag jets
+//  edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
+//  iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
+//  for (int index = 0; index < jetTagsHandle->size () ; ++index)
+//    {
+//      m_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
+//    }
 
   //PG get the GSF electrons collection
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
