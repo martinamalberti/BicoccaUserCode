@@ -1,4 +1,4 @@
-// $Id: VBFTrivialAnalysis.cc,v 1.1 2008/12/19 13:15:34 govoni Exp $
+// $Id: VBFTrivialAnalysis.cc,v 1.1 2008/12/19 13:31:47 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/PhantomTest/plugins/VBFTrivialAnalysis.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -39,7 +39,7 @@ VBFTrivialAnalysis::analyze (const edm::Event& iEvent,
   edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
   iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
 
-  std::cout << "[VBFTrivialAnalysis][analyze] number of jet Tags : "
+  std::cerr << "[VBFTrivialAnalysis][analyze] number of jet Tags : "
             << jetTagsHandle->size () 
             << std::endl ;
 
@@ -47,7 +47,7 @@ VBFTrivialAnalysis::analyze (const edm::Event& iEvent,
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle;
   iEvent.getByLabel (m_GSFInputTag,GSFHandle); 
 
-  std::cout << "[VBFTrivialAnalysis][analyze] number of GSF electrons : "
+  std::cerr << "[VBFTrivialAnalysis][analyze] number of GSF electrons : "
             << GSFHandle->size () 
             << std::endl ;
 
@@ -55,7 +55,7 @@ VBFTrivialAnalysis::analyze (const edm::Event& iEvent,
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDAssocHandle;
   iEvent.getByLabel (m_electronIDInputTag, electronIDAssocHandle);
 
-  std::cout << "[VBFTrivialAnalysis][analyze] number of electron ID electrons : "
+  std::cerr << "[VBFTrivialAnalysis][analyze] number of electron ID electrons : "
             << electronIDAssocHandle->size () 
             << std::endl ;
 
@@ -63,11 +63,11 @@ VBFTrivialAnalysis::analyze (const edm::Event& iEvent,
   edm::Handle<reco::MuonCollection> MuonHandle;
   iEvent.getByLabel (m_muInputTag,MuonHandle); 
     
-  std::cout << "[VBFTrivialAnalysis][analyze] number of global muons : "
+  std::cerr << "[VBFTrivialAnalysis][analyze] number of global muons : "
             << MuonHandle->size () 
             << std::endl ;
 
-  std::cout << "[VBFTrivialAnalysis][analyze] number of leptons : "
+  std::cerr << "[VBFTrivialAnalysis][analyze] number of leptons : "
             << MuonHandle->size () + GSFHandle->size ()
             << std::endl ;
 
@@ -77,7 +77,7 @@ VBFTrivialAnalysis::analyze (const edm::Event& iEvent,
   const CaloMETCollection *calometcol = metCollectionHandle.product () ;
   const CaloMET *calomet = &(calometcol->front ()) ;  
  
-  std::cout << "[VBFTrivialAnalysis][analyze] number of met : "
+  std::cerr << "[VBFTrivialAnalysis][analyze] number of met : "
             << metCollectionHandle->size () 
             << std::endl ;
 }
