@@ -1,4 +1,4 @@
-// $Id: VBFKinematics.cc,v 1.2 2008/12/19 14:28:33 govoni Exp $
+// $Id: VBFKinematics.cc,v 1.3 2008/12/19 14:50:52 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/PhantomTest/plugins/VBFKinematics.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -18,9 +18,10 @@ VBFKinematics::VBFKinematics (const edm::ParameterSet& iConfig) :
   m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) 
 {
   edm::Service<TFileService> fileService ;
-  m_jet_eta = fileService->make<TH1F> ("m_jet_eta","m_jet_eta",10,-3,3) ;
-  m_ele_eta = fileService->make<TH1F> ("m_ele_eta","m_ele_eta",10,-3,3) ;
-  m_mu_eta = fileService->make<TH1F> ("m_mu_eta","m_mu_eta",10,-3,3) ;
+  m_jet_eta = fileService->make<TH1F> ("m_jet_eta","m_jet_eta",100,-3,3) ;
+  m_ele_eta = fileService->make<TH1F> ("m_ele_eta","m_ele_eta",100,-3,3) ;
+  m_mu_eta = fileService->make<TH1F> ("m_mu_eta","m_mu_eta",100,-3,3) ;
+  m_met_phi = fileService->make<TH1F> ("m_met_phi","m_met_phi",200,-6.28,6.28) ;
 
 }
 
@@ -44,13 +45,14 @@ void
 VBFKinematics::analyze (const edm::Event& iEvent, 
                              const edm::EventSetup& iSetup)
 {
-//  // Get the tag jets
+  // Get the tag jets
 //  edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
-//  iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
-//  for (int index = 0; index < jetTagsHandle->size () ; ++index)
-//    {
-//      m_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
-//    }
+  edm::Handle<reco::CaloJetCollection> jetTagsHandle ;
+  iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
+  for (int index = 0; index < jetTagsHandle->size () ; ++index)
+    {
+      m_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
+    }
 
   //PG get the GSF electrons collection
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
@@ -77,6 +79,7 @@ VBFKinematics::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
   const CaloMETCollection *calometcol = metCollectionHandle.product () ;
   const CaloMET *calomet = &(calometcol->front ()) ;   
+  m_met_phi->Fill (calomet->p4 ().phi ()) ; //PG FIXME
 }
 
 

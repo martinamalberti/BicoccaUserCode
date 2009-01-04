@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFKinematics.h,v 1.1 2008/12/19 14:08:41 govoni Exp $
+// $Id: VBFKinematics.h,v 1.2 2008/12/19 14:28:33 govoni Exp $
 //
 //
 
@@ -94,7 +94,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -145,6 +146,7 @@ class VBFKinematics : public edm::EDAnalyzer {
       TH1F * m_jet_eta ;
       TH1F * m_ele_eta ;
       TH1F * m_mu_eta ;
+      TH1F * m_met_phi ;
 
 };
 
