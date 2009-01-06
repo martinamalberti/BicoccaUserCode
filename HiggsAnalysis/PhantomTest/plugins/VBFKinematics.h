@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFKinematics.h,v 1.3 2009/01/04 19:21:32 govoni Exp $
+// $Id: VBFKinematics.h,v 1.4 2009/01/06 10:38:44 govoni Exp $
 //
 //
 
@@ -23,6 +23,7 @@
 // system include files
 #include <memory>
 #include <string>
+#include <functional>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -143,14 +144,45 @@ class VBFKinematics : public edm::EDAnalyzer {
       edm::InputTag m_muInputTag ;
       edm::InputTag m_metInputTag ;
 
-      TH1F * m_jet_eta ;
+      //PG before selections
+
       TH1F * m_ele_eta ;
       TH1F * m_mu_eta ;
+      TH1F * m_lep_eta ;
+
       TH1F * m_met_phi ;
       TH1F * m_met_energy ;
+
+      TH1F * m_jet_eta ;
       TH1F * m_jet_multiplicity ;
       TH1F * m_alljets_multiplicity ;
 
+      //PG after selections
+
+      TH1F * m_sel_maxPtLep_pt ;
+      TH1F * m_sel_minPtLep_pt ;
+      TH1F * m_sel_mu_multiplicity ;
+      TH1F * m_sel_ele_multiplicity ;
+      TH1F * m_sel_lept_invmass ;
+      
+    private:
+
+      struct ptSorting : 
+        public std::binary_function<const reco::RecoCandidate *,
+                                    const reco::RecoCandidate *,bool>
+        {
+          bool operator () (const reco::RecoCandidate * first,
+                            const reco::RecoCandidate * second)
+            { 
+              return (first->p4 ().Et () < second->p4 ().Et ()) ;
+            }
+        } ;                            
+
+
+      template <class T> const T& min ( const T& a, const T& b ) 
+        {
+          return (a<b)?a:b;  
+        }
 };
 
 #endif
