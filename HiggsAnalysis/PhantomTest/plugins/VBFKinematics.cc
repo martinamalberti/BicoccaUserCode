@@ -1,4 +1,4 @@
-// $Id: VBFKinematics.cc,v 1.3 2008/12/19 14:50:52 govoni Exp $
+// $Id: VBFKinematics.cc,v 1.4 2009/01/04 19:21:32 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/PhantomTest/plugins/VBFKinematics.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -22,6 +22,9 @@ VBFKinematics::VBFKinematics (const edm::ParameterSet& iConfig) :
   m_ele_eta = fileService->make<TH1F> ("m_ele_eta","m_ele_eta",100,-3,3) ;
   m_mu_eta = fileService->make<TH1F> ("m_mu_eta","m_mu_eta",100,-3,3) ;
   m_met_phi = fileService->make<TH1F> ("m_met_phi","m_met_phi",200,-6.28,6.28) ;
+  m_met_energy = fileService->make<TH1F> ("m_met_energy","m_met_energy",30,0,200) ;
+  m_jet_multiplicity = fileService->make<TH1F> ("m_jet_multiplicity","m_jet_multiplicity",10,0,10) ;
+  m_alljets_multiplicity = fileService->make<TH1F> ("m_alljets_multiplicity","m_alljets_multiplicity",10,0,10) ;
 
 }
 
@@ -49,10 +52,15 @@ VBFKinematics::analyze (const edm::Event& iEvent,
 //  edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
   edm::Handle<reco::CaloJetCollection> jetTagsHandle ;
   iEvent.getByLabel (m_jetTagsInputTag, jetTagsHandle) ;
+  m_alljets_multiplicity->Fill (jetTagsHandle->size ()) ;
+  int count = 0 ;
   for (int index = 0; index < jetTagsHandle->size () ; ++index)
     {
       m_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
+      if ((*jetTagsHandle)[index].p4().energy () > 15 /*GeV*/) ++count ;
     }
+  m_jet_multiplicity->Fill (count) ;
+
 
   //PG get the GSF electrons collection
   edm::Handle<reco::PixelMatchGsfElectronCollection> GSFHandle ;
@@ -79,7 +87,8 @@ VBFKinematics::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_metInputTag, metCollectionHandle) ;
   const CaloMETCollection *calometcol = metCollectionHandle.product () ;
   const CaloMET *calomet = &(calometcol->front ()) ;   
-  m_met_phi->Fill (calomet->p4 ().phi ()) ; //PG FIXME
+  m_met_phi->Fill (calomet->p4 ().phi ()) ;
+  m_met_energy->Fill (calomet->p4 ().energy ()) ;
 }
 
 
