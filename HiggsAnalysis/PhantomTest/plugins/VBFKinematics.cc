@@ -1,4 +1,4 @@
-// $Id: VBFKinematics.cc,v 1.5 2009/01/06 10:38:44 govoni Exp $
+// $Id: VBFKinematics.cc,v 1.6 2009/01/06 15:27:19 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/PhantomTest/plugins/VBFKinematics.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -20,12 +20,18 @@ VBFKinematics::VBFKinematics (const edm::ParameterSet& iConfig) :
   m_metInputTag (iConfig.getParameter<edm::InputTag> ("metInputTag")) 
 {
   edm::Service<TFileService> fileService ;
-  m_jet_eta = fileService->make<TH1F> ("m_jet_eta","m_jet_eta",100,-3,3) ;
+  m_jet_eta = fileService->make<TH1F> ("m_jet_eta","m_jet_eta",400,-3,3) ;
   m_ele_eta = fileService->make<TH1F> ("m_ele_eta","m_ele_eta",100,-3,3) ;
   m_lep_eta = fileService->make<TH1F> ("m_lep_eta","m_lep_eta",100,-3,3) ;
   m_mu_eta = fileService->make<TH1F> ("m_mu_eta","m_mu_eta",100,-3,3) ;
   m_met_phi = fileService->make<TH1F> ("m_met_phi","m_met_phi",200,-6.28,6.28) ;
+  m_ele_pt = fileService->make<TH1F> ("m_ele_pt","m_ele_pt",100,0,200) ;
+  m_mu_pt = fileService->make<TH1F> ("m_mu_pt","m_mu_pt",100,0,200) ;
   m_met_energy = fileService->make<TH1F> ("m_met_energy","m_met_energy",30,0,200) ;
+  m_met_maxEInEmTowers = fileService->make<TH1F> ("m_met_maxEInEmTowers","m_met_maxEInEmTowers",200,0,100) ;
+  m_met_maxEInHadTowers = fileService->make<TH1F> ("m_met_maxEInHadTowers","m_met_maxEInHadTowers",200,0,100) ;
+  m_jet_maxEInEmTowers = fileService->make<TH1F> ("m_jet_maxEInEmTowers","m_jet_maxEInEmTowers",200,0,100) ;
+  m_jet_maxEInHadTowers = fileService->make<TH1F> ("m_jet_maxEInHadTowers","m_jet_maxEInHadTowers",200,0,100) ;
   m_jet_multiplicity = fileService->make<TH1F> ("m_jet_multiplicity","m_jet_multiplicity",20,0,20) ;
   m_alljets_multiplicity = fileService->make<TH1F> ("m_alljets_multiplicity","m_alljets_multiplicity",10,0,10) ;
   m_sel_maxPtLep_pt = fileService->make<TH1F> ("m_sel_maxPtLep_pt","m_sel_maxPtLep_pt",150,0,200) ;
@@ -64,6 +70,8 @@ VBFKinematics::analyze (const edm::Event& iEvent,
   for (int index = 0; index < jetTagsHandle->size () ; ++index)
     {
       m_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
+      m_jet_maxEInEmTowers->Fill ((*jetTagsHandle)[index].maxEInEmTowers()) ;
+      m_jet_maxEInHadTowers->Fill ((*jetTagsHandle)[index].maxEInHadTowers()) ;
       if ((*jetTagsHandle)[index].p4().energy () > 15 /*GeV*/ &&
           fabs ((*jetTagsHandle)[index].p4().eta ()) < 5) ++count ;
     }
@@ -76,6 +84,7 @@ VBFKinematics::analyze (const edm::Event& iEvent,
   for (int index = 0; index < GSFHandle->size () ; ++index)
     {
       m_ele_eta->Fill ((*GSFHandle)[index].p4().eta ()) ;
+      m_ele_pt->Fill ((*GSFHandle)[index].pt ()) ;
       leptons.push_back (&((*GSFHandle)[index])) ;
     }
 
@@ -89,6 +98,7 @@ VBFKinematics::analyze (const edm::Event& iEvent,
   for (int index = 0; index < MuonHandle->size () ; ++index)
     {
       m_mu_eta->Fill ((*MuonHandle)[index].p4().eta ()) ;
+      m_mu_pt->Fill ((*MuonHandle)[index].pt ()) ;
       leptons.push_back (&((*MuonHandle)[index])) ;
     }
     
@@ -99,6 +109,8 @@ VBFKinematics::analyze (const edm::Event& iEvent,
   const CaloMET *calomet = &(calometcol->front ()) ;   
   m_met_phi->Fill (calomet->p4 ().phi ()) ;
   m_met_energy->Fill (calomet->p4 ().energy ()) ;
+  m_met_maxEInEmTowers->Fill(calomet->maxEtInEmTowers());
+  m_met_maxEInHadTowers->Fill(calomet->maxEtInHadTowers());
 
   sort (leptons.rbegin (), leptons.rend (), ptSorting ()) ;  
   for (int iLepton = 0 ; iLepton < min (2,(int)leptons.size ()) ; ++iLepton)
