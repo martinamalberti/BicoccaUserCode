@@ -1,4 +1,4 @@
-// $Id: VBFKinematics.cc,v 1.6 2009/01/06 15:27:19 govoni Exp $
+// $Id: VBFKinematics.cc,v 1.7 2009/01/07 15:12:06 govoni Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/PhantomTest/plugins/VBFKinematics.h"
 //#include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -39,6 +39,9 @@ VBFKinematics::VBFKinematics (const edm::ParameterSet& iConfig) :
   m_sel_mu_multiplicity = fileService->make<TH1F> ("m_sel_mu_multiplicity","m_sel_mu_multiplicity",10,0,10) ;
   m_sel_ele_multiplicity = fileService->make<TH1F> ("m_sel_ele_multiplicity","m_sel_ele_multiplicity",10,0,10) ;
   m_sel_lept_invmass = fileService->make<TH1F> ("m_sel_lept_invmass","m_sel_lept_invmass",150,0,200) ;
+  m_jet_n90 = fileService->make<TH1F> ("n90","n90",100,0,20) ;
+  m_jet_n60 = fileService->make<TH1F> ("n60","n60",100,0,20) ;
+  m_sel_jet_eta = fileService->make<TH1F> ("m_sel_jet_eta","m_sel_jet_eta",400,-3,3) ;
 }
 
 
@@ -69,11 +72,17 @@ VBFKinematics::analyze (const edm::Event& iEvent,
   int count = 0 ;
   for (int index = 0; index < jetTagsHandle->size () ; ++index)
     {
+      m_jet_n90->Fill ((*jetTagsHandle)[index].n90 ()) ;
+      m_jet_n60->Fill ((*jetTagsHandle)[index].n60 ()) ;
       m_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
       m_jet_maxEInEmTowers->Fill ((*jetTagsHandle)[index].maxEInEmTowers()) ;
       m_jet_maxEInHadTowers->Fill ((*jetTagsHandle)[index].maxEInHadTowers()) ;
       if ((*jetTagsHandle)[index].p4().energy () > 15 /*GeV*/ &&
-          fabs ((*jetTagsHandle)[index].p4().eta ()) < 5) ++count ;
+          fabs ((*jetTagsHandle)[index].p4().eta ()) < 5) 
+        {
+          m_sel_jet_eta->Fill ((*jetTagsHandle)[index].p4().eta ()) ;
+          ++count ;
+        }
     }
   m_jet_multiplicity->Fill (count) ;
 

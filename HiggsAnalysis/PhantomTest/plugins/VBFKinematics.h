@@ -13,7 +13,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFKinematics.h,v 1.5 2009/01/06 15:27:19 govoni Exp $
+// $Id: VBFKinematics.h,v 1.6 2009/01/07 15:12:06 govoni Exp $
 //
 //
 
@@ -166,6 +166,9 @@ class VBFKinematics : public edm::EDAnalyzer {
       TH1F * m_met_maxEInEmTowers ;
       TH1F * m_met_maxEInHadTowers ;
 
+      TH1F * m_jet_n90 ;
+      TH1F * m_jet_n60 ;
+      
       //PG after selections
 
       TH1F * m_sel_maxPtLep_pt ;
@@ -173,6 +176,7 @@ class VBFKinematics : public edm::EDAnalyzer {
       TH1F * m_sel_mu_multiplicity ;
       TH1F * m_sel_ele_multiplicity ;
       TH1F * m_sel_lept_invmass ;
+      TH1F * m_sel_jet_eta ;
       
     private:
 
