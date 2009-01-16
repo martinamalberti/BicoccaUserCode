@@ -489,11 +489,8 @@ void DrawBetheBloch(TGraph* BetheBloch)
 }
 
 //--------------------------------------
-double FindBetheBlochValue(float& muonP)
+double FindBetheBlochValue(TGraph* BetheBloch, float& muonP)
 {
- 
-  TGraph* BetheBloch = new TGraph;
-  DrawBetheBloch(BetheBloch);
  
   double x = -1.;
   double y = -1.;

@@ -49,7 +49,7 @@ std::pair<double,double> fitdEdx (TH1F* dEdx);
 std::pair<double,double> LangausFit (TH1F* histo);
 void DrawBetheBloch();
 void DrawBetheBloch(TGraph* BetheBloch);
-double FindBetheBlochValue(float& muonP);
+double FindBetheBlochValue(TGraph* BetheBloch, float& muonP);
 
 
 // ----------------------------------------------------
