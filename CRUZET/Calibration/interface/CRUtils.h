@@ -46,6 +46,10 @@ void setVectorOnECAL (TVector3 & vector, double eta, double phi, double radius =
 void  setMuonTkAtECAL (GlobalPoint & AtEcal, int MUindex, const EcalCosmicsTreeContent & event);
 double superGausCumCauda (double *x, double *par);
 std::pair<double,double> fitdEdx (TH1F* dEdx);
+std::pair<double,double> LangausFit (TH1F* histo);
+void DrawBetheBloch();
+void DrawBetheBloch(TGraph* BetheBloch);
+double FindBetheBlochValue(float* muonP);
 
 
 // ----------------------------------------------------

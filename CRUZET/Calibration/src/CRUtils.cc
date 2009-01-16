@@ -1,6 +1,7 @@
 //COMPILO c++ -o readNtuple_3D_Cycle -lm `root-config --cflags --libs --glibs` readNtuple_3D_Cycle.cpp
 
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <vector>
 #include <map>
@@ -28,7 +29,7 @@
 #include "CRUZET/Calibration/interface/CRUtils.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
-
+#include "CRUZET/NTuplesTest/test/Langaus.cc"
 
 double twopi  = 2*acos(-1.);
 
@@ -184,7 +185,8 @@ where (double deltaAlpha, const TVector3& G1, const TVector3& G2, double alphaOl
       return(alphaOld + deltaAlpha);                                   //stop
     }
   TVector3 point = G1 + alphaOld*(G2 - G1);
-  if ((isBefore(point) == true && isBefore(point + deltaAlpha * (G2 - G1)) == true) || (isBefore(point) == false && isBefore(point + deltaAlpha * (G2 - G1)) == false))
+  if ((isBefore(point) == true && isBefore(point + deltaAlpha * (G2 - G1)) == true) || 
+      (isBefore(point) == false && isBefore(point + deltaAlpha * (G2 - G1)) == false))
     {
       return where(deltaAlpha, G1, G2, (alphaOld + deltaAlpha));       //avanti    concordi
     }
@@ -328,3 +330,192 @@ std::pair<double,double>  fitdEdx (TH1F*  dEdx)
   return PairReturn;
 }
 
+//----------------------------------------------------------------------------------------------
+
+std::pair<double,double> LangausFit (TH1F* histo)
+{
+ // Langaus Fit
+ double fitRange[2] ;
+ fitRange[0] = 0.; 
+ fitRange[1] = 0.2 ;
+ 
+ double startValues[4] ;
+ startValues[0] = 0.003 ;
+ startValues[1] = histo -> GetMean () ;
+ startValues[2] = 500.; //= histo -> GetEntries () / 10. ;
+ startValues[3] = 0.003 ;
+ 
+ double parLimitsLow[4] ;
+ parLimitsLow[0] = 0.0001 ;
+ parLimitsLow[1] = 0.0001 ;
+ parLimitsLow[2] = 0.0001 ;
+ parLimitsLow[3] = 0.0001 ;
+ 
+ double parLimitsHigh[4] ;
+ parLimitsHigh[0] = 1000000 ;
+ parLimitsHigh[1] = 10 ;
+ parLimitsHigh[2] = 100000 ;
+ parLimitsHigh[3] = 10 ;
+ 
+ double parameters[4], parErrors[4] ;
+ double chi2 ;
+ int ndf ;
+ 
+ TF1* langaus = langaufit ((TH1F*)histo, fitRange, startValues, parLimitsLow, parLimitsHigh, parameters, parErrors, &chi2, &ndf) ;
+
+ std::pair<double,double> PairReturn (langaus -> GetParameter(1), langaus -> GetParError(1)) ;
+ return PairReturn;
+}
+
+
+// --------------------------------------------------
+
+void DrawBetheBloch()
+{
+ std::ifstream inFile ("/afs/cern.ch/user/a/abenagli/public/betheBlock_PbWO4.dat", std::ios::in) ;
+ 
+ 
+ TGraph BetheBloch;
+ TGraph BetheBloch_corrected;
+ TGraph BetheBloch_ion;
+ TGraph BetheBloch_irr;
+ TGraph BetheBloch_irr_corrected;
+ int entry = 0;
+ 
+ float dummy, p, dEdX, ion;
+ while (!inFile.eof ())
+ {
+   inFile >> dummy;
+   inFile >> p ;
+   inFile >> ion;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dEdX;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dummy;
+   
+   
+   //   if( (p/1000. > pow (10, P_MIN)) && (p/1000. < pow (10, P_MAX)) )
+   {
+     
+     BetheBloch.SetPoint (entry, p/1000., dEdX) ;
+     BetheBloch_ion.SetPoint (entry, p/1000., ion) ;
+     BetheBloch_irr.SetPoint (entry, p/1000., dEdX-ion) ;
+     BetheBloch_irr_corrected.SetPoint (entry, p/1000., (dEdX-ion)*0.95 ) ;
+     BetheBloch_corrected.SetPoint (entry, p/1000., ion + (dEdX-ion)*0.95) ;
+     entry++;
+   }
+ }
+ 
+ 
+ // BetheBloch.Draw ("APL") ;
+ BetheBloch.Write ("BetheBloch_th") ;
+ 
+ BetheBloch_ion.SetLineStyle (2) ;
+ BetheBloch_ion.SetLineColor (kRed) ;
+ //BetheBloch_ion.Draw ("PL") ;
+ BetheBloch_ion.Write ("BetheBloch_th_ion") ;
+ 
+ BetheBloch_irr.SetLineColor (kBlue) ;
+ BetheBloch_irr.SetLineStyle (2) ;
+ //BetheBloch_irr.Draw ("PL") ;
+ BetheBloch_irr.Write ("BetheBloch_th_irr") ;
+ 
+ BetheBloch_corrected.SetLineStyle (2) ;
+ // BetheBloch_corrected.Draw ("PL") ;
+ // BetheBloch_corrected.Write () ;
+}
+//-----------------------------------------
+
+void DrawBetheBloch(TGraph* BetheBloch)
+{
+ std::ifstream inFile ("/afs/cern.ch/user/a/abenagli/public/betheBlock_PbWO4.dat", std::ios::in) ;
+ 
+ 
+ TGraph BetheBloch_corrected;
+ TGraph BetheBloch_ion;
+ TGraph BetheBloch_irr;
+ TGraph BetheBloch_irr_corrected;
+ int entry = 0;
+ 
+ float dummy, p, dEdX, ion;
+ while (!inFile.eof ())
+ {
+   inFile >> dummy;
+   inFile >> p ;
+   inFile >> ion;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dEdX;
+   inFile >> dummy;
+   inFile >> dummy;
+   inFile >> dummy;
+   
+   
+   //   if( (p/1000. > pow (10, P_MIN)) && (p/1000. < pow (10, P_MAX)) )
+   {
+     
+     BetheBloch -> SetPoint (entry, p/1000., dEdX) ;
+     BetheBloch_ion.SetPoint (entry, p/1000., ion) ;
+     BetheBloch_irr.SetPoint (entry, p/1000., dEdX-ion) ;
+     BetheBloch_irr_corrected.SetPoint (entry, p/1000., (dEdX-ion)*0.95 ) ;
+     BetheBloch_corrected.SetPoint (entry, p/1000., ion + (dEdX-ion)*0.95) ;
+     entry++;
+   }
+ }
+ 
+ 
+ // BetheBloch.Draw ("APL") ;
+ BetheBloch -> Write ("BetheBloch_th") ;
+ 
+ BetheBloch_ion.SetLineStyle (2) ;
+ BetheBloch_ion.SetLineColor (kRed) ;
+ //BetheBloch_ion.Draw ("PL") ;
+ BetheBloch_ion.Write ("BetheBloch_th_ion") ;
+ 
+ BetheBloch_irr.SetLineColor (kBlue) ;
+ BetheBloch_irr.SetLineStyle (2) ;
+ //BetheBloch_irr.Draw ("PL") ;
+ BetheBloch_irr.Write ("BetheBloch_th_irr") ;
+ 
+ BetheBloch_corrected.SetLineStyle (2) ;
+ // BetheBloch_corrected.Draw ("PL") ;
+ // BetheBloch_corrected.Write () ;
+}
+
+//--------------------------------------
+double FindBetheBlochValue(float& muonP)
+{
+ 
+  TGraph* BetheBloch = new TGraph;
+  DrawBetheBloch(BetheBloch);
+ 
+  double x = -1.;
+  double y = -1.;
+
+  double x_low = -1.;
+  double y_low = -1.;
+
+  BetheBloch->GetPoint(0, x, y);
+  if(muonP < x) return y;
+
+  for (int j=0; j<BetheBloch->GetN(); ++j)
+    {
+      BetheBloch->GetPoint(j,x,y);
+      //      cout << j << " " << x << endl ;
+      if (x > muonP) 
+	{
+	  BetheBloch->GetPoint (j-1,x_low,y_low);
+	  break ;
+	}
+      if( muonP<x && j==(BetheBloch->GetN()-1) ) return y;
+    }
+
+      double result = (y - y_low)/(x - x_low) * (muonP - x_low) + y_low;
+      return result;
+}
