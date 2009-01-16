@@ -8,15 +8,26 @@
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CRUZET/NTuplesTest/test/Langaus.cc"
+
 #include <iostream>
+#include <fstream>
 #include <string>
-#include <boost/foreach.hpp>
+#include <cmath>
 
 #include "TChain.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH1D.h"
+#include "TGraph.h"
+#include "TGraphErrors.h"
+#include "TGraphAsymmErrors.h"
+#include "TF1.h"
 #include "TFile.h"
-#include "TVector3.h"
+#include "TProfile.h"
+#include "TObject.h"
+#include "TLorentzVector.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #define PHI_MIN -3.1416
 #define PHI_MAX +3.1416
@@ -26,11 +37,19 @@
 #define ETA_MAX +1.5
 #define ETA_BIN 170
 
-#define X_BIN 800
+#define IPHI_MIN 0.
+#define IPHI_MAX +361
+#define IPHI_BIN 361
+
+#define IETA_MIN -80.
+#define IETA_MAX +80.
+#define IETA_BIN 361
+
+#define X_BIN 500
 #define X_MIN -800
 #define X_MAX +800
 
-#define Y_BIN 800
+#define Y_BIN 500
 #define Y_MIN -800
 #define Y_MAX +800
 
@@ -49,17 +68,21 @@ int main (int argc, char** argv)
   std::string fileName (argv[1]) ;
   boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile (fileName) ;
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
-  std::cout << parameterSet->dump () << std::endl ; //PG for testing
   
-  // edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("Selections") ;
+  edm::ParameterSet subPSetSelections =  parameterSet->getParameter<edm::ParameterSet> ("selections") ;
+  
   edm::ParameterSet subPSetInput = parameterSet->getParameter<edm::ParameterSet> ("inputNtuples") ;
   std::vector<std::string> inputFiles = subPSetInput.getParameter<std::vector<std::string> > ("inputFiles") ;
-
+  
+  
+  
+  // load ntuple
   TChain *chain = new TChain ("EcalCosmicsAnalysis") ;
   EcalCosmicsTreeContent treeVars ; 
   setBranchAddresses (chain, treeVars) ;
-
-
+  
+  
+  
   // input files
   for (std::vector<std::string>::const_iterator listIt = inputFiles.begin () ;
        listIt != inputFiles.end () ; ++listIt)
@@ -67,18 +90,19 @@ int main (int argc, char** argv)
     std::cout << *listIt << " " << std::endl ;
     chain->Add (listIt->c_str ()) ;
   }
-
+  
   int nEntries = chain->GetEntries () ;
-  std::cout << "FOUND " << nEntries << " ENTRIES\n" ;    
-  // input files
-
-
-  // output file
+  std::cout << "FOUND " << nEntries << " ENTRIES\n" ;
+  
+  
+  
+  // Output file
   std::string outputRootName = "CRAFT_MUdistr.root" ;
-  // output file  
-
-
-
+  TFile outputRootFile (outputRootName.c_str (), "recreate") ;
+  outputRootFile.cd () ;
+  
+  
+  
   // output distributions
   TH2F MUoccupancy ("MUoccupancy", "MUoccupancy", PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX) ;
   TH1F MUangleWRTvertical ("MUangleWRTvertical", "MUangleWRTvertical", PHI_BIN, 0., PHI_MAX/2.) ;
@@ -87,6 +111,9 @@ int main (int argc, char** argv)
   TH1F MUd0 ("MUd0", "MUd0", X_BIN, X_MIN, X_MAX) ;
   TH1F MUdz ("MUdz", "MUdz", Z_BIN, Z_MIN, Z_MAX) ;
   
+  
+  TH2F MUtkLengthInEcal_straigth_curved_pT ("MUtkLengthInEcal_straigth_curved_pT", "MUtkLengthInEcal_straigth_curved_pT", 5*P_BIN, P_MIN, P_MAX,
+                                                                                                                          1000, -5., 5.) ;
   
   TH2F MUglbTkInnerHit_YvsX_legUp ("MUglbTkInnerHit_YvsX_legUp", "MUglbTkInnerHit_YvsX_legUp", X_BIN, X_MIN, X_MAX, Y_BIN, Y_MIN, Y_MAX) ;
   TH2F MUglbTkOuterHit_YvsX_legUp ("MUglbTkOuterHit_YvsX_legUp", "MUglbTkOuterHit_YvsX_legUp", X_BIN, X_MIN, X_MAX, Y_BIN, Y_MIN, Y_MAX) ;
@@ -172,11 +199,12 @@ int main (int argc, char** argv)
   // loop over entries
   for (int entry = 0; entry < nEntries; ++entry)
   {
-    if ((entry % 1000) == 0)
+    if ((entry % 100000) == 0)
       std::cout << "Reading entry " << entry << std::endl;
-
     chain->GetEntry (entry) ;
-
+    // if (entry == 100000) break ;
+    
+    
     for (int MUindex = 0; MUindex < treeVars.nRecoMuons; ++MUindex)
     {
       nMuons++;
@@ -185,11 +213,17 @@ int main (int argc, char** argv)
       MUdz.Fill (treeVars.muondz[MUindex]) ;
        
       if (fabs(treeVars.muond0[MUindex])<100 && fabs(treeVars.muondz[MUindex])<100)
-	nMuons_cut++;
+        nMuons_cut++;
+      
+      
+      GlobalPoint muonTkInternalPointInEcal (treeVars.muonTkInternalPointInEcalX[MUindex],
+                                             treeVars.muonTkInternalPointInEcalY[MUindex],
+                                             treeVars.muonTkInternalPointInEcalZ[MUindex]) ;
+      MUoccupancy.Fill (muonTkInternalPointInEcal.phi (), muonTkInternalPointInEcal.eta ()) ;
       
       if (treeVars.muonLeg[MUindex] == 1)
       {
-        MUoccupancy.Fill (treeVars.muonInnTkInnerHitPhi[MUindex], treeVars.muonInnTkInnerHitEta[MUindex]) ;
+        //MUoccupancy.Fill (treeVars.muonInnTkInnerHitPhi[MUindex], treeVars.muonInnTkInnerHitEta[MUindex]) ;
         
         TVector3 vertical (0., -1., 0.) ;
         TVector3 MUdirection (treeVars.muonOutTkInnerHitPx[MUindex] / treeVars.muonOutTkInnerHitP[MUindex],
@@ -197,6 +231,10 @@ int main (int argc, char** argv)
                               treeVars.muonOutTkInnerHitPz[MUindex] / treeVars.muonOutTkInnerHitP[MUindex]) ;
         MUangleWRTvertical.Fill ( MUdirection.Angle(vertical) ) ;
         
+        
+        if ( (treeVars.muonTkLengthInEcalDetail[MUindex] > 0.) && (treeVars.muonTkLengthInEcalDetailCurved[MUindex] > 0.) )
+          MUtkLengthInEcal_straigth_curved_pT.Fill (treeVars.muonInnTkInnerHitPt[MUindex], treeVars.muonTkLengthInEcalDetail[MUindex] - 
+                                                    treeVars.muonTkLengthInEcalDetailCurved[MUindex]) ;
         
         
         MUglbTkInnerHit_YvsX_legUp.Fill (treeVars.muonInnerHitX[MUindex], treeVars.muonInnerHitY[MUindex]) ;
@@ -240,7 +278,11 @@ int main (int argc, char** argv)
       
       if (treeVars.muonLeg[MUindex] == -1)
       {
-        MUoccupancy.Fill (treeVars.muonInnTkOuterHitPhi[MUindex], treeVars.muonInnTkOuterHitEta[MUindex]) ;
+        //MUoccupancy.Fill (treeVars.muonInnTkOuterHitPhi[MUindex], treeVars.muonInnTkOuterHitEta[MUindex]) ;
+        
+        if ( (treeVars.muonTkLengthInEcalDetail[MUindex] > 0.) && (treeVars.muonTkLengthInEcalDetailCurved[MUindex] > 0.) )
+          MUtkLengthInEcal_straigth_curved_pT.Fill (treeVars.muonInnTkOuterHitPt[MUindex], treeVars.muonTkLengthInEcalDetail[MUindex] - 
+                                                    treeVars.muonTkLengthInEcalDetailCurved[MUindex]) ;
         
         MUglbTkInnerHit_YvsX_legDown.Fill (treeVars.muonInnerHitX[MUindex], treeVars.muonInnerHitY[MUindex]) ;
         MUglbTkOuterHit_YvsX_legDown.Fill (treeVars.muonOuterHitX[MUindex], treeVars.muonOuterHitY[MUindex]) ;
@@ -294,6 +336,8 @@ int main (int argc, char** argv)
   
   MUd0.Write () ;
   MUdz.Write () ;
+  
+  MUtkLengthInEcal_straigth_curved_pT.Write () ;
   
   MUglbTkInnerHit_YvsX_legUp.Write () ;
   MUglbTkOuterHit_YvsX_legUp.Write () ;
