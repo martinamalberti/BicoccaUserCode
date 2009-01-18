@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CRUZET/NTuplesTest/test/Langaus.cc"
+#include "CRUZET/Calibration/interface/CRUtils.h"
 
 #include <iostream>
 #include <fstream>

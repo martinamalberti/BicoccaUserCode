@@ -69,10 +69,16 @@
 
 <bin name= CRAFT_dEdXdistr file="CRAFT_dEdXdistr.cpp">
   <use name=CaloOnlineTools/EcalTools>
+  <use name=CRUZET/Calibration>
   <flags LCGDICT_ARGS="--deep">
 </bin>
 
 <bin name= CRAFT_MATCHdistr file="CRAFT_MATCHdistr.cpp">
+  <use name=CaloOnlineTools/EcalTools>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
+
+<bin name= CRAFT_LENGTHdistr file="CRAFT_LENGTHdistr.cpp">
   <use name=CaloOnlineTools/EcalTools>
   <flags LCGDICT_ARGS="--deep">
 </bin>
