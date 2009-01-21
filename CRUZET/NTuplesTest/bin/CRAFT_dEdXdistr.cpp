@@ -54,7 +54,7 @@
 #define Y_MIN -800
 #define Y_MAX +800
 
-#define P_BIN 50
+#define P_BIN 25
 #define P_MIN 0
 #define P_MAX 3
 
@@ -113,16 +113,28 @@ int main (int argc, char** argv)
   std::string outputRootName = "CRAFT_dEdXdistr.root" ;
   TFile outputRootFile (outputRootName.c_str (), "recreate") ;
   outputRootFile.cd () ;
+  std::ofstream outFile ("stoppingPower_exp.dat", std::ios::out) ;
   
   
   
   // output distributions
+  TGraph BetheBloch_th ;
+  DrawBetheBloch (&BetheBloch_th) ;
+  
+  TH1D dEoverdX ("dEoverdX", "dEoverdX", 1000, 0., 0.5) ;
+  TH1D dEoverdX_E3x3 ("dEoverdX_E3x3", "dEoverdX_E3x3", 1000, 0., 0.5) ;
+  TH1D dEoverdX_E5x5 ("dEoverdX_E5x5", "dEoverdX_E5x5", 1000, 0., 0.5) ;
+  
   TH2F BetheBloch ("BetheBloch", "BetheBloch", P_BIN, P_MIN, P_MAX, 5000, 0., 1000.);
   BinLogX (BetheBloch) ;
   std::vector<TH1D*> BetheBloch_pBin ;
   TProfile BetheBloch_profile ("BetheBloch_profile", "BetheBloch_profile", P_BIN, P_MIN, P_MAX);
   BinLogX (BetheBloch_profile) ;
   TGraphAsymmErrors BetheBloch_graph ;
+  TGraphErrors BetheBloch_graph_residuals ;
+  
+  TGraphErrors BetheBloch_graph_MPV ;
+  TGraphErrors BetheBloch_graph_GSigma ;
   TGraphAsymmErrors BetheBloch_graph_mean ;
   
   TH2F BetheBloch_curved ("BetheBloch_curved", "BetheBloch_curved", P_BIN, P_MIN, P_MAX, 5000, 0., 1000.);
@@ -131,9 +143,13 @@ int main (int argc, char** argv)
   TProfile BetheBloch_profile_curved ("BetheBloch_profile_curved", "BetheBloch_profile_curved", P_BIN, P_MIN, P_MAX);
   BinLogX (BetheBloch_profile_curved) ;
   TGraphAsymmErrors BetheBloch_graph_curved ;
+  TGraphErrors BetheBloch_graph_residuals_curved ;
+  
+  TGraphErrors BetheBloch_graph_MPV_curved ;
+  TGraphErrors BetheBloch_graph_GSigma_curved ;
   TGraphAsymmErrors BetheBloch_graph_mean_curved ;
   
-  TH2F muonTkLength_straight_curved_pT ("muonTkLength_straight_curved_pT", "muonTkLength_straight_curved_pT", P_BIN, P_MIN, P_MAX, 600, -0.2, 0.2) ;
+  TH2F muonTkLength_straight_curved_pT ("muonTkLength_straight_curved_pT", "muonTkLength_straight_curved_pT", P_BIN, P_MIN, P_MAX, 1000, -5., 5.) ;
   BinLogX (muonTkLength_straight_curved_pT) ;
   
   
@@ -201,7 +217,6 @@ int main (int argc, char** argv)
       int SCindex = associations.at (i).second ;
       
       
-      
       int muonLeg = treeVars.muonLeg[MUindex];
       float muonP = 0.;
       float muonPt = 0.;
@@ -212,6 +227,7 @@ int main (int argc, char** argv)
       float muonTkLengthInEcal = treeVars.muonTkLengthInEcalDetail[MUindex] ;
       float muonTkLengthInEcalCurved = treeVars.muonTkLengthInEcalDetailCurved[MUindex] ;
       float superClusterRawEnergy = treeVars.superClusterRawEnergy[SCindex]/4.*0.9 ;
+      int nClustersInSuperCluster = treeVars.nClustersInSuperCluster[SCindex] ;
       int pBin = -1;
       int pBinCurved = -1;
       
@@ -241,8 +257,8 @@ int main (int argc, char** argv)
       // Cut event
       if ( (fabs(muond0) > muond0MAX) || (fabs(muondz) > muondzMAX) ) continue ;
       if ( (muonP < muonPMIN) || (muonP > muonPMAX) ) continue ;
-      //if ( (muonLegUpOK == true && muonLeg != 1) ||
-      //     (muonLegDownOK == true && muonLeg != -1) ) continue ;
+      if ( (muonLegUpOK == true && muonLeg != 1) ||
+           (muonLegDownOK == true && muonLeg != -1) ) continue ;
       if (muonEoverP > muonEoverPMAX) continue ; 
       if ( (muonTkLengthInEcal < muonTkLengthInEcalMIN) ||
            (muonTkLengthInEcal > muonTkLengthInEcalMAX) ) continue ;
@@ -250,21 +266,24 @@ int main (int argc, char** argv)
       
       
       // Fill distribution
+      if ( (nClustersInSuperCluster == 1) && (muonTkLengthInEcal > 0.) )
+      {
+        int Cindex = treeVars.clusterIndexInSuperCluster[SCindex] ;
+        float clusterE3x3 = treeVars.clusterE3x3[Cindex]/4.*0.9 ;
+        float clusterE5x5 = treeVars.clusterE5x5[Cindex]/4.*0.9 ;
+        
+        dEoverdX.Fill (superClusterRawEnergy / muonTkLengthInEcal) ;
+        dEoverdX_E3x3.Fill (clusterE3x3 / muonTkLengthInEcal) ;
+        dEoverdX_E5x5.Fill (clusterE5x5 / muonTkLengthInEcal) ;
+      }
+      
+      
       if(muonTkLengthInEcal > 0.)
       {
         float dEdX = superClusterRawEnergy / muonTkLengthInEcal / 8.28 * 1000. ;
         BetheBloch.Fill (muonP, dEdX) ;
         pBin = BetheBloch_profile.Fill (muonP, dEdX) ;
         pMap[pBin] += muonP;
-        
-        if (dEdX > 500.)
-        {
-          std::cout << "   muonP = " << muonP
-                    << "   SC = " << superClusterRawEnergy
-                    << "   LENGTH = " << muonTkLengthInEcal
-                    << "   dEdX = " << dEdX
-                    << std::endl ;
-        }
       }
       
       if(muonTkLengthInEcalCurved > 0.)
@@ -275,6 +294,9 @@ int main (int argc, char** argv)
         pMapCurved[pBinCurved] += muonP;
         
         muonTkLength_straight_curved_pT.Fill (muonPt, (muonTkLengthInEcal - muonTkLengthInEcalCurved) );
+        
+        // if (muonP > 5. && muonP < 100.)
+        //  outFile << muonP << "   " << dEdXCurved << std::endl ;
       }
       
       
@@ -311,14 +333,21 @@ int main (int argc, char** argv)
   } // loop over entries
   
   
-  
-  for (int bin = 1 ; bin <= muonTkLength_straight_curved_pT.GetNbinsX () ; ++bin)
+    for (int bin = 1 ; bin <= muonTkLength_straight_curved_pT.GetNbinsX (); ++bin)
   {
     char histoName[50] ;
     sprintf (histoName, "muonTkLength_straight_curved_pTbin_%d", bin) ;
     TH1D* histo = muonTkLength_straight_curved_pT.ProjectionY (histoName, bin, bin) ;
-    muonTkLengthMap_straight_curved_RMS[bin] = histo -> GetRMS() ;
+    histo -> Write () ;
   }
+  
+  muonTkLength_straight_curved_pT.FitSlicesY (0, 1, muonTkLength_straight_curved_pT.GetNbinsX (), 0, "Q") ;
+  TH1D *h1 = (TH1D*)gDirectory->Get("muonTkLength_straight_curved_pT_1");
+  TH1D *h2 = (TH1D*)gDirectory->Get("muonTkLength_straight_curved_pT_2");
+  h1 -> Write () ;
+  h2 -> Write () ;
+  for (int bin = 1 ; bin <= muonTkLength_straight_curved_pT.GetNbinsX () ; ++bin)
+    muonTkLengthMap_straight_curved_RMS[bin] = 0. ; //h2 -> GetBinContent (bin) ;
   
   
   
@@ -337,7 +366,13 @@ int main (int argc, char** argv)
     histo -> Write () ;
     
     if (pMap[bin] > 0)
+    {
       BetheBloch_mean[bin] = langaus -> Mean (0., 1000.) ;
+      BetheBloch_graph_MPV.SetPoint (bin-1, pMap[bin], langaus -> GetParameter (1)) ;
+      BetheBloch_graph_MPV.SetPointError (bin-1, 0., langaus -> GetParError (1)) ;
+      BetheBloch_graph_GSigma.SetPoint (bin-1, pMap[bin], langaus -> GetParameter (3)) ;
+      BetheBloch_graph_GSigma.SetPointError (bin-1, 0., langaus -> GetParError (3)) ;
+    }
   }
   
   
@@ -357,7 +392,13 @@ int main (int argc, char** argv)
     histo -> Write () ;
     
     if (pMapCurved[bin] >0)
+    {
       BetheBloch_mean_curved[bin] = langaus -> Mean (0., 1000.) ;
+      BetheBloch_graph_MPV_curved.SetPoint (bin-1, pMapCurved[bin], langaus -> GetParameter (1)) ;
+      BetheBloch_graph_MPV_curved.SetPointError (bin-1, 0., langaus -> GetParError (1)) ;
+      BetheBloch_graph_GSigma_curved.SetPoint (bin-1, pMapCurved[bin], langaus -> GetParameter (3)) ;
+      BetheBloch_graph_GSigma_curved.SetPointError (bin-1, 0., langaus -> GetParError (3)) ;
+    }
   }
   
   
@@ -388,6 +429,8 @@ int main (int argc, char** argv)
     // BB_E5x5.SetPointError(bin+1, 0., BetheBloch_E5x5.GetBinError(bin));
   }
   
+  DrawBetheBlochResiduals (BetheBloch_graph, BetheBloch_th, BetheBloch_graph_residuals) ;
+  
   
   
   for(int bin = 1; bin <= BetheBloch_profile_curved.GetNbinsX(); ++bin)
@@ -408,6 +451,7 @@ int main (int argc, char** argv)
     // BB_E5x5.SetPointError(bin+1, 0., BetheBloch_E5x5.GetBinError(bin));
   }
   
+  DrawBetheBlochResiduals(BetheBloch_graph, BetheBloch_th, BetheBloch_graph_residuals_curved) ;
   
   
   
@@ -415,15 +459,28 @@ int main (int argc, char** argv)
   
   
   // Save histograms
-  DrawBetheBloch () ;
+  TF1* langaus = new TF1 ;
+  LangausFit (&langaus, &dEoverdX) ;
+  dEoverdX.Write () ;
+  LangausFit (&langaus, &dEoverdX_E3x3) ;
+  dEoverdX_E3x3.Write () ;
+  LangausFit (&langaus, &dEoverdX_E5x5) ;
+  dEoverdX_E5x5.Write () ;
+  
   BetheBloch.Write() ;
   BetheBloch_profile.Write () ;
   BetheBloch_graph.Write ("BetheBloch_graph") ;
+  BetheBloch_graph_MPV.Write ("BetheBloch_graph_MPV") ;
+  BetheBloch_graph_GSigma.Write ("BetheBloch_graph_GSigma") ;
   BetheBloch_graph_mean.Write ("BetheBloch_graph_mean") ;
   BetheBloch_curved.Write() ;
   BetheBloch_profile_curved.Write() ;
   BetheBloch_graph_curved.Write ("BetheBloch_graph_curved") ;
+  BetheBloch_graph_MPV_curved.Write ("BetheBloch_graph_MPV_curved") ;
+  BetheBloch_graph_GSigma_curved.Write ("BetheBloch_graph_GSigma_curved") ;
   BetheBloch_graph_mean.Write ("BetheBloch_graph_mean_curved") ;
+  
+  muonTkLength_straight_curved_pT.Write () ;
   // BetheBloch_energy.Write();
   // BetheBloch_25x25.Write();
   // BetheBloch_corrected.Write();
@@ -441,7 +498,7 @@ int main (int argc, char** argv)
   //BB_25x25.Write("BB_25x25");
   
   outputRootFile.Close () ;
-  
+  outFile.close () ;  
   
   return 0 ;
 }
