@@ -520,9 +520,8 @@ double FindBetheBlochValue(TGraph* BetheBloch, float& muonP)
 
 
 //--------------------------------------
-void DrawBetheBlochResiduals(TGraphAsymmErrors* BetheBloch_exp, TGraph* BetheBloch_th, TGraphErrors* BetheBloch_residuals)
+void DrawBetheBlochResiduals(TGraphAsymmErrors& BetheBloch_exp, TGraph& BetheBloch_th, TGraphErrors& BetheBloch_residuals)
 {
-  
   double x ;
   double y ;
   
@@ -530,16 +529,16 @@ void DrawBetheBlochResiduals(TGraphAsymmErrors* BetheBloch_exp, TGraph* BetheBlo
   double yTrue ;
   
   
-  for (int point = 0 ; point < BetheBloch_exp -> GetN() ; ++point)
+  for (int point = 0 ; point < BetheBloch_exp.GetN() ; ++point)
   {
-    BetheBloch_exp -> GetPoint (point, x, y) ;
+    BetheBloch_exp.GetPoint (point, x, y) ;
     float muonP = (float)x ;
-    yTrue = FindBetheBlochValue (BetheBloch_th, muonP) ;
+    yTrue = FindBetheBlochValue (&BetheBloch_th, muonP) ;
     
-    BetheBloch_residuals -> SetPoint (point, x, 1.*y/yTrue - 1.) ;
-    BetheBloch_residuals -> SetPointError (point, 0., 1.*BetheBloch_exp -> GetErrorY (point) / yTrue) ;
+    BetheBloch_residuals.SetPoint (point, x, 1.*y/yTrue - 1.) ;
+    BetheBloch_residuals.SetPointError (point, 0., 1.*BetheBloch_exp.GetErrorY (point) / yTrue) ;
   }
   
-  BetheBloch_residuals -> SetMarkerStyle (20) ;
-  BetheBloch_residuals -> SetMarkerColor (kBlue) ;
+  BetheBloch_residuals.SetMarkerStyle (20) ;
+  BetheBloch_residuals.SetMarkerColor (kBlue) ;
 }

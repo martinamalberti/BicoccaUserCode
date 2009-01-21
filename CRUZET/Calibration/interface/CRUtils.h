@@ -52,7 +52,7 @@ std::pair<double,double> LangausFit (TH1F* histo);
 void DrawBetheBloch();
 void DrawBetheBloch(TGraph* BetheBloch);
 double FindBetheBlochValue(TGraph* BetheBloch, float& muonP);
-void DrawBetheBlochResiduals(TGraphAsymmErrors* BetheBloch_exp, TGraph* BetheBloch_th, TGraphErrors* BetheBloch_residuals);
+void DrawBetheBlochResiduals(TGraphAsymmErrors& BetheBloch_exp, TGraph& BetheBloch_th, TGraphErrors& BetheBloch_residuals);
 
 // ----------------------------------------------------
 
