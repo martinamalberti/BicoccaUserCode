@@ -162,17 +162,21 @@ int main (int argc, char** argv)
   TH1D dEoverdX ("dEoverdX", "dEoverdX", 1000, 0., 0.5) ;
   TH1D dEoverdX_E3x3 ("dEoverdX_E3x3", "dEoverdX_E3x3", 1000, 0., 0.5) ;
   TH1D dEoverdX_E5x5 ("dEoverdX_E5x5", "dEoverdX_E5x5", 1000, 0., 0.5) ;
+
   
   
   TH2F dE ("dE", "dE", P_BIN, P_MIN, P_MAX, 100000, 0., 1000.);
   BinLogX (dE) ;
   TProfile dE_profile ("dE_profile", "dE_profile", P_BIN, P_MIN, P_MAX);
   BinLogX (dE_profile) ;
+  TH2F EoverP ("EoverP","EoverP", PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX) ;
   TH2F EoP ("EoP", "EoP", P_BIN, P_MIN, P_MAX, 10000, 0., 10.);
   BinLogX (EoP) ;
   TProfile EoP_profile ("EoP_profile", "EoP_profile", P_BIN, P_MIN, P_MAX);
   BinLogX (EoP_profile) ;
-  
+
+  TH1F chi2("chi2", "chi2",1000000, 0., 1000000.) ;
+  TProfile2D chi2_occupancy ("chi2_occupancy", "chi2_occupancy", PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX) ;
   
   TH2F BetheBloch ("BetheBloch", "BetheBloch", P_BIN, P_MIN, P_MAX, 5000, 0., 1000.);
   BinLogX (BetheBloch) ;
@@ -281,6 +285,7 @@ int main (int argc, char** argv)
       float muonPt = 0.;
       float muond0 = treeVars.muond0[MUindex];
       float muondz = treeVars.muondz[MUindex];
+      float muonChi2 = treeVars.muonNChi2[MUindex];
       float muonPhi = 0.;
       float muonEta = 0.;
       float muonTkLengthInEcal = treeVars.muonTkLengthInEcalDetail[MUindex] ;
@@ -288,6 +293,9 @@ int main (int argc, char** argv)
       GlobalPoint muonTkInternalPointInEcalCurved (treeVars.muonTkInternalPointInEcalCurvedX[MUindex],
                                                    treeVars.muonTkInternalPointInEcalCurvedY[MUindex],
                                                    treeVars.muonTkInternalPointInEcalCurvedZ[MUindex]) ;
+      GlobalPoint muonTkInternalPointInEcal (treeVars.muonTkInternalPointInEcalX[MUindex],
+                                                   treeVars.muonTkInternalPointInEcalY[MUindex],
+                                                   treeVars.muonTkInternalPointInEcalZ[MUindex]) ;
       float superClusterRawEnergy = treeVars.superClusterRawEnergy[SCindex]/4.*0.9 ;
       float superClusterEta = treeVars.superClusterEta[SCindex] ;
       float superClusterPhi = treeVars.superClusterPhi[SCindex] ;
@@ -300,18 +308,30 @@ int main (int argc, char** argv)
       
       if (muonLeg == 1)
       {
-        muonP = treeVars.muonInnTkInnerHitP[MUindex];
-        muonPt = treeVars.muonInnTkInnerHitPt[MUindex];
-        muonPhi = treeVars.muonInnTkInnerHitPhi[MUindex];
-        muonEta = treeVars.muonInnTkInnerHitEta[MUindex];
+//         muonP = treeVars.muonInnTkInnerHitP[MUindex];
+//         muonPt = treeVars.muonInnTkInnerHitPt[MUindex];
+//         muonPhi = treeVars.muonInnTkInnerHitPhi[MUindex];
+//         muonEta = treeVars.muonInnTkInnerHitEta[MUindex];
+
+	muonP = treeVars.muonP[MUindex];
+        muonPt = treeVars.muonPt[MUindex];
+        muonPhi = treeVars.muonPhi[MUindex];
+        muonEta = treeVars.muonEta[MUindex];
+
       }
       
       else if (muonLeg == -1)
       {
-        muonP = treeVars.muonInnTkOuterHitP[MUindex];
-        muonPt = treeVars.muonInnTkOuterHitPt[MUindex];
-        muonPhi = treeVars.muonInnTkOuterHitPhi[MUindex];
-        muonEta = treeVars.muonInnTkOuterHitEta[MUindex];
+//         muonP = treeVars.muonInnTkOuterHitP[MUindex];
+//         muonPt = treeVars.muonInnTkOuterHitPt[MUindex];
+//         muonPhi = treeVars.muonInnTkOuterHitPhi[MUindex];
+//         muonEta = treeVars.muonInnTkOuterHitEta[MUindex];
+
+	muonP = treeVars.muonP[MUindex];
+        muonPt = treeVars.muonPt[MUindex];
+        muonPhi = treeVars.muonPhi[MUindex];
+        muonEta = treeVars.muonEta[MUindex];
+	
       }
       
       else continue ;
@@ -320,7 +340,14 @@ int main (int argc, char** argv)
       float correction =  muonTkLengthInEcal*muonTkLengthInEcal /Radius /Radius / 6.;
       float muonEoverP = superClusterRawEnergy/muonP ;
       
-      
+      if(muonEoverP > 1.)
+	{
+	  EoverP.Fill (superClusterPhi, superClusterEta) ;
+	  //std::cerr << "muonEoverP = " << muonEoverP << "; E = " << superClusterRawEnergy << "; muonP = " << muonP << std::endl;
+	}
+
+      chi2.Fill (muonChi2) ;
+      chi2_occupancy.Fill (muonTkInternalPointInEcal.phi (), muonTkInternalPointInEcal.eta (), muonChi2) ;
       
       nClustersInSuperClusterDistr.Fill (nClustersInSuperCluster) ;
       nClustersInSuperCluster_ETA.Fill (superClusterEta, nClustersInSuperCluster) ;
@@ -392,15 +419,14 @@ int main (int argc, char** argv)
       
       
       superClusterOccupancy_ETAvsPHI.Fill (superClusterPhi, superClusterEta) ;
-      muonOccupancy_ETAvsPHI.Fill (muonTkInternalPointInEcalCurved.phi (), muonTkInternalPointInEcalCurved.eta ()) ;
+      muonOccupancy_ETAvsPHI.Fill (muonTkInternalPointInEcal.phi (), muonTkInternalPointInEcal.eta ()) ; //INTERNAL!!!
       
       
       dE.Fill (muonP, superClusterRawEnergy) ;
       dE_profile.Fill (muonP, superClusterRawEnergy) ;
       EoP.Fill (muonP, superClusterRawEnergy/muonP) ;
       EoP_profile.Fill (muonP, superClusterRawEnergy/muonP) ;
-      
-      
+
       //if(muonTkLengthInEcal > 0.)
       {
         float dEdX = superClusterRawEnergy / muonTkLengthInEcal / 8.28 * 1000. ;
@@ -629,6 +655,9 @@ int main (int argc, char** argv)
   
   
   // Save histograms
+  chi2.Write () ;
+  chi2_occupancy.Write () ;
+
   nClustersInSuperClusterDistr.Write () ;
   nClustersInSuperCluster_ETA.Write () ;
   nClustersInSuperCluster_PHI.Write () ;
@@ -663,7 +692,7 @@ int main (int argc, char** argv)
   dE_profile.Write () ;
   EoP.Write () ;
   EoP_profile.Write () ;
-  
+  EoverP.Write () ;
   
   double startValues1[4] = {0.000903, 0.01249, 1.708, 0.00187} ;
   TF1* langaus = new TF1 ;
