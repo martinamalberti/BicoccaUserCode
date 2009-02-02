@@ -61,10 +61,8 @@
 #define P_MAX 3
 
 
-
-void BinLogX(TH1F& h);
-void BinLogX(TProfile& h);
-void BinLogX(TH2F& h);
+template <class THisto>
+void BinLogX(THisto& h);
 void LangausFit(TF1** langaus, TH1D* histo, double* startValues);
 
 
@@ -76,25 +74,31 @@ int main (int argc, char** argv)
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet();
   
   edm::ParameterSet subPSetSelections =  parameterSet -> getParameter<edm::ParameterSet>("selections");
-  int P_BIN = subPSetSelections.getParameter<int>("P_BIN");
-  bool muonLegUpOK = subPSetSelections.getParameter<bool>("muonLegUpOK");
-  bool muonLegDownOK = subPSetSelections.getParameter<bool>("muonLegDownOK");
-  double muonPMAX = subPSetSelections.getParameter<double>("muonPMAX");
-  double muonPMIN = subPSetSelections.getParameter<double>("muonPMIN");
-  double muond0MAX = subPSetSelections.getParameter<double>("muond0MAX");
-  double muondzMAX = subPSetSelections.getParameter<double>("muondzMAX");
-  double muondRMAX = subPSetSelections.getParameter<double>("muondRMAX");
-  double muonNChi2MAX = subPSetSelections.getParameter<double>("muonNChi2MAX");
-  double muonNHitsMIN = subPSetSelections.getParameter<double>("muonNHitsMIN");
-  double muonTkLengthInEcalMIN = subPSetSelections.getParameter<double>("muonTkLengthInEcalMIN");
-  double muonTkLengthInEcalMAX = subPSetSelections.getParameter<double>("muonTkLengthInEcalMAX");
-  double muonEoverPMAX = subPSetSelections.getParameter<double>("muonEoverPMAX");
-  double muonAngleMAX = subPSetSelections.getParameter<double>("muonAngleMAX");
-  double superClusterPhiMIN = subPSetSelections.getParameter<double>("superClusterPhiMIN");
-  double superClusterPhiMAX = subPSetSelections.getParameter<double>("superClusterPhiMAX");
-  double superClusterEtaMIN = subPSetSelections.getParameter<double>("superClusterEtaMIN");
-  double superClusterEtaMAX = subPSetSelections.getParameter<double>("superClusterEtaMAX");
-
+  int P_BIN = subPSetSelections.getUntrackedParameter<int>("P_BIN", 25);
+  bool muonLegUpOK = subPSetSelections.getUntrackedParameter<bool>("muonLegUpOK", false);
+  bool muonLegDownOK = subPSetSelections.getUntrackedParameter<bool>("muonLegDownOK", true);
+  double muonPMAX = subPSetSelections.getUntrackedParameter<double>("muonPMAX", 10000.);
+  double muonPMIN = subPSetSelections.getUntrackedParameter<double>("muonPMIN", 0.);
+  double muond0MAX = subPSetSelections.getUntrackedParameter<double>("muond0MAX", 1000.);
+  double muondzMAX = subPSetSelections.getUntrackedParameter<double>("muondzMAX", 1000.);
+  double muondRMAX = subPSetSelections.getUntrackedParameter<double>("muondRMAX", 1000.);
+  double muonNChi2MAX = subPSetSelections.getUntrackedParameter<double>("muonNChi2MAX", 1000000.);
+  double muonNHitsMIN = subPSetSelections.getUntrackedParameter<double>("muonNHitsMIN", 0.);
+  double muonTkLengthInEcalMIN = subPSetSelections.getUntrackedParameter<double>("muonTkLengthInEcalMIN", 0.);
+  double muonTkLengthInEcalMAX = subPSetSelections.getUntrackedParameter<double>("muonTkLengthInEcalMAX", 1000.);
+  double muonEoverPMAX = subPSetSelections.getUntrackedParameter<double>("muonEoverPMAX", 1000.);
+  double muonAngleMAX = subPSetSelections.getUntrackedParameter<double>("muonAngleMAX", 3.15);
+  
+  double superClusterPhiMIN = subPSetSelections.getUntrackedParameter<double>("superClusterPhiMIN", -3.15);
+  double superClusterPhiMAX = subPSetSelections.getUntrackedParameter<double>("superClusterPhiMAX", 3.15);
+  double superClusterEtaMIN = subPSetSelections.getUntrackedParameter<double>("superClusterEtaMIN", -1000.);
+  double superClusterEtaMAX = subPSetSelections.getUntrackedParameter<double>("superClusterEtaMAX", 1000.);
+  
+  std::vector<int> badRegionIPhiMIN = subPSetSelections.getUntrackedParameter<std::vector<int> >("badRegionIPhiMIN", std::vector<int>(0));
+  std::vector<int> badRegionIPhiMAX = subPSetSelections.getUntrackedParameter<std::vector<int> >("badRegionIPhiMAX", std::vector<int>(0));
+  std::vector<int> badRegionIEtaMIN = subPSetSelections.getUntrackedParameter<std::vector<int> >("badRegionIEtaMIN", std::vector<int>(0));
+  std::vector<int> badRegionIEtaMAX = subPSetSelections.getUntrackedParameter<std::vector<int> >("badRegionIEtaMAX", std::vector<int>(0));
+  
   
   edm::ParameterSet subPSetInput = parameterSet -> getParameter<edm::ParameterSet>("inputNtuples");
   std::vector<std::string> inputFiles = subPSetInput.getParameter<std::vector<std::string> > ("inputFiles");
@@ -130,8 +134,10 @@ int main (int argc, char** argv)
   
   
   // output distributions
-  TH2F muonOccupancy_ETAvsPHI("muonOccupancy_ETAvsPHI", "muonOccupancy_ETAvsPHI",
-                              PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX);
+  TH2F muonOccupancyInt_ETAvsPHI("muonOccupancyInt_ETAvsPHI", "muonOccupancyInt_ETAvsPHI",
+                                 PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX);
+  TH2F muonOccupancyExt_ETAvsPHI("muonOccupancyExt_ETAvsPHI", "muonOccupancyExt_ETAvsPHI",
+                                 PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX);
   TH2F superClusterOccupancy_ETAvsPHI("superClusterOccupancy_ETAvsPHI", "superClusterOccupancy_ETAvsPHI",
                                       PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX);
   TH2F xtalOccupancy_iETAvsiPHI("xtalOccupancy_iETAvsiPHI", "xtalOccupancy_iETAvsiPHI",
@@ -189,7 +195,8 @@ int main (int argc, char** argv)
   BinLogX(EoP);
   TProfile EoP_profile("EoP_profile", "EoP_profile", P_BIN, P_MIN, P_MAX);
   BinLogX(EoP_profile);
-  
+  TH2F EoP_over1 ("EoP_over1","EoP_over1", PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX) ;
+  TH1F EoP_BAD ("EoP_BAD","EoP_BAD", 10000, 0., 10.);
   
   
   TH2F BetheBloch("BetheBloch", "BetheBloch", P_BIN, P_MIN, P_MAX, 5000, 0., 1000.);
@@ -300,12 +307,18 @@ int main (int argc, char** argv)
       float muonNHits = treeVars.muonNHits[MUindex];
       float muonTkLengthInEcal = treeVars.muonTkLengthInEcalDetail[MUindex];
       float muonTkLengthInEcalCurved = treeVars.muonTkLengthInEcalDetailCurved[MUindex];
-      GlobalPoint muonTkInternalPointInEcal(treeVars.muonTkInternalPointInEcalX[MUindex],
-                                            treeVars.muonTkInternalPointInEcalY[MUindex],
-                                            treeVars.muonTkInternalPointInEcalZ[MUindex]);
       GlobalPoint muonTkInternalPointInEcalCurved(treeVars.muonTkInternalPointInEcalCurvedX[MUindex],
                                                   treeVars.muonTkInternalPointInEcalCurvedY[MUindex],
-                                                  treeVars.muonTkInternalPointInEcalCurvedZ[MUindex]);
+                                                  treeVars.muonTkInternalPointInEcalCurvedZ[MUindex]) ;
+      GlobalPoint muonTkInternalPointInEcal(treeVars.muonTkInternalPointInEcalX[MUindex],
+                                            treeVars.muonTkInternalPointInEcalY[MUindex],
+                                            treeVars.muonTkInternalPointInEcalZ[MUindex]) ;
+      GlobalPoint muonTkExternalPointInEcalCurved(treeVars.muonTkExternalPointInEcalCurvedX[MUindex],
+                                                  treeVars.muonTkExternalPointInEcalCurvedY[MUindex],
+                                                  treeVars.muonTkExternalPointInEcalCurvedZ[MUindex]) ;
+      GlobalPoint muonTkExternalPointInEcal (treeVars.muonTkExternalPointInEcalX[MUindex],
+                                             treeVars.muonTkExternalPointInEcalY[MUindex],
+                                             treeVars.muonTkExternalPointInEcalZ[MUindex]) ;
       TVector3 muonDirection;
       
       
@@ -363,6 +376,60 @@ int main (int argc, char** argv)
       
       
       // Cut event
+      
+      //skip bad Xtals
+      bool skip = false;
+      for (unsigned int badIt = 0; badIt < badRegionIEtaMIN.size(); ++badIt)
+      {
+        double badRegionEtaMIN;
+        double badRegionEtaMAX;
+        double badRegionPhiMIN;
+        double badRegionPhiMAX;
+        
+        if (badRegionIEtaMIN.at(badIt) >= 0) badRegionEtaMIN = (badRegionIEtaMIN.at(badIt) - 0.5) * 0.0175;
+        else badRegionEtaMIN = (badRegionIEtaMIN.at(badIt) + 0.5) * 0.0175;
+        badRegionPhiMIN = (badRegionIPhiMIN.at(badIt) - 10) * 0.0175;
+        if(badRegionPhiMIN > PI) badRegionPhiMIN = - 2*PI + badRegionPhiMIN;        
+        
+        if (badRegionIEtaMAX.at(badIt) >= 0) badRegionEtaMAX = (badRegionIEtaMAX.at(badIt) - 0.5) * 0.0175;
+        else badRegionEtaMAX = (badRegionIEtaMAX.at(badIt) + 0.5) * 0.0175;
+        badRegionPhiMAX = (badRegionIPhiMAX.at(badIt) - 10) * 0.0175;
+        if(badRegionPhiMAX > PI) badRegionPhiMAX = - 2*PI + badRegionPhiMAX;        
+        
+        if (muonTkExternalPointInEcal.eta() >= badRegionEtaMIN &&
+            muonTkInternalPointInEcal.eta() <= badRegionEtaMAX &&
+            muonTkInternalPointInEcal.phi() >= badRegionPhiMIN &&
+            muonTkInternalPointInEcal.phi() <= badRegionPhiMAX) {skip = true; break;}
+        
+        if (muonTkExternalPointInEcal.eta() >= badRegionEtaMIN &&
+            muonTkExternalPointInEcal.eta() <= badRegionEtaMAX &&
+            muonTkExternalPointInEcal.phi() >= badRegionPhiMIN &&
+            muonTkExternalPointInEcal.phi() <= badRegionPhiMAX) {skip = true; break;}
+        
+        if ((muonTkExternalPointInEcal.eta() <= badRegionEtaMIN &&    //int ed extcadono a cavallo della badregion
+             muonTkInternalPointInEcal.eta() >= badRegionEtaMAX) ||
+            (muonTkExternalPointInEcal.phi() <= badRegionPhiMIN &&
+             muonTkInternalPointInEcal.phi() >= badRegionPhiMAX) ||
+            (muonTkInternalPointInEcal.eta() <= badRegionEtaMIN &&
+             muonTkExternalPointInEcal.eta() >= badRegionEtaMAX) ||
+            (muonTkInternalPointInEcal.phi() <= badRegionPhiMIN &&
+             muonTkExternalPointInEcal.phi() >= badRegionPhiMAX )) {skip = true; break;}
+         
+         if (superClusterEta                 >= badRegionEtaMIN &&
+             superClusterEta                 <= badRegionEtaMAX &&
+             superClusterPhi                 >= badRegionPhiMIN &&
+             superClusterPhi                 <= badRegionPhiMAX) {skip = true; break;}
+        }
+      
+      if (skip == true) 
+      {
+        EoP_BAD.Fill(muonEoverP);
+        continue;
+      }
+      //end skip bad xtals
+      
+      
+      // other cuts
       if ( (muonLegUpOK == true && muonLegDownOK == false && muonLeg != 1) ||
            (muonLegDownOK == true && muonLegUpOK == false && muonLeg != -1) ) continue;
       if ( (muonP < muonPMIN) || (muonP > muonPMAX) ) continue ;
@@ -387,7 +454,8 @@ int main (int argc, char** argv)
       
       
       // Fill distribution
-      muonOccupancy_ETAvsPHI.Fill(muonTkInternalPointInEcal.phi(), muonTkInternalPointInEcal.eta());
+      muonOccupancyInt_ETAvsPHI.Fill(muonTkInternalPointInEcal.phi(), muonTkInternalPointInEcal.eta());
+      muonOccupancyExt_ETAvsPHI.Fill(muonTkExternalPointInEcal.phi(), muonTkExternalPointInEcal.eta());
       superClusterOccupancy_ETAvsPHI.Fill(superClusterPhi, superClusterEta);
       
       
@@ -452,7 +520,7 @@ int main (int argc, char** argv)
       dE_profile.Fill(muonP, superClusterRawEnergy);
       EoP.Fill(muonP, superClusterRawEnergy/muonP);
       EoP_profile.Fill(muonP, superClusterRawEnergy/muonP);
-      
+      if(muonEoverP > 1.) EoP_over1.Fill (superClusterPhi, superClusterEta);
       
       
       //if(muonTkLengthInEcal > 0.)
@@ -504,7 +572,6 @@ int main (int argc, char** argv)
           pMapCurved_E5x5[pBinCurved] += muonP;
         }
       }
-      
     }//loop on associations vector
     
   } // loop over entries
@@ -667,7 +734,8 @@ int main (int argc, char** argv)
   
   
   // Save histograms
-  muonOccupancy_ETAvsPHI.Write();
+  muonOccupancyInt_ETAvsPHI.Write();
+  muonOccupancyExt_ETAvsPHI.Write();
   superClusterOccupancy_ETAvsPHI.Write();
   xtalOccupancy_iETAvsiPHI.Write();
   
@@ -710,6 +778,8 @@ int main (int argc, char** argv)
   dE_profile.Write();
   EoP.Write();
   EoP_profile.Write();
+  EoP_over1.Write();
+  EoP_BAD.Write();
   
   
   double startValues1[4] = {0.000903, 0.01249, 1.708, 0.00187};
@@ -778,8 +848,8 @@ int main (int argc, char** argv)
 
 
 
-
-void BinLogX(TProfile& h)
+template <class THisto>
+void BinLogX(THisto& h)
 {
   TAxis* axis = h.GetXaxis () ;
   int bins = axis -> GetNbins () ;
@@ -794,63 +864,6 @@ void BinLogX(TProfile& h)
   
   axis -> Set (bins, new_bins) ;
   delete new_bins ;
-  
-  // std::cout << std::endl;
-  // for (int bin = 0 ; bin <= h.GetNbinsX () +1 ; ++bin)
-  // {
-  //  std::cout << "BIN: " << bin
-  //            << "   lowEdge: " << h.GetBinLowEdge (bin)
-  //            << "   higEdge: " << h.GetBinLowEdge (bin) + h.GetBinWidth (bin)
-  //            << std::endl ;
-  // }
-}
-
-
-
-void BinLogX(TH2F& h)
-{
-  TAxis* axis = h.GetXaxis();
-  int bins = axis->GetNbins();
-  
-  Axis_t from = axis->GetXmin();
-  Axis_t to = axis->GetXmax();
-  Axis_t width = (to - from) / bins;
-  Axis_t* new_bins = new Axis_t[bins + 1];
-  
-  for (int i = 0; i <= bins; i++) 
-    new_bins[i] = pow(10, from + i * width);
-  
-  axis->Set(bins, new_bins);
-  delete new_bins;
-  
-  // std::cout << std::endl;
-  // for (int bin = 0 ; bin <= h.GetNbinsX () +1 ; ++bin)
-  // {
-  //  std::cout << "BIN: " << bin
-  //            << "   lowEdge: " << h.GetBinLowEdge (bin)
-  //            << "   higEdge: " << h.GetBinLowEdge (bin) + h.GetBinWidth (bin)
-  //            << std::endl ;
-  // }
-}
-
-
-
-void BinLogX (TH1F& h)
-{
-  
-  TAxis* axis = h.GetXaxis();
-  int bins = axis->GetNbins();
-
-  Axis_t from = axis->GetXmin();
-  Axis_t to = axis->GetXmax();
-  Axis_t width = (to - from) / bins;
-  Axis_t* new_bins = new Axis_t[bins + 1];
-  
-  for (int i = 0; i <= bins; i++) 
-    new_bins[i] = pow(10, from + i * width);
-  
-  axis->Set(bins, new_bins);
-  delete new_bins;
   
   // std::cout << std::endl;
   // for (int bin = 0 ; bin <= h.GetNbinsX () +1 ; ++bin)
