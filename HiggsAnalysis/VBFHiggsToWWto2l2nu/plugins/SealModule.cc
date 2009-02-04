@@ -176,6 +176,17 @@ typedef SingleObjectSelector<
 
 DEFINE_ANOTHER_FWK_MODULE (EtMinMETSelector) ;
 
+
+
+//---- New ----
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFMuonIsolator.h"
+typedef ObjectSelector<VBFMuonIsolator> VBFMuonIsolation;
+typedef ObjectSelector<VBFMuonIsolator, edm::RefVector<reco::MuonCollection> > VBFMuonIsolationRef;
+DEFINE_ANOTHER_FWK_MODULE (VBFMuonIsolation);
+
+//-------------
+
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/SimpleNtple.h"
 DEFINE_ANOTHER_FWK_MODULE (SimpleNtple) ;
 
