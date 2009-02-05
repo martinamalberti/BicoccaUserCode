@@ -5,9 +5,9 @@ isolatedMuons = cms.EDFilter("VBFMuonIsolation",
                              SelectedMuonRefCollectionLabel = cms.InputTag("selectedMuonsRef"),
 
                              # isolation parameters
-                             hcalIsoDepositLabel = cms.InputTag("muGlobalIsoDepositCalByAssociatorTowers","hcal"),
-                             ecalIsoDepositLabel = cms.InputTag("muGlobalIsoDepositCalByAssociatorTowers","ecal"),
-                             trackerIsoDepositLabel = cms.InputTag("muGlobalIsoDepositCtfTk"),
+                             hcalIsoDepositLabel = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
+                             ecalIsoDepositLabel = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+                             trackerIsoDepositLabel = cms.InputTag("muIsoDepositTk"),
 
                              trackIsolCut = cms.double(10),
                              caloIsolCut = cms.double(10),

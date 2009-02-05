@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFMuonSelector_cfi import *
+from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFMuonSelectorRef_cfi import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFMuonIsolator_cfi import *
+from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFMuonIsolatorRef_cfi import *
 
-higgsToWW2LeptonsPreselectionSequence = cms.Sequence(
+VBFPreselectionSequence = cms.Sequence(
     selectedMuons *
     selectedMuonsRef *
     isolatedMuons *
