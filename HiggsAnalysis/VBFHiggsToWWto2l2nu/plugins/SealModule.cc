@@ -184,6 +184,14 @@ DEFINE_ANOTHER_FWK_MODULE (EtMinMETSelector) ;
 typedef ObjectSelector<VBFMuonIsolator> VBFMuonIsolation;
 typedef ObjectSelector<VBFMuonIsolator, edm::RefVector<reco::MuonCollection> > VBFMuonIsolationRef;
 DEFINE_ANOTHER_FWK_MODULE (VBFMuonIsolation);
+DEFINE_ANOTHER_FWK_MODULE (VBFMuonIsolationRef);
+
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFMuonSelector.h"
+typedef ObjectSelector<VBFMuonSelector> VBFMuonSelection;
+typedef ObjectSelector<VBFMuonSelector, edm::RefVector<reco::MuonCollection> > VBFMuonSelectionRef;
+DEFINE_ANOTHER_FWK_MODULE (VBFMuonSelection);
+DEFINE_ANOTHER_FWK_MODULE (VBFMuonSelectionRef);
 
 //-------------
 
