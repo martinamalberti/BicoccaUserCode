@@ -53,6 +53,7 @@ void DrawBetheBloch();
 void DrawBetheBloch(TGraph* BetheBloch);
 double FindBetheBlochValue(TGraph* BetheBloch, float& muonP);
 void DrawBetheBlochResiduals(TGraphAsymmErrors& BetheBloch_exp, TGraph& BetheBloch_th, TGraphErrors& BetheBloch_residuals);
+bool IsInsideEcal(GlobalPoint& point);
 
 // ----------------------------------------------------
 

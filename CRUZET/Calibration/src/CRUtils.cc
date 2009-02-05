@@ -544,3 +544,19 @@ void DrawBetheBlochResiduals(TGraphAsymmErrors& BetheBloch_exp, TGraph& BetheBlo
   BetheBloch_residuals.SetMarkerStyle (20) ;
   BetheBloch_residuals.SetMarkerColor (kBlue) ;
 }
+
+
+
+bool IsInsideEcal(GlobalPoint& point)
+{
+  double r = sqrt(point.x()*point.x() + point.y()*point.y());
+  double z = fabs(point.z());
+  
+  double Rint = 129.;
+  double Rext = Rint + 23. / sqrt(1 + point.z()*point.z() / Rint/Rint);
+  double Zmax = 300.;
+  
+  //std::cout << "CRUTILS:: r = " << r << std::endl;
+  if( (r > Rint) && (r < Rext) && (z < Zmax) ) return true;
+  else return false;
+}
