@@ -202,6 +202,13 @@ DEFINE_ANOTHER_FWK_MODULE (VBFEleIDSelectionRef);
 
 
 
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFEleHETIsolator.h"
+typedef ObjectSelector<VBFEleHETIsolator> VBFEleHETIsolation;
+typedef ObjectSelector<VBFEleHETIsolator, edm::RefVector<reco::PixelMatchGsfElectronCollection> > VBFEleHETIsolationRef;
+DEFINE_ANOTHER_FWK_MODULE (VBFEleHETIsolation);
+DEFINE_ANOTHER_FWK_MODULE (VBFEleHETIsolationRef);
+
+
 //-------------
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/SimpleNtple.h"
