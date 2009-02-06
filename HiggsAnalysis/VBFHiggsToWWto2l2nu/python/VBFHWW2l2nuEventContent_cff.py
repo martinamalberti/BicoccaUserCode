@@ -6,6 +6,18 @@ import FWCore.ParameterSet.Config as cms
 VBFHWW2l2nuEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
              'drop *_*_*_*',
+            
+        'keep *_offlineBeamSpot_*_*',
+        'keep recoGsfTracks_*_*_*',
+        'keep recoGsfTrackExtras_*_*_*',
+        'keep recoBasicClusters_*_*_*',
+        
+#         'keep *_pixelMatchGsfFit_*_*',                       
+#         'keep recoTracks_*_*_*',
+#         'keep recoTrackExtras_*_*_*',
+       
+       
+                  
         'keep *_hbhereco_*_*',
         'keep *_hfreco_*_*',
         'keep *_horeco_*_*', 
