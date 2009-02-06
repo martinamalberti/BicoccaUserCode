@@ -12,7 +12,7 @@ from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFElectronIDSequence_cff import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFElectronIDSelector_cfi import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFElectronIDSelectorRef_cfi import *
 
-from HiggsAnalysis.HiggsToChi2Chi2.HChi2Chi2ElectronIsolationSequence_cff import *
+from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFElectronIsolationSequence_cff import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFEleHETIsolator_cfi import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFEleHETIsolatorRef_cfi import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFEleHETIsolator_cfi import *
