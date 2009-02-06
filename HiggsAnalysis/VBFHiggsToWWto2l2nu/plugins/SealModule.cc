@@ -193,6 +193,15 @@ typedef ObjectSelector<VBFMuonSelector, edm::RefVector<reco::MuonCollection> > V
 DEFINE_ANOTHER_FWK_MODULE (VBFMuonSelection);
 DEFINE_ANOTHER_FWK_MODULE (VBFMuonSelectionRef);
 
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFEleIDSelector.h"
+typedef ObjectSelector<VBFEleIDSelector> VBFEleIDSelection;
+typedef ObjectSelector<VBFEleIDSelector, edm::RefVector<reco::PixelMatchGsfElectronCollection> > VBFEleIDSelectionRef;
+DEFINE_ANOTHER_FWK_MODULE (VBFEleIDSelection);
+DEFINE_ANOTHER_FWK_MODULE (VBFEleIDSelectionRef);
+
+
+
 //-------------
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/SimpleNtple.h"
