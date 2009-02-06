@@ -1,4 +1,4 @@
-// $Id: VBFJetVetoFilter.cc,v 1.2 2008/03/25 14:26:31 govoni Exp $
+// $Id: VBFJetVetoFilter.cc,v 1.1 2009/02/03 13:50:42 abenagli Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetVetoFilter.h"
 
@@ -38,7 +38,7 @@ VBFJetVetoFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
        jetIt != jetCollectionHandle->end () ; 
        ++jetIt )
      {
-       if (fabs (jetIt->eta () > m_jetEtaMax) || 
+      if ((fabs (jetIt->eta ()) > m_jetEtaMax) || 
            jetIt->et () < m_jetPtMin) continue ;
        return false ; 
      }
