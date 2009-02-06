@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("VBFHWW2l2nuFirstFilter")
 
-
+process.load("Configuration.StandardSequences.Geometry_cff") # for CaloGeometryRecord
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -21,7 +21,8 @@ process.source = cms.Source(
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
-        'file:/tmp/amassiro/VBFHWW2l2nuTest_21.root'
+        'file:/tmp/amassiro/VBFHWW2l2nuTest_24.root'
+#         'file:/tmp/amassiro/relval_Zee_CMSSW_2_1_7.root'
 #         'rfio:/castor/cern.ch/cms/store/path/filename.root'
         )
     )
@@ -34,6 +35,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                       'keep *_globalMuons_*_*',
                                                                       'keep *_pixelMatchGsfElectrons_*_*',
                                                                       'keep *_isolatedMuons_*_*', 
+                                                                      'keep *_*_*_VBFHWW2l2nuFirstFilter',  
                                                                       'keep *_selectedMuons_*_*'
                                                                       )
                                )
