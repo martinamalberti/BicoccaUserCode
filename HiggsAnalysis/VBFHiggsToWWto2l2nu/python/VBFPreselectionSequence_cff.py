@@ -24,8 +24,15 @@ from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFEleEIsolatorRef_cfi import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFEleTIsolator_cfi import *
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFEleTIsolatorRef_cfi import *
 
+from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFJetCleaner_cfi import *
+from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFJetCleanerRef_cfi import *
+
 VBFPreselectionSequence = cms.Sequence(
     correctedMet *
+   
+    cleanedJets * 
+    cleanedJetsRef * 
+     
     selectedMuons *
     selectedMuonsRef *
     isolatedMuons *
