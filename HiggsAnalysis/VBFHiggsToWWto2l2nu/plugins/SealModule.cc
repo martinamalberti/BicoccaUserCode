@@ -51,8 +51,8 @@ DEFINE_ANOTHER_FWK_MODULE (VBFEleNumFilter) ;
 // #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetNumFilter.h"
 // DEFINE_ANOTHER_FWK_MODULE (VBFJetNumFilter) ;
 
-#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFReadEvent.h"
-DEFINE_ANOTHER_FWK_MODULE (VBFReadEvent) ; 
+// #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFReadEvent.h"
+// DEFINE_ANOTHER_FWK_MODULE (VBFReadEvent) ; 
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetCleanerPlots.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFJetCleanerPlots) ;
