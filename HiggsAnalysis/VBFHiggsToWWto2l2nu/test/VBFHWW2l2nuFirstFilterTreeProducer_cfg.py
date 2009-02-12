@@ -19,8 +19,8 @@ process.source = cms.Source(
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
 
-    
-    'file:/tmp/amassiro/VBFHWW2l2nuTest_9.root'
+    'file:/tmp/amassiro/VBFHWW2l2nuTest_12Feb09_nuovoFiltro.root'
+#     'file:/tmp/amassiro/VBFHWW2l2nuTest_1.root'
  
 #         'file:/tmp/amassiro/VBFHWW2l2nuTest_24.root'
 #           'file:/tmp/amassiro/VBFHWW2l2nuTest_6Feb09.root'
@@ -52,7 +52,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                )
 
 process.TFileService = cms.Service("TFileService", 
-                                 fileName = cms.string("/tmp/amassiro/VBFHWW2l2nuTest_Tree.root"),
+                                 fileName = cms.string("/tmp/amassiro/VBFHWW2l2nuTest_Tree_nuovoFiltro.root"),
                                  closeFileFast = cms.untracked.bool(True)
                                 )
 
