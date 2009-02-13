@@ -9,8 +9,12 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
-# Source
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+##########
+# Source #
+##########
+
+
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.source = cms.Source(
     "PoolSource",
@@ -55,8 +59,8 @@ process.VBFHWW2l2nuOutputModule = cms.OutputModule(
     "PoolOutputModule",
     VBFHWW2l2nuEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('USER')),
-#     fileName = cms.untracked.string('VBFHWW2l2nuTest.root'),
-    fileName = cms.untracked.string('/tmp/amassiro/VBFHWW2l2nuTest_12Feb09_nuovoFiltro.root'),
+    fileName = cms.untracked.string('VBFHWW2l2nuTest.root'),
+#     fileName = cms.untracked.string('/tmp/amassiro/VBFHWW2l2nuTest_12Feb09_nuovoFiltro.root'),
    
     SelectEvents = cms.untracked.PSet(
                 SelectEvents = cms.vstring('countMu','countEle')
