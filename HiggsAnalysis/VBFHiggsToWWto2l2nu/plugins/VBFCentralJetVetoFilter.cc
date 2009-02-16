@@ -1,4 +1,4 @@
-// $Id: VBFCentralJetVetoFilter.cc,v 1.3 2008/03/28 08:17:28 govoni Exp $
+// $Id: VBFCentralJetVetoFilter.cc,v 1.1 2009/02/03 13:50:41 abenagli Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFCentralJetVetoFilter.h"
 #include <DataFormats/RecoCandidate/interface/RecoChargedCandidate.h>
@@ -43,6 +43,10 @@ VBFCentralJetVetoFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::RecoChargedCandidateCollection> jetTagsHandle ;
   iEvent.getByLabel (m_tagJetInputTag, jetTagsHandle) ;
 
+  if (jetTagsHandle->size() != 2) {
+   std::cerr << "*** Error: not enough jet tag ***" << std::endl;
+   return false;
+  }
   //PG assume there are two tag jets
   LorentzVector firstTag = (*jetTagsHandle)[0].p4 () ;
   LorentzVector secondTag = (*jetTagsHandle)[1].p4 () ;
