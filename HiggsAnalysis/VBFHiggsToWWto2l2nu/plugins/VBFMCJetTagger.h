@@ -28,6 +28,10 @@
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/interface/VBFUtils.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include <string>
 
 
@@ -55,7 +59,7 @@ class VBFMCJetTagger: public edm::EDProducer
   edm::InputTag m_genParticles ;
   //! output collection
   std::string m_MCtagJetsName ;
-  void setMomentum (LorentzVector & myvector, const reco::Candidate & gen);
+  void setMomentum (LorentzVector & myvector, const reco::GenParticle & gen);
 
 };
   

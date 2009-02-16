@@ -8,6 +8,8 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include <iostream>
 #include <algorithm>
@@ -41,7 +43,7 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
 {
   
   using namespace reco;
-  edm::Handle<CandidateCollection> genParticles; 
+  edm::Handle<GenParticleCollection> genParticles; 
   try {iEvent.getByLabel (m_genParticles,genParticles) ;}
   catch(...){std::cout<<"AAAAB genParticles handle is not valid!!!"<<std::endl;return;}
   if(!genParticles.isValid()){std::cout<<"AAAA genParticles handle is not valid!!!"<<std::endl;return;}
@@ -50,7 +52,7 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
   int idF =0, idB=0;
   int chargeF=99,chargeB=99;
   bool foundDaughther = false;
- for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
+ for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
     {
         int mumPDG = p->pdgId();
         int mumSTATUS = p->status();
@@ -104,7 +106,7 @@ VBFMCJetTagger::produce (edm::Event& iEvent, const edm::EventSetup& iEventSetup)
  
 }
 
-void VBFMCJetTagger::setMomentum (LorentzVector & myvector, const reco::Candidate & gen)
+void VBFMCJetTagger::setMomentum (LorentzVector & myvector, const reco::GenParticle & gen)
 {
     myvector.SetPx (gen.px());
     myvector.SetPy (gen.py());

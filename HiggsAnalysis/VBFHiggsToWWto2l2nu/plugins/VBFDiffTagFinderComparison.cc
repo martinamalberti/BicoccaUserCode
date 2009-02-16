@@ -1,8 +1,10 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.1 2008/03/17 17:01:15 govoni Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.1 2009/02/03 13:50:42 abenagli Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/interface/VBFUtils.h"
 #include <Math/VectorUtil.h>
 
@@ -43,7 +45,7 @@ VBFDiffTagFinderComparison::analyze (const edm::Event& iEvent, const edm::EventS
   iEvent.getByLabel (m_jetInputTag, jetCollectionHandle);
   if (jetCollectionHandle->size () < 2) return ;
   //get the gen particles collection
-  edm::Handle<CandidateCollection> genParticles;
+  edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByLabel(m_MCtruthInputTag, genParticles);
 
   std::pair<VBFjetIt,VBFjetIt> tagJetCands ;
@@ -147,11 +149,11 @@ VBFDiffTagFinderComparison::endJob ()
 
 // --------------------------------------------------------------------
 
-void VBFDiffTagFinderComparison::findGenParticles (edm::Handle<CandidateCollection> &genParticles,
+void VBFDiffTagFinderComparison::findGenParticles (edm::Handle<GenParticleCollection> &genParticles,
 				     TLorentzVector &m_genqTagF,
 				     TLorentzVector &m_genqTagB)
 {
-  for (CandidateCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
+ for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
     {
       int mumPDG = p->pdgId();
       int mumSTATUS = p->status();
@@ -179,7 +181,7 @@ void VBFDiffTagFinderComparison::findGenParticles (edm::Handle<CandidateCollecti
 
 // --------------------------------------------------------------------
 
-void VBFDiffTagFinderComparison::setMomentum (TLorentzVector & myvector, const Candidate & gen)
+void VBFDiffTagFinderComparison::setMomentum (TLorentzVector & myvector, const GenParticle & gen)
 {
   myvector.SetPx (gen.px());
   myvector.SetPy (gen.py());

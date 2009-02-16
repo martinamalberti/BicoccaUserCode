@@ -13,7 +13,7 @@
 //
 // Original Author:  Valentina Tancini
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFDiffTagFinderComparison.h,v 1.2 2008/12/31 16:39:30 govoni Exp $
+// $Id: VBFDiffTagFinderComparison.h,v 1.1 2009/02/03 13:50:56 abenagli Exp $
 //
 //
 
@@ -84,6 +84,9 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 
 //root include
 #include <TNtuple.h>
@@ -110,8 +113,8 @@ class VBFDiffTagFinderComparison : public edm::EDAnalyzer {
       virtual void beginJob (const edm::EventSetup&);
       virtual void analyze (const edm::Event&, const edm::EventSetup&);
       virtual void endJob ();
-      void setMomentum (TLorentzVector & vector, const reco::Candidate & gen);
-      void findGenParticles (edm::Handle<CandidateCollection> &genParticles,TLorentzVector &m_genqTagF, TLorentzVector &m_genqTagB);
+      void setMomentum (TLorentzVector & vector, const reco::GenParticle & gen);
+      void findGenParticles (edm::Handle<GenParticleCollection> &genParticles,TLorentzVector &m_genqTagF, TLorentzVector &m_genqTagB);
 
    private:
 
