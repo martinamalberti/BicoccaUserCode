@@ -25,7 +25,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/interface/VBFUtils.h"
+
 
 
 class VBFLeptonsMinNumFilter : public edm::EDFilter 
@@ -47,7 +49,10 @@ class VBFLeptonsMinNumFilter : public edm::EDFilter
 
   edm::InputTag m_GSFInputTag ;
   edm::InputTag m_muInputTag ;
-
+  
+  double m_elePtMin;
+  double m_muPtMin;
+  
   int m_minLeptonsNum ;
 
 };
