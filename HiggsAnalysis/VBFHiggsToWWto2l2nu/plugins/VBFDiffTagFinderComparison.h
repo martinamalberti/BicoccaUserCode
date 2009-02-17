@@ -13,7 +13,7 @@
 //
 // Original Author:  Valentina Tancini
 //         Created:  Wed Nov 14 17:32:25 CET 2007
-// $Id: VBFDiffTagFinderComparison.h,v 1.2 2009/02/16 16:34:48 amassiro Exp $
+// $Id: VBFDiffTagFinderComparison.h,v 1.3 2009/02/17 16:13:51 amassiro Exp $
 //
 //
 
@@ -120,7 +120,7 @@ class VBFDiffTagFinderComparison : public edm::EDAnalyzer {
 
       edm::InputTag m_jetInputTag;
       edm::InputTag m_MCtruthInputTag;
-      int  m_algo;
+      
       TLorentzVector *m_genqTagF;
       TLorentzVector *m_genqTagB;
       TNtuple *m_ntuple;
