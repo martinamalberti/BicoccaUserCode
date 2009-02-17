@@ -1,9 +1,12 @@
-// $Id: VBFMCChannelFilter.cc,v 1.1 2008/03/17 17:01:17 govoni Exp $
+// $Id: VBFMCChannelFilter.cc,v 1.1 2009/02/03 13:50:43 abenagli Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFMCChannelFilter.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include <iostream>
 
 
@@ -30,14 +33,27 @@ bool
 VBFMCChannelFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //PG MC thruth candidates collection  
-  edm::Handle<reco::CandidateCollection> genParticles ;
+  edm::Handle<reco::GenParticleCollection> genParticles ;
   iEvent.getByLabel (m_MCtruthInputTag, genParticles) ;
 
   int numEle = 0 ; 
   int numMu = 0 ; //PG this is maybe useless
+
+  
+  //--------------------------
+  //---- select VBF event ----  
+  edm::Handle<edm::HepMCProduct> evtMC;
+  iEvent.getByLabel("source", evtMC);
+  
+  const HepMC::GenEvent * mcEv = evtMC->GetEvent();
+
+  if(mcEv->signal_process_id() != 123 && mcEv->signal_process_id() != 124) return false;
+  //---- end select VBF event ----  
+  //------------------------------  
+  
   
   //PG loop over generated particles
-  for (reco::CandidateCollection::const_iterator particle = genParticles->begin () ; 
+  for (reco::GenParticleCollection::const_iterator particle = genParticles->begin () ; 
        particle != genParticles->end () ; 
        ++particle) 
     {
@@ -57,6 +73,9 @@ VBFMCChannelFilter::filter (edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (m_channel == 1 && numMu == 2) return true ;                //PG double u
   if (m_channel == 2 && numEle == 2) return true ;               //PG double e
   if (m_channel == 3 && numMu == 1 && numEle == 1) return true ; //PG cross ue
+  
+  if (m_channel == 0 && (numMu == 2 || numEle == 2 || (numMu == 1 && numEle == 1))) return true ;                //AM whatever channel
+  
   return false ;
 }
 
