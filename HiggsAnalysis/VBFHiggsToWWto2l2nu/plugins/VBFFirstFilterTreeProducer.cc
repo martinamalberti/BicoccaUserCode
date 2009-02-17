@@ -138,7 +138,9 @@ void VBFFirstFilterTreeProducer::analyze(const edm::Event& e, const edm::EventSe
       std::cout << ">>> Analyze event number: " << nAnalyzed_ << std::endl;
     }
   
-    
+    flagVBFH_ = 0;
+    flagVBFHWW_ = 0;
+   
     mcMu_px_ ->clear();
     mcMu_py_ ->clear();
     mcMu_pz_ ->clear();
@@ -200,6 +202,20 @@ void VBFFirstFilterTreeProducer::analyze(const edm::Event& e, const edm::EventSe
   
   // *** montecarlo analysis ***
       
+    //---- check if VBF H is produced ----//   
+    edm::Handle<edm::HepMCProduct> evtMC;
+    e.getByLabel("source",evtMC);
+    const HepMC::GenEvent * Evt = evtMC->GetEvent();
+    int processID = Evt->signal_process_id() ;
+    if (processID == 123 || processID == 124) flagVBFH_=1 ;
+    else flagVBFH_=0;
+// // //     'MSUB(123) = 1           !ZZ fusion to H', 
+// // //     'MSUB(124) = 1           !WW fusion to H', 
+  
+    //---- end check if VBF H is produced ----//   
+    
+
+ 
   
   // *** reco analysis ***
   
@@ -318,7 +334,10 @@ void VBFFirstFilterTreeProducer::DefineBranches()
 {
   // set number of analyzed event to 0
   nAnalyzed_ = 0;
-   
+
+  outTree_->Branch("flagVBFH_",&flagVBFH_,"flagVBFH_/I");
+  outTree_->Branch("flagVBFHWW_",&flagVBFHWW_,"flagVBFHWW_/I");
+  
   outTree_->Branch("mcMu_n_",&mcMu_n_,"mcMu_n_/I");
   outTree_->Branch("mcMu_px_","std::vector<double>",&mcMu_px_);
   outTree_->Branch("mcMu_py_","std::vector<double>",&mcMu_py_);

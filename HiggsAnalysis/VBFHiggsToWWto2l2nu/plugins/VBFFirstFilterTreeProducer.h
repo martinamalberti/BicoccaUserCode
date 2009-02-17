@@ -50,6 +50,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 
 #include <TFile.h>
@@ -107,6 +108,10 @@ class VBFFirstFilterTreeProducer : public edm::EDAnalyzer
   //---- MonteCarlo ----
   //--------------------
   
+  int flagVBFH_;
+  int flagVBFHWW_;
+   
+    
   //---- mc Muon ----
   int mcMu_n_;
   std::vector<double> * mcMu_px_;
