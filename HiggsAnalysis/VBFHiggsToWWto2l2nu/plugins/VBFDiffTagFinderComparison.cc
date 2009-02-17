@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.3 2009/02/17 16:11:06 amassiro Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.4 2009/02/17 16:28:18 amassiro Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -12,7 +12,7 @@
 
 VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet& iConfig) :
       m_jetInputTag (iConfig.getParameter<edm::InputTag> ("jetInputTag")),
-      m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")),
+      m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag"))
 {}
 
 
@@ -122,7 +122,7 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
           }
          }
   
-         m_ntuple -> Fill (m_deltaEta, m_prdEta, m_massInv, m_energyMax, m_ptMax, m_purity, m_deltaRF, m_deltaRB, m_EratioF, m_EratioB, m_algo) ;
+         m_ntuple -> Fill (m_deltaEta, m_prdEta, m_massInv, m_energyMax, m_ptMax, m_purity, m_deltaRF, m_deltaRB, m_EratioF, m_EratioB) ;
 
       }
 // --------------------------------------------------------------------
@@ -136,7 +136,7 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
 
        edm::Service<TFileService> fs ;
 
-       m_ntuple = fs->make <TNtuple> ("ntuple","Some variables","deltaEta:prodEta:mInv:Emax:Ptmax:purity:dR1:dR2:rE1:rE2:algo");
+       m_ntuple = fs->make <TNtuple> ("ntuple","Some variables","deltaEta:prodEta:mInv:Emax:Ptmax:purity:dR1:dR2:rE1:rE2");
 
       }
 
