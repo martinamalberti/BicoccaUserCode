@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.2 2009/02/16 16:34:53 amassiro Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.3 2009/02/17 16:11:06 amassiro Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -13,8 +13,6 @@
 VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet& iConfig) :
       m_jetInputTag (iConfig.getParameter<edm::InputTag> ("jetInputTag")),
       m_MCtruthInputTag (iConfig.getParameter<edm::InputTag> ("MCtruthInputTag")),
-      m_algo (iConfig.getParameter<int> ("algoType"))
-
 {}
 
 
@@ -57,14 +55,7 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
          edm::Handle<GenParticleCollection> genParticles;
          iEvent.getByLabel(m_MCtruthInputTag, genParticles); 
          
-//          if (m_algo == 0) tagJetCands = 
-//             vbfhww2l::findTagJets (jetCollectionHandle->begin (), jetCollectionHandle->end (), 15.0, 5.0) ;
-//          else if (m_algo == 1) tagJetCands = 
-//             vbfhww2l::findMaxPtJetsPair (jetCollectionHandle->begin (), jetCollectionHandle->end (), 15.0, 5.0) ;
-
-//          if (tagJetCands.first->p4() == tagJetCands.second->p4()) return;
-
-         
+     
          
          double threshold = 0.3;
          double m_ptMax, m_energyMax;
@@ -92,11 +83,10 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
           int processID = Evt->signal_process_id() ;
           if (processID == 123 || processID == 124)
           {
-           std::cerr << "**** Trovato il processo giusto ****" << std::endl;
+
            if (findGenParticles (genParticles, *m_genqTagF, *m_genqTagB)){
             if (tagJetCands.first->p4().Eta() > tagJetCands.second->p4().Eta())
             {
-             std::cerr << "****************** Fatto ******************" << std::endl;
               ///////////////// ************ resolution ***********************************************                                                                       
              m_deltaRF = ROOT::Math::VectorUtil::DeltaR (tagJetCands.first->momentum(), m_genqTagF->Vect()) ;
              m_EratioF = tagJetCands.first->p4().E()/m_genqTagF->E() ;
@@ -172,15 +162,8 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
           int mumSTATUS = p->status();
 
           ///////////////////////////////////////////////// tag quark /////////////////////////////////////////////////
-      //misteriosamente i tag sono i fratelli dell'higgs
-      //quindi parto dall'higgs e ne prendo le mamme e quindi riguardo i figli
           if ((abs(mumPDG)==25) && (mumSTATUS ==3))
           {
-//            if(p->numberOfMothers() < 1){std::cout<<"AAAAA DiffTagFinder nMoth < 1 !!!! "<<std::endl; continue;}
-//            const Candidate * interact0 = p->mother(0);
-//            if(interact0->numberOfDaughters() < 2){std::cout<<"AAAAA DiffTagFinder nDaugh < 2 !!!! "<<std::endl;continue;}
-     
-//            const Candidate * interact0 = p->mother(0);
      
            if (((p-1)->eta()) > ((p-2)->eta())) {
             setMomentum (m_genqTagF, *(p-1));
@@ -195,16 +178,6 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
            
            foundSomething = true;
            
-/*           if ((interact0->daughter(1)->eta()) > (interact0->daughter(0)->eta())) 
-           {
-            setMomentum (m_genqTagF, *(interact0->daughter(1)));
-            setMomentum (m_genqTagB, *(interact0->daughter(0)));
-           }
-           else 
-           {
-            setMomentum (m_genqTagB, *(interact0->daughter(1)));
-            setMomentum (m_genqTagF, *(interact0->daughter(0)));
-           }*/
           }
         
          }
