@@ -14,7 +14,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ##########
 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 process.source = cms.Source(
     "PoolSource",
@@ -97,14 +97,79 @@ process.VBFTreeSequence = cms.Sequence(
 ##################
 ## VBF sequence ##
 ## * JetTagger ##
+## * centralJetVeto ##
+## * jetMCTagger ##
+## * jetDiffTagFinder ##
 
 process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFJetTagger_cfi")
+process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFCentralJetVetoFilter_cfi")
+process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFDiffTagFinderComparison_cfi")
+process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFMCJetTagger_cfi")
+
+
 process.VBFSequence = cms.Sequence(
- process.jetTagger
+ process.jetTagger *
+ process.centralJetVeto *
+ process.jetMCTagger *
+ process.jetDiffTagFinder
 )
 
 ## end VBF sequence ##
 ######################
+
+
+#####################
+# MC channel filter #
+
+process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFMCChannelFilter_cfi")
+
+process.channelFilterMCSequence = cms.Sequence(
+ process.channelFilterMC
+)
+
+# end MC channel filter #
+#########################
+
+
+
+##############################
+# particle generation viewer #
+
+process.include( "SimGeneral/HepPDTESSource/data/pythiapdt.cfi" )
+
+process.printTree = cms.EDAnalyzer( "ParticleTreeDrawer",
+  src = cms.InputTag("genParticles"),
+#    printP4 = cms.untracked.bool( True ),
+#    printPtEtaPhi = cms.untracked.bool( True ),
+  printStatus = cms.untracked.bool( True ),
+#   status = cms.untracked.vint32( 3 ),
+  printIndex = cms.untracked.bool(True )
+)
+
+
+process.printDecay = cms.EDAnalyzer( "ParticleDecayDrawer",
+   src = cms.InputTag("genParticles"),
+   printP4 = cms.untracked.bool( False ),
+   printPtEtaPhi = cms.untracked.bool( False ),
+   printVertex = cms.untracked.bool( False )
+#   printStatus = cms.untracked.bool( True ),
+#   status = cms.untracked.vint32( 3 )
+#   printIndex = cms.untracked.bool(True )
+)
+
+
+
+
+process.VBFParticleViewer = cms.Sequence(
+ process.channelFilterMC *
+ process.printTree *
+ process.printDecay
+)
+
+# end particle generation viewer #
+##################################
+
+
 
 
 ########
@@ -119,8 +184,7 @@ process.pathVBF = cms.Path(process.VBFSequence)
 process.pathEle = cms.Path(process.EleSequence)
 process.pathMu = cms.Path(process.MuSequence)
 process.pathTree = cms.Path(process.leptonsMinNumber * process.VBFTreeSequence)
-
-
+process.pathParticleViewer = cms.Path(process.VBFParticleViewer)
 
 ##########
 # Output #
@@ -150,9 +214,6 @@ process.VBFHWW2l2nuOutputModule.outputCommands.append(
 process.TFileService = cms.Service("TFileService", 
                                  fileName = cms.string("/tmp/amassiro/VBF_tree_todayTest.root"),
                                  closeFileFast = cms.untracked.bool(True),
-#                                  SelectEvents = cms.untracked.PSet(
-#                                   SelectEvents = cms.vstring('pathEle','pathMu')
-#                                  )  
                                 )
 
 
@@ -165,5 +226,8 @@ process.o = cms.EndPath ( process.VBFHWW2l2nuOutputModule )
 # shedule #
 ###########
 
-process.schedule = cms.Schedule(process.pathEle,process.pathMu,process.pathVBF,process.pathTree,process.o) # exec only these paths
+## only viewer ##
+# process.schedule = cms.Schedule(process.pathParticleViewer) # exec only these paths
 
+process.schedule = cms.Schedule(process.pathEle,process.pathMu,process.pathVBF,process.pathTree,process.o) # exec only these paths
+# process.schedule = cms.Schedule(process.pathEle,process.pathMu,process.pathVBF,process.o) # exec only these paths
