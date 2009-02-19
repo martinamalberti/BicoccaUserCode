@@ -15,6 +15,9 @@
 //#include "PhysicsTools/UtilAlgos/interface/SingleObjectRefVectorSelector.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
+#include "TParticle.h"
+
+
 //define this as a plug-in
 DEFINE_SEAL_MODULE () ;
 

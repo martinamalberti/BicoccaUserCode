@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.12 2009/01/15 13:24:16 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.1 2009/02/03 13:50:41 abenagli Exp $
 //
 //
 
@@ -53,6 +53,20 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
+
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
+#include "DataFormats/JetReco/interface/GenJet.h"
+
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETFwd.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
+
 SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
   m_tkIsolationAlgo (
       iConfig.getParameter<double> ("coneRadius") ,
@@ -78,6 +92,10 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
   MetTag_= iConfig.getParameter<edm::InputTag>("MetTag");
   TagJetTag_= iConfig.getParameter<edm::InputTag>("TagJetTag");
   JetTag_= iConfig.getParameter<edm::InputTag>("JetTag");
+  MCtruthTag_ = iConfig.getParameter<edm::InputTag> ("MCtruthTag");
+  genJetTag_ = iConfig.getParameter<edm::InputTag> ("genJetTag");
+  genMetTag_ = iConfig.getParameter<edm::InputTag> ("genMetTag");
+  
 }
 
 
@@ -96,6 +114,9 @@ SimpleNtple::~SimpleNtple()
   delete m_muons ;
   delete m_MET ;
   delete m_tracks ;
+  delete m_genParticles ;
+  delete m_genJets;
+  delete m_genMet;
   
 }
 
@@ -109,12 +130,17 @@ void
 SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   Init();
+  FillKindEvent (iEvent, iSetup);
+
   FillEle (iEvent, iSetup);
   FillMu (iEvent, iSetup);
   FillMet (iEvent, iSetup);
-  FillTagJet (iEvent, iSetup);
+  //   FillTagJet (iEvent, iSetup); //---- AM --- not now!
   FillJet (iEvent, iSetup);
   FillTracks (iEvent, iSetup);
+  FillGenParticles (iEvent, iSetup); //---- AM --- to call after FillKindEvent
+  FillGenJet (iEvent, iSetup);
+  FillGenMet (iEvent, iSetup);
   
   mytree_->Fill();
 
@@ -124,11 +150,26 @@ SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   m_muons -> Clear ()  ;
   m_MET -> Clear ()  ;
   m_tracks -> Clear () ;
+  m_genParticles -> Clear () ;
+  m_genJets -> Clear () ;
+  m_genMet -> Clear () ;
+  
 }
 
 
 // --------------------------------------------------------------------
 
+void SimpleNtple::FillKindEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+ edm::Handle<edm::HepMCProduct> evtMC;
+ iEvent.getByLabel("source", evtMC);
+  
+ const HepMC::GenEvent * mcEv = evtMC->GetEvent();
+ IdEvent = mcEv->signal_process_id();
+ 
+}
+
+
+// --------------------------------------------------------------------
 
 void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   //  typedef edm::View<reco::PixelMatchGsfElectron> electronCollection
@@ -146,42 +187,31 @@ void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel (TracksTag_,TracksHandle) ;
 
   //PG get the electron ID collections
-  std::vector<edm::Handle<reco::ElectronIDAssociationCollection> > eleIdHandles ;
-  for (int i=0 ; i<3 ; ++i)
-    {
-      edm::Handle<reco::ElectronIDAssociationCollection> dummy ;
-      eleIdHandles.push_back (dummy) ;
-    }
+  std::vector<edm::Handle<edm::ValueMap<float> > > eleIdHandles(3) ;
   iEvent.getByLabel (m_eleIDPTDRLooseInputTag, eleIdHandles[0]);
   iEvent.getByLabel (m_eleIDPTDRMediumInputTag, eleIdHandles[1]);
   iEvent.getByLabel (m_eleIDPTDRTightInputTag, eleIdHandles[2]);
 
-  //Fix Me -> sort ?
-  
   if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
   else {nEle = 30;}
   for(int i=0; i< nEle; i++){
-    reco::PixelMatchGsfElectronRef electronReference = 
-      EleHandle->refAt (i).castTo<reco::PixelMatchGsfElectronRef> () ;
-    IsolEleSumPt[i] = 
-      m_tkIsolationAlgo.calcSumOfPt (EleHandle, TracksHandle, electronReference) ;
-    IsolEleNTracks[i] = 
-      m_tkIsolationAlgo.countNumOfTracks (EleHandle, TracksHandle, electronReference) ;
+   
+    reco::PixelMatchGsfElectronRef electronReference = EleHandle->refAt (i).castTo<reco::PixelMatchGsfElectronRef> () ;
+    
+    edm::Ref<edm::View<reco::PixelMatchGsfElectron> > electronRef(EleHandle,i);
+    
+    IsolEleSumPt[i] = m_tkIsolationAlgo.calcSumOfPt (EleHandle, TracksHandle, electronReference) ;
+    IsolEleNTracks[i] = m_tkIsolationAlgo.countNumOfTracks (EleHandle, TracksHandle, electronReference) ;
 
-  
     int times[3] = {1,10,100} ;
     EleId[i]=0;
-    reco::ElectronIDAssociationCollection::const_iterator electronIDAssocItr ;
     for (int j=0 ; j<3 ; ++j)
-      {
-        electronIDAssocItr = eleIdHandles[j]->find (electronReference) ;
-        if (electronIDAssocItr != eleIdHandles[j]->end ())
-          {
-            const reco::ElectronIDRef & id = electronIDAssocItr->val ;
-            bool cutBasedID = id->cutBasedDecision () ;
-            EleId[i] += cutBasedID * times[j] ;
-          }
-      } //PG loop over the eleID
+    {
+     if ((*(eleIdHandles[j]))[electronRef] > 0) {
+      EleId[i] += times[j] ;
+     }
+    }
+     
   }
 
   TClonesArray &electrons = *m_electrons;
@@ -317,6 +347,102 @@ SimpleNtple::FillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // --------------------------------------------------------------------
 
 
+void 
+  SimpleNtple::FillGenParticles(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+ edm::Handle<reco::GenParticleCollection> genParticlesHandle; 
+ iEvent.getByLabel (MCtruthTag_,genParticlesHandle);
+ 
+ TClonesArray &genParticles = *m_genParticles;
+ int counter = 0;
+ 
+ if (IdEvent==123 || IdEvent==124){//---- only if VBF
+  for (reco::GenParticleCollection::const_iterator genIt = genParticlesHandle->begin (); 
+       genIt != genParticlesHandle->end (); 
+       ++genIt ) 
+  {
+   
+   Int_t pdg = genIt->pdgId();
+   Int_t status = genIt->status();
+   Int_t mother1 = 0;
+   if (genIt->numberOfMothers()>0) mother1 = genIt->mother(0)->pdgId();
+   Int_t mother2 = 0;
+   if (genIt->numberOfMothers()>1) mother2 = genIt->mother(1)->pdgId();
+   Int_t daughter1 = 0;
+   if (genIt->numberOfDaughters()>0) daughter1 = genIt->daughter(0)->pdgId();
+   Int_t daughter2 = 0;
+   if (genIt->numberOfDaughters()>1) daughter2 = genIt->daughter(1)->pdgId();
+   Double_t px = genIt->px();
+   Double_t py = genIt->py();
+   Double_t pz = genIt->pz();
+   Double_t etot = genIt->energy();
+   Double_t vx = 0;
+   Double_t vy = 0;
+   Double_t vz = 0;
+   Double_t time = 0;
+  
+   new (genParticles[counter]) TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
+  
+    
+   counter++;
+  }
+ }
+}
+
+
+
+
+// --------------------------------------------------------------------
+
+
+void 
+  SimpleNtple::FillGenJet(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+ edm::Handle< reco::GenJetCollection > genJetsHandle ;
+ iEvent.getByLabel( genJetTag_, genJetsHandle ) ;
+
+ TClonesArray &genJets = *m_genJets;
+ int counter = 0;
+ for (reco::GenJetCollection::const_iterator gJIt = genJetsHandle->begin (); 
+      gJIt != genJetsHandle->end (); 
+      ++gJIt ) 
+ { 
+  myvector.SetPx ((*gJIt).px ()) ;
+  myvector.SetPy ((*gJIt).py ()) ;
+  myvector.SetPz ((*gJIt).pz ()) ;
+  new (genJets[counter]) TLorentzVector (myvector);
+  counter++;
+ }
+}
+
+
+
+// --------------------------------------------------------------------
+
+
+void 
+  SimpleNtple::FillGenMet(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+ edm::Handle< reco::GenMETCollection > genMetHandle ;
+ iEvent.getByLabel( genMetTag_, genMetHandle ) ;
+
+ TClonesArray &genMets = *m_genMet;
+ int counter = 0;
+ for (reco::GenMETCollection::const_iterator gMIt = genMetHandle->begin (); 
+      gMIt != genMetHandle->end (); 
+      ++gMIt ) 
+ { 
+  myvector.SetPx ((*gMIt).px ()) ;
+  myvector.SetPy ((*gMIt).py ()) ;
+  myvector.SetPz ((*gMIt).pz ()) ;
+  new (genMets[counter]) TLorentzVector (myvector);
+  counter++;
+ }
+}
+
+// --------------------------------------------------------------------
+
+
 void SimpleNtple::Init(){
   nEle = 0; 
   nMu = 0;
@@ -369,6 +495,18 @@ SimpleNtple::beginJob(const edm::EventSetup& iSetup)
   // vector of the TLorentz Vectors of other jets
   m_tracks = new TClonesArray ("TLorentzVector");
   mytree_->Branch ("tracks", "TClonesArray", &m_tracks, 256000,0);
+
+  // vector of the TLorentz Vectors of other genParticles
+  m_genParticles = new TClonesArray ("TParticle");
+  mytree_->Branch ("genParticles", "TClonesArray", &m_genParticles, 256000,0);
+
+  // vector of the TLorentz Vectors of other genJets
+  m_genJets = new TClonesArray ("TLorentzVector");
+  mytree_->Branch ("genJets", "TClonesArray", &m_genJets, 256000,0);
+
+  // vector of the TLorentz Vectors of other genMet
+  m_genMet = new TClonesArray ("TLorentzVector");
+  mytree_->Branch ("genMet", "TClonesArray", &m_genMet, 256000,0);
 
 }
 

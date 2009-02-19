@@ -17,6 +17,8 @@
 #include "TTree.h"
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
+// #include <TParticle.h>
+#include "TParticle.h"
 
 //
 // class decleration
@@ -36,13 +38,17 @@ class SimpleNtple : public edm::EDAnalyzer {
   virtual void endJob() ;
 
   void Init();
+  void FillKindEvent(const edm::Event&, const edm::EventSetup&);
   void FillEle (const edm::Event&, const edm::EventSetup&);
   void FillMu (const edm::Event&, const edm::EventSetup&);
   void FillMet (const edm::Event&, const edm::EventSetup&);
   void FillTagJet (const edm::Event&, const edm::EventSetup&);
   void FillJet (const edm::Event&, const edm::EventSetup&);
   void FillTracks(const edm::Event&, const edm::EventSetup&);
-
+  void FillGenParticles(const edm::Event&, const edm::EventSetup&);
+  void FillGenJet(const edm::Event&, const edm::EventSetup&);
+  void FillGenMet(const edm::Event&, const edm::EventSetup&);
+    
   void setMomentum (TLorentzVector &myvector, const LorentzVector & mom) ;
   
   // ----------member data ---------------------------
@@ -53,6 +59,7 @@ class SimpleNtple : public edm::EDAnalyzer {
   int EleId[30];
   //muons
   int nMu;
+  int IdEvent;
   float IsolMuSumPt[30],IsolMuNTracks[30];
   float MinvTags;
   //other jets
@@ -63,9 +70,14 @@ class SimpleNtple : public edm::EDAnalyzer {
   TClonesArray * m_muons ;
   TClonesArray * m_MET ;
   TClonesArray * m_tracks ;
-
+  TClonesArray * m_genParticles;
+  TClonesArray * m_genJets;
+  TClonesArray * m_genMet;
   TLorentzVector myvector ;
-
+  TLorentzVector myvertex ;
+//   TParticle myparticle ;
+  
+  
   //! isolation algorithm
   VBFEleTrackerIsolationAlgo m_tkIsolationAlgo ;
   
@@ -81,5 +93,8 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag MetTag_;
   edm::InputTag TagJetTag_;
   edm::InputTag JetTag_;
+  edm::InputTag MCtruthTag_;
+  edm::InputTag genJetTag_;
+  edm::InputTag genMetTag_;
   
 };
