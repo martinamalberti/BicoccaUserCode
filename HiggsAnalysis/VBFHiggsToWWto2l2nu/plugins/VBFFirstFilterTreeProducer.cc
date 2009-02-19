@@ -12,6 +12,7 @@ VBFFirstFilterTreeProducer::VBFFirstFilterTreeProducer(const edm::ParameterSet& 
  srcElectrons_        = conf.getParameter<edm::InputTag>("srcElectrons");
  srcMuons_            = conf.getParameter<edm::InputTag>("srcMuons");
  srcJets_             = conf.getParameter<edm::InputTag>("srcJets");
+ srcGenParticles_     = conf.getParameter<edm::InputTag>("srcGenParticles");
    
  eleTkIso_ = conf.getParameter<edm::InputTag>("eleTkIso");
  eleEcalIso_ = conf.getParameter<edm::InputTag>("eleEcalIso");
@@ -75,6 +76,12 @@ void VBFFirstFilterTreeProducer::beginJob(edm::EventSetup const&iSetup)
  mcEle_phi_ = new std::vector<double>;
  mcEle_pT_ = new std::vector<double>;
  mcEle_charge_ = new std::vector<int>;
+
+ mcJet_px_ = new std::vector<double>;
+ mcJet_py_ = new std::vector<double>;
+ mcJet_pz_ = new std::vector<double>;
+ mcJet_eta_ = new std::vector<double>;
+ mcJet_phi_ = new std::vector<double>;
 
  recoMu_px_ = new std::vector<double>;
  recoMu_py_ = new std::vector<double>;
@@ -159,6 +166,14 @@ void VBFFirstFilterTreeProducer::analyze(const edm::Event& e, const edm::EventSe
     mcEle_pT_ ->clear();
     mcEle_charge_ ->clear();
 
+    mcJet_px_ ->clear();
+    mcJet_py_ ->clear();
+    mcJet_pz_ ->clear();
+    mcJet_eta_ ->clear();
+    mcJet_phi_ ->clear();
+
+    
+    
     recoMu_px_ ->clear();
     recoMu_py_ ->clear();
     recoMu_pz_ ->clear();
@@ -214,8 +229,48 @@ void VBFFirstFilterTreeProducer::analyze(const edm::Event& e, const edm::EventSe
   
     //---- end check if VBF H is produced ----//   
     
-
+    
+    edm::Handle<reco::GenParticleCollection> genParticles; 
+    e.getByLabel (srcGenParticles_,genParticles);
+    
  
+    //---- mc Electron ----
+    mcEle_n_ = 0;
+    
+    //---- mc Muon ----
+    mcMu_n_ = 0;
+    
+    //---- mc tagged Jet ----
+    mcJet_n_ = 0;
+    
+    if (flagVBFH_) {
+     //---- only if VBF ----
+     for (reco::GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++ p) 
+     {
+      int mumPDG = p->pdgId();
+      int mumSTATUS = p->status();
+      if ((abs(mumPDG)==25) && (mumSTATUS ==3))
+      {
+       //---- first tag Jet ----
+       mcJet_eta_->push_back((p-1) -> eta());
+       mcJet_phi_->push_back((p-1) -> phi());
+       mcJet_px_->push_back((p-1) -> px());
+       mcJet_py_->push_back((p-1) -> py());
+       mcJet_pz_->push_back((p-1) -> pz());
+       
+       //---- Second tag Jet ----
+       mcJet_eta_->push_back((p-2) -> eta());
+       mcJet_phi_->push_back((p-2) -> phi());
+       mcJet_px_->push_back((p-2) -> px());
+       mcJet_py_->push_back((p-2) -> py());
+       mcJet_pz_->push_back((p-2) -> pz());
+       
+       mcJet_n_ +=2;
+       }
+      
+     }
+    }
+
   
   // *** reco analysis ***
   
@@ -318,6 +373,10 @@ void VBFFirstFilterTreeProducer::analyze(const edm::Event& e, const edm::EventSe
      recoJet_eta_->push_back(jetIt -> eta());
      recoJet_phi_->push_back(jetIt -> phi());
      recoJet_et_->push_back(jetIt -> et());
+     recoJet_px_->push_back(jetIt -> px());
+     recoJet_py_->push_back(jetIt -> py());
+     recoJet_pz_->push_back(jetIt -> pz());
+     recoJet_e_->push_back(jetIt -> p());
     }
 
     
@@ -358,6 +417,13 @@ void VBFFirstFilterTreeProducer::DefineBranches()
   outTree_->Branch("mcEle_pT_","std::vector<double>",&mcEle_pT_);
   outTree_->Branch("mcEle_charge_","std::vector<int>",&mcEle_charge_);
 
+  outTree_->Branch("mcJet_n_",&mcJet_n_,"mcJet_n_/I");
+  outTree_->Branch("mcJet_px_","std::vector<double>",&mcJet_px_);  
+  outTree_->Branch("mcJet_py_","std::vector<double>",&mcJet_py_);  
+  outTree_->Branch("mcJet_pz_","std::vector<double>",&mcJet_pz_);  
+  outTree_->Branch("mcJet_eta_","std::vector<double>",&mcJet_eta_);  
+  outTree_->Branch("mcJet_phi_","std::vector<double>",&mcJet_phi_);  
+  
   outTree_->Branch("recoMu_n_",&recoMu_n_,"recoMu_n_/I");
   outTree_->Branch("recoMu_px_","std::vector<double>",&recoMu_px_);
   outTree_->Branch("recoMu_py_","std::vector<double>",&recoMu_py_);

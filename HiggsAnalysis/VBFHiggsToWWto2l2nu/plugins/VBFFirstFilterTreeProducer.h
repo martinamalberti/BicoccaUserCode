@@ -50,6 +50,15 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
+
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 
@@ -89,6 +98,7 @@ class VBFFirstFilterTreeProducer : public edm::EDAnalyzer
   edm::InputTag srcElectrons_;
   edm::InputTag srcMuons_;
   edm::InputTag srcJets_;
+  edm::InputTag srcGenParticles_;
   
   edm::InputTag eleTkIso_;
   edm::InputTag eleEcalIso_;
@@ -137,8 +147,16 @@ class VBFFirstFilterTreeProducer : public edm::EDAnalyzer
   std::vector<int> * mcEle_charge_;
  
      
- 
   
+  //---- mc Jet ----
+  int mcJet_n_;
+  std::vector<double> * mcJet_px_;
+  std::vector<double> * mcJet_py_;
+  std::vector<double> * mcJet_pz_;
+  std::vector<double> * mcJet_eta_;
+  std::vector<double> * mcJet_phi_;
+
+ 
   
   
   //--------------
