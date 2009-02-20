@@ -56,14 +56,28 @@ int main (int argc, char *argv[])
  TH1F hTagGenJetPt("hTagGenJetPt","Tagged GenJet pt",1000,0,1000);
  
  TH1F hGenJetPt("hGenJetPt","GenJet pt",1000,0,1000);
+ TH1F hGenJetPtVBFHWW("hGenJetPtVBFHWW","GenJet pt of all jets in a VBF Higgs WW event",1000,0,1000);
+
+ TH1F hTagJetPtMax("hTagJetPtMax","Tagged Jet pt of the most energetic jet",1000,0,1000);
+ TH1F hTagJetPtMin("hTagJetPtMin","Tagged Jet pt of the least energetic jet",1000,0,1000);
+ TH1F hTagJetPt("hTagJetPt","Tagged Jet pt",1000,0,1000);
+ 
+ TH1F hRatioTagJetPtRecoGen("hRatioTagJetPtRecoGen","Ratio Jet pt reco / gen",100,0,2);
  
  
  
  TChain * chain_H = new TChain ("ntpla/VBFSimpleTree") ;
- chain_H->Add ("/tmp/amassiro/VBF_SimpleTree_20Feb.root");
+//  chain_H->Add ("/tmp/amassiro/VBF_SimpleTree_20Feb.root");
+ chain_H->Add ("/tmp/amassiro/VBF_SimpleTree_H160_WW_2l.root");
+ 
+ 
+ 
   
  TClonesArray * genJets = new TClonesArray ("TLorentzVector") ;
  chain_H->SetBranchAddress ("genJets", &genJets) ;
+ 
+ TClonesArray * otherJets = new TClonesArray ("TLorentzVector") ;
+ chain_H->SetBranchAddress ("otherJets", &otherJets) ;
  
  TClonesArray * genParticles = new TClonesArray ("TParticle") ;
  chain_H->SetBranchAddress ("genParticles", &genParticles) ;
@@ -154,18 +168,84 @@ int main (int argc, char *argv[])
   for (int k=0; k<genJets->GetEntries (); k++ ){ //--- loop over genJet ----
    TLorentzVector* myparticle = (TLorentzVector*) genJets->At(k);
    hGenJetPt.Fill(myparticle->Pt());
+   if (IdEvent==123 || IdEvent==124) hGenJetPtVBFHWW.Fill(myparticle->Pt());
   } //--- end loop over genJet ----
 
   
+  
+    ///---- GenJetTagged && recoJets (otherJets) ----
+  double minDRGenReco1 = 1000;
+  double minDRGenReco2 = 1000;
+  int numDRGenReco1 = -1;
+  int numDRGenReco2 = -1;
+
+  if (genJetTagged_pair.first!=-1 && genJetTagged_pair.second!=-1){
+   TLorentzVector* genJetTagged1 = (TLorentzVector*) genJets->At(genJetTagged_pair.first);
+   TLorentzVector* genJetTagged2 = (TLorentzVector*) genJets->At(genJetTagged_pair.second);
+
+   for (int l=0; l<otherJets->GetEntries (); l++ ){ //--- loop over otherJets ----
+    TLorentzVector* myparticle = (TLorentzVector*) otherJets->At(l);
+   
+    double DRGenReco1 = ROOT::Math::VectorUtil::DeltaR (genJetTagged1->BoostVector(), myparticle->BoostVector()) ;
+    double DRGenReco2 = ROOT::Math::VectorUtil::DeltaR (genJetTagged2->BoostVector(), myparticle->BoostVector()) ;
+    if (DRGenReco1<minDRGenReco1) {
+     numDRGenReco1 = l;
+     minDRGenReco1 = DRGenReco1;
+    }
+    if (DRGenReco2<minDRGenReco2) {
+     numDRGenReco2 = l;
+     minDRGenReco2 = DRGenReco2;
+    }
+   } //--- end loop over otherJets ----
+   if (numDRGenReco1 != -1 && numDRGenReco2 != -1 && numDRGenReco2!=numDRGenReco1) {
+    if (debug_){
+     std::cerr << "match 2 genJets " << numDRGenReco1 << " and " << numDRGenReco2 << std::endl;
+     std::cerr << "           DR = " << minDRGenReco1 << " and " << minDRGenReco2 << std::endl;
+    }
+    if (minDRGenReco1<maxDR && minDRGenReco2<maxDR){//---- DRmax
+     
+     
+     TLorentzVector* myJet1 = (TLorentzVector*) otherJets->At(numDRGenReco1);
+     TLorentzVector* myJet2 = (TLorentzVector*) otherJets->At(numDRGenReco2);
+      
+     double pt1 = myJet1->Pt();
+     double pt2 = myJet2->Pt();
+      
+     if (pt1 > pt2){
+      hTagJetPtMin.Fill(pt2);
+      hTagJetPtMax.Fill(pt1);
+     }
+     else {
+      hTagJetPtMin.Fill(pt1);
+      hTagJetPtMax.Fill(pt2);
+     }
+     hTagJetPt.Fill(pt1);
+     hTagJetPt.Fill(pt2);
+     if (genJetTagged1->Pt()!=0) hRatioTagJetPtRecoGen.Fill(pt1 / genJetTagged1->Pt());
+     if (genJetTagged2->Pt()!=0) hRatioTagJetPtRecoGen.Fill(pt2 / genJetTagged2->Pt());
+    
+    }//---- end DRmax
+   }
+  }
+
  }
-  
- hTagGenJetPtMin.Write();
- hTagGenJetPtMax.Write();
- hTagGenJetPt.Write();
- hGenJetPt.Write();
  
- outFile.Close();
+ 
   
- return 0 ;
-}
+   
+  hTagGenJetPtMin.Write();
+  hTagGenJetPtMax.Write();
+  hTagGenJetPt.Write();
+  hGenJetPt.Write();
+  hGenJetPtVBFHWW.Write();
+ 
+  hTagJetPtMax.Write();
+  hTagJetPtMin.Write();
+  hTagJetPt.Write();
+  hRatioTagJetPtRecoGen.Write();
+ 
+  outFile.Close();
+  
+  return 0 ;
+ }
 
