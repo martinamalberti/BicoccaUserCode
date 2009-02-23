@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.1 2009/02/03 13:50:41 abenagli Exp $
+// $Id: SimpleNtple.cc,v 1.2 2009/02/19 15:03:39 amassiro Exp $
 //
 //
 
@@ -407,9 +407,11 @@ void
       gJIt != genJetsHandle->end (); 
       ++gJIt ) 
  { 
+  
   myvector.SetPx ((*gJIt).px ()) ;
   myvector.SetPy ((*gJIt).py ()) ;
   myvector.SetPz ((*gJIt).pz ()) ;
+  myvector.SetE ((*gJIt).emEnergy () + (*gJIt).hadEnergy ()) ;
   new (genJets[counter]) TLorentzVector (myvector);
   counter++;
  }
@@ -435,6 +437,7 @@ void
   myvector.SetPx ((*gMIt).px ()) ;
   myvector.SetPy ((*gMIt).py ()) ;
   myvector.SetPz ((*gMIt).pz ()) ;
+  myvector.SetE ((*gMIt).emEnergy () + (*gMIt).hadEnergy ()) ;
   new (genMets[counter]) TLorentzVector (myvector);
   counter++;
  }
@@ -461,6 +464,8 @@ void SimpleNtple::Init(){
 void 
 SimpleNtple::beginJob(const edm::EventSetup& iSetup)
 {
+  mytree_->Branch("IdEvent",&IdEvent,"IdEvent/I");
+ 
   mytree_->Branch("nEle",&nEle,"nEle/I");
   mytree_->Branch("IsolEleSumPt",IsolEleSumPt,"IsolEleSumPt[30]/F");
   mytree_->Branch("IsolEleNTracks",IsolEleNTracks,"IsolEleNTracks[30]/F");
