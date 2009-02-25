@@ -121,20 +121,14 @@ EcalTTowerKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        if( it->detid().subdetId() == 1) isBarrel = true;
 
-       int secondColumn = 0;
-       //EBDetId singleHitEB = it->detid();
-       //EEDetId singleHitEE = it->detid();
-
        EcalElectronicsId elecId = theMapping_->getElectronicsId( it->id() );
        int iFED = 600 + elecId.dccId();
-
-       if(isBarrel) secondColumn = ( (EBDetId) it->detid()).tower().iTT();
-       else secondColumn = ( (EEDetId) it->detid()).isc();
+       int iTT =   elecId.towerId();
        
        for( std::vector<pair<int, int> >::const_iterator DeadCell = ChannelsDeadID.begin();
 	    DeadCell < ChannelsDeadID.end(); DeadCell++ ){
 	 
-	 if(iFED == DeadCell->first && secondColumn == DeadCell->second){
+	 if(iFED == DeadCell->first && iTT == DeadCell->second){
 	   DetId itID = it->id();
 	   ItIsDead = true;
 	 }
@@ -155,97 +149,7 @@ EcalTTowerKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        
      }
    }
-   /*
-     EBDetId singleHit = it->detid();
-     int iTT = singleHit.tower().iTT();
 
-     ESHandle< EcalElectronicsMapping > ecalmapping;
-     iSetup.get< EcalMappingRcd >().get(ecalmapping);
-     const EcalElectronicsMapping * theMapping_ = ecalmapping.product();
-
-     int iFED = theMapping_->DCCid( singleHit.tower() ) + 600; //FED = DCC + 600
-     
-     for( std::vector<pair<int, int> >::const_iterator DeadCell = ChannelsDeadID.begin(); 
-	  DeadCell < ChannelsDeadID.end(); DeadCell++ ){
-       
-       if(iFED == DeadCell->first && iTT == DeadCell->second){
-	 DetId itID = it->id();
-	 ItIsDead = true;
-       }
-     }//End looping on vector of Dead Cells
-     
-     
-     
-     // Make a new RecHit
-     //
-     // TODO what will be the it->time() for D.C. ?
-     // Could we use it for "correction" identification?
-     //
-     if(!ItIsDead){
-       //std::cout << "TOWERKILLER DEBUG: " << NewEnergy << std::endl; 
-       EcalRecHit NewHit(it->id(), NewEnergy, it->time());
-       redCollectionEB->push_back( NewHit );
-     }
-
-     else{
-       EcalRecHit NewHit(it->id(), NewEnergy, it->time());
-       rejCollectionEB->push_back( NewHit );
-     }
-     */
-    
-   
-
-   //ENDCAPS
-   // get the hit collection from the event:
-   /*
-   edm::Handle<EcalRecHitCollection> rhcHandleEE;
-   iEvent.getByLabel(EECollection_ , rhcHandleEE);
-   if (!(rhcHandleEE.isValid())) {
-     std::cout << "Analysis: could not get a handle on the EcalRecHitCollection ENDCAP!" << std::endl;
-     return;
-   }
-
-   const EcalRecHitCollection* hit_collectionEE = rhcHandleEE.product();
-   */
-   // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and put in the Event:
-   /*
-   for(EcalRecHitCollection::const_iterator it = hit_collectionEE->begin(); it != hit_collectionEE->end(); ++it) {
-     double NewEnergy = it->energy();
-     bool ItIsDead = false;
-
-     EEDetId singleHit = it->detid();
-     int iSC = singleHit.isc();
-
-     ESHandle< EcalElectronicsMapping > ecalmapping;
-     iSetup.get< EcalMappingRcd >().get(ecalmapping);
-     const EcalElectronicsMapping * theMapping_ = ecalmapping.product();
-     
-     EcalElectronicsId elecId = theMapping_->getElectronicsId( it->id() );
-     int iFED = 600 + elecId.dccId();
-     //int iFED = theMapping_->DCCid( singleHit.tower() ) + 600; //FED = DCC + 600
-
-     for( std::vector<pair<int, int> >::const_iterator DeadCell = ChannelsDeadID.begin();
-          DeadCell < ChannelsDeadID.end(); DeadCell++ ){
-
-       if(iFED == DeadCell->first && iSC == DeadCell->second){
-         DetId itID = it->id();
-         ItIsDead = true;
-       }
-     }//End looping on vector of Dead Cells
-     if(!ItIsDead){
-       //std::cout << "TOWERKILLER DEBUG: " << NewEnergy << std::endl;
-       EcalRecHit NewHit(it->id(), NewEnergy, it->time());
-       redCollectionEE->push_back( NewHit );
-     }
-     else{
-       EcalRecHit NewHit(it->id(), NewEnergy, it->time());
-       rejCollectionEE->push_back( NewHit );
-     }
-
-   }
-   */
-   //   std::cout << "total # hits: " << nTot << "  #hits with E = " << 0 << " GeV : " << nRed << std::endl;
-   
    iEvent.put(redCollectionEB, reducedHitCollectionEB_);
    iEvent.put(rejCollectionEB, rejectedHitCollectionEB_);
    iEvent.put(redCollectionEE, reducedHitCollectionEE_);
