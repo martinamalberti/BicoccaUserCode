@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TowerKiller2")
+process = cms.Process("TowerKiller")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'WARNINGS'
@@ -112,7 +112,7 @@ process.TFileService = cms.Service("TFileService",
 
 ### Output file ###	
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:/gwtera1/users/martelli/data/proveTT/myOutputFile_small.root'),
+    fileName = cms.untracked.string('file:/gwtera1/users/martelli/data/proveTT/myOutputFile.root'),
     outputCommands = cms.untracked.vstring(
 	            'keep *'
         	#     'drop *',
@@ -156,5 +156,5 @@ process.p = cms.Path(
 
     )
 
-#process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out)
 
