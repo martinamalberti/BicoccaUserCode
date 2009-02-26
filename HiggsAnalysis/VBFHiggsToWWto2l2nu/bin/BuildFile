@@ -1,0 +1,4 @@
+<use name=HiggsAnalysis/VBFHiggsToWWto2l2nu>           
+<bin file=JetTagging.cpp name=JetTagging>
+<lib name=EG> #for TParticle
+</bin>
