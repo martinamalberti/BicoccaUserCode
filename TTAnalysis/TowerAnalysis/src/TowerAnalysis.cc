@@ -13,7 +13,7 @@
 //
 // Original Authors:  Leonardo Sala 
 //         Created:  Tue Feb 24 11:40:58 CET 2009
-// $Id: TowerAnalysis.cc,v 1.2 2009/02/26 17:58:56 amartell Exp $
+// $Id: TowerAnalysis.cc,v 1.4 2009/02/26 18:01:36 amartell Exp $
 //
 //
 
@@ -75,6 +75,11 @@ private:
   std::map<std::string, TH1F*> histos;
   std::map<std::string, TH2F*> histos2d;
 
+  TProfile2D* barrelDeadEnergy;
+  TProfile2D* pendcapDeadEnergy;
+  TProfile2D* nendcapDeadEnergy;
+
+
   edm::InputTag rechEB_;
   edm::InputTag rechEE_;
 
@@ -86,7 +91,7 @@ private:
 
   edm::InputTag mcTruthCollection_;
 
-
+  //std::DeadTowersFileName_;  
   ////////////////
 
   int  nEvent_;
@@ -178,6 +183,8 @@ TowerAnalysis::TowerAnalysis(const edm::ParameterSet& iConfig)
 
   mcTruthCollection_ = iConfig.getParameter<edm::InputTag>("mcTruthCollection");
 
+//  DeadTowersFileName_  = ps.getParameter<std::string>("DeadTowersFile");
+
   maxPt_ = iConfig.getParameter<double>("MaxPt");
   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
   deltaR_ = iConfig.getParameter<double>("DeltaR");
@@ -230,7 +237,7 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get the hit collection from the event:
    edm::Handle<EcalRecHitCollection> hit_collectionEB;
-   iEvent.getByLabel( rechEB_, hit_collectionEB);
+   iEvent.getByLabel( rejhEB_, hit_collectionEB);
    if (!(hit_collectionEB.isValid()))
      {
        std::cout << "[Analysis] could not get a handle on the EcalRecHitCollection EB!" << std::endl;
@@ -240,11 +247,13 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(EcalRecHitCollection::const_iterator it = hit_collectionEB->begin(); it != hit_collectionEB->end(); ++it) {
      EBDetId singleHit = it->detid();
      histos2d["deadTowers_etaPhi"]->Fill(singleHit.iphi(), singleHit.ieta());
+     barrelDeadEnergy->Fill(singleHit.iphi(), singleHit.ieta(), it->energy());
+
      //std::cout << it->energy() << std::endl;
    }
    
    edm::Handle<EcalRecHitCollection> hit_collectionEE;
-   iEvent.getByLabel( rechEE_, hit_collectionEE);
+   iEvent.getByLabel( rejhEE_, hit_collectionEE);
    if (!(hit_collectionEE.isValid()))
      {
        std::cout << "[Analysis] could not get a handle on the EcalRecHitCollection EE!" << std::endl;
@@ -253,10 +262,15 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    for(EcalRecHitCollection::const_iterator it = hit_collectionEE->begin(); it != hit_collectionEE->end(); ++it) {
      EEDetId singleHit = it->detid();
-     if( singleHit.zside() >0)
-       histos2d["deadTowersEE+_etaPhi"]->Fill(singleHit.ix(), singleHit.iy());
-     else
-       histos2d["deadTowersEE-_etaPhi"]->Fill(singleHit.ix(), singleHit.iy());
+     if( singleHit.zside() >0) {
+       histos2d["deadTowersEE+_etaPhi"]->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5);
+       pendcapDeadEnergy->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5, it->energy());
+       }
+     else{
+       histos2d["deadTowersEE-_etaPhi"]->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5);
+       nendcapDeadEnergy->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5, it->energy());
+       }
+
      //std::cout << it->energy() << std::endl;
    }
    
@@ -364,22 +378,22 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	 ///////////////////////////////////////
 
-	 float etaSC = SCok->eta();
-	 float phiSC = SCok->phi();
-	 float xSC = SCok->position().x();
-	 float ySC = SCok->position().y();
-	 float zSC = SCok->position().z();
+	 float etaTk = bestGsfElectron.trackMomentumOut().eta();
+	 float phiTk = bestGsfElectron.trackMomentumOut().phi();
+	 float xTk = bestGsfElectron.trackMomentumOut().x();
+	 float yTk = bestGsfElectron.trackMomentumOut().y();
+	 float zTk = bestGsfElectron.trackMomentumOut().z();
 
-	 float etaSCRed = SCRedok->eta();
-	 float phiSCRed = SCRedok->phi();
-	 float xSCRed = SCRedok->position().x();
-	 float ySCRed = SCRedok->position().y();
-	 float zSCRed = SCRedok->position().z();
+	 float etaTkRed = bestGsfElectronRed.trackMomentumOut().eta();
+	 float phiTkRed = bestGsfElectronRed.trackMomentumOut().phi();
+	 float xTkRed = bestGsfElectronRed.trackMomentumOut().x();
+	 float yTkRed = bestGsfElectronRed.trackMomentumOut().y();
+	 float zTkRed = bestGsfElectronRed.trackMomentumOut().z();
 
 
-	 if(etaSC < 1.5 && etaSC > -1.5) h_simEtavsPhi -> Fill(phiSC, etaSC) ;
-	 if(etaSC > 1.5) h_simXvsYinPE -> Fill(xSC, ySC) ;
-	 if(etaSC < -1.5) h_simXvsYinNE -> Fill(xSC, ySC) ;
+	 if(etaTk < 1.5 && etaTk > -1.5) h_simEtavsPhi -> Fill(phiTk, etaTk) ;
+	 if(etaTk > 1.5) h_simXvsYinPE -> Fill(xTk, yTk) ;
+	 if(etaTk < -1.5) h_simXvsYinNE -> Fill(xTk, yTk) ;
 
 
 	 /////////////////////////////////////  
@@ -389,24 +403,24 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (okGsfFound){
 	   // generated distributions for matched electrons
 	   
-	   if(etaSC < 1.5 && etaSC > -1.5) h_ele_simEtavsPhi_matched -> Fill(phiSC, etaSC);
-	   if(etaSC > 1.5) h_ele_simXvsYinPE_matched -> Fill(xSC, ySC);
-	   if(etaSC < -1.5) h_ele_simXvsYinNE_matched -> Fill(xSC, ySC);
+	   if(etaTk < 1.5 && etaTk > -1.5) h_ele_simEtavsPhi_matched -> Fill(phiTk, etaTk);
+	   if(etaTk > 1.5) h_ele_simXvsYinPE_matched -> Fill(xTk, yTk);
+	   if(etaTk < -1.5) h_ele_simXvsYinNE_matched -> Fill(xTk, yTk);
 
-	   if(etaSC < 1.5 && etaSC > -1.5) h_ele_simE_matched -> Fill(phiSC, etaSC, (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
-	   if(etaSC > 1.5) h_ele_simEinPE_matched -> Fill(xSC, ySC,  (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
-	    if(etaSC < -1.5)h_ele_simEinNE_matched -> Fill(xSC, ySC,  (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
+	   if(etaTk < 1.5 && etaTk > -1.5) h_ele_simE_matched -> Fill(phiTk, etaTk, (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
+	   if(etaTk > 1.5) h_ele_simEinPE_matched -> Fill(xTk, yTk,  (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
+	    if(etaTk < -1.5)h_ele_simEinNE_matched -> Fill(xTk, yTk,  (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
 	 } // gsf electron found  
 
 
 	 if(okGsfRedFound){
-	   if(etaSC < 1.5 && etaSC > -1.5) h_eleRed_simEtavsPhi_matched -> Fill(phiSC, etaSC);
-	   if(etaSC > 1.5) h_eleRed_simXvsYinPE_matched -> Fill(xSC, ySC);
-	   if(etaSC < -1.5) h_eleRed_simXvsYinNE_matched -> Fill(xSC, ySC);
+	   if(etaTk < 1.5 && etaTk > -1.5) h_eleRed_simEtavsPhi_matched -> Fill(phiTk, etaTk);
+	   if(etaTk > 1.5) h_eleRed_simXvsYinPE_matched -> Fill(xTk, yTk);
+	   if(etaTk < -1.5) h_eleRed_simXvsYinNE_matched -> Fill(xTk, yTk);
 
-	   if(etaSC < 1.5 && etaSC > -1.5) h_eleRed_simE_matched -> Fill(phiSC, etaSC, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
-	   if(etaSC > 1.5) h_eleRed_simEinPE_matched -> Fill(xSC, ySC, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
-	   if(etaSC < -1.5) h_eleRed_simEinNE_matched -> Fill(xSC, ySC, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
+	   if(etaTk < 1.5 && etaTk > -1.5) h_eleRed_simE_matched -> Fill(phiTk, etaTk, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
+	   if(etaTk > 1.5) h_eleRed_simEinPE_matched -> Fill(xTk, yTk, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
+	   if(etaTk < -1.5) h_eleRed_simEinNE_matched -> Fill(xTk, yTk, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
 
 	 }
 	 
@@ -429,37 +443,42 @@ TowerAnalysis::beginJob(const edm::EventSetup&)
   
   histos2d["deadTowersEE+_etaPhi"] = fs->make<TH2F>("deadTowersEE+_etaPhi","dead towers (i#phi,i#eta);i#phi;i#eta",100,0,100,100,0,100);
   histos2d["deadTowersEE-_etaPhi"] = fs->make<TH2F>("deadTowersEE-_etaPhi","dead towers (i#phi,i#eta);i#phi;i#eta",100,0,100,100,0,100);
+
+  barrelDeadEnergy = fs->make<TProfile2D>("barrelDeadEnergy", "barrelDeadEnergy", 365, 0, 365, 200, -100, 100);
+  pendcapDeadEnergy = fs->make<TProfile2D>("pendcapDeadEnergy", "pendcapDeadEnergy", 100, 0, 100, 100, 0, 100);
+  nendcapDeadEnergy = fs->make<TProfile2D>("nendcapDeadEnergy", "nendcapDeadEnergy", 100, 0, 100, 100, 0, 100);
+
   
   // mc
  h_simEtavsPhi = fs->make<TH2F>("h_simEtavsPhi", "h_simEtavsPhi", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_simXvsYinPE = fs->make<TH2F>("h_simXvsYinPE", "h_simXvsYinPE", 100, 0., 100., 100, 0., 100.);
- h_simXvsYinNE = fs->make<TH2F>("h_simXvsYinNE", "h_simXvsYinNE", 100, 0., 100., 100, 0., 100.);
+ h_simXvsYinPE = fs->make<TH2F>("h_simXvsYinPE", "h_simXvsYinPE", 100, -150., 150., 100, -150., 150.);
+ h_simXvsYinNE = fs->make<TH2F>("h_simXvsYinNE", "h_simXvsYinNE", 100, -150., 150., 100, -150., 150.);
 
 
  h_ele_simEtavsPhi_matched = fs->make<TH2F>("h_ele_simEtavsPhi_matched", "h_ele_simEtavsPhi_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_ele_simXvsYinPE_matched = fs->make<TH2F>("h_ele_simXvsYinPE_matched", "h_ele_simXvsYinPE_matched", 100, 0., 100., 100, 0., 100.); 
- h_ele_simXvsYinNE_matched = fs->make<TH2F>("h_ele_simXvsYinNE_matched", "h_ele_simXvsYinNE_matched", 100, 0., 100., 100, 0., 100.);
+ h_ele_simXvsYinPE_matched = fs->make<TH2F>("h_ele_simXvsYinPE_matched", "h_ele_simXvsYinPE_matched", 100, -150., 150., 100, -150., 150.); 
+ h_ele_simXvsYinNE_matched = fs->make<TH2F>("h_ele_simXvsYinNE_matched", "h_ele_simXvsYinNE_matched", 100, -150., 150., 100, -150., 150.);
 
  h_ele_simE_matched = fs->make<TProfile2D>("h_ele_simE_matched", "h_ele_simE_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_ele_simEinPE_matched = fs->make<TProfile2D>("h_ele_simEinPE_matched", "h_ele_simEinPE_matched", 100, 0., 100., 100, 0., 100.);
- h_ele_simEinNE_matched = fs->make<TProfile2D>("h_ele_simEinNE_matched", "h_ele_simEinNE_matched", 100, 0., 100., 100, 0., 100.);
+ h_ele_simEinPE_matched = fs->make<TProfile2D>("h_ele_simEinPE_matched", "h_ele_simEinPE_matched", 100, -150., 150., 100, -150., 150.);
+ h_ele_simEinNE_matched = fs->make<TProfile2D>("h_ele_simEinNE_matched", "h_ele_simEinNE_matched", 100, -150., 150., 100, -150., 150.);
 
  h_eleRed_simEtavsPhi_matched = fs->make<TH2F>("h_eleRed_simEtavsPhi_matched", "h_eleRed_simEtavsPhi_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_eleRed_simXvsYinPE_matched = fs->make<TH2F>("h_eleRed_simXvsYinPE_matched", "h_eleRed_simXvsYinPE_matched", 100, 0., 100., 100, 0., 100.); 
- h_eleRed_simXvsYinNE_matched = fs->make<TH2F>("h_eleRed_simXvsYinNE_matched", "h_eleRed_simXvsYinNE_matched", 100, 0., 100., 100, 0., 100.);
+ h_eleRed_simXvsYinPE_matched = fs->make<TH2F>("h_eleRed_simXvsYinPE_matched", "h_eleRed_simXvsYinPE_matched", 100, -150., 150., 100, -150., 150.); 
+ h_eleRed_simXvsYinNE_matched = fs->make<TH2F>("h_eleRed_simXvsYinNE_matched", "h_eleRed_simXvsYinNE_matched", 100, -150., 150., 100, -150., 150.);
 
  h_eleRed_simE_matched = fs->make<TProfile2D>("h_eleRed_simE_matched", "h_eleRed_simE_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_eleRed_simEinPE_matched = fs->make<TProfile2D>("h_eleRed_simEinPE_matched", "h_eleRed_simEinPE_matched", 100, 0., 100., 100, 0., 100.);
- h_eleRed_simEinNE_matched = fs->make<TProfile2D>("h_eleRed_simEinNE_matched", "h_eleRed_simEinNE_matched", 100, 0., 100., 100, 0., 100.);
+ h_eleRed_simEinPE_matched = fs->make<TProfile2D>("h_eleRed_simEinPE_matched", "h_eleRed_simEinPE_matched", 100, -150., 150., 100, -150., 150.);
+ h_eleRed_simEinNE_matched = fs->make<TProfile2D>("h_eleRed_simEinNE_matched", "h_eleRed_simEinNE_matched", 100, -150., 150., 100, -150., 150.);
 
 
  h_ele_EtavsPhiEff = fs->make<TH2F>("h_ele_EtavsPhiEff", "h_ele_EtavsPhiEff", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_ele_XvsYEffinPE = fs->make<TH2F>("h_ele_XvsYEffinPE", "h_ele_XvsYEffinPE", 100, 0., 100., 100, 0., 100.);
- h_ele_XvsYEffinNE = fs->make<TH2F>("h_ele_XvsYEffinNE", "h_ele_XvsYEffinNE", 100, 0., 100., 100, 0., 100.);
+ h_ele_XvsYEffinPE = fs->make<TH2F>("h_ele_XvsYEffinPE", "h_ele_XvsYEffinPE", 100, -150., 150., 100, -150., 150.);
+ h_ele_XvsYEffinNE = fs->make<TH2F>("h_ele_XvsYEffinNE", "h_ele_XvsYEffinNE", 100, -150., 150., 100, -150., 150.);
 
  h_eleRed_EtavsPhiEff = fs->make<TH2F>("h_eleRed_EtavsPhiEff", "h_eleRed_EtavsPhiEff", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_eleRed_XvsYEffinPE = fs->make<TH2F>("h_eleRed_XvsYEffinPE", "h_eleRed_XvsYEffinPE", 100, 0., 100., 100, 0., 100.);
- h_eleRed_XvsYEffinNE = fs->make<TH2F>("h_eleRed_XvsYEffinNE", "h_eleRed_XvsYEffinNE", 100, 0., 100., 100, 0., 100.);
+ h_eleRed_XvsYEffinPE = fs->make<TH2F>("h_eleRed_XvsYEffinPE", "h_eleRed_XvsYEffinPE", 100, -150., 150., 100, -150., 150.);
+ h_eleRed_XvsYEffinNE = fs->make<TH2F>("h_eleRed_XvsYEffinNE", "h_eleRed_XvsYEffinNE", 100, -150., 150., 100, -150., 150.);
 
 }
 
