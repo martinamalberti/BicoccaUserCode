@@ -2,3 +2,11 @@
 <bin file=JetTagging.cpp name=JetTagging>
 <lib name=EG> #for TParticle
 </bin>
+
+<bin file=JetTagging_NN.cpp name=JetTagging_NN>
+<lib name=EG> #for TParticle
+</bin>
+
+<bin file=JetTagging_MyNN.cpp name=JetTagging_MyNN>
+<lib name=EG> #for TParticle
+</bin>
