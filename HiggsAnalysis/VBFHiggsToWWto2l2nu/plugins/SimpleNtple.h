@@ -17,7 +17,6 @@
 #include "TTree.h"
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
-// #include <TParticle.h>
 #include "TParticle.h"
 
 //
@@ -43,7 +42,7 @@ class SimpleNtple : public edm::EDAnalyzer {
   void FillMu (const edm::Event&, const edm::EventSetup&);
   void FillMet (const edm::Event&, const edm::EventSetup&);
   void FillTagJet (const edm::Event&, const edm::EventSetup&);
-  void FillJet (const edm::Event&, const edm::EventSetup&);
+  void FillJet (const edm::Event&, const edm::EventSetup&, int);
   void FillTracks(const edm::Event&, const edm::EventSetup&);
   void FillGenParticles(const edm::Event&, const edm::EventSetup&);
   void FillGenJet(const edm::Event&, const edm::EventSetup&);
@@ -73,6 +72,15 @@ class SimpleNtple : public edm::EDAnalyzer {
   TClonesArray * m_genParticles;
   TClonesArray * m_genJets;
   TClonesArray * m_genMet;
+  
+  TClonesArray * m_otherJets_SisCone5CaloJets ;
+  TClonesArray * m_otherJets_IterativeCone5CaloJets ;
+  TClonesArray * m_otherJets_SisCone5PFJets ;
+  TClonesArray * m_otherJets_IterativeCone5PFJets ;
+
+  
+  
+  
   TLorentzVector myvector ;
   TLorentzVector myvertex ;
 //   TParticle myparticle ;
@@ -97,4 +105,15 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag genJetTag_;
   edm::InputTag genMetTag_;
   
+  edm::InputTag JetTagSisCone5CaloJets_;
+  edm::InputTag JetTagIterativeCone5CaloJets_;
+  edm::InputTag JetTagSisCone5PFJets_;
+  edm::InputTag JetTagIterativeCone5PFJets_;
+
+  bool bool_JetTagSisCone5CaloJets_;
+  bool bool_JetTagIterativeCone5CaloJets_;
+  bool bool_JetTagSisCone5PFJets_;
+  bool bool_JetTagIterativeCone5PFJets_;
+  
+    
 };

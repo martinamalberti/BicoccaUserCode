@@ -9,9 +9,28 @@ ntpla = cms.EDAnalyzer(
      MetTag = cms.InputTag("met"),
 
      TagJetTag = cms.InputTag("dummy"),
-    
-     JetTag = cms.InputTag("iterativeCone5CaloJets"),
+
+############         
+### Jets ###         
+#      JetTag = cms.InputTag("iterativeCone5CaloJets"),
+     JetTag = cms.InputTag("cleanedJets"),
+### different jet tags ###    
+     bool_JetTagSisCone5CaloJets       = cms.untracked.bool(False),
+     bool_JetTagIterativeCone5CaloJets = cms.untracked.bool(True),
+     bool_JetTagSisCone5PFJets         = cms.untracked.bool(True),
+     bool_JetTagIterativeCone5PFJets   = cms.untracked.bool(True),         
+      
+     JetTagSisCone5CaloJets       = cms.InputTag("sisCone5CaloJets"),
+     JetTagIterativeCone5CaloJets = cms.InputTag("iterativeCone5CaloJets"),
+     JetTagSisCone5PFJets         = cms.InputTag("sisCone5PFJets"),      
+     JetTagIterativeCone5PFJets   = cms.InputTag("iterativeCone5PFJets"),
+                
+##############         
+### Tracks ###         
      TracksTag = cms.InputTag("generalTracks"),
+     
+###################        
+### Electron ID ###         
      eleIDPTDRLooseInputTag = cms.InputTag("eidLoose"),#caso
      eleIDPTDRMediumInputTag = cms.InputTag("eidRobustLoose"),#caso
      eleIDPTDRTightInputTag = cms.InputTag("eidTight"),#caso

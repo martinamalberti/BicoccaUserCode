@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.2 2009/02/19 15:03:39 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.3 2009/02/23 15:42:58 amassiro Exp $
 //
 //
 
@@ -63,8 +63,10 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 #include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETFwd.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 
 SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
@@ -95,7 +97,17 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
   MCtruthTag_ = iConfig.getParameter<edm::InputTag> ("MCtruthTag");
   genJetTag_ = iConfig.getParameter<edm::InputTag> ("genJetTag");
   genMetTag_ = iConfig.getParameter<edm::InputTag> ("genMetTag");
-  
+
+  bool_JetTagSisCone5CaloJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagSisCone5CaloJets",false);
+  bool_JetTagIterativeCone5CaloJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagIterativeCone5CaloJets",false);
+  bool_JetTagSisCone5PFJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagSisCone5PFJets",false);
+  bool_JetTagIterativeCone5PFJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagIterativeCone5PFJets",false);
+
+  if (bool_JetTagSisCone5CaloJets_) JetTagSisCone5CaloJets_= iConfig.getParameter<edm::InputTag>("JetTagSisCone5CaloJets");
+  if (bool_JetTagIterativeCone5CaloJets_) JetTagIterativeCone5CaloJets_= iConfig.getParameter<edm::InputTag>("JetTagIterativeCone5CaloJets");
+  if (bool_JetTagSisCone5PFJets_) JetTagSisCone5PFJets_= iConfig.getParameter<edm::InputTag>("JetTagSisCone5PFJets");
+  if (bool_JetTagIterativeCone5PFJets_) JetTagIterativeCone5PFJets_= iConfig.getParameter<edm::InputTag>("JetTagIterativeCone5PFJets");
+    
 }
 
 
@@ -118,6 +130,10 @@ SimpleNtple::~SimpleNtple()
   delete m_genJets;
   delete m_genMet;
   
+  delete m_otherJets_SisCone5CaloJets ;
+  delete m_otherJets_IterativeCone5CaloJets ;
+  delete m_otherJets_SisCone5PFJets ;
+  delete m_otherJets_IterativeCone5PFJets ;
 }
 
 
@@ -136,12 +152,17 @@ SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   FillMu (iEvent, iSetup);
   FillMet (iEvent, iSetup);
   //   FillTagJet (iEvent, iSetup); //---- AM --- not now!
-  FillJet (iEvent, iSetup);
+  FillJet (iEvent, iSetup, 0);
   FillTracks (iEvent, iSetup);
   FillGenParticles (iEvent, iSetup); //---- AM --- to call after FillKindEvent
   FillGenJet (iEvent, iSetup);
   FillGenMet (iEvent, iSetup);
   
+  if (bool_JetTagSisCone5CaloJets_)        FillJet(iEvent, iSetup, 1);
+  if (bool_JetTagIterativeCone5CaloJets_)  FillJet(iEvent, iSetup, 2);
+  if (bool_JetTagSisCone5PFJets_)          FillJet(iEvent, iSetup, 3);
+  if (bool_JetTagIterativeCone5PFJets_)    FillJet(iEvent, iSetup, 4);
+    
   mytree_->Fill();
 
   m_tagJets -> Clear () ;
@@ -300,22 +321,83 @@ void SimpleNtple::FillTagJet(const edm::Event& iEvent, const edm::EventSetup& iS
 // --------------------------------------------------------------------
 
 
-void SimpleNtple::FillJet(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void SimpleNtple::FillJet(const edm::Event& iEvent, const edm::EventSetup& iSetup, int kind_algo = 0){
 
+ if (kind_algo==0){
   edm::Handle<reco::CaloJetCollection> JetHandle ;
   iEvent.getByLabel (JetTag_, JetHandle) ;
-
   TClonesArray &jetOther = *m_otherJets;
   int counter = 0;
   for (CaloJetCollection::const_iterator jet2 = JetHandle->begin (); 
        jet2 != JetHandle->end (); 
        ++jet2 ) 
-    { 
-      setMomentum (myvector, jet2->p4());        
-      new (jetOther[counter]) TLorentzVector (myvector);
-      counter++;
-     }
+  { 
+   setMomentum (myvector, jet2->p4());        
+   new (jetOther[counter]) TLorentzVector (myvector);
+   counter++;
+  }
+ }
 
+ if (kind_algo==1){
+  edm::Handle<reco::CaloJetCollection> JetHandle ;
+  iEvent.getByLabel (JetTagSisCone5CaloJets_, JetHandle) ;
+  TClonesArray &jetOther = *m_otherJets_SisCone5CaloJets;
+  int counter = 0;
+  for (CaloJetCollection::const_iterator jet2 = JetHandle->begin (); 
+       jet2 != JetHandle->end (); 
+       ++jet2 ) 
+  { 
+   setMomentum (myvector, jet2->p4());        
+   new (jetOther[counter]) TLorentzVector (myvector);
+   counter++;
+  }
+ }
+
+ if (kind_algo==2){
+  edm::Handle<reco::CaloJetCollection> JetHandle ;
+  iEvent.getByLabel (JetTagIterativeCone5CaloJets_, JetHandle) ;
+  TClonesArray &jetOther = *m_otherJets_IterativeCone5CaloJets;
+  int counter = 0;
+  for (CaloJetCollection::const_iterator jet2 = JetHandle->begin (); 
+       jet2 != JetHandle->end (); 
+       ++jet2 ) 
+  { 
+   setMomentum (myvector, jet2->p4());        
+   new (jetOther[counter]) TLorentzVector (myvector);
+   counter++;
+  }
+ }
+
+ if (kind_algo==3){
+  edm::Handle<reco::PFJetCollection> JetHandle ;
+  iEvent.getByLabel (JetTagSisCone5PFJets_, JetHandle) ;
+  TClonesArray &jetOther = *m_otherJets_SisCone5PFJets;
+  int counter = 0;
+  for (PFJetCollection::const_iterator jet2 = JetHandle->begin (); 
+       jet2 != JetHandle->end (); 
+       ++jet2 ) 
+  { 
+   setMomentum (myvector, jet2->p4());        
+   new (jetOther[counter]) TLorentzVector (myvector);
+   counter++;
+  }
+ }
+
+ if (kind_algo==4){
+  edm::Handle<reco::PFJetCollection> JetHandle ;
+  iEvent.getByLabel (JetTagIterativeCone5PFJets_, JetHandle) ;
+  TClonesArray &jetOther = *m_otherJets_IterativeCone5PFJets;
+  int counter = 0;
+  for (PFJetCollection::const_iterator jet2 = JetHandle->begin (); 
+       jet2 != JetHandle->end (); 
+       ++jet2 ) 
+  { 
+   setMomentum (myvector, jet2->p4());        
+   new (jetOther[counter]) TLorentzVector (myvector);
+   counter++;
+  }
+ }
+     
 }
 
 
@@ -411,7 +493,8 @@ void
   myvector.SetPx ((*gJIt).px ()) ;
   myvector.SetPy ((*gJIt).py ()) ;
   myvector.SetPz ((*gJIt).pz ()) ;
-  myvector.SetE ((*gJIt).emEnergy () + (*gJIt).hadEnergy ()) ;
+  myvector.SetE ((*gJIt).energy ()) ;
+//   myvector.SetE ((*gJIt).emEnergy () + (*gJIt).hadEnergy ()) ;
   new (genJets[counter]) TLorentzVector (myvector);
   counter++;
  }
@@ -437,7 +520,8 @@ void
   myvector.SetPx ((*gMIt).px ()) ;
   myvector.SetPy ((*gMIt).py ()) ;
   myvector.SetPz ((*gMIt).pz ()) ;
-  myvector.SetE ((*gMIt).emEnergy () + (*gMIt).hadEnergy ()) ;
+  myvector.SetE ((*gMIt).energy ()) ;
+//   myvector.SetE ((*gMIt).emEnergy () + (*gMIt).hadEnergy ()) ;
   new (genMets[counter]) TLorentzVector (myvector);
   counter++;
  }
@@ -512,6 +596,23 @@ SimpleNtple::beginJob(const edm::EventSetup& iSetup)
   // vector of the TLorentz Vectors of other genMet
   m_genMet = new TClonesArray ("TLorentzVector");
   mytree_->Branch ("genMet", "TClonesArray", &m_genMet, 256000,0);
+
+  
+  // vector of the TLorentz Vectors of other jets
+  m_otherJets_SisCone5CaloJets = new TClonesArray ("TLorentzVector");
+  mytree_->Branch ("otherJets_SisCone5CaloJets", "TClonesArray", &m_otherJets_SisCone5CaloJets, 256000,0);
+
+  // vector of the TLorentz Vectors of other jets
+  m_otherJets_IterativeCone5CaloJets = new TClonesArray ("TLorentzVector");
+  mytree_->Branch ("otherJets_IterativeCone5CaloJets", "TClonesArray", &m_otherJets_IterativeCone5CaloJets, 256000,0);
+
+  // vector of the TLorentz Vectors of other jets
+  m_otherJets_SisCone5PFJets = new TClonesArray ("TLorentzVector");
+  mytree_->Branch ("otherJets_SisCone5PFJets", "TClonesArray", &m_otherJets_SisCone5PFJets, 256000,0);
+
+  // vector of the TLorentz Vectors of other jets
+  m_otherJets_IterativeCone5PFJets = new TClonesArray ("TLorentzVector");
+  mytree_->Branch ("otherJets_IterativeCone5PFJets", "TClonesArray", &m_otherJets_IterativeCone5PFJets, 256000,0);
 
 }
 
