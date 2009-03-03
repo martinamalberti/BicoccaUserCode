@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 jetTagger = cms.EDProducer(
     "VBFJetTagger",
-     jetInputTag = cms.InputTag("iterativeCone5CaloJets"),
+     jetInputTag = cms.InputTag("cleanedJets"),
      tagJetsName = cms.string("taggedJets"),
      otherJetsName = cms.string("otherJets"),
      jetEtaMax = cms.double(5.),

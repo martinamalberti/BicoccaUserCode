@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 VBFHWW2l2nuSource = cms.PSet(
-    fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_1.root',
+    fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_1.root',
 'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_10.root',
 'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_11.root',
 'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_12.root',
@@ -28,6 +27,6 @@ VBFHWW2l2nuSource = cms.PSet(
 'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_6.root',
 'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_7.root',
 'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_8.root',
-'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_9.root'
-     )
+'rfio:/castor/cern.ch/user/a/amassiro/VBF/Everything_Skimmed_4Cluster/H160_WW_2l/VBFHWW2l2nuTest_9.root'  
+ )
     )
