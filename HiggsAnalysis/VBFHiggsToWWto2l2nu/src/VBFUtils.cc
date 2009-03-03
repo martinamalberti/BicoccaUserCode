@@ -1,4 +1,4 @@
-// $Id: VBFUtils.cc,v 1.1 2008/03/17 17:01:18 govoni Exp $
+// $Id: VBFUtils.cc,v 1.1 2009/02/03 13:47:42 abenagli Exp $
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/interface/VBFUtils.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -75,37 +75,73 @@ findMaxPtJetsPair (VBFjetIt begin, VBFjetIt end,
 {
   std::pair<VBFjetIt,VBFjetIt> tagJets (begin, begin) ; 
 
+// // //   double ptMax1 = 0;
+// // //   double ptMax2 = 0;
+// // // 
+// // //   VBFjetIt myJet1;
+// // //   VBFjetIt myJet2;
+// // //   for (VBFjetIt Jet = begin ;
+// // //        Jet != end ;
+// // //        ++Jet)
+// // //     {
+// // //       if (Jet->p4().Pt() > ptMax1)
+// // // 	{
+// // // 	  myJet1 = Jet;
+// // // 	  myJet2 = myJet1;
+// // // 	  ptMax2 = ptMax1;
+// // // 	  ptMax1 = Jet->p4().Pt() ;
+// // // 
+// // //         } 
+// // //       // else if ((Jet->p4().Pt() > ptMax2) && (myJet1->p4().Eta() *Jet->p4().Eta() < 0))
+// // //       else if (Jet->p4().Pt() > ptMax2) 
+// // // 	{
+// // //          myJet2 = Jet;
+// // //          ptMax2 = Jet->p4().Pt() ;
+// // // 	}
+// // //     }
+// // // 
+// // //   tagJets.first = myJet1;
+// // //   tagJets.second = myJet2 ;
+// // // 
+// // //   return tagJets ;
+
+  
+  
+
+  
   double ptMax1 = 0;
   double ptMax2 = 0;
-
-  VBFjetIt myJet1;
-  VBFjetIt myJet2;
-  for (VBFjetIt Jet = begin ;
-       Jet != end ;
-       ++Jet)
-    {
-      if (Jet->p4().Pt() > ptMax1)
-	{
-	  myJet1 = Jet;
-	  myJet2 = myJet1;
-	  ptMax2 = ptMax1;
-	  ptMax1 = Jet->p4().Pt() ;
-
-        } 
-      // else if ((Jet->p4().Pt() > ptMax2) && (myJet1->p4().Eta() *Jet->p4().Eta() < 0))
-      else if (Jet->p4().Pt() > ptMax2) 
-	{
-         myJet2 = Jet;
-         ptMax2 = Jet->p4().Pt() ;
-	}
+  
+  //---- initialization at "begin" ----
+  VBFjetIt myJet1 = begin;
+  VBFjetIt myJet2 = begin;
+  
+  for (VBFjetIt Jet = begin; Jet != end; ++Jet){
+   //---- first threshold: (2) ----
+   if (Jet->p4().Pt() > ptMax2)
+   {
+    //---- second threshold: (1) ----
+    if (Jet->p4().Pt() > ptMax1){
+     //---- if both (1) and (2) threshold succeded than (1) becomes (2)
+     myJet2 = myJet1;
+     ptMax2 = ptMax1;
+     //----  and the new one is (1)
+     myJet1 = Jet;
+     ptMax1 = myJet1->p4().Pt();
     }
-
-  tagJets.first = myJet1;
-  tagJets.second = myJet2 ;
-
-  return tagJets ;
-
+    else {
+     myJet2 = Jet;
+     ptMax2 = Jet->p4().Pt();    
     }
+  }
+ }
+  
+ tagJets.first = myJet1;
+ tagJets.second = myJet2 ;
+  
+ return tagJets ;
+   
+}
 
 
 // --------------------------------------------------------------------------------
