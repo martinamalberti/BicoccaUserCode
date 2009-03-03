@@ -10,3 +10,7 @@
 <bin file=JetTagging_MyNN.cpp name=JetTagging_MyNN>
 <lib name=EG> #for TParticle
 </bin>
+
+<bin file=JetTagging_NN_SingleTag_Creator.cpp name=JetTagging_NN_SingleTag_Creator>
+<lib name=EG> #for TParticle
+</bin>
