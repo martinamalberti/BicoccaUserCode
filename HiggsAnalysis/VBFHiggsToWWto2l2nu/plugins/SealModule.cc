@@ -183,6 +183,11 @@ DEFINE_ANOTHER_FWK_MODULE (EtMinMETSelector) ;
 
 //---- New ----
 
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFEventSelector.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFEventSelector) ; 
+
+
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFLeptonsMinNumFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFLeptonsMinNumFilter) ; 
 
