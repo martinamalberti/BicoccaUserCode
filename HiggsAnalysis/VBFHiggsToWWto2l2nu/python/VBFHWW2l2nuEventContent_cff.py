@@ -17,7 +17,9 @@ VBFHWW2l2nuEventContent = cms.PSet(
 #         'keep recoTrackExtras_*_*_*',
        
         'keep recoPFJets_*_*_*',
-                  
+        'keep recoCaloJets_*_*_*',
+        'keep recoGenJets_*_*_*',
+                           
         'keep *_hbhereco_*_*',
         'keep *_hfreco_*_*',
         'keep *_horeco_*_*', 
