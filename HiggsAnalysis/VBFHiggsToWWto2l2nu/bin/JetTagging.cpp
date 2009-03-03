@@ -161,7 +161,7 @@ int main (int argc, char *argv[])
  
  
  numentries = chain_H->GetEntries();
- for (int i=0; i<numentries; i++ ){
+ for (int i=0; i<numentries; i++ ){//---- loop over entries 
   std::pair<int,int> genJetTagged_pair;
   genJetTagged_pair.first = -1;
   genJetTagged_pair.second = -1;
@@ -173,9 +173,16 @@ int main (int argc, char *argv[])
   recoJetTagged_pair.first = -1;
   recoJetTagged_pair.second = -1;
   
+  
+  
+  std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkGenJet;
+  std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkGenJetRecoJet;   
+  std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkRecoJet;   
+
+  
   chain_H->GetEntry(i);
   
-  ///---- check genJet and quarks from Higgs ----
+
   if (IdEvent==123 || IdEvent==124){ //---- only VBF H_WW events
    numentriesVBF++;
    hRecoJetNum.Fill(otherJets->GetEntries ());
@@ -191,10 +198,9 @@ int main (int argc, char *argv[])
     hQuarkTagEtaVBFHWW_2D.Fill(momentum_quark1.Eta(),momentum_quark2.Eta());
       
 
-    std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkGenJet;
-    std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkGenJetRecoJet;   
-    std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkRecoJet;   
-    
+      
+
+    ///---- check genJet and quarks from Higgs ----
 
     double minDR_J1 = 1000;    
     double minDR_J2 = 1000; 
@@ -212,29 +218,21 @@ int main (int argc, char *argv[])
     } //--- end loop over genJet ----
 
     sort( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSortingTLorentzVector() );
-    unique( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSameFirstTLorentzVector() );
-    unique( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSameSecondTLorentzVector() );
+//     unique( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSameFirstTLorentzVector() );
+//     unique( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSameSecondTLorentzVector() );
+    unique( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSameFirstOrSecondTLorentzVector() );
     
     
-
-     
-     
     if (Vect_PairQuarkGenJet.size()>2){
      minDR_J1 = ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJet.at(0).first->BoostVector(),Vect_PairQuarkGenJet.at(0).second->BoostVector());
      minDR_J2 = ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJet.at(1).first->BoostVector(),Vect_PairQuarkGenJet.at(1).second->BoostVector());       
     }
        
-    if (debug_){
-     std::cerr << "match 2 genJets " << numDR_J1 << " and " << numDR_J2 << std::endl;
-     std::cerr << "           DR = " << minDR_J1 << " and " << minDR_J2 << std::endl;
-    }
-     
-//      std::cerr << "           size = " << Vect_PairQuarkGenJet.size() << std::endl;
-     
+ 
+    //---- histograms ----   
     hGenJetTagDR.Fill(minDR_J1);
     hGenJetTagDR.Fill(minDR_J2);
-     
-     
+ 
     if (minDR_J1<maxDR && minDR_J2<maxDR){//---- DRmax
      
      double pt1 = Vect_PairQuarkGenJet.at(0).first->Pt();
@@ -243,14 +241,10 @@ int main (int argc, char *argv[])
      if (pt1 > pt2){
       hTagGenJetPtMin.Fill(pt2);
       hTagGenJetPtMax.Fill(pt1);
-      genJetTagged_pair.first = numDR_J1;
-      genJetTagged_pair.second = numDR_J2;
      }
      else {
       hTagGenJetPtMin.Fill(pt1);
       hTagGenJetPtMax.Fill(pt2);
-      genJetTagged_pair.first = numDR_J2;
-      genJetTagged_pair.second = numDR_J1;
      }
      hTagGenJetPt.Fill(pt1);
      hTagGenJetPt.Fill(pt2);
@@ -270,7 +264,10 @@ int main (int argc, char *argv[])
      hGenJetZeppenfeld.Fill(Vect_PairQuarkGenJet.at(1).first->Eta() - (Vect_PairQuarkGenJet.at(0).first->Eta() + Vect_PairQuarkGenJet.at(1).first->Eta())/2.);
       
     }//---- end DRmax
-
+    
+    
+    
+    
     
     ///---- recoJet tagging with quark ----
     double minDRQuarkReco1 = 1000;
@@ -280,34 +277,123 @@ int main (int argc, char *argv[])
     for (int l=0; l<otherJets->GetEntries (); l++ ){ //--- loop over otherJets ----
      TLorentzVector* myparticle = (TLorentzVector*) otherJets->At(l);
    
-     double DRGenReco1 = ROOT::Math::VectorUtil::DeltaR (momentum_quark1.BoostVector(), myparticle->BoostVector()) ;
-     double DRGenReco2 = ROOT::Math::VectorUtil::DeltaR (momentum_quark2.BoostVector(), myparticle->BoostVector()) ;
-     if (DRGenReco1<minDRQuarkReco1) {
-      numDRQuarkReco1 = l;
-      minDRQuarkReco1 = DRGenReco1;
-     }
-     if (DRGenReco2<minDRQuarkReco2) {
-      numDRQuarkReco2 = l;
-      minDRQuarkReco2 = DRGenReco2;
-     }
+     std::pair<TLorentzVector*,TLorentzVector*> PairQuarkRecoJet_1(myparticle,&momentum_quark1);
+     Vect_PairQuarkRecoJet.push_back(PairQuarkRecoJet_1);
+     
+     std::pair<TLorentzVector*,TLorentzVector*> PairQuarkRecoJet_2(myparticle,&momentum_quark2);
+     Vect_PairQuarkRecoJet.push_back(PairQuarkRecoJet_2);
     } //--- end loop over otherJets ----
-    if ((numDRQuarkReco1 != -1 && numDRQuarkReco2 != -1 && numDRQuarkReco2!=numDRQuarkReco1) && (numDR_J1 != -1 && numDR_J2 != -1 && numDR_J2!=numDR_J1)) {
+     
+    sort( Vect_PairQuarkRecoJet.begin(), Vect_PairQuarkRecoJet.end(),vbfhww2l::DeltaRSortingTLorentzVector() );
+//     unique( Vect_PairQuarkRecoJet.begin(), Vect_PairQuarkRecoJet.end(),vbfhww2l::DeltaRSameFirstTLorentzVector() );
+//     unique( Vect_PairQuarkRecoJet.begin(), Vect_PairQuarkRecoJet.end(),vbfhww2l::DeltaRSameSecondTLorentzVector() );
+    unique( Vect_PairQuarkRecoJet.begin(), Vect_PairQuarkRecoJet.end(),vbfhww2l::DeltaRSameFirstOrSecondTLorentzVector() );
+    
+    if (Vect_PairQuarkRecoJet.size()>2){
+     minDRQuarkReco1 = ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(0).first->BoostVector(),Vect_PairQuarkRecoJet.at(0).second->BoostVector());
+     minDRQuarkReco2 = ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(1).first->BoostVector(),Vect_PairQuarkRecoJet.at(1).second->BoostVector());       
+    }
+   
+    //---- histograms ----
+
+    if (minDR_J1<maxDR && minDR_J2<maxDR){//---- DRmax
      hDRGenJetAndRecoJetQuarkTagging_1_2D.Fill(minDRQuarkReco1,minDR_J1);
      hDRGenJetAndRecoJetQuarkTagging_2_2D.Fill(minDRQuarkReco2,minDR_J2);
-    }
-    if (numDRQuarkReco1 != -1 && numDRQuarkReco2 != -1 && numDRQuarkReco2!=numDRQuarkReco1) {
      hRecoJetQuarkTagDR.Fill(minDRQuarkReco1);
      hRecoJetQuarkTagDR.Fill(minDRQuarkReco2);     
      genJetRecoQuarkDR_pair.first = minDRQuarkReco1;
      genJetRecoQuarkDR_pair.second = minDRQuarkReco2;
-//      std::cerr << "QUI " << minDRQuarkReco1 << " " << genJetRecoQuarkDR_pair.first << std::endl;
     }
-    //---- end recoJet tagging with quark ----  
-   }
+    
+    
+    
+     ///---- GenJetTagged && recoJets (otherJets) ----
+    double minDRGenReco1 = 1000;
+    double minDRGenReco2 = 1000;
+    double DRQuarkGenReco1 = 1000;
+    double DRQuarkGenReco2 = 1000;
+    int numDRGenReco1 = -1;
+    int numDRGenReco2 = -1;
+
+    if (Vect_PairQuarkGenJet.size()>2){ //---- only if 2 match Quark-GenJet
+     TLorentzVector myGenJet_1 = *(Vect_PairQuarkGenJet.at(0).first);
+     TLorentzVector myGenJet_2 = *(Vect_PairQuarkGenJet.at(1).first);
+     
+     for (int l=0; l<otherJets->GetEntries (); l++ ){ //--- loop over otherJets ----
+      TLorentzVector* myparticle = (TLorentzVector*) otherJets->At(l);
+
+      
+      std::pair<TLorentzVector*,TLorentzVector*> PairQuarkGenJetRecoJet_1(myparticle,&myGenJet_1);
+      Vect_PairQuarkGenJetRecoJet.push_back(PairQuarkGenJetRecoJet_1);
+     
+      std::pair<TLorentzVector*,TLorentzVector*> PairQuarkGenJetRecoJet_2(myparticle,&myGenJet_2);
+      Vect_PairQuarkGenJetRecoJet.push_back(PairQuarkGenJetRecoJet_2);
+     } //--- end loop over otherJets ----
+     
+     sort( Vect_PairQuarkGenJetRecoJet.begin(), Vect_PairQuarkGenJetRecoJet.end(),vbfhww2l::DeltaRSortingTLorentzVector() );
+//      unique( Vect_PairQuarkGenJetRecoJet.begin(), Vect_PairQuarkGenJetRecoJet.end(),vbfhww2l::DeltaRSameFirstTLorentzVector() );
+//      unique( Vect_PairQuarkGenJetRecoJet.begin(), Vect_PairQuarkGenJetRecoJet.end(),vbfhww2l::DeltaRSameSecondTLorentzVector() );
+     unique( Vect_PairQuarkGenJetRecoJet.begin(), Vect_PairQuarkGenJetRecoJet.end(),vbfhww2l::DeltaRSameFirstOrSecondTLorentzVector() );
+     
+     if (Vect_PairQuarkGenJetRecoJet.size()>2){
+      minDRGenReco1 = ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector(),Vect_PairQuarkGenJetRecoJet.at(0).second->BoostVector());
+      minDRGenReco2 = ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector(),Vect_PairQuarkGenJetRecoJet.at(1).second->BoostVector());
+      
+      DRQuarkGenReco1 = std::min(ROOT::Math::VectorUtil::DeltaR (momentum_quark1.BoostVector(), Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector()),ROOT::Math::VectorUtil::DeltaR (momentum_quark2.BoostVector(), Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector())) ;
+      DRQuarkGenReco2 = std::min(ROOT::Math::VectorUtil::DeltaR (momentum_quark1.BoostVector(), Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector()),ROOT::Math::VectorUtil::DeltaR (momentum_quark2.BoostVector(), Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector()));
+     }
+    
+    //---- histograms ----
+     hJetTagDR.Fill(minDRGenReco1);
+     hJetTagDR.Fill(minDRGenReco2);
+    
+  
+     if (minDRGenReco1<maxDR && minDRGenReco2<maxDR){//---- DRmax
+      
+      double pt1 = Vect_PairQuarkGenJetRecoJet.at(0).first->Pt();
+      double pt2 = Vect_PairQuarkGenJetRecoJet.at(1).first->Pt();
+      
+      if (pt1 > pt2){
+       hTagJetPtMin.Fill(pt2);
+       hTagJetPtMax.Fill(pt1);
+      }
+      else {
+       hTagJetPtMin.Fill(pt1);
+       hTagJetPtMax.Fill(pt2);
+      }
+      hTagJetPt.Fill(pt1);
+      hTagJetPt.Fill(pt2);
+      if (Vect_PairQuarkGenJetRecoJet.at(0).first->Pt()!=0) hRatioTagJetPtRecoGen.Fill(pt1 / Vect_PairQuarkGenJetRecoJet.at(0).first->Pt());
+      if (Vect_PairQuarkGenJetRecoJet.at(1).first->Pt()!=0) hRatioTagJetPtRecoGen.Fill(pt2 / Vect_PairQuarkGenJetRecoJet.at(1).first->Pt());
+     
+      hRecoJetMj_Tag.Fill(Vect_PairQuarkGenJetRecoJet.at(0).first->M());
+      hRecoJetMj_Tag.Fill(Vect_PairQuarkGenJetRecoJet.at(1).first->M());
+    
+      hTagJetZeppenfeld.Fill(Vect_PairQuarkGenJetRecoJet.at(1).first->Eta() - (Vect_PairQuarkGenJetRecoJet.at(0).first->Eta() + Vect_PairQuarkGenJetRecoJet.at(1).first->Eta())/2.);
+      hTagJetZeppenfeld.Fill(Vect_PairQuarkGenJetRecoJet.at(0).first->Eta() - (Vect_PairQuarkGenJetRecoJet.at(0).first->Eta() + Vect_PairQuarkGenJetRecoJet.at(1).first->Eta())/2.);
+     
+      hJetTagDeltaEtaVBFHWW.Fill(fabs(Vect_PairQuarkGenJetRecoJet.at(0).first->Eta() - Vect_PairQuarkGenJetRecoJet.at(1).first->Eta()));
+
+      hRecoJetMjj_Tag.Fill((*(Vect_PairQuarkGenJetRecoJet.at(0).first) + *(Vect_PairQuarkGenJetRecoJet.at(1).first)).M());
+     }
+     
+     if (Vect_PairQuarkRecoJet.size()>2){
+      hDRRecoGenQuarkAndRecoQuarkTagging_1_2D.Fill(minDRQuarkReco1,DRQuarkGenReco1);
+      hDRRecoGenQuarkAndRecoQuarkTagging_2_2D.Fill(minDRQuarkReco2,DRQuarkGenReco2);
+     }
+    }
+    
+    
+    
+    
+    
+    
+   }//--- end quite sure for VBF
   }//---- end only VBF H_WW events
-  genJetTagged.push_back(genJetTagged_pair);
   
-  
+
+    
+  ///---- genJet distributions ----
   for (int k=0; k<genJets->GetEntries (); k++ ){ //--- loop over genJet ----
    TLorentzVector* myparticle = (TLorentzVector*) genJets->At(k);
    hGenJetPt.Fill(myparticle->Pt());
@@ -323,106 +409,6 @@ int main (int argc, char *argv[])
    hGenJetEta.Fill(myparticle->Eta());
   } //--- end loop over genJet ----
 
-  
-  
-    ///---- GenJetTagged && recoJets (otherJets) ----
-  double minDRGenReco1 = 1000;
-  double minDRGenReco2 = 1000;
-  int numDRGenReco1 = -1;
-  int numDRGenReco2 = -1;
-
-  if (genJetTagged_pair.first!=-1 && genJetTagged_pair.second!=-1){
-   TLorentzVector* genJetTagged1 = (TLorentzVector*) genJets->At(genJetTagged_pair.first);
-   TLorentzVector* genJetTagged2 = (TLorentzVector*) genJets->At(genJetTagged_pair.second);
-
-   for (int l=0; l<otherJets->GetEntries (); l++ ){ //--- loop over otherJets ----
-    TLorentzVector* myparticle = (TLorentzVector*) otherJets->At(l);
-   
-    double DRGenReco1 = ROOT::Math::VectorUtil::DeltaR (genJetTagged1->BoostVector(), myparticle->BoostVector()) ;
-    double DRGenReco2 = ROOT::Math::VectorUtil::DeltaR (genJetTagged2->BoostVector(), myparticle->BoostVector()) ;
-    if (DRGenReco1<minDRGenReco1) {
-     numDRGenReco1 = l;
-     minDRGenReco1 = DRGenReco1;
-    }
-    if (DRGenReco2<minDRGenReco2) {
-     numDRGenReco2 = l;
-     minDRGenReco2 = DRGenReco2;
-    }
-   } //--- end loop over otherJets ----
-  
-   if (numDRGenReco1 != -1 && numDRGenReco2 != -1 && numDRGenReco2!=numDRGenReco1) {
-    if (debug_){
-     std::cerr << "match 2 genJets " << numDRGenReco1 << " and " << numDRGenReco2 << std::endl;
-     std::cerr << "           DR = " << minDRGenReco1 << " and " << minDRGenReco2 << std::endl;
-    }
-    hJetTagDR.Fill(minDRGenReco1);
-    hJetTagDR.Fill(minDRGenReco2);
-    
-    TLorentzVector* myJet1 = (TLorentzVector*) otherJets->At(numDRGenReco1);
-    TLorentzVector* myJet2 = (TLorentzVector*) otherJets->At(numDRGenReco2);
-  
-    if (minDRGenReco1<maxDR && minDRGenReco2<maxDR){//---- DRmax
-      
-     double pt1 = myJet1->Pt();
-     double pt2 = myJet2->Pt();
-      
-     if (pt1 > pt2){
-      hTagJetPtMin.Fill(pt2);
-      hTagJetPtMax.Fill(pt1);
-      recoJetTagged_pair.first = numDRGenReco1;
-      recoJetTagged_pair.second = numDRGenReco2;
-     }
-     else {
-      hTagJetPtMin.Fill(pt1);
-      hTagJetPtMax.Fill(pt2);
-      recoJetTagged_pair.first = numDRGenReco2;
-      recoJetTagged_pair.second = numDRGenReco1;
-     }
-     hTagJetPt.Fill(pt1);
-     hTagJetPt.Fill(pt2);
-     if (genJetTagged1->Pt()!=0) hRatioTagJetPtRecoGen.Fill(pt1 / genJetTagged1->Pt());
-     if (genJetTagged2->Pt()!=0) hRatioTagJetPtRecoGen.Fill(pt2 / genJetTagged2->Pt());
-     
-     hRecoJetMj_Tag.Fill(myJet1->M());
-     hRecoJetMj_Tag.Fill(myJet2->M());
-    
-     hTagJetZeppenfeld.Fill(myJet2->Eta() - (myJet1->Eta() + myJet2->Eta())/2.);
-     hTagJetZeppenfeld.Fill(myJet1->Eta() - (myJet1->Eta() + myJet2->Eta())/2.);
-     
-     hJetTagDeltaEtaVBFHWW.Fill(fabs(myJet1->Eta() - myJet2->Eta()));
-     
-     
-     hRecoJetMjj_Tag.Fill((*myJet1 + *myJet2).M());
-     
-    }//---- end DRmax
-    
-    
-    if (IdEvent==123 || IdEvent==124){
-     if (genParticles->GetEntries () > 7){
-//       std::cerr << "QUO " << genJetRecoQuarkDR_pair.first << std::endl;
-      if (genJetRecoQuarkDR_pair.first != -1 && genJetRecoQuarkDR_pair.second != -1){
-//        std::cerr << "QUI" << std::endl;
-       TParticle* myparticle_quark1 = (TParticle*) genParticles->At(6);
-       TLorentzVector momentum_quark1;
-       myparticle_quark1->Momentum(momentum_quark1);
-       TParticle* myparticle_quark2 = (TParticle*) genParticles->At(7);
-       TLorentzVector momentum_quark2;
-       myparticle_quark2->Momentum(momentum_quark2); 
-       double DRQuarkGenReco1 = ROOT::Math::VectorUtil::DeltaR (momentum_quark1.BoostVector(), myJet1->BoostVector()) ;
-       double DRQuarkGenReco2 = ROOT::Math::VectorUtil::DeltaR (momentum_quark2.BoostVector(), myJet2->BoostVector()) ;
-       hDRRecoGenQuarkAndRecoQuarkTagging_1_2D.Fill(genJetRecoQuarkDR_pair.first,DRQuarkGenReco1);
-       hDRRecoGenQuarkAndRecoQuarkTagging_2_2D.Fill(genJetRecoQuarkDR_pair.second,DRQuarkGenReco2);
-      }
-     }
-    }
-    
-    
-   }
-  }
-  recoJetTagged.push_back(recoJetTagged_pair);
-  
-  
-  
   ///---- recoJets plots ----
 
   for (int l=0; l<otherJets->GetEntries (); l++ ){ //--- loop over otherJets ----
@@ -435,8 +421,44 @@ int main (int argc, char *argv[])
     if (IdEvent==123 || IdEvent==124) hRecoJetMjj_VBF.Fill((*myparticle_1 + *myparticle_2).M());
    }
   }
-  
+ 
+ ///-----------------------
+ ///---- reco analysis ---- 
+ ///-----------------------
+
   if (IdEvent==123 || IdEvent==124) { //--- if VBF
+   int TagReco_1 = -1;
+   int TagReco_2 = -1;
+   
+   ///---- find number of selected reco ----
+   if (Vect_PairQuarkGenJetRecoJet.size()>2){
+    for (int l=0; l<otherJets->GetEntries (); l++ ){ //--- loop over otherJets ----
+     TLorentzVector* myRecoJet = (TLorentzVector*) otherJets->At(l);   
+//      if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector(),myRecoJet->BoostVector()) < 0.00001) TagReco_1 = l;
+//      if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector(),myRecoJet->BoostVector()) < 0.00001) TagReco_2 = l;
+     
+     if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(0).first->BoostVector(),myRecoJet->BoostVector()) < 0.00001) TagReco_1 = l;
+     if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(1).first->BoostVector(),myRecoJet->BoostVector()) < 0.00001) TagReco_2 = l;
+    
+
+     
+     
+    }
+    if (TagReco_1 == TagReco_2) {
+     std::cerr << "Error: TagReco_1 == TagReco_2 ----- Entry: " << i << " -> " << TagReco_1 << " = " << TagReco_2 << std::endl;
+    }
+    
+    TLorentzVector* myTagRecoJet_1 = (TLorentzVector*) otherJets->At(TagReco_1);   
+    TLorentzVector* myTagRecoJet_2 = (TLorentzVector*) otherJets->At(TagReco_2);   
+    
+    if (myTagRecoJet_1->Pt() < myTagRecoJet_2->Pt()){
+     int TagReco_temp = TagReco_1;
+     TagReco_1 = TagReco_2;
+     TagReco_2 = TagReco_temp;
+    }
+   }
+   
+   
   ///---- Mjj ----
    std::pair<int,int> tagJets_Mjj;
    tagJets_Mjj.first = -1;
@@ -462,10 +484,15 @@ int main (int argc, char *argv[])
     }
    }
   
-   if (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && (tagJets_Mjj.first == recoJetTagged_pair.first) && (tagJets_Mjj.second == recoJetTagged_pair.second)){
-    numTagRecoMjjMax++;
+   if (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1){
+    TLorentzVector* myRecoJet_1 = (TLorentzVector*) otherJets->At(tagJets_Mjj.first);   
+    TLorentzVector* myRecoJet_2 = (TLorentzVector*) otherJets->At(tagJets_Mjj.second);
+    if ((std::min(ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector(),myRecoJet_1->BoostVector()),ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector(),myRecoJet_1->BoostVector()))< 0.01) && (std::min(ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector(),myRecoJet_2->BoostVector()),ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector(),myRecoJet_2->BoostVector()))< 0.01)){
+     numTagRecoMjjMax++;
+    }
    }
-
+   
+   
   
   ///---- Pt ----
    std::pair<int,int> tagJets_Pt;
@@ -511,24 +538,49 @@ int main (int argc, char *argv[])
 
    tagJets_Pt.first = maxNum1;
    tagJets_Pt.second = maxNum2;
-      
-   if (tagJets_Pt.first != -1 && tagJets_Pt.second != -1 && (tagJets_Pt.first == recoJetTagged_pair.first) && (tagJets_Pt.second == recoJetTagged_pair.second)){
-    numTagRecoPtMax++;
+   
+   if (tagJets_Pt.first != -1 && tagJets_Pt.second != -1){
+    TLorentzVector* myRecoJet_1 = (TLorentzVector*) otherJets->At(maxNum1);   
+    TLorentzVector* myRecoJet_2 = (TLorentzVector*) otherJets->At(maxNum2);
+    if (tagJets_Pt.first != -1 && tagJets_Pt.second != -1 && (std::min(ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector(),myRecoJet_1->BoostVector()),ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector(),myRecoJet_1->BoostVector()))< 0.01) && (std::min(ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector(),myRecoJet_2->BoostVector()),ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector(),myRecoJet_2->BoostVector()))< 0.01)){
+     numTagRecoPtMax++;
+    }
    }
   
    
-   if (((((tagJets_Pt.first == recoJetTagged_pair.first) && (tagJets_Pt.second == recoJetTagged_pair.second)) && ((tagJets_Mjj.first == recoJetTagged_pair.first) && (tagJets_Mjj.second == recoJetTagged_pair.second)))) && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(1.,1.);
+   if ((((
+          (tagJets_Pt.first == TagReco_1) 
+          && (tagJets_Pt.second == TagReco_2))
+          && ((tagJets_Mjj.first == TagReco_1)
+          && (tagJets_Mjj.second == TagReco_2))))
+          && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(1.,1.);
    
-   if (((((tagJets_Pt.first == recoJetTagged_pair.first) && (tagJets_Pt.second == recoJetTagged_pair.second)) && !((tagJets_Mjj.first == recoJetTagged_pair.first) && (tagJets_Mjj.second == recoJetTagged_pair.second)))) && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(1.,0.);
+   if ((((
+          (tagJets_Pt.first == TagReco_1)
+          && (tagJets_Pt.second == TagReco_2))
+          && !((tagJets_Mjj.first == TagReco_1)
+          && (tagJets_Mjj.second == TagReco_2))))
+          && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(1.,0.);
 
-   if (((!((tagJets_Pt.first == recoJetTagged_pair.first) && (tagJets_Pt.second == recoJetTagged_pair.second)) && ((tagJets_Mjj.first == recoJetTagged_pair.first) && (tagJets_Mjj.second == recoJetTagged_pair.second)))) && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(0.,1.);
+   if (((!(
+           (tagJets_Pt.first == TagReco_1)
+           && (tagJets_Pt.second == TagReco_2))
+           && ((tagJets_Mjj.first == TagReco_1)
+           && (tagJets_Mjj.second == TagReco_2))))
+           && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(0.,1.);
    
-   if (((!((tagJets_Pt.first == recoJetTagged_pair.first) && (tagJets_Pt.second == recoJetTagged_pair.second)) && !((tagJets_Mjj.first == recoJetTagged_pair.first) && (tagJets_Mjj.second == recoJetTagged_pair.second)))) && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(0.,0.);
+   if (((!(
+           (tagJets_Pt.first == TagReco_1)
+           && (tagJets_Pt.second == TagReco_2))
+           && !((tagJets_Mjj.first == TagReco_1)
+           && (tagJets_Mjj.second == TagReco_2))))
+           && (tagJets_Mjj.first != -1 && tagJets_Mjj.second != -1 && tagJets_Pt.first != -1 && tagJets_Pt.second != -1)) hMjjPt.Fill(0.,0.);
    
   } //--- end if VBF
   ////-----------------------
 
- }
+ }//---- end loop over entries 
+
  
  
  hMjjPt.Write();
