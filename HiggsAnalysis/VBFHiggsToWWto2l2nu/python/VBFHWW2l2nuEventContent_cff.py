@@ -11,10 +11,11 @@ VBFHWW2l2nuEventContent = cms.PSet(
         'keep recoGsfTracks_*_*_*',
         'keep recoGsfTrackExtras_*_*_*',
         'keep recoBasicClusters_*_*_*',
-        
-#         'keep *_pixelMatchGsfFit_*_*',                       
-#         'keep recoTracks_*_*_*',
-#         'keep recoTrackExtras_*_*_*',
+        'keep recoSuperClusters_*_*_*',
+
+        'keep *_pixelMatchGsfFit_*_*',                       
+        'keep recoTracks_*_*_*',
+        'keep recoTrackExtras_*_*_*',
        
         'keep recoPFJets_*_*_*',
         'keep recoCaloJets_*_*_*',
@@ -58,10 +59,31 @@ VBFHWW2l2nuEventContent = cms.PSet(
         'keep edmGenInfoProduct_*_*_*',
         'keep *_muons_*_*',
 
+
+        'keep *_towerMaker_*_*',
+
+        'keep *_source_*_*',
+        'keep *recoPF*_*_*_*',
+	
+	  # b-tagging JetTags collections
+        'keep *_simpleSecondaryVertexBJetTags_*_*',
+        'keep *_combinedSecondaryVertexBJetTags_*_*',
+        'keep *_combinedSecondaryVertexMVABJetTags_*_*',
+        'keep *_impactParameterMVABJetTags_*_*',
+        'keep *_jetProbabilityBJetTags_*_*',
+        'keep *_jetBProbabilityBJetTags_*_*',
+        'keep *_trackCountingHighEffBJetTags_*_*',
+        'keep *_trackCountingHighPurBJetTags_*_*',
+        # b-tagging TagInfos collections
+        'keep *_impactParameterTagInfos_*_*',
+        'keep *_secondaryVertexTagInfos_*_*',
+
+        # vertices collection
         'keep *_offlinePrimaryVertices_*_*',
-        'keep *_offlinePrimaryVerticesWithBS_*_*', 
-      
-        'keep recoSuperClusters_*_*_*',
-        'keep *_towerMaker_*_*'
+        'keep *_offlinePrimaryVerticesWithBS_*_*',
+        'keep *_pixelVertices_*_*',
+	
+	   
+	
         )
     )
