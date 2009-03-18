@@ -61,6 +61,7 @@ class SimpleNtple : public edm::EDAnalyzer {
   int IdEvent;
   float IsolMuSumPt[30],IsolMuNTracks[30];
   float MinvTags;
+  
   //other jets
 
   TClonesArray * m_tagJets ;
@@ -78,8 +79,8 @@ class SimpleNtple : public edm::EDAnalyzer {
   TClonesArray * m_otherJets_SisCone5PFJets ;
   TClonesArray * m_otherJets_IterativeCone5PFJets ;
 
-  
-  
+  TClonesArray * m_otherJets_IterativeCone5CaloJets_Btag ;
+  std::vector<float> * bTag_;
   
   TLorentzVector myvector ;
   TLorentzVector myvertex ;
@@ -110,10 +111,14 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag JetTagSisCone5PFJets_;
   edm::InputTag JetTagIterativeCone5PFJets_;
 
+  edm::InputTag JetTagIterativeCone5CaloJets_BTagging_;
+
+  
   bool bool_JetTagSisCone5CaloJets_;
   bool bool_JetTagIterativeCone5CaloJets_;
   bool bool_JetTagSisCone5PFJets_;
   bool bool_JetTagIterativeCone5PFJets_;
   
+  bool bool_JetTagIterativeCone5CaloJets_BTagging_;
     
 };

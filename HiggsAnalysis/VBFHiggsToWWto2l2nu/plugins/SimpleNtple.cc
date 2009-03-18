@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.3 2009/02/23 15:42:58 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.4 2009/03/03 15:53:13 amassiro Exp $
 //
 //
 
@@ -103,10 +103,14 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
   bool_JetTagSisCone5PFJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagSisCone5PFJets",false);
   bool_JetTagIterativeCone5PFJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagIterativeCone5PFJets",false);
 
+  bool_JetTagIterativeCone5CaloJets_BTagging_= iConfig.getUntrackedParameter<bool>("bool_JetTagIterativeCone5CaloJets_BTagging",false);
+  
   if (bool_JetTagSisCone5CaloJets_) JetTagSisCone5CaloJets_= iConfig.getParameter<edm::InputTag>("JetTagSisCone5CaloJets");
   if (bool_JetTagIterativeCone5CaloJets_) JetTagIterativeCone5CaloJets_= iConfig.getParameter<edm::InputTag>("JetTagIterativeCone5CaloJets");
   if (bool_JetTagSisCone5PFJets_) JetTagSisCone5PFJets_= iConfig.getParameter<edm::InputTag>("JetTagSisCone5PFJets");
   if (bool_JetTagIterativeCone5PFJets_) JetTagIterativeCone5PFJets_= iConfig.getParameter<edm::InputTag>("JetTagIterativeCone5PFJets");
+  
+  if (bool_JetTagIterativeCone5CaloJets_BTagging_) JetTagIterativeCone5PFJets_= iConfig.getParameter<edm::InputTag>("JetTagIterativeCone5PFJets");
     
 }
 
@@ -134,6 +138,8 @@ SimpleNtple::~SimpleNtple()
   delete m_otherJets_IterativeCone5CaloJets ;
   delete m_otherJets_SisCone5PFJets ;
   delete m_otherJets_IterativeCone5PFJets ;
+  
+  delete m_otherJets_IterativeCone5CaloJets_Btag;
 }
 
 
@@ -162,7 +168,9 @@ SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (bool_JetTagIterativeCone5CaloJets_)  FillJet(iEvent, iSetup, 2);
   if (bool_JetTagSisCone5PFJets_)          FillJet(iEvent, iSetup, 3);
   if (bool_JetTagIterativeCone5PFJets_)    FillJet(iEvent, iSetup, 4);
-    
+  
+  if (bool_JetTagIterativeCone5CaloJets_BTagging_)    FillJet(iEvent, iSetup, 5);
+  
   mytree_->Fill();
 
   m_tagJets -> Clear () ;
@@ -175,6 +183,13 @@ SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   m_genJets -> Clear () ;
   m_genMet -> Clear () ;
   
+  m_otherJets_SisCone5CaloJets -> Clear () ;
+  m_otherJets_IterativeCone5CaloJets -> Clear () ;
+  m_otherJets_SisCone5PFJets -> Clear () ;
+  m_otherJets_IterativeCone5PFJets -> Clear () ;
+
+  m_otherJets_IterativeCone5CaloJets_Btag -> Clear () ;
+  bTag_ -> clear () ;
 }
 
 
@@ -397,6 +412,11 @@ void SimpleNtple::FillJet(const edm::Event& iEvent, const edm::EventSetup& iSetu
    counter++;
   }
  }
+ 
+ if (kind_algo==5){
+  //---- b Tagging ----
+  bTag_ -> push_back(0.0);
+ }
      
 }
 
@@ -548,6 +568,10 @@ void SimpleNtple::Init(){
 void 
 SimpleNtple::beginJob(const edm::EventSetup& iSetup)
 {
+  bTag_ = new std::vector<float>;
+ 
+  mytree_->Branch("bTag_","std::vector<float>",&bTag_);
+  
   mytree_->Branch("IdEvent",&IdEvent,"IdEvent/I");
  
   mytree_->Branch("nEle",&nEle,"nEle/I");
@@ -614,6 +638,10 @@ SimpleNtple::beginJob(const edm::EventSetup& iSetup)
   m_otherJets_IterativeCone5PFJets = new TClonesArray ("TLorentzVector");
   mytree_->Branch ("otherJets_IterativeCone5PFJets", "TClonesArray", &m_otherJets_IterativeCone5PFJets, 256000,0);
 
+    // vector of the TLorentz Vectors of other jets with bTagging
+  m_otherJets_IterativeCone5CaloJets_Btag = new TClonesArray ("TLorentzVector");
+  mytree_->Branch ("m_otherJets_IterativeCone5CaloJets_Btag", "TClonesArray", &m_otherJets_IterativeCone5CaloJets_Btag, 256000,0);
+
 }
 
 
@@ -622,7 +650,7 @@ SimpleNtple::beginJob(const edm::EventSetup& iSetup)
 
 void 
 SimpleNtple::endJob() {
-
+ delete bTag_;
 }
 
 
