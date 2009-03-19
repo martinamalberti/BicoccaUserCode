@@ -3,7 +3,7 @@
 // Package:    TowerAnalysis
 // Class:      TowerAnalysis
 // 
-/**\class TowerAnalysis TowerAnalysis.cc TTAnalysis/TowerAnalysis/src/TowerAnalysis.cc
+/**\class TowerAnalysis TowerAnalysis.cc Analysis/TowerAnalysis/src/TowerAnalysis.cc
 
  Description: <one line class summary>
 
@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Authors:  Leonardo Sala 
-//         Created:  Tue Feb 24 11:40:58 CET 2009
-// $Id: TowerAnalysis.cc,v 1.4 2009/02/26 18:01:36 amartell Exp $
+// Original Author:  Leonardo Sala
+//         Created:  Fri Jan 16 11:52:03 CET 2009
+// $Id: TowerAnalysis.cc,v 1.12 2009/03/05 13:29:47 leo Exp $
 //
 //
 
@@ -33,124 +33,128 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
-#include <map>
-#include <string>
-#include <vector>
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
+#include <Math/GenVector/VectorUtil.h>
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include <CLHEP/Vector/LorentzVector.h>
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "TH1D.h"
+#include <map>
+
+#include "DataFormats/Common/interface/View.h"
+#include <string>
+#include <vector>
+
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
+#include <TCanvas.h>
+#include <cmath>
 #include <TH1F.h>
+//#include <Math/VectorUtil.h>
+#include <TTree.h>
+#include <TH1.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
 #include <TH2F.h>
-#include "TProfile.h"
-#include "TProfile2D.h"
+
+
+#define MAXJETS 200
+#define TIVMAX 700
+#define MAXMC 200
+#define MAXELE 1000
+
+using namespace std;
+using namespace reco;
+using namespace edm;
 
 //
 // class decleration
 //
 
 class TowerAnalysis : public edm::EDAnalyzer {
-public:
-  explicit TowerAnalysis(const edm::ParameterSet&);
-  ~TowerAnalysis();
-  
-  
-private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  //  TFile *histfile_;
-  //  std::string outputFile_;
+   public:
+      explicit TowerAnalysis(const edm::ParameterSet&);
+      ~TowerAnalysis();
 
+
+   private:
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+  float delta_phi(float phi1, float phi2);
+
+      // ----------member data ---------------------------
+  
+  std::vector<edm::InputTag> jetLabel_;
+  edm::InputTag genJetLabel_;
+  std::vector<edm::InputTag> metLabel_;
+  InputTag genMetLabel_;
+
+  std::vector<edm::InputTag> eleLabel_;
+  edm::InputTag mcLabel_;
+
+  float Jet_threshold_;
+
+  //////General
+  TTree * mtree;
+  int DEBUG;
   edm::Service<TFileService> fs;
-  std::map<std::string, TH1F*> histos;
-  std::map<std::string, TH2F*> histos2d;
+  float deltaR_;
 
-  TProfile2D* barrelDeadEnergy;
-  TProfile2D* pendcapDeadEnergy;
-  TProfile2D* nendcapDeadEnergy;
+  ////PROCESS QUANTITIES
+  int Event_number;
+  int Run_number;
 
+  /////JET 
+  vector<string> JET_VAR; //Name of Jet variables
+  map<string,float*> varFloatArr_Jets; //map of jet variables
 
-  edm::InputTag rechEB_;
-  edm::InputTag rechEE_;
+  ///MET 
+  vector<string> MET_CORR;  //Name of met corrections
+  vector<string> MET_VAR; //Name of  met variables
+  map<string,float> varFloatArr_Met; //map of met variables
 
-  edm::InputTag rejhEB_;
-  edm::InputTag rejhEE_;
+  ///MC
+  vector<string> MC_VAR;
+  map<string,float*> varFloatArr_MC;
 
-  edm::InputTag electronCollection_;
-  edm::InputTag electronReducedCollection_;
+  //Generic Int arrays
+  map<string,int*> varIntArr_MC;
+  map<string,int> varInt;
 
-  edm::InputTag mcTruthCollection_;
+  //Muons
+  vector<string> ELE_VAR; //Name of Jet variables
+  map<string,float*> varFloatArr_Ele; //map of jet variables
 
-  //std::DeadTowersFileName_;  
-  ////////////////
+  //Histos
+  map<string, TH1F*> histos;
+  map<string, TH2F*> histos2D;
+  map<string, TProfile *> profiles;
+  map<string, TProfile2D *> histos2P;
 
-  int  nEvent_;
-
-  double maxPt_;
-  double maxAbsEta_;
-  double deltaR_;
-  
-  double etamin;
-  double etamax;
-  int nbineta;
-
-  double phimin;
-  double phimax;
-  int nbinphi;
-
-
-  double ptmin;
-  double ptmax;
-  int nbinpt;
-  int nbinpteff;
-
-  double pmin;
-  double pmax;
-  int nbinp;
-
-  int nbinxyz;
-
-  /////////////// histos
-
-  TH2F* h_simEtavsPhi;
-  TH2F* h_simXvsYinPE;
-  TH2F* h_simXvsYinNE;
-
-  TH2F* h_ele_simEtavsPhi_matched;
-  TH2F* h_ele_simXvsYinPE_matched;
-  TH2F* h_ele_simXvsYinNE_matched;
-
-  TProfile2D*  h_ele_simE_matched;
-  TProfile2D*  h_ele_simEinPE_matched;
-  TProfile2D*  h_ele_simEinNE_matched;
-
-  TH2F* h_eleRed_simEtavsPhi_matched;
-  TH2F* h_eleRed_simXvsYinPE_matched;
-  TH2F* h_eleRed_simXvsYinNE_matched;
-
-  TProfile2D*  h_eleRed_simE_matched;
-  TProfile2D*  h_eleRed_simEinPE_matched;
-  TProfile2D*  h_eleRed_simEinNE_matched;
-
-  ///////////////////////
-
-  TH2F* h_ele_EtavsPhiEff;
-  TH2F* h_ele_XvsYEffinPE;
-  TH2F* h_ele_XvsYEffinNE;
-
-  TH2F* h_eleRed_EtavsPhiEff;
-  TH2F* h_eleRed_XvsYEffinPE;
-  TH2F* h_eleRed_XvsYEffinNE;
+  //Labels
+  string sLABEL[2];
 
 };
 
@@ -168,56 +172,96 @@ private:
 TowerAnalysis::TowerAnalysis(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
+  //edm::Service<TFileService> fs;
 
-  //  histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
-  //  outputFile_ = iConfig.getParameter<std::string>("outputFile");
-  
-  rechEB_ = iConfig.getParameter<edm::InputTag>("ecalRecH_EB");
-  rechEE_ = iConfig.getParameter<edm::InputTag>("ecalRecH_EE");
-  
-  rejhEB_ = iConfig.getParameter<edm::InputTag>("ecalRejH_EB");
-  rejhEE_ = iConfig.getParameter<edm::InputTag>("ecalRejH_EE");
-    
-  electronCollection_ = iConfig.getParameter<edm::InputTag>("electronCollection");
-  electronReducedCollection_ = iConfig.getParameter<edm::InputTag>("electronReducedCollection");
+  jetLabel_ = iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("jetLabel");
+  genJetLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("genJetLabel");
 
-  mcTruthCollection_ = iConfig.getParameter<edm::InputTag>("mcTruthCollection");
+  metLabel_ = iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("metLabel");
+  genMetLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("genMetLabel");
 
-//  DeadTowersFileName_  = ps.getParameter<std::string>("DeadTowersFile");
+  eleLabel_ = iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("eleLabel");
+  mcLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("mcLabel");
 
-  maxPt_ = iConfig.getParameter<double>("MaxPt");
-  maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
   deltaR_ = iConfig.getParameter<double>("DeltaR");
+ 
 
-  etamin = iConfig.getParameter<double>("Etamin");
-  etamax = iConfig.getParameter<double>("Etamax");
-  nbineta = iConfig.getParameter<int>("Nbineta");
-
-  phimin = iConfig.getParameter<double>("Phimin");
-  phimax = iConfig.getParameter<double>("Phimax");
-  nbinphi = iConfig.getParameter<int>("Nbinphi");
-
-
-  ptmin = iConfig.getParameter<double>("Ptmin");
-  ptmax = iConfig.getParameter<double>("Ptmax");
-  nbinpt = iConfig.getParameter<int>("Nbinpt");
-  nbinpteff = iConfig.getParameter<int>("Nbinpteff");
-
-  pmin = iConfig.getParameter<double>("Pmin");
-  pmax = iConfig.getParameter<double>("Pmax");
-  nbinp = iConfig.getParameter<int>("Nbinp");
+  //---- Tree creation ----
+  mtree = fs->make<TTree>("Analysis","Analysis");
   
-  nbinxyz = iConfig.getParameter<int>("Nbinxyz");
+
+  DEBUG = iConfig.getUntrackedParameter<int>("DEBUG");
+  
+  //JET VARIABLES
+  JET_VAR.push_back("px");  JET_VAR.push_back("py");  JET_VAR.push_back("pz");  JET_VAR.push_back("pt");
+  JET_VAR.push_back("E"); JET_VAR.push_back("EmFrac"); JET_VAR.push_back("HadFrac");
+  JET_VAR.push_back("eta"); JET_VAR.push_back("phi");
+  JET_VAR.push_back("Matching");
+
+  //this creates and fills the jet var map
+  varInt["Jets_n"] = 0;
+  for(vector<string>::iterator var = JET_VAR.begin(); var!=JET_VAR.end(); ++var)
+    varFloatArr_Jets["Jets_"+*var] = new float[MAXJETS];
+  
+  varInt["killedJets_n"] = 0;
+  for(vector<string>::iterator var = JET_VAR.begin(); var!=JET_VAR.end(); ++var)
+    varFloatArr_Jets["killedJets_"+*var] = new float[MAXJETS];
+
+  varInt["genJets_n"] = 0;
+  for(vector<string>::iterator var = JET_VAR.begin(); var!=JET_VAR.end(); ++var)
+    varFloatArr_Jets["Jets_GEN_"+*var] = new float[MAXJETS];
+
+
+  /////Insert here the Met corrections wanted
+  /// see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATLayer1#MET
+  
+  MET_VAR.push_back("pt"); MET_VAR.push_back("phi");MET_VAR.push_back("py");MET_VAR.push_back("px");MET_VAR.push_back("sumEt");
+
+  for(vector<string>::iterator var = MET_VAR.begin(); var!=MET_VAR.end(); ++var){
+	varFloatArr_Met["Met_"+*var] = -1000;
+	varFloatArr_Met["killedMet_"+*var] = -1000;
+	varFloatArr_Met["Met_GEN_"+*var] = -1000;
+  }
+
+  ////Electrons
+  ELE_VAR.push_back("E"); ELE_VAR.push_back("pt"); ELE_VAR.push_back("phi");  ELE_VAR.push_back("eta");  ELE_VAR.push_back("px"); ELE_VAR.push_back("py");
+  ELE_VAR.push_back("outerPhi");  ELE_VAR.push_back("outerEta");
+  ELE_VAR.push_back("pz"); ELE_VAR.push_back("charge");
+
+
+  varInt["Ele_n"] = 0;
+  varInt["killedEle_n"] = 0;
+
+  for(vector<string>::iterator var = ELE_VAR.begin(); var!=ELE_VAR.end(); ++var){
+    varFloatArr_Ele["Ele_"+*var] = new float[MAXELE];
+    varFloatArr_Ele["killedEle_"+*var] = new float[MAXELE];
+  }
+  //MC
+  MC_VAR.push_back("E"); MC_VAR.push_back("px");MC_VAR.push_back("py");MC_VAR.push_back("pz");MC_VAR.push_back("pt");
+  MC_VAR.push_back("eta"); MC_VAR.push_back("phi");
+  
+  varIntArr_MC["MC_id"] = new int[MAXMC];
+  varIntArr_MC["MC_status"] = new int[MAXMC];
+  varIntArr_MC["MC_matches"] = new int[MAXMC];
+  varIntArr_MC["killedMC_matches"] = new int[MAXMC];
+  varInt["MC_n"] = 0;
+
+  for(vector<string>::iterator var = MC_VAR.begin(); var!=MC_VAR.end(); ++var){
+    varFloatArr_MC["MC_"+*var] = new float[MAXMC];
+  }
+
+
+  sLABEL[0] = "";
+  sLABEL[1] = "killed";
 }
 
 
 TowerAnalysis::~TowerAnalysis()
 {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  
-  //  histfile_->Write();
-  //  histfile_->Close(); 
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+
 }
 
 
@@ -229,78 +273,146 @@ TowerAnalysis::~TowerAnalysis()
 void
 TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if(nEvent_ % 1000 == 0)  std::cout << ">>>>>>>>>>>>> analyzing event " << nEvent_ << std::endl;
-  ++nEvent_;
-  //  histfile_->cd();
 
-  using namespace edm;
+   Event_number =  iEvent.id().event();
+   Run_number = iEvent.id().run();
 
-   // get the hit collection from the event:
-   edm::Handle<EcalRecHitCollection> hit_collectionEB;
-   iEvent.getByLabel( rejhEB_, hit_collectionEB);
-   if (!(hit_collectionEB.isValid()))
-     {
-       std::cout << "[Analysis] could not get a handle on the EcalRecHitCollection EB!" << std::endl;
-       return;
+   if (DEBUG==1) std::cout << "------- event " << Event_number << " ---------"<< std::endl;
+
+   ///////// JETS
+   Handle<GenJetCollection> genJets;
+   iEvent.getByLabel(genJetLabel_,genJets);
+
+   std::vector<edm::InputTag>::const_iterator i;
+   int counter  = 0;
+   string JET_LABEL = "";
+   for (i = jetLabel_.begin(); i!=jetLabel_.end(); i++) {
+     
+     Handle<CaloJetCollection> jets;
+     iEvent.getByLabel(*i,jets);
+     
+     if(counter==1) JET_LABEL = "killed"; 
+     
+     varInt[JET_LABEL+"Jets_n"]=0;
+     
+     
+     int totJets = 0;
+     for (CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); jet++) 
+       {
+	 float jetEta = jet->eta();
+	 float jetPhi = jet->phi();
+	 float maxR = 1.;
+	 int matchedId = -1;
+	 int genJets_n = 0;
+
+	 //GenJets
+	 for (GenJetCollection::const_iterator genJet = genJets->begin(); genJet != genJets->end(); genJet++)
+	   {
+	     if(totJets==0){
+	       varFloatArr_Jets["Jets_GEN_pt"][genJets_n] = genJet->pt();
+	       varFloatArr_Jets["Jets_GEN_px"][genJets_n] = genJet->px();
+	       varFloatArr_Jets["Jets_GEN_py"][genJets_n] = genJet->py();
+	       varFloatArr_Jets["Jets_GEN_pz"][genJets_n] = genJet->pz();
+	       varFloatArr_Jets["Jets_GEN_E"][genJets_n] = genJet->energy();
+	       
+	       varFloatArr_Jets["Jets_GEN_phi"][genJets_n] = genJet->phi();
+	       varFloatArr_Jets["Jets_GEN_eta"][genJets_n] = genJet->eta();
+	       
+	       varFloatArr_Jets["Jets_GEN_EmFrac"][genJets_n] = genJet->emEnergy()/genJet->energy();
+	       varFloatArr_Jets["Jets_GEN_HadFrac"][genJets_n] = genJet->hadEnergy()/genJet->energy();
+	     }
+	     
+	     float dPhi = delta_phi(jetPhi, genJet->phi());
+	     float dEta = jetEta - genJet->eta();
+	     float dR = sqrt(dPhi*dPhi + dEta*dEta);
+	     if( dR < maxR )  { matchedId = genJets_n; maxR=dR; }
+	     
+	     genJets_n++;
+	   }
+
+	 if(totJets==0) varInt["genJets_n"] = genJets_n;
+	 
+	 int njets = varInt[JET_LABEL+"Jets_n"];
+	 if(matchedId != -1 ){
+	   varFloatArr_Jets[JET_LABEL+"Jets_Matching"][njets] = matchedId;
+	   float res = ( varFloatArr_Jets[JET_LABEL+"Jets_pt"][njets] - varFloatArr_Jets["Jets_GEN_pt"][matchedId] ) / varFloatArr_Jets["Jets_GEN_pt"][matchedId];
+	   histos[JET_LABEL+"Jets_EtRes"]->Fill(res);
+	 }	 
+
+	 varFloatArr_Jets[JET_LABEL+"Jets_pt"][njets] = jet->pt();
+	 varFloatArr_Jets[JET_LABEL+"Jets_px"][njets] = jet->px();
+	 varFloatArr_Jets[JET_LABEL+"Jets_py"][njets] = jet->py();
+	 varFloatArr_Jets[JET_LABEL+"Jets_pz"][njets] = jet->pz();
+	 varFloatArr_Jets[JET_LABEL+"Jets_E"][njets] = jet->energy();
+	 
+	 varFloatArr_Jets[JET_LABEL+"Jets_phi"][njets] = jet->phi();
+	 varFloatArr_Jets[JET_LABEL+"Jets_eta"][njets] = jet->eta();
+	 
+	 varFloatArr_Jets[JET_LABEL+"Jets_EmFrac"][njets] = jet->emEnergyFraction();
+	 varFloatArr_Jets[JET_LABEL+"Jets_HadFrac"][njets] = jet->energyFractionHadronic ();
+	
+	 varInt[JET_LABEL+"Jets_n"]++;
+	 totJets++;
+       }
+     
+     counter++;
+   }
+
+   counter  = 0;
+   string MET_LABEL = "";
+
+   const GenMET *genmet;
+   edm::Handle<GenMETCollection> gMET;
+   iEvent.getByLabel(genMetLabel_, gMET);
+   const GenMETCollection* gmets = gMET.product();
+   genmet = &(gmets->front());
+
+   varFloatArr_Met["Met_GEN_pt"] = genmet->et();
+   varFloatArr_Met["Met_GEN_phi"] = genmet->phi();
+   varFloatArr_Met["Met_GEN_px"] = genmet->px();
+   varFloatArr_Met["Met_GEN_py"] = genmet->py();
+   varFloatArr_Met["Met_GEN_sumEt"] = genmet->sumEt();
+
+   for (std::vector<edm::InputTag>::const_iterator i = metLabel_.begin(); i!=metLabel_.end(); i++) {
+
+     if(counter==1) MET_LABEL = "killed";
+
+     edm::Handle<reco::CaloMETCollection> pMET;
+     iEvent.getByLabel(*i, pMET);
+     const reco::CaloMETCollection* mets = pMET.product();
+     
+     for ( CaloMETCollection::const_iterator met=mets->begin(); met!=mets->end(); met++) {
+
+       varFloatArr_Met[MET_LABEL+"Met_pt"] = met->et();
+       varFloatArr_Met[MET_LABEL+"Met_phi"] = met->phi();
+       varFloatArr_Met[MET_LABEL+"Met_px"] = met->px();
+       varFloatArr_Met[MET_LABEL+"Met_py"] = met->py();
+       varFloatArr_Met[MET_LABEL+"Met_sumEt"] = met->sumEt();
      }
-   
-   for(EcalRecHitCollection::const_iterator it = hit_collectionEB->begin(); it != hit_collectionEB->end(); ++it) {
-     EBDetId singleHit = it->detid();
-     histos2d["deadTowers_etaPhi"]->Fill(singleHit.iphi(), singleHit.ieta());
-     barrelDeadEnergy->Fill(singleHit.iphi(), singleHit.ieta(), it->energy());
 
-     //std::cout << it->energy() << std::endl;
+     float res = ( varFloatArr_Met[MET_LABEL+"Met_pt"] - varFloatArr_Met["Met_GEN_pt"] )/varFloatArr_Met["Met_GEN_pt"] ;
+     histos[MET_LABEL+"Met_EtRes"]->Fill(res);
+
+     counter++;
    }
    
-   edm::Handle<EcalRecHitCollection> hit_collectionEE;
-   iEvent.getByLabel( rejhEE_, hit_collectionEE);
-   if (!(hit_collectionEE.isValid()))
-     {
-       std::cout << "[Analysis] could not get a handle on the EcalRecHitCollection EE!" << std::endl;
-       return;
-     }
-   
-   for(EcalRecHitCollection::const_iterator it = hit_collectionEE->begin(); it != hit_collectionEE->end(); ++it) {
-     EEDetId singleHit = it->detid();
-     if( singleHit.zside() >0) {
-       histos2d["deadTowersEE+_etaPhi"]->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5);
-       pendcapDeadEnergy->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5, it->energy());
-       }
-     else{
-       histos2d["deadTowersEE-_etaPhi"]->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5);
-       nendcapDeadEnergy->Fill(singleHit.ix() - 0.5, singleHit.iy() - 0.5, it->energy());
-       }
 
-     //std::cout << it->energy() << std::endl;
-   }
-   
-   // get electrons 
-   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-   iEvent.getByLabel(electronCollection_,gsfElectrons);
-   edm::LogInfo("")<<"\n\n =================> Treating event "<<iEvent.id()<<" Number of electrons "<<gsfElectrons.product()->size();
-
-   edm::Handle<reco::GsfElectronCollection> gsfElectronsRed;
-   iEvent.getByLabel(electronReducedCollection_,gsfElectronsRed);
-   edm::LogInfo("")<<"\n\n =================> Treating event "<<iEvent.id()<<" Number of electrons "<<gsfElectronsRed.product()->size();
-   
+   //Electrons
 
    //get mc events
    edm::Handle<edm::HepMCProduct> hepMC;
-   iEvent.getByLabel(mcTruthCollection_,hepMC);
-
-   
+   iEvent.getByLabel(mcLabel_,hepMC);
    // association mc-reco          
-
    HepMC::GenParticle* genPc=0;
    const HepMC::GenEvent *myGenEvent = hepMC->GetEvent();
-   //   int mcNum=0, gamNum=0, eleNum=0;
    HepMC::FourVector pAssSim;
-   
-   for ( HepMC::GenEvent::particle_const_iterator mcIter=myGenEvent->particles_begin(); mcIter != myGenEvent->particles_end(); mcIter++ ) {
-     // number of mc particles
-     // counts photons 
-     //  if ((*mcIter)->pdg_id() == 22 ){ gamNum++; }
 
+   vector<pair<int,int> > matches, matchesKilled; //pair of (reco, mc) matches
+   int ele_MCid=0;
+
+   varInt["MC_n"] = 0;
+   for ( HepMC::GenEvent::particle_const_iterator mcIter=myGenEvent->particles_begin(); mcIter != myGenEvent->particles_end(); mcIter++ ){
+     
      // select electrons      
      if ( (*mcIter)->pdg_id() == 11 || (*mcIter)->pdg_id() == -11 ){
        
@@ -315,120 +427,191 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     || ((mother != 0) && (mother->pdg_id() == 32))
 	     || ((mother != 0) && (fabs(mother->pdg_id()) == 24)))) {
 	 
-	 genPc=(*mcIter);
+	 genPc= (*mcIter);
 	 pAssSim = genPc->momentum();
-	 
-	 //	 if (pAssSim.perp()> maxPt_ || fabs(pAssSim.eta())> maxAbsEta_) continue;
-	 
 
+         int MC_n = varInt["MC_n"];
+	 
 	 // looking for the best matching gsf electron 
 	 bool okGsfFound = false;
 	 double gsfOkRatio = 999999.;
-	 reco::SuperClusterRef 	SCok;
-
+	 reco::SuperClusterRef SCok;
+	 
 	 // find best matched electron
 
-	 reco::GsfElectron bestGsfElectron;
-	 for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
-	      gsfIter!=gsfElectrons->end(); gsfIter++){
+	 counter  = 0;
+	 string LABEL = "";
+	 for (std::vector<edm::InputTag>::const_iterator i = eleLabel_.begin(); i!=eleLabel_.end(); i++) {
+	   // get electrons
+	   edm::Handle<reco::GsfElectronCollection> electrons;
+	   iEvent.getByLabel(*i,electrons);
 	   
-	   double deltaR = sqrt(pow((gsfIter->eta()-pAssSim.eta()),2) + pow((gsfIter->phi()-pAssSim.phi()),2));
-	   if ( deltaR < deltaR_ ){
-	     if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
-		  (gsfIter->charge() > 0.) ){
-	       double tmpGsfRatio = gsfIter->p()/pAssSim.t();
-	       if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
-		 gsfOkRatio = tmpGsfRatio;
-		 bestGsfElectron=*gsfIter;
-		 okGsfFound = true;
-		 SCok = bestGsfElectron.superCluster();
+	   if(counter==1) LABEL = "killed";
+
+
+	   // looking for the best matching gsf electron
+	   bool okGsfFound = false;
+	   double gsfOkRatio = 999999.;
+	   reco::SuperClusterRef SCok;
+
+	   reco::GsfElectron bestGsfElectron;
+	   int ele_id=0;
+	   int bestEle=-1;
+
+	   for (reco::GsfElectronCollection::const_iterator gsfIter=electrons->begin();
+		gsfIter!=electrons->end(); gsfIter++){
+	     
+	     //changed in dPhi!
+	     double deltaR = sqrt(pow((gsfIter->eta()-pAssSim.eta()),2) + pow( delta_phi(gsfIter->phi(), pAssSim.phi() ),2));
+	     if ( deltaR < deltaR_ ){
+	       if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
+		    (gsfIter->charge() > 0.) ){
+		 double tmpGsfRatio = gsfIter->p()/pAssSim.t();
+		 if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
+		   gsfOkRatio = tmpGsfRatio;
+		   bestGsfElectron=*gsfIter;
+		   okGsfFound = true;
+		   SCok = bestGsfElectron.superCluster();
+		   bestEle = ele_id;
+
+		   //cout << "matched " << gsfIter->eta() << " " << gsfIter->phi() 
+		   //<< "with " << pAssSim.eta() << " " << pAssSim.phi() << endl;
+ 		 }
 	       }
 	     }
-	   }
-	 } // loop over rec ele to look for the best one
+	     ele_id++;
+	   } // loop over rec ele to look for the best one
+	   if(counter==0) matches.push_back( make_pair(ele_MCid, bestEle) );
+	   else matchesKilled.push_back( make_pair(ele_MCid, bestEle) );
+	   varIntArr_MC[LABEL+"MC_matches"][MC_n] = bestEle;
+
+	   counter++;
+	 }// end of eleLabel loop
 	 
 
+         varIntArr_MC["MC_id"][MC_n] = genPc->pdg_id();
+         varFloatArr_MC["MC_px"][MC_n] = pAssSim.px();
+         varFloatArr_MC["MC_py"][MC_n] = pAssSim.py();
+         varFloatArr_MC["MC_pz"][MC_n] = pAssSim.pz();
+         varFloatArr_MC["MC_E"][MC_n] = pAssSim.e();
+         varFloatArr_MC["MC_eta"][MC_n] = pAssSim.eta();
+         varFloatArr_MC["MC_phi"][MC_n] = pAssSim.phi();
+         varFloatArr_MC["MC_pt"][MC_n] = pAssSim.perp();
+         varIntArr_MC["MC_status"][MC_n] = genPc->status();
 
-	 //////////////////////////////////////////////   
-	 // looking for the best matching gsf electron
- 
-	 bool okGsfRedFound = false;
-	 double gsfRedOkRatio = 999999.;
-	 reco::SuperClusterRef 	SCRedok;
-	 // find best matched electron 
-
-	 reco::GsfElectron bestGsfElectronRed;
-	 for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectronsRed->begin();
-	      gsfIter!=gsfElectronsRed->end(); gsfIter++){
-	   
-	   double deltaR = sqrt(pow((gsfIter->eta()-pAssSim.eta()),2) + pow((gsfIter->phi()-pAssSim.phi()),2));
-	   if ( deltaR < deltaR_ ){
-	     if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
-		  (gsfIter->charge() > 0.) ){
-	       double tmpGsfRatio = gsfIter->p()/pAssSim.t();
-	       if ( fabs(tmpGsfRatio-1) < fabs(gsfRedOkRatio-1) ) {
-		 gsfRedOkRatio = tmpGsfRatio;
-		 bestGsfElectronRed = *gsfIter;
-		 okGsfRedFound = true;
-		 SCRedok = bestGsfElectronRed.superCluster();
-	       }
-	     }
-	   }
-	 } // loop over rec ele to look for the best one  
-
-	 ///////////////////////////////////////
-
-	 float etaTk = bestGsfElectron.trackMomentumOut().eta();
-	 float phiTk = bestGsfElectron.trackMomentumOut().phi();
-	 float xTk = bestGsfElectron.trackMomentumOut().x();
-	 float yTk = bestGsfElectron.trackMomentumOut().y();
-	 float zTk = bestGsfElectron.trackMomentumOut().z();
-
-	 float etaTkRed = bestGsfElectronRed.trackMomentumOut().eta();
-	 float phiTkRed = bestGsfElectronRed.trackMomentumOut().phi();
-	 float xTkRed = bestGsfElectronRed.trackMomentumOut().x();
-	 float yTkRed = bestGsfElectronRed.trackMomentumOut().y();
-	 float zTkRed = bestGsfElectronRed.trackMomentumOut().z();
-
-
-	 if(etaTk < 1.5 && etaTk > -1.5) h_simEtavsPhi -> Fill(phiTk, etaTk) ;
-	 if(etaTk > 1.5) h_simXvsYinPE -> Fill(xTk, yTk) ;
-	 if(etaTk < -1.5) h_simXvsYinNE -> Fill(xTk, yTk) ;
-
-
-	 /////////////////////////////////////  
-
-	 // analysis when the mc track is found 
-
-	 if (okGsfFound){
-	   // generated distributions for matched electrons
-	   
-	   if(etaTk < 1.5 && etaTk > -1.5) h_ele_simEtavsPhi_matched -> Fill(phiTk, etaTk);
-	   if(etaTk > 1.5) h_ele_simXvsYinPE_matched -> Fill(xTk, yTk);
-	   if(etaTk < -1.5) h_ele_simXvsYinNE_matched -> Fill(xTk, yTk);
-
-	   if(etaTk < 1.5 && etaTk > -1.5) h_ele_simE_matched -> Fill(phiTk, etaTk, (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
-	   if(etaTk > 1.5) h_ele_simEinPE_matched -> Fill(xTk, yTk,  (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
-	    if(etaTk < -1.5)h_ele_simEinNE_matched -> Fill(xTk, yTk,  (pAssSim.t() - bestGsfElectron.energy()) / pAssSim.t());	 
-	 } // gsf electron found  
-
-
-	 if(okGsfRedFound){
-	   if(etaTk < 1.5 && etaTk > -1.5) h_eleRed_simEtavsPhi_matched -> Fill(phiTk, etaTk);
-	   if(etaTk > 1.5) h_eleRed_simXvsYinPE_matched -> Fill(xTk, yTk);
-	   if(etaTk < -1.5) h_eleRed_simXvsYinNE_matched -> Fill(xTk, yTk);
-
-	   if(etaTk < 1.5 && etaTk > -1.5) h_eleRed_simE_matched -> Fill(phiTk, etaTk, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
-	   if(etaTk > 1.5) h_eleRed_simEinPE_matched -> Fill(xTk, yTk, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
-	   if(etaTk < -1.5) h_eleRed_simEinNE_matched -> Fill(xTk, yTk, (pAssSim.t() - bestGsfElectronRed.energy()) / pAssSim.t());	 
-
-	 }
-	 
-       } // mc particle found
-
-     }
-   } // loop over mc particle
+	 varInt["MC_n"] = ele_MCid++;
+	 //ele_MCid++;
+       }//end of Z/W check
+     }//end of ifEle mc check
+   }//3nd of mc loop
    
+
+   ////Eles
+   counter  = 0;
+   string LABEL = "";
+   edm::Handle<reco::GsfElectronCollection> okElectrons;
+   iEvent.getByLabel(eleLabel_[0],okElectrons);
+   edm::Handle<reco::GsfElectronCollection> killedElectrons;
+   iEvent.getByLabel(eleLabel_[1],killedElectrons);
+
+   //   for (std::vector<edm::InputTag>::const_iterator i = eleLabel_.begin(); i!=eleLabel_.end(); i++) {
+     // get electrons
+   //edm::Handle<reco::GsfElectronCollection> electrons;
+   //if(counter == 1) electrons = killedElectrons;
+   //else electrons = okElectrons;
+
+   // if(counter==1) LABEL = "killed";
+     int ele_n=0;
+     int matchedMC=-1;
+     for (reco::GsfElectronCollection::const_iterator gsfIter=okElectrons->begin();gsfIter!=okElectrons->end(); gsfIter++){
+
+       for(vector< pair<int,int> >::const_iterator p = matches.begin(); p != matches.end(); p++ ){
+	 if(p->first == ele_n ) matchedMC = p->second;
+	 //cout << p->first << " " << p->second << endl;
+       }
+       float res = -1000;
+       if( matchedMC!=-1){
+	 res = (gsfIter->energy() -  varFloatArr_MC["MC_E"][matchedMC] ) / varFloatArr_MC["MC_E"][matchedMC];
+	 histos[LABEL+"Ele_ERes"]->Fill(res );
+	 cout << LABEL << " " << ele_n << " " << matchedMC << " MC_E:" << varFloatArr_MC["MC_E"][matchedMC]  << " reco_E:" << gsfIter->energy() << " " << res << endl;
+	 profiles["p"+LABEL+"Ele_ERes"]->Fill(gsfIter->pt(), res  ); 
+
+	 float outerEta = gsfIter->trackMomentumOut().eta(); float outerPhi = gsfIter->trackMomentumOut().phi();
+	 float xTk = gsfIter->trackMomentumOut().x(); float yTk = gsfIter->trackMomentumOut().y();
+	 
+	 varFloatArr_Ele[LABEL+"Ele_E"][ele_n] = gsfIter->energy(); varFloatArr_Ele[LABEL+"Ele_eta"][ele_n] = gsfIter->eta();
+	 varFloatArr_Ele[LABEL+"Ele_phi"][ele_n] = gsfIter->phi(); varFloatArr_Ele[LABEL+"Ele_px"][ele_n] = gsfIter->px();
+	 varFloatArr_Ele[LABEL+"Ele_py"][ele_n] = gsfIter->py(); varFloatArr_Ele[LABEL+"Ele_pz"][ele_n] = gsfIter->pz();
+	 varFloatArr_Ele[LABEL+"Ele_pt"][ele_n] = gsfIter->pt(); varFloatArr_Ele[LABEL+"Ele_outerEta"][ele_n] = outerEta;
+	 varFloatArr_Ele[LABEL+"Ele_outerPhi"][ele_n] = outerPhi;
+
+	 if(outerEta < 1.5 && outerEta > -1.5) histos2D[LABEL+"Ele_EtaPhi_EB"]-> Fill(outerPhi, outerEta);
+	 if(outerEta > 1.5) histos2D[LABEL+"Ele_XY_EE+"]-> Fill(xTk, yTk);
+	 if(outerEta < -1.5) histos2D[LABEL+"Ele_XY_EE-"] -> Fill(xTk, yTk);
+	 
+	 if(outerEta < 1.5 && outerEta > -1.5) histos2P[LABEL+"Ele_EnergyRes_EB"] -> Fill(outerPhi, outerEta, res); 
+	 if(outerEta > 1.5) histos2P[LABEL+"Ele_EnergyRes_EE+"] -> Fill(xTk, yTk,  res); 
+	 if(outerEta < -1.5) histos2P[LABEL+"Ele_EnergyRes_EE-"] -> Fill(xTk, yTk,  res);
+	 
+	 if(outerEta < 1.5 && outerEta > -1.5) histos2P[LABEL+"Ele_Energy_EB"] -> Fill(outerPhi, outerEta,gsfIter->energy() );
+         if(outerEta > 1.5) histos2P[LABEL+"Ele_Energy_EE+"] -> Fill(xTk, yTk,  gsfIter->energy());
+         if(outerEta < -1.5) histos2P[LABEL+"Ele_Energy_EE-"] -> Fill(xTk, yTk, gsfIter->energy());
+
+	 ele_n++;
+	 varInt[LABEL+"Ele_n"] = ele_n;
+       }
+     }//endl ele loop
+     //counter++;
+     //}
+
+     LABEL = "killed";
+     ele_n=0;
+     matchedMC=-1;
+     for (reco::GsfElectronCollection::const_iterator gsfIter=killedElectrons->begin();gsfIter!=killedElectrons->end(); gsfIter++){
+
+       for(vector< pair<int,int> >::const_iterator p = matchesKilled.begin(); p != matchesKilled.end(); p++ ){
+         if(p->first == ele_n ) matchedMC = p->second;
+         //cout << p->first << " " << p->second << endl;
+       }
+       float res = -1000;
+       if( matchedMC!=-1){
+         res = (gsfIter->energy() -  varFloatArr_MC["MC_E"][matchedMC] ) / varFloatArr_MC["MC_E"][matchedMC];
+         histos[LABEL+"Ele_ERes"]->Fill(res );
+         cout << LABEL << " " << ele_n << " " << matchedMC << " MC_E:" << varFloatArr_MC["MC_E"][matchedMC]  << " reco_E:" << gsfIter->energy() << " " << res << endl;         profiles["p"+LABEL+"Ele_ERes"]->Fill(gsfIter->pt(), res  );
+
+         float outerEta = gsfIter->trackMomentumOut().eta(); float outerPhi = gsfIter->trackMomentumOut().phi();
+         float xTk = gsfIter->trackMomentumOut().x(); float yTk = gsfIter->trackMomentumOut().y();
+
+         varFloatArr_Ele[LABEL+"Ele_E"][ele_n] = gsfIter->energy(); varFloatArr_Ele[LABEL+"Ele_eta"][ele_n] = gsfIter->eta();
+         varFloatArr_Ele[LABEL+"Ele_phi"][ele_n] = gsfIter->phi(); varFloatArr_Ele[LABEL+"Ele_px"][ele_n] = gsfIter->px();
+         varFloatArr_Ele[LABEL+"Ele_py"][ele_n] = gsfIter->py(); varFloatArr_Ele[LABEL+"Ele_pz"][ele_n] = gsfIter->pz();
+         varFloatArr_Ele[LABEL+"Ele_pt"][ele_n] = gsfIter->pt(); varFloatArr_Ele[LABEL+"Ele_outerEta"][ele_n] = outerEta;
+         varFloatArr_Ele[LABEL+"Ele_outerPhi"][ele_n] = outerPhi;
+
+         if(outerEta < 1.5 && outerEta > -1.5) histos2D[LABEL+"Ele_EtaPhi_EB"]-> Fill(outerPhi, outerEta);
+         if(outerEta > 1.5) histos2D[LABEL+"Ele_XY_EE+"]-> Fill(xTk, yTk);
+         if(outerEta < -1.5) histos2D[LABEL+"Ele_XY_EE-"] -> Fill(xTk, yTk);
+
+         if(outerEta < 1.5 && outerEta > -1.5) histos2P[LABEL+"Ele_EnergyRes_EB"] -> Fill(outerPhi, outerEta, res);
+         if(outerEta > 1.5) histos2P[LABEL+"Ele_EnergyRes_EE+"] -> Fill(xTk, yTk,  res);
+         if(outerEta < -1.5) histos2P[LABEL+"Ele_EnergyRes_EE-"] -> Fill(xTk, yTk,  res);
+
+         if(outerEta < 1.5 && outerEta > -1.5) histos2P[LABEL+"Ele_Energy_EB"] -> Fill(outerPhi, outerEta,gsfIter->energy() );
+         if(outerEta > 1.5) histos2P[LABEL+"Ele_Energy_EE+"] -> Fill(xTk, yTk,  gsfIter->energy());
+         if(outerEta < -1.5) histos2P[LABEL+"Ele_Energy_EE-"] -> Fill(xTk, yTk, gsfIter->energy());
+
+         ele_n++;
+         varInt[LABEL+"Ele_n"] = ele_n;
+       }
+     }//endl ele loop
+     //counter++;
+     //}
+
+   if( varInt["Ele_n"] != varInt["killedEle_n"])
+     cout << varInt["Ele_n"] << " " << varInt["killedEle_n"] << endl;
+
+   mtree->Fill();
+       
 }
 
 
@@ -436,85 +619,124 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 TowerAnalysis::beginJob(const edm::EventSetup&)
 {
-  nEvent_ = 0;
-  //  histfile_->cd();
-
-  histos2d["deadTowers_etaPhi"] = fs->make<TH2F>("deadTowers_etaPhi","dead towers (i#phi,i#eta);i#phi;i#eta",365,0,365,200,-100,100);
+  mtree->Branch("Event_number",&Event_number,"Event_number/I");
+  mtree->Branch("Run_number",&Run_number,"Run_number/I");
   
-  histos2d["deadTowersEE+_etaPhi"] = fs->make<TH2F>("deadTowersEE+_etaPhi","dead towers (i#phi,i#eta);i#phi;i#eta",100,0,100,100,0,100);
-  histos2d["deadTowersEE-_etaPhi"] = fs->make<TH2F>("deadTowersEE-_etaPhi","dead towers (i#phi,i#eta);i#phi;i#eta",100,0,100,100,0,100);
-
-  barrelDeadEnergy = fs->make<TProfile2D>("barrelDeadEnergy", "barrelDeadEnergy", 365, 0, 365, 200, -100, 100);
-  pendcapDeadEnergy = fs->make<TProfile2D>("pendcapDeadEnergy", "pendcapDeadEnergy", 100, 0, 100, 100, 0, 100);
-  nendcapDeadEnergy = fs->make<TProfile2D>("nendcapDeadEnergy", "nendcapDeadEnergy", 100, 0, 100, 100, 0, 100);
+  //Jet branches creation
+  mtree->Branch( "Jets_n",&(varInt["Jets_n"]),"Jets_n/I" );
+  mtree->Branch( "killedJets_n",&(varInt["killedJets_n"]),"killedJets_n/I" );
+  mtree->Branch( "genJets_n",&(varInt["genJets_n"]),"genJets_n/I" );
 
   
-  // mc
- h_simEtavsPhi = fs->make<TH2F>("h_simEtavsPhi", "h_simEtavsPhi", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_simXvsYinPE = fs->make<TH2F>("h_simXvsYinPE", "h_simXvsYinPE", 100, -150., 150., 100, -150., 150.);
- h_simXvsYinNE = fs->make<TH2F>("h_simXvsYinNE", "h_simXvsYinNE", 100, -150., 150., 100, -150., 150.);
+  for(vector<string>::iterator var = JET_VAR.begin(); var!=JET_VAR.end(); ++var){
+    mtree->Branch( ("Jets_"+*var).c_str(), varFloatArr_Jets["Jets_"+*var], ("Jets_"+*var+"[Jets_n]/F").c_str() );
+    mtree->Branch( ("killedJets_"+*var).c_str(), varFloatArr_Jets["killedJets_"+*var], ("killedJets_"+*var+"[killedJets_n]/F").c_str() );
+    mtree->Branch( ("Jets_GEN_"+*var).c_str(), varFloatArr_Jets["Jets_GEN_"+*var], ("Jets_GEN_"+*var+"[genJets_n]/F").c_str() );
+  }  
+
+  //Met branches creation
+  for(vector<string>::iterator var = MET_VAR.begin(); var!=MET_VAR.end(); ++var){
+    mtree->Branch( ("Met_"+*var).c_str(), &(varFloatArr_Met["Met_"+*var]), ("Met_"+*var+"/F").c_str() );
+    mtree->Branch( ("killedMet_"+*var).c_str(), &(varFloatArr_Met["killedMet_"+*var]), ("killedMet_"+*var+"/F").c_str() );
+    mtree->Branch( ("Met_GEN_"+*var).c_str(), &(varFloatArr_Met["Met_GEN_"+*var]), ("Met_GEN_"+*var+"/F").c_str() );
+  }
+  //Electrons
+  mtree->Branch( "Ele_n",&(varInt["Ele_n"]),"Ele_n/I" );
+  mtree->Branch( "killedEle_n",&(varInt["killedEle_n"]),"killedEle_n/I" );
+
+  for(vector<string>::iterator var = ELE_VAR.begin(); var!=ELE_VAR.end(); ++var){
+    mtree->Branch( ("Ele_"+*var).c_str(), varFloatArr_Ele["Ele_"+*var], ("Ele_"+*var+"[Ele_n]/F").c_str() );
+    mtree->Branch( ("killedEle_"+*var).c_str(), varFloatArr_Ele["killedEle_"+*var], ("killedEle_"+*var+"[killedEle_n]/F").c_str() );
+  }
+
+  mtree->Branch( "MC_n", &varInt["MC_n"],"MC_n/I" );
+  for(vector<string>::iterator var = MC_VAR.begin(); var!=MC_VAR.end(); ++var)
+    mtree->Branch( ("MC_"+*var).c_str(), varFloatArr_MC["MC_"+*var], ("MC_"+*var+"[MC_n]/F").c_str() );
+  
+  mtree->Branch( "MC_id", varIntArr_MC["MC_id"], "MC_id[MC_n]/I");
+  mtree->Branch( "MC_status", varIntArr_MC["MC_status"], "MC_status[MC_n]/I");
+  mtree->Branch( "MC_matches", varIntArr_MC["MC_matches"], "MC_matches[MC_n]/I");
+  mtree->Branch( "killedMC_matches", varIntArr_MC["killedMC_matches"], "killedMC_matches[MC_n]/I");
 
 
- h_ele_simEtavsPhi_matched = fs->make<TH2F>("h_ele_simEtavsPhi_matched", "h_ele_simEtavsPhi_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_ele_simXvsYinPE_matched = fs->make<TH2F>("h_ele_simXvsYinPE_matched", "h_ele_simXvsYinPE_matched", 100, -150., 150., 100, -150., 150.); 
- h_ele_simXvsYinNE_matched = fs->make<TH2F>("h_ele_simXvsYinNE_matched", "h_ele_simXvsYinNE_matched", 100, -150., 150., 100, -150., 150.);
+  for(int i=0;i<2;i++){
+    string label = sLABEL[i];
+    histos[label+"Ele_ERes"] = fs->make<TH1F>( (label+"Ele_ERes").c_str(),"electron resolution;E^{reco}-E^{true}/E^{true}",100,-0.2,0.2);
+    profiles["p"+label+"Ele_ERes"] = fs->make<TProfile>( ("p"+label+"Ele_ERes").c_str(),"electron resolution;E^{reco}-E^{true}/E^{true}",100,-0.2,0.2);
 
- h_ele_simE_matched = fs->make<TProfile2D>("h_ele_simE_matched", "h_ele_simE_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_ele_simEinPE_matched = fs->make<TProfile2D>("h_ele_simEinPE_matched", "h_ele_simEinPE_matched", 100, -150., 150., 100, -150., 150.);
- h_ele_simEinNE_matched = fs->make<TProfile2D>("h_ele_simEinNE_matched", "h_ele_simEinNE_matched", 100, -150., 150., 100, -150., 150.);
+    histos[label+"Met_EtRes"] = fs->make<TH1F>( (label+"Met_EtRes").c_str(),"met resolution;",1000,-1000,1000);
+    histos[label+"Met_PhiRes"] = fs->make<TH1F>( (label+"Met_PhiRes").c_str(),"met #phi resolution;",1000,-1000,1000);
 
- h_eleRed_simEtavsPhi_matched = fs->make<TH2F>("h_eleRed_simEtavsPhi_matched", "h_eleRed_simEtavsPhi_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_eleRed_simXvsYinPE_matched = fs->make<TH2F>("h_eleRed_simXvsYinPE_matched", "h_eleRed_simXvsYinPE_matched", 100, -150., 150., 100, -150., 150.); 
- h_eleRed_simXvsYinNE_matched = fs->make<TH2F>("h_eleRed_simXvsYinNE_matched", "h_eleRed_simXvsYinNE_matched", 100, -150., 150., 100, -150., 150.);
-
- h_eleRed_simE_matched = fs->make<TProfile2D>("h_eleRed_simE_matched", "h_eleRed_simE_matched", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_eleRed_simEinPE_matched = fs->make<TProfile2D>("h_eleRed_simEinPE_matched", "h_eleRed_simEinPE_matched", 100, -150., 150., 100, -150., 150.);
- h_eleRed_simEinNE_matched = fs->make<TProfile2D>("h_eleRed_simEinNE_matched", "h_eleRed_simEinNE_matched", 100, -150., 150., 100, -150., 150.);
+    histos[label+"Jets_EtRes"] = fs->make<TH1F>( (label+"Jets_EtRes").c_str(),"jet resolution;",100,-100,100);
+    histos[label+"Jets_PhiRes"] = fs->make<TH1F>( (label+"Jets_PhiRes").c_str(),"jet #phi resolution;",100,-100,100);
 
 
- h_ele_EtavsPhiEff = fs->make<TH2F>("h_ele_EtavsPhiEff", "h_ele_EtavsPhiEff", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_ele_XvsYEffinPE = fs->make<TH2F>("h_ele_XvsYEffinPE", "h_ele_XvsYEffinPE", 100, -150., 150., 100, -150., 150.);
- h_ele_XvsYEffinNE = fs->make<TH2F>("h_ele_XvsYEffinNE", "h_ele_XvsYEffinNE", 100, -150., 150., 100, -150., 150.);
+    histos2D[label + "Ele_EtaPhi_EB"] = fs->make<TH2F>( (label + "Ele_EtaPhi_EB").c_str(), (label+"Ele_simEtavsPhi").c_str(), 360, -3.14159, 3.14159, 172, -1.5, 1.5);
+    histos2D[label + "Ele_XY_EE+"] = fs->make<TH2F>( (label+"Ele_XY_EE+").c_str(), (label + "Ele_simXvsYinPE_matched").c_str(), 100, -150., 150., 100, -150., 150.); 
+    histos2D[label + "Ele_XY_EE-"] = fs->make<TH2F>( (label + "Ele_XY_EE-").c_str(), (label + "Ele_simXvsYinNE_matched").c_str(), 100, -150., 150., 100, -150., 150.);
 
- h_eleRed_EtavsPhiEff = fs->make<TH2F>("h_eleRed_EtavsPhiEff", "h_eleRed_EtavsPhiEff", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
- h_eleRed_XvsYEffinPE = fs->make<TH2F>("h_eleRed_XvsYEffinPE", "h_eleRed_XvsYEffinPE", 100, -150., 150., 100, -150., 150.);
- h_eleRed_XvsYEffinNE = fs->make<TH2F>("h_eleRed_XvsYEffinNE", "h_eleRed_XvsYEffinNE", 100, -150., 150., 100, -150., 150.);
 
+    histos2P[label + "Ele_EnergyRes_EB"] = fs->make<TProfile2D>((label + "Ele_EnergyRes_EB").c_str(), (label + "Ele_EnergyRes_EB").c_str(), 360, -3.14159, 3.14159, 172, -1.5, 1.5);
+    histos2P[label + "Ele_EnergyRes_EE+"] = fs->make<TProfile2D>( (label + "Ele_EnergyRes_EE+").c_str(), (label + "Ele_EnergyRes_EE+").c_str(), 100, -150., 150., 100, -150., 150.);
+    histos2P[label + "Ele_EnergyRes_EE-"] = fs->make<TProfile2D>( (label + "Ele_EnergyRes_EE-").c_str(), (label + "Ele_EnergyRes_EE-").c_str(), 100, -150., 150., 100, -150., 150.);
+
+    
+    histos2P[label + "Ele_Energy_EB"] = fs->make<TProfile2D>((label + "Ele_Energy_EB").c_str(), (label + "Ele_Energy_EB").c_str(), 360, -3.14159, 3.14159, 172, -1.5, 1.5);
+    histos2P[label + "Ele_Energy_EE+"] = fs->make<TProfile2D>( (label + "Ele_Energy_EE+").c_str(), (label + "Ele_Energy_EE+").c_str(), 100, -150., 150., 100, -150., 150.);
+    histos2P[label + "Ele_Energy_EE-"] = fs->make<TProfile2D>( (label + "Ele_Energy_EE-").c_str(), (label + "Ele_Energy_EE-").c_str(), 100, -150., 150., 100, -150., 150.);
+  }  
+  
+  histos2D["Ele_EtaPhiEff_EB"] = fs->make<TH2F>( "Ele_EtaPhiEff_EB", "Ele_simEtavsPhiEff_matched", 360,-3.14159, 3.14159, 172, -1.5, 1.5);
+  histos2D["Ele_XYEff_EE+"] = fs->make<TH2F>( "Ele_XYEff_EE+", "Ele_simXvsYEffinPE_matched", 100, -150., 150., 100, -150., 150.);
+  histos2D["Ele_XYEff_EE-"] = fs->make<TH2F>( "Ele_XYEff_EE-", "Ele_simXvsYEffinNE_matched", 100, -150., 150., 100, -150., 150.);
+
+  histos2P["globalEle_EnergyRes_EB"] = fs->make<TProfile2D>("globalEle_EnergyRes_EB", "globalEle_EnergyRes_EB", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TowerAnalysis::endJob() {
+  //  m_file->Write();
+  //m_file->Close();
 
-  //  histfile_->cd();
   std::cout << "efficiency calculation " << std::endl;
 
-  h_ele_EtavsPhiEff->Reset();
-  h_ele_EtavsPhiEff->Divide(h_ele_simEtavsPhi_matched,h_simEtavsPhi,1,1);
-  h_ele_EtavsPhiEff->Print();
+    histos2D["Ele_EtaPhiEff_EB"]->Reset();
+    histos2D["Ele_EtaPhiEff_EB"]->Divide( histos2D["killedEle_EtaPhi_EB"],histos2D["Ele_EtaPhi_EB"],1,1);
+    histos2D["Ele_EtaPhiEff_EB"]->Print();
+    
+    histos2D["Ele_XYEff_EE+"]->Reset();
+    histos2D["Ele_XYEff_EE+"]->Divide( histos2D["killedEle_XY_EE+"],histos2D["Ele_XY_EE+"],1,1);
+    histos2D["Ele_XYEff_EE+"]->Print();
+    
+    histos2D["Ele_XYEff_EE-"]->Reset();
+    histos2D["Ele_XYEff_EE-"]->Divide( histos2D["killedEle_XY_EE-"],histos2D["Ele_XY_EE-"],1,1);
+    histos2D["Ele_XYEff_EE-"]->Print();
 
-  h_ele_XvsYEffinPE->Reset();
-  h_ele_XvsYEffinPE->Divide(h_ele_simXvsYinPE_matched,h_simXvsYinPE,1,1);
-  h_ele_XvsYEffinPE->Print();
-
-  h_ele_XvsYEffinNE->Reset();
-  h_ele_XvsYEffinNE->Divide(h_ele_simXvsYinNE_matched,h_simXvsYinNE,1,1);
-  h_ele_XvsYEffinNE->Print();
-
-
-  h_eleRed_EtavsPhiEff->Reset();
-  h_eleRed_EtavsPhiEff->Divide(h_eleRed_simEtavsPhi_matched,h_simEtavsPhi,1,1);
-  h_eleRed_EtavsPhiEff->Print();
-
-  h_eleRed_XvsYEffinPE->Reset();
-  h_eleRed_XvsYEffinPE->Divide(h_eleRed_simXvsYinPE_matched,h_simXvsYinPE,1,1);
-  h_eleRed_XvsYEffinPE->Print();
-
-  h_eleRed_XvsYEffinNE->Reset();
-  h_eleRed_XvsYEffinNE->Divide(h_eleRed_simXvsYinNE_matched,h_simXvsYinNE,1,1);
-  h_eleRed_XvsYEffinNE->Print();
+    histos2P["globalEle_EnergyRes_EB"]->Reset();
+    histos2P["globalEle_EnergyRes_EB"]->Divide( histos2P["killedEle_EnergyRes_EB"],histos2P["Ele_EnergyRes_EB"],1,1);
+    histos2P["globalEle_EnergyRes_EB"]->Print();
 
 }
 
+//simple dPhi calculator
+float TowerAnalysis::delta_phi(float phi1, float phi2)
+{
+  
+  Float_t pi_greco = 3.1415;
+  Float_t adphi = fabs(phi1 -phi2);
+  Float_t dphi = (phi1 -phi2);
+  if (adphi > fabs(2*pi_greco-adphi)){
+    if(dphi > 0){ dphi -= 2*pi_greco;}
+    if(dphi < 0){ dphi += 2*pi_greco;}
+    dphi = fabs(2*pi_greco-adphi);
+  }
+  
+  return fabs(dphi);
+}
+
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(TowerAnalysis);
+
+//  LocalWords:  str
