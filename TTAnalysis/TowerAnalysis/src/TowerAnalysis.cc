@@ -226,8 +226,9 @@ TowerAnalysis::TowerAnalysis(const edm::ParameterSet& iConfig)
   ////Electrons
   ELE_VAR.push_back("E"); ELE_VAR.push_back("pt"); ELE_VAR.push_back("phi");  ELE_VAR.push_back("eta");  ELE_VAR.push_back("px"); ELE_VAR.push_back("py");
   ELE_VAR.push_back("outerPhi");  ELE_VAR.push_back("outerEta");
+  ELE_VAR.push_back("ScPhi");  ELE_VAR.push_back("ScEta");
   ELE_VAR.push_back("pz"); ELE_VAR.push_back("charge");
-
+  
 
   varInt["Ele_n"] = 0;
   varInt["killedEle_n"] = 0;
@@ -513,29 +514,29 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(eleLabel_[0],okElectrons);
    edm::Handle<reco::GsfElectronCollection> killedElectrons;
    iEvent.getByLabel(eleLabel_[1],killedElectrons);
-
-   //   for (std::vector<edm::InputTag>::const_iterator i = eleLabel_.begin(); i!=eleLabel_.end(); i++) {
-     // get electrons
-   //edm::Handle<reco::GsfElectronCollection> electrons;
-   //if(counter == 1) electrons = killedElectrons;
-   //else electrons = okElectrons;
-
-   // if(counter==1) LABEL = "killed";
+   
+   for (std::vector<edm::InputTag>::const_iterator i = eleLabel_.begin(); i!=eleLabel_.end(); i++) {
+     //get electrons
+     edm::Handle<reco::GsfElectronCollection> electrons;
+     if(counter == 1) electrons = killedElectrons;
+     else electrons = okElectrons;
+     
+     if(counter==1) LABEL = "killed";
      int ele_n=0;
      int matchedMC=-1;
-     for (reco::GsfElectronCollection::const_iterator gsfIter=okElectrons->begin();gsfIter!=okElectrons->end(); gsfIter++){
-
-       for(vector< pair<int,int> >::const_iterator p = matches.begin(); p != matches.end(); p++ ){
-	 if(p->first == ele_n ) matchedMC = p->second;
-	 //cout << p->first << " " << p->second << endl;
-       }
-       float res = -1000;
+	for (reco::GsfElectronCollection::const_iterator gsfIter=electrons->begin();gsfIter!=electrons->end(); gsfIter++){
+	  
+	  for(vector< pair<int,int> >::const_iterator p = matches.begin(); p != matches.end(); p++ ){
+	    if(p->first == ele_n ) matchedMC = p->second;
+	    //cout << p->first << " " << p->second << endl;
+	  }
+	  float res = -1000;
        if( matchedMC!=-1){
 	 res = (gsfIter->energy() -  varFloatArr_MC["MC_E"][matchedMC] ) / varFloatArr_MC["MC_E"][matchedMC];
 	 histos[LABEL+"Ele_ERes"]->Fill(res );
 	 cout << LABEL << " " << ele_n << " " << matchedMC << " MC_E:" << varFloatArr_MC["MC_E"][matchedMC]  << " reco_E:" << gsfIter->energy() << " " << res << endl;
 	 profiles["p"+LABEL+"Ele_ERes"]->Fill(gsfIter->pt(), res  ); 
-
+	 
 	 float outerEta = gsfIter->trackMomentumOut().eta(); float outerPhi = gsfIter->trackMomentumOut().phi();
 	 float xTk = gsfIter->trackMomentumOut().x(); float yTk = gsfIter->trackMomentumOut().y();
 	 
@@ -544,6 +545,8 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 varFloatArr_Ele[LABEL+"Ele_py"][ele_n] = gsfIter->py(); varFloatArr_Ele[LABEL+"Ele_pz"][ele_n] = gsfIter->pz();
 	 varFloatArr_Ele[LABEL+"Ele_pt"][ele_n] = gsfIter->pt(); varFloatArr_Ele[LABEL+"Ele_outerEta"][ele_n] = outerEta;
 	 varFloatArr_Ele[LABEL+"Ele_outerPhi"][ele_n] = outerPhi;
+	 
+         varFloatArr_Ele[LABEL+"Ele_ScEta"][ele_n] = gsfIter->superCluster()->eta(); varFloatArr_Ele[LABEL+"Ele_ScPhi"][ele_n] = gsfIter->superCluster()->phi();
 
 	 if(outerEta < 1.5 && outerEta > -1.5) histos2D[LABEL+"Ele_EtaPhi_EB"]-> Fill(outerPhi, outerEta);
 	 if(outerEta > 1.5) histos2D[LABEL+"Ele_XY_EE+"]-> Fill(xTk, yTk);
@@ -560,58 +563,18 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 ele_n++;
 	 varInt[LABEL+"Ele_n"] = ele_n;
        }
-     }//endl ele loop
-     //counter++;
-     //}
-
-     LABEL = "killed";
-     ele_n=0;
-     matchedMC=-1;
-     for (reco::GsfElectronCollection::const_iterator gsfIter=killedElectrons->begin();gsfIter!=killedElectrons->end(); gsfIter++){
-
-       for(vector< pair<int,int> >::const_iterator p = matchesKilled.begin(); p != matchesKilled.end(); p++ ){
-         if(p->first == ele_n ) matchedMC = p->second;
-         //cout << p->first << " " << p->second << endl;
-       }
-       float res = -1000;
-       if( matchedMC!=-1){
-         res = (gsfIter->energy() -  varFloatArr_MC["MC_E"][matchedMC] ) / varFloatArr_MC["MC_E"][matchedMC];
-         histos[LABEL+"Ele_ERes"]->Fill(res );
-         cout << LABEL << " " << ele_n << " " << matchedMC << " MC_E:" << varFloatArr_MC["MC_E"][matchedMC]  << " reco_E:" << gsfIter->energy() << " " << res << endl;         profiles["p"+LABEL+"Ele_ERes"]->Fill(gsfIter->pt(), res  );
-
-         float outerEta = gsfIter->trackMomentumOut().eta(); float outerPhi = gsfIter->trackMomentumOut().phi();
-         float xTk = gsfIter->trackMomentumOut().x(); float yTk = gsfIter->trackMomentumOut().y();
-
-         varFloatArr_Ele[LABEL+"Ele_E"][ele_n] = gsfIter->energy(); varFloatArr_Ele[LABEL+"Ele_eta"][ele_n] = gsfIter->eta();
-         varFloatArr_Ele[LABEL+"Ele_phi"][ele_n] = gsfIter->phi(); varFloatArr_Ele[LABEL+"Ele_px"][ele_n] = gsfIter->px();
-         varFloatArr_Ele[LABEL+"Ele_py"][ele_n] = gsfIter->py(); varFloatArr_Ele[LABEL+"Ele_pz"][ele_n] = gsfIter->pz();
-         varFloatArr_Ele[LABEL+"Ele_pt"][ele_n] = gsfIter->pt(); varFloatArr_Ele[LABEL+"Ele_outerEta"][ele_n] = outerEta;
-         varFloatArr_Ele[LABEL+"Ele_outerPhi"][ele_n] = outerPhi;
-
-         if(outerEta < 1.5 && outerEta > -1.5) histos2D[LABEL+"Ele_EtaPhi_EB"]-> Fill(outerPhi, outerEta);
-         if(outerEta > 1.5) histos2D[LABEL+"Ele_XY_EE+"]-> Fill(xTk, yTk);
-         if(outerEta < -1.5) histos2D[LABEL+"Ele_XY_EE-"] -> Fill(xTk, yTk);
-
-         if(outerEta < 1.5 && outerEta > -1.5) histos2P[LABEL+"Ele_EnergyRes_EB"] -> Fill(outerPhi, outerEta, res);
-         if(outerEta > 1.5) histos2P[LABEL+"Ele_EnergyRes_EE+"] -> Fill(xTk, yTk,  res);
-         if(outerEta < -1.5) histos2P[LABEL+"Ele_EnergyRes_EE-"] -> Fill(xTk, yTk,  res);
-
-         if(outerEta < 1.5 && outerEta > -1.5) histos2P[LABEL+"Ele_Energy_EB"] -> Fill(outerPhi, outerEta,gsfIter->energy() );
-         if(outerEta > 1.5) histos2P[LABEL+"Ele_Energy_EE+"] -> Fill(xTk, yTk,  gsfIter->energy());
-         if(outerEta < -1.5) histos2P[LABEL+"Ele_Energy_EE-"] -> Fill(xTk, yTk, gsfIter->energy());
-
-         ele_n++;
-         varInt[LABEL+"Ele_n"] = ele_n;
-       }
-     }//endl ele loop
-     //counter++;
-     //}
-
+	}//endl ele loop
+	//counter++;
+	//}
+	counter++;
+   }
+   
+   
    if( varInt["Ele_n"] != varInt["killedEle_n"])
      cout << varInt["Ele_n"] << " " << varInt["killedEle_n"] << endl;
-
+   
    mtree->Fill();
-       
+   
 }
 
 
