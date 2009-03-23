@@ -33,6 +33,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -280,7 +283,28 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if (DEBUG==1) std::cout << "------- event " << Event_number << " ---------"<< std::endl;
 
+   /*
+   //Trigger Primitives
+   Handle<EcalTrigPrimDigiCollection> emulDigis;
+   int tmp=0;
+   iEvent.getByLabel("simEcalTriggerPrimitiveDigis", emulDigis);
+   //#iEvent.getByLabel("ecalTriggerPrimitiveDigis", emulDigis);
+   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = emulDigis->begin();
+	 tpdigiItr != emulDigis->end(); ++tpdigiItr ) {
+     //EcalTriggerPrimitiveDigi data = (*tpdigiItr);
+     //EcalTrigTowerDetId idt = data.id();
+     //if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
+     EcalTriggerPrimitiveDigi data = (*tpdigiItr);
+     EcalTrigTowerDetId idt = data.id();
+     
+     //cout << tmp++ << endl;
+     if( idt.subDet()== EcalBarrel && tpdigiItr->compressedEt() >0 )
+       cout << "- "<< tmp++ <<" "  << tpdigiItr->compressedEt() <<" " << idt.subDet() << "  " << idt.iTT() <<endl;
+   }
+   */
+
    ///////// JETS
+
    Handle<GenJetCollection> genJets;
    iEvent.getByLabel(genJetLabel_,genJets);
 
@@ -430,8 +454,8 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 
 	 genPc= (*mcIter);
 	 pAssSim = genPc->momentum();
-
-         int MC_n = varInt["MC_n"];
+	 
+         //int MC_n = varInt["MC_n"];
 	 
 	 // looking for the best matching gsf electron 
 	 bool okGsfFound = false;
@@ -439,7 +463,7 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 reco::SuperClusterRef SCok;
 	 
 	 // find best matched electron
-
+	 
 	 counter  = 0;
 	 string LABEL = "";
 	 for (std::vector<edm::InputTag>::const_iterator i = eleLabel_.begin(); i!=eleLabel_.end(); i++) {
@@ -448,17 +472,18 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   iEvent.getByLabel(*i,electrons);
 	   
 	   if(counter==1) LABEL = "killed";
-
-
+	   
+	   //std::cout << "MC : n=" << ele_MCid << " E=" << pAssSim.e() <<  " Eta=" << pAssSim.eta() << " Phi=" << pAssSim.phi() << std::endl;
+	   
 	   // looking for the best matching gsf electron
 	   bool okGsfFound = false;
 	   double gsfOkRatio = 999999.;
 	   reco::SuperClusterRef SCok;
-
+	   
 	   reco::GsfElectron bestGsfElectron;
 	   int ele_id=0;
 	   int bestEle=-1;
-
+	   
 	   for (reco::GsfElectronCollection::const_iterator gsfIter=electrons->begin();
 		gsfIter!=electrons->end(); gsfIter++){
 	     
@@ -474,9 +499,6 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   okGsfFound = true;
 		   SCok = bestGsfElectron.superCluster();
 		   bestEle = ele_id;
-
-		   //cout << "matched " << gsfIter->eta() << " " << gsfIter->phi() 
-		   //<< "with " << pAssSim.eta() << " " << pAssSim.phi() << endl;
  		 }
 	       }
 	     }
@@ -484,21 +506,21 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   } // loop over rec ele to look for the best one
 	   if(counter==0) matches.push_back( make_pair(ele_MCid, bestEle) );
 	   else matchesKilled.push_back( make_pair(ele_MCid, bestEle) );
-	   varIntArr_MC[LABEL+"MC_matches"][MC_n] = bestEle;
+	   varIntArr_MC[LABEL+"MC_matches"][ele_MCid] = bestEle;
 
 	   counter++;
 	 }// end of eleLabel loop
 	 
 
-         varIntArr_MC["MC_id"][MC_n] = genPc->pdg_id();
-         varFloatArr_MC["MC_px"][MC_n] = pAssSim.px();
-         varFloatArr_MC["MC_py"][MC_n] = pAssSim.py();
-         varFloatArr_MC["MC_pz"][MC_n] = pAssSim.pz();
-         varFloatArr_MC["MC_E"][MC_n] = pAssSim.e();
-         varFloatArr_MC["MC_eta"][MC_n] = pAssSim.eta();
-         varFloatArr_MC["MC_phi"][MC_n] = pAssSim.phi();
-         varFloatArr_MC["MC_pt"][MC_n] = pAssSim.perp();
-         varIntArr_MC["MC_status"][MC_n] = genPc->status();
+         varIntArr_MC["MC_id"][ele_MCid] = genPc->pdg_id();
+         varFloatArr_MC["MC_px"][ele_MCid] = pAssSim.px();
+         varFloatArr_MC["MC_py"][ele_MCid] = pAssSim.py();
+         varFloatArr_MC["MC_pz"][ele_MCid] = pAssSim.pz();
+         varFloatArr_MC["MC_E"][ele_MCid] = pAssSim.e();
+         varFloatArr_MC["MC_eta"][ele_MCid] = pAssSim.eta();
+         varFloatArr_MC["MC_phi"][ele_MCid] = pAssSim.phi();
+         varFloatArr_MC["MC_pt"][ele_MCid] = pAssSim.perp();
+         varIntArr_MC["MC_status"][ele_MCid] = genPc->status();
 
 	 varInt["MC_n"] = ele_MCid++;
 	 //ele_MCid++;
@@ -524,17 +546,20 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if(counter==1) LABEL = "killed";
      int ele_n=0;
      int matchedMC=-1;
-	for (reco::GsfElectronCollection::const_iterator gsfIter=electrons->begin();gsfIter!=electrons->end(); gsfIter++){
-	  
-	  for(vector< pair<int,int> >::const_iterator p = matches.begin(); p != matches.end(); p++ ){
-	    if(p->first == ele_n ) matchedMC = p->second;
-	    //cout << p->first << " " << p->second << endl;
-	  }
-	  float res = -1000;
+
+     for (reco::GsfElectronCollection::const_iterator gsfIter=electrons->begin();gsfIter!=electrons->end(); gsfIter++){
+      
+       for(vector< pair<int,int> >::const_iterator p = matches.begin(); p != matches.end(); p++ )
+	 if(p->second == ele_n ) { matchedMC = p->first; break; }
+       
+       float res = -1000;
+
+       if(matchedMC == -1) continue;
+
        if( matchedMC!=-1){
 	 res = (gsfIter->energy() -  varFloatArr_MC["MC_E"][matchedMC] ) / varFloatArr_MC["MC_E"][matchedMC];
 	 histos[LABEL+"Ele_ERes"]->Fill(res );
-	 cout << LABEL << " " << ele_n << " " << matchedMC << " MC_E:" << varFloatArr_MC["MC_E"][matchedMC]  << " reco_E:" << gsfIter->energy() << " " << res << endl;
+	 //cout << LABEL << " " << ele_n << " " << matchedMC << " MC_E:" << varFloatArr_MC["MC_E"][matchedMC]  << " reco_E:" << gsfIter->energy() << " " << res << endl;
 	 profiles["p"+LABEL+"Ele_ERes"]->Fill(gsfIter->pt(), res  ); 
 	 
 	 float outerEta = gsfIter->trackMomentumOut().eta(); float outerPhi = gsfIter->trackMomentumOut().phi();
@@ -563,10 +588,10 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 ele_n++;
 	 varInt[LABEL+"Ele_n"] = ele_n;
        }
-	}//endl ele loop
-	//counter++;
-	//}
-	counter++;
+     }//endl ele loop
+     //counter++;
+     //}
+     counter++;
    }
    
    
