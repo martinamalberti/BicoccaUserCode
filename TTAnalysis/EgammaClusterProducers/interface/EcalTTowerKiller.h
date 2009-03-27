@@ -23,6 +23,11 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include <TH1F.h>
+#include <TFile.h>
 
 #include <string>
 using namespace cms;
@@ -57,13 +62,21 @@ class EcalTTowerKiller : public edm::EDProducer {
      string rejectedHitCollectionEB_;
      string reducedHitCollectionEE_;
      string rejectedHitCollectionEE_;
-     
+     string recoveredHitCollectionEB_;
+     string recoveredHitCollectionEE_;
+
      string DeadChannelFileName_;
+
+     string histofile_;
 
      std::vector<edm::InputTag> ECollection_;
      edm::InputTag EBCollection_, EECollection_;
      std::vector<pair<int, int> > ChannelsDeadID;
 
+     map<string, TH1F*> histos;
+
+     //edm::Service<TFileService> fs;
+     TFile * m_file;
 };
 
 

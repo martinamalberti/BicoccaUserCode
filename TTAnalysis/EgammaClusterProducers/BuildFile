@@ -15,7 +15,14 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=Geometry/EcalMapping>
 <use name=clhep>
+<use name="roothistmatrix">
+<use name="rootmath">
+<use name="FWCore/ServiceRegistry">
+<use name="PhysicsTools/UtilAlgos">
+<use name="PhysicsTools/Utilities">
+<use name=CalibCalorimetry/EcalTPGTools>
 <flags EDM_PLUGIN=1>
+
 <export>
   <lib name=RecoEcalEgammaClusterProducers>
   <use name=FWCore/Framework>
