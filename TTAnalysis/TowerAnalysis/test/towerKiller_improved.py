@@ -5,7 +5,7 @@ process = cms.Process("TowerKiller")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'WARNING'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
                             # replace 'myfile.root' with the source file you want to use
@@ -13,8 +13,9 @@ process.source = cms.Source("PoolSource",
     #'/store/relval/CMSSW_2_2_4/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP_V8_v1/0000/148C3184-90F3-DD11-860E-001D09F2910A.root'
     #'file:/gwtera5/users/data/10TeV-RECO/Summer08-HerwigQCDPt15-GEN-SIM-RECO-IDEAL_V11_redigi_v1-1.root'
     #'file:/gwtera5/users/data/10TeV-RECO/Summer08-Zee-GEN-SIM-RECO-IDEAL_V11_redigi_v1-1.root'
-    #'file:/gwtera5/users/data/10TeV-RECO/PhysVal-DiElectron-Ene50-10k.root'
-    'file:/gwtera5/users/data/10TeV-RECO/PhysVal-DiElectron-Ene50-phi0_1-eta-0.5_0.5.root'
+    'file:/gwtera5/users/data/10TeV-RECO/PG/SingleElectronE50_cfi_py_RAW2DIGI_RECO-1.root'
+    #'file:/gwtera2/users/sala/10-TeV/CMSSW_2_2_1-RelValWjet_Pt_3000_3500-GEN-SIM-DIGI-RAW-HLTDEBUG-IDEAL_V9_v2-1.root'
+    #'file:/gwpool/users/sala/Installations/CMSSW_2_2_5/src/TTAnalysis/TowerAnalysis/test/SingleElectronE50_cfi_py_RAW2DIGI_RECO.root'
     
     )
                             )
@@ -36,6 +37,8 @@ process.EcalTTowerKiller.EECollection = cms.InputTag('ecalRecHit','EcalRecHitsEE
 process.EcalTTowerKiller.reducedHitCollection = cms.string('EcalRecHitsEB')
 process.EcalTTowerKiller.rejectedHitCollection = cms.string('EcalRejRecHitsEB')
 process.EcalTTowerKiller.DeadChannelsFile = cms.string('TTAnalysis/EgammaClusterProducers/data/DeadTowers_FED.txt')
+process.EcalTTowerKiller.histofile = cms.string('histos.root')
+
 
 
 ### Change ECal input collection for reconstruction ###
@@ -44,14 +47,6 @@ process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("EcalTTowerKiller","E
                                               ,cms.InputTag("EcalTTowerKiller","EcalRecHitsEE","TowerKiller")
                                               )
 
-# PAT Layer 0+1
-#process.load("PhysicsTools.PatAlgos.patLayer0_cff")
-#process.load("PhysicsTools.PatAlgos.patLayer1_cff")
-
-### Taking the new collections
-#process.allLayer0Jets.jetSource = cms.InputTag("iterativeCone5CaloJets","","TowerKiller")
-#process.allLayer0METs.metSource = cms.InputTag('met','','TowerKiller')
-#process.allLayer0Electrons.electronSource = cms.InputTag("pixelMatchGsfElectrons","","TowerKiller")
 
 # to use the modified collections in clustering sequences (RecoEcal_cff)
 ##hybridClusteringSequence
@@ -75,6 +70,91 @@ process.pixelMatchGsfElectrons.reducedBarrelRecHitCollection = cms.InputTag("Eca
 process.pixelMatchGsfElectrons.reducedEndcapRecHitCollection = cms.InputTag("EcalTTowerKiller","EcalRecHitsEE")
 process.photons.barrelEcalHits = "TowerKiller:EcalRecHitsEB"
 process.photons.endcapEcalHits = "TowerKiller:EcalRecHitsEE"
+
+
+
+####### FOR THE CONVERSION OF TPG COMPRESSED ET
+process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
+#process.load("Configuration.StandardSequences.FakeConditions_cff")
+process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+
+
+
+process.tpparams = cms.ESSource("EmptyESSource",
+                                    recordName = cms.string('EcalTPGLinearizationConstRcd'),
+                                    iovIsRunNotTime = cms.bool(True),
+                                    firstValid = cms.vuint32(1)
+                                )
+
+process.tpparams2 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGPedestalsRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams3 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGSlidingWindowRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams4 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGWeightIdMapRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams5 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGWeightGroupRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams6 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGLutGroupRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams7 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGLutIdMapRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams8 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGFineGrainEBIdMapRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams9 = cms.ESSource("EmptyESSource",
+                                     recordName = cms.string('EcalTPGFineGrainEBGroupRcd'),
+                                     iovIsRunNotTime = cms.bool(True),
+                                     firstValid = cms.vuint32(1)
+                                 )
+
+process.tpparams10 = cms.ESSource("EmptyESSource",
+                                      recordName = cms.string('EcalTPGFineGrainStripEERcd'),
+                                      iovIsRunNotTime = cms.bool(True),
+                                      firstValid = cms.vuint32(1)
+                                  )
+
+process.tpparams11 = cms.ESSource("EmptyESSource",
+                                      recordName = cms.string('EcalTPGFineGrainTowerEERcd'),
+                                      iovIsRunNotTime = cms.bool(True),
+                                      firstValid = cms.vuint32(1)
+                                  )
+
+process.tpparams12 = cms.ESSource("EmptyESSource",
+                                      recordName = cms.string('EcalTPGPhysicsConstRcd'),
+                                      iovIsRunNotTime = cms.bool(True),
+                                      firstValid = cms.vuint32(1)
+                                  )
+
+process.EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
+                                                    DatabaseFile = cms.untracked.string('TPG_startup.txt.gz')
+                                                )
 
 
 ### Analysis
@@ -104,7 +184,7 @@ process.dump=cms.EDAnalyzer('EventContentAnalyzer')
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(
-    'allDead_PG_test_50-10k.root'
+    'test.root'
             )
                                    )
 

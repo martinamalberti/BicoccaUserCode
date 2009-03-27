@@ -408,6 +408,8 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      for ( CaloMETCollection::const_iterator met=mets->begin(); met!=mets->end(); met++) {
 
+       cout << MET_LABEL <<  " MET:" << met->et() << endl;
+
        varFloatArr_Met[MET_LABEL+"Met_pt"] = met->et();
        varFloatArr_Met[MET_LABEL+"Met_phi"] = met->phi();
        varFloatArr_Met[MET_LABEL+"Met_px"] = met->px();
@@ -596,7 +598,7 @@ TowerAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    
    if( varInt["Ele_n"] != varInt["killedEle_n"])
-     cout << varInt["Ele_n"] << " " << varInt["killedEle_n"] << endl;
+     cout <<"Difference in N of ele: " << varInt["Ele_n"] << " vs " << varInt["killedEle_n"] << endl;
    
    mtree->Fill();
    

@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id: EcalChannelKiller.cc,v 1.2 2007/05/09 14:21:16 beaucero Exp $
+// $Id: EcalTTowerKiller.cc,v 1.3 2009/03/27 14:23:13 leo Exp $
 //
 //
 
@@ -48,7 +48,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include <TH1F.h>
 
-
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+///**/typedef CaloGeometryRecord MyCaloGeometryRecord;
 #include "TTAnalysis/EgammaClusterProducers/interface/EcalTTowerKiller.h"
 
 
@@ -143,6 +144,9 @@ EcalTTowerKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector < std::pair< std::pair<int, int>, float > >TP_map_EB, TP_map_EE;
    std::vector < std::pair< std::pair<int, int>, float > >TT_map_EB, TT_map_EE;
 
+
+   EcalTPGScale ecalScale;
+   ecalScale.setEventSetup(iSetup) ;
    
    Handle<EcalTrigPrimDigiCollection> emulDigis;
    iEvent.getByLabel("simEcalTriggerPrimitiveDigis", emulDigis);
@@ -161,9 +165,11 @@ EcalTTowerKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        int iFED = 600 + idt.iDCC();
        int iTT =   idt.iTT();
        
-       if(tpdigiItr->compressedEt() > 0){
-	 TP_map_EB.push_back( make_pair( make_pair( iFED, iTT ), tpdigiItr->compressedEt()/( sin(theta)*sin(theta) ) ) );
-	 cout << "- Et: "<< tpdigiItr->compressedEt() << " E:" << tpdigiItr->compressedEt()/( sin(theta)*sin(theta) )  << " theta:" << theta <<  "  "  << idt.iTT() <<endl;
+       float  tpEt = ecalScale.getTPGInGeV(tpdigiItr->compressedEt(), tpdigiItr->id()) ;
+       
+       if( tpEt > 0){
+	 TP_map_EB.push_back( make_pair( make_pair( iFED, iTT ), tpEt/( sin(theta)*sin(theta) ) ) );
+	 cout << "- Et: "<< tpEt << " cEt:" << tpdigiItr->compressedEt()  << " theta:" << theta <<  "  "  << idt.iTT() <<endl;
        }
        //if(  tpdigiItr->compressedEt()>0)
 	 //cout << "- Et: "<< tpdigiItr->compressedEt() << " E:" << tpdigiItr->compressedEt()/( sin(theta)*sin(theta) )  << " theta:" << theta <<  "  "  << idt.iTT() <<endl;
