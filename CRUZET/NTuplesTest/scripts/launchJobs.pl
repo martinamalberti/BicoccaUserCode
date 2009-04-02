@@ -30,11 +30,11 @@ $CRABCfgTemplate = $User_Preferences{"CRABCfgTemplate"} ;
 $CASTORSAVEFolder = $User_Preferences{"CASTORSAVEFolder"} ;
 $CASTORFULLPath = "/castor/cern.ch".$CASTORSAVEFolder ;
 
-#print "THISDir = ".$THISDir."\n" ;
-#print "RUNLISTFile = ".$RUNLISTFile."\n" ;
-#print "CMSSWCfgTemplate = ".$CMSSWCfgTemplate."\n" ;
-#print "CRABCfgTemplate = ".$CRABCfgTemplate."\n" ;
-#print "CASTORSAVEFolder = ".$CASTORSAVEFolder."\n" ;
+print "THISDir = ".$THISDir."\n" ;
+print "RUNLISTFile = ".$RUNLISTFile."\n" ;
+print "CMSSWCfgTemplate = ".$CMSSWCfgTemplate."\n" ;
+print "CRABCfgTemplate = ".$CRABCfgTemplate."\n" ;
+print "CASTORSAVEFolder = ".$CASTORSAVEFolder."\n" ;
 
 
 

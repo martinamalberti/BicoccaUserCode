@@ -24,7 +24,7 @@ while (<USERCONFIG>)
 
 $RUNLISTFile = $User_Preferences{"RUNLISTFile"} ;
 $CLONINGCfgFile = $User_Preferences{"CLONINGCfgFile"} ;
-$CASTORSAVEFolder = $User_Preferences{"CASTORSAVEFolder"} ;
+$CASTORSAVEFolder = "/castor/cern.ch/".$User_Preferences{"CASTORSAVEFolder"} ;
 
 print "RUNLISTFile = ".$RUNLISTFile."\n" ;
 print "CLONINGCfgFile = ".$CLONINGCfgFile."\n" ;
@@ -81,7 +81,7 @@ while (<RUNLIST>)
     $currDir = `pwd` ;
     chomp ($currDir) ;
 
-    $cfgFileName = $currDir."/cloning_".$runNumber.".cfg" ;
+    $cfgFileName = $currDir."/cloning_".$runNumber."_cfg.py" ;
     system ("mv ".$tempo6." ".$cfgFileName) ;
     system ("rm ./tempo*") ;
 
@@ -107,7 +107,7 @@ while (<RUNLIST>)
     system ("echo ".$command." >> ".$tempBjob) ;
 
     print ("bsub -q cmscaf ".$tempBjob."\n") ;
-    #system ("bsub -q cmscaf ".$tempBjob) ;
+    system ("bsub -q cmscaf ".$tempBjob) ;
   
     print "\n" ;
     

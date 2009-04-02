@@ -1,166 +1,101 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("COSMICSANALYSIS")
+
+
+
+# Geometry
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.EcalMapping.EcalMapping_cfi")
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
-#process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
-process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
-#process.GlobalTag.globaltag = 'CRUZET4_V5P::All'
-process.GlobalTag.globaltag = 'CRAFT_V1P::All'
 
-process.EcalTrivialConditionRetriever.producedEcalWeights = False
-process.EcalTrivialConditionRetriever.producedEcalPedestals = False
-process.EcalTrivialConditionRetriever.producedEcalIntercalibConstants = False
-process.EcalTrivialConditionRetriever.producedEcalIntercalibErrors = False
-process.EcalTrivialConditionRetriever.producedEcalGainRatios = False
-#process.EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = False
-process.EcalTrivialConditionRetriever.producedEcalADCToGeVConstant = True
-process.EcalTrivialConditionRetriever.adcToGeVEBConstant = cms.untracked.double(0.0081475)
-process.EcalTrivialConditionRetriever.adcToGeVEEConstant = cms.untracked.double(0.060)
-process.EcalTrivialConditionRetriever.producedEcalLaserCorrection = False
-process.EcalTrivialConditionRetriever.producedChannelStatus = True
-process.EcalTrivialConditionRetriever.channelStatusFile = 'CaloOnlineTools/EcalTools/data/listCRAFT.v1.hashed.txt'
+# Magnetic Field
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.es_prefer_EcalTrivialConditionRetriever = cms.ESPrefer("EcalTrivialConditionRetriever")
 
-process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
-process.siStripPedestalFrontier = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
-process.siStripPedestalFrontier.connect = 'frontier://PromptProd/CMS_COND_21X_STRIP'
-process.siStripPedestalFrontier.toGet = cms.VPSet(cms.PSet(
-            record = cms.string('SiStripPedestalsRcd'),
-                        tag = cms.string('SiStripPedestals_TKCC_21X_v3_hlt')
-                    ))
-process.siStripPedestalFrontier.BlobStreamerName = 'TBufferBlobStreamingService'
-process.es_prefer_SiStripFake = cms.ESPrefer("PoolDBESSource","siStripPedestalFrontier")
+# Global Tag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
+process.GlobalTag.globaltag = 'CRAFT_ALL_V11::All'
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
 
-import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+# Track Associator
+process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
+process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
+process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
+process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
 
-process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
-process.load("RecoEcal.EgammaClusterProducers.cosmicClusteringSequence_cff")
 
+
+# Trigger
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtBoardMapsConfig_cff")
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
-#process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup_v3_Unprescaled_cff")
 process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup2_v2_Unprescaled_cff")
 import FWCore.Modules.printContent_cfi
 process.dumpEv = FWCore.Modules.printContent_cfi.printContent.clone()
 
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 process.gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-process.load("CaloOnlineTools.EcalTools.ecalCosmicsHists_cfi")
 
-process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
-process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
-process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
-process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
-#process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
 
-process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
-process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 
-process.load("HLTrigger.special.TriggerTypeFilter_cfi")
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source(
+    "PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = (cms.untracked.vstring(
-      #CRAFT - 66615 - TrackerPointing_V1P
-     'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/CRAFT_V1P_TrackerPointing_v3/0000/16462E19-1C9D-DD11-9CE0-0019B9E48D3C.root'
-       ))
+        #CRAFT - run 66615 - TrackerPointing_V1P
+        #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RECO/CRAFT_V3P_TrackerPointing_v1/0011/0886BC80-19A5-DD11-8531-003048D15E50.root'
+       
+        #CRAFT - run 67147 - CRAFT_ALL_V4_TrackingPointing_TrackerPointing_v2
+        #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V4_TrackingPointing_TrackerPointing_v2/0151/1C40D4DB-13DD-DD11-BA32-0019B9E4FB31.root'
+
+        #CRAFT - run 67147 - CRAFT_ALL_V9_TrackingPointing_225-v3
+        'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V9_TrackingPointing_225-v3/0005/5032B463-5EFF-DD11-BE82-001731AF6A49.root'
+
+        #CRAFT - run 67147 - CRAFT_ALL_V11_225_ReReco_FromTrackerPointing_v1
+        #'rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW-RECO/CRAFT_ALL_V11_225_ReReco_FromTrackerPointing_v1/0009/225A9299-7B0B-DE11-BFDD-0030486790B0.root'
+         )
+     )
 )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
-)
-
-
-
-process.MessageLogger = cms.Service("MessageLogger",
-    suppressWarning = cms.untracked.vstring('ecalEBunpacker','ecalUncalibHit','ecalRecHit',
-                                            'hcalDigis','hcalLocalRecoSequence'),
-    suppressInfo = cms.untracked.vstring('ecalEBunpacker', 'ecalUncalibHit',
-                                         'ecalRecHit', 'hcalDigis','hcalLocalRecoSequence'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    categories = cms.untracked.vstring('EcalCosmicsHists','CosmicClusterAlgo','CosmicClusterProducer'),
-    destinations = cms.untracked.vstring('cout')
-)
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 
 
 
 
-
-
-
-
-#process.MessageLogger = cms.Service("MessageLogger",
-#    suppressWarning = cms.untracked.vstring('ecalEBunpacker','ecalUncalibHit','ecalRecHit',
-#                                            'hcalDigis','hcalLocalRecoSequence','ecalCosmicsHists'),
-#    suppressInfo = cms.untracked.vstring('ecalEBunpacker', 'ecalUncalibHit', 
-#                                         'ecalRecHit', 'hcalDigis','hcalLocalRecoSequence', 'ecalCosmicsHists'),
-#    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('ERROR')
-#    ),
-#    categories = cms.untracked.vstring('EcalCosmicsHists','CosmicClusterAlgo','CosmicClusterProducer'),
-#    destinations = cms.untracked.vstring('cout')
-#)
-
-#process.p = cms.Path(process.triggerTypeFilter*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit*process.cosmicClusteringSequence*process.gtDigis*process.ecalCosmicsHists)
 
 process.load("CaloOnlineTools.EcalTools.ecalCosmicsTree_cfi")
 
 process.ecalCosmicsTree.fileName = 'EcalCosmicsTree'
-process.ecalCosmicsTree.muonCollection = cms.InputTag("GLBMuons")
+process.ecalCosmicsTree.muonCollection = cms.InputTag("muons")
 process.ecalCosmicsTree.runNum = RUNNUMBER
 
 process.p = cms.Path(process.ecalCosmicsTree)
-#--------
 
-#process.ecalUncalibHit.EBdigiCollection = 'ecalEBunpacker:ebDigis'
-#process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 
-#process.ecalRecHit.ChannelStatusToBeExcluded = [1]
-#process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
-#process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
-#process.cosmicBasicClusters.barrelUnHitProducer = "ecalUncalibHit"
-#process.cosmicBasicClusters.endcapUnHitProducer = "ecalUncalibHit"
 
-#process.gtDigis.DaqGtInputTag = 'source'
 
-#process.ecalCosmicsHists.fileName = 'EcalCosmicsHists'
-#process.ecalCosmicsHists.runInFileName = False
-#process.ecalCosmicsHists.TimeStampStart = ${startdate}
-#process.ecalCosmicsHists.TimeStampLength = ${runlength}
-#process.ecalCosmicsHists.MinTimingAmpEB = ${min_timeAmp} # for EB gain ${gain_HV}
-#process.ecalCosmicsHists.MinRecHitAmpEB = ${min_recHAmp} # for EB gain ${gain_HV}
-#process.ecalCosmicsHists.MinTimingAmpEE = 0.9    # for adcToGeV=0.06
-#process.ecalCosmicsHists.MinRecHitAmpEE = 0.180  # for adcToGeV=0.06
 
-#process.triggerTypeFilter.SelectedTriggerType = 1
+
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    categories = cms.untracked.vstring('EcalCosmicsTree'),
+    destinations = cms.untracked.vstring('cout')
+)
