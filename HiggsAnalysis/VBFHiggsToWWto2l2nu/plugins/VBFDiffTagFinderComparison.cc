@@ -1,4 +1,4 @@
-// $Id: VBFDiffTagFinderComparison.cc,v 1.4 2009/02/17 16:28:18 amassiro Exp $
+// $Id: VBFDiffTagFinderComparison.cc,v 1.5 2009/02/17 16:31:06 amassiro Exp $
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFDiffTagFinderComparison.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -36,9 +36,11 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
        edm::Handle<edm::HepMCProduct> evtMC;
        bool sig = true;
        try {
-        iEvent.getByLabel("source",evtMC);}
+        iEvent.getByLabel("source",evtMC);
+      }
         catch (...) {
-         sig = false;}
+         sig = false;
+        }
   
   //get the jet collection
          edm::Handle<reco::RecoChargedCandidateCollection> jetCollectionHandle;
@@ -94,7 +96,7 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
              m_deltaRB = ROOT::Math::VectorUtil::DeltaR (tagJetCands.second->momentum(), m_genqTagB->Vect()) ;
              m_EratioB = tagJetCands.second->p4().E()/m_genqTagB->E() ;
               
-              ///////////////// ************ purity with inv mass selection ***********************************************
+              ///////////////// ************ purity ***************************************************
 
              if (m_deltaRF < threshold && m_deltaRB > threshold) m_purity = 1 ; // 1 matching
              else if (m_deltaRB < threshold && m_deltaRF > threshold) m_purity = 1 ; // 1 matching       
@@ -173,13 +175,8 @@ VBFDiffTagFinderComparison::VBFDiffTagFinderComparison (const edm::ParameterSet&
             setMomentum (m_genqTagB, *(p-1));
             setMomentum (m_genqTagF, *(p-2));
            }
-
-           
-           
            foundSomething = true;
-           
           }
-        
          }
          return foundSomething;
         }
