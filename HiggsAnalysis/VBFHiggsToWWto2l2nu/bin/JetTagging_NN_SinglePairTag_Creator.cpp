@@ -21,6 +21,8 @@
 #include "TText.h"
 #include "TLegend.h"
 
+#include "TRandom3.h"
+
 #include <Math/VectorUtil.h>
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/interface/VBFUtils.h"
 
@@ -44,6 +46,7 @@ int main (int argc, char *argv[])
  double maxDR = 0.3;
  char* nameInput = new char [1000];
  char* nameOutput = new char [1000];
+ double minPt = 5.;
  
  sprintf(nameInput,"/tmp/amassiro/VBF_SimpleTree_H160_WW_2l.root");
  sprintf(nameOutput,"histoJet.root");
@@ -53,7 +56,10 @@ int main (int argc, char *argv[])
   if (argc >2){ 
    nameInput = argv[2] ; 
    if (argc >3) {
-    nameOutput = argv[3] ;   
+    nameOutput = argv[3] ; 
+    if (argc >4) {
+     minPt = atof(argv[4]) ;   
+    }  
    }
   }
  }
@@ -62,7 +68,9 @@ int main (int argc, char *argv[])
  std::cerr << "  maxDR = " << maxDR << std::endl;
  std::cerr << "  nameInput = " << nameInput << std::endl;
  std::cerr << "  nameOutput = " << nameOutput << std::endl;
-
+ std::cerr << "  minPt = " << minPt << std::endl;
+ 
+ TRandom3 my_random;
  
  int numentries = 0;
  int numentriesVBF = 0;
@@ -84,12 +92,21 @@ int main (int argc, char *argv[])
  tTest.Branch("sizeVectPairQRJet",&sizeVectPairQRJet,"sizeVectPairQRJet/I");
  tTest.Branch("sVectPairQGRJet",&sVectPairQGRJet,"sVectPairQGRJet/I");
   
- 
+ int pair_TCV = 0;
+ int pair_CJV;
  double pair_DEta;
  double pair_Mjj;
  double pair_pt1;
  double pair_pt2;
+ double pair_eta1;
+ double pair_eta2;
+ double pair_phi1;
+ double pair_phi2;
+ double pair_Dphi;
  int pair_numJet;
+ double pair_etaMean;
+ double pair_zPtMaxNotUsed;
+ double pair_zPtMax;
  double pair_SumPtOthers;
  double pair_MjjOthers;
  double pair_match;
@@ -101,7 +118,17 @@ int main (int argc, char *argv[])
  tNN.Branch("pair_Mjj",&pair_Mjj,"pair_Mjj/D");
  tNN.Branch("pair_pt1",&pair_pt1,"pair_pt1/D");
  tNN.Branch("pair_pt2",&pair_pt2,"pair_pt2/D");
+ tNN.Branch("pair_phi1",&pair_phi1,"pair_phi1/D");
+ tNN.Branch("pair_phi2",&pair_phi2,"pair_phi2/D");
+ tNN.Branch("pair_Dphi",&pair_Dphi,"pair_Dphi/D");
+ tNN.Branch("pair_eta1",&pair_eta1,"pair_eta1/D");
+ tNN.Branch("pair_eta2",&pair_eta2,"pair_eta2/D");
+ tNN.Branch("pair_TCV",&pair_TCV,"pair_TCV/I");
+ tNN.Branch("pair_CJV",&pair_CJV,"pair_CJV/I");
  tNN.Branch("pair_numJet",&pair_numJet,"pair_numJet/I");
+ tNN.Branch("pair_etaMean",&pair_etaMean,"pair_etaMean/D");
+ tNN.Branch("pair_zPtMaxNotUsed",&pair_zPtMaxNotUsed,"pair_zPtMaxNotUsed/D");
+ tNN.Branch("pair_zPtMax",&pair_zPtMax,"pair_zPtMax/D");
  tNN.Branch("pair_SumPtOthers",&pair_SumPtOthers,"pair_SumPtOthers/D");
  tNN.Branch("pair_MjjOthers",&pair_MjjOthers,"pair_MjjOthers/D");
  tNN.Branch("pair_match",&pair_match,"pair_match/D");
@@ -135,10 +162,13 @@ int main (int argc, char *argv[])
  //---- vecto of recoJet tagged with GenJet
  std::vector<std::pair<int,int> > recoJetTagged; //---- first.pt > second.pt
  
- 
+ bool done = false;
  
  numentries = chain_H->GetEntries();
  for (int i=0; i<numentries; i++ ){//---- loop over entries 
+  done = false;
+  
+  double my_random_number = my_random.Rndm();
   
   std::pair<int,int> genJetTagged_pair;
   genJetTagged_pair.first = -1;
@@ -166,8 +196,7 @@ int main (int argc, char *argv[])
   sizeotherJets = -1;
 
 
-  
-  pair_numJet = otherJets->GetEntries ();
+
   sizeotherJets = otherJets->GetEntries ();
   
   if (IdEvent==123 || IdEvent==124){ //---- only VBF H_WW events
@@ -305,13 +334,14 @@ int main (int argc, char *argv[])
  ///---- reco analysis ---- 
  ///-----------------------
 
-  
+  pair_numJet = 0;
   if (IdEvent==123 || IdEvent==124) { //--- if VBF
    
    
    int TagReco_1 = -1;
    int TagReco_2 = -1;
    
+//    std::cerr << "      ma ti blocchi qui RECO ANALYSIS???" << std::endl;
  
    
   
@@ -327,26 +357,31 @@ int main (int argc, char *argv[])
    std::vector< TLorentzVector > vect_recoJet_PtSorting;
    for (int l=0; l<otherJets->GetEntries (); l++ ){ //--- loop over otherJets ----
     TLorentzVector* myparticle = (TLorentzVector*) otherJets->At(l);
+    if (myparticle->Pt() < minPt) continue;
     vect_recoJet_PtSorting.push_back(*myparticle);
+    pair_numJet++;
    }
+//    std::cerr << "      ma ti blocchi qui PRIMA???" << std::endl;
    
 //    sort( vect_recoJet_PtSorting.begin(), vect_recoJet_PtSorting.end(),vbfhww2l::PtSorting<TLorentzVector> );
    sort( vect_recoJet_PtSorting.begin(), vect_recoJet_PtSorting.end(),vbfhww2l::PtSortingTLorentzVector() );
    
-   
+//    std::cerr << "      ma ti blocchi qui URCA!" << std::endl;
      ///---- find number of selected reco ----
    for (int l=0; l<vect_recoJet_PtSorting.size (); l++ ){ //--- loop over otherJets ----
     TLorentzVector myRecoJet = vect_recoJet_PtSorting.at(l);
+//     std::cerr << "      ma ti blocchi qui DENTRO???" << std::endl;
 //     if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector(),myRecoJet.BoostVector()) < 0.00001) TagReco_1 = l;
 //     if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector(),myRecoJet.BoostVector()) < 0.00001) TagReco_2 = l;
     
-    if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(0).first->BoostVector(),myRecoJet.BoostVector()) < 0.00001) TagReco_1 = l;
-    if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(1).first->BoostVector(),myRecoJet.BoostVector()) < 0.00001) TagReco_2 = l;
-    
-    
+    if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(0).first->BoostVector(),myRecoJet.BoostVector()) < 0.0001) TagReco_1 = l;
+    if (ROOT::Math::VectorUtil::DeltaR(Vect_PairQuarkRecoJet.at(1).first->BoostVector(),myRecoJet.BoostVector()) < 0.0001) TagReco_2 = l;
    }
+//    std::cerr << "      ma ti blocchi qui SUBITO FUORI" << std::endl;
    if (TagReco_1 == TagReco_2) {
-    std::cerr << "Error: TagReco_1 == TagReco_2 ----- Entry: " << i << " -> " << TagReco_1 << " = " << TagReco_2 << " num RecoJet = " << " = " << vect_recoJet_PtSorting.size () << " GenJet matched = " << Vect_PairQuarkGenJet.size() << " RecoJet matched = " << Vect_PairQuarkGenJetRecoJet.size() << " GenJet == " << genJets->GetEntries () << " --- 0 Pt = " << Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector().Pt() << " 1 Pt = " << Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector().Pt() << std::endl;
+//     std::cerr << "      UGUALI TAG size Vect_PairQuarkGenJetRecoJet = " << Vect_PairQuarkGenJetRecoJet.size() << std::endl;
+    std::cerr << "Error: TagReco_1 == TagReco_2 ----- Entry: " << i << " -> " << TagReco_1 << " = " << TagReco_2 << " num RecoJet = " << otherJets->GetEntries () << " = " << vect_recoJet_PtSorting.size () << " GenJet matched = " << Vect_PairQuarkGenJet.size() << " RecoJet matched = " << Vect_PairQuarkGenJetRecoJet.size() << " GenJet == " << genJets->GetEntries ()<< std::endl;
+//     << " --- 0 Pt = " << Vect_PairQuarkGenJetRecoJet.at(0).first->BoostVector().Pt() << " 1 Pt = " << Vect_PairQuarkGenJetRecoJet.at(1).first->BoostVector().Pt() << std::endl;
     
     TParticle* myparticle_quark1 = (TParticle*) genParticles->At(6);
     TLorentzVector momentum_quark1;
@@ -358,47 +393,97 @@ int main (int argc, char *argv[])
     std::cerr << "    eta Q 1 = " << momentum_quark1.Eta() << "    eta Q 2 = " << momentum_quark2.Eta() << std::endl;
    }
     
-   TLorentzVector myTagRecoJet_1 = vect_recoJet_PtSorting.at(TagReco_1);   
-   TLorentzVector myTagRecoJet_2 = vect_recoJet_PtSorting.at(TagReco_2);   
+   if (TagReco_1!=-1 && TagReco_2!=-1){
+    TLorentzVector myTagRecoJet_1 = vect_recoJet_PtSorting.at(TagReco_1);   
+    TLorentzVector myTagRecoJet_2 = vect_recoJet_PtSorting.at(TagReco_2);   
     
-   if (myTagRecoJet_1.Pt() < myTagRecoJet_2.Pt()){
-    int TagReco_temp = TagReco_1;
-    TagReco_1 = TagReco_2;
-    TagReco_2 = TagReco_temp;
-   }
+    if (myTagRecoJet_1.Pt() < myTagRecoJet_2.Pt()){
+     int TagReco_temp = TagReco_1;
+     TagReco_1 = TagReco_2;
+     TagReco_2 = TagReco_temp;
+    }
 
    
 
    ///---- make pair ----
-   int counter = 0;
-   for (int l=0; l<std::min((int) vect_recoJet_PtSorting.size(),4); l++ ){ 
-    for (int m=l+1; m<std::min((int) vect_recoJet_PtSorting.size(),4); m++ ){
-     pair_DEta = fabs(vect_recoJet_PtSorting.at(l).Eta() - vect_recoJet_PtSorting.at(m).Eta());
-     TLorentzVector sumPair = vect_recoJet_PtSorting.at(l) + vect_recoJet_PtSorting.at(m);
-     pair_Mjj = sumPair.M();
-     pair_pt1 = vect_recoJet_PtSorting.at(l).Pt();
-     pair_pt2 = vect_recoJet_PtSorting.at(m).Pt();
-     TLorentzVector sumOthers(0,0,0,0);
-     for (int k=0; k<vect_recoJet_PtSorting.size(); k++ ){
-      if (k!=l && k!=m){
-       TLorentzVector addOther = vect_recoJet_PtSorting.at(k);
-       sumOthers = sumOthers + addOther;
+    int counter = 0;
+//     std::cerr << "      ma ti blocchi qui all'inizio???" << std::endl;
+    for (int l=0; l<std::min((int) vect_recoJet_PtSorting.size(),4); l++ ){ 
+     for (int m=l+1; m<std::min((int) vect_recoJet_PtSorting.size(),4); m++ ){
+      pair_DEta = fabs(vect_recoJet_PtSorting.at(l).Eta() - vect_recoJet_PtSorting.at(m).Eta());
+      TLorentzVector sumPair = vect_recoJet_PtSorting.at(l) + vect_recoJet_PtSorting.at(m);
+      pair_Mjj = sumPair.M();
+      pair_pt1 = vect_recoJet_PtSorting.at(l).Pt();
+      pair_pt2 = vect_recoJet_PtSorting.at(m).Pt();
+      pair_phi1 = vect_recoJet_PtSorting.at(l).Phi();
+      pair_phi2 = vect_recoJet_PtSorting.at(m).Phi();
+      pair_Dphi = vbfhww2l::deltaPhi(pair_phi1,pair_phi2);
+      pair_eta1 = vect_recoJet_PtSorting.at(l).Eta();
+      pair_eta2 = vect_recoJet_PtSorting.at(m).Eta();
+      pair_etaMean = pair_eta1;
+      pair_etaMean+= pair_eta2;
+      TLorentzVector sumOthers(0,0,0,0);
+      bool pair_zPtMaxNotUsed_flag = false;
+      pair_zPtMaxNotUsed = 0; //---- initialize to zero
+      pair_zPtMax = 0;
+      for (int k=0; k<vect_recoJet_PtSorting.size(); k++ ){
+       pair_zPtMax = (vect_recoJet_PtSorting.at(k).Eta() - (pair_eta1 + pair_eta2) / 2.) / fabs(pair_eta1 - pair_eta2);
+       if (k!=l && k!=m){
+        TLorentzVector addOther = vect_recoJet_PtSorting.at(k);
+        sumOthers = sumOthers + addOther;
+        pair_etaMean+= addOther.Eta();
+        if (!pair_zPtMaxNotUsed_flag){
+         pair_zPtMaxNotUsed = (addOther.Eta() - (pair_eta1 + pair_eta2) / 2.) / fabs(pair_eta1 - pair_eta2); 
+         pair_zPtMaxNotUsed_flag = true;
+        }
+       }
       }
+      pair_SumPtOthers = sumOthers.Pt();
+      pair_MjjOthers = sumOthers.M();
+     
+     
+
+      double etaMax = vect_recoJet_PtSorting.at(l).Eta();
+      double etaMin = vect_recoJet_PtSorting.at(m).Eta();
+      if (etaMin > etaMax) 
+      {
+       double tempo = etaMin ;
+       etaMin = etaMax ; 
+       etaMax = tempo ;
+      }
+     
+      etaMin -=  -0.5;
+      etaMax +=  -0.5;
+     
+      pair_CJV = 0;
+      for (int l=0; l<otherJets->GetEntries (); l++ ){
+       TLorentzVector* myparticle = (TLorentzVector*) otherJets->At(l);
+       if (myparticle->Eta () > etaMax ||
+           myparticle->Eta () < etaMin ||
+           myparticle->Pt () < 15) continue ;
+       ++pair_CJV ; 
+      }
+
+      if ((l == TagReco_1) && (m == TagReco_2))
+      {
+       pair_match = 1.;
+      }
+      else {
+       pair_match = -1.;
+      }
+      if (!done) {
+//        std::cerr << " event = " << i;
+//        std::cerr << " counter = " << counter << " < max = " << (std::min((int) vect_recoJet_PtSorting.size(),4)*(std::min((int) vect_recoJet_PtSorting.size(),4)-1))/2 << " random = " << my_random_number << " min = " << std::min((int) vect_recoJet_PtSorting.size(),4) << " int = " << (int) (my_random_number * (std::min((int) vect_recoJet_PtSorting.size(),4)*(std::min((int) vect_recoJet_PtSorting.size(),4)-1))/2) << " = " << counter << std::endl;
+       if ((int) (my_random_number * (std::min((int) vect_recoJet_PtSorting.size(),4)*(std::min((int) vect_recoJet_PtSorting.size(),4)-1))/2) == counter){
+        tNN.Fill(); 
+        done = true;
+       }
+      }   
+      counter++;
      }
-     pair_SumPtOthers = sumOthers.Pt();
-     pair_MjjOthers = sumOthers.M();
-     if ((l == TagReco_1) && (m == TagReco_2))
-     {
-      pair_match = 1.;
-     }
-     else {
-      pair_match = -1.;
-     }
-     tNN.Fill();    
-     counter++;
     }
+//    std::cerr << "      ma ti blocchi qui???" << std::endl;
    }
-      
    
   } //--- end if VBF
   ////-----------------------

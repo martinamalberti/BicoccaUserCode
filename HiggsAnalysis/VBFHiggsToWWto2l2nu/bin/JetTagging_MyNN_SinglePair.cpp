@@ -24,8 +24,11 @@
 #include <Math/VectorUtil.h>
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/interface/VBFUtils.h"
 
-#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair_JetCorrection.h"
-#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair_JetCorrection.cxx"
+// #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair_JetCorrection.h"
+// #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair_JetCorrection.cxx"
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair_OneShot.h"
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair_OneShot.cxx"
 
 // #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair.h"
 // #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/bin/NNfunction_SinglePair.cxx"
