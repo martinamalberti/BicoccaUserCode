@@ -63,8 +63,9 @@ VBFHWW2l2nuEventContent = cms.PSet(
         'keep *_towerMaker_*_*',
 
         'keep *_source_*_*',
-        'keep *recoPF*_*_*_*',
-	
+#         'keep *recoPF*_*_*_*',
+#         'drop *recoPFBloc*_*_*_*', ## not compatible with 2_1_7 <-> 2_2_3 
+		
 	  # b-tagging JetTags collections
         'keep *_simpleSecondaryVertexBJetTags_*_*',
         'keep *_combinedSecondaryVertexBJetTags_*_*',
