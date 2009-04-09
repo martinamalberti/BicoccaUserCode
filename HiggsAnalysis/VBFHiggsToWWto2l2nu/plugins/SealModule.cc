@@ -21,6 +21,13 @@
 //define this as a plug-in
 DEFINE_SEAL_MODULE () ;
 
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFEventsCounter.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFEventsCounter) ;
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFSkimEfficiencyNtuple.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFSkimEfficiencyNtuple) ;
+
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFTagsMaxPt.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFTagsMaxPt) ;
 
@@ -84,15 +91,17 @@ typedef ObjectSelector<
          > VBFJetTagSelectorRef ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
 
-typedef ObjectSelector<
-          VBFSimpleJetTagger, 
-          edm::RefVector<reco::CaloJetCollection> 
-         > VBFJetTagSelectorRef ;
-DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
-
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetCleaner.h"
-typedef ObjectSelector<VBFJetCleaner> VBFJetCleaning ;
+typedef ObjectSelector<
+          VBFJetCleaner
+         > VBFJetCleaning ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaning) ;
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetCleanerTemplate.h"
+typedef ObjectSelector<VBFJetCleanerTemplate<reco::CaloJetCollection> > VBFJetCleaningTemplateCaloJet ;
+typedef ObjectSelector<VBFJetCleanerTemplate<reco::PFJetCollection> > VBFJetCleaningTemplatePFJet ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplateCaloJet) ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplatePFJet) ;
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetEtaPtSelector.h"
 typedef ObjectSelector<VBFJetEtaPtSelector> VBFJetEtaPtSelecting ;
