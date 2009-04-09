@@ -14,7 +14,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ##########
 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.Data.SimpleTreeInput_H160_WW_2l_cfi import *
 

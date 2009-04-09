@@ -37,15 +37,30 @@ process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFJetCleanerRef_cfi")
 #######################
 
    
+###########################
+## Met and Jet corrector ##
+
+#only iterativeCone5CaloJets
+process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFJetAndMetCorrectorSequence_cff")
+
+## end Met and Jet corrector ##
+###############################
+
+
 ##########################
 ## SimpleTree sequence ##
 
 process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.SimpleNtple_cfi")
 
+# process.ntpla.JetTagSisCone5CaloJets = cms.InputTag("cleanedSisCone5CaloJets")
+# process.ntpla.JetTagSisCone5PFJets = cms.InputTag("cleanedSisCone5PFJets")
+# process.ntpla.JetTagIterativeCone5PFJets = cms.InputTag("cleanedIterativeCone5PFJets")
+
 process.ntpleSequence = cms.Sequence(
- process.cleanedJets *
- process.cleanedJetsRef *
- process.ntpla
+ process.jetMETCorrectionsSequence *  # Jet corrector and Met corrector
+ process.cleanedJets *                # Jet cleaning
+ process.cleanedJetsRef *             # Jet cleaning ref creation
+ process.ntpla                        # ntuple crator -> all particles/jets/met, reco/gen 
 )
 
 ## end SimpleTree sequence ##

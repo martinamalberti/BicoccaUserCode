@@ -24,7 +24,7 @@
 #include "TLegend.h"
 
 #include <Math/VectorUtil.h>
-// #include "../../interface/VBFUtils.h"
+#include "../../interface/VBFUtils.h"
 
 
 //  ------------------------------------------------------------
@@ -200,16 +200,16 @@ int main (int argc, char *argv[])
     int numDR_J2 = -1;
      
 
-//     std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkGenJet;
+    std::vector<std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> > Vect_PairQuarkGenJet;
        
     for (int k=0; k<genJets->GetEntries (); k++ ){ //--- loop over genJet ----
      TLorentzVector* myparticle = (TLorentzVector*) genJets->At(k);
      
-//      std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> PairQuarkGenJet_1 = (myparticle,myparticle_quark1);
-//      Vect_PairQuarkGenJet.push_back(PairQuarkGenJet_1);
+     std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> PairQuarkGenJet_1 = (myparticle,myparticle_quark1);
+     Vect_PairQuarkGenJet.push_back(PairQuarkGenJet_1);
      
-//      std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> PairQuarkGenJet_2 = (myparticle,myparticle_quark2);
-//      Vect_PairQuarkGenJet.push_back(PairQuarkGenJet_2);
+     std::pair<std::vector<TLorentzVector>::const_iterator,std::vector<TLorentzVector>::const_iterator> PairQuarkGenJet_2 = (myparticle,myparticle_quark2);
+     Vect_PairQuarkGenJet.push_back(PairQuarkGenJet_2);
      
      
      //--------------
@@ -235,7 +235,7 @@ int main (int argc, char *argv[])
     
     
     
-//     sort( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSortingTLorentzVector );
+    sort( Vect_PairQuarkGenJet.begin(), Vect_PairQuarkGenJet.end(),vbfhww2l::DeltaRSortingTLorentzVector );
     
     
     

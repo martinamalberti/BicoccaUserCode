@@ -14,14 +14,15 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ##########
 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 process.source = cms.Source(
     "PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
-        'file:/tmp/amassiro/VBFHWW2l2nuTest_8.root'
+#         'file:/tmp/amassiro/VBFHWW2l2nuTest_8.root'
+           'rfio:/castor/cern.ch/user/a/amassiro/VBF/Dump/H130_WW_2l_Summer08_IDEAL_V9_v2/VBFHWW2l2nuTest_1.root'
 #         'rfio:/castor/cern.ch/cms/store/path/filename.root'
         )
     )
@@ -47,6 +48,7 @@ process.electronFilter = cms.EDFilter("PtMinPixelMatchGsfElectronCountFilter",
 
 process.countMu= cms.Path (process.muonFilter)
 process.countEle = cms.Path (process.electronFilter)
+#process.countMuAndEle= cms.Path (process.muonFilter + process.electronFilter)
 
 
 ##########
@@ -60,10 +62,11 @@ process.VBFHWW2l2nuOutputModule = cms.OutputModule(
     VBFHWW2l2nuEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('USER')),
     fileName = cms.untracked.string('VBFHWW2l2nuTest.root'),
-#     fileName = cms.untracked.string('/tmp/amassiro/VBFHWW2l2nuTest_12Feb09_nuovoFiltro.root'),
+#     fileName = cms.untracked.string('/tmp/amassiro/VBFHWW2l2nuTest_12Feb09_nuovoFiltro_HWW130_test.root'),
    
     SelectEvents = cms.untracked.PSet(
                 SelectEvents = cms.vstring('countMu','countEle')
+#                 SelectEvents = cms.vstring('countMuAndEle')
     )
 )
 

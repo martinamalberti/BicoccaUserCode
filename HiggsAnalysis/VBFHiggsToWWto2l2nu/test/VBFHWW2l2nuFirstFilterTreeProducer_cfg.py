@@ -18,8 +18,27 @@ process.source = cms.Source(
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_1.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_2.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_3.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_4.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_5.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_6.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_7.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_8.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_9.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_10.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_11.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_12.root',
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/Exotica_Zee_M200_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_13.root'
 
-    'file:/tmp/amassiro/VBFHWW2l2nuTest_12Feb09_nuovoFiltro.root'
+
+   
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/TauolaTTbar_Summer08_IDEAL_V9_v1/VBFHWW2l2nuTest_8.root', 
+
+#    'rfio:/castor/cern.ch/user/a/amassiro/VBF/Skimmed/WJets-madgraph_Summer08_IDEAL_V11_redigi_v1/VBFHWW2l2nuTest_15.root'    
+'file:/tmp/amassiro/VBFHWW2l2nuTest_12Feb09_nuovoFiltro_HWW130_test.root'
+
 #     'file:/tmp/amassiro/VBFHWW2l2nuTest_1.root'
  
 #         'file:/tmp/amassiro/VBFHWW2l2nuTest_24.root'
@@ -52,7 +71,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                )
 
 process.TFileService = cms.Service("TFileService", 
-                                 fileName = cms.string("/tmp/amassiro/VBFHWW2l2nuTest_Tree_nuovoFiltro.root"),
+                                 fileName = cms.string("/tmp/amassiro/VBFHWW2l2nuTest_Tree_nuovoFiltro_HWW130_test.root"),
                                  closeFileFast = cms.untracked.bool(True)
                                 )
 

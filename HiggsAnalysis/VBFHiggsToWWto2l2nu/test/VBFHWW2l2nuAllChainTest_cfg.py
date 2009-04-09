@@ -14,15 +14,15 @@ process.MessageLogger.cerr.threshold = 'INFO'
 ##########
 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.source = cms.Source(
     "PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
-#         'file:/tmp/amassiro/VBFHWW2l2nuTest_8.root'
-           'rfio:/castor/cern.ch/user/a/amassiro/VBF/Dump/H130_WW_2l_Summer08_IDEAL_V9_v2/VBFHWW2l2nuTest_1.root'
+        'file:/tmp/amassiro/CMSSWfile.root'
+#            'rfio:/castor/cern.ch/user/a/amassiro/VBF/Dump/H130_WW_2l_Summer08_IDEAL_V9_v2/VBFHWW2l2nuTest_1.root'
 #         'rfio:/castor/cern.ch/cms/store/path/filename.root'
         )
     )
@@ -111,7 +111,7 @@ process.VBFSequence = cms.Sequence(
  process.jetTagger *
  process.centralJetVeto *
  process.jetMCTagger *
- process.jetDiffTagFinder
+ process.jetDiffTagFinder 
 )
 
 ## end VBF sequence ##
@@ -161,7 +161,7 @@ process.printDecay = cms.EDAnalyzer( "ParticleDecayDrawer",
 
 
 process.VBFParticleViewer = cms.Sequence(
- process.channelFilterMC *
+#  process.channelFilterMC *
  process.printTree *
  process.printDecay
 )
@@ -227,7 +227,7 @@ process.o = cms.EndPath ( process.VBFHWW2l2nuOutputModule )
 ###########
 
 ## only viewer ##
-# process.schedule = cms.Schedule(process.pathParticleViewer) # exec only these paths
+process.schedule = cms.Schedule(process.pathParticleViewer) # exec only these paths
 
-process.schedule = cms.Schedule(process.pathEle,process.pathMu,process.pathVBF,process.pathTree,process.o) # exec only these paths
+# process.schedule = cms.Schedule(process.pathEle,process.pathMu,process.pathVBF,process.pathTree,process.o) # exec only these paths
 # process.schedule = cms.Schedule(process.pathEle,process.pathMu,process.pathVBF,process.o) # exec only these paths
