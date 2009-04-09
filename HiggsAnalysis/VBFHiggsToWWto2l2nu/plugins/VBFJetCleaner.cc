@@ -29,7 +29,7 @@ VBFJetCleaner::~VBFJetCleaner ()
 
   
 void 
-VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandle, 
+  VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandle, 
                        const edm::Event& iEvent,
                        const edm::EventSetup& iEs)
 {
@@ -78,6 +78,6 @@ VBFJetCleaner::select (edm::Handle<VBFJetCleaner::collection> jetCollectionHandl
           continue ;
         } 
 //      std::cerr << "PIETRO     selected" << std::endl ;
-      m_selected.push_back (jet (jetCollectionHandle,jetIt - jetCollectionHandle->begin ())) ;
+        m_selected.push_back (my_jet (jetCollectionHandle,jetIt - jetCollectionHandle->begin ())) ;
     } //PG loop over jets   
  }

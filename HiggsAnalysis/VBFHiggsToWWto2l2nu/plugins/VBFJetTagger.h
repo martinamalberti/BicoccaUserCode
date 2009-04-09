@@ -41,10 +41,12 @@ class VBFJetTagger: public edm::EDProducer
   
   typedef math::XYZTLorentzVector LorentzVector ;
   typedef std::vector<LorentzVector> LorentzVectorCollection ;
-  typedef reco::CaloJetCollection collection ;
-  typedef reco::CaloJetRef jet ;
-//  typedef std::vector<const reco::PixelMatchGsfElectron *> container;
-  typedef std::vector<reco::CaloJetRef> container ;
+  typedef std::vector<reco::CaloJet> collection ;
+//   typedef reco::CaloJetCollection collection ;
+  typedef edm::Ref<collection> jet ;
+//   typedef reco::CaloJetRef jet ;
+  typedef edm::RefVector<collection> container ;
+//   typedef std::vector<reco::CaloJetRef> container ;
   typedef container::const_iterator const_iterator ;
 
   //! begin job
@@ -67,12 +69,17 @@ class VBFJetTagger: public edm::EDProducer
   double m_jetEtaMax ;
   //! jet pt minimum threshold above which look for jets
   double m_jetPtMin ;
+  //! Delta Eta minimum threshold for a pair of jets
+  double m_jetDEtaMin ;
+  //! Invariant Mass minimum threshold for a pair of jets
+  double m_jetMjjMin ;
   //! size of the cone inside which other jets are summed 
   //! to the leading tag ones
   double m_gatherConeSize ;
   //! algo used to identify the tag jets
   //! 0 --> max inv mass
   //! 1 --> jet with highest pt
+  //! 2 --> jet with highest NN output
   int m_algoType ;  
 
 
