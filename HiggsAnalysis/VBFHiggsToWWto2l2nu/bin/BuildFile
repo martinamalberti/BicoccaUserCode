@@ -14,3 +14,29 @@
 <bin file=JetTagging_NN_SingleTag_Creator.cpp name=JetTagging_NN_SingleTag_Creator>
 <lib name=EG> #for TParticle
 </bin>
+
+<bin file=JetTagging_MyNN_MultiPair.cpp name=JetTagging_MyNN_MultiPair>
+<lib name=EG> #for TParticle
+</bin>
+
+<bin file=JetTagging_MyNN_SinglePair.cpp name=JetTagging_MyNN_SinglePair>
+<lib name=EG> #for TParticle
+</bin>
+
+<bin file=JetTagging_NN_SinglePairTag_Creator.cpp name=JetTagging_NN_SinglePairTag_Creator>
+<lib name=EG> #for TParticle
+</bin>
+
+<bin file=JetTagging_SelectionOrderAnalysis_MyNN_SinglePair.cpp JetTagging_SelectionOrderAnalysis_MyNN_SinglePair
+<lib name=EG> #for TParticle
+</bin>
+
+<bin file=MC_Analyzer.cpp MC_Analyzer
+<lib name=EG> #for TParticle
+</bin>
+
+<bin file=JetTagging_ZZ2lqq_SinglePair.cpp JetTagging_ZZ2lqq_SinglePair
+<lib name=EG> #for TParticle
+</bin>
+
+
