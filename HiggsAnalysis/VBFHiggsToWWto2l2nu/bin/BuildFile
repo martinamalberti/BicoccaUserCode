@@ -39,4 +39,9 @@
 <lib name=EG> #for TParticle
 </bin>
 
+<use name=boost>
+<bin file=Efficiency.cpp Efficiency
+<lib name=EG> #for TParticle
+<flags LCGDICT_ARGS="--deep">
+</bin>
 
