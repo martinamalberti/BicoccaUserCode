@@ -105,7 +105,30 @@ struct histos
       //PG use the name to build histos :
    TString histoName = m_name + "_histo" ;
    histoJetName = m_name + "_Jet_histo" ;
-   numJetAfterJetTag = new TH1F(histoJetName.Data(),histoJetName.Data(),1000,0,1000);
+   numJetAfterJetTag = new TH1F(histoJetName.Data(),histoJetName.Data(),100,0,100);
+   
+   TString histoAllOtherJetName = m_name + "_AllOtherJet_histo" ;
+   numAllOtherJet = new TH1F(histoAllOtherJetName.Data(),histoAllOtherJetName.Data(),100,0,100);
+   
+   TString histoPt_1_Name = m_name + "_Pt_1_histo" ;
+   ptJetTagging_1 = new TH1F(histoPt_1_Name.Data(),histoPt_1_Name.Data(),10000,0,1000);
+   TString histoPt_2_Name = m_name + "_Pt_2_histo" ;
+   ptJetTagging_2 = new TH1F(histoPt_2_Name.Data(),histoPt_2_Name.Data(),10000,0,1000);
+   
+   TString histoProdEta_Name = m_name + "_ProdEta_histo" ;
+   prodEta_JetTagging = new TH1F(histoProdEta_Name.Data(),histoProdEta_Name.Data(),10000,-100,100);
+  
+   TString histoDeltaEta_Name = m_name + "_DeltaEta_histo" ;
+   deltaEta_JetTagging = new TH1F(histoDeltaEta_Name.Data(),histoDeltaEta_Name.Data(),1000,0,10);
+  
+   TString histoMjjJet_Name = m_name + "_MjjJet_histo" ;
+   Mjj_JetTagging = new TH1F(histoMjjJet_Name.Data(),histoMjjJet_Name.Data(),10000,0,10000);
+
+   TString histoPtLep_1_Name = m_name + "_PtLep_1_histo" ;
+   ptLep_1 = new TH1F(histoPtLep_1_Name.Data(),histoPtLep_1_Name.Data(),10000,0,1000);
+   TString histoPtLep_2_Name = m_name + "_PtLep_2_histo" ;
+   ptLep_2 = new TH1F(histoPtLep_2_Name.Data(),histoPtLep_2_Name.Data(),10000,0,1000);
+
   }
 
   void normalize ()
@@ -214,7 +237,26 @@ struct histos
 
   //! AM ---- jet counter ----
   TH1F* numJetAfterJetTag;
+  TH1F* numAllOtherJet;
+  
+  //! AM ---- jet pt_1 and pt_2 ----
+  TH1F* ptJetTagging_1;
+  TH1F* ptJetTagging_2;
     
+  //! AM ---- jet prodEta ----
+  TH1F* prodEta_JetTagging;
+  
+  //! AM ---- jet DeltaEta ----
+  TH1F* deltaEta_JetTagging;
+  
+  //! AM ---- jet DeltaEta ----
+  TH1F* Mjj_JetTagging;
+  
+  //! AM ---- lepton pt_1 and pt_2 ----
+  TH1F* ptLep_1;
+  TH1F* ptLep_2;
+
+  
   
 } ;
 
@@ -223,7 +265,7 @@ struct histos
 
 
 double deltaPhi (double phi1, double phi2) ;
-int selector (TChain * tree, histos & plots) ;
+int selector (TChain * tree, histos & plots, int if_signal=0) ;
 
 
 //  --------G L O B A L   V A R S ---------------------
@@ -236,6 +278,9 @@ int g_ID2 ;
 int g_ISO1[2] ;
 int g_ISO2[2] ;
 
+double g_IsoElectron ;
+double g_IsoMuon ;
+  
 double g_hardLEPPtMin[2] ;
 double g_softLEPPtMin[2] ;
 double g_LEPDPhiMin ;
@@ -252,6 +297,7 @@ double g_TAGDetaMin ;
 double g_TAGMinv ;
 
 double g_ojetPtMin ;
+double g_ojetEtaMax ;
 double g_ojetEtaFromMean ;
 int g_ojetsMaxNum ;
 
@@ -290,6 +336,10 @@ int main (int argc, char *argv[])
  g_ISO2[0] = subPSetSelections.getUntrackedParameter<int> ("g_ISO2_0",0) ;
  g_ISO2[1] = subPSetSelections.getUntrackedParameter<int> ("g_ISO2_1",0) ;
 
+ g_IsoElectron = subPSetSelections.getUntrackedParameter<double> ("g_IsoElectron",0.2) ;
+ g_IsoMuon = subPSetSelections.getUntrackedParameter<double> ("g_IsoMuon",0.2) ;
+
+ 
  g_hardLEPPtMin[0] = subPSetSelections.getUntrackedParameter<double> ("g_hardLEPPtMin_0",0) ;
  g_hardLEPPtMin[1] = subPSetSelections.getUntrackedParameter<double> ("g_hardLEPPtMin_1",0) ;
 
@@ -309,7 +359,9 @@ int main (int argc, char *argv[])
  g_TAGDetaMin = subPSetSelections.getUntrackedParameter<double> ("g_TAGDetaMin",0) ;
 
  g_TAGMinv = subPSetSelections.getUntrackedParameter<double> ("g_TAGMinv",0) ;
+ 
  g_ojetPtMin = subPSetSelections.getUntrackedParameter<double> ("g_ojetPtMin",0) ;
+ g_ojetEtaMax = subPSetSelections.getUntrackedParameter<double> ("g_ojetEtaMax",5.) ;
  g_ojetEtaFromMean = subPSetSelections.getUntrackedParameter<double> ("g_ojetEtaFromMean",0) ;
  g_ojetsMaxNum = subPSetSelections.getUntrackedParameter<int> ("g_ojetsMaxNum",0) ;
  
@@ -334,8 +386,8 @@ int main (int argc, char *argv[])
  TChain * chain_H160_WW_2l_redigi = new TChain ("ntpla/VBFSimpleTree") ;
  chain_H160_WW_2l_redigi->Add ("/tmp/amassiro/Data/VBF_SimpleTree_H160_WW_2l_redigi.root");
  histos h_H160_WW_2l_redigi (g_prefix + "_H160_WW_2l_redigi", g_cutsNum);
- selector (chain_H160_WW_2l_redigi, h_H160_WW_2l_redigi) ;
-h_H160_WW_2l_redigi.printTrend () ;
+ selector (chain_H160_WW_2l_redigi, h_H160_WW_2l_redigi,1) ;
+ h_H160_WW_2l_redigi.printTrend () ;
 
  
  std::cerr << "******************* creating background ****************" << std::endl;
@@ -554,6 +606,7 @@ h_MCatNLOTTbar.printTrend () ;
  prefisso << " " << g_TAGDetaMin ;
  prefisso << " " << g_TAGMinv ;
  prefisso << " " << g_ojetPtMin ;
+ prefisso << " " << g_ojetEtaMax ;
  prefisso << " " << g_ojetEtaFromMean ;
  prefisso << " " << g_ojetsMaxNum ;
  prefisso << " | " ;  
@@ -581,6 +634,7 @@ h_MCatNLOTTbar.printTrend () ;
  std::cerr << "   g_TAGDetaMin ";
  std::cerr << "   g_TAGMinv ";
  std::cerr << "   g_ojetPtMin ";
+ std::cerr << "   g_ojetEtaMax ";
  std::cerr << "   g_ojetEtaFromMean ";
  std::cerr << "   g_ojetsMaxNum ";
  std::cerr << " | " << std::endl;  
@@ -723,7 +777,7 @@ double
 
 //!PG main function
 int 
-  selector (TChain * tree, histos & plots)
+  selector (TChain * tree, histos & plots, int if_signal)
 {
 //  TClonesArray * tagJets = new TClonesArray ("TLorentzVector") ; 
 //  tree->SetBranchAddress ("tagJets", &tagJets) ;
@@ -755,7 +809,10 @@ int
  tree->SetBranchAddress ("nMu", &nMu) ;
  tree->SetBranchAddress ("IsolMuSumPt",IsolMuSumPt ) ;
 
-
+ int IdEvent;
+ tree->SetBranchAddress ("IdEvent", &IdEvent) ;
+ 
+ 
  int nentries = (int) tree->GetEntries () ;
 
   //PG loop over the events
@@ -765,7 +822,13 @@ int
   tree->GetEntry (evt) ;
   
   tagJets -> Clear () ;  
-  otherJets -> Clear () ;  
+  otherJets -> Clear () ;    
+  
+  
+  
+    //---- check if signal ----
+  if (if_signal && (IdEvent!=123 && IdEvent!=124)) continue;
+
   
    //---- find Tagging Jets ----
  
@@ -893,19 +956,25 @@ int
    secondoTAG = (TLorentzVector*) (tagJets->At (0)) ; 
   }
 
+  plots.ptJetTagging_1->Fill(primoTAG->Pt ());
   if (primoTAG->Pt () < g_hardTAGPtMin) continue ; plots.increase (cutId++) ;
   //---- AM 12 pt min highest pt jet
   
+  plots.ptJetTagging_2->Fill(secondoTAG->Pt ());
   if (secondoTAG->Pt () < g_softTAGPtMin) continue ; plots.increase (cutId++) ;
   //---- AM 13 pt min lowest pt jet
       
+  plots.prodEta_JetTagging->Fill(primoTAG->Eta () * secondoTAG->Eta ());
   if (primoTAG->Eta () * secondoTAG->Eta () > g_TAGDProdEtaMax) continue ; plots.increase (cutId++) ;
   //---- AM 14 eta_1 * eta_2 of the jets
   
+  plots.deltaEta_JetTagging->Fill(fabs (primoTAG->Eta () - secondoTAG->Eta ()));
   if (fabs (primoTAG->Eta () - secondoTAG->Eta ()) < g_TAGDetaMin) continue ; plots.increase (cutId++) ;
   //---- AM 15 DEta_min between jets
   
+  
   TLorentzVector sumTAG = *primoTAG + *secondoTAG ;
+  plots.Mjj_JetTagging->Fill(sumTAG.M ());  
   if (sumTAG.M () < g_TAGMinv) continue ; plots.increase (cutId++) ;
   //---- AM 16 MInv_min jets
   
@@ -920,6 +989,7 @@ int
   for (int ojetIt = 0 ; ojetIt < otherJets->GetEntries () ; ++ojetIt)
   {
    if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Pt () < g_ojetPtMin) continue ;
+   if ( fabs(((TLorentzVector*) (otherJets->At (ojetIt)))->Eta ()) > g_ojetEtaMax) continue ;
    
    numJetOthers++;
    
@@ -932,8 +1002,8 @@ int
    ++ojetsNum ;        
   } //PG end loop over other jets
   
-  plots.numJetAfterJetTag->Fill(numJetOthers);
-  
+  plots.numAllOtherJet->Fill(numJetOthers);
+  plots.numJetAfterJetTag->Fill(ojetsNum);
   if (ojetsNum > g_ojetsMaxNum) continue ; plots.increase (cutId++) ;
   //---- AM 17 Jet Veto
 
@@ -947,12 +1017,6 @@ int
 
   if (secondoDR < g_eleTagDR || primoDR < g_eleTagDR) continue ; plots.increase (cutId++) ; //PG 12
       */
-  
-  
-  
-  
-  
-  
   
   
   
@@ -1016,7 +1080,7 @@ applied after the leptons choice:
    {
                //PG iso check
     bool eleIso = (IsolEleSumPt[leptons.at (ilep).m_index] /  
-      leptons.at (ilep).m_kine->Pt () ) < 0.2 ; // 0.2 per il momento
+      leptons.at (ilep).m_kine->Pt () ) < g_IsoElectron ; // 0.2 per il momento
     if (g_ISO1[0] == 1 && eleIso != 1) continue;
               
               //PG eleID check
@@ -1029,7 +1093,7 @@ applied after the leptons choice:
    {
               //PG iso check
     bool muIso = (IsolMuSumPt[leptons.at (ilep).m_index] /  
-      leptons.at (ilep).m_kine->Pt () ) < 0.2 ; // FIXME pass as parameter
+      leptons.at (ilep).m_kine->Pt () ) < g_IsoMuon ; 
     if (g_ISO1[1] == 1 && muIso != 1) continue;
    }  
    primoLEP = leptons[ilep] ;
@@ -1044,7 +1108,7 @@ applied after the leptons choice:
    {
                //PG iso check
     bool eleIso = (IsolEleSumPt[leptons.at (ilep).m_index] /  
-      leptons.at (ilep).m_kine->Pt () ) < 0.2 ; // 0.2 per il momento
+      leptons.at (ilep).m_kine->Pt () ) < g_IsoElectron ; // 0.2 per il momento
     if (g_ISO2[0] == 1 && eleIso != 1) continue;
               
               //PG eleID check
@@ -1057,7 +1121,7 @@ applied after the leptons choice:
    {
               //PG iso check
     bool muIso = (IsolMuSumPt[leptons.at (ilep).m_index] /  
-      leptons.at (ilep).m_kine->Pt () ) < 0.2 ; // FIXME pass as parameter
+      leptons.at (ilep).m_kine->Pt () ) < g_IsoMuon ; 
     if (g_ISO2[1] == 1 && muIso != 1) continue;
    }  
    secondoLEP = leptons[ilep] ;
@@ -1087,9 +1151,11 @@ applied after the leptons choice:
 
       
       
+   plots.ptLep_1->Fill(primoLEP.m_kine->Pt ());
    if (primoLEP.m_kine->Pt () < g_hardLEPPtMin[primoLEP.m_flav]) continue ; plots.increase (cutId++) ;
    //---- AM 5 pt_min of the most energetic lepton
   
+   plots.ptLep_2->Fill(secondoLEP.m_kine->Pt ());
    if (secondoLEP.m_kine->Pt () < g_softLEPPtMin[secondoLEP.m_flav]) continue ; plots.increase (cutId++) ;
    //---- AM 6 pt_min of the least energetic lepton
    
@@ -1153,7 +1219,15 @@ applied after the leptons choice:
 
  } //PG loop over the events
 
+ plots.numAllOtherJet->Write();
  plots.numJetAfterJetTag->Write();
+ plots.ptJetTagging_1->Write();
+ plots.ptJetTagging_2->Write();
+ plots.prodEta_JetTagging->Write();
+ plots.deltaEta_JetTagging->Write();
+ plots.Mjj_JetTagging->Write();
+ plots.ptLep_1->Write();
+ plots.ptLep_2->Write();
  plots.normalize () ;
 
  delete otherJets_temp ;
