@@ -265,3 +265,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFTrackProducer);
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFFirstFilterTreeProducer.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFFirstFilterTreeProducer);
 
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFMCDumper.h"
+DEFINE_FWK_MODULE(VBFMCDumper);
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFSelectVqq.h"
+DEFINE_FWK_MODULE(VBFSelectVqq);
+
