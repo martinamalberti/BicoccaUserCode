@@ -86,10 +86,14 @@ typedef ObjectSelector<VBFSimpleJetTagger> VBFJetTagSelector ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelector) ;
 
 typedef ObjectSelector<
-          VBFSimpleJetTagger, 
-          edm::RefVector<reco::CaloJetCollection> 
-         > VBFJetTagSelectorRef ;
+VBFSimpleJetTagger, 
+edm::RefVector<reco::CaloJetCollection> 
+> VBFJetTagSelectorRef ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetTagSelectorRef) ;
+
+          
+          
+///---- Jet cleaners ----
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetCleaner.h"
 typedef ObjectSelector<
@@ -97,21 +101,35 @@ typedef ObjectSelector<
          > VBFJetCleaning ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaning) ;
 
+typedef ObjectSelector<
+  VBFJetCleaner, 
+          edm::RefVector<reco::CaloJetCollection> 
+            > VBFJetCleaningRef ;
+          DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningRef) ;
+
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetCleanerTemplate.h"
 typedef ObjectSelector<VBFJetCleanerTemplate<reco::CaloJetCollection> > VBFJetCleaningTemplateCaloJet ;
 typedef ObjectSelector<VBFJetCleanerTemplate<reco::PFJetCollection> > VBFJetCleaningTemplatePFJet ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplateCaloJet) ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplatePFJet) ;
 
+typedef ObjectSelector<VBFJetCleanerTemplate<reco::CaloJetCollection>,
+edm::RefVector<reco::CaloJetCollection>
+  > VBFJetCleaningTemplateCaloJetRef ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplateCaloJetRef) ;
+
+typedef ObjectSelector<VBFJetCleanerTemplate<reco::PFJetCollection>,
+edm::RefVector<reco::PFJetCollection>
+  > VBFJetCleaningTemplatePFJetRef ;
+DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplatePFJetRef) ;
+
+
+
+
+
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetEtaPtSelector.h"
 typedef ObjectSelector<VBFJetEtaPtSelector> VBFJetEtaPtSelecting ;
 DEFINE_ANOTHER_FWK_MODULE (VBFJetEtaPtSelecting) ;
-
-typedef ObjectSelector<
-          VBFJetCleaner, 
-          edm::RefVector<reco::CaloJetCollection> 
-         > VBFJetCleaningRef ;
-DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningRef) ;
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFJetVetoFilter.h"
 DEFINE_ANOTHER_FWK_MODULE (VBFJetVetoFilter) ; 
@@ -160,20 +178,20 @@ typedef ObjectSelector<VBFElectronIsolator> VBFElectronIsolation ;
 DEFINE_ANOTHER_FWK_MODULE (VBFElectronIsolation) ;
 
 typedef ObjectSelector<
-          VBFElectronIsolator, 
+  VBFElectronIsolator, 
           edm::RefVector<reco::PixelMatchGsfElectronCollection> 
-        > VBFElectronIsolationRef ;
-DEFINE_ANOTHER_FWK_MODULE (VBFElectronIsolationRef) ;
+            > VBFElectronIsolationRef ;
+          DEFINE_ANOTHER_FWK_MODULE (VBFElectronIsolationRef) ;
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFElectronHadIsolator.h"
 typedef ObjectSelector<VBFElectronHadIsolator> VBFElectronHadIsolation ;
 DEFINE_ANOTHER_FWK_MODULE (VBFElectronHadIsolation) ;
 
 typedef ObjectSelector<
-          VBFElectronHadIsolator, 
+  VBFElectronHadIsolator, 
           edm::RefVector<reco::PixelMatchGsfElectronCollection> 
-        > VBFElectronHadIsolationRef ;
-DEFINE_ANOTHER_FWK_MODULE (VBFElectronHadIsolationRef) ;
+            > VBFElectronHadIsolationRef ;
+          DEFINE_ANOTHER_FWK_MODULE (VBFElectronHadIsolationRef) ;
 
 #include "PhysicsTools/UtilAlgos/interface/EtMinSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
@@ -184,9 +202,9 @@ DEFINE_ANOTHER_FWK_MODULE (VBFElectronHadIsolationRef) ;
 typedef SingleObjectSelector<
           reco::CaloMETCollection,
           EtMinSelector
-        > EtMinMETSelector ;
+            > EtMinMETSelector ;
 
-DEFINE_ANOTHER_FWK_MODULE (EtMinMETSelector) ;
+          DEFINE_ANOTHER_FWK_MODULE (EtMinMETSelector) ;
 
 
 
@@ -230,7 +248,19 @@ DEFINE_ANOTHER_FWK_MODULE (VBFEleHETIsolation);
 DEFINE_ANOTHER_FWK_MODULE (VBFEleHETIsolationRef);
 
 
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFEleAmbiguityResolver.h"
+typedef ObjectSelector<VBFEleAmbiguityResolver> VBFEleAmbiguityResolution;
+typedef ObjectSelector<VBFEleAmbiguityResolver, edm::RefVector<reco::PixelMatchGsfElectronCollection> > VBFEleAmbiguityResolutionRef;
+DEFINE_ANOTHER_FWK_MODULE (VBFEleAmbiguityResolution);
+DEFINE_ANOTHER_FWK_MODULE (VBFEleAmbiguityResolutionRef);
+
+
+
 //-------------
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFElectronAmbiguityResolverAnalyzer.h"
+DEFINE_ANOTHER_FWK_MODULE (VBFElectronAmbiguityResolverAnalyzer) ;
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/SimpleNtple.h"
 DEFINE_ANOTHER_FWK_MODULE (SimpleNtple) ;
