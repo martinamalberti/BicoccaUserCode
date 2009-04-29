@@ -9,6 +9,7 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
+
 ##########
 # Source #
 ##########
@@ -16,17 +17,87 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-# from HiggsAnalysis.VBFHiggsToWWto2l2nu.Data.SimpleTreeInput_NAME_cfi import *
+from HiggsAnalysis.VBFHiggsToWWto2l2nu.Data.SimpleTreeInput_NAME_cfi import *
 
 process.source = cms.Source(
     "PoolSource",
     VBFHWW2l2nuSource,
-#     fileNames = cms.untracked.vstring('file:/tmp/amassiro/VBF_SkimEfficiency_9.root'),
+#     fileNames = cms.untracked.vstring('file:/tmp/amassiro/mio.root'),
+#     fileNames = cms.untracked.vstring('file:/tmp/amassiro/VBFHWW2l2nuTest_9.root'), 
     skipBadFiles = cms.untracked.bool(True),
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1)
    )
 
+  
+   
+###################################
+## Electron ambiguity resolving  ##
+
+# process.ambiguityResolvedElectrons = cms.EDFilter("VBFEleAmbiguityResolution",
+process.ambiguityResolvedElectrons = cms.EDFilter("VBFEleAmbiguityResolution",
+   src = cms.InputTag("pixelMatchGsfElectrons"),
+)
+
+
+process.ambiguityResolvedElectronsRef = cms.EDFilter("VBFEleAmbiguityResolutionRef",
+   src = cms.InputTag("pixelMatchGsfElectrons"),
+)
+
+process.ambiguityResolvedElectronsSequence = cms.Sequence(
+ process.ambiguityResolvedElectrons *
+ process.ambiguityResolvedElectronsRef 
+)
+
+## end Electron ambiguity resolving  ##
+#######################################
+
+   
+
+   
+#########################
+## Electron Isolation  ##
+
+process.isolatedElectrons = cms.EDFilter("VBFElectronIsolation",
+   src = cms.InputTag("ambiguityResolvedElectrons"),
+   trackInputTag = cms.InputTag("generalTracks"),
+   coneRadius = cms.double(0.2),
+   vetoRadius = cms.double(0.02),
+   otherVetoRadius = cms.double(0.015), 
+   ptMin = cms.double(1.5), ## min pt for tracks to be considered
+   lipMax = cms.double(100), ## max dz at vts between tracks and electron
+   tkIsoCut = cms.double(0.2), ## max sum pt tracks / pt electron  
+   useTkQuality = cms.untracked.bool(True) # if true testTrackerTrack
+)
+
+
+process.isolatedElectronsRef = cms.EDFilter("VBFElectronIsolationRef",
+   src = cms.InputTag("ambiguityResolvedElectrons"),
+   trackInputTag = cms.InputTag("generalTracks"),
+   coneRadius = cms.double(0.2),
+   vetoRadius = cms.double(0.02),
+   otherVetoRadius = cms.double(0.015), 
+   ptMin = cms.double(1.5), ## min pt for tracks to be considered
+   lipMax = cms.double(100), ## max dz at vts between tracks and electron
+   tkIsoCut = cms.double(0.2), ## max sum pt tracks / pt electron  
+   useTkQuality = cms.untracked.bool(True) # if true testTrackerTrack
+)
+
+
+process.isolatedElectronsSequence = cms.Sequence(
+ process.isolatedElectrons *
+ process.isolatedElectronsRef 
+)
+
+## end Electron Isolation  ##
+#############################
+
+
+
+
+
+
+  
     
 ###################
 ## Jet cleaning  ##
@@ -37,19 +108,23 @@ from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFJetCleanerTemplateCaloJet_cfi import c
 from HiggsAnalysis.VBFHiggsToWWto2l2nu.VBFJetCleanerTemplatePFJet_cfi import cleanedJetTemplatePFJet
 
 process.cleanedIterativeCone5CaloJets = cleanedJetTemplateCaloJet.clone(
-   src = cms.InputTag("iterativeCone5CaloJets")
+   src = cms.InputTag("iterativeCone5CaloJets"),
+   GSFInputTag = cms.InputTag("isolatedElectrons")
 )
 
 process.cleanedSisCone5CaloJets = cleanedJetTemplateCaloJet.clone(
-   src = cms.InputTag("sisCone5CaloJets")
+   src = cms.InputTag("sisCone5CaloJets"),
+   GSFInputTag = cms.InputTag("isolatedElectrons") 
 )
 
 process.cleanedIterativeCone5PFJets = cleanedJetTemplatePFJet.clone(
-   src = cms.InputTag("iterativeCone5PFJets")
+   src = cms.InputTag("iterativeCone5PFJets"),
+   GSFInputTag = cms.InputTag("isolatedElectrons") 
 )
 
 process.cleanedSisCone5PFJets = cleanedJetTemplatePFJet.clone(
-   src = cms.InputTag("sisCone5PFJets")
+   src = cms.InputTag("sisCone5PFJets"),
+   GSFInputTag = cms.InputTag("isolatedElectrons") 
 )
 
 process.jetCleaningSequence = cms.Sequence(
@@ -140,21 +215,49 @@ process.jetJPTCorrectionsSequence = cms.Sequence(
 
 
 
-
-
-
-
-
-
-
-
 ##########################
 ## SimpleTree sequence ##
 
 process.load("HiggsAnalysis.VBFHiggsToWWto2l2nu.SimpleNtple_cfi")
 
 
+process.ntpla.EleTag = cms.InputTag("pixelMatchGsfElectrons")
+process.ntpla.EleRefTag = cms.untracked.InputTag("ambiguityResolvedElectronsRef")
+process.ntpla.doRefCheckTag = cms.untracked.bool(True)
+
+
+# isolation ele #
+# process.ntpla.eleTkIsoTag = cms.InputTag("electronTrackIsolationScone")
+# process.ntpla.eleEcalIsoTag = cms.InputTag("electronEcalRecHitIsolationScone")
+# process.ntpla.eleHcalIsoTag = cms.InputTag("electronHcalDepth1TowerIsolationScone")
+process.ntpla.eleTkIsoTag = cms.InputTag("eleIsoFromDepsTk")
+process.ntpla.eleEcalIsoTag = cms.InputTag("eleIsoFromDepsEcalFromHits")
+process.ntpla.eleHcalIsoTag = cms.InputTag("eleIsoFromDepsHcalFromHits")
+
+process.ntpla.coneRadius = process.isolatedElectrons.coneRadius
+process.ntpla.vetoRadius = process.isolatedElectrons.vetoRadius
+process.ntpla.otherVetoRadius = process.isolatedElectrons.vetoRadius
+process.ntpla.ptMin = process.isolatedElectrons.ptMin
+process.ntpla.lipMax = process.isolatedElectrons.lipMax
+process.ntpla.useTkQuality = process.isolatedElectrons.useTkQuality
+
+# id ele #
+process.ntpla.eleIDPTDRLooseInputTag = cms.InputTag("eidLoose")
+process.ntpla.eleIDPTDRMediumInputTag = cms.InputTag("eidRobustLoose")
+process.ntpla.eleIDPTDRTightInputTag = cms.InputTag("eidTight")
+   
+# isolation mu #
+
+
+# tracks #
+process.ntpla.TracksTag = cms.InputTag("generalTracks")
+
+
+# jet #
 process.ntpla.JetTag = cms.InputTag("iterativeCone5CaloJets")
+
+process.ntpla.bool_JetTagIterativeCone5CaloJets_BTagging = cms.untracked.bool(False)
+
 
 process.ntpla.bool_JetTagIterativeCone5CaloJets = cms.untracked.bool(True)
 process.ntpla.bool_JetTagSisCone5CaloJets = cms.untracked.bool(True)
@@ -190,10 +293,12 @@ process.ntpla.JetTagIterativeCone5CaloJets_JPT = cms.InputTag("JetPlusTrackZSPCo
 
 
 process.ntpleSequence = cms.Sequence(
- process.jetCleaningSequence *        # Jet cleaning
- process.jetMETCorrectionsSequence *  # Jet corrector and Met corrector
- process.jetJPTCorrectionsSequence *  # Jet corrector and Met corrector JPT
- process.ntpla                        # ntuple crator -> all particles/jets/met, reco/gen 
+ process.ambiguityResolvedElectronsSequence *  # electron ambiguity resolver
+ process.isolatedElectronsSequence *           # electron Isolation
+ process.jetCleaningSequence *                 # Jet cleaning
+ process.jetMETCorrectionsSequence *           # Jet corrector and Met corrector
+ process.jetJPTCorrectionsSequence *           # Jet corrector and Met corrector JPT
+ process.ntpla                                 # ntuple creator -> all particles/jets/met, reco/gen 
 )
 
 ## end SimpleTree sequence ##
@@ -205,6 +310,7 @@ process.ntpleSequence = cms.Sequence(
 ########
 # Path #
 ########
+
 
 process.pathNtuple = cms.Path(process.ntpleSequence)
 
