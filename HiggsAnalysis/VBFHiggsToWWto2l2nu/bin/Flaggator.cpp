@@ -34,7 +34,7 @@
 
 //  ------------------------------------------------------------
 
-TFile g_OutputFile("/tmp/amassiro/PLOT/out_Flag.root","recreate");
+TFile g_OutputFile("/tmp/amassiro/PLOT/out_Flag_All_12May09_1530.root","recreate");
   
 
 //  ------------------------------------------------------------
@@ -88,8 +88,6 @@ struct histos
    m_tree_selections->Branch("v_TAGDProdEta",&v_TAGDProdEta,"v_TAGDProdEta/D");
    m_tree_selections->Branch("v_TAGDeta",&v_TAGDeta,"v_TAGDeta/D");
    m_tree_selections->Branch("v_TAGMinv",&v_TAGMinv,"v_TAGMinv/D");
-   m_tree_selections->Branch("v_ojetsMaxNum",&v_ojetsMaxNum,"v_ojetsMaxNum/D");
-   m_tree_selections->Branch("v_ojetsMaxNum_All",&v_ojetsMaxNum_All,"v_ojetsMaxNum_All/D");
    m_tree_selections->Branch("v_numLep",&v_numLep,"v_numLep/D");
    m_tree_selections->Branch("v_numEle",&v_numEle,"v_numEle/D");
    m_tree_selections->Branch("v_numMu",&v_numMu,"v_numMu/D");
@@ -97,28 +95,41 @@ struct histos
    m_tree_selections->Branch("v_hardLEPPt",&v_hardLEPPt,"v_hardLEPPt/D");
    m_tree_selections->Branch("v_softLEPPt",&v_softLEPPt,"v_softLEPPt/D");  
    m_tree_selections->Branch("v_LEPDPhi",&v_LEPDPhi,"v_LEPDPhi/D");
+   m_tree_selections->Branch("v_LEPDEta",&v_LEPDEta,"v_LEPDEta/D");
+   m_tree_selections->Branch("v_LEPDR",&v_LEPDR,"v_LEPDR/D");
    m_tree_selections->Branch("v_LEPMinv",&v_LEPMinv,"v_LEPMinv/D");
    m_tree_selections->Branch("v_MET",&v_MET,"v_MET/D");   
    
+   m_tree_selections->Branch("v_ojets",&v_ojets,"v_ojets/D");   
+   m_tree_selections->Branch("v_ojetsCJV",&v_ojetsCJV,"v_ojetsCJV/D");   
+   m_tree_selections->Branch("v_ojetsRegionalCJV",&v_ojetsRegionalCJV,"v_ojetsRegionalCJV/D");   
+   
+   m_tree_selections->Branch("v_ojetsZepp_01",&v_ojetsZepp_01,"v_ojetsZepp_01/D");   
+   m_tree_selections->Branch("v_ojetsZepp_02",&v_ojetsZepp_02,"v_ojetsZepp_02/D");   
+   m_tree_selections->Branch("v_ojetsZepp_03",&v_ojetsZepp_03,"v_ojetsZepp_03/D");   
+   m_tree_selections->Branch("v_ojetsZepp_04",&v_ojetsZepp_04,"v_ojetsZepp_04/D");   
+   m_tree_selections->Branch("v_ojetsZepp_05",&v_ojetsZepp_05,"v_ojetsZepp_05/D");   
+   m_tree_selections->Branch("v_ojetsZepp_06",&v_ojetsZepp_06,"v_ojetsZepp_06/D");   
+   m_tree_selections->Branch("v_ojetsZepp_07",&v_ojetsZepp_07,"v_ojetsZepp_07/D");   
+   m_tree_selections->Branch("v_ojetsZepp_08",&v_ojetsZepp_08,"v_ojetsZepp_08/D");   
+   m_tree_selections->Branch("v_ojetsZepp_09",&v_ojetsZepp_09,"v_ojetsZepp_09/D");   
+   m_tree_selections->Branch("v_ojetsZepp_10",&v_ojetsZepp_10,"v_ojetsZepp_10/D");   
+   m_tree_selections->Branch("v_ojetsZepp_11",&v_ojetsZepp_11,"v_ojetsZepp_11/D");   
+   m_tree_selections->Branch("v_ojetsZepp_12",&v_ojetsZepp_12,"v_ojetsZepp_12/D");   
+   m_tree_selections->Branch("v_ojetsZepp_13",&v_ojetsZepp_13,"v_ojetsZepp_13/D");   
+   m_tree_selections->Branch("v_ojetsZepp_14",&v_ojetsZepp_14,"v_ojetsZepp_14/D");   
+
+   
+   m_tree_selections->Branch("v_decay_Channel_e",&v_decay_Channel_e,"v_decay_Channel_e/I");
+   m_tree_selections->Branch("v_decay_Channel_mu",&v_decay_Channel_mu,"v_decay_Channel_mu/I");
+   m_tree_selections->Branch("v_decay_Channel_tau",&v_decay_Channel_tau,"v_decay_Channel_tau/I");
    
    TString m_efficiency_Name = m_name + "_m_efficiency" ;
    m_efficiency = new TTree(m_efficiency_Name,m_efficiency_Name);
    m_efficiency->Branch("analyzed",&analyzed,"analyzed/I");
-   m_efficiency->Branch("passedJetAndLepNumberSelections",&passedJetAndLepNumberSelections,"passedJetAndLepNumberSelections/I");   
-   
+   m_efficiency->Branch("passedJetAndLepNumberSelections",&passedJetAndLepNumberSelections,"passedJetAndLepNumberSelections/I");
   }
 
-  void normalize ()
-  {
-   for (int x = 0 ; x < m_cuts ; ++x) 
-   {
-    if (m_counter.at (0) != 0) 
-     m_eff.at (x) =  m_counter.at (x) / static_cast<double> (m_counter.at (0)) ;
-    else m_eff.at (x) = 0 ;
-   }
-  }
-  
-  
   void increase (int cutId) { ++m_counter.at (cutId) ; } ;
     
   void printTrend ()
@@ -152,8 +163,6 @@ struct histos
   double v_TAGDProdEta ;
   double v_TAGDeta ;
   double v_TAGMinv ;
-  double v_ojetsMaxNum ;
-  double v_ojetsMaxNum_All ;
   double v_numLep ;
   double v_numEle ;
   double v_numMu ;
@@ -161,9 +170,35 @@ struct histos
   double v_hardLEPPt ;
   double v_softLEPPt ;
   double v_LEPDPhi ;
+  double v_LEPDEta ;
+  double v_LEPDR ;
   double v_LEPMinv ;
   double v_MET ;
+
+  double v_ojets ;
+  double v_ojetsCJV ;
+  double v_ojetsRegionalCJV ;
  
+  double v_ojetsZepp_01 ;
+  double v_ojetsZepp_02 ;
+  double v_ojetsZepp_03 ;
+  double v_ojetsZepp_04 ;
+  double v_ojetsZepp_05 ;
+  double v_ojetsZepp_06 ;
+  double v_ojetsZepp_07 ;
+  double v_ojetsZepp_08 ;
+  double v_ojetsZepp_09 ;
+  double v_ojetsZepp_10 ;
+  double v_ojetsZepp_11 ;
+  double v_ojetsZepp_12 ;
+  double v_ojetsZepp_13 ;
+  double v_ojetsZepp_14 ;
+  
+  //! ---- MC ----
+  int v_decay_Channel_e;
+  int v_decay_Channel_mu;
+  int v_decay_Channel_tau;
+
 } ;
 
 
@@ -171,13 +206,12 @@ struct histos
 
 
 double deltaPhi (double phi1, double phi2) ;
+double deltaEta (double eta1, double eta2) ;
+double deltaR (double phi1, double eta1, double phi2,  double eta2) ;
 int selector (TChain * tree, histos & plots, int if_signal=0) ;
 
 
 //  --------G L O B A L   V A R S ---------------------
-
-/* parameters 1 refer to the electron as the most energetic lepton, 
-   parameters 2 refer to the muon as the least energetic of the two leptons */
 
 int g_ID1 ; 
 int g_ID2 ;
@@ -186,33 +220,21 @@ int g_ISO2[2] ;
 
 double g_IsoElectron ;
 double g_IsoMuon ;
-  
-double g_hardLEPPtMin[2] ;
-double g_softLEPPtMin[2] ;
-double g_LEPDPhiMin ;
-double g_LEPDPhiMax ;
-double g_LEPMinvMin ;
-double g_LEPMinvMax ;
 
-double g_METMin ;
-
-double g_hardTAGPtMin ;
-double g_softTAGPtMin ;
-double g_TAGDProdEtaMax ;
-double g_TAGDetaMin ;
-double g_TAGMinv ;
 
 double g_ojetPtMin ;
 double g_ojetEtaMax ;
-double g_ojetEtaFromMean ;
-int g_ojetsMaxNum ;
+  
+std::string g_prefix ;
+std::string g_KindOfJet ;
 
-int g_LepLep ;
+int g_number_of_samples ; 
+int g_numSignal ; 
+std::string g_directory ;
+
+
 
 int g_cutsNum ;
-
-std::string g_prefix ;
-
 
 //  ========== M A I N    P R O G R A M =========================
 
@@ -245,36 +267,12 @@ int main (int argc, char *argv[])
  g_IsoElectron = subPSetSelections.getUntrackedParameter<double> ("g_IsoElectron",0.2) ;
  g_IsoMuon = subPSetSelections.getUntrackedParameter<double> ("g_IsoMuon",0.2) ;
 
- 
- g_hardLEPPtMin[0] = subPSetSelections.getUntrackedParameter<double> ("g_hardLEPPtMin_0",0) ;
- g_hardLEPPtMin[1] = subPSetSelections.getUntrackedParameter<double> ("g_hardLEPPtMin_1",0) ;
-
- g_softLEPPtMin[0] = subPSetSelections.getUntrackedParameter<double> ("g_softLEPPtMin_0",0) ;
- g_softLEPPtMin[1] = subPSetSelections.getUntrackedParameter<double> ("g_softLEPPtMin_1",0) ;
- 
- g_LEPDPhiMin = subPSetSelections.getUntrackedParameter<double> ("g_LEPDPhiMin",0) ;
- g_LEPDPhiMax = subPSetSelections.getUntrackedParameter<double> ("g_LEPDPhiMax",0) ;
- g_LEPMinvMin = subPSetSelections.getUntrackedParameter<double> ("g_LEPMinvMin",0) ;
- g_LEPMinvMax = subPSetSelections.getUntrackedParameter<double> ("g_LEPMinvMax",0) ;
-
- g_METMin = subPSetSelections.getUntrackedParameter<double> ("g_METMin",0) ;
- 
- g_hardTAGPtMin = subPSetSelections.getUntrackedParameter<double> ("g_hardTAGPtMin",0) ;
- g_softTAGPtMin = subPSetSelections.getUntrackedParameter<double> ("g_softTAGPtMin",0) ;
- g_TAGDProdEtaMax = subPSetSelections.getUntrackedParameter<double> ("g_TAGDProdEtaMax",0) ;
- g_TAGDetaMin = subPSetSelections.getUntrackedParameter<double> ("g_TAGDetaMin",0) ;
-
- g_TAGMinv = subPSetSelections.getUntrackedParameter<double> ("g_TAGMinv",0) ;
- 
  g_ojetPtMin = subPSetSelections.getUntrackedParameter<double> ("g_ojetPtMin",0) ;
  g_ojetEtaMax = subPSetSelections.getUntrackedParameter<double> ("g_ojetEtaMax",5.) ;
- g_ojetEtaFromMean = subPSetSelections.getUntrackedParameter<double> ("g_ojetEtaFromMean",0) ;
- g_ojetsMaxNum = subPSetSelections.getUntrackedParameter<int> ("g_ojetsMaxNum",0) ;
- 
- g_LepLep = subPSetSelections.getUntrackedParameter<int> ("g_LepLep",0) ;
- 
+
  g_prefix = subPSetSelections.getUntrackedParameter<std::string> ("g_prefix","pluto") ;
   
+ 
 //  int i = 0;
  g_cutsNum = 23 ;
  g_cutsNum += 1 ; //PG one for the counting before cuts,
@@ -285,368 +283,82 @@ int main (int argc, char *argv[])
 
  g_prefix = subPSetSelections.getUntrackedParameter<std::string> ("g_prefix","pluto") ; 
  
-  
- std::cerr << "******************* creating signal ****************" << std::endl;
+ g_KindOfJet = subPSetSelections.getUntrackedParameter<std::string> ("g_KindOfJet","otherJets_IterativeCone5CaloJets") ; 
+ 
+
+ //---- input file ----
+
+ edm::ParameterSet subPSetInput =  parameterSet->getParameter<edm::ParameterSet> ("inputTree") ;
  
  
- TChain * chain_H160_WW_2l_redigi = new TChain ("ntpla/VBFSimpleTree") ;
- chain_H160_WW_2l_redigi->Add ("/tmp/amassiro/Data/VBF_SimpleTree_H160_WW_2l_redigi.root");
- histos h_H160_WW_2l_redigi (g_prefix + "_H160_WW_2l_redigi", g_cutsNum);
- selector (chain_H160_WW_2l_redigi, h_H160_WW_2l_redigi,1) ;
- h_H160_WW_2l_redigi.printTrend () ;
-
+ std::vector<std::string> inputFiles = subPSetInput.getParameter<std::vector<std::string> > ("g_sample") ;
  
- std::cerr << "******************* creating background ****************" << std::endl;
+ g_number_of_samples = subPSetInput.getUntrackedParameter<int> ("g_number_of_samples",0) ;
  
- 
- TChain * chain_MCatNLOTTbar = new TChain ("ntpla/VBFSimpleTree") ; 
- chain_MCatNLOTTbar->Add ("/tmp/amassiro/Data/VBF_SimpleTree_MCatNLOTTbar.root");
- histos h_MCatNLOTTbar (g_prefix + "_MCatNLOTTbar", g_cutsNum); 
- selector (chain_MCatNLOTTbar, h_MCatNLOTTbar) ;  
-h_MCatNLOTTbar.printTrend () ;
-
-//  TChain * chain_TauolaTTbar_Summer08_IDEAL_V9_v2 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_TauolaTTbar_Summer08_IDEAL_V9_v2->Add ("/tmp/amassiro/Data/VBF_SimpleTree_TauolaTTbar_Summer08_IDEAL_V9_v2.root");
-//  histos h_TauolaTTbar_Summer08_IDEAL_V9_v2 (g_prefix + "_TauolaTTbar_Summer08_IDEAL_V9_v2", g_cutsNum); 
-//  selector (chain_TauolaTTbar_Summer08_IDEAL_V9_v2, h_TauolaTTbar_Summer08_IDEAL_V9_v2) ;  
-// h_TauolaTTbar_Summer08_IDEAL_V9_v2.printTrend () ;
-
-//  TChain * chain_WW_2l_Summer08_IDEAL_V9_v2 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_WW_2l_Summer08_IDEAL_V9_v2->Add ("/tmp/amassiro/Data/VBF_SimpleTree_WW_2l_Summer08_IDEAL_V9_v2.root");
-//  histos h_WW_2l_Summer08_IDEAL_V9_v2 (g_prefix + "_WW_2l_Summer08_IDEAL_V9_v2", g_cutsNum); 
-//  selector (chain_WW_2l_Summer08_IDEAL_V9_v2, h_WW_2l_Summer08_IDEAL_V9_v2) ;  
-// h_WW_2l_Summer08_IDEAL_V9_v2.printTrend () ;
-// 
-//  TChain * chain_WZ_3l_Summer08_IDEAL_V9_v2 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_WZ_3l_Summer08_IDEAL_V9_v2->Add ("/tmp/amassiro/Data/VBF_SimpleTree_WZ_3l_Summer08_IDEAL_V9_v2.root");
-//  histos h_WZ_3l_Summer08_IDEAL_V9_v2 (g_prefix + "_WZ_3l_Summer08_IDEAL_V9_v2", g_cutsNum); 
-//  selector (chain_WZ_3l_Summer08_IDEAL_V9_v2, h_WZ_3l_Summer08_IDEAL_V9_v2) ;  
-// h_WZ_3l_Summer08_IDEAL_V9_v2.printTrend () ;
-// 
- TChain * chain_WZ_incl_Summer08_IDEAL_V9_v2 = new TChain ("ntpla/VBFSimpleTree") ; 
- chain_WZ_incl_Summer08_IDEAL_V9_v2->Add ("/tmp/amassiro/Data/VBF_SimpleTree_WZ_incl_Summer08_IDEAL_V9_v2.root");
- histos h_WZ_incl_Summer08_IDEAL_V9_v2 (g_prefix + "_WZ_incl_Summer08_IDEAL_V9_v2", g_cutsNum); 
- selector (chain_WZ_incl_Summer08_IDEAL_V9_v2, h_WZ_incl_Summer08_IDEAL_V9_v2) ;  
-h_WZ_incl_Summer08_IDEAL_V9_v2.printTrend () ;
-// 
-//  TChain * chain_Wtaunu_Summer08_IDEAL_V9_v1 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_Wtaunu_Summer08_IDEAL_V9_v1->Add ("/tmp/amassiro/Data/VBF_SimpleTree_Wtaunu_Summer08_IDEAL_V9_v1.root");
-//  histos h_Wtaunu_Summer08_IDEAL_V9_v1 (g_prefix + "_Wtaunu_Summer08_IDEAL_V9_v1", g_cutsNum); 
-//  selector (chain_Wtaunu_Summer08_IDEAL_V9_v1, h_Wtaunu_Summer08_IDEAL_V9_v1) ;  
-// h_Wtaunu_Summer08_IDEAL_V9_v1.printTrend () ;
-// 
-//  TChain * chain_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2.root");
-//  histos h_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2 (g_prefix + "_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2", g_cutsNum); 
-//  selector (chain_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2, h_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2) ;  
-// h_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2.printTrend () ;
-// 
-//  TChain * chain_ZZ = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZZ->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZZ.root");
-//  histos h_ZZ (g_prefix + "_ZZ", g_cutsNum); 
-//  selector (chain_ZZ, h_ZZ) ;  
-// h_ZZ.printTrend () ;
-// 
-//  TChain * chain_ZZ_2l2n_Summer08_IDEAL_V9_v2 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZZ_2l2n_Summer08_IDEAL_V9_v2->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZZ_2l2n_Summer08_IDEAL_V9_v2.root");
-//  histos h_ZZ_2l2n_Summer08_IDEAL_V9_v2 (g_prefix + "_ZZ_2l2n_Summer08_IDEAL_V9_v2", g_cutsNum); 
-//  selector (chain_ZZ_2l2n_Summer08_IDEAL_V9_v2, h_ZZ_2l2n_Summer08_IDEAL_V9_v2) ;  
-// h_ZZ_2l2n_Summer08_IDEAL_V9_v2.printTrend () ;
-// 
-//  TChain * chain_ZZ_4l_Summer08_IDEAL_V9_v2 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZZ_4l_Summer08_IDEAL_V9_v2->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZZ_4l_Summer08_IDEAL_V9_v2.root");
-//  histos h_ZZ_4l_Summer08_IDEAL_V9_v2 (g_prefix + "_ZZ_4l_Summer08_IDEAL_V9_v2", g_cutsNum); 
-//  selector (chain_ZZ_4l_Summer08_IDEAL_V9_v2, h_ZZ_4l_Summer08_IDEAL_V9_v2) ;  
-// h_ZZ_4l_Summer08_IDEAL_V9_v2.printTrend () ;
-// 
-//  TChain * chain_Z_2l2jets = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_Z_2l2jets->Add ("/tmp/amassiro/Data/VBF_SimpleTree_Z_2l2jets.root");
-//  histos h_Z_2l2jets (g_prefix + "_Z_2l2jets", g_cutsNum); 
-//  selector (chain_Z_2l2jets, h_Z_2l2jets) ;  
-// h_Z_2l2jets.printTrend () ;
-// 
- TChain * chain_ZeeJet_Pt0to15 = new TChain ("ntpla/VBFSimpleTree") ; 
- chain_ZeeJet_Pt0to15->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt0to15.root");
- histos h_ZeeJet_Pt0to15 (g_prefix + "_ZeeJet_Pt0to15", g_cutsNum); 
- selector (chain_ZeeJet_Pt0to15, h_ZeeJet_Pt0to15) ;  
-h_ZeeJet_Pt0to15.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt120to170 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt120to170->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt120to170.root");
-//  histos h_ZeeJet_Pt120to170 (g_prefix + "_ZeeJet_Pt120to170", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt120to170, h_ZeeJet_Pt120to170) ;  
-// h_ZeeJet_Pt120to170.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt170to230 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt170to230->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt170to230.root");
-//  histos h_ZeeJet_Pt170to230 (g_prefix + "_ZeeJet_Pt170to230", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt170to230, h_ZeeJet_Pt170to230) ;  
-// h_ZeeJet_Pt170to230.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt20to30 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt20to30->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt20to30.root");
-//  histos h_ZeeJet_Pt20to30 (g_prefix + "_ZeeJet_Pt20to30", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt20to30, h_ZeeJet_Pt20to30) ;  
-// h_ZeeJet_Pt20to30.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt230to300 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt230to300->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt230to300.root");
-//  histos h_ZeeJet_Pt230to300 (g_prefix + "_ZeeJet_Pt230to300", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt230to300, h_ZeeJet_Pt230to300) ;  
-// h_ZeeJet_Pt230to300.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt300toInf = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt300toInf->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt300toInf.root");
-//  histos h_ZeeJet_Pt300toInf (g_prefix + "_ZeeJet_Pt300toInf", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt300toInf, h_ZeeJet_Pt300toInf) ;  
-// h_ZeeJet_Pt300toInf.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt30to50 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt30to50->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt30to50.root");
-//  histos h_ZeeJet_Pt30to50 (g_prefix + "_ZeeJet_Pt30to50", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt30to50, h_ZeeJet_Pt30to50) ;  
-// h_ZeeJet_Pt30to50.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt50to80 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt50to80->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt50to80.root");
-//  histos h_ZeeJet_Pt50to80 (g_prefix + "_ZeeJet_Pt50to80", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt50to80, h_ZeeJet_Pt50to80) ;  
-// h_ZeeJet_Pt50to80.printTrend () ;
-// 
-//  TChain * chain_ZeeJet_Pt80to120 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZeeJet_Pt80to120->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZeeJet_Pt80to120.root");
-//  histos h_ZeeJet_Pt80to120 (g_prefix + "_ZeeJet_Pt80to120", g_cutsNum); 
-//  selector (chain_ZeeJet_Pt80to120, h_ZeeJet_Pt80to120) ;  
-// h_ZeeJet_Pt80to120.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt0to15 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt0to15->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt0to15.root");
-//  histos h_ZmumuJet_Pt0to15 (g_prefix + "_ZmumuJet_Pt0to15", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt0to15, h_ZmumuJet_Pt0to15) ;  
-// h_ZmumuJet_Pt0to15.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt120to170 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt120to170->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt120to170.root");
-//  histos h_ZmumuJet_Pt120to170 (g_prefix + "_ZmumuJet_Pt120to170", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt120to170, h_ZmumuJet_Pt120to170) ;  
-// h_ZmumuJet_Pt120to170.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt15to20 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt15to20->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt15to20.root");
-//  histos h_ZmumuJet_Pt15to20 (g_prefix + "_ZmumuJet_Pt15to20", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt15to20, h_ZmumuJet_Pt15to20) ;  
-// h_ZmumuJet_Pt15to20.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt170to230 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt170to230->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt170to230.root");
-//  histos h_ZmumuJet_Pt170to230 (g_prefix + "_ZmumuJet_Pt170to230", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt170to230, h_ZmumuJet_Pt170to230) ;  
-// h_ZmumuJet_Pt170to230.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt20to30 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt20to30->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt20to30.root");
-//  histos h_ZmumuJet_Pt20to30 (g_prefix + "_ZmumuJet_Pt20to30", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt20to30, h_ZmumuJet_Pt20to30) ;  
-// h_ZmumuJet_Pt20to30.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt230to300 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt230to300->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt230to300.root");
-//  histos h_ZmumuJet_Pt230to300 (g_prefix + "_ZmumuJet_Pt230to300", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt230to300, h_ZmumuJet_Pt230to300) ;  
-// h_ZmumuJet_Pt230to300.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt300toInf = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt300toInf->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt300toInf.root");
-//  histos h_ZmumuJet_Pt300toInf (g_prefix + "_ZmumuJet_Pt300toInf", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt300toInf, h_ZmumuJet_Pt300toInf) ;  
-// h_ZmumuJet_Pt300toInf.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt30to50 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt30to50->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt30to50.root");
-//  histos h_ZmumuJet_Pt30to50 (g_prefix + "_ZmumuJet_Pt30to50", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt30to50, h_ZmumuJet_Pt30to50) ;  
-// h_ZmumuJet_Pt30to50.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt50to80 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt50to80->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt50to80.root");
-//  histos h_ZmumuJet_Pt50to80 (g_prefix + "_ZmumuJet_Pt50to80", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt50to80, h_ZmumuJet_Pt50to80) ;  
-// h_ZmumuJet_Pt50to80.printTrend () ;
-// 
-//  TChain * chain_ZmumuJet_Pt80to120 = new TChain ("ntpla/VBFSimpleTree") ; 
-//  chain_ZmumuJet_Pt80to120->Add ("/tmp/amassiro/Data/VBF_SimpleTree_ZmumuJet_Pt80to120.root");
-//  histos h_ZmumuJet_Pt80to120 (g_prefix + "_ZmumuJet_Pt80to120", g_cutsNum); 
-//  selector (chain_ZmumuJet_Pt80to120, h_ZmumuJet_Pt80to120) ;  
-// h_ZmumuJet_Pt80to120.printTrend () ;
-   
- std::cout << "******************* Computing the significance" << std::endl;
-
- std::vector<double> signalEvents ;
- std::vector<double> bkgEvents ;
-
- std::vector<double> signalEff ;
- std::vector<double> bkgEff ;
- std::vector<double> m_significance ;
-  
- std::stringstream prefisso ; 
- double Lumi = 10000 ; //pb-1
- prefisso << "[ " << g_prefix << " " << Lumi << " ] " ;
- prefisso << " " << g_ID1 ; 
- prefisso << " " << g_ID2 ; 
- prefisso << " " << g_ISO1[0] ; 
- prefisso << " " << g_ISO1[1] ; 
- prefisso << " " << g_ISO2[0] ; 
- prefisso << " " << g_ISO2[1] ; 
- prefisso << " " << g_hardLEPPtMin[0] ; 
- prefisso << " " << g_hardLEPPtMin[1] ; 
- prefisso << " " << g_softLEPPtMin[0] ; 
- prefisso << " " << g_softLEPPtMin[1] ; 
- prefisso << " " << g_LEPDPhiMin   ;
- prefisso << " " << g_LEPDPhiMax   ;
- prefisso << " " << g_LEPMinvMin   ;
- prefisso << " " << g_LEPMinvMax   ;
- prefisso << " " << g_METMin       ;
- prefisso << " " << g_hardTAGPtMin ;
- prefisso << " " << g_softTAGPtMin ;
- prefisso << " " << g_TAGDProdEtaMax ;
- prefisso << " " << g_TAGDetaMin ;
- prefisso << " " << g_TAGMinv ;
- prefisso << " " << g_ojetPtMin ;
- prefisso << " " << g_ojetEtaMax ;
- prefisso << " " << g_ojetEtaFromMean ;
- prefisso << " " << g_ojetsMaxNum ;
- prefisso << " | " ;  
-
- 
- std::cerr << "[ g_prefix Lumi ] " ;
- std::cerr << " g_ID1 " ; 
- std::cerr << " g_ID2 " ; 
- std::cerr << " g_ISO1[0] " ; 
- std::cerr << " g_ISO1[1] " ; 
- std::cerr << " g_ISO2[0] " ; 
- std::cerr << " g_ISO2[1] " ; 
- std::cerr << "   g_hardLEPPtMin[0] "; 
- std::cerr << "   g_hardLEPPtMin[1] "; 
- std::cerr << "   g_softLEPPtMin[0] "; 
- std::cerr << "   g_softLEPPtMin[1] "; 
- std::cerr << "   g_LEPDPhiMin   ";
- std::cerr << "   g_LEPDPhiMax   ";
- std::cerr << "   g_LEPMinvMin   ";
- std::cerr << "   g_LEPMinvMax   ";
- std::cerr << "   g_METMin       ";
- std::cerr << "   g_hardTAGPtMin ";
- std::cerr << "   g_softTAGPtMin ";
- std::cerr << "   g_TAGDProdEtaMax ";
- std::cerr << "   g_TAGDetaMin ";
- std::cerr << "   g_TAGMinv ";
- std::cerr << "   g_ojetPtMin ";
- std::cerr << "   g_ojetEtaMax ";
- std::cerr << "   g_ojetEtaFromMean ";
- std::cerr << "   g_ojetsMaxNum ";
- std::cerr << " | " << std::endl;  
+ g_numSignal = subPSetInput.getUntrackedParameter<int> ("g_numSignal",1) ;
 
  
  
- for (int i=0 ; i < h_H160_WW_2l_redigi.m_eff.size () ; i++)
- {
-  double weightedSumBkg = 
-     352 * 0.884236 * (h_MCatNLOTTbar.m_eff.at (i)) // +
-//      241.7  * 0.880993 * (h_TauolaTTbar_Summer08_IDEAL_V9_v2.m_eff.at (i)) +
-//      0.00000000000 * 0.849105 * (h_WW_2l_Summer08_IDEAL_V9_v2.m_eff.at (i)) +
-//      0.00000000000 * 0.921532 * (h_WZ_3l_Summer08_IDEAL_V9_v2.m_eff.at (i)) +
-//      0.00000000000 * 0.581132 * (h_WZ_incl_Summer08_IDEAL_V9_v2.m_eff.at (i)) +
-//      11840 * 0.276351 * (h_Wtaunu_Summer08_IDEAL_V9_v1.m_eff.at (i)) +
-//      0.00000000000 * 0.717606 * (h_ZJets_madgraph_Fall08_IDEAL_V9_reco_v2.m_eff.at (i)) +
-//      7.1 * 0.546053 * (h_ZZ.m_eff.at (i)) +
-//      0.00000000000 * 0.782859 * (h_ZZ_2l2n_Summer08_IDEAL_V9_v2.m_eff.at (i)) +
-//      0.00000000000 * 0.917859 * (h_ZZ_4l_Summer08_IDEAL_V9_v2.m_eff.at (i)) +
-//      0.00000000000 * 0.922144 * (h_Z_2l2jets.m_eff.at (i)) +
-//      6430  * 0.563105 * (h_ZeeJet_Pt0to15.m_eff.at (i)) +
-//      5.4  * 0.960106  * (h_ZeeJet_Pt120to170.m_eff.at (i)) +
-//      1.55  * 0.978073  * (h_ZeeJet_Pt170to230.m_eff.at (i)) +
-//      211 * 0.782322 * (h_ZeeJet_Pt20to30.m_eff.at (i)) +
-//      0.45 * 0.987873 * (h_ZeeJet_Pt230to300.m_eff.at (i)) +
-//      0.2 * 0.993899 * (h_ZeeJet_Pt300toInf.m_eff.at (i)) +
-//      142 * 0.842282 * (h_ZeeJet_Pt30to50.m_eff.at (i)) +
-//      56.8 * 0.897029 * (h_ZeeJet_Pt50to80.m_eff.at (i)) +
-//      18.8 * 0.932544 * (h_ZeeJet_Pt80to120.m_eff.at (i)) +
-//      6430 * 0.599027 * (h_ZmumuJet_Pt0to15.m_eff.at (i)) +
-//      5.4 * 0.963797 * (h_ZmumuJet_Pt120to170.m_eff.at (i)) +
-//      230 * 0.754308 * (h_ZmumuJet_Pt15to20.m_eff.at (i)) +
-//      1.55 * 0.981191 * (h_ZmumuJet_Pt170to230.m_eff.at (i)) +
-//      211 * 0.799673 * (h_ZmumuJet_Pt20to30.m_eff.at (i)) +
-//      0.45 * 0.99151 * (h_ZmumuJet_Pt230to300.m_eff.at (i)) +
-//      0.2 * 0.997308 * (h_ZmumuJet_Pt300toInf.m_eff.at (i)) +
-//      142 * 0.853935 * (h_ZmumuJet_Pt30to50.m_eff.at (i)) +
-//      56.8 * 0.903584 * (h_ZmumuJet_Pt50to80.m_eff.at (i)) +
-//      18.8 * 0.938867 * (h_ZmumuJet_Pt80to120.m_eff.at (i))
-     ;
-
-  signalEvents.push_back (Lumi * 0.119 * 0.70 * 0.897765 * h_H160_WW_2l_redigi.m_eff.at (i)) ;
-  signalEff.push_back (0.897765 * h_H160_WW_2l_redigi.m_eff.at (i)) ;
-  //---- 0.119 from Valentina table 6.1
-  //---- 0.70 from http://ceballos.web.cern.ch/ceballos/hwwlnln/cross-sections_cmssw21x.txt 
-   
-  weightedSumBkg *= Lumi;
-  bkgEvents.push_back (weightedSumBkg) ;  
-  
-  double normalization_factor = 
-     352 * 0.884236  // +
-//      241.7  * 0.880993  +
-//      0.00000000000 * 0.849105  +
-//      0.00000000000 * 0.921532  +
-//      0.00000000000 * 0.581132  +
-//      11840 * 0.276351  +
-//      0.00000000000 * 0.717606  +
-//      7.1 * 0.546053  +
-//      0.00000000000 * 0.782859  +
-//      0.00000000000 * 0.917859  +
-//      0.00000000000 * 0.922144  +
-//      6430  * 0.563105  +
-//      5.4  * 0.960106   +
-//      1.55  * 0.978073   +
-//      211 * 0.782322  +
-//      0.45 * 0.987873  +
-//      0.2 * 0.993899  +
-//      142 * 0.842282  +
-//      56.8 * 0.897029  +
-//      18.8 * 0.932544  +
-//      6430 * 0.599027  +
-//      5.4 * 0.963797  +
-//      230 * 0.754308  +
-//      1.55 * 0.981191  +
-//      211 * 0.799673  +
-//      0.45 * 0.99151  +
-//      0.2 * 0.997308  +
-//      142 * 0.853935  +
-//      56.8 * 0.903584  +
-//      18.8 * 0.938867 
-     ;
-   
-  
-  bkgEff.push_back (weightedSumBkg / normalization_factor) ;  
-  m_significance.push_back (Lumi * 0.119 * 0.70 * 0.897765 * h_H160_WW_2l_redigi.m_eff.at (i) / sqrt (weightedSumBkg)) ;
+ g_directory = subPSetInput.getUntrackedParameter<std::string> ("g_directory","/media/amassiro/Data/SimpleTree_skipBadFiles_JetCorrector_JetCleaning_090328_Everything_Skimmed_4Cluster_AllJets") ; 
+ 
+ char *samples[100];
+ 
+ int counter_files = 0;
+ for (std::vector<std::string>::const_iterator listIt = inputFiles.begin () ; (listIt != inputFiles.end () && counter_files<g_number_of_samples); ++listIt) {
+  samples[counter_files] = new char[100];
+  sprintf(samples[counter_files],"%s",listIt->c_str ());
+  std::cerr << "samples[" << counter_files << "] = " << samples[counter_files] << std::endl;
+  counter_files ++;
  }
- std::cout << std::endl ;
-  
- std::cout << prefisso.str () << "  eff S  "  ;
- for (int i=0 ; i < signalEff.size () ; ++i) std::cout << " " << signalEff.at (i) ;
- std::cout << std::endl ;
- std::cout << prefisso.str () << "  eff B  "  ;
- for (int i=0 ; i < bkgEff.size () ; ++i) std::cout << " " << bkgEff.at (i) ;
- std::cout << std::endl ;
- std::cout << prefisso.str () << " Sosqrt(B) = significance = "  ;
- for (int i=0 ; i < m_significance.size () ; ++i) std::cout << " " << m_significance.at (i) ;
- std::cout << std::endl ;
 
- std::cout << prefisso.str () << "  S  "  ;
- for (int i=0 ; i < signalEvents.size () ; ++i) std::cout << " " << signalEvents.at (i) ;
- std::cout << std::endl ;
- std::cout << prefisso.str () << "  B  "  ;
- for (int i=0 ; i < bkgEvents.size () ; ++i) std::cout << " " << bkgEvents.at (i) ;
- std::cout << std::endl ;
+ 
+//  char *samples[100]= {
+//   "H160_WW_2l_redigi",
+//   "ZeeJet_Pt0to15",
+//   "ZeeJet_Pt120to170",
+//   "ZeeJet_Pt170to230",
+//   "ZeeJet_Pt20to30",
+//   "ZeeJet_Pt230to300",
+//   "ZeeJet_Pt300toInf",
+//   "ZeeJet_Pt30to50",
+//   "ZeeJet_Pt50to80",
+//   "TauolaTTbar_Summer08_IDEAL_V9_v2"
+//  };
 
+ std::cerr << "******************* creating samples ****************" << std::endl;  
+ for (int yy=0; yy<g_number_of_samples; yy++){
   
+  TChain * chain_ = new TChain ("ntpla/VBFSimpleTree") ; 
+  
+  char name_dir[1000];
+  sprintf(name_dir,"%s/VBF_SimpleTree_%s.root",g_directory.c_str(),samples[yy]);
+  
+  chain_->Add (name_dir);
+  
+  char name_histo[1000];
+  sprintf(name_histo,"%s_%s",g_prefix.c_str(),samples[yy]);
+  
+  std::cerr << "******************* creating sample ****************" << std::endl;  
+  std::cerr << "*** " << name_histo << " ***" << std::endl;
+  std::cerr << "*** " << samples[yy] << " ***" << std::endl;
+  
+  histos h_chain_ (name_histo,g_cutsNum); 
+  int if_signal = 0;
+  
+  if (yy<g_numSignal) if_signal = 1;
+  selector (chain_, h_chain_,if_signal) ;  
+
+ }
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
  return 0 ;
 }
 
@@ -678,6 +390,32 @@ double
 }
 
 
+
+//  ------------------------------------------------------------
+
+
+double 
+   deltaEta (double eta1, double eta2)
+{ 
+ double deltaeta = fabs (eta1 - eta2) ;
+ return deltaeta ;
+}
+
+
+
+//  ------------------------------------------------------------
+
+
+double 
+   deltaR (double phi1, double eta1, double phi2, double eta2)
+{ 
+ double deltaphi = deltaPhi (phi1,phi2) ;
+ double deltaeta = deltaEta (eta1,eta2) ;
+ double deltar = sqrt(deltaphi*deltaphi + deltaeta*deltaeta) ;
+ return deltar ;
+}
+
+
 //  ------------------------------------------------------------
 
 
@@ -691,22 +429,49 @@ int
  plots.v_TAGDProdEta = -99;
  plots.v_TAGDeta = -99;
  plots.v_TAGMinv = -99;
- plots.v_ojetsMaxNum = -99;
- plots.v_ojetsMaxNum_All = -99;
  plots.v_LepLep = -99;
  plots.v_hardLEPPt = -99;
  plots.v_softLEPPt = -99;
  plots.v_LEPDPhi = -99;
+ plots.v_LEPDEta = -99;
+ plots.v_LEPDR = -99;
  plots.v_LEPMinv = -99;
  plots.v_MET = -99;
  
+ plots.v_ojets = -99 ;
+ plots.v_ojetsCJV = -99 ;
+ plots.v_ojetsRegionalCJV = -99 ;
  
+ plots.v_ojetsZepp_01 = -99 ;
+ plots.v_ojetsZepp_02 = -99 ;
+ plots.v_ojetsZepp_03 = -99 ;
+ plots.v_ojetsZepp_04 = -99 ;
+ plots.v_ojetsZepp_05 = -99 ;
+ plots.v_ojetsZepp_06 = -99 ;
+ plots.v_ojetsZepp_07 = -99 ;
+ plots.v_ojetsZepp_08 = -99 ;
+ plots.v_ojetsZepp_09 = -99 ;
+ plots.v_ojetsZepp_10 = -99 ;
+ plots.v_ojetsZepp_11 = -99 ;
+ plots.v_ojetsZepp_12 = -99 ;
+ plots.v_ojetsZepp_13 = -99 ;
+ plots.v_ojetsZepp_14 = -99 ;
+ 
+ plots.v_decay_Channel_e = -99 ;
+ plots.v_decay_Channel_mu = -99 ;
+ plots.v_decay_Channel_tau = -99 ;
+ 
+ 
+ TClonesArray * genParticles = new TClonesArray ("TParticle") ;
+ tree->SetBranchAddress ("genParticles", &genParticles) ;
  
  
 //  TClonesArray * tagJets = new TClonesArray ("TLorentzVector") ; 
 //  tree->SetBranchAddress ("tagJets", &tagJets) ;
  TClonesArray * otherJets_temp = new TClonesArray ("TLorentzVector") ;
- tree->SetBranchAddress ("otherJets", &otherJets_temp) ;
+ tree->SetBranchAddress (g_KindOfJet.c_str(), &otherJets_temp) ;
+//  tree->SetBranchAddress ("otherJets", &otherJets_temp) ;
+ 
  
  TClonesArray * electrons = new TClonesArray ("TLorentzVector") ;
  tree->SetBranchAddress ("electrons", &electrons) ;
@@ -722,16 +487,16 @@ int
  
   
  int EleId[100];
- float IsolEleSumPt[100];
+ float IsolEleSumPt_VBF[100];
  int nEle;
  tree->SetBranchAddress ("nEle", &nEle) ;
  tree->SetBranchAddress ("EleId",EleId ) ;
- tree->SetBranchAddress ("IsolEleSumPt",IsolEleSumPt ) ;
+ tree->SetBranchAddress ("IsolEleSumPt_VBF",IsolEleSumPt_VBF ) ;
 
- float IsolMuSumPt[100];
+ float IsolMuTr[100];
  int nMu ;
  tree->SetBranchAddress ("nMu", &nMu) ;
- tree->SetBranchAddress ("IsolMuSumPt",IsolMuSumPt ) ;
+ tree->SetBranchAddress ("IsolMuTr",IsolMuTr ) ;
 
  int IdEvent;
  tree->SetBranchAddress ("IdEvent", &IdEvent) ;
@@ -758,8 +523,9 @@ int
   if (if_signal && (IdEvent!=123 && IdEvent!=124)) continue;
   plots.analyzed++;
   
+  
+  
    //---- find Tagging Jets ----
- 
  
   double m_jetPtMin = 15.;
   double m_jetEtaMax = 5.;
@@ -907,37 +673,88 @@ int
 
       //PG loop over other jets
   double etaMean = 0.5*(primoTAG->Eta () + secondoTAG->Eta ()); 
-  int numJetOthers = 0;
-  int ojetsNum = 0 ;
+  
+  double ojets  = 0 ;
+  double ojetsCJV  = 0 ;
+  double ojetsRegionalCJV  = 0 ;
+ 
+  double ojetsZepp_01  = 0 ;
+  double ojetsZepp_02  = 0 ;
+  double ojetsZepp_03  = 0 ;
+  double ojetsZepp_04  = 0 ;
+  double ojetsZepp_05  = 0 ;
+  double ojetsZepp_06  = 0 ;
+  double ojetsZepp_07  = 0 ;
+  double ojetsZepp_08  = 0 ;
+  double ojetsZepp_09  = 0 ;
+  double ojetsZepp_10  = 0 ;
+  double ojetsZepp_11  = 0 ;
+  double ojetsZepp_12  = 0 ;
+  double ojetsZepp_13  = 0 ;
+  double ojetsZepp_14  = 0 ;
+
+   
   for (int ojetIt = 0 ; ojetIt < otherJets->GetEntries () ; ++ojetIt)
   {
    if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Pt () < g_ojetPtMin) continue ;
-   if ( fabs(((TLorentzVector*) (otherJets->At (ojetIt)))->Eta ()) > g_ojetEtaMax) continue ;
    
-   numJetOthers++;
+   ojets += 1;
    
-   if (g_ojetEtaFromMean == -1) { //---- jet veto between the two tagging jets
-    if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () < eta_min ||
-           ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () > eta_max) continue ;
-   } //---- variable jet veto
-   else if ((((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () - etaMean) > g_ojetEtaFromMean) continue;
+   double zepp_temp = fabs(((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () - etaMean) / fabs (primoTAG->Eta () - secondoTAG->Eta ());
    
-   ++ojetsNum ;        
+   if (zepp_temp < 0.1) ojetsZepp_01 += 1;
+   if (zepp_temp < 0.2) ojetsZepp_02 += 1;
+   if (zepp_temp < 0.3) ojetsZepp_03 += 1;
+   if (zepp_temp < 0.4) ojetsZepp_04 += 1;
+   if (zepp_temp < 0.5) ojetsZepp_05 += 1;
+   if (zepp_temp < 0.6) ojetsZepp_06 += 1;
+   if (zepp_temp < 0.7) ojetsZepp_07 += 1;
+   if (zepp_temp < 0.8) ojetsZepp_08 += 1;
+   if (zepp_temp < 0.9) ojetsZepp_09 += 1;
+   if (zepp_temp < 1.0) ojetsZepp_10 += 1;
+   if (zepp_temp < 1.1) ojetsZepp_11 += 1;
+   if (zepp_temp < 1.2) ojetsZepp_12 += 1;
+   if (zepp_temp < 1.3) ojetsZepp_13 += 1;
+   if (zepp_temp < 1.4) ojetsZepp_14 += 1;
+
+   if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () < eta_min &&
+          ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () < eta_max) ojetsCJV += 1;
+   
+   if ( fabs(((TLorentzVector*) (otherJets->At (ojetIt)))->Eta ()) < g_ojetEtaMax) ojetsRegionalCJV += 1;
+  
   } //PG end loop over other jets
   
-  plots.v_ojetsMaxNum = ojetsNum;
-  plots.v_ojetsMaxNum_All = numJetOthers;
+  plots.v_ojets = ojets ;
+  plots.v_ojetsCJV = ojetsCJV ;
+  plots.v_ojetsRegionalCJV = ojetsRegionalCJV;
+ 
+  plots.v_ojetsZepp_01 = ojetsZepp_01 ;
+  plots.v_ojetsZepp_02 = ojetsZepp_02 ;
+  plots.v_ojetsZepp_03 = ojetsZepp_03 ;
+  plots.v_ojetsZepp_04 = ojetsZepp_04 ;
+  plots.v_ojetsZepp_05 = ojetsZepp_05 ;
+  plots.v_ojetsZepp_06 = ojetsZepp_06 ;
+  plots.v_ojetsZepp_07 = ojetsZepp_07 ;
+  plots.v_ojetsZepp_08 = ojetsZepp_08 ;
+  plots.v_ojetsZepp_09 = ojetsZepp_09 ;
+  plots.v_ojetsZepp_10 = ojetsZepp_10 ;
+  plots.v_ojetsZepp_11 = ojetsZepp_11 ;
+  plots.v_ojetsZepp_12 = ojetsZepp_12 ;
+  plots.v_ojetsZepp_13 = ojetsZepp_13 ;
+  plots.v_ojetsZepp_14 = ojetsZepp_14 ;
+  
   //---- AM 17 Jet Veto
 
 
-             
+//   std::cerr << "--- preambolo leptoni " << std::endl;           
+  
   std::vector<lepton> leptons ;
             
       //PG pour electrons into leptons collection
       //PG ---------------------------------------
 
       //PG loop over electrons
-  for (int iele = 0; iele < nEle ; ++iele)
+  for (int iele = 0; iele < electrons->GetEntries () ; ++iele)
   {
    TLorentzVector * theEle = (TLorentzVector*) (electrons->At (iele)) ;
    lepton dummy (theEle, 0, iele) ;
@@ -955,6 +772,11 @@ int
 //PG this check is not necessary
 //PG      if (leptons.size () < 2) continue ;
 
+  
+  
+//   std::cerr << "--- inizia leptoni " << std::endl;
+  
+  
       //PG 2 LEPTONS
       //PG ---------
 
@@ -991,7 +813,7 @@ applied after the leptons choice:
    if (leptons.at (ilep).m_flav == 0) //PG electron
    {
                //PG iso check
-    bool eleIso = (IsolEleSumPt[leptons.at (ilep).m_index] /  
+    bool eleIso = (IsolEleSumPt_VBF[leptons.at (ilep).m_index] /  
       leptons.at (ilep).m_kine->Pt () ) < g_IsoElectron ; // 0.2 per il momento
     if (g_ISO1[0] == 1 && eleIso != 1) continue;
               
@@ -1004,7 +826,7 @@ applied after the leptons choice:
    else //PG muon
    {
               //PG iso check
-    bool muIso = (IsolMuSumPt[leptons.at (ilep).m_index] /  
+    bool muIso = (IsolMuTr[leptons.at (ilep).m_index] /  
       leptons.at (ilep).m_kine->Pt () ) < g_IsoMuon ; 
     if (g_ISO1[1] == 1 && muIso != 1) continue;
    }  
@@ -1023,7 +845,7 @@ applied after the leptons choice:
    if (leptons.at (ilep).m_flav == 0) //PG electron
    {
                //PG iso check
-    bool eleIso = (IsolEleSumPt[leptons.at (ilep).m_index] /  
+    bool eleIso = (IsolEleSumPt_VBF[leptons.at (ilep).m_index] /  
       leptons.at (ilep).m_kine->Pt () ) < g_IsoElectron ; // 0.2 per il momento
     if (g_ISO2[0] == 1 && eleIso != 1) continue;
               
@@ -1036,7 +858,7 @@ applied after the leptons choice:
    else //PG muon
    {
               //PG iso check
-    bool muIso = (IsolMuSumPt[leptons.at (ilep).m_index] /  
+    bool muIso = (IsolMuTr[leptons.at (ilep).m_index] /  
       leptons.at (ilep).m_kine->Pt () ) < g_IsoMuon ; 
     if (g_ISO2[1] == 1 && muIso != 1) continue;
    }  
@@ -1077,7 +899,12 @@ applied after the leptons choice:
    
  plots.v_LEPDPhi = deltaPhi (primoLEP.m_kine->Phi (), secondoLEP.m_kine->Phi ()) ;
   //---- AM 7 Delta_phi_min between leptons
-  
+
+ plots.v_LEPDEta = deltaEta (primoLEP.m_kine->Eta (), secondoLEP.m_kine->Eta ()) ;
+ plots.v_LEPDR = deltaR (primoLEP.m_kine->Phi (),primoLEP.m_kine->Eta (), secondoLEP.m_kine->Phi (), secondoLEP.m_kine->Eta ()) ;
+
+ 
+   
   TLorentzVector sumLEP = *(primoLEP.m_kine) + *(secondoLEP.m_kine) ;
   plots.v_LEPMinv = sumLEP.M () ;
   //---- AM 9 MInv_min of leptons
@@ -1086,6 +913,8 @@ applied after the leptons choice:
       //PG MET
       //PG ---
 
+//   std::cerr << "--- finito " << std::endl;
+  
   TLorentzVector* met = ((TLorentzVector*) (MET->At(0))) ;
       //correct for muons
   for (int i = 0 ; i < nMu ; i++)
@@ -1100,6 +929,42 @@ applied after the leptons choice:
   }      
   
   plots.v_MET = met->Pt () ;
+  
+  
+  //!---- MC ----
+
+  
+  if (IdEvent==123 || IdEvent==124) { //---- VBF event ----
+   plots.v_decay_Channel_e = 0;
+   plots.v_decay_Channel_mu = 0;
+   plots.v_decay_Channel_tau = 0;
+   for (int iGen = 0; iGen < genParticles->GetEntries() ; ++iGen){
+    TParticle* myparticle = (TParticle*) genParticles->At(iGen);
+    if (abs(myparticle->GetPdgCode()) == 24) { //---- W
+     Int_t mother1 = 0;
+     mother1 = myparticle->GetMother(0);
+     if (mother1 == 25) { //---- mother is higgs ----
+      for (int iDaughter = 0; iDaughter<2; iDaughter++){
+       if (abs(myparticle->GetDaughter(iDaughter)) == 11) {//---- W -> e
+        plots.v_decay_Channel_e++;
+       }
+       if (abs(myparticle->GetDaughter(iDaughter)) == 13) {//---- W -> mu    
+        plots.v_decay_Channel_mu++;
+       }
+       if (abs(myparticle->GetDaughter(iDaughter)) == 15) {//---- W -> tau
+        plots.v_decay_Channel_tau++;
+       }       
+      }
+     }
+    }
+   }
+  }
+
+  
+
+    
+    
+    
   //---- AM 11 Met_min ----------------> Met correction ?
   
 //      if (((TLorentzVector*) (MET->At (0)))->Pt () < g_METMin) continue ; plots.increase (cutId++) ; //PG 10
@@ -1114,18 +979,18 @@ applied after the leptons choice:
       
       //PG the two electrons should not be opposite to each other
       
-  TVector2 primoLEPT (primoLEP.m_kine->X (), primoLEP.m_kine->Y ()) ;
-  TVector2 secondoLEPT (secondoLEP.m_kine->X (), secondoLEP.m_kine->Y ()) ;
-  TVector2 METT (met->X (), met->Y ()) ;
-
-  double Sum = METT * primoLEPT + METT * secondoLEPT / (1 + primoLEPT * secondoLEPT) ;
-  double Dif = METT * primoLEPT - METT * secondoLEPT / (1 - primoLEPT * secondoLEPT) ;
-      
-  TVector2 METT1 = 0.5 * (Sum + Dif) * primoLEPT ;
-  TVector2 METT2 = 0.5 * (Sum - Dif) * secondoLEPT ;
-      
-  double ptNu1 = METT1.Mod () / cos (primoLEP.m_kine->Theta ()) ;
-  double ptNu2 = METT2.Mod () / cos (secondoLEP.m_kine->Theta ()) ;
+//   TVector2 primoLEPT (primoLEP.m_kine->X (), primoLEP.m_kine->Y ()) ;
+//   TVector2 secondoLEPT (secondoLEP.m_kine->X (), secondoLEP.m_kine->Y ()) ;
+//   TVector2 METT (met->X (), met->Y ()) ;
+// 
+//   double Sum = METT * primoLEPT + METT * secondoLEPT / (1 + primoLEPT * secondoLEPT) ;
+//   double Dif = METT * primoLEPT - METT * secondoLEPT / (1 - primoLEPT * secondoLEPT) ;
+//       
+//   TVector2 METT1 = 0.5 * (Sum + Dif) * primoLEPT ;
+//   TVector2 METT2 = 0.5 * (Sum - Dif) * secondoLEPT ;
+//       
+//   double ptNu1 = METT1.Mod () / cos (primoLEP.m_kine->Theta ()) ;
+//   double ptNu2 = METT2.Mod () / cos (secondoLEP.m_kine->Theta ()) ;
 
   
   
@@ -1140,7 +1005,6 @@ applied after the leptons choice:
  plots.m_efficiency->Fill();
  plots.m_efficiency->Write();
  plots.m_tree_selections->Write();
- plots.normalize () ;
 
  delete otherJets_temp ;
  delete tagJets  ;  

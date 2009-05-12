@@ -110,6 +110,15 @@ struct histos
    TString histoAllOtherJetName = m_name + "_AllOtherJet_histo" ;
    numAllOtherJet = new TH1F(histoAllOtherJetName.Data(),histoAllOtherJetName.Data(),100,0,100);
    
+   TString histoJetEtaFromMean = m_name + "_JetEtaFromMean_histo" ;
+   numJetEtaFromMean = new TH1F(histoJetEtaFromMean.Data(),histoJetEtaFromMean.Data(),100,0,100);
+ 
+   TString histoJetZepp = m_name + "_Zeppenfeld_histo" ;
+   hZepp = new TH1F(histoJetZepp.Data(),histoJetZepp.Data(),100,0,100);
+   
+   TString histoJetZeppDistr = m_name + "_ZeppenfeldDistr_histo" ;
+   hZeppDistr = new TH1F(histoJetZeppDistr.Data(),histoJetZeppDistr.Data(),1000,-10,10);
+ 
    TString histoPt_1_Name = m_name + "_Pt_1_histo" ;
    ptJetTagging_1 = new TH1F(histoPt_1_Name.Data(),histoPt_1_Name.Data(),10000,0,1000);
    TString histoPt_2_Name = m_name + "_Pt_2_histo" ;
@@ -238,6 +247,9 @@ struct histos
   //! AM ---- jet counter ----
   TH1F* numJetAfterJetTag;
   TH1F* numAllOtherJet;
+  TH1F* numJetEtaFromMean;
+  TH1F* hZepp;
+  TH1F* hZeppDistr;
   
   //! AM ---- jet pt_1 and pt_2 ----
   TH1F* ptJetTagging_1;
@@ -830,7 +842,18 @@ int
   if (if_signal && (IdEvent!=123 && IdEvent!=124)) continue;
 
   
-   //---- find Tagging Jets ----
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //---------------------------
+  //---- find Tagging Jets ----
  
  
   double m_jetPtMin = 15.;
@@ -895,7 +918,6 @@ int
    TLorentzVector* myJet = (TLorentzVector*) otherJets_temp->At(tagJetCands.first);
    new (jetOther[counter]) TLorentzVector (*myJet);
    counter++;
-//    std::cerr << "*** found one jets tagging ***" << std::endl;
   }
 
   
@@ -904,9 +926,7 @@ int
    TLorentzVector* myJet = (TLorentzVector*) otherJets_temp->At(tagJetCands.second);
    new (jetOther[counter]) TLorentzVector (*myJet);
    counter++;
-//    std::cerr << "*** found two jets tagging ***" << std::endl;
   }
-//   else std::cerr << "*** NOTNOTNOTNOTNOTNOT found two jets tagging ***" << std::endl;
   
   counter = 0;
   for (int l=0; l<otherJets_temp->GetEntries (); l++ ){
@@ -917,25 +937,28 @@ int
    counter++;
   }
   
-//   std::cerr << "*********** quanti jet ho = " << otherJets_temp->GetEntries () << std::endl;
-//   std::cerr << "*********** quanti teg jet ho trovato = " << tagJets->GetEntries () << std::endl;
     
   //---- end find Tagging Jets ----
+  //-------------------------------
   
   
   
+  //---- start cutId -----
   
   int cutId = 0 ;
 
   plots.increase (cutId++) ; //AM 0 -> total number of events
 
-  if (tagJets->GetEntries () != 2) continue ; plots.increase (cutId++) ; //AM 1 ctrl numbering jets -> number of jets with common preselections (pt_min and eta_max) may be < 2
   
   
+    ///---------------------- 
+  ///---- tagging jets ----
   
       //PG 2 TAGS
       //PG ------
 
+  if (tagJets->GetEntries () != 2) continue ; plots.increase (cutId++) ; //AM 1 ctrl numbering jets -> number of jets with common preselections (pt_min and eta_max) may be < 2
+  
   TLorentzVector * primoTAG = (TLorentzVector*) (tagJets->At (0)) ; //--- primoTAG.Pt > secondoTAG.Pt !!!
   TLorentzVector * secondoTAG = (TLorentzVector*) (tagJets->At (1)) ; 
   
@@ -986,6 +1009,8 @@ int
   double etaMean = 0.5*(primoTAG->Eta () + secondoTAG->Eta ()); 
   int numJetOthers = 0;
   int ojetsNum = 0 ;
+  int numJet_ojetEtaFromMean = 0;
+  int numZepp = 0;
   for (int ojetIt = 0 ; ojetIt < otherJets->GetEntries () ; ++ojetIt)
   {
    if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Pt () < g_ojetPtMin) continue ;
@@ -993,6 +1018,12 @@ int
    
    numJetOthers++;
    
+   if ((((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () - etaMean) < 3.0) numJet_ojetEtaFromMean++;
+   
+   if (fabs(((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () - etaMean) / fabs (primoTAG->Eta () - secondoTAG->Eta ()) < 1.0) numZepp++;
+   
+   plots.hZeppDistr->Fill((((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () - etaMean) / fabs (primoTAG->Eta () - secondoTAG->Eta ()));
+  
    if (g_ojetEtaFromMean == -1) { //---- jet veto between the two tagging jets
     if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () < eta_min ||
            ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () > eta_max) continue ;
@@ -1004,6 +1035,8 @@ int
   
   plots.numAllOtherJet->Fill(numJetOthers);
   plots.numJetAfterJetTag->Fill(ojetsNum);
+  plots.numJetEtaFromMean->Fill(numJet_ojetEtaFromMean);
+  plots.hZepp->Fill(numZepp);
   if (ojetsNum > g_ojetsMaxNum) continue ; plots.increase (cutId++) ;
   //---- AM 17 Jet Veto
 
@@ -1020,8 +1053,18 @@ int
   
   
   
+  ///---- end tagging jets ----
+  ///--------------------------
+
   
-  if (electrons->GetEntries () < 1 ||
+  
+  
+  
+  
+  ///-----------------
+  ///---- Leptons ----
+
+  if (electrons->GetEntries () < 1 &&
       muons->GetEntries () < 1) continue ; plots.increase (cutId++) ; //AM 2 ctrl numbering leptons -> at least 1 lepton
             
   std::vector<lepton> leptons ;
@@ -1172,7 +1215,18 @@ applied after the leptons choice:
   if (sumLEP.M () > g_LEPMinvMax) continue ; plots.increase (cutId++) ;
   //---- AM 10 MInv_max of leptons
   
+  
+  ///---- end Leptons ----
+  ///---------------------
 
+  
+  
+  
+
+  
+ ///-------------
+ ///---- MET ----
+  
   
       //PG MET
       //PG ---
@@ -1195,6 +1249,8 @@ applied after the leptons choice:
 //      if (((TLorentzVector*) (MET->At (0)))->Pt () < g_METMin) continue ; plots.increase (cutId++) ; //PG 10
       
   
+ ///---- end MET ----
+ ///-----------------
   
   
   
@@ -1221,6 +1277,9 @@ applied after the leptons choice:
 
  plots.numAllOtherJet->Write();
  plots.numJetAfterJetTag->Write();
+ plots.numJetEtaFromMean->Write();
+ plots.hZepp->Write();
+ plots.hZeppDistr->Write();
  plots.ptJetTagging_1->Write();
  plots.ptJetTagging_2->Write();
  plots.prodEta_JetTagging->Write();
