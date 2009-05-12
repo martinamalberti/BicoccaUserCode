@@ -27,21 +27,31 @@
 <lib name=EG> #for TParticle
 </bin>
 
-<bin file=JetTagging_SelectionOrderAnalysis_MyNN_SinglePair.cpp JetTagging_SelectionOrderAnalysis_MyNN_SinglePair
+<bin file=JetTagging_SelectionOrderAnalysis_MyNN_SinglePair.cpp name=JetTagging_SelectionOrderAnalysis_MyNN_SinglePair>
 <lib name=EG> #for TParticle
 </bin>
 
-<bin file=MC_Analyzer.cpp MC_Analyzer
+<bin file=MC_Analyzer.cpp name=MC_Analyzer>
 <lib name=EG> #for TParticle
 </bin>
 
-<bin file=JetTagging_ZZ2lqq_SinglePair.cpp JetTagging_ZZ2lqq_SinglePair
+<bin file=JetTagging_ZZ2lqq_SinglePair.cpp name=JetTagging_ZZ2lqq_SinglePair>
 <lib name=EG> #for TParticle
 </bin>
 
 <use name=boost>
-<bin file=Efficiency.cpp Efficiency
+<bin file=Efficiency.cpp name=Efficiency>
 <lib name=EG> #for TParticle
 <flags LCGDICT_ARGS="--deep">
 </bin>
 
+<bin file=Flaggator.cpp name=Flaggator>
+<lib name=EG> #for TParticle
+<flags LCGDICT_ARGS="--deep">
+</bin>
+
+
+<bin file=Flaggator_vbf.cpp name=Flaggator_vbf>
+<lib name=EG> #for TParticle
+<flags LCGDICT_ARGS="--deep">
+</bin>
