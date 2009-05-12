@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.5 2009/03/18 13:35:02 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.6 2009/04/29 15:55:23 amassiro Exp $
 //
 //
 
@@ -169,6 +169,7 @@ SimpleNtple::~SimpleNtple()
  delete m_MET ;
  delete m_tracks ;
  delete m_genParticles ;
+ delete m_HiggsParticle ;
  delete m_genJets;
  delete m_genMet;
   
@@ -200,38 +201,9 @@ SimpleNtple::~SimpleNtple()
 void
   SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
- Init();
- FillKindEvent (iEvent, iSetup);
-
- FillEle (iEvent, iSetup);
- FillMu (iEvent, iSetup);
- FillMet (iEvent, iSetup);
-  //   FillTagJet (iEvent, iSetup); //---- AM --- not now!
- FillJet (iEvent, iSetup, 0);
- FillTracks (iEvent, iSetup);
- FillGenParticles (iEvent, iSetup); //---- AM --- to call after FillKindEvent
- FillGenJet (iEvent, iSetup);
- FillGenMet (iEvent, iSetup);
-  
- if (bool_JetTagSisCone5CaloJets_)        FillJet(iEvent, iSetup, 1);
- if (bool_JetTagIterativeCone5CaloJets_)  FillJet(iEvent, iSetup, 2);
- if (bool_JetTagSisCone5PFJets_)          FillJet(iEvent, iSetup, 3);
- if (bool_JetTagIterativeCone5PFJets_)    FillJet(iEvent, iSetup, 4);
-
- if (bool_JetTagSisCone5CaloJets_L2L3_)    FillJet(iEvent, iSetup, 5);
- if (bool_JetTagIterativeCone5CaloJets_L2L3_)    FillJet(iEvent, iSetup, 6);
- if (bool_JetTagSisCone5PFJets_L2L3_)    FillJet(iEvent, iSetup, 7);
- if (bool_JetTagIterativeCone5PFJets_L2L3_)    FillJet(iEvent, iSetup, 8);
  
- if (bool_JetTagSisCone5CaloJets_JPT_)    FillJet(iEvent, iSetup, 9);
- if (bool_JetTagIterativeCone5CaloJets_JPT_)    FillJet(iEvent, iSetup, 10);
- if (bool_JetTagSisCone5PFJets_JPT_)    FillJet(iEvent, iSetup, 11);
- if (bool_JetTagIterativeCone5PFJets_JPT_)    FillJet(iEvent, iSetup, 12);
-
- if (bool_JetTagIterativeCone5CaloJets_BTagging_)    FillJet(iEvent, iSetup, 13);
-  
- mytree_->Fill();
-
+ Init();
+ 
  m_tagJets -> Clear () ;
  m_otherJets -> Clear () ;  
  m_electrons -> Clear ()  ;
@@ -239,6 +211,7 @@ void
  m_MET -> Clear ()  ;
  m_tracks -> Clear () ;
  m_genParticles -> Clear () ;
+ m_HiggsParticle -> Clear () ;
  m_genJets -> Clear () ;
  m_genMet -> Clear () ;
   
@@ -289,10 +262,38 @@ void
  m_otherJets_JPT_IterativeCone5CaloJets_alpha -> clear () ;
  m_otherJets_JPT_SisCone5PFJets_alpha -> clear () ;
  m_otherJets_JPT_IterativeCone5PFJets_alpha -> clear () ;
+ 
+ FillKindEvent (iEvent, iSetup);
 
- 
- 
+ FillEle (iEvent, iSetup);
+ FillMu (iEvent, iSetup);
+ FillMet (iEvent, iSetup);
+  //   FillTagJet (iEvent, iSetup); //---- AM --- not now!
+ FillJet (iEvent, iSetup, 0);
+ FillTracks (iEvent, iSetup);
+ FillGenParticles (iEvent, iSetup); //---- AM --- to call after FillKindEvent
+ FillGenJet (iEvent, iSetup);
+ FillGenMet (iEvent, iSetup);
   
+ if (bool_JetTagSisCone5CaloJets_)        FillJet(iEvent, iSetup, 1);
+ if (bool_JetTagIterativeCone5CaloJets_)  FillJet(iEvent, iSetup, 2);
+ if (bool_JetTagSisCone5PFJets_)          FillJet(iEvent, iSetup, 3);
+ if (bool_JetTagIterativeCone5PFJets_)    FillJet(iEvent, iSetup, 4);
+
+ if (bool_JetTagSisCone5CaloJets_L2L3_)    FillJet(iEvent, iSetup, 5);
+ if (bool_JetTagIterativeCone5CaloJets_L2L3_)    FillJet(iEvent, iSetup, 6);
+ if (bool_JetTagSisCone5PFJets_L2L3_)    FillJet(iEvent, iSetup, 7);
+ if (bool_JetTagIterativeCone5PFJets_L2L3_)    FillJet(iEvent, iSetup, 8);
+ 
+ if (bool_JetTagSisCone5CaloJets_JPT_)    FillJet(iEvent, iSetup, 9);
+ if (bool_JetTagIterativeCone5CaloJets_JPT_)    FillJet(iEvent, iSetup, 10);
+ if (bool_JetTagSisCone5PFJets_JPT_)    FillJet(iEvent, iSetup, 11);
+ if (bool_JetTagIterativeCone5PFJets_JPT_)    FillJet(iEvent, iSetup, 12);
+
+ if (bool_JetTagIterativeCone5CaloJets_BTagging_)    FillJet(iEvent, iSetup, 13);
+  
+ mytree_->Fill();
+ 
 }
 
 
@@ -361,41 +362,41 @@ void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
  for(int i=0; i< nEle; i++){
    
-   edm::Ref<reco::GsfElectronCollection> electronEdmRef(EleHandleNew,i);
+  edm::Ref<reco::GsfElectronCollection> electronEdmRef(EleHandleNew,i);
   
-   selected = true;
-   if(doRefCheckTag_==true)
-    if (std::find(EleRefHandle->begin(), EleRefHandle->end(),electronEdmRef) == EleRefHandle->end())
-   {
-    selected=false;
-   }
+  selected = true;
+  if(doRefCheckTag_==true)
+   if (std::find(EleRefHandle->begin(), EleRefHandle->end(),electronEdmRef) == EleRefHandle->end())
+  {
+   selected=false;
+  }
 
-   if (selected) {
-    setMomentum (myvector, (*EleHandleNew)[i].p4());
-    new (electrons[counter]) TLorentzVector (myvector);
+  if (selected) {
+   setMomentum (myvector, (*EleHandleNew)[i].p4());
+   new (electrons[counter]) TLorentzVector (myvector);
     
      
     //---- Id and VBF Isolation ----
    
-    reco::GsfElectronRef electronReference = EleHandle->refAt (i).castTo<reco::GsfElectronRef> () ;
-    edm::Ref<edm::View<reco::GsfElectron> > electronRef(EleHandle,i);
+   reco::GsfElectronRef electronReference = EleHandle->refAt (i).castTo<reco::GsfElectronRef> () ;
+   edm::Ref<edm::View<reco::GsfElectron> > electronRef(EleHandle,i);
       
-    IsolEleSumPt_VBF[counter] = m_tkIsolationAlgo.calcSumOfPt (EleHandle, TracksHandle, electronReference) ;
-    IsolEleNTracks_VBF[counter] = m_tkIsolationAlgo.countNumOfTracks (EleHandle, TracksHandle, electronReference) ;
+   IsolEleSumPt_VBF[counter] = m_tkIsolationAlgo.calcSumOfPt (EleHandle, TracksHandle, electronReference) ;
+   IsolEleNTracks_VBF[counter] = m_tkIsolationAlgo.countNumOfTracks (EleHandle, TracksHandle, electronReference) ;
 
-    int times[3] = {1,10,100} ;
-    EleId[i]=0;
-    for (int j=0 ; j<3 ; ++j)
-    {
-     if ((*(eleIdHandles[j]))[electronRef] > 0) {
-      EleId[counter] += times[j] ;
-     }
+   int times[3] = {1,10,100} ;
+   EleId[i]=0;
+   for (int j=0 ; j<3 ; ++j)
+   {
+    if ((*(eleIdHandles[j]))[electronRef] > 0) {
+     EleId[counter] += times[j] ;
     }
+   }
     
    //---- Isolation ----
-    IsolEleECal[counter] = eleIsoEcal[electronRef];    
-    IsolEleHCal[counter] = eleIsoHcal[electronRef];
-    IsolEleTr[counter] = eleIsoTk[electronRef];
+   IsolEleECal[counter] = eleIsoEcal[electronRef];    
+   IsolEleHCal[counter] = eleIsoHcal[electronRef];
+   IsolEleTr[counter] = eleIsoTk[electronRef];
   
 
   //---- only >= 3.1 ---- from https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEgammaIsolation ----
@@ -403,8 +404,8 @@ void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //   IsolEleHCal[counter] = (*EleHandle)[i].dr03HcalDepth1TowerSumEt();
 //   IsolEleTr[counter] = (*EleHandle)[i].dr03TkSumPt();
  
-    counter++;  
-   }
+   counter++;  
+  }
   
  }
 
@@ -765,8 +766,11 @@ void
  iEvent.getByLabel (MCtruthTag_,genParticlesHandle);
  
  TClonesArray &genParticles = *m_genParticles;
- int counter = 0;
+ TClonesArray &HiggsParticle = *m_HiggsParticle;
  
+ int counter = 0;
+ int counter_Higgs = 0;
+   
  if (IdEvent==123 || IdEvent==124){//---- only if VBF
   for (reco::GenParticleCollection::const_iterator genIt = genParticlesHandle->begin (); 
        genIt != genParticlesHandle->end (); 
@@ -793,11 +797,181 @@ void
    Double_t time = 0;
   
    new (genParticles[counter]) TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
-  
-    
+ 
+   if (counter == 6) { //---- q1
+//     q1 = new TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
+    new (HiggsParticle[counter_Higgs]) TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
+    counter_Higgs++;
+   }
+   if (counter == 7) { //---- q2
+//     q2 = new TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
+    new (HiggsParticle[counter_Higgs]) TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
+    counter_Higgs++;
+   }
+ 
    counter++;
   }
  }
+ 
+ 
+  //---- Fill Higgs ----
+ if (IdEvent==123 || IdEvent==124){//---- only if VBF
+  for (reco::GenParticleCollection::const_iterator genIt = genParticlesHandle->begin (); 
+       genIt != genParticlesHandle->end (); 
+       ++genIt ) 
+  { //---- loop over GenParticles ----
+   Int_t pdg = genIt->pdgId();
+   Int_t status = genIt->status();
+   Int_t mother1 = 0;
+   if (genIt->numberOfMothers()>0) mother1 = genIt->mother(0)->pdgId();
+   Int_t mother2 = 0;
+   if (genIt->numberOfMothers()>1) mother2 = genIt->mother(1)->pdgId();
+   Int_t daughter1 = 0;
+   if (genIt->numberOfDaughters()>0) daughter1 = genIt->daughter(0)->pdgId();
+   Int_t daughter2 = 0;
+   if (genIt->numberOfDaughters()>1) daughter2 = genIt->daughter(1)->pdgId();
+   Double_t px = genIt->px();
+   Double_t py = genIt->py();
+   Double_t pz = genIt->pz();
+   Double_t etot = genIt->energy();
+   Double_t vx = 0;
+   Double_t vy = 0;
+   Double_t vz = 0;
+   Double_t time = 0;
+   
+   if (pdg == 25 && status==3) { //---- Higgs ----
+//     Higgs = new TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
+    new (HiggsParticle[counter_Higgs]) TParticle (pdg, status, mother1, mother2, daughter1, daughter2, px, py, pz, etot, vx, vy, vz, time);
+    counter_Higgs++;
+    
+    bool bool_V1 = false; 
+    int numDaughters = genIt->numberOfDaughters();
+    for (int ii=0; ii<numDaughters; ii++){ //---- loop over daughters of Higgs ----
+     const reco::Candidate * daughter = genIt->daughter(ii);
+     
+     Int_t pdg_ii = daughter->pdgId();
+     Int_t status_ii = daughter->status();
+     Int_t mother1_ii = 0;
+     if (daughter->numberOfMothers()>0) mother1_ii = daughter->mother(0)->pdgId();
+     Int_t mother2_ii = 0;
+     if (daughter->numberOfMothers()>1) mother2_ii = daughter->mother(1)->pdgId();
+     Int_t daughter1_ii = 0;
+     if (daughter->numberOfDaughters()>0) daughter1_ii = daughter->daughter(0)->pdgId();
+     Int_t daughter2_ii = 0;
+     if (daughter->numberOfDaughters()>1) daughter2_ii = daughter->daughter(1)->pdgId();
+     Double_t px_ii = daughter->px();
+     Double_t py_ii = daughter->py();
+     Double_t pz_ii = daughter->pz();
+     Double_t etot_ii = daughter->energy();
+     Double_t vx_ii = 0;
+     Double_t vy_ii = 0;
+     Double_t vz_ii = 0;
+     Double_t time_ii = 0;
+
+     if ((abs(pdg_ii) == 24 || pdg_ii == 23 ) && status_ii==3 && mother1_ii == 25) { //---- W or Z ----
+      if (!bool_V1) { //---- V1 ----
+//        V1 = new TParticle (pdg_ii, status_ii, mother1_ii, mother2_ii, daughter1_ii, daughter2_ii, px_ii, py_ii, pz_ii, etot_ii, vx_ii, vy_ii, vz_ii, time_ii);
+       new (HiggsParticle[counter_Higgs]) TParticle (pdg_ii, status_ii, mother1_ii, mother2_ii, daughter1_ii, daughter2_ii, px_ii, py_ii, pz_ii, etot_ii, vx_ii, vy_ii, vz_ii, time_ii);
+       counter_Higgs++;
+       
+       bool_V1 = true;
+       
+       int numDaughters_V1 = daughter->numberOfDaughters();
+       bool bool_f1 = false;
+       for (int jj=0; jj<numDaughters_V1; jj++){   
+        
+        const reco::Candidate * daughter_daughter = genIt->daughter(jj);
+     
+        Int_t pdg_jj = daughter_daughter->pdgId();
+        Int_t status_jj = daughter_daughter->status();
+        Int_t mother1_jj = 0;
+        if (daughter_daughter->numberOfMothers()>0) mother1_jj = daughter_daughter->mother(0)->pdgId();
+        Int_t mother2_jj = 0;
+        if (daughter_daughter->numberOfMothers()>1) mother2_jj = daughter_daughter->mother(1)->pdgId();
+        Int_t daughter1_jj = 0;
+        if (daughter_daughter->numberOfDaughters()>0) daughter1_jj = daughter_daughter->daughter(0)->pdgId();
+        Int_t daughter2_jj = 0;
+        if (daughter_daughter->numberOfDaughters()>1) daughter2_jj = daughter_daughter->daughter(1)->pdgId();
+        Double_t px_jj = daughter_daughter->px();
+        Double_t py_jj = daughter_daughter->py();
+        Double_t pz_jj = daughter_daughter->pz();
+        Double_t etot_jj = daughter_daughter->energy();
+        Double_t vx_jj = 0;
+        Double_t vy_jj = 0;
+        Double_t vz_jj = 0;
+        Double_t time_jj = 0;
+        
+        if (status_jj==3) {
+         if (!bool_f1) {
+//           f1V1 = new TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          new (HiggsParticle[counter_Higgs]) TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          counter_Higgs++;
+          bool_f1 = true;
+         }
+         else {
+//           f2V1 = new TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          new (HiggsParticle[counter_Higgs]) TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          counter_Higgs++;
+         }
+        }
+       }
+      }
+      
+      else { //---- V2 ----
+//        V2 = new TParticle (pdg_ii, status_ii, mother1_ii, mother2_ii, daughter1_ii, daughter2_ii, px_ii, py_ii, pz_ii, etot_ii, vx_ii, vy_ii, vz_ii, time_ii);
+       new (HiggsParticle[counter_Higgs]) TParticle (pdg_ii, status_ii, mother1_ii, mother2_ii, daughter1_ii, daughter2_ii, px_ii, py_ii, pz_ii, etot_ii, vx_ii, vy_ii, vz_ii, time_ii);
+       counter_Higgs++;
+
+       
+       int numDaughters_V2 = daughter->numberOfDaughters();
+       bool bool_f1 = false;
+       for (int jj=0; jj<numDaughters_V2; jj++){   
+        
+        const reco::Candidate * daughter_daughter = genIt->daughter(jj);
+     
+        Int_t pdg_jj = daughter_daughter->pdgId();
+        Int_t status_jj = daughter_daughter->status();
+        Int_t mother1_jj = 0;
+        if (daughter_daughter->numberOfMothers()>0) mother1_jj = daughter_daughter->mother(0)->pdgId();
+        Int_t mother2_jj = 0;
+        if (daughter_daughter->numberOfMothers()>1) mother2_jj = daughter_daughter->mother(1)->pdgId();
+        Int_t daughter1_jj = 0;
+        if (daughter_daughter->numberOfDaughters()>0) daughter1_jj = daughter_daughter->daughter(0)->pdgId();
+        Int_t daughter2_jj = 0;
+        if (daughter_daughter->numberOfDaughters()>1) daughter2_jj = daughter_daughter->daughter(1)->pdgId();
+        Double_t px_jj = daughter_daughter->px();
+        Double_t py_jj = daughter_daughter->py();
+        Double_t pz_jj = daughter_daughter->pz();
+        Double_t etot_jj = daughter_daughter->energy();
+        Double_t vx_jj = 0;
+        Double_t vy_jj = 0;
+        Double_t vz_jj = 0;
+        Double_t time_jj = 0;
+        
+        if (status_jj==3) {
+         if (!bool_f1) {
+//           f1V2 = new TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          new (HiggsParticle[counter_Higgs]) TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          counter_Higgs++;
+         
+          bool_f1 = true;
+         }
+         else {
+//           f2V2 = new TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          new (HiggsParticle[counter_Higgs]) TParticle (pdg_jj, status_jj, mother1_jj, mother2_jj, daughter1_jj, daughter2_jj, px_jj, py_jj, pz_jj, etot_jj, vx_jj, vy_jj, vz_jj, time_jj);
+          counter_Higgs++;
+         
+         }
+        }
+       }
+      }
+        
+     }//---- end W or Z ----
+    } //---- end loop over daughters of Higgs ----
+   } //---- end Higgs ----
+  } //---- end loop over GenParticles ----
+ }//---- end only if VBF
+
 }
 
 
@@ -1068,7 +1242,11 @@ void
  m_otherJets_JPT_IterativeCone5PFJets = new TClonesArray ("TLorentzVector");
  mytree_->Branch ("otherJets_JPT_IterativeCone5PFJets", "TClonesArray", &m_otherJets_JPT_IterativeCone5PFJets, 256000,0);
 
-  
+ //! MC information
+
+ m_HiggsParticle = new TClonesArray ("TParticle");
+ mytree_->Branch ("HiggsParticle", "TClonesArray", &m_HiggsParticle, 256000,0);
+ 
 }
 
 

@@ -130,6 +130,19 @@ class SimpleNtple : public edm::EDAnalyzer {
 //   TParticle myparticle ;
   
   
+  //! MC information
+
+  TClonesArray * m_HiggsParticle ;
+  TParticle* Higgs ;
+  TParticle* V1 ;
+  TParticle* V2 ;
+  TParticle* f1V1 ;
+  TParticle* f2V1 ;
+  TParticle* f1V2 ;
+  TParticle* f2V2 ;
+  TParticle* q1 ;
+  TParticle* q2 ;
+  
   //! isolation algorithm
   VBFEleTrackerIsolationAlgo m_tkIsolationAlgo ;
   
