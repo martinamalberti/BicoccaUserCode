@@ -98,6 +98,9 @@ struct histos
    m_tree_selections->Branch("v_LEPDEta",&v_LEPDEta,"v_LEPDEta/D");
    m_tree_selections->Branch("v_LEPDR",&v_LEPDR,"v_LEPDR/D");
    m_tree_selections->Branch("v_LEPMinv",&v_LEPMinv,"v_LEPMinv/D");
+   m_tree_selections->Branch("v_LEPProdCharge",&v_LEPProdCharge,"v_LEPProdCharge/D");  
+   m_tree_selections->Branch("v_hardLEPCharge",&v_hardLEPCharge,"v_hardLEPCharge/D");  
+   m_tree_selections->Branch("v_softLEPCharge",&v_softLEPCharge,"v_softLEPCharge/D");  
    m_tree_selections->Branch("v_MET",&v_MET,"v_MET/D");   
    
    m_tree_selections->Branch("v_ojets",&v_ojets,"v_ojets/D");   
@@ -173,6 +176,9 @@ struct histos
   double v_LEPDEta ;
   double v_LEPDR ;
   double v_LEPMinv ;
+  double v_LEPProdCharge ;
+  double v_hardLEPCharge ;
+  double v_softLEPCharge ;
   double v_MET ;
 
   double v_ojets ;
@@ -436,6 +442,9 @@ int
  plots.v_LEPDEta = -99;
  plots.v_LEPDR = -99;
  plots.v_LEPMinv = -99;
+ plots.v_LEPProdCharge = -99;
+ plots.v_hardLEPCharge = -99;
+ plots.v_softLEPCharge = -99;
  plots.v_MET = -99;
  
  plots.v_ojets = -99 ;
@@ -489,14 +498,19 @@ int
  int EleId[100];
  float IsolEleSumPt_VBF[100];
  int nEle;
+ int EleCharge[30];
  tree->SetBranchAddress ("nEle", &nEle) ;
  tree->SetBranchAddress ("EleId",EleId ) ;
  tree->SetBranchAddress ("IsolEleSumPt_VBF",IsolEleSumPt_VBF ) ;
-
+ tree->SetBranchAddress ("EleCharge",EleCharge ) ;
+ 
  float IsolMuTr[100];
  int nMu ;
+ int MuCharge[30];
  tree->SetBranchAddress ("nMu", &nMu) ;
  tree->SetBranchAddress ("IsolMuTr",IsolMuTr ) ;
+ tree->SetBranchAddress ("MuCharge", MuCharge) ;
+ 
 
  int IdEvent;
  tree->SetBranchAddress ("IdEvent", &IdEvent) ;
@@ -801,7 +815,9 @@ applied after the leptons choice:
   lepton primoLEP ;
   lepton secondoLEP ;
 
-
+  double first_lepton_charge = 0;
+  double second_lepton_charge = 0;
+  
   int lepton_counter = 0;
   int electron_counter = 0;
   int muon_counter = 0;
@@ -822,6 +838,7 @@ applied after the leptons choice:
     if      (g_ID1 == 100 && (eleID/100) != 1) continue;
     else if (g_ID1 == 10  && ((eleID%100)/10) != 1) continue;
     else if (g_ID1 == 1   && (eleID%10) != 1) continue;
+    first_lepton_charge = EleCharge[leptons.at (ilep).m_index];
    }
    else //PG muon
    {
@@ -829,6 +846,7 @@ applied after the leptons choice:
     bool muIso = (IsolMuTr[leptons.at (ilep).m_index] /  
       leptons.at (ilep).m_kine->Pt () ) < g_IsoMuon ; 
     if (g_ISO1[1] == 1 && muIso != 1) continue;
+    first_lepton_charge = MuCharge[leptons.at (ilep).m_index];
    }  
    primoLEP = leptons[ilep] ;
    lepton_counter++;
@@ -854,6 +872,7 @@ applied after the leptons choice:
     if      (g_ID2 == 100 && (eleID/100) != 1) continue;
     else if (g_ID2 == 10  && ((eleID%100)/10) != 1) continue;
     else if (g_ID2 == 1   && (eleID%10) != 1) continue;
+    second_lepton_charge = EleCharge[leptons.at (ilep).m_index];
    }
    else //PG muon
    {
@@ -861,6 +880,7 @@ applied after the leptons choice:
     bool muIso = (IsolMuTr[leptons.at (ilep).m_index] /  
       leptons.at (ilep).m_kine->Pt () ) < g_IsoMuon ; 
     if (g_ISO2[1] == 1 && muIso != 1) continue;
+    second_lepton_charge = MuCharge[leptons.at (ilep).m_index];
    }  
    if (!flag_secondoLEP) {
     secondoLEP = leptons[ilep] ;
@@ -909,7 +929,12 @@ applied after the leptons choice:
   plots.v_LEPMinv = sumLEP.M () ;
   //---- AM 9 MInv_min of leptons
   
-    
+  
+  plots.v_LEPProdCharge = first_lepton_charge * second_lepton_charge ;
+  plots.v_hardLEPCharge = first_lepton_charge ;
+  plots.v_softLEPCharge = second_lepton_charge ;
+      
+  
       //PG MET
       //PG ---
 
