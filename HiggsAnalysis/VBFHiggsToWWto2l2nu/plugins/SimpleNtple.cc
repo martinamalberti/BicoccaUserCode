@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.6 2009/04/29 15:55:23 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.7 2009/05/12 13:33:26 amassiro Exp $
 //
 //
 
@@ -398,7 +398,9 @@ void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetu
    IsolEleHCal[counter] = eleIsoHcal[electronRef];
    IsolEleTr[counter] = eleIsoTk[electronRef];
   
-
+   //---- charge ----
+   EleCharge[counter] = (*EleHandleNew)[i].charge();
+   
   //---- only >= 3.1 ---- from https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEgammaIsolation ----
 //   IsolEleECal[counter] = (*EleHandle)[i].dr03EcalRecHitSumEt();
 //   IsolEleHCal[counter] = (*EleHandle)[i].dr03HcalDepth1TowerSumEt();
@@ -433,6 +435,8 @@ void SimpleNtple::FillMu(const edm::Event& iEvent, const edm::EventSetup& iSetup
  int counter = 0;
  for (int i=0; i< nMu; i++)
  {
+    //---- charge ----
+  MuCharge[counter] = (*MuHandle)[i].charge();
   setMomentum (myvector, (*MuHandle)[i].p4());
   new (muons[counter]) TLorentzVector (myvector);
   counter++;
@@ -1043,12 +1047,14 @@ void SimpleNtple::Init(){
   IsolEleHCal[i]=0;
   IsolEleTr[i]=0;
   EleId[i]=0;
+  EleCharge[i]=0;
   
   IsolMuECal[i]=0;
   IsolMuHCal[i]=0;
   IsolMuTr[i]=0;
   IsolMuSumPt[i]=0;
   IsolMuNTracks[i]=0;
+  MuCharge[i]=0;
  }
 
  MinvTags = -1;
@@ -1140,6 +1146,7 @@ void
  mytree_->Branch("IsolEleHCal",IsolEleHCal,"IsolEleHCal[30]/F");
  mytree_->Branch("IsolEleTr",IsolEleTr,"IsolEleTr[30]/F");
  mytree_->Branch("EleId",EleId,"EleId[30]/I");
+ mytree_->Branch("EleCharge",EleCharge,"EleCharge[30]/I");
 
  mytree_->Branch("nMu",&nMu,"nMu/I");
  mytree_->Branch("IsolMuECal",IsolMuECal,"IsolMuECal[30]/F");
@@ -1147,7 +1154,8 @@ void
  mytree_->Branch("IsolMuTr",IsolMuTr,"IsolMuTr[30]/F");
 //   mytree_->Branch("IsolMuSumPt",IsolMuSumPt,"IsolMuSumPt[30]/F");
  mytree_->Branch("IsolMuNTracks",IsolMuNTracks,"IsolMuNTracks[30]/F");
-
+ mytree_->Branch("MuCharge",MuCharge,"MuCharge[30]/I");
+ 
  mytree_->Branch("MinvTags",&MinvTags,"MinvTags/F");
 
   // vector with the 2 tag TLorentzVectors

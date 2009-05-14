@@ -57,8 +57,10 @@ class SimpleNtple : public edm::EDAnalyzer {
   float IsolEleSumPt_VBF[30],IsolEleNTracks_VBF[30];
   float IsolEleECal[30],IsolEleHCal[30],IsolEleTr[30];
   int EleId[30];
+  int EleCharge[30];
   //muons
   int nMu;
+  int MuCharge[30];
   int IdEvent;
   float IsolMuSumPt[30],IsolMuNTracks[30];
   float IsolMuECal[30],IsolMuHCal[30],IsolMuTr[30];
