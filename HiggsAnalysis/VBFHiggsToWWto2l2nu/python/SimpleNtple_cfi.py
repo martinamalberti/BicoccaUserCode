@@ -7,7 +7,6 @@ ntpla = cms.EDAnalyzer(
      MuTag = cms.InputTag("muons"),
      IsolMuTag = cms.InputTag("dummy"),
      MetTag = cms.InputTag("met"),
-
      TagJetTag = cms.InputTag("dummy"),
 
 ############         

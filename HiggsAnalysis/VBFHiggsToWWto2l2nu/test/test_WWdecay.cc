@@ -5,7 +5,8 @@
  TChain *tree = new TChain ("ntpla/VBFSimpleTree") ;
 //  tree->Add ("/media/amassiro/Data/SimpleTree_skipBadFiles_JetCorrector_JetCleaning_090328_Everything_Skimmed_4Cluster_AllJets/VBF_SimpleTree_H160_WW_2l_redigi.root");
   tree->Add ("VBF_SimpleTree_H160_WW_2l_redigi.root");
- 
+//   tree->Add ("VBF_SimpleTree_NAME.root");
+  
   TClonesArray * genParticles = new TClonesArray ("TParticle") ;
   tree->SetBranchAddress ("genParticles", &genParticles) ;
  

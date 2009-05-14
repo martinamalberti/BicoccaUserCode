@@ -23,7 +23,8 @@ process.source = cms.Source(
     "PoolSource",
     VBFHWW2l2nuSource,
 #     fileNames = cms.untracked.vstring('file:/tmp/amassiro/mio.root'),
-#     fileNames = cms.untracked.vstring('file:/tmp/amassiro/VBFHWW2l2nuTest_9.root'), 
+#     fileNames = cms.untracked.vstring('file:/tmp/amassiro/CMSSWfile.root'), 
+#     fileNames = cms.untracked.vstring('file:/tmp/amassiro/VBFHWW2l2nuTest_8.root'),
     skipBadFiles = cms.untracked.bool(True),
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1)

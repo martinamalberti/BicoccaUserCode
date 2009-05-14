@@ -47,7 +47,13 @@ process.Selections = cms.PSet(
  g_LepLep = cms.untracked.int32(0), ### 0 == ee, 1 == mumu, 2 == emu, 3 == mue
 
 
- g_prefix = cms.untracked.string("MyHisto_")
-     
+
+  
+ g_prefix = cms.untracked.string("MyHisto_"),
+
+
+ ### useful ###
+          
+ g_KindOfJet = cms.untracked.string("otherJets_IterativeCone5CaloJets") 
           
 )
