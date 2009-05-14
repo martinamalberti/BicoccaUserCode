@@ -37,7 +37,8 @@ void VBFMCDumper::beginJob(const edm::EventSetup& iSetup)
 
 
   // Create File
-  std::string path = "/afs/cern.ch/user/a/abenagli/scratch0/VBF/CMSSW_2_2_7/src/HiggsAnalysis/VBFHiggsToWWto2l2nu/test/";
+//   std::string path = "/afs/cern.ch/user/a/abenagli/scratch0/VBF/CMSSW_2_2_7/src/HiggsAnalysis/VBFHiggsToWWto2l2nu/test/";
+  std::string path = "/tmp/amassiro/";
   std::string outFileName = path+fileName_p+"_H"+mass_p+".root";
   outFile_p = new TFile(outFileName.c_str(), "RECREATE");
   
@@ -126,6 +127,8 @@ void VBFMCDumper::beginJob(const edm::EventSetup& iSetup)
   mcFF_deltaPhi = new TH1F("mcFF_deltaPhi", "mcFF_deltaPhi", 1000, 0., PI);
   mcFF_deltaEta = new TH1F("mcFF_deltaEta", "mcFF_deltaEta", 1000, 0., 10.);
 
+  mcV1V2_eta = new TH2F("mcV1V2_eta", "mcV1V2_eta", 1000, -5., 5., 1000, -5., 5.);
+  
   
   // fermion histograms
   mcF_fromV1_charge = new TH1F("mcF_fromV1_charge", "mcF_fromV1_charge", 5, -2., 3.);
@@ -305,6 +308,8 @@ void VBFMCDumper::endJob()
   mcFF_deltaPhi -> Write();
   mcFF_deltaEta -> Write();
 
+  mcV1V2_eta -> Write();
+  
   outFile_p -> cd ();
   
   
@@ -628,7 +633,8 @@ void VBFMCDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   mcFF_deltaPhi -> Fill(dphi);
   mcFF_deltaEta -> Fill(deta);
 
-
+  mcV1V2_eta -> Fill(mcV1 -> eta(),mcV2 -> eta());
+  
   // fermion histograms
   mcF_fromV1_charge -> Fill(mcF_fromV1    -> charge());
   mcF_fromV1_charge -> Fill(mcFbar_fromV1 -> charge());

@@ -156,6 +156,7 @@ void FindHDecayParticles(std::vector<const reco::Candidate*>& pFinal,
     for(int j = 0; j < level; ++j) std::cout << "------";
     std::cout << "> ";
     PrintParticleInfo(*pCurrent, hPdt);  
+    std::cout << " ------> (*pCurrent) -> numberOfDaughters() = " << (*pCurrent) -> numberOfDaughters() << std::endl;
   }
   
   

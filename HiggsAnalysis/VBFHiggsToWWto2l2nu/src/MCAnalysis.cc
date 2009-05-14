@@ -117,7 +117,7 @@ void MCAnalysis::Analyze(edm::Handle<reco::GenParticleCollection>& hGenParticles
     }
     
     // higgs
-    if( (pdgId == 25) && (status == 2) )
+    if( (pdgId == 25) && (status == 3) ) //---- AM -> status == 2 |-> status == 3
     {
       mcH_p = pCurrent;
     }

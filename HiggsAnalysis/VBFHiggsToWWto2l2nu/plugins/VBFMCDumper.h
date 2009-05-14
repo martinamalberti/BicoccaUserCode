@@ -26,6 +26,7 @@
 
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TProfile.h"
 #include "TDirectory.h"
 
@@ -145,7 +146,9 @@ class VBFMCDumper : public edm::EDAnalyzer
   TH1F* mcFF_deltaPhi;
   TH1F* mcFF_deltaEta;
 
-
+  TH2F* mcV1V2_eta;
+  
+  
   // fermion histograms
   TH1F* mcF_fromV1_charge;
   TH1F* mcF_fromV1_mass;
