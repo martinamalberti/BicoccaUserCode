@@ -303,3 +303,7 @@ DEFINE_FWK_MODULE(VBFSelectVqq);
 
 #include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFMCttbarAnalysis.h"
 DEFINE_FWK_MODULE(VBFMCttbarAnalysis);
+
+#include "HiggsAnalysis/VBFHiggsToWWto2l2nu/plugins/VBFMCH4jAnalysis.h"
+DEFINE_FWK_MODULE(VBFMCH4jAnalysis);
+
