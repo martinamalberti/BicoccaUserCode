@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-cd /afs/cern.ch/user/a/amassiro/scratch0/VBF/HWW2l2nu/CMSSW_2_2_7/src/HiggsAnalysis/VBFHiggsToWWto2l2nu/python/Data
+cd /afs/cern.ch/user/a/amassiro/scratch0/VBF/HWW2l2nu/CMSSW_2_2_10/src/HiggsAnalysis/VBFHiggsToWWto2l2nu/python/Data
 eval `scramv1 runtime -sh`
 
 rm SimpleTreeInput_NAME_cfi.py
@@ -13,7 +13,7 @@ rm ciccia_NAME*
 
 
 cd -
-cp /afs/cern.ch/user/a/amassiro/scratch0/VBF/HWW2l2nu/CMSSW_2_2_7/src/HiggsAnalysis/VBFHiggsToWWto2l2nu/test/VBFHWW2l2nu_SimpleTree_Template_NAME_cfg.py ./
+cp /afs/cern.ch/user/a/amassiro/scratch0/VBF/HWW2l2nu/CMSSW_2_2_10/src/HiggsAnalysis/VBFHiggsToWWto2l2nu/test/VBFHWW2l2nu_SimpleTree_Template_NAME_cfg.py ./
 cmsRun VBFHWW2l2nu_SimpleTree_Template_NAME_cfg.py
 
 rfcp VBF_SimpleTree_NAME.root /castor/cern.ch/user/a/amassiro/VBF/SimpleTree_H4j/VBF_SimpleTree_NAME.root
