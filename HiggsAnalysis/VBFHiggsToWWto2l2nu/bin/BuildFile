@@ -55,3 +55,28 @@
 <lib name=EG> #for TParticle
 <flags LCGDICT_ARGS="--deep">
 </bin>
+
+
+<bin file=Flaggator_lept.cpp name=Flaggator_lept>
+<lib name=EG> #for TParticle
+<flags LCGDICT_ARGS="--deep">
+</bin>
+
+
+
+<bin file=Flaggator_H4j.cpp name=Flaggator_H4j>
+<lib name=EG> #for TParticle
+<flags LCGDICT_ARGS="--deep">
+</bin>
+
+
+<bin file=Drawer_VBF.cpp name=Drawer_VBF>
+<lib name=EG> #for TParticle
+<flags LCGDICT_ARGS="--deep">
+</bin>
+
+
+<bin file=Drawer_H4j.cpp name=Drawer_H4j>
+<lib name=EG> #for TParticle
+<flags LCGDICT_ARGS="--deep">
+</bin>
