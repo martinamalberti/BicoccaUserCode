@@ -731,7 +731,7 @@ int
    if (zepp_temp < 1.3) ojetsZepp_13 += 1;
    if (zepp_temp < 1.4) ojetsZepp_14 += 1;
 
-   if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () < eta_min &&
+   if ( ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () > eta_min &&
           ((TLorentzVector*) (otherJets->At (ojetIt)))->Eta () < eta_max) ojetsCJV += 1;
    
    if ( fabs(((TLorentzVector*) (otherJets->At (ojetIt)))->Eta ()) < g_ojetEtaMax) ojetsRegionalCJV += 1;
