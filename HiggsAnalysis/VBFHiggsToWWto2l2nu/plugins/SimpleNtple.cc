@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.7 2009/05/12 13:33:26 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.8 2009/05/14 09:31:53 amassiro Exp $
 //
 //
 
@@ -884,7 +884,7 @@ void
        bool bool_f1 = false;
        for (int jj=0; jj<numDaughters_V1; jj++){   
         
-        const reco::Candidate * daughter_daughter = genIt->daughter(jj);
+        const reco::Candidate * daughter_daughter = daughter->daughter(jj);
      
         Int_t pdg_jj = daughter_daughter->pdgId();
         Int_t status_jj = daughter_daughter->status();
@@ -931,7 +931,7 @@ void
        bool bool_f1 = false;
        for (int jj=0; jj<numDaughters_V2; jj++){   
         
-        const reco::Candidate * daughter_daughter = genIt->daughter(jj);
+        const reco::Candidate * daughter_daughter = daughter->daughter(jj);
      
         Int_t pdg_jj = daughter_daughter->pdgId();
         Int_t status_jj = daughter_daughter->status();
