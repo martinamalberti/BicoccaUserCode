@@ -174,6 +174,22 @@ struct histos
    m_tree_selections->Branch("v_phi_rj_14",&v_phi_rj_14,"v_phi_rj_14/D");
    m_tree_selections->Branch("v_phi_rj_15",&v_phi_rj_15,"v_phi_rj_15/D");
 
+   m_tree_selections->Branch("v_pt_rj_1",&v_pt_rj_1,"v_pt_rj_1/D");
+   m_tree_selections->Branch("v_pt_rj_2",&v_pt_rj_2,"v_pt_rj_2/D");
+   m_tree_selections->Branch("v_pt_rj_3",&v_pt_rj_3,"v_pt_rj_3/D");
+   m_tree_selections->Branch("v_pt_rj_4",&v_pt_rj_4,"v_pt_rj_4/D");
+   m_tree_selections->Branch("v_pt_rj_5",&v_pt_rj_5,"v_pt_rj_5/D");
+   m_tree_selections->Branch("v_pt_rj_6",&v_pt_rj_6,"v_pt_rj_6/D");
+   m_tree_selections->Branch("v_pt_rj_7",&v_pt_rj_7,"v_pt_rj_7/D");
+   m_tree_selections->Branch("v_pt_rj_8",&v_pt_rj_8,"v_pt_rj_8/D");
+   m_tree_selections->Branch("v_pt_rj_9",&v_pt_rj_9,"v_pt_rj_9/D");
+   m_tree_selections->Branch("v_pt_rj_10",&v_pt_rj_10,"v_pt_rj_10/D");
+   m_tree_selections->Branch("v_pt_rj_11",&v_pt_rj_11,"v_pt_rj_11/D");
+   m_tree_selections->Branch("v_pt_rj_12",&v_pt_rj_12,"v_pt_rj_12/D");
+   m_tree_selections->Branch("v_pt_rj_13",&v_pt_rj_13,"v_pt_rj_13/D");
+   m_tree_selections->Branch("v_pt_rj_14",&v_pt_rj_14,"v_pt_rj_14/D");
+   m_tree_selections->Branch("v_pt_rj_15",&v_pt_rj_15,"v_pt_rj_15/D");
+
    m_tree_selections->Branch("v_DR_rj_1",&v_DR_rj_1,"v_DR_rj_1/D");
    m_tree_selections->Branch("v_DR_rj_2",&v_DR_rj_2,"v_DR_rj_2/D");
    m_tree_selections->Branch("v_DR_rj_3",&v_DR_rj_3,"v_DR_rj_3/D");
@@ -194,6 +210,13 @@ struct histos
    m_tree_selections->Branch("v_phi_V_1_q_2",&v_phi_V_1_q_2,"v_phi_V_1_q_2/D");
    m_tree_selections->Branch("v_phi_V_2_q_1",&v_phi_V_2_q_1,"v_phi_V_2_q_1/D");
    m_tree_selections->Branch("v_phi_V_2_q_2",&v_phi_V_2_q_2,"v_phi_V_2_q_2/D");
+
+   m_tree_selections->Branch("v_pt_q_1",&v_pt_q_1,"v_pt_q_1/D");
+   m_tree_selections->Branch("v_pt_q_2",&v_pt_q_2,"v_pt_q_2/D");
+   m_tree_selections->Branch("v_pt_V_1_q_1",&v_pt_V_1_q_1,"v_pt_V_1_q_1/D");
+   m_tree_selections->Branch("v_pt_V_1_q_2",&v_pt_V_1_q_2,"v_pt_V_1_q_2/D");
+   m_tree_selections->Branch("v_pt_V_2_q_1",&v_pt_V_2_q_1,"v_pt_V_2_q_1/D");
+   m_tree_selections->Branch("v_pt_V_2_q_2",&v_pt_V_2_q_2,"v_pt_V_2_q_2/D");
         
   }
 
@@ -234,6 +257,12 @@ struct histos
   double v_phi_V_2_q_1;
   double v_phi_V_2_q_2;
 
+  double v_pt_q_1 ;
+  double v_pt_q_2 ; 
+  double v_pt_V_1_q_1;
+  double v_pt_V_1_q_2;
+  double v_pt_V_2_q_1;
+  double v_pt_V_2_q_2;
   
       
   double v_eta_gj_1 ;
@@ -271,6 +300,22 @@ struct histos
   double v_phi_rj_14 ;
   double v_phi_rj_15 ;
 
+  double v_pt_rj_1 ;
+  double v_pt_rj_2 ;
+  double v_pt_rj_3 ;
+  double v_pt_rj_4 ;
+  double v_pt_rj_5 ;
+  double v_pt_rj_6 ;
+  double v_pt_rj_7 ;
+  double v_pt_rj_8 ;
+  double v_pt_rj_9 ;
+  double v_pt_rj_10 ;
+  double v_pt_rj_11 ;
+  double v_pt_rj_12 ;
+  double v_pt_rj_13 ;
+  double v_pt_rj_14 ;
+  double v_pt_rj_15 ;
+  
   double v_DR_rj_1 ;
   double v_DR_rj_2 ;
   double v_DR_rj_3 ;
@@ -314,6 +359,10 @@ std::string g_output ;
 
 
 int g_cutsNum ;
+
+
+int g_numEvents ;
+
 
 //  ========== M A I N    P R O G R A M =========================
 
@@ -382,6 +431,7 @@ int main (int argc, char *argv[])
  
  g_output = subPSetInput.getUntrackedParameter<std::string> ("g_output","/tmp/amassiro/PLOT/new.root") ; 
  
+ g_numEvents = subPSetInput.getUntrackedParameter<int> ("g_numEvents",-1) ; 
  
  char *samples[100];
  
@@ -530,6 +580,23 @@ int
  plots.v_phi_rj_13 = -99;
  plots.v_phi_rj_14 = -99;
  plots.v_phi_rj_15 = -99;
+
+ plots.v_pt_rj_1 = -99;
+ plots.v_pt_rj_2 = -99;
+ plots.v_pt_rj_3 = -99;
+ plots.v_pt_rj_4 = -99;
+ plots.v_pt_rj_5 = -99;
+ plots.v_pt_rj_6 = -99;
+ plots.v_pt_rj_7 = -99;
+ plots.v_pt_rj_8 = -99;
+ plots.v_pt_rj_9 = -99;
+ plots.v_pt_rj_10 = -99;
+ plots.v_pt_rj_11 = -99;
+ plots.v_pt_rj_12 = -99;
+ plots.v_pt_rj_13 = -99;
+ plots.v_pt_rj_14 = -99;
+ plots.v_pt_rj_15 = -99;
+ 
  
  
  plots.v_DR_rj_1 = -99;
@@ -585,7 +652,10 @@ int
  //PG loop over the events
 //  std::cerr << " --- nentries = " << nentries << std::endl;
 //  nentries = std::min(10000,nentries);
- nentries = 100;
+//  nentries = 10000;
+ 
+ if (g_numEvents!= -1) nentries = std::min(g_numEvents,nentries);
+ 
  std::cerr << " --- nentries = " << nentries << std::endl;
  for (int evt = 0 ; evt < nentries ; ++evt)
  {
@@ -628,7 +698,24 @@ int
   plots.v_phi_rj_13 = -99;
   plots.v_phi_rj_14 = -99;
   plots.v_phi_rj_15 = -99;
-  
+    
+  plots.v_pt_rj_1 = -99;
+  plots.v_pt_rj_2 = -99;
+  plots.v_pt_rj_3 = -99;
+  plots.v_pt_rj_4 = -99;
+  plots.v_pt_rj_5 = -99;
+  plots.v_pt_rj_6 = -99;
+  plots.v_pt_rj_7 = -99;
+  plots.v_pt_rj_8 = -99;
+  plots.v_pt_rj_9 = -99;
+  plots.v_pt_rj_10 = -99;
+  plots.v_pt_rj_11 = -99;
+  plots.v_pt_rj_12 = -99;
+  plots.v_pt_rj_13 = -99;
+  plots.v_pt_rj_14 = -99;
+  plots.v_pt_rj_15 = -99;
+ 
+
   plots.v_DR_rj_1 = -99;
   plots.v_DR_rj_2 = -99;
   plots.v_DR_rj_3 = -99;
@@ -664,26 +751,32 @@ int
       if (ii==0) {
        plots.v_eta_q_1 = MCJets_temp[counter]->Eta();
        plots.v_phi_q_1 = MCJets_temp[counter]->Phi();
+       plots.v_pt_q_1 = MCJets_temp[counter]->Pt();
       }
       if (ii==1) {
        plots.v_eta_q_2 = MCJets_temp[counter]->Eta();
        plots.v_phi_q_2 = MCJets_temp[counter]->Phi();
+       plots.v_pt_q_2 = MCJets_temp[counter]->Pt();
       }
       if (ii==4) {
        plots.v_eta_V_1_q_1 = MCJets_temp[counter]->Eta();
        plots.v_phi_V_1_q_1 = MCJets_temp[counter]->Phi();
+       plots.v_pt_V_1_q_1 = MCJets_temp[counter]->Pt();
       }
       if (ii==5) {
        plots.v_eta_V_1_q_2 = MCJets_temp[counter]->Eta();
        plots.v_phi_V_1_q_2 = MCJets_temp[counter]->Phi();
+       plots.v_pt_V_1_q_2 = MCJets_temp[counter]->Pt();
       }
       if (ii==7) {
        plots.v_eta_V_2_q_1 = MCJets_temp[counter]->Eta();
        plots.v_phi_V_2_q_1 = MCJets_temp[counter]->Phi();
+       plots.v_pt_V_2_q_1 = MCJets_temp[counter]->Pt();
       }
       if (ii==8) {
        plots.v_eta_V_2_q_2 = MCJets_temp[counter]->Eta();
        plots.v_phi_V_2_q_2 = MCJets_temp[counter]->Phi();
+       plots.v_pt_V_2_q_2 = MCJets_temp[counter]->Pt();
       }
 
       counter++; 
@@ -720,62 +813,77 @@ int
    if (l==0) {
     plots.v_eta_rj_1 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_1 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_1 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==1) {
     plots.v_eta_rj_2 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_2 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_2 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==2) {
     plots.v_eta_rj_3 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_3 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_3 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==3) {
     plots.v_eta_rj_4 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_4 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_4 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==4) {
     plots.v_eta_rj_5 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_5 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_5 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==5) {
     plots.v_eta_rj_6 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_6 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_6 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==6) {
     plots.v_eta_rj_7 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_7 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_7 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==7) {
     plots.v_eta_rj_8 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_8 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_8 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==8) {
     plots.v_eta_rj_9 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_9 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_9 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==9) {
     plots.v_eta_rj_10 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_10 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_10 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==10) {
     plots.v_eta_rj_11 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_11 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_11 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==11) {
     plots.v_eta_rj_12 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_12 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_12 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==12) {
     plots.v_eta_rj_13 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_13 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_13 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==13) {
     plots.v_eta_rj_14 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_14 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_14 = goodRJets.at (l).m_kine->Pt () ;
    }
    if (l==14) {
     plots.v_eta_rj_15 = goodRJets.at (l).m_kine->Eta () ;
     plots.v_phi_rj_15 = goodRJets.at (l).m_kine->Phi () ;
+    plots.v_pt_rj_15 = goodRJets.at (l).m_kine->Pt () ;
    }
   }
   
