@@ -31,9 +31,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
-#include "TTAnalysis/EgammaClusterProducers/interface/EcalTTowerKiller.h"
-
-
 
 #include <TH1F.h>
 #include <fstream>
@@ -59,27 +56,8 @@ private:
   virtual void endJob() ;
 
 
-  TProfile2D* TPOccupancy_prof;
-  TProfile2D* eb_TPOccupancy_prof;
-
-  TProfile2D* universe_TPOccupancy_prof;
-
-  TProfile2D* TPOccupancy_Energyprof;
-  TProfile2D* universal_TPOccupancy_Energyprof;
-
-
-
-  TProfile2D* recHitOccupancy_prof; 
-  TProfile2D* eb_recHitOccupancy_prof; 
-
-  TProfile2D* gio_recHitOccupancy_prof; 
-  TProfile2D* gio_recHitOccupancy_Energyprof; 
-
-  //with global eta phi coordinates
-  TProfile2D* universe_recHitOccupancy_prof; 
-  TProfile2D* universal_recHitOccupancy_Energyprof; 
-
-
+  TH2F* TPOccupancy_Energyprof;
+  TH2F* recHitOccupancy_Energyprof; 
 
 
   edm::InputTag recHitCollection;
@@ -138,9 +116,6 @@ void TTOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       EBDetId id( idt.ieta(), idt.iphi() ) ;
 
       float theta =  theBarrelGeometry_->getGeometry(id)->getPosition().theta();
-      float eta = theBarrelGeometry_->getGeometry(id)->getPosition().eta();
-      float phi = theBarrelGeometry_->getGeometry(id)->getPosition().phi();
-
 
       int iFED = 600 + idt.iDCC();       
       //conversion from FED and iSM
@@ -149,24 +124,7 @@ void TTOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       int iTT =   idt.iTT();
 
-      TPOccupancy_prof->Fill(idt.iphi(), idt.ieta(), iTT);
-     
-
-      //// from EBDetId
-      int iFED_eb = 600 + id.ism();  
-      //conversion from FED and iSM
-      if(id.ism() >18) iFED_eb -= 9;
-      else if( id.ism() >= 1 && id.ism() < 19) iFED_eb += 27;
-
-      int iTT_eb =   id.tower().iTT();
-
-      eb_TPOccupancy_prof->Fill(id.iphi(), id.ieta(), iTT_eb);
-
-      universe_TPOccupancy_prof->Fill(phi, eta, iTT_eb);
-
       float  tpEt = ecalScale.getTPGInGeV(tpdigiItr->compressedEt(), tpdigiItr->id()) ;
-
-      universal_TPOccupancy_Energyprof->Fill(phi, eta, abs(tpEt/sin(theta)));
       TPOccupancy_Energyprof->Fill(idt.iphi(), idt.ieta(), abs(tpEt/sin(theta)));
 
     }
@@ -201,29 +159,8 @@ void TTOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(isBarrel){
 
     EBDetId cristallo(it->detid());
-    float eta = theBarrelGeometry_->getGeometry(cristallo)->getPosition().eta();
-    float phi = theBarrelGeometry_->getGeometry(cristallo)->getPosition().phi();
 
-    recHitOccupancy_prof->Fill(cristallo.iphi(), cristallo.ieta(), iTT);
-
-    //// TT from EB
-    int iFED_eb = 600 + cristallo.ism();
-    //conversion from FED and iSM 
-    if(cristallo.ism() >18) iFED_eb -= 9;
-    else if( cristallo.ism() >= 1 && cristallo.ism() < 19) iFED_eb += 27;
-
-    int iTT_eb =   cristallo.tower().iTT();
-
-    eb_recHitOccupancy_prof->Fill(cristallo.iphi(), cristallo.ieta(), iTT_eb);
-
-    gio_recHitOccupancy_prof->Fill(cristallo.tower_iphi(), cristallo.tower_ieta(), iTT);
-    
-    gio_recHitOccupancy_Energyprof->Fill(cristallo.tower_iphi(), cristallo.tower_ieta(), it->energy());
-
-    universal_recHitOccupancy_Energyprof->Fill(phi, eta, it->energy());
-    
-    universe_recHitOccupancy_prof->Fill(phi, eta, iTT_eb);
-    
+    recHitOccupancy_Energyprof->Fill(cristallo.tower_iphi(), cristallo.tower_ieta(), it->energy());
 
     }
   }
@@ -237,25 +174,8 @@ void TTOccupancy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void TTOccupancy::beginJob(const edm::EventSetup&)
 {
 
-  TPOccupancy_prof = new TProfile2D("TPOccupancy_prof", "TPOccupancy_prof", 360, 1, 361, 172, -85, 86);
-  eb_TPOccupancy_prof = new TProfile2D("eb_TPOccupancy_prof", "eb_TPOccupancy_prof", 360, 1, 361, 172, -85, 86);
-
-  universe_TPOccupancy_prof = new TProfile2D("universe_TPOccupancy_prof", "universe_TPOccupancy_prof", 360, -3.14159, 3.14159, 172, -1.5, 1.5);
-
-  TPOccupancy_Energyprof = new TProfile2D("TPOccupancy_Energyprof", "TPOccupancy_Energyprof", 360, 1, 361, 172, -85, 86);
-  universal_TPOccupancy_Energyprof = new TProfile2D("universal_TPOccupancy_Energyprof","universal_TPOccupancy_Energyprof",360,-3.14159,3.14159,172,-1.5,1.5);
-
-
-
-  recHitOccupancy_prof = new TProfile2D("recHitOccupancy_prof", "recHitOccupancy_prof", 360, 1, 361, 172, -85, 86);
-  eb_recHitOccupancy_prof = new TProfile2D("eb_recHitOccupancy_prof", "eb_recHitOccupancy_prof", 360, 1, 361, 172, -85, 86);
-
-  gio_recHitOccupancy_prof = new TProfile2D("gio_recHitOccupancy_prof", "gio_recHitOccupancy_prof", 360, 1, 361, 172, -85, 86);
-
-  gio_recHitOccupancy_Energyprof = new TProfile2D("gio_recHitOccupancy_Energyprof","gio_recHitOccupancy_Energyprof",360, 1, 361, 172, -85, 86);
-
-  universe_recHitOccupancy_prof = new TProfile2D("universe_recHitOccupancy_prof","universe_recHitOccupancy_prof",360,-3.14159,3.14159,172,-1.5,1.5);
-  universal_recHitOccupancy_Energyprof = new TProfile2D("universal_recHitOccupancy_Energyprof","universal_recHitOccupancy_Energyprof",360,-3.14159,3.14159,172,-1.5,1.5);
+  TPOccupancy_Energyprof = new TH2F("TPOccupancy_Energyprof", "TPOccupancy_Energyprof", 360, 1, 361, 172, -85, 86);
+  recHitOccupancy_Energyprof = new TH2F("recHitOccupancy_Energyprof","recHitOccupancy_Energyprof",360, 1, 361, 172, -85, 86);
 
 }
 
@@ -267,25 +187,8 @@ void TTOccupancy::endJob() {
   TFile outputFile(OutputFile.c_str(), "recreate");
   outputFile.cd();
 
-
-  TPOccupancy_prof->Write();
-  eb_TPOccupancy_prof->Write();
-
-  universe_TPOccupancy_prof->Write();
-
   TPOccupancy_Energyprof->Write();
-  universal_TPOccupancy_Energyprof->Write();
-
-
-  recHitOccupancy_prof->Write();
-  eb_recHitOccupancy_prof->Write();
-
-  gio_recHitOccupancy_prof->Write();
-
-  gio_recHitOccupancy_Energyprof->Write();
-
-  universe_recHitOccupancy_prof->Write();
-  universal_recHitOccupancy_Energyprof->Write();
+  recHitOccupancy_Energyprof->Write();
 
   outputFile.Close();
 }

@@ -12,8 +12,9 @@ process.source = cms.Source("PoolSource",
       fileNames = cms.untracked.vstring(
     
     ### shot in 1 xtal
-    #'file:/gwtera1/users/martelli/data/proveTT/Fast_withTP/prova_EBneg_100k.root'
-    'file:/gwtera1/users/martelli/data/proveTT/Fast_withTP/prova_EBpos_100k.root'
+   # 'file:/gwtera1/users/martelli/data/proveTT/FullSim/SingleElectronPt35_cfi_RAW2DIGI_RECO_EBneg.root'
+    'file:/gwtera1/users/martelli/data/proveTT/FullSim/SingleElectronPt35_cfi_RAW2DIGI_RECO_EBpos.root'
+    
 
     )
 )
@@ -27,15 +28,24 @@ process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
 process.load("FastSimulation/Configuration/CommonInputs_cff")
 process.load("FastSimulation/Configuration/FamosSequences_cff")
 
-process.GlobalTag.globaltag = cms.string('IDEAL_V11::All')
+#process.GlobalTag.globaltag = cms.string('IDEAL_V11::All')
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
-process.towerMaker.ecalInputs = cms.VInputTag(cms.InputTag("caloRecHits","EcalRecHitsEB","RECO"),
-                                              cms.InputTag("caloRecHits","EcalRecHitsEE","RECO")
-                                              )
+process.towerMaker.ecalInputs = cms.VInputTag(
+    #cms.InputTag("caloRecHits","EcalRecHitsEB","RECO"),
+    #cms.InputTag("caloRecHits","EcalRecHitsEE","RECO")
 
-process.calotoweroptmaker.ecalInputs = cms.VInputTag(cms.InputTag("caloRecHits","EcalRecHitsEB","RECO"),
-                                                     cms.InputTag("caloRecHits","EcalRecHitsEE","RECO")
-                                                     )
+    cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"),
+    cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO")
+    )
+
+process.calotoweroptmaker.ecalInputs = cms.VInputTag(
+    #cms.InputTag("caloRecHits","EcalRecHitsEB","RECO"),
+    #cms.InputTag("caloRecHits","EcalRecHitsEE","RECO")
+
+    cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"),
+    cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO")
+    )
 
 
 
@@ -115,8 +125,9 @@ process.EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
                                                 )
 
 process.TTOccupancy = cms.EDAnalyzer('TTOccupancy',
-                              recHitCollection = cms.InputTag("caloRecHits", "EcalRecHitsEB", "RECO"),
-                              OutputFile = cms.string('TTOccupancy_28-05-09EBpos.root')
+                                     # recHitCollection = cms.InputTag("caloRecHits", "EcalRecHitsEB", "RECO"),
+                                     recHitCollection = cms.InputTag("ecalRecHit", "EcalRecHitsEB", "RECO"),
+                                     OutputFile = cms.string('TTOccupancy_09-06-09EBpos.root')
                                      )
 
 
