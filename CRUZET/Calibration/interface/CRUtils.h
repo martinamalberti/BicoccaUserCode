@@ -54,6 +54,64 @@ void DrawBetheBloch(TGraph* BetheBloch);
 double FindBetheBlochValue(TGraph* BetheBloch, float& muonP);
 void DrawBetheBlochResiduals(TGraphAsymmErrors& BetheBloch_exp, TGraph& BetheBloch_th, TGraphErrors& BetheBloch_residuals);
 bool IsInsideEcal(GlobalPoint& point);
+void LangausFit(TF1** langaus, TH1D* histo, double* startValues);
+
+template <class THisto>
+void BinLogX(THisto& h)
+{
+  TAxis* axis = h.GetXaxis () ;
+  int bins = axis -> GetNbins () ;
+  
+  Axis_t from = axis -> GetXmin () ;
+  Axis_t to = axis -> GetXmax () ;
+  Axis_t width = (to - from) / bins ;
+  Axis_t* new_bins = new Axis_t[bins + 1] ;
+  
+  for (int i = 0; i <= bins; i++)
+    new_bins[i] = pow(10, from + i * width) ;
+  
+  axis -> Set (bins, new_bins) ;
+  delete new_bins ;
+  
+  // std::cout << std::endl;
+  // for (int bin = 0 ; bin <= h.GetNbinsX () +1 ; ++bin)
+  // {
+  //  std::cout << "BIN: " << bin
+  //            << "   lowEdge: " << h.GetBinLowEdge (bin)
+  //            << "   higEdge: " << h.GetBinLowEdge (bin) + h.GetBinWidth (bin)
+  //            << std::endl ;
+  // }
+}
+
+
+
+template <class THisto>
+void BinLogX(THisto* h)
+{
+  TAxis* axis = h -> GetXaxis () ;
+  int bins = axis -> GetNbins () ;
+  
+  Axis_t from = axis -> GetXmin () ;
+  Axis_t to = axis -> GetXmax () ;
+  Axis_t width = (to - from) / bins ;
+  Axis_t* new_bins = new Axis_t[bins + 1] ;
+  
+  for (int i = 0; i <= bins; i++)
+    new_bins[i] = pow(10, from + i * width) ;
+  
+  axis -> Set (bins, new_bins) ;
+  delete new_bins ;
+  
+  // std::cout << std::endl;
+  // for (int bin = 0 ; bin <= h.GetNbinsX () +1 ; ++bin)
+  // {
+  //  std::cout << "BIN: " << bin
+  //            << "   lowEdge: " << h.GetBinLowEdge (bin)
+  //            << "   higEdge: " << h.GetBinLowEdge (bin) + h.GetBinWidth (bin)
+  //            << std::endl ;
+  // }
+}
+
 
 // ----------------------------------------------------
 

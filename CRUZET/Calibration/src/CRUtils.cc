@@ -560,3 +560,31 @@ bool IsInsideEcal(GlobalPoint& point)
   if( (r > Rint) && (r < Rext) && (z < Zmax) ) return true;
   else return false;
 }
+
+
+
+void LangausFit (TF1** langaus, TH1D* histo, double* startValues)
+{
+  // Langaus Fit
+  double fitRange[2] ;
+  fitRange[0] = 0.; 
+  fitRange[1] = 1000. ;
+  
+  double parLimitsLow[4] ;
+  parLimitsLow[0] = 0.00001 ;
+  parLimitsLow[1] = 0.00001 ;
+  parLimitsLow[2] = 0.00001 ;
+  parLimitsLow[3] = 0.00001 ;
+  
+  double parLimitsHigh[4] ;
+  parLimitsHigh[0] = 10000000. ;
+  parLimitsHigh[1] = 10. ;
+  parLimitsHigh[2] = 10000000. ;
+  parLimitsHigh[3] = 1. ;
+  
+  double parameters[4], parErrors[4] ;
+  double chi2 ;
+  int ndf ;
+  
+  *langaus = langaufit ((TH1F*)histo, fitRange, startValues, parLimitsLow, parLimitsHigh, parameters, parErrors, &chi2, &ndf) ;
+}
