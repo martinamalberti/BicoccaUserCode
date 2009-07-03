@@ -422,7 +422,7 @@ int main (int argc, char** argv)
   EBregionBuilder region(etaSTART, etaEND, etaWIDTH, phiSTART, phiEND, phiWIDTH);
 
   TH2F regionOccupancy_ETAvsPHI("regionOccupancy_ETAvsPHI", "",
-                                phiN, phiSTART, phiEND, etaN, etaShifter(etaSTART), etaShifter(etaEND));
+                                phiN, phiSTART, phiEND, etaN, region.etaShifter(etaSTART), region.etaShifter(etaEND));
 
   std::map<int, TH1D*>   calib_dEdXMap_vsREGIONID;
   std::map<float, TH1D*> calib_dEdXMap_vsPHI;
@@ -1126,7 +1126,7 @@ int main (int argc, char** argv)
 
       if(regionId != -1)
       {
-        regionOccupancy_ETAvsPHI.Fill(seedXtalIphi, etaShifter(seedXtalIeta));
+        regionOccupancy_ETAvsPHI.Fill(seedXtalIphi, region.etaShifter(seedXtalIeta));
 
         calib_nEvents_vsREGIONID.Fill(regionId);
         calib_nEvents_vsPHI.Fill(phiCenter);
