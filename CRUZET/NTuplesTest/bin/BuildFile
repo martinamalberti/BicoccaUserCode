@@ -67,7 +67,7 @@
   <flags LCGDICT_ARGS="--deep">
 </bin>
 
-<bin name= CRAFT_dEdXdistr file="CRAFT_dEdXdistr.cpp">
+<bin name= CRAFT_dEdXdistrCurved file="CRAFT_dEdXdistrCurved.cpp">
   <use name=CaloOnlineTools/EcalTools>
   <use name=CRUZET/Calibration>
   <flags LCGDICT_ARGS="--deep">
