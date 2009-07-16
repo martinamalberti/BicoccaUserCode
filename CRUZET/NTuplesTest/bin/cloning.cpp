@@ -78,13 +78,48 @@ int main (int argc, char* argv[])
      {
        chain->GetEntry (i) ;
        if (i % 10000 == 0) std::cout << "reading entry " << i << std::endl ;
+
+
+
+       std::vector<ect::association> associations ;
+       ect::fillAssocVector (associations, treeVars) ;
+       ect::selectOnDR (associations, treeVars, 0.1) ;
+
+
+
+       //*********************************************
+       // Select only events with at least 1 reco muon
+       //*********************************************
        
-       //std::vector<ect::association> associations ;
-       //ect::fillAssocVector (associations, treeVars) ;
-       //ect::selectOnDR (associations, treeVars, 0.3) ;
-       //if (associations.size () > 0) newtree->Fill () ;
-    
-       if (treeVars.nRecoMuons > 0) newtree->Fill () ;
+       if (treeVars.nRecoMuons > 0) newtree->Fill () ;                                                                                                 
+
+
+       //************************************************
+       // Select only events with at least 1 association
+       //************************************************
+       //
+       //if (associations.size () > 0) newtree->Fill () ;                                                                                                
+
+
+       //**********************************************************
+       // Select only events with at least 1 association and p < 15
+       //**********************************************************
+       //
+       //int nRecoMuons_p_0_20 = 0;
+       //for(unsigned int i = 0; i < associations.size (); ++i)
+       // {
+       //    int MUindex = associations.at(i).first;
+       //    float muonP = treeVars.muonP[MUindex];
+       //      
+       //    if( (muonP > 0.) && (muonP < 20.) )
+       //      ++nRecoMuons_p_0_20;
+       //  }
+       //
+       //if (nRecoMuons_p_0_20 > 0) newtree->Fill () ;
+
+
+
+
    }
 
    newtree->Print();
@@ -93,3 +128,5 @@ int main (int argc, char* argv[])
    
    return 0 ;
 }
+
+
