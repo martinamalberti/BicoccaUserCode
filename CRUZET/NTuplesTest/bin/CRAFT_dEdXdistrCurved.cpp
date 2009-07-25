@@ -62,8 +62,16 @@
 #define IETA_MAX +86.
 #define IETA_BIN 171 //171
 
+#define DEDX_BIN 100000
+#define DEDX_MIN 0.
+#define DEDX_MAX 5000.
+
 #define P_MIN 0
 #define P_MAX 3
+
+#define ANGLE_BIN 20
+#define ANGLE_MIN 0.
+#define ANGLE_MAX 1.
 
 typedef std::map<int, TH1D*>::iterator map_iterator_int;
 typedef std::map<int, TH1D*>::const_iterator map_const_iterator_int;
@@ -88,7 +96,10 @@ int main (int argc, char** argv)
   int maxEvent = subPSetSelections.getUntrackedParameter<int>("maxEvent", -1);
   bool useTrueVal = subPSetSelections.getUntrackedParameter<bool>("useTrueVal", false);
   bool correctMuonP = subPSetSelections.getUntrackedParameter<bool>("correctMuonP", true);
+  bool correctAngle = subPSetSelections.getUntrackedParameter<bool>("correctAngle", true);
+  bool correctZSSR = subPSetSelections.getUntrackedParameter<bool>("correctZSSR", true);
   bool applyVeto = subPSetSelections.getUntrackedParameter<bool>("applyVeto", false);
+  double vetoEnergyMIN = subPSetSelections.getUntrackedParameter<double>("vetoEnergyMIN", 0.5);
   
   bool muonLegUpOK = subPSetSelections.getUntrackedParameter<bool>("muonLegUpOK", false);
   bool muonLegDownOK = subPSetSelections.getUntrackedParameter<bool>("muonLegDownOK", true);
@@ -210,9 +221,9 @@ int main (int argc, char** argv)
   
   
   // dEodX histograms
-  TH1D dEdXDistrCurved("dEdXDistrCurved", "dEodXCurved", 20000, 0., 1000.);
-  //TH1D dEdXDistrCurved_E3x3("dEdXDistrCurved_E3x3", "dEodXCurved_E3x3", 20000, 0., 1000.);
-  //TH1D dEdXDistrCurved_E5x5("dEdXDistrCurved_E5x5", "dEodXCurved_E5x5", 20000, 0., 1000);
+  TH1D dEdXDistrCurved("dEdXDistrCurved", "dEodXCurved", DEDX_BIN, DEDX_MIN, DEDX_MAX);
+  //TH1D dEdXDistrCurved_E3x3("dEdXDistrCurved_E3x3", "dEodXCurved_E3x3", DEDX_BIN, DEDX_MIN, DEDX_MAX);
+  //TH1D dEdXDistrCurved_E5x5("dEdXDistrCurved_E5x5", "dEodXCurved_E5x5", DEDX_BIN, DEDX_MIN, DEDX_MAX);
   // dEodX histograms
   
   
@@ -226,7 +237,7 @@ int main (int argc, char** argv)
   
   
   // Experimental BetheBloch - curved tkLength
-  TH2F BetheBloch_curved("BetheBloch_curved", "BetheBloch_curved", P_BIN, P_MIN, P_MAX, 20000, 0., 1000.);
+  TH2F BetheBloch_curved("BetheBloch_curved", "BetheBloch_curved", P_BIN, P_MIN, P_MAX, DEDX_BIN, DEDX_MIN, DEDX_MAX);
   BinLogX(BetheBloch_curved);
   TProfile BetheBloch_profile_curved ("BetheBloch_profile_curved", "BetheBloch_profile_curved", P_BIN, P_MIN, P_MAX);
   BinLogX(BetheBloch_profile_curved);
@@ -241,20 +252,22 @@ int main (int argc, char** argv)
   TGraphAsymmErrors BetheBloch_graph_mean_curved;
   TGraphErrors BetheBloch_graph_GSigma_curved;
 
-  //TH2F BetheBloch_E3x3_curved ("BetheBloch_E3x3_curved", "BetheBloch_E3x3_curved", P_BIN, P_MIN, P_MAX, 20000, 0., 1000.);
+  //TH2F BetheBloch_E3x3_curved ("BetheBloch_E3x3_curved", "BetheBloch_E3x3_curved", P_BIN, P_MIN, P_MAX, DEDX_BIN, DEDX_MIN, DEDX_MAX);
   //BinLogX(BetheBloch_E3x3_curved);
   //TProfile BetheBloch_profile_E3x3_curved("BetheBloch_profile_E3x3_curved", "BetheBloch_profile_E3x3_curved", P_BIN, P_MIN, P_MAX);
   //BinLogX(BetheBloch_profile_E3x3_curved);
   //TGraphAsymmErrors BetheBloch_graph_E3x3_curved;
   //std::map<int,float> pMapCurved_E3x3; pMapCurved_E3x3.clear();
   
-  //TH2F BetheBloch_E5x5_curved ("BetheBloch_E5x5_curved", "BetheBloch_E5x5_curved", P_BIN, P_MIN, P_MAX, 20000, 0., 1000.);
+  //TH2F BetheBloch_E5x5_curved ("BetheBloch_E5x5_curved", "BetheBloch_E5x5_curved", P_BIN, P_MIN, P_MAX, DEDX_BIN, DEDX_MIN, DEDX_MAX);
   //BinLogX(BetheBloch_E5x5_curved);
   //TProfile BetheBloch_profile_E5x5_curved("BetheBloch_profile_E5x5_curved", "BetheBloch_profile_E5x5_curved", P_BIN, P_MIN, P_MAX);
   //BinLogX(BetheBloch_profile_E5x5_curved);
   //TGraphAsymmErrors BetheBloch_graph_E5x5_curved;
   //std::map<int,float> pMapCurved_E5x5; pMapCurved_E5x5.clear();
-  
+
+  TH2F BetheBloch_vsAngle("BetheBloch_vsAngle", "BetheBloch_vsAngle", ANGLE_BIN, ANGLE_MIN, ANGLE_MAX, DEDX_BIN, DEDX_MIN, DEDX_MAX);
+  TProfile BetheBloch_profile_vsAngle("BetheBloch_profile_vsAngle", "BetheBloch_profile_vsAngle", ANGLE_BIN, ANGLE_MIN, ANGLE_MAX);
   // Experimental BetheBloch - curved tkLength
   
   
@@ -430,6 +443,7 @@ int main (int argc, char** argv)
   std::map<int, TH1D*>   calib_muonAngleMap_vsREGIONID;
   std::map<float, TH1D*> calib_muonAngleMap_vsPHI;
   std::map<float, TH1D*> calib_muonAngleMap_vsETA;
+  std::map<int, TH1D*>   calib_muonPMap_vsREGIONID;
 
   TH1F calib_nEvents_vsREGIONID("calib_nEvents_vsREGIONID", "nEvents_vsREGIONID", phiN*etaN, 0., 1.*phiN*etaN);
   TH1F calib_nEvents_vsPHI("calib_nEvents_vsPHI", "nEvents_vsPHI", phiN, IPHI_MIN, IPHI_MAX);
@@ -438,6 +452,8 @@ int main (int argc, char** argv)
   TProfile calib_muonAngle_profile_vsREGIONID("calib_muonAngle_profile_vsREGIONID", "calib_muonAngle_profile_vsREGIONID", phiN*etaN, 0., 1.*phiN*etaN);
   TProfile calib_muonAngle_profile_vsPHI("calib_muonAngle_profile_vsPHI", "calib_muonAngle_profile_vsPHI", phiN, IPHI_MIN, IPHI_MAX);
   TProfile calib_muonAngle_profile_vsETA("calib_muonAngle_profile_vsETA", "calib_muonAngle_profile_vsETA", etaN, IETA_MIN, IETA_MAX);
+
+  TProfile calib_muonP_profile_vsREGIONID("calib_muonP_profile_vsREGIONID", "calib_muonP_profile_vsREGIONID", phiN*etaN, 0., 1.*phiN*etaN);
 
   TH1F calibCoeffDistr_mean_vsREGIONID("calibCoeffDistr_mean_vsREGIONID", "calibCoeffDistr_mean_vsREGIONID", 10000, 0., 10.);
   TH1F calibCoeffDistr_mean_vsPHI("calibCoeffDistr_mean_vsPHI", "calibCoeffDistr_mean_vsPHI", 10000, 0., 10.);
@@ -467,8 +483,11 @@ int main (int argc, char** argv)
   // Loop over entries
   for (int entry = 0; entry < nEntries; ++entry)
   {
+    //    if (entry == 909735) continue;
     if ((entry % 100000) == 0)
       std::cout << "Reading entry " << entry << std::endl;
+    //if (entry > 900000)
+    //  std::cout << "Reading entry " << entry << std::endl;
     chain -> GetEntry (entry);
     if(entry == maxEvent) break;
     
@@ -493,8 +512,8 @@ int main (int argc, char** argv)
       if(treeVars.muonLeg[MUit] == 1) ++nRecoMuons_up;
       if(treeVars.muonLeg[MUit] == -1) ++nRecoMuons_down;
     }
-    
-    if( (nRecoMuons > 2) ||
+
+    if( (nRecoMuons != 2) ||
         ( (nRecoMuons == 2) && (nRecoMuons_up > 1) ) ||
         ( (nRecoMuons == 2) && (nRecoMuons_down > 1) ) ) continue;
     // Cut on number of reconstructed muons
@@ -503,6 +522,7 @@ int main (int argc, char** argv)
     
     
     // Sort association vector: first leg 1, then leg -1
+    if(associations.size() != 2) continue;
     if(associations.size() == 2)
     {
       int MUindex = associations.at(1).first;
@@ -697,17 +717,33 @@ int main (int argc, char** argv)
       // Muon variables
       
       
-      
-      
-      
-      
+
+
+
+
       // dEdX variables
-      float dEdXCurved = superClusterRawEnergy / muonTkLengthInEcalCurved / 8.28 * 1000.;
+      float dEdXCurved = (superClusterRawEnergy) / muonTkLengthInEcalCurved / 8.28 * 1000.;
       //float dEdXCurved_E3x3 =      clusterE3x3 / muonTkLengthInEcalCurved / 8.28 * 1000.;
       //float dEdXCurved_E5x5 =      clusterE5x5 / muonTkLengthInEcalCurved / 8.28 * 1000.;
+      
+
+      if(correctAngle == true)
+      {
+        if(muonAngle > 0.2)
+        {
+	  //  dEdXCurved += 1.806742 + muonAngle*0.4116948 - 1.868352;
+          dEdXCurved += 1.80563 + muonAngle*0.456338 - 1.88069;
+        }
+      }
+      
+
+      if(correctZSSR == true)
+      {
+        dEdXCurved = (dEdXCurved * muonTkLengthInEcalCurved * 8.28 / 0.97 - 17.5) / muonTkLengthInEcalCurved / 8.28 * 0.97;
+      }
       // dEdX variables
-      
-      
+
+
       
       
       
@@ -808,7 +844,7 @@ int main (int argc, char** argv)
 
       if( ( applyVeto == true) && (muonP > muonPCollTHRESH) && (muonLeg ==  1) ) continue;
       if( ( applyVeto == true) && (muonP > muonPCollTHRESH) && (muonLeg == -1) &&
-          (upFound == true) && (ESC_up > 0.5) ) continue;
+          (upFound == true) && (ESC_up > vetoEnergyMIN) ) continue;
 
       // Other cuts
       
@@ -823,15 +859,25 @@ int main (int argc, char** argv)
       // Fill distributions
       // --------------------------------------------------------------------------------------
 
+       if(muonEOverP > 1.){
+ 	std::cout << "E/P " << muonEOverP << ": E = " << superClusterRawEnergy << " muonP = " << muonP 
+ 		  << "sigmaP/P = " << (1. * muonPError / muonP) << std::endl ;
+        } 
+
+
+
       float trueVal = 1.;
       if(useTrueVal == true)
         trueVal = FindBetheBlochValue(&BetheBloch_th, muonP);
 
 
+
+
+
       // dEdX histograms
+      dEdXDistrCurved.Fill(dEdXCurved / trueVal);
       if (nClustersInSuperCluster == 1)
       {
-        dEdXDistrCurved.Fill(dEdXCurved / trueVal);
         //dEdXDistrCurved_E3x3.Fill(dEdXCurved_E3x3 / trueVal);
         //dEdXDistrCurved_E5x5.Fill(dEdXCurved_E5x5 / trueVal);
       }
@@ -858,6 +904,11 @@ int main (int argc, char** argv)
       //  pMapCurved_E5x5[pBin] += muonP;
       //}
 
+      if(muonP >= 5. && muonP <= 10.)
+      {
+        BetheBloch_vsAngle.Fill(muonAngle, dEdXCurved/trueVal);
+        BetheBloch_profile_vsAngle.Fill(muonAngle, dEdXCurved/trueVal);
+      }
       // BetheBloch - curved tkLength
       
       
@@ -1017,7 +1068,7 @@ int main (int argc, char** argv)
       
       
       
-      
+            
       // Calibration
       int seedXtalIndex = treeVars.xtalIndexInSuperCluster[SCindex];
       int seedXtalHashedIndex = treeVars.xtalHashedIndex[seedXtalIndex];
@@ -1043,7 +1094,11 @@ int main (int argc, char** argv)
 
       // fill
       map_iterator_int mapIt = calib_dEdXMap_vsREGIONID.find(regionId);
-      if( (mapIt == calib_dEdXMap_vsREGIONID.end()) && (regionId != -1) )
+      if( (mapIt == calib_dEdXMap_vsREGIONID.end()) && (regionId != -1) &&
+          ( (regionId ==  3) || (regionId ==  4) || (regionId ==  5) || (regionId ==  6) || 
+            (regionId == 12) || (regionId == 13) || (regionId == 14) || (regionId == 15) ||
+            (regionId == 21) || (regionId == 22) || (regionId == 23) || (regionId == 24) ||
+            (regionId == 30) || (regionId == 31) || (regionId == 32) || (regionId == 33) ) )
       {
         char histoName[100];
         sprintf(histoName, "calib_dEdX_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
@@ -1053,7 +1108,7 @@ int main (int argc, char** argv)
 		   etaSTART  + etaWIDTH * (regionId/phiN),
 		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
 
-        calib_dEdXMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, 20000, 0., 1000.);
+        calib_dEdXMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, DEDX_BIN, DEDX_MIN, DEDX_MAX);
 
 
         sprintf(histoName, "calib_muonAngle_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
@@ -1064,6 +1119,16 @@ int main (int argc, char** argv)
 		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
 
         calib_muonAngleMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, 1000, 0., PI/2.);
+
+
+        sprintf(histoName, "calib_muonP_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
+		   regionId,
+		   phiSTART  + phiWIDTH * (regionId%phiN),
+		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		   etaSTART  + etaWIDTH * (regionId/phiN),
+		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
+
+        calib_muonPMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, 2000, 0., 20.);
       }
 
 
@@ -1124,7 +1189,11 @@ int main (int argc, char** argv)
 
 
 
-      if(regionId != -1)
+      if( (regionId != -1) &&
+          ( (regionId ==  3) || (regionId ==  4) || (regionId ==  5) || (regionId ==  6) || 
+            (regionId == 12) || (regionId == 13) || (regionId == 14) || (regionId == 15) ||
+            (regionId == 21) || (regionId == 22) || (regionId == 23) || (regionId == 24) ||
+            (regionId == 30) || (regionId == 31) || (regionId == 32) || (regionId == 33) ) )
       {
         regionOccupancy_ETAvsPHI.Fill(seedXtalIphi, region.etaShifter(seedXtalIeta));
 
@@ -1135,10 +1204,13 @@ int main (int argc, char** argv)
         calib_muonAngleMap_vsREGIONID[regionId] -> Fill(muonAngle);
         calib_muonAngleMap_vsPHI[phiCenter] -> Fill(muonAngle);
         calib_muonAngleMap_vsETA[etaCenter] -> Fill(muonAngle);
+        calib_muonPMap_vsREGIONID[regionId] -> Fill(muonP);
 
         calib_muonAngle_profile_vsREGIONID.Fill(regionId, muonAngle);
         calib_muonAngle_profile_vsPHI.Fill(phiCenter, muonAngle);
         calib_muonAngle_profile_vsETA.Fill(etaCenter, muonAngle);
+
+        calib_muonP_profile_vsREGIONID.Fill(regionId, muonP);
 
         calib_dEdXMap_vsREGIONID[regionId] -> Fill(dEdXCurved / trueVal);
         calib_dEdXMap_vsPHI[phiCenter] -> Fill(dEdXCurved / trueVal);
@@ -1152,31 +1224,29 @@ int main (int argc, char** argv)
   } // Loop over entries
   
   
-  
-  
-  
-  
   // --------------------------------------------------------------------------------------
   // Save histograms
   // --------------------------------------------------------------------------------------
   
-  
+ 
   nEvents_TOT.Write();
   nEvents_CUT.Write();
   for(int bin = 1; bin <= P_BIN; ++bin)
     if(nEvents_TOT.GetBinContent(bin) != 0)
       nEvents_EFF.SetBinContent(bin, 1. * nEvents_CUT.GetBinContent(bin) / nEvents_TOT.GetBinContent(bin));
   nEvents_EFF.Write();
+
+
   
-  
+
   // dEdX histograms
   outRootFile.mkdir ("dEdX");
   outRootFile.cd ("dEdX");
   std::cout << ">>> Saving dEdX histograms" << std::endl;
   
-  double startValues4[4] = {0.12, 1.5, dEdXDistrCurved.GetEntries() / 10., 0.25};
+  double startValues[4] = {0.12, 1.5, dEdXDistrCurved.GetEntries() / 10., 0.25};
   TF1* langaus = new TF1;
-  LangausFit(&langaus, &dEdXDistrCurved, startValues4);
+  LangausFit(&langaus, &dEdXDistrCurved, startValues);
   dEdXDistrCurved.Write();
   delete langaus ;
   
@@ -1226,7 +1296,7 @@ int main (int argc, char** argv)
 
     double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
     TF1* langaus = new TF1;
-    LangausFit(&langaus, histo, startValues);
+    //LangausFit(&langaus, histo, startValues);
     
     if (pMapCurved[bin] > 0)
     {
@@ -1268,7 +1338,7 @@ int main (int argc, char** argv)
   }
   
   DrawBetheBlochResiduals(BetheBloch_graph_curved, BetheBloch_th, BetheBloch_graph_residuals_curved);
-  
+
   outRootFile.cd();
   // BetheBloch - curved tkLength
   
@@ -1461,6 +1531,9 @@ int main (int argc, char** argv)
   //BetheBloch_profile_E5x5_curved.Write();
   //BetheBloch_graph_E5x5_curved.Write("BetheBloch_graph_E5x5_curved");
 
+  BetheBloch_vsAngle.Write();  
+  BetheBloch_profile_vsAngle.Write();  
+  
 
 
 
@@ -1479,6 +1552,7 @@ int main (int argc, char** argv)
 
   calib_nEvents_vsREGIONID.Write();
   calib_muonAngle_profile_vsREGIONID.Write();
+  calib_muonP_profile_vsREGIONID.Write();
 
   int point = 0;
   for(map_const_iterator_int mapIt = calib_dEdXMap_vsREGIONID.begin();
@@ -1519,6 +1593,13 @@ int main (int argc, char** argv)
     histo -> Write();
   }
 
+  for(map_const_iterator_int mapIt = calib_muonPMap_vsREGIONID.begin();
+      mapIt != calib_muonPMap_vsREGIONID.end() ; ++mapIt)
+  {
+    TH1D* histo = mapIt -> second;
+    histo -> Write();
+  }
+
   sd1 -> cd();
 
 
@@ -1539,7 +1620,7 @@ int main (int argc, char** argv)
     
     double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
     TF1* langaus = new TF1;
-    LangausFit(&langaus, &(*histo), startValues);
+    //LangausFit(&langaus, &(*histo), startValues);
     histo -> Write();
 
     calibCoeffDistr_mean_vsPHI.Fill(mapIt -> second -> GetMean());
@@ -1588,7 +1669,7 @@ int main (int argc, char** argv)
     
     double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
     TF1* langaus = new TF1;
-    LangausFit(&langaus, &(*histo), startValues);
+    //LangausFit(&langaus, &(*histo), startValues);
     histo -> Write();
 
     calibCoeffDistr_mean_vsETA.Fill(mapIt -> second -> GetMean());
@@ -1621,7 +1702,7 @@ int main (int argc, char** argv)
   sd1 -> cd();
 
   outRootFile.cd();
-
+  
 
   
   outRootFile.Close();

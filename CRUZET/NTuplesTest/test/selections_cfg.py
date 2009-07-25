@@ -3,20 +3,23 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.selections = cms.PSet(
 
-    P_BIN = cms.untracked.int32(25),
+    P_BIN = cms.untracked.int32(25), 
     maxEvent = cms.untracked.int32(-1),
     useTrueVal = cms.untracked.bool(False),
-    applyVeto = cms.untracked.bool(True),
+    applyVeto = cms.untracked.bool(True), 
+    vetoEnergyMIN = cms.untracked.double(0.5),
     correctMuonP = cms.untracked.bool(True),
+    correctAngle = cms.untracked.bool(True),
+    correctZSSR = cms.untracked.bool(True), 
     energyCorrFactor = cms.untracked.double(0.97),
 
 
-    muonLegUpOK = cms.untracked.bool(False),
+    muonLegUpOK = cms.untracked.bool(False), 
     muonLegDownOK = cms.untracked.bool(True),
 
     
     muonPMIN = cms.untracked.double(5.0),    
-    muonPMAX = cms.untracked.double(1000.),    
+    muonPMAX = cms.untracked.double(1000.), 
     muonPErrorOverPMAX = cms.untracked.double(0.275),
     muonPCollTHRESH = cms.untracked.double(5.0),
     muonEOverPMAX = cms.untracked.double(1e+12),
@@ -31,8 +34,8 @@ process.selections = cms.PSet(
     muonNHitsMIN = cms.untracked.double(1.0),
 
 
-    muonTkLengthInEcalMIN = cms.untracked.double(0.0),
-    muonTkLengthInEcalMAX = cms.untracked.double(1e+12),
+    muonTkLengthInEcalMIN = cms.untracked.double(10.),   # 0.1
+    muonTkLengthInEcalMAX = cms.untracked.double(40.),   # 1e+12
     xtalTkLengthSumMIN = cms.untracked.double(0.0),
     xtalTkLengthSumMAX = cms.untracked.double(1e+12),
 
@@ -42,7 +45,7 @@ process.selections = cms.PSet(
 
 
     muonAngleMIN = cms.untracked.double(0.0),
-    muonAngleMAX = cms.untracked.double(0.2),
+    muonAngleMAX = cms.untracked.double(0.5),
     muonAngleXYPlaneMAX = cms.untracked.double(1e+12),
 
     muonInnTkHitZMIN = cms.untracked.double(0.0),
@@ -71,50 +74,56 @@ process.selections = cms.PSet(
 
 process.calibSelections = cms.PSet(
     stat = cms.int32(-1),
-    phiSTART = cms.int32(1),
+
     algorithm = cms.string('L3'),
-    etaWIDTH = cms.int32(5),
+
     etaSTART = cms.int32(-85),
-    maxCoeff = cms.double(5.0),
-    phiWIDTH = cms.int32(360),
     etaEND = cms.int32(86),
-    minCoeff = cms.double(0.0),
-    numberOfLoops = cms.int32(1),
+    etaWIDTH = cms.int32(85),
+
+    phiSTART = cms.int32(1),
     phiEND = cms.int32(361),
+    phiWIDTH = cms.int32(20),
+
+    minCoeff = cms.double(0.0),
+    maxCoeff = cms.double(5.0),
+
+    numberOfLoops = cms.int32(1),
+
     usingBlockSolver = cms.int32(1),
     stat_xtalEvtMAX = cms.int32(100000)
 )
 process.inputNtuples = cms.PSet(
     maxEvents = cms.int32(-1),
     inputFiles = cms.vstring(
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66615.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66621.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66627.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66637.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66657.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66668.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66676.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66692.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66703.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66706.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66709.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66711.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66714.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66716.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66720.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66722.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66733.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66739.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66740.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66746.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66748.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66752.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66756.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_66757.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_67128.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_67139.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_67141.root', 
-        '/gwtera5/users/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matching_67147.root'
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66615.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66621.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66627.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66637.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66657.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66668.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66676.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66692.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66703.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66706.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66709.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66711.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66714.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66716.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66720.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66722.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66733.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66739.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66740.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66746.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66748.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66752.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66756.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_66757.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_67128.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_67139.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_67141.root', 
+        '/data/NTUPLES/CRAFT1/CRAFT_ALL_V12_229_Tosca090322_ReReco_FromTrackerPointing_v1/cloned_matchingCurved_67147.root'
     )
 )
 

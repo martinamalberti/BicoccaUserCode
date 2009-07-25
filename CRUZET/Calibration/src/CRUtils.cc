@@ -337,7 +337,7 @@ std::pair<double,double> LangausFit (TH1F* histo)
  // Langaus Fit
  double fitRange[2] ;
  fitRange[0] = 0.; 
- fitRange[1] = 0.2 ;
+ fitRange[1] = 50 ;
  
  double startValues[4] ;
  startValues[0] = 0.003 ;
@@ -381,10 +381,12 @@ void DrawBetheBloch()
  TGraph BetheBloch_corrected;
  TGraph BetheBloch_ion;
  TGraph BetheBloch_irr;
+ TGraph BetheBloch_photoNuc;
+
  TGraph BetheBloch_irr_corrected;
  int entry = 0;
  
- float dummy, p, dEdX, ion;
+ float dummy, p, dEdX, ion, photoNuc;
  while (!inFile.eof ())
  {
    inFile >> dummy;
@@ -392,7 +394,7 @@ void DrawBetheBloch()
    inFile >> ion;
    inFile >> dummy;
    inFile >> dummy;
-   inFile >> dummy;
+   inFile >> photoNuc;
    inFile >> dummy;
    inFile >> dEdX;
    inFile >> dummy;
@@ -406,6 +408,7 @@ void DrawBetheBloch()
      BetheBloch.SetPoint (entry, p/1000., dEdX) ;
      BetheBloch_ion.SetPoint (entry, p/1000., ion) ;
      BetheBloch_irr.SetPoint (entry, p/1000., dEdX-ion) ;
+     BetheBloch_photoNuc.SetPoint (entry, p/1000., photoNuc) ;
      BetheBloch_irr_corrected.SetPoint (entry, p/1000., (dEdX-ion)*0.95 ) ;
      BetheBloch_corrected.SetPoint (entry, p/1000., ion + (dEdX-ion)*0.95) ;
      entry++;
@@ -425,6 +428,8 @@ void DrawBetheBloch()
  BetheBloch_irr.SetLineStyle (2) ;
  //BetheBloch_irr.Draw ("PL") ;
  BetheBloch_irr.Write ("BetheBloch_th_irr") ;
+
+ BetheBloch_photoNuc.Write ("BetheBloch_th_photoNuc") ;
  
  BetheBloch_corrected.SetLineStyle (2) ;
  // BetheBloch_corrected.Draw ("PL") ;
@@ -440,10 +445,11 @@ void DrawBetheBloch(TGraph* BetheBloch)
  TGraph BetheBloch_corrected;
  TGraph BetheBloch_ion;
  TGraph BetheBloch_irr;
+ TGraph BetheBloch_photoNuc;
  TGraph BetheBloch_irr_corrected;
  int entry = 0;
  
- float dummy, p, dEdX, ion;
+ float dummy, p, dEdX, ion, photoNuc;
  while (!inFile.eof ())
  {
    inFile >> dummy;
@@ -451,7 +457,7 @@ void DrawBetheBloch(TGraph* BetheBloch)
    inFile >> ion;
    inFile >> dummy;
    inFile >> dummy;
-   inFile >> dummy;
+   inFile >> photoNuc;
    inFile >> dummy;
    inFile >> dEdX;
    inFile >> dummy;
@@ -465,6 +471,7 @@ void DrawBetheBloch(TGraph* BetheBloch)
      BetheBloch -> SetPoint (entry, p/1000., dEdX) ;
      BetheBloch_ion.SetPoint (entry, p/1000., ion) ;
      BetheBloch_irr.SetPoint (entry, p/1000., dEdX-ion) ;
+     BetheBloch_photoNuc.SetPoint (entry, p/1000., photoNuc) ;
      BetheBloch_irr_corrected.SetPoint (entry, p/1000., (dEdX-ion)*0.95 ) ;
      BetheBloch_corrected.SetPoint (entry, p/1000., ion + (dEdX-ion)*0.95) ;
      entry++;
@@ -484,6 +491,8 @@ void DrawBetheBloch(TGraph* BetheBloch)
  BetheBloch_irr.SetLineStyle (2) ;
  //BetheBloch_irr.Draw ("PL") ;
  BetheBloch_irr.Write ("BetheBloch_th_irr") ;
+
+ BetheBloch_photoNuc.Write ("BetheBloch_th_photoNuc") ;
  
  BetheBloch_corrected.SetLineStyle (2) ;
  // BetheBloch_corrected.Draw ("PL") ;
@@ -568,7 +577,7 @@ void LangausFit (TF1** langaus, TH1D* histo, double* startValues)
   // Langaus Fit
   double fitRange[2] ;
   fitRange[0] = 0.; 
-  fitRange[1] = 1000. ;
+  fitRange[1] = 50. ;
   
   double parLimitsLow[4] ;
   parLimitsLow[0] = 0.00001 ;
