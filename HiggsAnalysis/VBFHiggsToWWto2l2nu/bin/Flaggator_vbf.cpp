@@ -133,7 +133,8 @@ struct histos
    m_tree_selections->Branch("v_hardLEPCharge",&v_hardLEPCharge,"v_hardLEPCharge/D");  
    m_tree_selections->Branch("v_softLEPCharge",&v_softLEPCharge,"v_softLEPCharge/D");  
    m_tree_selections->Branch("v_MET",&v_MET,"v_MET/D");   
-   
+   m_tree_selections->Branch("v_pt_balance",&v_pt_balance,"v_pt_balance/D");   
+   m_tree_selections->Branch("v_pt_balance_corrected",&v_pt_balance_corrected,"v_pt_balance_corrected/D");   
    
    TString m_efficiency_Name = m_name + "_m_efficiency" ;
    m_efficiency = new TTree(m_efficiency_Name,m_efficiency_Name);
@@ -220,7 +221,9 @@ struct histos
   double v_hardLEPCharge ;
   double v_softLEPCharge ;
   double v_MET ;
-
+  double v_pt_balance ;
+  double v_pt_balance_corrected ;
+  
   double v_ojets ;
   double v_ojetsCJV ;
   double v_ojetsCJV_30 ;
@@ -509,7 +512,12 @@ int
  TClonesArray * otherJets_temp = new TClonesArray ("TLorentzVector") ;
  tree->SetBranchAddress (g_KindOfJet.c_str(), &otherJets_temp) ;
 //  tree->SetBranchAddress ("otherJets", &otherJets_temp) ;
+
+ TClonesArray * otherJets_temp_forCorrection = new TClonesArray ("TLorentzVector") ;
+ tree->SetBranchAddress ("otherJets_IterativeCone5CaloJets", &otherJets_temp_forCorrection) ;
+
  
+  
  
  TClonesArray * electrons = new TClonesArray ("TLorentzVector") ;
  tree->SetBranchAddress ("electrons", &electrons) ;
@@ -585,6 +593,8 @@ int
   plots.v_hardLEPCharge = -99;
   plots.v_softLEPCharge = -99;
   plots.v_MET = -99;
+  plots.v_pt_balance = -99;
+  plots.v_pt_balance_corrected = -99;
   plots.v_numLep = -99;
   plots.v_numEle = -99;
   plots.v_numMu = -99;
@@ -680,7 +690,7 @@ int
    //---- pt min threshold ----
    if (jet_temp->Pt()<m_jetPtMin) continue;
        //---- Eta max threshold ----
-   if (jet_temp->Eta()>m_jetEtaMax) continue;
+   if (fabs(jet_temp->Eta())>m_jetEtaMax) continue;
        //---- if it's not the first jet, I may check if DEta and Mjj selections are fullfilled
        //---- Check between current (1) and the new jet
    if (Jet1!=-1){//---- if it's not the first time
@@ -1048,9 +1058,32 @@ int
     }
    }      
   
-   plots.v_MET = met->Pt () ;
+   plots.v_MET = met->Pt () ; 
+   
+   
+   plots.v_pt_balance = (*met + *(primoLEP.m_kine) + *(secondoLEP.m_kine) 
+     + *(primoTAG) + *(secondoTAG)).Pt();
   
+   
+   TLorentzVector MET_corrector;
+   
+   for (int l=0; l<otherJets_temp_forCorrection->GetEntries (); l++ ){
+    TLorentzVector* jet_temp = (TLorentzVector*) otherJets_temp_forCorrection->At(l);
+    MET_corrector += *jet_temp;
+   }
+   
+   for (int l=0; l<otherJets_temp->GetEntries (); l++ ){
+    TLorentzVector* jet_temp = (TLorentzVector*) otherJets_temp->At(l);
+    MET_corrector -= *jet_temp;
+   }
+   
+   plots.v_pt_balance_corrected = (*met + *(primoLEP.m_kine) + *(secondoLEP.m_kine) 
+     + *(primoTAG) + *(secondoTAG) + MET_corrector).Pt();
   
+   
+   
+   
+   
   }
   
   
