@@ -507,16 +507,11 @@ int
  tree->SetBranchAddress ("genParticles", &genParticles) ;
  
  
-//  TClonesArray * tagJets = new TClonesArray ("TLorentzVector") ; 
-//  tree->SetBranchAddress ("tagJets", &tagJets) ;
- TClonesArray * otherJets_temp = new TClonesArray ("TLorentzVector") ;
- tree->SetBranchAddress (g_KindOfJet.c_str(), &otherJets_temp) ;
-//  tree->SetBranchAddress ("otherJets", &otherJets_temp) ;
-
  TClonesArray * otherJets_temp_forCorrection = new TClonesArray ("TLorentzVector") ;
  tree->SetBranchAddress ("otherJets_IterativeCone5CaloJets", &otherJets_temp_forCorrection) ;
 
- 
+ TClonesArray * otherJets_temp = new TClonesArray ("TLorentzVector") ;
+ tree->SetBranchAddress (g_KindOfJet.c_str(), &otherJets_temp) ;
   
  
  TClonesArray * electrons = new TClonesArray ("TLorentzVector") ;
@@ -573,6 +568,7 @@ int
  plots.passedJetAndLepNumberSelections_mutau = 0;
 
  //PG loop over the events
+ nentries = std::min(nentries,100);
  for (int evt = 0 ; evt < nentries ; ++evt)
  {
   plots.v_hardTAGEta = -99;
@@ -618,6 +614,10 @@ int
   plots.v_ojetsZepp_12 = -99 ;
   plots.v_ojetsZepp_13 = -99 ;
   plots.v_ojetsZepp_14 = -99 ;
+
+  plots.v_decay_Channel_e = 0;
+  plots.v_decay_Channel_mu = 0;
+  plots.v_decay_Channel_tau = 0;
 
   
   tree->GetEntry (evt) ;
