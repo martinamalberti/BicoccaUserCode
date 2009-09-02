@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 
@@ -32,8 +33,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/foreach.hpp>
 
-#include "CRUZET/Calibration/interface/CRUtils.h"
-#include "CRUZET/Calibration/interface/ClusterCalibTools.h"
+#include "CRUZET/NTuplesTest/interface/NTuplesUtils.h"
+#include "CRUZET/NTuplesTest/interface/ClusterCalibTools.h"
 
 //! main program
 int main (int argc, char** argv)
@@ -150,7 +151,7 @@ int main (int argc, char** argv)
           double SCphi = fabs(SC0_pos.Phi()) / 3.1415 * 180. ;
           if ( (SCphi < 90. - phiWINDOW/2) || (SCphi > 90. + phiWINDOW/2) ) continue;
 
-          int SCieta = SC0_pos.Eta () / 0.0175 ;
+          double SCieta = SC0_pos.Eta () / 0.0175 ;
           if (fabs (SCieta) > ietaMAX) continue ;
         
           double angle = MuonDir.Angle ( SC0_pos ) ;

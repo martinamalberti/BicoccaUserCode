@@ -8,8 +8,6 @@
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CRUZET/NTuplesTest/test/Langaus.cc"
-
 #include <iostream>
 #include <fstream>
 #include <string>

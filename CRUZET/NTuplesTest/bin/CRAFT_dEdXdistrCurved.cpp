@@ -8,10 +8,19 @@
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibTools.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondCore/Utilities/interface/CondIter.h"
+
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
-#include "CRUZET/NTuplesTest/test/Langaus.cc"
-#include "CRUZET/Calibration/interface/CRUtils.h"
-#include "CRUZET/Calibration/interface/ClusterCalibTools.h"
+#include "CRUZET/NTuplesTest/interface/Langaus.h"
+#include "CRUZET/NTuplesTest/interface/NTuplesUtils.h"
+#include "CRUZET/NTuplesTest/interface/ClusterCalibTools.h"
 
 #include <iostream>
 #include <fstream>
@@ -31,8 +40,10 @@
 #include "TF1.h"
 #include "TFile.h"
 #include "TProfile.h"
+#include "TProfile2D.h"
 #include "TObject.h"
 #include "TLorentzVector.h"
+#include "TSystem.h"
 
 #define PI 3.14159265
 
@@ -100,9 +111,16 @@ int main (int argc, char** argv)
   bool correctZSSR = subPSetSelections.getUntrackedParameter<bool>("correctZSSR", true);
   bool applyVeto = subPSetSelections.getUntrackedParameter<bool>("applyVeto", false);
   double vetoEnergyMIN = subPSetSelections.getUntrackedParameter<double>("vetoEnergyMIN", 0.5);
-  
+  bool skipBadIC = subPSetSelections.getUntrackedParameter<bool>("skipBadIC", true);  
+
   bool muonLegUpOK = subPSetSelections.getUntrackedParameter<bool>("muonLegUpOK", false);
   bool muonLegDownOK = subPSetSelections.getUntrackedParameter<bool>("muonLegDownOK", true);
+
+  double pol0_0 = subPSetSelections.getUntrackedParameter<double>("pol0_0", 1.79171);
+  double pol1_0 = subPSetSelections.getUntrackedParameter<double>("pol1_0", 1.79171);
+  double pol1_1 = subPSetSelections.getUntrackedParameter<double>("pol1_1", -0.52748);
+
+  double ZSSR_fact = subPSetSelections.getUntrackedParameter<double>("ZSSR_fact",17.5);
 
   double muonPMAX = subPSetSelections.getUntrackedParameter<double>("muonPMAX", 1000.);
   double muonPMIN = subPSetSelections.getUntrackedParameter<double>("muonPMIN", 1.);
@@ -150,6 +168,12 @@ int main (int argc, char** argv)
 
 
   edm::ParameterSet subPSetCalibration = parameterSet -> getParameter<edm::ParameterSet>("calibSelections");
+
+  bool doCalibVsREGIONID = subPSetCalibration.getUntrackedParameter<bool>("doCalibVsREGIONID", false);
+  bool doCalibVsETA = subPSetCalibration.getUntrackedParameter<bool>("doCalibVsETA", false);
+  bool doCalibVsPHI = subPSetCalibration.getUntrackedParameter<bool>("doCalibVsPHI", false);
+
+  std::vector<int> noCalibREGIONID = subPSetCalibration.getUntrackedParameter<std::vector<int> >("noCalibREGIONID", std::vector<int>(0));
 
   int etaSTART = subPSetCalibration.getParameter<int> ("etaSTART") ;
   int etaEND = subPSetCalibration.getParameter<int> ("etaEND") ;
@@ -200,6 +224,10 @@ int main (int argc, char** argv)
   std::string outRootFileName = "CRAFT_dEdXdistrCurved.root";
   TFile outRootFile(outRootFileName.c_str(), "RECREATE");
   outRootFile.cd();
+
+  std::ofstream outFile("output.txt", std::ios::out);
+  std::ofstream outFile2("output2.txt", std::ios::out);
+  std::ofstream outFile3("printOuts.txt", std::ios::out);
   // Output file
   
   
@@ -211,7 +239,13 @@ int main (int argc, char** argv)
   // Define histograms
   // --------------------------------------------------------------------------------------
   
-  
+
+  int nTot = 0;
+
+
+  TH1F events("events", "events", 100, 0., 100.);
+  TH1F efficiencies("efficiencies", "efficiencies", 100, 0., 100.);
+
   TH1F nEvents_TOT("nEvents_TOT", "nEvents_TOT", P_BIN, P_MIN, P_MAX);
   BinLogX(nEvents_TOT);
   TH1F nEvents_CUT("nEvents_CUT", "nEvents_CUT", P_BIN, P_MIN, P_MAX);
@@ -266,6 +300,9 @@ int main (int argc, char** argv)
   //TGraphAsymmErrors BetheBloch_graph_E5x5_curved;
   //std::map<int,float> pMapCurved_E5x5; pMapCurved_E5x5.clear();
 
+  TH2F BetheBloch_unc_vsAngle("BetheBloch_unc_vsAngle", "BetheBloch_unc_vsAngle", ANGLE_BIN, ANGLE_MIN, ANGLE_MAX, DEDX_BIN, DEDX_MIN, DEDX_MAX);
+  TProfile BetheBloch_unc_profile_vsAngle("BetheBloch_unc_profile_vsAngle", "BetheBloch_unc_profile_vsAngle", ANGLE_BIN, ANGLE_MIN, ANGLE_MAX);
+
   TH2F BetheBloch_vsAngle("BetheBloch_vsAngle", "BetheBloch_vsAngle", ANGLE_BIN, ANGLE_MIN, ANGLE_MAX, DEDX_BIN, DEDX_MIN, DEDX_MAX);
   TProfile BetheBloch_profile_vsAngle("BetheBloch_profile_vsAngle", "BetheBloch_profile_vsAngle", ANGLE_BIN, ANGLE_MIN, ANGLE_MAX);
   // Experimental BetheBloch - curved tkLength
@@ -282,8 +319,9 @@ int main (int argc, char** argv)
   TH2F muonOccupancyExt_ETAvsPHI("muonOccupancyExt_ETAvsPHI", "muonOccupancyExt_ETAvsPHI",
                                  PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX);
   
-  TH1F muonPDistr("muonPDistr", "muonPDistr", 10000, 1., 10000.);
-  //BinLogX(muonPDistr);
+  TH1F muonPDistr("muonPDistr", "muonPDistr", 250, 0., 5.);
+  //TH1F muonPDistr("muonPDistr", "muonPDistr", 10000, 0., 10000.);
+  BinLogX(muonPDistr);
   TH1F muonOutTkPoPDistr("muonOutTkPoPDistr", "muonOutTkPoPDistr", 1000, 0., 10.);
   TH2F muonOutTkPoP_vsP("muonOutTkPoP_vsP", "muonOutTkPoP_vsP", P_BIN, P_MIN, P_MAX, 1000, 0., 10.);
   BinLogX(muonOutTkPoP_vsP);
@@ -327,6 +365,8 @@ int main (int argc, char** argv)
   TH2F muondR_vsAngle("muondR_vsAngle", "muondR_vsAngle", 1000, 0., PI/2., 1000, 0., 400.);
   TProfile muondR_profile_vsAngle("muondR_profile_vsAngle", "muondR_profile_vsAngle", 1000, 0., PI/2.);
 
+  TH2F muonVertex("muonVertex", "muonVertex", 1000, -800, 800, 1000, -800, 800);
+
   TH1F muonTkInternalPointInEcalCurvedPhiDistr("muonTkInternalPointInEcalCurvedPhiDistr", "muonTkInternalPointInEcalCurvedPhiDistr", PHI_BIN, PHI_MIN, PHI_MAX);
   TH1F muonTkInternalPointInEcalCurvedEtaDistr("muonTkInternalPointInEcalCurvedEtaDistr", "muonTkInternalPointInEcalCurvedEtaDistr", ETA_BIN, ETA_MIN, ETA_MAX);
   TH1F muonTkInternalPointInEcalCurvedRDistr("muonTkInternalPointInEcalCurvedRDistr", "muonTkInternalPointInEcalCurvedRDistr", R_BIN, R_MIN, R_MAX);
@@ -356,6 +396,10 @@ int main (int argc, char** argv)
   BinLogX(muonInnTkDAngle_profile_vsPT);
   
   TH1F muonTkLengthCurvedDistr("muonTkLengthCurvedDistr", "muonTkLengthCurvedDistr", 1000, 0., 100.);
+  TH2F muonTkLengthCurved_vsP("muonTkLengthCurved_vsP", "muonTkLengthCurved_vsP", P_BIN, P_MIN, P_MAX, 1000, 0., 100.);
+  BinLogX(muonTkLengthCurved_vsP);
+  TProfile muonTkLengthCurved_profile_vsP("muonTkLengthCurved_profile_vsP", "muonTkLengthCurved_profile_vsP", P_BIN, P_MIN, P_MAX);
+  BinLogX(muonTkLengthCurved_profile_vsP);
   TH2F muonTkLengthCurved_vsDR("muonTkLengthCurved_vsDR", "muonTkLengthCurved_vsDR", 1000, 0., 400., 1000, 0., 100.);
   TProfile muonTkLengthCurved_profile_vsDR("muonTkLengthCurved_profile_vsDR", "muonTkLengthCurved_profile_vsDR", 1000, 0., 400.);
   TH2F muonTkLengthCurved_vsAngle("muonTkLengthCurved_vsAngle", "muonTkLengthCurved_vsAngle", 1000, 0., PI/2, 1000, 0., 100.);
@@ -377,11 +421,15 @@ int main (int argc, char** argv)
   
   
   // SuperCluster histograms
+  TH1F nSuperClustersDistr_noCut("nSuperClustersDistr_noCut", "nSuperClustersDistr_noCut", 100, 0., 100.);
+  TH1F nSuperClustersDistr("nSuperClustersDistr", "nSuperClustersDistr", 100, 0., 100.);
+
   TH2F superClusterOccupancy_ETAvsPHI("superClusterOccupancy_ETAvsPHI", "superClusterOccupancy_ETAvsPHI",
                                       PHI_BIN, PHI_MIN, PHI_MAX, ETA_BIN, ETA_MIN, ETA_MAX);
   
-  TH1F superClusterRawEnergyDistr("superClusterRawEnergyDistr", "superClusterRawEnergyDistr", 10000, 0.01, 100.);
-  //BinLogX(superClusterRawEnergyDistr);
+  TH1F superClusterRawEnergyDistr("superClusterRawEnergyDistr", "superClusterRawEnergyDistr", 250, -2., 3.);
+  //TH1F superClusterRawEnergyDistr("superClusterRawEnergyDistr", "superClusterRawEnergyDistr", 10000, 0.01, 100.);
+  BinLogX(superClusterRawEnergyDistr);
   TH2F superClusterRawEnergy_vsP("superClusterRawEnergy_vsP", "superClusterRawEnergy_vsP", P_BIN, P_MIN, P_MAX, 1000, 0., 100.);
   BinLogX(superClusterRawEnergy_vsP);
   TProfile superClusterRawEnergy_profile_vsP("superClusterRawEnergy_profile_vsP", "superClusterRawEnergy_profile_vsP", P_BIN, P_MIN, P_MAX);
@@ -393,7 +441,19 @@ int main (int argc, char** argv)
   TH2F EoP_vsP("EoP_vsP", "EoP_vsP", P_BIN, P_MIN, P_MAX, 10000, 0., 10.);
   BinLogX(EoP_vsP);
   
+  TH1F nClustersDistr_noCut("nClustersDistr_noCut", "nClustersDistr_noCut", 100, 0., 100.);
+  TH1F nClustersPerSuperClusterDistr_noCut("nClustersPerSuperClusterDistr_noCut", "nClustersPerSuperClusterDistr_noCut", 100, 0., 100.);
+  TH1F nClustersDistr("nClustersDistr", "nClustersDistr", 100, 0., 100.);
+  TH1F nClustersPerSuperClusterDistr("nClustersPerSuperClusterDistr", "nClustersPerSuperClusterDistr", 100, 0., 100.);
+
+  TH1F nClustersInSuperClusterDistr("nClustersInSuperClusterDistr", "nClustersInSuperClusterDistr", 10, 0., 10.);
+  TH2F nClustersInSuperCluster_vsE("nClustersInSuperCluster_vsE", "nClustersInSuperCluster_vsE", 250, -2., 3., 10, 0., 10.);
+  BinLogX(nClustersInSuperCluster_vsE);
+  TH2F nClustersInSuperCluster_vsAngle("nClustersInSuperCluster_vsAngle", "nClustersInSuperCluster_vsAngle", 1000, 0., PI/2., 10, 0., 10.);
+
   TH1F nXtalsInSuperClusterDistr("nXtalsInSuperClusterDistr", "nXtalsInSuperClusterDistr", 100, 0., 100.);
+  TH2F nXtalsInSuperCluster_vsE("nXtalsInSuperCluster_vsE", "nXtalsInSuperCluster_vsE", 250, -2, 3., 100, 0., 100.);
+  BinLogX(nXtalsInSuperCluster_vsE);
   TH2F nXtalsInSuperCluster_vsAngle("nXtalsInSuperCluster_vsAngle", "nXtalsInSuperCluster_vsAngle", 1000, 0., PI/2., 100, 0., 100.);
   TProfile nXtalsInSuperCluster_profile_vsAngle("nXtalsInSuperCluster_profile_vsAngle", "nXtalsInSuperCluster_profile_vsAngle", 1000, 0., PI/2.);
   TProfile nXtalsInSuperCluster_profile_vsPHI("nXtalsInSuperCluster_profile_vsPHI", "nXtalsInSuperCluster_profile_vsPHI", PHI_BIN, PHI_MIN, PHI_MAX);
@@ -402,11 +462,35 @@ int main (int argc, char** argv)
 
   TH1F nXtalsInSuperClusterOverCrossedXtalsCurvedDistr("nXtalsInSuperClusterOverCrossedXtalsCurvedDistr", "nXtalsInSuperClusterOverCrossedXtalsCurvedDistr", 1000, 0., 5.);
   // SuperCluster histograms
+    
+  
+  
+  
+  // Association histograms
+  TH1F assocDRDistr("assocDRDistr", "assocDRDistr", 1000, 0., 1.);
+  TH2F assocDEta_vsDPhi("assocDEta_vsDPhi", "AssocDEta_vsDPhi", 1000, -1., 1., 1000, -1., 1.);
+  
+  TH2F assocDR_vsP("asscoDR_vsP", "asscoDR_vsP", P_BIN, P_MIN, P_MAX, 1000, 0., 1.); 
+  BinLogX(assocDR_vsP);
+  TProfile assocDR_profile_vsP("asscoDR_profile_vsP", "asscoDR_profile_vsP", P_BIN, P_MIN, P_MAX); 
+  BinLogX(assocDR_profile_vsP);
+  
+  TH2F assocDR_vsAngle("asscoDR_vsAngle", "asscoDR_vsAngle", 1000, 0, PI/2., 1000, 0., 1.);
+  TProfile assocDR_profile_vsAngle("asscoDR_profile_vsAngle", "asscoDR_profile_vsAngle", 1000, 0, PI/2);
+  // Association histograms
   
   
   
   
   // Xtal histograms
+  TH1F nXtalsDistr_noCut("nXtalsDistr_noCut", "nXtalsDistr_noCut", 100, 0., 100.);
+  TH1F nXtalsPerSuperClusterDistr_noCut("nXtalsPerSuperClusterDistr_noCut", "nXtalsPerSuperClusterDistr_noCut", 100, 0., 100.);
+  TH1F nXtalsPerClusterDistr_noCut("nXtalsPerClusterDistr_noCut", "nXtalsPerClusterDistr_noCut", 100, 0., 100.);
+
+  TH1F nXtalsDistr("nXtalsDistr", "nXtalsDistr", 100, 0., 100.);
+  TH1F nXtalsPerSuperClusterDistr("nXtalsPerSuperClusterDistr", "nXtalsPerSuperClusterDistr", 100, 0., 100.);
+  TH1F nXtalsPerClusterDistr("nXtalsPerClusterDistr", "nXtalsPerClusterDistr", 100, 0., 100.);
+
   TH2F xtalOccupancy_iETAvsiPHI("xtalOccupancy_iETAvsiPHI", "xtalOccupancy_iETAvsiPHI",
                                 361, 1., 361., 171, -85., 86.);
   
@@ -423,6 +507,7 @@ int main (int argc, char** argv)
   TH2F xtalTkLengthCurved_vsAngle("xtalTkLengthCurved_vsAngle", "xtalTkLengthCurved_vsAngle", 1000, 0., PI/2., 1000, 0., 100.);
   TProfile xtalTkLengthCurved_profile_vsAngle("xtalTkLengthCurved_profile_vsAngle", "xtalTkLength_profile_vsAngle", 1000, 0., PI/2.);
 
+  TH1F xtalEnergyMaxDistr("xtalEnergyMaxDistr", "xtalEnergyMaxDistr", 10000, 0., 10.);
   TH1F xtalTkLengthCurvedMaxDistr("xtalTkLengthCurvedDistrMax", "xtalTkLengthCurvedDistrMax", 10000, 0., 100.);
   TH2F xtalTkLengthCurvedMax_vsAngle("xtalTkLengthCurvedMax_vsAngle", "xtalTkLengthCurvedMax_vsAngle", 1000, 0., PI/2., 1000, 0., 100.);
   TProfile xtalTkLengthCurvedMax_profile_vsAngle("xtalTkLengthCurvedMax_profileCurvedMax_vsAngle", "xtalTkLength_profile_vsAngle", 1000, 0., PI/2.);
@@ -444,6 +529,8 @@ int main (int argc, char** argv)
   std::map<float, TH1D*> calib_muonAngleMap_vsPHI;
   std::map<float, TH1D*> calib_muonAngleMap_vsETA;
   std::map<int, TH1D*>   calib_muonPMap_vsREGIONID;
+  std::map<float, TH1D*>   calib_muonPMap_vsPHI;
+  std::map<float, TH1D*>   calib_muonPMap_vsETA;
 
   TH1F calib_nEvents_vsREGIONID("calib_nEvents_vsREGIONID", "nEvents_vsREGIONID", phiN*etaN, 0., 1.*phiN*etaN);
   TH1F calib_nEvents_vsPHI("calib_nEvents_vsPHI", "nEvents_vsPHI", phiN, IPHI_MIN, IPHI_MAX);
@@ -454,6 +541,16 @@ int main (int argc, char** argv)
   TProfile calib_muonAngle_profile_vsETA("calib_muonAngle_profile_vsETA", "calib_muonAngle_profile_vsETA", etaN, IETA_MIN, IETA_MAX);
 
   TProfile calib_muonP_profile_vsREGIONID("calib_muonP_profile_vsREGIONID", "calib_muonP_profile_vsREGIONID", phiN*etaN, 0., 1.*phiN*etaN);
+  TProfile calib_muonP_profile_vsPHI("calib_muonP_profile_vsPHI", "calib_muonP_profile_vsPHI", phiN*etaN, 0., 1.*phiN*etaN);
+  TProfile calib_muonP_profile_vsETA("calib_muonP_profile_vsETA", "calib_muonP_profile_vsETA", phiN*etaN, 0., 1.*phiN*etaN);
+
+  TH1F calib_dEdXDistrAngle_vsREGIONID("calib_dEdXDistrAngle_vsREGIONID", "dEdXDistrAngle_vsREGIONID", phiN*etaN, 0., 1.*phiN*etaN);
+  TH1F calib_dEdXDistrAngle_vsPHI("calib_dEdXDistrAngle_vsPHI", "dEdXDistrAngle_vsPHI", phiN, IPHI_MIN, IPHI_MAX);
+  TH1F calib_dEdXDistrAngle_vsETA("calib_dEdXDistrAngle_vsETA", "dEdXDistrAngle_vsETA", etaN, IETA_MIN, IETA_MAX);
+
+  TH1F calib_dEdXDistrP_vsREGIONID("calib_dEdXDistrP_vsREGIONID", "dEdXDistrP_vsREGIONID", phiN*etaN, 0., 1.*phiN*etaN);
+  TH1F calib_dEdXDistrP_vsPHI("calib_dEdXDistrP_vsPHI", "dEdXDistrP_vsPHI", phiN, IPHI_MIN, IPHI_MAX);
+  TH1F calib_dEdXDistrP_vsETA("calib_dEdXDistrP_vsETA", "dEdXDistrP_vsETA", etaN, IETA_MIN, IETA_MAX);
 
   TH1F calibCoeffDistr_mean_vsREGIONID("calibCoeffDistr_mean_vsREGIONID", "calibCoeffDistr_mean_vsREGIONID", 10000, 0., 10.);
   TH1F calibCoeffDistr_mean_vsPHI("calibCoeffDistr_mean_vsPHI", "calibCoeffDistr_mean_vsPHI", 10000, 0., 10.);
@@ -471,9 +568,48 @@ int main (int argc, char** argv)
   // Calibration  
   
   
+
+
+  
+  // Database
+  std::string NameDBOracle2 = "oracle://cms_orcoff_prod/CMS_COND_21X_ECAL";   //GAIN 200
+  std::string TagDBOracle2 = "EcalIntercalibConstants_AllCruzet_EEB0v2_offline";  
+  std::string Command2LineStr2 = "cmscond_export_iov -s " + NameDBOracle2 + " -d sqlite_file:/tmp/abenagli/Due.db -D CondFormatsEcalObjects -t " + TagDBOracle2 + " -P /afs/cern.ch/cms/DB/conddb/";
+
+  std::cout << Command2LineStr2 << std::endl;
+  gSystem->Exec(Command2LineStr2.c_str());
+  
+  std::string NameDB;
+  std::string FileData;
   
   
- 
+  //-----------------------------------
+  //---- Second Database Analyzed -----
+  //-----------------------------------
+  NameDB = "sqlite_file:/tmp/abenagli/Due.db";  
+  FileData = TagDBOracle2;
+  CondIter<EcalIntercalibConstants> Iterator2;
+  Iterator2.create(NameDB,FileData);
+
+  
+  //-------------------------------------------------
+  //---- Ottengo Mappe da entrambi gli Iterators ----
+  //-------------------------------------------------
+
+  const EcalIntercalibConstants* EBconstants2;
+  EBconstants2 = Iterator2.next();
+  EcalIntercalibConstantMap iEBcalibMap_2 = EBconstants2->getMap () ;
+  
+
+
+
+
+
+
+
+
+  
+  
  
   // --------------------------------------------------------------------------------------
   // Loop over entries
@@ -490,6 +626,15 @@ int main (int argc, char** argv)
     //  std::cout << "Reading entry " << entry << std::endl;
     chain -> GetEntry (entry);
     if(entry == maxEvent) break;
+    
+    
+    
+    
+    
+    
+    events.SetBinContent(1, events.GetBinContent(1) + 1);
+    
+    
     
     
     
@@ -516,11 +661,40 @@ int main (int argc, char** argv)
     if( (nRecoMuons != 2) ||
         ( (nRecoMuons == 2) && (nRecoMuons_up > 1) ) ||
         ( (nRecoMuons == 2) && (nRecoMuons_down > 1) ) ) continue;
+
+    events.SetBinContent(2, events.GetBinContent(2) + 1);
     // Cut on number of reconstructed muons
     
     
     
+    nSuperClustersDistr_noCut.Fill(treeVars.nSuperClusters);
     
+    int nClusters_noCut = 0;
+    int nXtals_noCut = 0;
+    for(int SCindex = 0; SCindex < treeVars.nSuperClusters; ++SCindex)
+    {
+      nClusters_noCut += treeVars.nClustersInSuperCluster[SCindex];
+      nClustersPerSuperClusterDistr_noCut.Fill(treeVars.nClustersInSuperCluster[SCindex]);
+
+      nXtals_noCut += treeVars.nXtalsInSuperCluster[SCindex];
+      nXtalsPerSuperClusterDistr_noCut.Fill(treeVars.nXtalsInSuperCluster[SCindex]);
+    }
+
+    nClustersDistr_noCut.Fill(nClusters_noCut);
+    nXtalsDistr_noCut.Fill(nXtals_noCut);
+
+
+
+    // Cut on number of supercluster
+    if(treeVars.nSuperClusters < 2) continue;
+    
+    events.SetBinContent(3, events.GetBinContent(3) + 1);     
+    // Cut on number of supercluster
+
+
+
+
+
     // Sort association vector: first leg 1, then leg -1
     if(associations.size() != 2) continue;
     if(associations.size() == 2)
@@ -533,6 +707,8 @@ int main (int argc, char** argv)
         associations.at(1) = dummyAssociation;
       }
     }
+    
+    events.SetBinContent(4, events.GetBinContent(4) + 1);
     // Sort association vector: first leg 1, then leg -1
 
 
@@ -545,6 +721,13 @@ int main (int argc, char** argv)
     float ESC_up = 0.;
     float ESC_down = 0.;
     // Alessio's cut                                                                                                   
+    
+    
+    
+    // global number of xtals / clusters / superClusters 
+    int nSuperClusters = 0;
+    int nClusters = 0;
+    int nXtals = 0;
 
 
 
@@ -568,15 +751,28 @@ int main (int argc, char** argv)
       int xtalIndexInSuperCluster = treeVars.xtalIndexInSuperCluster[SCindex];
       EBDetId maxXtalDetId = EBDetId::unhashIndex(treeVars.xtalHashedIndex[xtalIndexInSuperCluster]);
       
+      nSuperClusters += 1;
+      nClusters += nClustersInSuperCluster;
+      nXtals += nXtalsInSuperCluster;      
+
       float superClusterRawEnergy = treeVars.superClusterRawEnergy[SCindex] * energyCorrFactor;
       float clusterE3x3 =                      treeVars.clusterE3x3[Cindex] * energyCorrFactor;
       float clusterE5x5 =                      treeVars.clusterE5x5[Cindex] * energyCorrFactor;
       float xtalTkLengthCurvedSum = 0.;
 
       bool badTTflags = false;
+      bool badICflags = false;
       for(int XTLit = xtalIndexInSuperCluster; XTLit < xtalIndexInSuperCluster + nXtalsInSuperCluster; ++XTLit)
       {
         if(treeVars.xtalTkLengthCurved[XTLit] > 0.) xtalTkLengthCurvedSum += treeVars.xtalTkLengthCurved[XTLit];
+
+  
+        // skip bad IC 
+	EBDetId dummyDetId = EBDetId::unhashIndex (treeVars.xtalHashedIndex[XTLit]) ;
+	double coeff_2 = *(iEBcalibMap_2.find (dummyDetId.rawId ()));
+        if(coeff_2 > 2.2) badICflags = true;       
+        if(coeff_2 < 0.4) badICflags = true;       
+
 
         //-----------------
         //skip bad TT
@@ -663,6 +859,7 @@ int main (int argc, char** argv)
         //muonPz = treeVars.muonInnTkInnerHitPz[MUindex];
         //muonP = treeVars.muonInnTkInnerHitP[MUindex];
         //muonPt = treeVars.muonInnTkInnerHitPt[MUindex];
+	//qui sopra scommentato
         muonOutTkP = treeVars.muonOutTkOuterHitP[MUindex];
         
         muonSkyAngle = yAxis.Angle(muonOutTkInnerDirection);      
@@ -689,6 +886,7 @@ int main (int argc, char** argv)
         //muonPz = treeVars.muonInnTkOuterHitPz[MUindex];
         //muonP = treeVars.muonInnTkOuterHitP[MUindex];
         //muonPt = treeVars.muonInnTkOuterHitPt[MUindex];
+	//qui sopra scommentato
         muonOutTkP = treeVars.muonOutTkInnerHitP[MUindex];
 
  	ESC_down = superClusterRawEnergy; 
@@ -714,6 +912,7 @@ int main (int argc, char** argv)
       } 
 
       float muonEOverP = 1. * superClusterRawEnergy / muonP;
+      
       // Muon variables
       
       
@@ -726,20 +925,25 @@ int main (int argc, char** argv)
       //float dEdXCurved_E3x3 =      clusterE3x3 / muonTkLengthInEcalCurved / 8.28 * 1000.;
       //float dEdXCurved_E5x5 =      clusterE5x5 / muonTkLengthInEcalCurved / 8.28 * 1000.;
       
-
+      
+//       float pol0_0 =  1.79171;
+//       float pol1_0 =  1.87126;
+//       float pol1_1 = -0.46092;
+//       float ZSSR_factor = 17.5;
       if(correctAngle == true)
       {
-        if(muonAngle > 0.2)
+        if(muonAngle > 0.1)  // era 0.2
         {
-	  //  dEdXCurved += 1.806742 + muonAngle*0.4116948 - 1.868352;
-          dEdXCurved += 1.80563 + muonAngle*0.456338 - 1.88069;
+	  //	  dEdXCurved += - (muonAngle - 0.2)*pol1_1;
+	  dEdXCurved += - (muonAngle - 0.1)*pol1_1;
+	  //	  dEdXCurved += - (muonAngle * pol1_1);
         }
       }
       
 
       if(correctZSSR == true)
       {
-        dEdXCurved = (dEdXCurved * muonTkLengthInEcalCurved * 8.28 / 0.97 - 17.5) / muonTkLengthInEcalCurved / 8.28 * 0.97;
+        dEdXCurved = (dEdXCurved * muonTkLengthInEcalCurved * 8.28 / 0.97 - ZSSR_fact) / muonTkLengthInEcalCurved / 8.28 * 0.97;
       }
       // dEdX variables
 
@@ -753,6 +957,12 @@ int main (int argc, char** argv)
       // --------------------------------------------------------------------------------------
       
       nEvents_TOT.Fill(muonP);
+      
+      // keep only leg = -1 events
+      if ( (muonLegUpOK == true && muonLegDownOK == false && muonLeg != 1) ||
+           (muonLegDownOK == true && muonLegUpOK == false && muonLeg != -1) ) continue;
+      events.SetBinContent(5, events.GetBinContent(5) + 1);
+      
       
       // Skip bad Xtals
       bool skip = false;
@@ -807,44 +1017,65 @@ int main (int argc, char** argv)
       if (skip == true) continue;
 
       if(badTTflags == true) continue;
+
+      if( (badICflags == true) && (skipBadIC == true) ) continue;
+
+      events.SetBinContent(6, events.GetBinContent(6) + 1);
       // Skip bad xtals
-      
+       
       
       // Other cuts
-      if ( (muonLegUpOK == true && muonLegDownOK == false && muonLeg != 1) ||
-           (muonLegDownOK == true && muonLegUpOK == false && muonLeg != -1) ) continue;
       if ( (muonP < muonPMIN) || (muonP > muonPMAX) ) continue ;
+      events.SetBinContent(7, events.GetBinContent(7) + 1);
       if ( muonQOverPError != muonQOverPError) continue;
+      events.SetBinContent(8, events.GetBinContent(8) + 1);
       if ( (1. * muonPError / muonP) > muonPErrorOverPMAX) continue ;
+      events.SetBinContent(9, events.GetBinContent(9) + 1);
       if (fabs(muond0) > muond0MAX) continue;
+      events.SetBinContent(10, events.GetBinContent(10) + 1);
       if (fabs(muondz) > muondzMAX) continue;
+      events.SetBinContent(11, events.GetBinContent(11) + 1);
       if (muondR > muondRMAX) continue;
+      events.SetBinContent(12, events.GetBinContent(12) + 1);
       if (muonNChi2 > muonNChi2MAX) continue;
+      events.SetBinContent(13, events.GetBinContent(13) + 1);
       if (muonNHits < muonNHitsMIN) continue;
+      events.SetBinContent(14, events.GetBinContent(14) + 1);
       if ( (muonTkLengthInEcalCurved < muonTkLengthInEcalMIN) ||
            (muonTkLengthInEcalCurved > muonTkLengthInEcalMAX) ) continue;
+      events.SetBinContent(15, events.GetBinContent(15) + 1);
       if (xtalTkLengthCurvedSum/muonTkLengthInEcalCurved < xtalTkLengthSumMIN) continue;
+      events.SetBinContent(16, events.GetBinContent(16) + 1);
       if (xtalTkLengthCurvedSum/muonTkLengthInEcalCurved > xtalTkLengthSumMAX) continue;
+      events.SetBinContent(17, events.GetBinContent(17) + 1);
       if (muonEOverP > muonEOverPMAX) continue;
+      events.SetBinContent(18, events.GetBinContent(18) + 1);
       if (muonAngle > muonAngleMAX) continue;
+      events.SetBinContent(19, events.GetBinContent(19) + 1);
       if (muonAngle < muonAngleMIN) continue;
+      events.SetBinContent(20, events.GetBinContent(20) + 1);
 
       if (1.*nXtalsInSuperCluster/nMuonCrossedXtalsCurved < nXtalsInSuperClusterMIN) continue;
+      events.SetBinContent(21, events.GetBinContent(21) + 1);
       if (1.*nXtalsInSuperCluster/nMuonCrossedXtalsCurved > nXtalsInSuperClusterMAX) continue;
-  
+      events.SetBinContent(22, events.GetBinContent(22) + 1);  
+
       if ( fabs(muonInnTkInnerPoint.z()) < muonInnTkHitZMIN) continue;
       if ( fabs(muonInnTkInnerPoint.z()) > muonInnTkHitZMAX) continue;
       if ( fabs(muonInnTkOuterPoint.z()) < muonInnTkHitZMIN) continue;
       if ( fabs(muonInnTkOuterPoint.z()) > muonInnTkHitZMAX) continue;
+      events.SetBinContent(23, events.GetBinContent(23) + 1);
 
       if ( (superClusterPhi < superClusterPhiMIN) ||
            (superClusterPhi > superClusterPhiMAX) ) continue;
       if ( (superClusterEta < superClusterEtaMIN) ||
            (superClusterEta > superClusterEtaMAX) ) continue;
+      events.SetBinContent(24, events.GetBinContent(24) + 1);
 
       if( ( applyVeto == true) && (muonP > muonPCollTHRESH) && (muonLeg ==  1) ) continue;
       if( ( applyVeto == true) && (muonP > muonPCollTHRESH) && (muonLeg == -1) &&
           (upFound == true) && (ESC_up > vetoEnergyMIN) ) continue;
+      events.SetBinContent(25, events.GetBinContent(25) + 1);
 
       // Other cuts
       
@@ -859,13 +1090,14 @@ int main (int argc, char** argv)
       // Fill distributions
       // --------------------------------------------------------------------------------------
 
-       if(muonEOverP > 1.){
- 	std::cout << "E/P " << muonEOverP << ": E = " << superClusterRawEnergy << " muonP = " << muonP 
- 		  << "sigmaP/P = " << (1. * muonPError / muonP) << std::endl ;
-        } 
-
-
-
+      ++nTot;
+      outFile2 << "entry " << entry << "   MUindex " << MUindex << "   SCindex " << SCindex << std::endl;
+      if(muonEOverP > 1.)
+        outFile3 << "runId = " << treeVars.runId << "   eventIt = " << treeVars.eventId
+                 << "muonEOverP = " << muonEOverP << "   SCEta = " << superClusterEta << "   SCPhi = " << superClusterPhi << std::endl;
+       
+      
+      
       float trueVal = 1.;
       if(useTrueVal == true)
         trueVal = FindBetheBlochValue(&BetheBloch_th, muonP);
@@ -906,6 +1138,9 @@ int main (int argc, char** argv)
 
       if(muonP >= 5. && muonP <= 10.)
       {
+        BetheBloch_unc_vsAngle.Fill(muonAngle, superClusterRawEnergy / muonTkLengthInEcalCurved / 8.28 * 1000. / trueVal);
+        BetheBloch_unc_profile_vsAngle.Fill(muonAngle, superClusterRawEnergy / muonTkLengthInEcalCurved / 8.28 * 1000. / trueVal);
+
         BetheBloch_vsAngle.Fill(muonAngle, dEdXCurved/trueVal);
         BetheBloch_profile_vsAngle.Fill(muonAngle, dEdXCurved/trueVal);
       }
@@ -933,7 +1168,7 @@ int main (int argc, char** argv)
       muonPDistr.Fill(muonP);
       muonOutTkPoPDistr.Fill(1. * muonOutTkP / muonP);
       muonOutTkPoP_vsP.Fill(muonP, 1. * muonOutTkP / muonP);
-      if( (pBin > 0) && (pBin <= 25) )
+      if( (pBin > 0) && (pBin <= P_BIN) )
         muonPDistr_pBin.at(pBin-1) -> Fill(muonP);
 
       muonQOverPDistr.Fill(muonQOverP);
@@ -960,6 +1195,8 @@ int main (int argc, char** argv)
       muondR_vsAngle.Fill(muonAngle, muondR);
       muondR_profile_vsAngle.Fill(muonAngle, muondR);
 
+      muonVertex.Fill(treeVars.muonX[MUindex], treeVars.muonY[MUindex]);
+ 
       muonTkInternalPointInEcalCurvedPhiDistr.Fill(muonTkInternalPointInEcalCurved.phi());
       muonTkInternalPointInEcalCurvedEtaDistr.Fill(muonTkInternalPointInEcalCurved.eta());
       muonTkInternalPointInEcalCurvedRDistr.Fill(muonTkInternalPointInEcalCurved.perp());
@@ -985,6 +1222,8 @@ int main (int argc, char** argv)
       muonInnTkDAngle_profile_vsPT.Fill(muonPt, muonInnTkInnerDirection.Angle(muonInnTkOuterDirection));
       
       muonTkLengthCurvedDistr.Fill(muonTkLengthInEcalCurved);
+      muonTkLengthCurved_vsP.Fill(muonP, muonTkLengthInEcalCurved);
+      muonTkLengthCurved_profile_vsP.Fill(muonP, muonTkLengthInEcalCurved);
       muonTkLengthCurved_vsDR.Fill(muondR, muonTkLengthInEcalCurved);
       muonTkLengthCurved_profile_vsDR.Fill(muondR, muonTkLengthInEcalCurved);
       muonTkLengthCurved_vsAngle.Fill(muonAngle, muonTkLengthInEcalCurved);
@@ -1018,6 +1257,7 @@ int main (int argc, char** argv)
       EoP_vsP.Fill(muonP, 1. * superClusterRawEnergy / muonP);
       
       nXtalsInSuperClusterDistr.Fill(nXtalsInSuperCluster);
+      nXtalsInSuperCluster_vsE.Fill(superClusterRawEnergy, nXtalsInSuperCluster);
       nXtalsInSuperCluster_vsAngle.Fill(muonAngle, nXtalsInSuperCluster);
       nXtalsInSuperCluster_profile_vsAngle.Fill(muonAngle, nXtalsInSuperCluster);
       nXtalsInSuperCluster_profile_vsPHI.Fill(muonPhi, nXtalsInSuperCluster);
@@ -1025,7 +1265,29 @@ int main (int argc, char** argv)
       nXtalsInSuperCluster_profile_ETAvsPHI.Fill(muonPhi, muonEta, nXtalsInSuperCluster);
 
       nXtalsInSuperClusterOverCrossedXtalsCurvedDistr.Fill(1.*nXtalsInSuperCluster/nMuonCrossedXtalsCurved);
+
+      nClustersInSuperClusterDistr.Fill(nClustersInSuperCluster);
+      nClustersInSuperCluster_vsAngle.Fill(muonAngle, nClustersInSuperCluster);
+      nClustersInSuperCluster_vsE.Fill(superClusterRawEnergy, nClustersInSuperCluster);
       // SuperCluster histograms
+      
+      
+      
+      
+      // Association histograms
+      float assocDEta = superClusterEta - muonEta;
+      float assocDPhi = superClusterPhi - muonPhi;
+      float assocDR = sqrt(pow(assocDEta, 2) + pow(assocDPhi, 2));
+      
+      assocDRDistr.Fill(assocDR);
+      assocDEta_vsDPhi.Fill(assocDPhi, assocDEta);
+      
+      assocDR_vsP.Fill(muonP, assocDR);
+      assocDR_profile_vsP.Fill(muonP, assocDR);
+      
+      assocDR_vsAngle.Fill(muonAngle, assocDR);
+      assocDR_profile_vsAngle.Fill(muonAngle, assocDR);
+      // Association histograms
       
       
       
@@ -1059,6 +1321,7 @@ int main (int argc, char** argv)
       xtalTkLengthCurvedSum_vsPHI.Fill(muonPhi, xtalTkLengthCurvedSum/muonTkLengthInEcalCurved);
       xtalTkLengthCurvedSum_vsETA.Fill(muonEta, xtalTkLengthCurvedSum/muonTkLengthInEcalCurved);
 
+      xtalEnergyMaxDistr.Fill(treeVars.xtalEnergy[XTLMAXCurvedindex]);
       xtalTkLengthCurvedMaxDistr.Fill(treeVars.xtalTkLengthCurved[XTLMAXCurvedindex]);
       xtalTkLengthCurvedMax_vsAngle.Fill(muonAngle, treeVars.xtalTkLengthCurved[XTLMAXCurvedindex]);
       xtalTkLengthCurvedMax_profile_vsAngle.Fill(muonAngle, treeVars.xtalTkLengthCurved[XTLMAXCurvedindex]);
@@ -1093,133 +1356,203 @@ int main (int argc, char** argv)
 
 
       // fill
-      map_iterator_int mapIt = calib_dEdXMap_vsREGIONID.find(regionId);
-      if( (mapIt == calib_dEdXMap_vsREGIONID.end()) && (regionId != -1) &&
-          ( (regionId ==  3) || (regionId ==  4) || (regionId ==  5) || (regionId ==  6) || 
-            (regionId == 12) || (regionId == 13) || (regionId == 14) || (regionId == 15) ||
-            (regionId == 21) || (regionId == 22) || (regionId == 23) || (regionId == 24) ||
-            (regionId == 30) || (regionId == 31) || (regionId == 32) || (regionId == 33) ) )
+      if(doCalibVsREGIONID == true)
       {
-        char histoName[100];
-        sprintf(histoName, "calib_dEdX_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
-		   regionId,
-		   phiSTART  + phiWIDTH * (regionId%phiN),
-		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
-		   etaSTART  + etaWIDTH * (regionId/phiN),
-		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
+        map_iterator_int mapIt = calib_dEdXMap_vsREGIONID.find(regionId);
+        if( (mapIt == calib_dEdXMap_vsREGIONID.end()) && (regionId != -1) &&
+            ( (regionId ==  3) || (regionId ==  4) || (regionId ==  5) || (regionId ==  6) || 
+              (regionId == 12) || (regionId == 13) || (regionId == 14) || (regionId == 15) ||
+              (regionId == 21) || (regionId == 22) || (regionId == 23) || (regionId == 24) ||
+              (regionId == 30) || (regionId == 31) || (regionId == 32) || (regionId == 33) ) )
+        {
+          char histoName[100];
+          sprintf(histoName, "calib_dEdX_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
+		  regionId,
+		  phiSTART  + phiWIDTH * (regionId%phiN),
+		  phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		  etaSTART  + etaWIDTH * (regionId/phiN),
+		  etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_dEdXMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, DEDX_BIN, DEDX_MIN, DEDX_MAX);
+          
+          
+          sprintf(histoName, "calib_muonAngle_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
+		  regionId,
+		  phiSTART  + phiWIDTH * (regionId%phiN),
+		  phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		  etaSTART  + etaWIDTH * (regionId/phiN),
+		  etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_muonAngleMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, 1000, 0., PI/2.);
+          
+          
+          sprintf(histoName, "calib_muonP_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
+		 regionId,
+	         phiSTART  + phiWIDTH * (regionId%phiN),
+		 phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		 etaSTART  + etaWIDTH * (regionId/phiN),
+		 etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_muonPMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, 2000, 0., 20.);
+        }
+      }
+      
+      
 
-        calib_dEdXMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, DEDX_BIN, DEDX_MIN, DEDX_MAX);
+      if(doCalibVsPHI == true)
+      {
+        map_iterator_float mapIt_float = calib_dEdXMap_vsPHI.find(phiCenter);
+        if( (mapIt_float == calib_dEdXMap_vsPHI.end()) && (regionId != -1) )
+        {
+          char histoName[100];
+          sprintf(histoName, "calib_dEdX_vsPHI_region_%05d---phi_%d_%d---eta_%d_%d",
+		  regionId,
+		  phiSTART  + phiWIDTH * (regionId%phiN),
+		  phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		  etaSTART  + etaWIDTH * (regionId/phiN),
+		  etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_dEdXMap_vsPHI[phiCenter] = new TH1D(histoName, histoName, 20000, 0., 1000.);
+          
+          
+          sprintf(histoName, "muonAngle_vsPHI_region_%05d---phi_%d_%d---eta_%d_%d",
+		  regionId,
+		  phiSTART  + phiWIDTH * (regionId%phiN),
+		  phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		  etaSTART  + etaWIDTH * (regionId/phiN),
+		  etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_muonAngleMap_vsPHI[phiCenter] = new TH1D(histoName, histoName, 1000, 0., PI/2.);
+          
+          
+          sprintf(histoName, "calib_muonP_vsPHI_region_%05d---phi_%d_%d---eta_%d_%d",
+		 regionId,
+	         phiSTART  + phiWIDTH * (regionId%phiN),
+		 phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		 etaSTART  + etaWIDTH * (regionId/phiN),
+		 etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_muonPMap_vsPHI[regionId] = new TH1D(histoName, histoName, 2000, 0., 20.);
+        }
+      }
 
 
-        sprintf(histoName, "calib_muonAngle_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
-		   regionId,
-		   phiSTART  + phiWIDTH * (regionId%phiN),
-		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
-		   etaSTART  + etaWIDTH * (regionId/phiN),
-		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
 
-        calib_muonAngleMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, 1000, 0., PI/2.);
-
-
-        sprintf(histoName, "calib_muonP_vsREGIONID_region_%05d---phi_%d_%d---eta_%d_%d",
-		   regionId,
-		   phiSTART  + phiWIDTH * (regionId%phiN),
-		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
-		   etaSTART  + etaWIDTH * (regionId/phiN),
-		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
-
-        calib_muonPMap_vsREGIONID[regionId] = new TH1D(histoName, histoName, 2000, 0., 20.);
+      if(doCalibVsETA == true)
+      {
+        map_iterator_float mapIt_float = calib_dEdXMap_vsETA.find(etaCenter);
+        if( (mapIt_float == calib_dEdXMap_vsETA.end()) && (regionId != -1) )
+        {
+          char histoName[100];
+          sprintf(histoName, "calib_dEdX_vsETA_region_%05d---phi_%d_%d---eta_%d_%d",
+	          regionId,
+		  phiSTART  + phiWIDTH * (regionId%phiN),
+		  phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		  etaSTART  + etaWIDTH * (regionId/phiN),
+		  etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_dEdXMap_vsETA[etaCenter] = new TH1D(histoName, histoName, 20000, 0., 1000.);
+          
+          
+          sprintf(histoName, "muonAngle_vsETA_region_%05d---phi_%d_%d---eta_%d_%d",
+		  regionId,
+		  phiSTART  + phiWIDTH * (regionId%phiN),
+		  phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		  etaSTART  + etaWIDTH * (regionId/phiN),
+		  etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_muonAngleMap_vsETA[etaCenter] = new TH1D(histoName, histoName, 1000, 0., PI/2.);
+          
+          
+          sprintf(histoName, "calib_muonP_vsETA_region_%05d---phi_%d_%d---eta_%d_%d",
+		 regionId,
+	         phiSTART  + phiWIDTH * (regionId%phiN),
+		 phiSTART  + phiWIDTH * (regionId%phiN + 1),
+		 etaSTART  + etaWIDTH * (regionId/phiN),
+		 etaSTART  + etaWIDTH * (regionId/phiN + 1));
+          
+          calib_muonPMap_vsETA[regionId] = new TH1D(histoName, histoName, 2000, 0., 20.);
+        }
       }
 
 
 
 
-      map_iterator_float mapIt_float = calib_dEdXMap_vsPHI.find(phiCenter);
-      if( (mapIt_float == calib_dEdXMap_vsPHI.end()) && (regionId != -1) )
+
+      bool doCalib = true;
+      if(regionId == -1) doCalib = false;
+      for(unsigned int ii = 0; ii < noCalibREGIONID.size(); ++ii)
       {
-        char histoName[100];
-        sprintf(histoName, "calib_dEdX_vsPHI_region_%05d---phi_%d_%d---eta_%d_%d",
-		   regionId,
-		   phiSTART  + phiWIDTH * (regionId%phiN),
-		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
-		   etaSTART  + etaWIDTH * (regionId/phiN),
-		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
-
-        calib_dEdXMap_vsPHI[phiCenter] = new TH1D(histoName, histoName, 20000, 0., 1000.);
-
-
-        sprintf(histoName, "muonAngle_vsPHI_region_%05d---phi_%d_%d---eta_%d_%d",
-		   regionId,
-		   phiSTART  + phiWIDTH * (regionId%phiN),
-		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
-		   etaSTART  + etaWIDTH * (regionId/phiN),
-		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
-
-        calib_muonAngleMap_vsPHI[phiCenter] = new TH1D(histoName, histoName, 1000, 0., PI/2.);
+        if(regionId == noCalibREGIONID.at(ii))
+          doCalib = false;
       }
 
-
-
-      mapIt_float = calib_dEdXMap_vsETA.find(etaCenter);
-      if( (mapIt_float == calib_dEdXMap_vsETA.end()) && (regionId != -1) )
-      {
-        char histoName[100];
-        sprintf(histoName, "calib_dEdX_vsETA_region_%05d---phi_%d_%d---eta_%d_%d",
-		   regionId,
-		   phiSTART  + phiWIDTH * (regionId%phiN),
-		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
-		   etaSTART  + etaWIDTH * (regionId/phiN),
-		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
-
-        calib_dEdXMap_vsETA[etaCenter] = new TH1D(histoName, histoName, 20000, 0., 1000.);
-
-
-        sprintf(histoName, "muonAngle_vsETA_region_%05d---phi_%d_%d---eta_%d_%d",
-		   regionId,
-		   phiSTART  + phiWIDTH * (regionId%phiN),
-		   phiSTART  + phiWIDTH * (regionId%phiN + 1),
-		   etaSTART  + etaWIDTH * (regionId/phiN),
-		   etaSTART  + etaWIDTH * (regionId/phiN + 1));
-
-        calib_muonAngleMap_vsETA[etaCenter] = new TH1D(histoName, histoName, 1000, 0., PI/2.);
-      }
-
-
-
-
-
-
-      if( (regionId != -1) &&
-          ( (regionId ==  3) || (regionId ==  4) || (regionId ==  5) || (regionId ==  6) || 
-            (regionId == 12) || (regionId == 13) || (regionId == 14) || (regionId == 15) ||
-            (regionId == 21) || (regionId == 22) || (regionId == 23) || (regionId == 24) ||
-            (regionId == 30) || (regionId == 31) || (regionId == 32) || (regionId == 33) ) )
+      if(doCalib == true)
       {
         regionOccupancy_ETAvsPHI.Fill(seedXtalIphi, region.etaShifter(seedXtalIeta));
 
-        calib_nEvents_vsREGIONID.Fill(regionId);
-        calib_nEvents_vsPHI.Fill(phiCenter);
-        calib_nEvents_vsETA.Fill(etaCenter);
+        if(doCalibVsREGIONID == true)
+        {
+          calib_nEvents_vsREGIONID.Fill(regionId);
 
-        calib_muonAngleMap_vsREGIONID[regionId] -> Fill(muonAngle);
-        calib_muonAngleMap_vsPHI[phiCenter] -> Fill(muonAngle);
-        calib_muonAngleMap_vsETA[etaCenter] -> Fill(muonAngle);
-        calib_muonPMap_vsREGIONID[regionId] -> Fill(muonP);
+          calib_muonAngleMap_vsREGIONID[regionId] -> Fill(muonAngle);
+          calib_muonAngle_profile_vsREGIONID.Fill(regionId, muonAngle);
+          float dEdX;
+          if(muonAngle <= 0.2) dEdX = pol0_0;
+          else dEdX = pol1_0 + muonAngle * pol1_1;
+          calib_dEdXDistrAngle_vsREGIONID.Fill(dEdX);
 
-        calib_muonAngle_profile_vsREGIONID.Fill(regionId, muonAngle);
-        calib_muonAngle_profile_vsPHI.Fill(phiCenter, muonAngle);
-        calib_muonAngle_profile_vsETA.Fill(etaCenter, muonAngle);
+          calib_muonPMap_vsREGIONID[regionId] -> Fill(muonP);
+          calib_muonP_profile_vsREGIONID.Fill(regionId, muonP);
+          calib_dEdXDistrP_vsREGIONID.Fill(FindBetheBlochValue(&BetheBloch_th, muonP));
 
-        calib_muonP_profile_vsREGIONID.Fill(regionId, muonP);
+          calib_dEdXMap_vsREGIONID[regionId] -> Fill(dEdXCurved / trueVal);
+	}
 
-        calib_dEdXMap_vsREGIONID[regionId] -> Fill(dEdXCurved / trueVal);
-        calib_dEdXMap_vsPHI[phiCenter] -> Fill(dEdXCurved / trueVal);
-        calib_dEdXMap_vsETA[etaCenter] -> Fill(dEdXCurved / trueVal);
+        if(doCalibVsPHI == true)
+        {
+          calib_nEvents_vsPHI.Fill(phiCenter);
+
+          calib_muonAngleMap_vsPHI[phiCenter] -> Fill(muonAngle);
+          calib_muonAngle_profile_vsPHI.Fill(phiCenter, muonAngle);
+          float dEdX;
+          if(muonAngle <= 0.2) dEdX = pol0_0;
+          else dEdX = pol1_0 + muonAngle * pol1_1;
+          calib_dEdXDistrAngle_vsPHI.Fill(dEdX);
+
+          calib_muonPMap_vsPHI[phiCenter] -> Fill(muonP);
+          calib_muonP_profile_vsPHI.Fill(phiCenter, muonP);
+          calib_dEdXDistrP_vsPHI.Fill(FindBetheBlochValue(&BetheBloch_th, muonP));
+
+          calib_dEdXMap_vsPHI[phiCenter] -> Fill(dEdXCurved / trueVal);
+	}
+
+        if(doCalibVsETA == true)
+        {
+          calib_nEvents_vsETA.Fill(etaCenter);
+
+          calib_muonAngleMap_vsETA[etaCenter] -> Fill(muonAngle);
+          calib_muonAngle_profile_vsETA.Fill(etaCenter, muonAngle);
+          float dEdX;
+          if(muonAngle <= 0.2) dEdX = pol0_0;
+          else dEdX = pol1_0 + muonAngle * pol1_1;
+          calib_dEdXDistrAngle_vsETA.Fill(dEdX);
+
+          calib_muonPMap_vsETA[etaCenter] -> Fill(muonP);
+          calib_muonP_profile_vsETA.Fill(etaCenter, muonP);
+          calib_dEdXDistrP_vsETA.Fill(FindBetheBlochValue(&BetheBloch_th, muonP));
+
+          calib_dEdXMap_vsETA[etaCenter] -> Fill(dEdXCurved / trueVal);
+	}
       }
 
 
       
     } // Loop on associations vector
+    
+    nSuperClustersDistr.Fill(nSuperClusters);
+    nClustersDistr.Fill(nClusters);
+    nXtalsDistr.Fill(nXtals);
     
   } // Loop over entries
   
@@ -1228,7 +1561,11 @@ int main (int argc, char** argv)
   // Save histograms
   // --------------------------------------------------------------------------------------
   
- 
+  events.Write();
+  for(int bin = 1; bin <= events.GetNbinsX(); ++bin)
+    efficiencies.SetBinContent(bin, 1. * events.GetBinContent(bin) / events.GetBinContent(1));
+  efficiencies.Write();
+
   nEvents_TOT.Write();
   nEvents_CUT.Write();
   for(int bin = 1; bin <= P_BIN; ++bin)
@@ -1246,7 +1583,7 @@ int main (int argc, char** argv)
   
   double startValues[4] = {0.12, 1.5, dEdXDistrCurved.GetEntries() / 10., 0.25};
   TF1* langaus = new TF1;
-  LangausFit(&langaus, &dEdXDistrCurved, startValues);
+  LangausFit(&langaus, &dEdXDistrCurved, startValues, 0., 100.);
   dEdXDistrCurved.Write();
   delete langaus ;
   
@@ -1280,6 +1617,10 @@ int main (int argc, char** argv)
   double errX_hig = -1.;
   double errY = -1.;
   
+  
+  
+  outFile << "Tot events = " << nTot << std::endl;
+
   for(int bin = 1; bin <= P_BIN; ++bin)
   {
     if (pMapCurved[bin] > 0)
@@ -1296,16 +1637,16 @@ int main (int argc, char** argv)
 
     double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
     TF1* langaus = new TF1;
-    //LangausFit(&langaus, histo, startValues);
+    //LangausFit(&langaus, histo, startValues, 0., 1000.);
     
-    if (pMapCurved[bin] > 0)
-    {
-      BetheBloch_graph_MPV_curved.SetPoint(bin-1, pMapCurved[bin], langaus -> GetParameter(1));
-      BetheBloch_graph_MPV_curved.SetPointError(bin-1, 0., langaus -> GetParError(1));
-      BetheBloch_mean_curved[bin] = langaus -> Mean(0., 100.);    
-      BetheBloch_graph_GSigma_curved.SetPoint(bin-1, pMapCurved[bin], langaus -> GetParameter(3));
-      BetheBloch_graph_GSigma_curved.SetPointError(bin-1, 0., langaus -> GetParError(3));
-    }
+    //if (pMapCurved[bin] > 0)
+    //{
+    //  BetheBloch_graph_MPV_curved.SetPoint(bin-1, pMapCurved[bin], langaus -> GetParameter(1));
+    //  BetheBloch_graph_MPV_curved.SetPointError(bin-1, 0., langaus -> GetParError(1));
+    //  BetheBloch_mean_curved[bin] = langaus -> Mean(0., 100.);    
+    //  BetheBloch_graph_GSigma_curved.SetPoint(bin-1, pMapCurved[bin], langaus -> GetParameter(3));
+    //  BetheBloch_graph_GSigma_curved.SetPointError(bin-1, 0., langaus -> GetParError(3));
+    //}
     histo -> Write();
     
     
@@ -1327,14 +1668,15 @@ int main (int argc, char** argv)
     //BetheBloch_graph_E5x5_curved.SetPointError(bin-1, errX_low, errX_hig, errY, errY);
     
 
-    std::cout << "Bin " << std::fixed << std::setprecision(2) << std::setw(3) << bin 
-              << ":   [" << std::setw(7) << BetheBloch_profile_curved.GetBinLowEdge(bin)
-              << "," << std::setw(7) << BetheBloch_profile_curved.GetBinLowEdge(bin) + BetheBloch_profile_curved.GetBinWidth(bin)
-              << "]         BinCenter: " << std::setw(7) << BetheBloch_profile_curved.GetBinCenter(bin)
-              << "   BinAvgCenter: " << std::setw(7) << pMapCurved[bin]
-              << "         BinEntries: " << std::setprecision(0) << std::setw(5) << BetheBloch_profile_curved.GetBinEntries(bin)
-              << "         BinContent: " << std::setprecision(3) << std::setw(5) << BetheBloch_profile_curved.GetBinContent(bin)
-              << std::endl;
+
+    outFile << "Bin " << std::fixed << std::setprecision(2) << std::setw(3) << bin 
+            << ":   [" << std::setw(7) << BetheBloch_profile_curved.GetBinLowEdge(bin)
+            << "," << std::setw(7) << BetheBloch_profile_curved.GetBinLowEdge(bin) + BetheBloch_profile_curved.GetBinWidth(bin)
+            << "]         BinCenter: " << std::setw(7) << BetheBloch_profile_curved.GetBinCenter(bin)
+            << "   BinAvgCenter: " << std::setw(7) << pMapCurved[bin]
+            << "         BinEntries: " << std::setprecision(0) << std::setw(5) << BetheBloch_profile_curved.GetBinEntries(bin)
+            << "         BinContent: " << std::setprecision(3) << std::setw(5) << BetheBloch_profile_curved.GetBinContent(bin)
+            << std::endl;
   }
   
   DrawBetheBlochResiduals(BetheBloch_graph_curved, BetheBloch_th, BetheBloch_graph_residuals_curved);
@@ -1392,6 +1734,8 @@ int main (int argc, char** argv)
   muondR_vsAngle.Write();
   muondR_profile_vsAngle.Write();
 
+  muonVertex.Write();
+
   muonTkInternalPointInEcalCurvedPhiDistr.Write();
   muonTkInternalPointInEcalCurvedEtaDistr.Write();
   muonTkInternalPointInEcalCurvedRDistr.Write();
@@ -1417,6 +1761,8 @@ int main (int argc, char** argv)
   muonInnTkDAngle_profile_vsPT.Write();
   
   muonTkLengthCurvedDistr.Write();
+  muonTkLengthCurved_vsP.Write();
+  muonTkLengthCurved_profile_vsP.Write();
   muonTkLengthCurved_vsDR.Write();
   muonTkLengthCurved_profile_vsDR.Write();
   muonTkLengthCurved_vsAngle.Write();
@@ -1432,7 +1778,6 @@ int main (int argc, char** argv)
 
   ZSLengthDistr.Write();
   ZSLength_vsAngle.Write();
-
   outRootFile.cd();
   // Muon histograms
   
@@ -1445,6 +1790,13 @@ int main (int argc, char** argv)
   outRootFile.mkdir ("SuperCluster");
   outRootFile.cd ("SuperCluster");
   std::cout << ">>> Saving SuperCluster histograms" << std::endl;  
+
+  nSuperClustersDistr_noCut.Write();
+  nClustersDistr_noCut.Write();
+  nClustersPerSuperClusterDistr_noCut.Write();
+
+  nSuperClustersDistr.Write();
+  nClustersDistr.Write();
 
   superClusterOccupancy_ETAvsPHI.Write();
   
@@ -1465,6 +1817,7 @@ int main (int argc, char** argv)
   EoP_vsP.Write();
   
   nXtalsInSuperClusterDistr.Write();
+  nXtalsInSuperCluster_vsE.Write();
   nXtalsInSuperCluster_vsAngle.Write();
   nXtalsInSuperCluster_profile_vsAngle.Write();
   nXtalsInSuperCluster_profile_vsPHI.Write();
@@ -1472,6 +1825,11 @@ int main (int argc, char** argv)
   nXtalsInSuperCluster_profile_ETAvsPHI.Write();  
 
   nXtalsInSuperClusterOverCrossedXtalsCurvedDistr.Write();
+
+
+  nClustersInSuperClusterDistr.Write();
+  nClustersInSuperCluster_vsAngle.Write();
+  nClustersInSuperCluster_vsE.Write();
 
   outRootFile.cd ();
   // SuperCluster histograms
@@ -1481,11 +1839,38 @@ int main (int argc, char** argv)
   
   
   
+  // Association histograms
+  outRootFile.mkdir("Association");
+  outRootFile.cd("Association");
+  std::cout << ">>> Saving Association histograms" << std::endl;
+
+  assocDRDistr.Write();
+  assocDEta_vsDPhi.Write();
+  
+  assocDR_vsP.Write();
+  assocDR_profile_vsP.Write();
+  
+  assocDR_vsAngle.Write();
+  assocDR_profile_vsAngle.Write();
+  
+  outRootFile.cd ();
+  // Association histograms  
+  
+  
+  
+  
+  
+  
   // Xtal histograms
   outRootFile.mkdir("Xtal");
   outRootFile.cd("Xtal");
-  std::cout << ">>> Saving Xtal histograms" << std::endl;  
+  std::cout << ">>> Saving Xtal histograms" << std::endl;
   
+  nXtalsDistr_noCut.Write();
+  nXtalsPerSuperClusterDistr_noCut.Write();
+
+  nXtalsDistr.Write();
+
   xtalOccupancy_iETAvsiPHI.Write();
 
   xtalEnergyDistr.Write();
@@ -1500,6 +1885,7 @@ int main (int argc, char** argv)
   xtalTkLengthCurved_vsAngle.Write();
   xtalTkLengthCurved_profile_vsAngle.Write();
   
+  xtalEnergyMaxDistr.Write();
   xtalTkLengthCurvedMaxDistr.Write();
   xtalTkLengthCurvedMax_vsAngle.Write();
   xtalTkLengthCurvedMax_profile_vsAngle.Write();
@@ -1531,181 +1917,241 @@ int main (int argc, char** argv)
   //BetheBloch_profile_E5x5_curved.Write();
   //BetheBloch_graph_E5x5_curved.Write("BetheBloch_graph_E5x5_curved");
 
+  TF1* Pol0 = new TF1("Pol0", "[0]", 0., 0.1);
+  TF1* Pol1 = new TF1("Pol1", "[0] + [1]*(x-0.1) ", 0.1, 1.);
+  Pol0 -> SetLineWidth(2);
+  Pol0 -> SetLineColor(kRed);
+  Pol1 -> SetLineWidth(2);
+  Pol1 -> SetLineColor(kBlue);
+
+  BetheBloch_unc_profile_vsAngle.Fit("Pol0", "+QR");
+  Pol1->FixParameter(0, Pol0->GetParameter(0));
+  BetheBloch_unc_profile_vsAngle.Fit("Pol1", "+QR");
+
+  BetheBloch_unc_vsAngle.Write();  
+  BetheBloch_unc_profile_vsAngle.Write();  
+
   BetheBloch_vsAngle.Write();  
   BetheBloch_profile_vsAngle.Write();  
   
-
-
+  outFile << "****** Fit of <dE/dx> vs Angle ******" << std::endl;
+  outFile << "Plateau:   y = [0]              with      [0] = " << std::fixed << std::setprecision(5) << Pol0 -> GetParameter(0) 
+          << " +/- " << Pol0 -> GetParError(0) << std::endl; 
+  outFile << "Trend:     y = [0] + [1]*x      with      [0] = " << std::fixed << std::setprecision(5) << Pol1 -> GetParameter(0) 
+          << " +/- " << std::fixed << std::setprecision(5) << Pol1 -> GetParError(0)  
+          << "      [1] = " << std::fixed << std::setprecision(5) << Pol1 -> GetParameter(1)   
+          << " +/- " << std::fixed << std::setprecision(5) << Pol1 -> GetParError(1)
+          << std::endl;  
 
 
 
 
   TDirectory* sd1 = outRootFile.mkdir("Calibration");
   sd1 -> cd();
+  std::cout << ">>> Saving Calibration histograms" << std::endl;
 
   regionOccupancy_ETAvsPHI.Write();
 
 
 
-  TDirectory* sd2 = sd1 -> mkdir("vsREGIONID");
-  sd2 -> cd();
-
-  calib_nEvents_vsREGIONID.Write();
-  calib_muonAngle_profile_vsREGIONID.Write();
-  calib_muonP_profile_vsREGIONID.Write();
-
-  int point = 0;
-  for(map_const_iterator_int mapIt = calib_dEdXMap_vsREGIONID.begin();
-      mapIt != calib_dEdXMap_vsREGIONID.end() ; ++mapIt)
+  TDirectory* sd2;
+  if(doCalibVsREGIONID == true)
   {
-    int regionId = mapIt -> first;
-    TH1D* histo = mapIt -> second;
+    sd2 = sd1 -> mkdir("vsREGIONID");
+    sd2 -> cd();
     
-    double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
-    TF1* langaus = new TF1;
-    LangausFit(&langaus, &(*histo), startValues);
-    histo -> Write();
+    calib_nEvents_vsREGIONID.Write();
+
+    calib_muonAngle_profile_vsREGIONID.Write();
+    calib_dEdXDistrAngle_vsREGIONID.Write();
+
+    calib_muonP_profile_vsREGIONID.Write();
+    calib_dEdXDistrP_vsREGIONID.Write();    
+
+    int point = 0;
+    for(map_const_iterator_int mapIt = calib_dEdXMap_vsREGIONID.begin();
+        mapIt != calib_dEdXMap_vsREGIONID.end() ; ++mapIt)
+    {
+      int regionId = mapIt -> first;
+      TH1D* histo = mapIt -> second;
+      
+      double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
+      TF1* langaus = new TF1;
+      LangausFit(&langaus, &(*histo), startValues, 0., 50.);
+      histo -> Write();
+      
+      calibCoeffDistr_mean_vsREGIONID.Fill(mapIt -> second -> GetMean());
+      calibCoeff_mean_vsREGIONID.SetPoint(point, regionId, histo -> GetMean());
+      calibCoeff_mean_vsREGIONID.SetPointError(point, 0., histo -> GetMeanError());
+      
+      calibCoeffDistr_MPV_vsREGIONID.Fill(langaus -> GetParameter(1));
+      calibCoeff_MPV_vsREGIONID.SetPoint(point, regionId, langaus -> GetParameter(1));
+      calibCoeff_MPV_vsREGIONID.SetPointError(point, 0., langaus -> GetParError(1));
+      
+      ++point;
+    }
+
+    calibCoeffDistr_mean_vsREGIONID.Write();
+    calibCoeff_mean_vsREGIONID.Write("calibCoeff_mean_vsREGIONID");
     
-    calibCoeffDistr_mean_vsREGIONID.Fill(mapIt -> second -> GetMean());
-    calibCoeff_mean_vsREGIONID.SetPoint(point, regionId, histo -> GetMean());
-    calibCoeff_mean_vsREGIONID.SetPointError(point, 0., histo -> GetMeanError());
     
-    calibCoeffDistr_MPV_vsREGIONID.Fill(langaus -> GetParameter(1));
-    calibCoeff_MPV_vsREGIONID.SetPoint(point, regionId, langaus -> GetParameter(1));
-    calibCoeff_MPV_vsREGIONID.SetPointError(point, 0., langaus -> GetParError(1));
+    calibCoeffDistr_MPV_vsREGIONID.Write();
+    calibCoeff_MPV_vsREGIONID.Write("calibCoeff_MPV_vsREGIONID");
     
-    ++point;
+    
+    for(map_const_iterator_int mapIt = calib_muonAngleMap_vsREGIONID.begin();
+        mapIt != calib_muonAngleMap_vsREGIONID.end() ; ++mapIt)
+    {
+      TH1D* histo = mapIt -> second;
+      histo -> Write();
+    }
+    
+    for(map_const_iterator_int mapIt = calib_muonPMap_vsREGIONID.begin();
+        mapIt != calib_muonPMap_vsREGIONID.end() ; ++mapIt)
+    {
+      TH1D* histo = mapIt -> second;
+      histo -> Write();
+    }
+    
+    sd1 -> cd();
   }
 
 
-  calibCoeffDistr_mean_vsREGIONID.Write();
-  calibCoeff_mean_vsREGIONID.Write("calibCoeff_mean_vsREGIONID");
 
-
-  calibCoeffDistr_MPV_vsREGIONID.Write();
-  calibCoeff_MPV_vsREGIONID.Write("calibCoeff_MPV_vsREGIONID");
-
-
-  for(map_const_iterator_int mapIt = calib_muonAngleMap_vsREGIONID.begin();
-      mapIt != calib_muonAngleMap_vsREGIONID.end() ; ++mapIt)
+  if(doCalibVsPHI == true)
   {
-    TH1D* histo = mapIt -> second;
-    histo -> Write();
-  }
+    sd2 = sd1 -> mkdir("vsPHI");
+    sd2 -> cd();
+    
+    calib_nEvents_vsPHI.Write();
 
-  for(map_const_iterator_int mapIt = calib_muonPMap_vsREGIONID.begin();
-      mapIt != calib_muonPMap_vsREGIONID.end() ; ++mapIt)
+    calib_muonAngle_profile_vsPHI.Write();
+    calib_dEdXDistrAngle_vsPHI.Write();
+
+    calib_muonP_profile_vsPHI.Write();
+    calib_dEdXDistrP_vsPHI.Write();    
+
+    int point = 0;
+    for(map_const_iterator_float mapIt = calib_dEdXMap_vsPHI.begin();
+        mapIt != calib_dEdXMap_vsPHI.end() ; ++mapIt)
+    {
+      float phiCenter = mapIt -> first;
+      TH1D* histo = mapIt -> second;
+      
+      double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
+      TF1* langaus = new TF1;
+      LangausFit(&langaus, &(*histo), startValues, 0., 50.);
+      histo -> Write();
+      
+      calibCoeffDistr_mean_vsPHI.Fill(mapIt -> second -> GetMean());
+      calibCoeff_mean_vsPHI.SetPoint(point, phiCenter, histo -> GetMean());
+      calibCoeff_mean_vsPHI.SetPointError(point, 0., histo -> GetMeanError());
+      
+      calibCoeffDistr_MPV_vsPHI.Fill(langaus -> GetParameter(1));
+      calibCoeff_MPV_vsPHI.SetPoint(point, phiCenter, langaus -> GetParameter(1));
+      calibCoeff_MPV_vsPHI.SetPointError(point, 0., langaus -> GetParError(1));
+      
+      ++point;
+    }
+    
+    
+    calibCoeffDistr_mean_vsPHI.Write();
+    calibCoeff_mean_vsPHI.Write("calibCoeff_mean_vsPHI");
+    
+    
+    calibCoeffDistr_MPV_vsPHI.Write();
+    calibCoeff_MPV_vsPHI.Write("calibCoeff_MPV_vsPHI");
+    
+    
+    for(map_const_iterator_float mapIt = calib_muonAngleMap_vsPHI.begin();
+        mapIt != calib_muonAngleMap_vsPHI.end() ; ++mapIt)
+    {
+      TH1D* histo = mapIt -> second;
+      histo -> Write();
+    }
+
+    for(map_const_iterator_float mapIt = calib_muonPMap_vsPHI.begin();
+        mapIt != calib_muonPMap_vsPHI.end() ; ++mapIt)
+    {
+      TH1D* histo = mapIt -> second;
+      histo -> Write();
+    }
+    
+    sd1 -> cd();
+  }
+  
+  
+  
+  if(doCalibVsETA == true)
   {
-    TH1D* histo = mapIt -> second;
-    histo -> Write();
+    sd2 = sd1 -> mkdir("vsETA");
+    sd2 -> cd();
+    
+    calib_nEvents_vsETA.Write();
+
+    calib_muonAngle_profile_vsETA.Write();
+    calib_dEdXDistrAngle_vsETA.Write();
+
+    calib_muonP_profile_vsETA.Write();
+    calib_dEdXDistrP_vsETA.Write();    
+
+    int point = 0;
+    for(map_const_iterator_float mapIt = calib_dEdXMap_vsETA.begin();
+        mapIt != calib_dEdXMap_vsETA.end() ; ++mapIt)
+    {
+      float etaCenter = mapIt -> first;
+      TH1D* histo = mapIt -> second;
+      
+      double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
+      TF1* langaus = new TF1;
+      LangausFit(&langaus, &(*histo), startValues, 0., 50.);
+      histo -> Write();
+      
+      calibCoeffDistr_mean_vsETA.Fill(mapIt -> second -> GetMean());
+      calibCoeff_mean_vsETA.SetPoint(point, etaCenter, histo -> GetMean());
+      calibCoeff_mean_vsETA.SetPointError(point, 0., histo -> GetMeanError());
+      
+      calibCoeffDistr_MPV_vsETA.Fill(langaus -> GetParameter(1));
+      calibCoeff_MPV_vsETA.SetPoint(point, etaCenter, langaus -> GetParameter(1));
+      calibCoeff_MPV_vsETA.SetPointError(point, 0., langaus -> GetParError(1));
+      
+      ++point;
+    }
+    
+    
+    calibCoeffDistr_mean_vsETA.Write();
+    calibCoeff_mean_vsETA.Write("calibCoeff_mean_vsETA");
+    
+    
+    calibCoeffDistr_MPV_vsETA.Write();
+    calibCoeff_MPV_vsETA.Write("calibCoeff_MPV_vsETA");
+    
+    
+    for(map_const_iterator_float mapIt = calib_muonAngleMap_vsETA.begin();
+        mapIt != calib_muonAngleMap_vsETA.end() ; ++mapIt)
+    {
+      TH1D* histo = mapIt -> second;
+      histo -> Write();
+    }
+
+    for(map_const_iterator_float mapIt = calib_muonPMap_vsETA.begin();
+        mapIt != calib_muonPMap_vsETA.end() ; ++mapIt)
+    {
+      TH1D* histo = mapIt -> second;
+      histo -> Write();
+    }
+    
+    sd1 -> cd();
   }
-
-  sd1 -> cd();
-
-
-
-
-  sd2 = sd1 -> mkdir("vsPHI");
-  sd2 -> cd();
-
-  calib_nEvents_vsPHI.Write();
-  calib_muonAngle_profile_vsPHI.Write();
-
-  point = 0;
-  for(map_const_iterator_float mapIt = calib_dEdXMap_vsPHI.begin();
-      mapIt != calib_dEdXMap_vsPHI.end() ; ++mapIt)
-  {
-    float phiCenter = mapIt -> first;
-    TH1D* histo = mapIt -> second;
-    
-    double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
-    TF1* langaus = new TF1;
-    //LangausFit(&langaus, &(*histo), startValues);
-    histo -> Write();
-
-    calibCoeffDistr_mean_vsPHI.Fill(mapIt -> second -> GetMean());
-    calibCoeff_mean_vsPHI.SetPoint(point, phiCenter, histo -> GetMean());
-    calibCoeff_mean_vsPHI.SetPointError(point, 0., histo -> GetMeanError());
-    
-    calibCoeffDistr_MPV_vsPHI.Fill(langaus -> GetParameter(1));
-    calibCoeff_MPV_vsPHI.SetPoint(point, phiCenter, langaus -> GetParameter(1));
-    calibCoeff_MPV_vsPHI.SetPointError(point, 0., langaus -> GetParError(1));
-    
-    ++point;
-  }
-
-
-  calibCoeffDistr_mean_vsPHI.Write();
-  calibCoeff_mean_vsPHI.Write("calibCoeff_mean_vsPHI");
-
-
-  calibCoeffDistr_MPV_vsPHI.Write();
-  calibCoeff_MPV_vsPHI.Write("calibCoeff_MPV_vsPHI");
-
-
-  for(map_const_iterator_float mapIt = calib_muonAngleMap_vsPHI.begin();
-      mapIt != calib_muonAngleMap_vsPHI.end() ; ++mapIt)
-  {
-    TH1D* histo = mapIt -> second;
-    histo -> Write();
-  }
-
-  sd1 -> cd();
-
-
-
-  sd2 = sd1 -> mkdir("vsETA");
-  sd2 -> cd();
-
-  calib_nEvents_vsETA.Write();
-  calib_muonAngle_profile_vsETA.Write();
-
-  point = 0;
-  for(map_const_iterator_float mapIt = calib_dEdXMap_vsETA.begin();
-      mapIt != calib_dEdXMap_vsETA.end() ; ++mapIt)
-  {
-    float etaCenter = mapIt -> first;
-    TH1D* histo = mapIt -> second;
-    
-    double startValues[4] = {0.12, histo -> GetMean(), histo -> GetEntries() / 10., 0.25};
-    TF1* langaus = new TF1;
-    //LangausFit(&langaus, &(*histo), startValues);
-    histo -> Write();
-
-    calibCoeffDistr_mean_vsETA.Fill(mapIt -> second -> GetMean());
-    calibCoeff_mean_vsETA.SetPoint(point, etaCenter, histo -> GetMean());
-    calibCoeff_mean_vsETA.SetPointError(point, 0., histo -> GetMeanError());
-    
-    calibCoeffDistr_MPV_vsETA.Fill(langaus -> GetParameter(1));
-    calibCoeff_MPV_vsETA.SetPoint(point, etaCenter, langaus -> GetParameter(1));
-    calibCoeff_MPV_vsETA.SetPointError(point, 0., langaus -> GetParError(1));
-    
-    ++point;
-  }
-
-
-  calibCoeffDistr_mean_vsETA.Write();
-  calibCoeff_mean_vsETA.Write("calibCoeff_mean_vsETA");
-
-
-  calibCoeffDistr_MPV_vsETA.Write();
-  calibCoeff_MPV_vsETA.Write("calibCoeff_MPV_vsETA");
-
-
-  for(map_const_iterator_float mapIt = calib_muonAngleMap_vsETA.begin();
-      mapIt != calib_muonAngleMap_vsETA.end() ; ++mapIt)
-  {
-    TH1D* histo = mapIt -> second;
-    histo -> Write();
-  }
-
-  sd1 -> cd();
 
   outRootFile.cd();
   
 
   
   outRootFile.Close();
+  outFile.close();
+  outFile2.close();
+  outFile3.close();
   
   
   return 0;

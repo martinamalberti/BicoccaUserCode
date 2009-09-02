@@ -79,7 +79,7 @@ int main (int argc, char** argv)
            ++i)
         {
           int MUindex = associations.at (i).first ;
-          int SCindex = associations.at (i).second ;
+          //int SCindex = associations.at (i).second ;
           
           const GlobalPoint muonInnerHit (treeVars.muonInnerHitX[MUindex],
                                           treeVars.muonInnerHitY[MUindex],

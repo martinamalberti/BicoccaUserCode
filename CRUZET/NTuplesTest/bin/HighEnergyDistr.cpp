@@ -25,7 +25,7 @@
 #include <boost/foreach.hpp>
 
 
-#include "CRUZET/Calibration/interface/CRUtils.h"
+#include "CRUZET/NTuplesTest/interface/NTuplesUtils.h"
 
 //#include "CRUZET/Calibration/interface/AssociationUtils.h"
 
@@ -64,8 +64,6 @@ int main (int argc, char** argv)
   TH1F spectrum ("spectrum","spectrum",100,0,100) ;     
 
   double singleXtalMinEnergy = 1. ; //PG GeV
-  double XtalEnergyMax = 0 ;		
-  double XtalEnergyMin = 0 ;
   
   //PG loop over entries
   for (int entry = 0 ; entry < nEntries ; ++entry)

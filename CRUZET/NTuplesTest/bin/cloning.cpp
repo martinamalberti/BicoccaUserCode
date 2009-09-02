@@ -4,7 +4,6 @@
 //PG CMSSW includes
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeContent.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalCosmicsTreeUtils.h"
-//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -22,12 +21,12 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <boost/foreach.hpp>
+
+#include "CRUZET/NTuplesTest/interface/NTuplesUtils.h"
 
 
-#include "CRUZET/Calibration/interface/CRUtils.h"
 
-//#include "CRUZET/Calibration/interface/AssociationUtils.h"
+
 
 
 int main (int argc, char* argv[])
