@@ -1,0 +1,13 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=DataFormats/EgammaReco>
+<use name=clhep>
+
+<export>
+ <use name=FWCore/Framework>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Utilities>
+</export>
