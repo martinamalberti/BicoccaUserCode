@@ -19,7 +19,7 @@ class MCDumper
  public:
   
   //!ctor
-  MCDumper(edm::Handle<reco::GenParticleCollection>& hGenParticles,
+  MCDumper(edm::Handle<reco::GenParticleCollection>& genParticles,
            const int& eventType,
            const bool& verbosity);
   

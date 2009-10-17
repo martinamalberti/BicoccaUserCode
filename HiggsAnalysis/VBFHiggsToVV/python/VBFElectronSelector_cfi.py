@@ -8,8 +8,8 @@ VBFSelectedElectrons = cms.EDFilter(
     ptMin  = cms.double(5.),
     etaMin = cms.double(-2.7),
     etaMax = cms.double(+2.7),
-    doRefCheck = cms.bool(True),
-    srcElectronsRef = cms.InputTag("VBFAmbiguityResolvedElectronsRef")
+    doRefCheck = cms.bool(False),
+    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -22,8 +22,8 @@ VBFSelectedElectronsRef = cms.EDFilter(
     ptMin  = cms.double(5.),
     etaMin = cms.double(-2.7),
     etaMax = cms.double(+2.7),
-    doRefCheck = cms.bool(True),
-    srcElectronsRef = cms.InputTag("VBFAmbiguityResolvedElectronsRef")
+    doRefCheck = cms.bool(False),
+    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 

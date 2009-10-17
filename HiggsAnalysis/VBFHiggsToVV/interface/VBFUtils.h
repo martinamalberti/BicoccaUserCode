@@ -30,6 +30,18 @@ struct deallocateVector: public std::unary_function<T, void>
 
 
 
+template <class T>
+void WriteNormalized(T* histo)
+{
+  histo -> Scale(1. / histo -> GetEntries());
+  histo -> Write();
+}
+
+
+
+
+
+
 template <class T1, class T2>
 std::map<float, std::pair<int, int> > MatchingDRMap(std::vector<T1>& collection1,
                                                     std::vector<T2>& collection2)

@@ -9,7 +9,7 @@ VBFSelectedMuons = cms.EDFilter(
     etaMin = cms.double(-2.7),
     etaMax = cms.double(+2.7),
     doRefCheck = cms.bool(False),
-    srcMuonsRef = cms.InputTag("muonsRef")
+    srcMuonsRef = cms.InputTag("muons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -23,7 +23,7 @@ VBFSelectedMuonsRef = cms.EDFilter(
     etaMin = cms.double(-2.7),
     etaMax = cms.double(+2.7),
     doRefCheck = cms.bool(False),
-    srcMuonsRef = cms.InputTag("muonsRef")
+    srcMuonsRef = cms.InputTag("muons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

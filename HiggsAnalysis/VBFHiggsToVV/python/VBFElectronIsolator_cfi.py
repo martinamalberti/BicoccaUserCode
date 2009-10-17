@@ -17,8 +17,8 @@ VBFIsolatedElectrons = cms.EDFilter(
     emIsoCoeff  = cms.double(1.),
     hadIsoCoeff = cms.double(1.),
     dividePt = cms.bool(True),
-    doRefCheck = cms.bool(True),
-    srcElectronsRef = cms.InputTag("VBFSelectedElectronsRef")
+    doRefCheck = cms.bool(False),
+    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -40,8 +40,8 @@ VBFIsolatedElectronsRef = cms.EDFilter(
     emIsoCoeff  = cms.double(1.),
     hadIsoCoeff = cms.double(1.),
     dividePt = cms.bool(True),
-    doRefCheck = cms.bool(True),
-    srcElectronsRef = cms.InputTag("VBFSelectedElectronsRef")
+    doRefCheck = cms.bool(False),
+    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

@@ -63,7 +63,7 @@ VBFEtMinJetCountFilter<TCollection>::VBFEtMinJetCountFilter(const edm::Parameter
   m_srcJets  (iConfig.getParameter<edm::InputTag>("srcJets")),
   m_etMin    (iConfig.getParameter<double>("etMin")),
   m_etaMin   (iConfig.getParameter<double>("etaMin")), 
-  m_etaMax   (iConfig.getParameter<double>("etaMin")),
+  m_etaMax   (iConfig.getParameter<double>("etaMax")),
   m_minNumber(iConfig.getParameter<int>("minNumber"))
 {}
 

@@ -389,65 +389,50 @@ void MCDumper::GetVDecayMode(const int& Vindex)
     buffer.push_back(mcF2_fromV2_p);
   }
   
+  // sort: first e/mu/tau - d/s/b 
+  // sort: then nue/numu/nutau - u/c/t
+  if( ((buffer.at(0) -> pdgId())%2) == 0 )
+  {
+    const reco::Candidate* temp = buffer.at(0);
+    buffer.at(0) = buffer.at(1);
+    buffer.at(1) = temp;
+  }
+  
   
   
   for(unsigned int i = 0; i < buffer.size(); ++i)
   {
-    if(buffer.at(i) -> pdgId() == 11)
-      stringBuffer += "e-";
-    else if(buffer.at(i) -> pdgId() == -11)
-      stringBuffer += "e+";
-    else if(buffer.at(i) -> pdgId() == 12)
+    if( abs(buffer.at(i) -> pdgId()) == 11 )
+      stringBuffer += "e";
+    if( abs(buffer.at(i) -> pdgId()) == 12 )
       stringBuffer += "nue";
-    else if(buffer.at(i) -> pdgId() == -12)
-      stringBuffer += "nuebar";
     
-    if(buffer.at(i) -> pdgId() == 13)
-      stringBuffer += "mu-";
-    else if(buffer.at(i) -> pdgId() == -13)
-      stringBuffer += "mu+";
-    else if(buffer.at(i) -> pdgId() == 14)
+    if( abs(buffer.at(i) -> pdgId()) == 13 )
+      stringBuffer += "mu";
+    if( abs(buffer.at(i) -> pdgId()) == 14 )
       stringBuffer += "numu";
-    else if(buffer.at(i) -> pdgId() == -14)
-      stringBuffer += "numubar";
     
-    if(buffer.at(i) -> pdgId() == 15)
-      stringBuffer += "tau-";
-    else if(buffer.at(i) -> pdgId() == -15)
-      stringBuffer += "tau+";
-    else if(buffer.at(i) -> pdgId() == 16)
+    if( abs(buffer.at(i) -> pdgId()) == 15 )
+      stringBuffer += "tau";
+    if( abs(buffer.at(i) -> pdgId()) == 16 )
       stringBuffer += "nutau";
-    else if(buffer.at(i) -> pdgId() == -16)
-      stringBuffer += "nutaubar";
     
     
     
-    if(buffer.at(i) -> pdgId() == 1)
+    if( abs(buffer.at(i) -> pdgId()) == 1 )
       stringBuffer += "d";
-    else if(buffer.at(i) -> pdgId() == -1)
-      stringBuffer += "dbar";
-    if(buffer.at(i) -> pdgId() == 2)
+    if( abs(buffer.at(i) -> pdgId()) == 2 )
       stringBuffer += "u";
-    else if(buffer.at(i) -> pdgId() == -2)
-      stringBuffer += "ubar";
     
-    if(buffer.at(i) -> pdgId() == 3)
+    if( abs(buffer.at(i) -> pdgId()) == 3 )
       stringBuffer += "s";
-    else if(buffer.at(i) -> pdgId() == -3)
-      stringBuffer += "sbar";
-    if(buffer.at(i) -> pdgId() == 4)
+    if( abs(buffer.at(i) -> pdgId()) == 4 )
       stringBuffer += "c";
-    else if(buffer.at(i) -> pdgId() == -4)
-      stringBuffer += "cbar";
     
-    if(buffer.at(i) -> pdgId() == 5)
+    if( abs(buffer.at(i) -> pdgId()) == 5 )
       stringBuffer += "b";
-    else if(buffer.at(i) -> pdgId() == -5)
-      stringBuffer += "bbar";
-    if(buffer.at(i) -> pdgId() == 6)
+    if( abs(buffer.at(i) -> pdgId()) == 6 )
       stringBuffer += "t";
-    else if(buffer.at(i) -> pdgId() == -6)
-      stringBuffer += "tbar";
     
     
     

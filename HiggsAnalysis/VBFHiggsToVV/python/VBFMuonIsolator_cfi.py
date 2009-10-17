@@ -14,8 +14,8 @@ VBFIsolatedMuons = cms.EDFilter(
     emIsoCoeff  = cms.double(1.),
     hadIsoCoeff = cms.double(1.),
     dividePt = cms.bool(True),
-    doRefCheck = cms.bool(True),
-    srcMuonsRef = cms.InputTag("VBFSelectedMuonsRef")
+    doRefCheck = cms.bool(False),
+    srcMuonsRef = cms.InputTag("muons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -34,8 +34,8 @@ VBFIsolatedMuonsRef = cms.EDFilter(
     emIsoCoeff  = cms.double(1.),
     hadIsoCoeff = cms.double(1.),
     dividePt = cms.bool(True),
-    doRefCheck = cms.bool(True),
-    srcMuonsRef = cms.InputTag("VBFSelectedMuonsRef")
+    doRefCheck = cms.bool(False),
+    srcMuonsRef = cms.InputTag("muons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

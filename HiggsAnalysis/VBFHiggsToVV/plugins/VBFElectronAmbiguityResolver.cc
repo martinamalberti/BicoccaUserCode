@@ -27,13 +27,13 @@ VBFElectronAmbiguityResolver::VBFElectronAmbiguityResolver(const edm::ParameterS
 
 
 
-void VBFElectronAmbiguityResolver::select(edm::Handle<collection> recoElectrons,
+void VBFElectronAmbiguityResolver::select(edm::Handle<collection> electrons,
                                           const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
   m_selected.clear();
   
   //PG get the actual product
-  dump(iEvent, &m_selected, recoElectrons);
+  dump(iEvent, &m_selected, electrons);
   
   container::iterator ShorterEnd;
   

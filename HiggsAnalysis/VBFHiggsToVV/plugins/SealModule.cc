@@ -11,6 +11,29 @@ DEFINE_SEAL_MODULE();
 
 
 
+
+
+
+//-------------------------------------------------
+// VBFLeptonDistributions
+//-------------------------------------------------
+
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFElectronDistributions.h"
+DEFINE_ANOTHER_FWK_MODULE(VBFElectronDistributions);
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFMuonDistributions.h"
+DEFINE_ANOTHER_FWK_MODULE(VBFMuonDistributions);
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFLeptonDistributions.h"
+DEFINE_ANOTHER_FWK_MODULE(VBFLeptonDistributions);
+
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFJetDistributions.h"
+typedef VBFJetDistributions<reco::CaloJetCollection> VBFCaloJetDistributions;
+DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetDistributions);
+
+
+
+
+
+
 //-------------------------------------------------
 // VBFElectronAmbiguityResolver
 //-------------------------------------------------
@@ -87,11 +110,15 @@ DEFINE_ANOTHER_FWK_MODULE(VBFMuonIsolationRef);
 // VBFJetSelector
 //-------------------------------------------------
 
-// #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFJetSelector.h"
-// typedef ObjectSelector<VBFJetSelector<reco::CaloJetCollection> > VBFCaloJetSelection;
-// typedef ObjectSelector<VBFJetSelector<reco::CaloJetCollection>, edm::RefVector<reco::CaloJetCollection> > VBFCaloJetSelectionRef;
-// DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetSelection);
-// DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetSelectionRef);
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFJetSelector.h"
+typedef ObjectSelector<VBFJetSelector<reco::CaloJetCollection> > VBFCaloJetSelection;
+typedef ObjectSelector<VBFJetSelector<reco::CaloJetCollection>, edm::RefVector<reco::CaloJetCollection> > VBFCaloJetSelectionRef;
+typedef ObjectSelector<VBFJetSelector<reco::PFJetCollection> > VBFPFJetSelection;
+typedef ObjectSelector<VBFJetSelector<reco::PFJetCollection>, edm::RefVector<reco::PFJetCollection> > VBFPFJetSelectionRef;
+DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetSelection);
+DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetSelectionRef);
+DEFINE_ANOTHER_FWK_MODULE(VBFPFJetSelection);
+DEFINE_ANOTHER_FWK_MODULE(VBFPFJetSelectionRef);
 
 
 
@@ -102,11 +129,19 @@ DEFINE_ANOTHER_FWK_MODULE(VBFMuonIsolationRef);
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFPtMinLeptonCountFilter.h"
 DEFINE_ANOTHER_FWK_MODULE(VBFPtMinLeptonCountFilter);
 
-// #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFEtMinJetCountFilter.h"
-// typedef VBFEtMinJetCountFilter<reco::CaloJetCollection> VBFEtMinCaloJetCountFilter;
-// typedef VBFEtMinJetCountFilter<reco::PFJetCollection>   VBFEtMinPFJetCountFilter;
-// DEFINE_ANOTHER_FWK_MODULE(VBFEtMinCaloJetCountFilter);
-// DEFINE_ANOTHER_FWK_MODULE(VBFEtMinPFJetCountFilter);
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFEtMinJetCountFilter.h"
+typedef VBFEtMinJetCountFilter<reco::CaloJetCollection> VBFEtMinCaloJetCountFilter;
+typedef VBFEtMinJetCountFilter<reco::PFJetCollection>   VBFEtMinPFJetCountFilter;
+DEFINE_ANOTHER_FWK_MODULE(VBFEtMinCaloJetCountFilter);
+DEFINE_ANOTHER_FWK_MODULE(VBFEtMinPFJetCountFilter);
+
+
+
+
+
+
+
+
 
 
 
@@ -114,6 +149,15 @@ DEFINE_ANOTHER_FWK_MODULE(VBFPtMinLeptonCountFilter);
 //----------------------------------
 //----------- MonteCarlo -----------
 //----------------------------------
+
+//-------------------------
+// MCDecayModeFilter
+//-------------------------
+
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/MCDecayModeFilter.h"
+DEFINE_ANOTHER_FWK_MODULE(MCDecayModeFilter);
+
+
 
 //-------------------------
 // MCPtMinLeptonCountFilter 
