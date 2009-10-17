@@ -1,13 +1,9 @@
-<use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/Utilities>
-<use name=DataFormats/EgammaReco>
+<use name=root>
+<use name=rootmath>
 <use name=clhep>
+<use name=DataFormats/EgammaCandidates>
+<use name=SimDataFormats/HepMCProduct>
 
 <export>
- <use name=FWCore/Framework>
- <use name=Foundation/PluginManager>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/Utilities>
+   <lib name=HiggsAnalysisVBFHiggsToVV>
 </export>
