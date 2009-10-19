@@ -27,7 +27,9 @@ DEFINE_ANOTHER_FWK_MODULE(VBFLeptonDistributions);
 
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFJetDistributions.h"
 typedef VBFJetDistributions<reco::CaloJetCollection> VBFCaloJetDistributions;
+typedef VBFJetDistributions<reco::PFJetCollection> VBFPFJetDistributions;
 DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetDistributions);
+DEFINE_ANOTHER_FWK_MODULE(VBFPFJetDistributions);
 
 
 
