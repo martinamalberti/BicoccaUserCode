@@ -15,7 +15,7 @@ DEFINE_SEAL_MODULE();
 
 
 //-------------------------------------------------
-// VBFLeptonDistributions
+// VBFElectron/Muon/Lepton/JetDistributions
 //-------------------------------------------------
 
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFElectronDistributions.h"
@@ -47,7 +47,6 @@ DEFINE_ANOTHER_FWK_MODULE(VBFElectronAmbiguityResolution);
 DEFINE_ANOTHER_FWK_MODULE(VBFElectronAmbiguityResolutionRef);
 
 
-
 //-------------------------------------------------
 // VBFElectronSelector
 //-------------------------------------------------
@@ -59,7 +58,6 @@ DEFINE_ANOTHER_FWK_MODULE(VBFElectronSelection);
 DEFINE_ANOTHER_FWK_MODULE(VBFElectronSelectionRef);
 
 
-
 //-------------------------------------------------
 // VBFElectronIsolator
 //-------------------------------------------------
@@ -69,7 +67,6 @@ typedef ObjectSelector<VBFElectronIsolator> VBFElectronIsolation;
 typedef ObjectSelector<VBFElectronIsolator, edm::RefVector<reco::GsfElectronCollection> > VBFElectronIsolationRef;
 DEFINE_ANOTHER_FWK_MODULE(VBFElectronIsolation);
 DEFINE_ANOTHER_FWK_MODULE(VBFElectronIsolationRef);
-
 
 
 //-------------------------------------------------
@@ -84,6 +81,9 @@ DEFINE_ANOTHER_FWK_MODULE(VBFElectronIdSelectionRef);
 
 
 
+
+
+
 //-------------------------------------------------
 // VBFMuonSelector
 //-------------------------------------------------
@@ -93,7 +93,6 @@ typedef ObjectSelector<VBFMuonSelector> VBFMuonSelection;
 typedef ObjectSelector<VBFMuonSelector, edm::RefVector<reco::MuonCollection> > VBFMuonSelectionRef;
 DEFINE_ANOTHER_FWK_MODULE(VBFMuonSelection);
 DEFINE_ANOTHER_FWK_MODULE(VBFMuonSelectionRef);
-
 
 
 //-------------------------------------------------
@@ -106,6 +105,24 @@ typedef ObjectSelector<VBFMuonIsolator, edm::RefVector<reco::MuonCollection> > V
 DEFINE_ANOTHER_FWK_MODULE(VBFMuonIsolation);
 DEFINE_ANOTHER_FWK_MODULE(VBFMuonIsolationRef);
 
+
+
+
+
+
+//-------------------------------------------------
+// VBFJetCleaner
+//-------------------------------------------------
+
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFJetCleaner.h"
+typedef ObjectSelector<VBFJetCleaner<reco::CaloJetCollection> > VBFCaloJetCleaning;
+typedef ObjectSelector<VBFJetCleaner<reco::CaloJetCollection>, edm::RefVector<reco::CaloJetCollection> > VBFCaloJetCleaningRef;
+typedef ObjectSelector<VBFJetCleaner<reco::PFJetCollection> > VBFPFJetCleaning;
+typedef ObjectSelector<VBFJetCleaner<reco::PFJetCollection>, edm::RefVector<reco::PFJetCollection> > VBFPFJetCleaningRef;
+DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetCleaning);
+DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetCleaningRef);
+DEFINE_ANOTHER_FWK_MODULE(VBFPFJetCleaning);
+DEFINE_ANOTHER_FWK_MODULE(VBFPFJetCleaningRef);
 
 
 //-------------------------------------------------
@@ -121,6 +138,9 @@ DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetSelection);
 DEFINE_ANOTHER_FWK_MODULE(VBFCaloJetSelectionRef);
 DEFINE_ANOTHER_FWK_MODULE(VBFPFJetSelection);
 DEFINE_ANOTHER_FWK_MODULE(VBFPFJetSelectionRef);
+
+
+
 
 
 
@@ -180,35 +200,8 @@ DEFINE_ANOTHER_FWK_MODULE(MCFwdJetsPreselFilter) ;
 
 
 /*
-
-//PG FIXME jet cleaner : from where?
-
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/FwdJetsPreselFilter.h"
 DEFINE_ANOTHER_FWK_MODULE(FwdJetsPreselFilter) ;
 
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/LepMinNumFilter.h"
 DEFINE_ANOTHER_FWK_MODULE(LepMinNumFilter) ;*/
-/*
-#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFEleAmbiguityResolver.h"
-typedef ObjectSelector<VBFEleAmbiguityResolver> VBFEleAmbiguityResolution ;
-typedef ObjectSelector<VBFEleAmbiguityResolver, edm::RefVector<reco::PixelMatchGsfElectronCollection> > VBFEleAmbiguityResolutionRef ;
-DEFINE_ANOTHER_FWK_MODULE (VBFEleAmbiguityResolution);
-DEFINE_ANOTHER_FWK_MODULE (VBFEleAmbiguityResolutionRef);*/
-/*
-#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFJetCleanerTemplate.h"
-typedef ObjectSelector<VBFJetCleanerTemplate<reco::CaloJetCollection> > VBFJetCleaningTemplateCaloJet ;
-DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplateCaloJet) ;
-typedef ObjectSelector<VBFJetCleanerTemplate<reco::CaloJetCollection>,
-edm::RefVector<reco::CaloJetCollection>
-  > VBFJetCleaningTemplateCaloJetRef ;
-DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplateCaloJetRef) ;*/
-/*
-//PG FIXME
-//PG - does pflow need jet cleaning?
-typedef ObjectSelector<VBFJetCleanerTemplate<reco::PFJetCollection> > VBFJetCleaningTemplatePFJet ;
-DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplatePFJet) ;
-typedef ObjectSelector<VBFJetCleanerTemplate<reco::PFJetCollection>,
-edm::RefVector<reco::PFJetCollection>
-  > VBFJetCleaningTemplatePFJetRef ;
-DEFINE_ANOTHER_FWK_MODULE (VBFJetCleaningTemplatePFJetRef) ;
-*/
