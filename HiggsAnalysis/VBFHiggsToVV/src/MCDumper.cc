@@ -19,8 +19,8 @@ MCDumper::MCDumper(edm::Handle<reco::GenParticleCollection>& genParticles,
  mcV1DecayMode_p(""),
  mcV2DecayMode_p(""),
  mcH_p(0),
- mcTagQ1_p(0),
- mcTagQ2_p(0),
+ mcQ1_tag_p(0),
+ mcQ2_tag_p(0),
  mcV1_p(0),
  mcV2_p(0),
  mcF1_fromV1_p(0),
@@ -115,10 +115,10 @@ void MCDumper::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles)
     
     // tag quarks
     if(counter == 6)
-      mcTagQ1_p = pCurrent;
+      mcQ1_tag_p = pCurrent;
 
     if(counter == 7)
-      mcTagQ2_p = pCurrent;
+      mcQ2_tag_p = pCurrent;
 
     //if(counter < 50)
     //if(abs(pdgId) == 13)

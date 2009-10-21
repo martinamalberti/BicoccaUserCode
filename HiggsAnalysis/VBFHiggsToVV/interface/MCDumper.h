@@ -45,8 +45,8 @@ class MCDumper
   
   const reco::Candidate* mcH() { return mcH_p; };
 
-  const reco::Candidate* mcTagQ1() { return mcTagQ1_p; };
-  const reco::Candidate* mcTagQ2() { return mcTagQ2_p; };
+  const reco::Candidate* mcQ1_tag() { return mcQ1_tag_p; };
+  const reco::Candidate* mcQ2_tag() { return mcQ2_tag_p; };
 
   const reco::Candidate* mcV1() { return mcV1_p; };
   const reco::Candidate* mcV2() { return mcV2_p; };
@@ -84,8 +84,8 @@ class MCDumper
   
   const reco::Candidate* mcH_p;
 
-  const reco::Candidate* mcTagQ1_p;
-  const reco::Candidate* mcTagQ2_p;
+  const reco::Candidate* mcQ1_tag_p;
+  const reco::Candidate* mcQ2_tag_p;
 
   const reco::Candidate* mcV1_p;
   const reco::Candidate* mcV2_p;

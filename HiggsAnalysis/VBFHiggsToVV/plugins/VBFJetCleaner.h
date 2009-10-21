@@ -93,7 +93,7 @@ VBFJetCleaner<TCollection>::VBFJetCleaner(const edm::ParameterSet& iConfig):
   m_maxDeltaR          (iConfig.getParameter<double>("maxDeltaR")),
   m_minEleOverJetEratio(iConfig.getParameter<double>("minEleOJetEratio")),
   m_doJetRefCheck     (iConfig.getParameter<bool>("doJetRefCheck")),
-  m_srcJetsRef        (iConfig.getParameter<edm::InputTag>("srcElectronsRef")),
+  m_srcJetsRef        (iConfig.getParameter<edm::InputTag>("srcJetsRef")),
   m_doElectronRefCheck(iConfig.getParameter<bool>("doElectronRefCheck")),
   m_srcElectronsRef   (iConfig.getParameter<edm::InputTag>("srcElectronsRef"))
 {}  
@@ -161,12 +161,11 @@ void VBFJetCleaner<TCollection>::select(edm::Handle<VBFJetCleaner<TCollection>::
         isJetRefCheckOk = false;
     
     if(!isJetRefCheckOk) continue;
-
-
-    double electronsEnergy = 0.;
+    
     
     
     //PG loop over electrons    
+    double electronsEnergy = 0.;
     int counter = 0;
     for(unsigned int i = 0; i < electrons -> size(); ++i)
     {
@@ -185,7 +184,7 @@ void VBFJetCleaner<TCollection>::select(edm::Handle<VBFJetCleaner<TCollection>::
           
       // get the isolation deposits
       double tkIso  = (*electronTkIsoValues)[electronRef];
-      tkIso  /= (electrons -> at(i)).pt();
+      tkIso  /= electronRef -> pt();
       
       // do the actual cut
       if(tkIso  > m_tkIsoCut) continue;
@@ -225,6 +224,8 @@ void VBFJetCleaner<TCollection>::select(edm::Handle<VBFJetCleaner<TCollection>::
  } //PG loop over jets   
 
 }
+
+// ----------------------------------------------------------------------------
 
 #endif
  

@@ -112,7 +112,7 @@ bool MCDecayModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   
   // MCDumper
-  if(m_eventType != 0) return false;
+  if(m_eventType != 0) return true;
   MCDumper mcAnalysis(genParticles, 0, false);
   bool isValid = mcAnalysis.isValid();
   if(!isValid) return false;
