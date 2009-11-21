@@ -6,9 +6,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include "TH1F.h"
 
 
 
@@ -48,6 +52,10 @@ class VBFEtMinJetCountFilter : public edm::EDFilter
   double m_etaMax;
   int m_minNumber;
   
+  TH1F* m_totalEvents;
+  TH1F* m_passedEvents;
+  TH1F* m_filterEfficiency;
+  
 };
 
 #endif
@@ -65,7 +73,13 @@ VBFEtMinJetCountFilter<TCollection>::VBFEtMinJetCountFilter(const edm::Parameter
   m_etaMin   (iConfig.getParameter<double>("etaMin")), 
   m_etaMax   (iConfig.getParameter<double>("etaMax")),
   m_minNumber(iConfig.getParameter<int>("minNumber"))
-{}
+{
+  edm::Service<TFileService> fs;
+  
+  m_totalEvents = fs -> make<TH1F>("totalEvents", "totalEvents", 1,  0., 1.);
+  m_passedEvents = fs -> make<TH1F>("passedEvents", "passedEvents", 1,  0., 1.);
+  m_filterEfficiency = fs -> make<TH1F>("filterEfficiency", "filterEfficiency", 1,  0., 1.);
+}
 
 // ----------------------------------------------------------------
 
@@ -130,6 +144,25 @@ bool VBFEtMinJetCountFilter<TCollection>::filter(edm::Event& iEvent, const edm::
   } //PG loop over jets
   
   
-  if(nSelected >= m_minNumber) return true;
-  return false;
+  
+  int nTotalEvents = static_cast<int>(m_totalEvents -> GetBinContent(1));
+  int nPassedEvents = static_cast<int>(m_passedEvents -> GetBinContent(1));
+  
+  if(nSelected >= m_minNumber)
+  {
+    m_totalEvents -> Fill(0.5);
+    m_passedEvents -> Fill(0.5);
+    m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents+1)/(nTotalEvents+1));
+    
+    return true;
+  }
+  
+  else
+  {
+    m_totalEvents -> Fill(0.5);
+    m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents)/(nTotalEvents+1)); 
+    
+    return false;
+  }
+  
 }

@@ -13,7 +13,14 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
+
 process.MessageLogger.cerr.threshold = 'INFO'
+
+process.TFileService = cms.Service(
+    "TFileService",
+    fileName = cms.string("efficiencies.root"),
+    closeFileFast = cms.untracked.bool(True)
+    )
 
 
 

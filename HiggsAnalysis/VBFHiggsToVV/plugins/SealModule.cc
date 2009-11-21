@@ -15,7 +15,7 @@ DEFINE_SEAL_MODULE();
 
 
 //-------------------------------------------------
-// VBFElectron/Muon/Lepton/JetDistributions
+// VBFElectron/Muon/Lepton/Jet/MetDistributions
 //-------------------------------------------------
 
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFElectronDistributions.h"
@@ -24,6 +24,8 @@ DEFINE_ANOTHER_FWK_MODULE(VBFElectronDistributions);
 DEFINE_ANOTHER_FWK_MODULE(VBFMuonDistributions);
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFLeptonDistributions.h"
 DEFINE_ANOTHER_FWK_MODULE(VBFLeptonDistributions);
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFMetDistributions.h"
+DEFINE_ANOTHER_FWK_MODULE(VBFMetDistributions);
 
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFJetDistributions.h"
 typedef VBFJetDistributions<reco::CaloJetCollection> VBFCaloJetDistributions;

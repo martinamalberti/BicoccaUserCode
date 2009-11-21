@@ -8,9 +8,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include "TH1F.h"
 
 #include <string>
 
@@ -102,6 +106,12 @@ class MCDecayModeFilter : public edm::EDFilter
   bool m_V2_s_s;
   bool m_V2_c_c;
   bool m_V2_b_b;
+  
+  
+  
+  TH1F* m_totalEvents;
+  TH1F* m_passedEvents;
+  TH1F* m_filterEfficiency;
   
  };
 

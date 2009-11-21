@@ -51,7 +51,13 @@ MCDecayModeFilter::MCDecayModeFilter(const edm::ParameterSet& iConfig):
  m_V2_s_s(iConfig.getParameter<bool>("V2_s_s")),
  m_V2_c_c(iConfig.getParameter<bool>("V2_c_c")),
  m_V2_b_b(iConfig.getParameter<bool>("V2_b_b"))
-{}
+{
+  edm::Service<TFileService> fs;
+  
+  m_totalEvents = fs -> make<TH1F>("totalEvents", "totalEvents", 1,  0., 1.);
+  m_passedEvents = fs -> make<TH1F>("passedEvents", "passedEvents", 1,  0., 1.);
+  m_filterEfficiency = fs -> make<TH1F>("filterEfficiency", "filterEfficiency", 1,  0., 1.);
+}
 
 // ----------------------------------------------------------------
 
@@ -111,93 +117,123 @@ bool MCDecayModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   
   
-  // MCDumper
-  if(m_eventType != 0) return true;
-  MCDumper mcAnalysis(genParticles, 0, false);
-  bool isValid = mcAnalysis.isValid();
-  if(!isValid) return false;
+  
+  
+  
+  // MCDumper  
+  double keepEvent = true;
+
+  // if is signal
+  if(m_eventType == 0)
+  {
+    MCDumper mcAnalysis(genParticles, 0, false);
+    bool isValid = mcAnalysis.isValid();
+    if(!isValid) keepEvent = false;
+    
+    
+    
+    
+    
+    
+    // -------------------------
+    // Higgs decay
+    // -------------------------
+    
+    if( (mcAnalysis.mcHDecayMode() == "W_W") && (m_H_W_W == false) ) keepEvent = false;
+    if( (mcAnalysis.mcHDecayMode() == "Z_Z") && (m_H_Z_Z == false) ) keepEvent = false;
+    
+    
+    
+    // -------------------------
+    // V1 decay - W modes
+    // -------------------------
+    
+    if( (mcAnalysis.mcV1DecayMode() == "e_nue")     && (m_V1_e_nue == false) )     keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "mu_numu")   && (m_V1_mu_numu == false) )   keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "tau_nutau") && (m_V1_tau_nutau == false) ) keepEvent = false;
+    
+    if( (mcAnalysis.mcV1DecayMode() == "d_u") && (m_V1_d_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "d_c") && (m_V1_d_c == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "s_u") && (m_V1_s_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "s_c") && (m_V1_s_c == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "b_u") && (m_V1_b_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "b_c") && (m_V1_b_c == false) ) keepEvent = false;
+    
+    // -------------------------
+    // V1 decay - Z modes
+    // -------------------------
+    
+    if( (mcAnalysis.mcV1DecayMode() == "e_e")         && (m_V1_e_e == false) )         keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "nue_nue")     && (m_V1_nue_nue == false) )     keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "mu_mu")       && (m_V1_mu_mu == false) )       keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "numu_numu")   && (m_V1_numu_numu == false) )   keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "tau_tau")     && (m_V1_tau_tau == false) )     keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "nutau_nutau") && (m_V1_nutau_nutau == false) ) keepEvent = false;
+    
+    if( (mcAnalysis.mcV1DecayMode() == "d_d") && (m_V1_d_d == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "u_u") && (m_V1_u_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "s_s") && (m_V1_s_s == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "c_c") && (m_V1_c_c == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV1DecayMode() == "b_b") && (m_V1_b_b == false) ) keepEvent = false;
+    
+    
+    
+    // -------------------------
+    // V2 decay - W modes
+    // -------------------------
+    
+    if( (mcAnalysis.mcV2DecayMode() == "e_nue")     && (m_V2_e_nue == false) )     keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "mu_numu")   && (m_V2_mu_numu == false) )   keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "tau_nutau") && (m_V2_tau_nutau == false) ) keepEvent = false;
+    
+    if( (mcAnalysis.mcV2DecayMode() == "d_u") && (m_V2_d_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "d_c") && (m_V2_d_c == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "s_u") && (m_V2_s_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "s_c") && (m_V2_s_c == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "b_u") && (m_V2_b_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "b_c") && (m_V2_b_c == false) ) keepEvent = false;
+    
+    // -------------------------
+    // V2 decay - Z modes
+    // -------------------------
+    
+    if( (mcAnalysis.mcV2DecayMode() == "e_e")         && (m_V2_e_e == false) )         keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "nue_nue")     && (m_V2_nue_nue == false) )     keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "mu_mu")       && (m_V2_mu_mu == false) )       keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "numu_numu")   && (m_V2_numu_numu == false) )   keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "tau_tau")     && (m_V2_tau_tau == false) )     keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "nutau_nutau") && (m_V2_nutau_nutau == false) ) keepEvent = false;
+    
+    if( (mcAnalysis.mcV2DecayMode() == "d_d") && (m_V2_d_d == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "u_u") && (m_V2_u_u == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "s_s") && (m_V2_s_s == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "c_c") && (m_V2_c_c == false) ) keepEvent = false;
+    if( (mcAnalysis.mcV2DecayMode() == "b_b") && (m_V2_b_b == false) ) keepEvent = false;
+  } // if is signal
+    
+    
   
   
   
   
-  
-  
-  // -------------------------
-  // Higgs decay
-  // -------------------------
-  
-  if( (mcAnalysis.mcHDecayMode() == "W_W") && (m_H_W_W == false) ) return false;
-  if( (mcAnalysis.mcHDecayMode() == "Z_Z") && (m_H_Z_Z == false) ) return false;
-  
-  
-  
-  // -------------------------
-  // V1 decay - W modes
-  // -------------------------
-  
-  if( (mcAnalysis.mcV1DecayMode() == "e_nue")     && (m_V1_e_nue == false) )     return false;
-  if( (mcAnalysis.mcV1DecayMode() == "mu_numu")   && (m_V1_mu_numu == false) )   return false;
-  if( (mcAnalysis.mcV1DecayMode() == "tau_nutau") && (m_V1_tau_nutau == false) ) return false;
-  
-  if( (mcAnalysis.mcV1DecayMode() == "d_u") && (m_V1_d_u == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "d_c") && (m_V1_d_c == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "s_u") && (m_V1_s_u == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "s_c") && (m_V1_s_c == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "b_u") && (m_V1_b_u == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "b_c") && (m_V1_b_c == false) ) return false;
-  
-  // -------------------------
-  // V1 decay - Z modes
-  // -------------------------
-  
-  if( (mcAnalysis.mcV1DecayMode() == "e_e")         && (m_V1_e_e == false) )         return false;
-  if( (mcAnalysis.mcV1DecayMode() == "nue_nue")     && (m_V1_nue_nue == false) )     return false;
-  if( (mcAnalysis.mcV1DecayMode() == "mu_mu")       && (m_V1_mu_mu == false) )       return false;
-  if( (mcAnalysis.mcV1DecayMode() == "numu_numu")   && (m_V1_numu_numu == false) )   return false;
-  if( (mcAnalysis.mcV1DecayMode() == "tau_tau")     && (m_V1_tau_tau == false) )     return false;
-  if( (mcAnalysis.mcV1DecayMode() == "nutau_nutau") && (m_V1_nutau_nutau == false) ) return false;
-  
-  if( (mcAnalysis.mcV1DecayMode() == "d_d") && (m_V1_d_d == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "u_u") && (m_V1_u_u == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "s_s") && (m_V1_s_s == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "c_c") && (m_V1_c_c == false) ) return false;
-  if( (mcAnalysis.mcV1DecayMode() == "b_b") && (m_V1_b_b == false) ) return false;
-  
-  
-  
-  // -------------------------
-  // V2 decay - W modes
-  // -------------------------
-  
-  if( (mcAnalysis.mcV2DecayMode() == "e_nue")     && (m_V2_e_nue == false) )     return false;
-  if( (mcAnalysis.mcV2DecayMode() == "mu_numu")   && (m_V2_mu_numu == false) )   return false;
-  if( (mcAnalysis.mcV2DecayMode() == "tau_nutau") && (m_V2_tau_nutau == false) ) return false;
-  
-  if( (mcAnalysis.mcV2DecayMode() == "d_u") && (m_V2_d_u == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "d_c") && (m_V2_d_c == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "s_u") && (m_V2_s_u == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "s_c") && (m_V2_s_c == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "b_u") && (m_V2_b_u == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "b_c") && (m_V2_b_c == false) ) return false;
-  
-  // -------------------------
-  // V2 decay - Z modes
-  // -------------------------
-  
-  if( (mcAnalysis.mcV2DecayMode() == "e_e")         && (m_V2_e_e == false) )         return false;
-  if( (mcAnalysis.mcV2DecayMode() == "nue_nue")     && (m_V2_nue_nue == false) )     return false;
-  if( (mcAnalysis.mcV2DecayMode() == "mu_mu")       && (m_V2_mu_mu == false) )       return false;
-  if( (mcAnalysis.mcV2DecayMode() == "numu_numu")   && (m_V2_numu_numu == false) )   return false;
-  if( (mcAnalysis.mcV2DecayMode() == "tau_tau")     && (m_V2_tau_tau == false) )     return false;
-  if( (mcAnalysis.mcV2DecayMode() == "nutau_nutau") && (m_V2_nutau_nutau == false) ) return false;
-  
-  if( (mcAnalysis.mcV2DecayMode() == "d_d") && (m_V2_d_d == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "u_u") && (m_V2_u_u == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "s_s") && (m_V2_s_s == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "c_c") && (m_V2_c_c == false) ) return false;
-  if( (mcAnalysis.mcV2DecayMode() == "b_b") && (m_V2_b_b == false) ) return false;
-  
-  
-  
-  return true;
+  int nTotalEvents = static_cast<int>(m_totalEvents -> GetBinContent(1));
+  int nPassedEvents = static_cast<int>(m_passedEvents -> GetBinContent(1));
+
+  if(keepEvent == true)
+  {
+    m_totalEvents -> Fill(0.5);
+    m_passedEvents -> Fill(0.5);
+    m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents+1)/(nTotalEvents+1));
+    
+    return true;
+  }
+
+  else
+  {
+    m_totalEvents -> Fill(0.5);
+    m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents)/(nTotalEvents+1));
+    
+    return false;
+  }
+
 }

@@ -13,7 +13,13 @@ VBFPtMinLeptonCountFilter::VBFPtMinLeptonCountFilter(const edm::ParameterSet& iC
   m_etaMin      (iConfig.getParameter<double>       ("etaMin")),
   m_etaMax      (iConfig.getParameter<double>       ("etaMax")),
   m_minNumber   (iConfig.getParameter<int>          ("minNumber")) 
-{}
+{
+  edm::Service<TFileService> fs;
+  
+  m_totalEvents = fs -> make<TH1F>("totalEvents", "totalEvents", 1,  0., 1.);
+  m_passedEvents = fs -> make<TH1F>("passedEvents", "passedEvents", 1,  0., 1.);
+  m_filterEfficiency = fs -> make<TH1F>("filterEfficiency", "filterEfficiency", 1,  0., 1.);
+}
 
 // ----------------------------------------------------------------
 
@@ -84,10 +90,28 @@ bool VBFPtMinLeptonCountFilter::filter(edm::Event& iEvent, const edm::EventSetup
         (muons -> at(muIt).eta() > m_etaMin) &&
         (muons -> at(muIt).pt() > m_ptMin) )
       ++nSelected ;
-    } //PG loop over muons
+  } //PG loop over muons
   
   
   
-  if(nSelected >= m_minNumber) return true;
-  return false;
+  int nTotalEvents = static_cast<int>(m_totalEvents -> GetBinContent(1));
+  int nPassedEvents = static_cast<int>(m_passedEvents -> GetBinContent(1));
+  
+  if(nSelected >= m_minNumber)
+  {
+    m_totalEvents -> Fill(0.5);
+    m_passedEvents -> Fill(0.5);
+    m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents+1)/(nTotalEvents+1));
+    
+    return true;
+  }
+  
+  else
+  {
+    m_totalEvents -> Fill(0.5);
+    m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents)/(nTotalEvents+1)); 
+    
+    return false;
+  }
+  
 }

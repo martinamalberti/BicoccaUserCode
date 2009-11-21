@@ -44,6 +44,11 @@ VBFElectronDistributions::~VBFElectronDistributions()
 
 void VBFElectronDistributions::beginJob(const edm::EventSetup& iSetup)
 {
+  if(m_verbosity)
+    std::cerr << "*** VBFElectronDistributions::beginJob ***" << std::endl;
+  
+  
+  
   // electron histograms
   recoENDistr = new TH1F("recoENDistr", "recoENDistr", 25, 0., 25.);
   
@@ -171,6 +176,7 @@ void VBFElectronDistributions::analyze(const edm::Event& iEvent, const edm::Even
   
   if( (m_eventId%100 == 0) && (m_verbosity == true) )
     std::cout << ">>>>>> VBFElectronDistributions::Event number -----> " << std::fixed << std::setw(10) << m_eventId << std::endl;
+  
   
   
   
