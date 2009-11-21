@@ -1,0 +1,9 @@
+<use name=HiggsAnalysis/VBFHiggsToWWTolnujj>
+<use name=RecoMuon/MuonIdentification>
+<use name=DataFormats/JetReco>
+
+<library file="*.cc" name=HiggsAnalysisVBFHiggsToWWTolnujjPlugins>
+    <flags EDM_PLUGIN=1>
+    <use name=HiggsAnalysis/VBFHiggsToVV>
+</library>
+
