@@ -31,9 +31,9 @@ struct deallocateVector: public std::unary_function<T, void>
 
 
 template <class T>
-void WriteNormalized(T* histo)
+void WriteNormalized(T* histo, double scale = 1.)
 {
-  histo -> Scale(1. / histo -> GetEntries());
+  histo -> Scale(scale / histo -> GetEntries());
   histo -> Write();
 }
 
