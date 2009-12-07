@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.selections = cms.PSet(
 
-    saveFolder = cms.string("/gwpool/users/benaglia/VBF/CMSSW_2_2_13/src/HiggsAnalysis/VBFHiggsToWWTolnujj/data/"),
+    saveFolder = cms.string("/afs/cern.ch/user/a/abenagli/scratch0/VBF_new/CMSSW_2_2_13/src/HiggsAnalysis/VBFHiggsToWWTolnujj/data/"),
+    #saveFolder = cms.string("/gwpool/users/benaglia/VBF/CMSSW_2_2_13/src/HiggsAnalysis/VBFHiggsToWWTolnujj/data/"),
     eventType = cms.string("EVENTTYPE"),
     isSignal = cms.bool(False),
     crossSection = cms.double(CROSSECTION),
