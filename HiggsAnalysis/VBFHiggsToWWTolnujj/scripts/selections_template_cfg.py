@@ -10,7 +10,7 @@ process.selections = cms.PSet(
     eventType = cms.string("EVENTTYPE"),
     isSignal = cms.bool(False),
     crossSection = cms.double(CROSSECTION),
-    jetAlgorithm = cms.string("sisCone5CaloJets"),
+    jetAlgorithm = cms.string("JETALGORITHM"),
     printModulo = cms.untracked.int32(10000),
     maxEvent = cms.untracked.int32(-1)
 )

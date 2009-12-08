@@ -25,10 +25,12 @@ while (<USERCONFIG>)
 $LOCALFolder         = $User_Preferences{"LOCALFolder"} ;
 $SELECTIONSTemplate  = $User_Preferences{"SELECTIONSTemplate"} ;
 $INPUTSAVEFolder     = $User_Preferences{"INPUTSAVEFolder"} ;
+$JETAlgorithm        = $User_Preferences{"JETAlgorithm"} ;
 
 print "LOCALFolder = "       .$LOCALFolder."\n" ;
 print "SELECTIONSTemplate = ".$SELECTIONSTemplate."\n" ;  
 print "INPUTSAVEFolder = "   .$INPUTSAVEFolder."\n" ;
+print "JETAlgorithm = "      .$JETAlgorithm."\n" ;
 
 
 
@@ -202,6 +204,7 @@ while (<LISTFile>)
   
   $tempo1 = "./tempo1" ;
   system ("cat ".$LOCALFolder."/".$SELECTIONSTemplate."   | sed -e s%EVENTTYPE%".$values[0].
+                                                      "%g | sed -e s%JETALGORITHM%".$JETAlgorithm.
                                                       "%g | sed -e s%CROSSECTION%".$values[1].
                                                       "%g | sed -e s%OUTPUTSAVEFOLDER%".$Path.
                                                       "%g | sed -e s%INPUTEFFICIENCIES%".$listOfFiles_efficiencies.
@@ -216,7 +219,7 @@ while (<LISTFile>)
   system ("cat ".$tempo2." | awk '{gsub(\"ACAPO\", \"\\n\", \$0); print \$0;}' > ".$tempo3) ;
   
   
-  $SELECTIONSFile = $LOCALFolder."/selections_".$values[0]."_cfg.py" ;
+  $SELECTIONSFile = $LOCALFolder."/selections_".$values[0]."_".$JETAlgorithm."_cfg.py" ;
   system ("mv ".$tempo3." ".$SELECTIONSFile) ;
   system ("rm ./tempo*") ;
   system ("rm ./list*.txt") ;
