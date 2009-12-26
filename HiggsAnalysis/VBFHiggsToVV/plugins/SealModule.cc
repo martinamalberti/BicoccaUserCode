@@ -159,6 +159,12 @@ typedef VBFEtMinJetCountFilter<reco::PFJetCollection>   VBFEtMinPFJetCountFilter
 DEFINE_ANOTHER_FWK_MODULE(VBFEtMinCaloJetCountFilter);
 DEFINE_ANOTHER_FWK_MODULE(VBFEtMinPFJetCountFilter);
 
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFFwdJetCountFilter.h"
+typedef VBFFwdJetCountFilter<reco::CaloJetCollection> VBFFwdCaloJetCountFilter;
+typedef VBFFwdJetCountFilter<reco::PFJetCollection>   VBFFwdPFJetCountFilter;
+DEFINE_ANOTHER_FWK_MODULE(VBFFwdCaloJetCountFilter);
+DEFINE_ANOTHER_FWK_MODULE(VBFFwdPFJetCountFilter);
+
 
 
 
