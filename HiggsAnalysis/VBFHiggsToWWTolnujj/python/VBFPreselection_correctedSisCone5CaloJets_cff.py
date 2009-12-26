@@ -66,7 +66,15 @@ from HiggsAnalysis.VBFHiggsToVV.VBFEtMinJetCountFilter_cfi import *
 VBFEtMinCaloJetCountFilterCorrectedSisCone5CaloJets = VBFEtMinCaloJetCountFilter.clone()
 
 VBFEtMinCaloJetCountFilterCorrectedSisCone5CaloJets.srcJets = cms.InputTag("VBFSelectedCaloJetsCorrectedSisCone5CaloJets")
-VBFEtMinCaloJetCountFilterCorrectedSisCone5CaloJets.minNumber = cms.int32(3)
+VBFEtMinCaloJetCountFilterCorrectedSisCone5CaloJets.minNumber = cms.int32(4)
+
+
+# --- THE FWD JET FILTER --- --- --- --- --- --- --- --- --- --- ---
+
+from HiggsAnalysis.VBFHiggsToVV.VBFFwdJetCountFilter_cfi import *
+VBFFwdCaloJetCountFilterCorrectedSisCone5CaloJets = VBFFwdCaloJetCountFilter.clone()
+
+VBFFwdCaloJetCountFilterCorrectedSisCone5CaloJets.srcJets = cms.InputTag("VBFSelectedCaloJetsCorrectedSisCone5CaloJets")
 
 
 
@@ -121,6 +129,7 @@ VBFPreselectionSequenceCorrectedSisCone5CaloJets = cms.Sequence(
     
     
     VBFEtMinCaloJetCountFilterCorrectedSisCone5CaloJets +
+    VBFFwdCaloJetCountFilterCorrectedSisCone5CaloJets +
     
     
     
