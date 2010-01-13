@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.1 2010/01/13 13:09:04 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.1 2010/01/13 14:47:53 dimatteo Exp $
 //
 //
 
@@ -76,13 +76,13 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
  MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
  MetTag_ = iConfig.getParameter<edm::InputTag>("MetTag");
- JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
- flag_JetBTag_ = iConfig.getUntrackedParameter<bool>("flag_JetBTag","False");
- if (flag_JetBTag_) JetBTag_ = iConfig.getUntrackedParameter<edm::InputTag>("JetBTag");
- correctedJetTag_ = iConfig.getParameter<edm::InputTag>("correctedJetTag");
+//  JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
+//  flag_JetBTag_ = iConfig.getUntrackedParameter<bool>("flag_JetBTag","False");
+//  if (flag_JetBTag_) JetBTag_ = iConfig.getUntrackedParameter<edm::InputTag>("JetBTag");
+//  correctedJetTag_ = iConfig.getParameter<edm::InputTag>("correctedJetTag");
  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
- genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
- genMetTag_ = iConfig.getParameter<edm::InputTag>("genMetTag");
+//  genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
+//  genMetTag_ = iConfig.getParameter<edm::InputTag>("genMetTag");
 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
  eventType_ = iConfig.getUntrackedParameter<int>("eventType",1);
@@ -164,20 +164,20 @@ void
 }
  
  ///---- fill jets ---- 
- edm::Handle<edm::View<reco::CaloJet> > JetHandle ;
- iEvent.getByLabel (JetTag_,JetHandle);
- edm::Handle<reco::JetTagCollection> bTagHandle;
- if (flag_JetBTag_) iEvent.getByLabel(JetBTag_, bTagHandle);
- reco::JetTagCollection bTags;
- if (flag_JetBTag_) bTags = *(bTagHandle.product());
- int counter_jet = 0;
- for (edm::View<reco::CaloJet>::const_iterator jetIt = JetHandle->begin (); jetIt != JetHandle->end (); ++jetIt ) 
-{ 
-  math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector(jetIt->p4().Px(),jetIt->p4().Py(),jetIt->p4().Pz(),jetIt->p4().E());
-  NtupleFactory_->FillStdXYZTLorentzVector("jets",myvect_XYZT);
-  if (flag_JetBTag_) NtupleFactory_->FillFloat("jets_btagging",bTags[counter_jet].second);
-  counter_jet++;
-}
+//  edm::Handle<edm::View<reco::CaloJet> > JetHandle ;
+//  iEvent.getByLabel (JetTag_,JetHandle);
+//  edm::Handle<reco::JetTagCollection> bTagHandle;
+//  if (flag_JetBTag_) iEvent.getByLabel(JetBTag_, bTagHandle);
+//  reco::JetTagCollection bTags;
+//  if (flag_JetBTag_) bTags = *(bTagHandle.product());
+//  int counter_jet = 0;
+//  for (edm::View<reco::CaloJet>::const_iterator jetIt = JetHandle->begin (); jetIt != JetHandle->end (); ++jetIt ) 
+// { 
+//   math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector(jetIt->p4().Px(),jetIt->p4().Py(),jetIt->p4().Pz(),jetIt->p4().E());
+//   NtupleFactory_->FillStdXYZTLorentzVector("jets",myvect_XYZT);
+//   if (flag_JetBTag_) NtupleFactory_->FillFloat("jets_btagging",bTags[counter_jet].second);
+//   counter_jet++;
+// }
 
  ///---- fill met ---- 
  edm::Handle<reco::CaloMETCollection> MetHandle ;
@@ -188,24 +188,24 @@ void
 
  
  ///---- fill genJets ---- 
- edm::Handle<edm::View<reco::GenJet> > genJetHandle ;
- iEvent.getByLabel (genJetTag_,genJetHandle);
- for (edm::View<reco::GenJet>::const_iterator genJetIt = genJetHandle->begin (); genJetIt != genJetHandle->end (); ++genJetIt ) 
-{ 
-  math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector(genJetIt->p4().Px(),genJetIt->p4().Py(),genJetIt->p4().Pz(),genJetIt->p4().E());
-  NtupleFactory_->FillStdXYZTLorentzVector("genJets",myvect_XYZT);
-}
+//  edm::Handle<edm::View<reco::GenJet> > genJetHandle ;
+//  iEvent.getByLabel (genJetTag_,genJetHandle);
+//  for (edm::View<reco::GenJet>::const_iterator genJetIt = genJetHandle->begin (); genJetIt != genJetHandle->end (); ++genJetIt ) 
+// { 
+//   math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector(genJetIt->p4().Px(),genJetIt->p4().Py(),genJetIt->p4().Pz(),genJetIt->p4().E());
+//   NtupleFactory_->FillStdXYZTLorentzVector("genJets",myvect_XYZT);
+// }
 
  
   ///---- fill genMet ---- 
- edm::Handle< reco::GenMETCollection > genMetHandle ;
- iEvent.getByLabel( genMetTag_, genMetHandle ) ;
-
- for (reco::GenMETCollection::const_iterator gMIt = genMetHandle->begin (); gMIt != genMetHandle->end (); ++gMIt ) 
-{
-  math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector(gMIt->px(),gMIt->py(),gMIt->pz(),gMIt->energy());
-  NtupleFactory_->FillStdXYZTLorentzVector("genMet",myvect_XYZT);
-}
+//  edm::Handle< reco::GenMETCollection > genMetHandle ;
+//  iEvent.getByLabel( genMetTag_, genMetHandle ) ;
+// 
+//  for (reco::GenMETCollection::const_iterator gMIt = genMetHandle->begin (); gMIt != genMetHandle->end (); ++gMIt ) 
+// {
+//   math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector(gMIt->px(),gMIt->py(),gMIt->pz(),gMIt->energy());
+//   NtupleFactory_->FillStdXYZTLorentzVector("genMet",myvect_XYZT);
+// }
 
   
  ///---- fill MCParticle ---- 
@@ -301,12 +301,12 @@ void
    
  NtupleFactory_->AddStdXYZVector("tracks_in");
  NtupleFactory_->AddStdXYZVector("tracks_out");   
- NtupleFactory_->AddStdXYZTLorentzVector("jets");      
- NtupleFactory_->AddFloat("jets_btagging");   
+/* NtupleFactory_->AddStdXYZTLorentzVector("jets");      
+ NtupleFactory_->AddFloat("jets_btagging");   */
    
  NtupleFactory_->AddStdXYZTLorentzVector("met");         
- NtupleFactory_->AddStdXYZTLorentzVector("genJets");         
- NtupleFactory_->AddStdXYZTLorentzVector("genMet");         
+/* NtupleFactory_->AddStdXYZTLorentzVector("genJets");         */
+//  NtupleFactory_->AddStdXYZTLorentzVector("genMet");         
 
  NtupleFactory_->AddStdXYZTLorentzVector("mc_H");    
  NtupleFactory_->AddFloat("mc_H_charge");    
