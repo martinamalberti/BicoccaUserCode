@@ -3,7 +3,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=HiggsAnalysis/VBFHiggsToVV>
+<use name=PhysicsTools/NtupleUtils>
 <export>
    <lib name=HiggsAnalysisTTBarAnalysis>
 </export>

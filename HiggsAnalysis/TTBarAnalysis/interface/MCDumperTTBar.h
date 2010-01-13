@@ -1,7 +1,7 @@
 #ifndef MCDumperTTBar_h
 #define MCDumperTTBar_h
 
-#include "HiggsAnalysis/VBFHiggsToVV/interface/MCUtils.h"
+#include "PhysicsTools/NtupleUtils/interface/MCUtils.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
