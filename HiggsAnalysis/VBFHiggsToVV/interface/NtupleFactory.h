@@ -14,32 +14,24 @@
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"
 #include "Math/LorentzVector.h"
-
+#include "Math/Vector3D.h"
+#include "Math/Vector3Dfwd.h"
 
 class NtupleFactory{
- 
+  
  protected:
   
  public:
   NtupleFactory(TString namefile);
   NtupleFactory(TTree* outTree_input);
   ~NtupleFactory();
-  
-//   void AddXYZTLorentzVector(TString name);
-//   void FillXYZTLorentzVector(TString name,ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >* vect);
-
-//   template <class T> void AddVector(TString name);
-//   template <class T> void FillVector(TString name,T* vect);
-    
-  void AddTLorentzVector(TString name);
-  void FillTLorentzVector(TString name,TLorentzVector* vect);
- 
+      
   void AddStdXYZTLorentzVector(TString name);
   void FillStdXYZTLorentzVector(TString name,ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >* vect);
-  
-//   void AddStdTLorentzVector(TString name);
-//   void FillStdTLorentzVector(TString name,TLorentzVector* vect);
 
+  void AddStdXYZVector(TString name);
+  void FillStdXYZVector(TString name,ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>* vect);
+      
   void AddFloat(TString name);
   void FillFloat(TString name,float vect);
   
@@ -51,15 +43,9 @@ class NtupleFactory{
   
  private:
   TLorentzVector myvector ;
-  std::map <TString,TClonesArray*> ArrayContent_ ;
-  std::map <TString,int> ArrayContent_num_ ;
-  std::map <TString,std::vector<float>* > ArrayContentFloat_ ;
-
-//   std::map <TString,TClonesArray*> ArrayContent_XYZT_ ;
-//   std::map <TString,int> ArrayContent_XYZT_num_ ;
-    
   std::map <TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* > ArrayContent_StdXYZT_ ;
-//   std::map <TString,std::vector<TLorentzVector>* > ArrayContent_Std_ ;
+  std::map <TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* > ArrayContent_StdXYZ_ ;
+  std::map <TString,std::vector<float>* > ArrayContentFloat_ ;
   
        
   TTree* outTree_;
@@ -70,14 +56,6 @@ class NtupleFactory{
   
 };
 
-
-
-
-// template <class T> void NtupleFactory::AddVector (TString name){
-// }
-// 
-// template <class T> void NtupleFactory::FillVector(TString name,T* vect){
-// }
 
 
 #endif
