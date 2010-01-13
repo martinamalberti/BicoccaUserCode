@@ -13,5 +13,5 @@ DEFINE_SEAL_MODULE();
 // SimpleNtuple 
 //-------------
 
-#include "HiggsAnalysis/VBFHiggsToVV/plugins/SimpleNtple.h"
+#include "HeavyFlavorAnalysis/Onia2MuMu/plugins/SimpleNtple.h"
 DEFINE_ANOTHER_FWK_MODULE(SimpleNtple) ;

@@ -13,7 +13,7 @@
 #include <TClonesArray.h>
 #include "TParticle.h"
 
-#include "HeavyFlavorAnalysis/Onia2MuMu/interface/NtupleFactory.h"
+#include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"
