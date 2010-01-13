@@ -8,6 +8,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
+
 #include "TTree.h"
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
@@ -44,14 +47,13 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag TracksTag_;
   edm::InputTag EleTag_;
   edm::InputTag MuTag_;
-  edm::InputTag MetTag_;
-  edm::InputTag JetTag_;
-  bool flag_JetBTag_;
-  edm::InputTag JetBTag_;
-  edm::InputTag correctedJetTag_;
-  edm::InputTag MCtruthTag_;
-  edm::InputTag genJetTag_;
-  edm::InputTag genMetTag_;
+  
+//   edm::InputTag MCtruthTag_;
+  
+  edm::InputTag m_eleIDCut_LooseInputTag ;
+  edm::InputTag m_eleIDCut_RLooseInputTag ;
+  edm::InputTag m_eleIDCut_TightInputTag ;
+  edm::InputTag m_eleIDCut_RTightInputTag ;
   
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  
