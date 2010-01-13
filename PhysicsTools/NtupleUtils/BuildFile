@@ -1,9 +1,0 @@
-<use name=root>
-<use name=rootmath>
-<use name=clhep>
-<use name=DataFormats/EgammaCandidates>
-<use name=SimDataFormats/HepMCProduct>
-
-<export>
-   <lib name=PhysicsToolsNtupleUtils>
-</export>
