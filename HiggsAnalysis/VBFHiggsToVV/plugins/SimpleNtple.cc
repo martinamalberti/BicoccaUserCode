@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.1 2010/01/08 18:45:58 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.1 2010/01/13 11:30:34 amassiro Exp $
 //
 //
 
@@ -143,10 +143,9 @@ void
   math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*EleHandle)[i].p4().Px(),(*EleHandle)[i].p4().Py(),(*EleHandle)[i].p4().Pz(),(*EleHandle)[i].p4().E());
   NtupleFactory_->FillStdXYZTLorentzVector("electrons",myvect_XYZT);
   NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
-  NtupleFactory_->FillFloat("electrons_tkIso",0);
-  NtupleFactory_->FillFloat("electrons_emIso",0);
-  NtupleFactory_->FillFloat("electrons_hadIso",0);
-  NtupleFactory_->FillFloat("electrons_IdLoose",0);
+  NtupleFactory_->FillFloat("electrons_tkIso",((*EleHandle)[i].dr03TkSumPt()));
+  NtupleFactory_->FillFloat("electrons_emIso",((*EleHandle)[i].dr03EcalRecHitSumEt()));
+  NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));  NtupleFactory_->FillFloat("electrons_IdLoose",0);
   NtupleFactory_->FillFloat("electrons_IdTight",0);
   NtupleFactory_->FillFloat("electrons_IdRobustLoose",0);
   NtupleFactory_->FillFloat("electrons_IdRobustTight",0);  
