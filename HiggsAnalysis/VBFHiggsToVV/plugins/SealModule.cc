@@ -167,6 +167,13 @@ DEFINE_ANOTHER_FWK_MODULE(VBFFwdPFJetCountFilter);
 
 
 
+//-------------
+// SimpleNtuple 
+//-------------
+
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/SimpleNtple.h"
+DEFINE_ANOTHER_FWK_MODULE(SimpleNtple) ;
+
 
 
 
@@ -203,6 +210,9 @@ DEFINE_ANOTHER_FWK_MODULE(MCPtMinLeptonCountFilter);
 
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/MCFwdJetsPreselFilter.h"
 DEFINE_ANOTHER_FWK_MODULE(MCFwdJetsPreselFilter) ;
+
+
+
 
 
 
