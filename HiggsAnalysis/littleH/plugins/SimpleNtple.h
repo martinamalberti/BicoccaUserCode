@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,12 +12,16 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 
-#include "TTree.h"
-#include <TLorentzVector.h>
-#include <TClonesArray.h>
-#include "TParticle.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
+
+#include <TTree.h>
+#include <TLorentzVector.h>
+#include <TClonesArray.h>
+#include <TParticle.h>
 
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"
@@ -44,6 +49,9 @@ class SimpleNtple : public edm::EDAnalyzer {
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+
+  template <class T> math::XYZTLorentzVector lorentzMomentum(const T & muon) const;
+  std::vector<unsigned int> trackHits(const reco::Track& tr);
     
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
@@ -70,17 +78,17 @@ class SimpleNtple : public edm::EDAnalyzer {
   bool saveMC_ ;
   bool saveSC_ ;
 
-
-//   string thetriggerEventLabel;
-//   string theHLTriggerResults;     // HLT trigger results
-//   string the8e29ProcName;
-//   string the1e31ProcName;
+  //   string thetriggerEventLabel;
+  //   string theHLTriggerResults;     // HLT trigger results
+  //   string the8e29ProcName;
+  //   string the1e31ProcName;
 
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  
 
   //used to save all tracks BUT muons
   std::vector<int> theMuonTrkIndexes_ ;
- 
-    
+
+  int Reco_mu_glb_size;
+  int Reco_mu_trk_size;  
 };
