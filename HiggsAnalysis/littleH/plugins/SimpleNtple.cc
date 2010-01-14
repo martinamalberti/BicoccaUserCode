@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.18 2010/01/14 15:24:59 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.19 2010/01/14 15:34:51 govoni Exp $
 //
 //
 
@@ -85,6 +85,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
   MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
   PrimaryVertexTag_         (iConfig.getParameter<InputTag> ("PrimaryVertexTag")),
+  MCtruthTag_               (iConfig.getParameter<InputTag> ("MCtruthTag")),
   m_eleIDCut_LooseInputTag  (iConfig.getParameter<InputTag> ("eleIDCut_LooseInputTag")),
   m_eleIDCut_RLooseInputTag (iConfig.getParameter<InputTag> ("eleIDCut_RLooseInputTag")),
   m_eleIDCut_TightInputTag  (iConfig.getParameter<InputTag> ("eleIDCut_TightInputTag")),
@@ -98,9 +99,6 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
  Service<TFileService> fs ;
  outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
  
-
- //  MCtruthTag_ = iConfig.getParameter<InputTag>("MCtruthTag");
-
  NtupleFactory_ = new NtupleFactory(outTree_);
 }
 
