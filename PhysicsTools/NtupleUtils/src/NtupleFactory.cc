@@ -30,7 +30,7 @@ NtupleFactory::~NtupleFactory(){
 ///----- Add collection -----
 
 
-void NtupleFactory::AddStdXYZTLorentzVector(TString name){
+void NtupleFactory::Add4V(const TString &name){
  if (ArrayContent_StdXYZT_.find (name) != ArrayContent_StdXYZT_.end ())
  {
   std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
@@ -42,7 +42,7 @@ void NtupleFactory::AddStdXYZTLorentzVector(TString name){
  return ;                          
 }
 
-void NtupleFactory::AddStdXYZVector(TString name){
+void NtupleFactory::Add3V(const TString &name){
  if (ArrayContent_StdXYZ_.find (name) != ArrayContent_StdXYZ_.end ())
  {
   std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
@@ -54,7 +54,7 @@ void NtupleFactory::AddStdXYZVector(TString name){
  return ;                          
 }
 
-void NtupleFactory::AddFloat(TString name){
+void NtupleFactory::AddFloat(const TString &name){
  if (ArrayContentFloat_.find (name) != ArrayContentFloat_.end ())
  {
   std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
@@ -66,12 +66,36 @@ void NtupleFactory::AddFloat(TString name){
  return ;                          
 }
 
+void NtupleFactory::AddDouble(const TString &name){
+ if (ArrayContentDouble_.find (name) != ArrayContentDouble_.end ())
+ {
+  std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
+  return ;                
+ }
+ std::vector<double>* dummy = new std::vector<double> ;
+ ArrayContentDouble_[name] = dummy ;
+ outTree_->Branch(name,"std::vector<double>",&(ArrayContentDouble_[name]));
+ return ;                          
+}
+
+void NtupleFactory::AddInt(const TString &name){
+ if (ArrayContentInt_.find (name) != ArrayContentInt_.end ())
+ {
+  std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
+  return ;                
+ }
+ std::vector<int>* dummy = new std::vector<int> ;
+ ArrayContentInt_[name] = dummy ;
+ outTree_->Branch(name,"std::vector<int>",&(ArrayContentInt_[name]));
+ return ;                          
+}
+
 ////--------------------------
 ///----- Fill collection -----
 
-void NtupleFactory::FillStdXYZTLorentzVector(TString name,ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >* vect){
+void NtupleFactory::Fill4V(const TString &name,const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > &vect){
  if (ArrayContent_StdXYZT_.find (name) != ArrayContent_StdXYZT_.end ()){
-  ArrayContent_StdXYZT_[name]->push_back(*vect);
+  ArrayContent_StdXYZT_[name]->push_back(vect);
  }
  else {
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
@@ -80,9 +104,9 @@ void NtupleFactory::FillStdXYZTLorentzVector(TString name,ROOT::Math::LorentzVec
  return ;
 }
 
-void NtupleFactory::FillStdXYZVector(TString name,ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>* vect){
+void NtupleFactory::Fill3V(const TString &name,const ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> &vect){
  if (ArrayContent_StdXYZ_.find (name) != ArrayContent_StdXYZ_.end ()){
-  ArrayContent_StdXYZ_[name]->push_back(*vect);
+  ArrayContent_StdXYZ_[name]->push_back(vect);
  }
  else {
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
@@ -91,7 +115,7 @@ void NtupleFactory::FillStdXYZVector(TString name,ROOT::Math::DisplacementVector
  return ;
 }
 
-void NtupleFactory::FillFloat(TString name,float vect){
+void NtupleFactory::FillFloat(const TString &name,const float &vect){
  if (ArrayContentFloat_.find (name) != ArrayContentFloat_.end ()){
   ArrayContentFloat_[name]->push_back(vect);
  }
@@ -102,7 +126,29 @@ void NtupleFactory::FillFloat(TString name,float vect){
  return ;
 }
  
+void NtupleFactory::FillDouble(const TString &name,const double &vect){
+ if (ArrayContentDouble_.find (name) != ArrayContentDouble_.end ()){
+  ArrayContentDouble_[name]->push_back(vect);
+ }
+ else {
+  std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
+  return ;        
+ }
+ return ;
+}
  
+void NtupleFactory::FillInt(const TString &name,const int &vect){
+ if (ArrayContentInt_.find (name) != ArrayContentInt_.end ()){
+  ArrayContentInt_[name]->push_back(vect);
+ }
+ else {
+  std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
+  return ;        
+ }
+ return ;
+}
+
+
 ///---- Write entry to TTree ----
 void NtupleFactory::FillNtuple(){
  outTree_->Fill();

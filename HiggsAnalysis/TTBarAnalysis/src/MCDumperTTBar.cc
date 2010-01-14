@@ -231,10 +231,10 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   mcF2_fromV2_p    = fFromV2Buffer.at(1);
   
   // If leptons, see if there is a photon emission
-//   if(abs(mcF1_fromV2_p -> pdgId()) >= 11)
-//     FindDaughterParticles(&mcF1_fromV2_p, verbosity_p, 1);
-//   if(abs(mcF2_fromV2_p -> pdgId()) >= 11)
-//     FindDaughterParticles(&mcF2_fromV2_p, verbosity_p, 1);
+  if(abs(mcF1_fromV2_p -> pdgId()) >= 11)
+    FindDaughterParticles(&mcF1_fromV2_p, verbosity_p, 1);
+  if(abs(mcF2_fromV2_p -> pdgId()) >= 11)
+    FindDaughterParticles(&mcF2_fromV2_p, verbosity_p, 1);
   
   if(mcF2_fromV2_p -> pt() > mcF1_fromV2_p -> pt())
   {

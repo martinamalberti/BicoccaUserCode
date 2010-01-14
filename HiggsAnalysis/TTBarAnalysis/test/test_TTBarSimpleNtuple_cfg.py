@@ -13,7 +13,8 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V11::All'
+# process.GlobalTag.globaltag = 'IDEAL_V11::All'
+process.GlobalTag.globaltag = 'MC_31X_V3::All'
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
@@ -25,7 +26,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 # --- INPUT  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.source = cms.Source(
     "PoolSource",
@@ -51,7 +52,9 @@ process.source = cms.Source(
 # --- SimpleNtple --- --- --- --- --- --- --- --- --- --- --- 
 
 process.load("HiggsAnalysis.TTBarAnalysis.SimpleNtpleTTBar_cfi")
-
+process.SimpleNtpleTTBar.verbosity = cms.untracked.bool(False)
+process.SimpleNtpleTTBar.flag_JetBTag = cms.untracked.bool(False)
+ 
 process.TTBarSimpleNtpleSequence = cms.Sequence(
  process.SimpleNtpleTTBar
 )
@@ -59,10 +62,10 @@ process.TTBarSimpleNtpleSequence = cms.Sequence(
 
 
 # --- BTagging --- --- --- --- --- --- --- --- --- --- --- 
-process.load("HiggsAnalysis.VBFHiggsToVV.VBFBTagging_cff")
-process.newJetTracksAssociatorAtVertex.jets = process.SimpleNtpleTTBar.JetTag
-process.newSoftElectronTagInfos.jets = process.SimpleNtpleTTBar.JetTag
-process.newSoftMuonTagInfos.jets = process.SimpleNtpleTTBar.JetTag
+# process.load("HiggsAnalysis.VBFHiggsToVV.VBFBTagging_cff")
+# process.newJetTracksAssociatorAtVertex.jets = process.SimpleNtpleTTBar.JetTag
+# process.newSoftElectronTagInfos.jets = process.SimpleNtpleTTBar.JetTag
+# process.newSoftMuonTagInfos.jets = process.SimpleNtpleTTBar.JetTag
 
 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
@@ -70,10 +73,10 @@ process.newSoftMuonTagInfos.jets = process.SimpleNtpleTTBar.JetTag
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
  
                               
-process.newBtaggingPath = cms.Path(
-process.newJetTracksAssociator *
-process.newJetBtagging
-)
+# process.newBtaggingPath = cms.Path(
+# process.newJetTracksAssociator *
+# process.newJetBtagging
+# )
                               
 process.SimpleNtpleTTBarPath = cms.Path(
    process.TTBarSimpleNtpleSequence
@@ -87,21 +90,22 @@ process.SimpleNtpleTTBarPath = cms.Path(
 
 process.load("Configuration.EventContent.EventContent_cff")
 
-process.out = cms.OutputModule(
-    "PoolOutputModule",
-    process.AODSIMEventContent,
-    verbose = cms.untracked.bool(True),
-    fileName = cms.untracked.string('/tmp/amassiro/TTBarSimpleNtple.root'),
-    )
-
-process.out.outputCommands.extend(cms.untracked.vstring('keep *_*_*_TEST'))
+# process.out = cms.OutputModule(
+#     "PoolOutputModule",
+#     process.AODSIMEventContent,
+#     verbose = cms.untracked.bool(True),
+#     fileName = cms.untracked.string('/tmp/amassiro/TTBarSimpleNtple.root'),
+#     )
+# 
+# process.out.outputCommands.extend(cms.untracked.vstring('keep *_*_*_TEST'))
+# process.o = cms.EndPath( process.out )
 
 process.TFileService = cms.Service("TFileService", 
-    fileName = cms.string("/tmp/amassiro/VBF_SimpleTree_NAME_TTBar.root"),
+    fileName = cms.string("VBF_SimpleTree_TTBar.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 
-process.o = cms.EndPath( process.out )
+
 
 
 # --- ======== --- --- --- --- --- --- --- --- --- --- --- 
@@ -109,7 +113,7 @@ process.o = cms.EndPath( process.out )
 # --- ======== --- --- --- --- --- --- --- --- --- --- --- 
 
 
-process.schedule = cms.Schedule(process.newBtaggingPath,process.SimpleNtpleTTBarPath) 
-
+# process.schedule = cms.Schedule(process.newBtaggingPath,process.SimpleNtpleTTBarPath) 
+process.schedule = cms.Schedule(process.SimpleNtpleTTBarPath) 
 
 
