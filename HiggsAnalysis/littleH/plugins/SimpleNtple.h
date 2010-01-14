@@ -49,7 +49,7 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag MuTag_;
   edm::InputTag PrimaryVertexTag_;        
 
-   edm::InputTag MCtruthTag_;
+  edm::InputTag MCtruthTag_;
   
   edm::InputTag m_eleIDCut_LooseInputTag ;
   edm::InputTag m_eleIDCut_RLooseInputTag ;
