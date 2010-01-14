@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.20 2010/01/14 15:36:01 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.21 2010/01/14 15:39:46 govoni Exp $
 //
 //
 
@@ -92,9 +92,14 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   m_eleIDCut_RTightInputTag (iConfig.getParameter<InputTag> ("eleIDCut_RTightInputTag")),
   barrelClusterCollection_  (iConfig.getParameter<edm::InputTag> ("barrelClusterCollection")),
   endcapClusterCollection_  (iConfig.getParameter<edm::InputTag> ("endcapClusterCollection")),
+  saveVtx_                  (iConfig.getUntrackedParameter<bool> ("saveVtx", true)),
+  saveMu_                   (iConfig.getUntrackedParameter<bool> ("saveMu", true)),
+  saveTracks_               (iConfig.getUntrackedParameter<bool> ("saveTracks", true)),
+  saveEle_                  (iConfig.getUntrackedParameter<bool> ("saveEle", true)),
+  saveMC_                   (iConfig.getUntrackedParameter<bool> ("saveMC", true)),
+  saveSC_                   (iConfig.getUntrackedParameter<bool> ("saveSC", true)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False")),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1))
- 
 {
  Service<TFileService> fs ;
  outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
@@ -388,13 +393,12 @@ SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESe
 
 void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
-
-  fillVtxInfo (iEvent, iSetup) ;
-  fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
-  fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
-  fillEleInfo (iEvent, iSetup) ;
-  fillMCInfo (iEvent, iSetup) ;
-  fillSCInfo (iEvent, iSetup) ;
+  if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
+  if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
+  if (saveTracks_) fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
+  if (saveEle_)    fillEleInfo (iEvent, iSetup) ;
+  if (saveMC_)     fillMCInfo (iEvent, iSetup) ;
+  if (saveSC_)     fillSCInfo (iEvent, iSetup) ;
 
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();

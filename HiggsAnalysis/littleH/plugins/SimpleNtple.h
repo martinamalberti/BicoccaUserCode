@@ -48,9 +48,6 @@ class SimpleNtple : public edm::EDAnalyzer {
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
     
-  
-  ///---- input tags ----
-
   edm::InputTag TracksTag_;
   edm::InputTag EleTag_;
   edm::InputTag MuTag_;
@@ -66,6 +63,14 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag barrelClusterCollection_;
   edm::InputTag endcapClusterCollection_;
   
+  bool saveVtx_ ;
+  bool saveMu_ ;
+  bool saveTracks_ ;
+  bool saveEle_ ;
+  bool saveMC_ ;
+  bool saveSC_ ;
+
+
 //   string thetriggerEventLabel;
 //   string theHLTriggerResults;     // HLT trigger results
 //   string the8e29ProcName;
