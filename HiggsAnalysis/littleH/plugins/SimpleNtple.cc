@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.6 2010/01/14 11:02:08 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.8 2010/01/14 11:29:21 pellicci Exp $
 //
 //
 
@@ -135,8 +135,7 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
   int nMu = MuHandle->size();
 
   for(int i=0; i< nMu; i++){
-    math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*MuHandle)[i].p4().Px(),(*MuHandle)[i].p4().Py(),(*MuHandle)[i].p4().Pz(),(*MuHandle)[i].p4().E());
-    NtupleFactory_->FillStdXYZTLorentzVector("muons",myvect_XYZT);
+    NtupleFactory_->Fill4V("muons", (*MuHandle)[i].p4()) ;
   
     NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
     NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
@@ -179,8 +178,7 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
     //Get Ele Ref
     Ref<View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
   
-    math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*EleHandle)[i].p4().Px(),(*EleHandle)[i].p4().Py(),(*EleHandle)[i].p4().Pz(),(*EleHandle)[i].p4().E());
-    NtupleFactory_->FillStdXYZTLorentzVector("electrons",myvect_XYZT);
+    NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
     NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
     NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
     NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
@@ -219,11 +217,8 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
       }
       if(!storeThisOther) continue;
 
-      math::XYZVector vector_in = (*tkIt).innerMomentum () ; 
-      NtupleFactory_->FillStdXYZVector("tracks_in",&vector_in);
-  
-      math::XYZVector vector_out = (*tkIt).outerMomentum () ; 
-      NtupleFactory_->FillStdXYZVector("tracks_out",&vector_out);
+      NtupleFactory_->Fill3V("tracks_in",(*tkIt).innerMomentum ());  
+      NtupleFactory_->Fill3V("tracks_out",(*tkIt).outerMomentum ());
   
       NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
       NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
@@ -244,46 +239,46 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
       //  if( (eventType_ == 0) && (isValid == true) )
       // {
       //   math::XYZTLorentzVector* myvect_XYZT_mcH = new math::XYZTLorentzVector(mcAnalysis.mcH()->p4().Px(),mcAnalysis.mcH()->p4().Py(),mcAnalysis.mcH()->p4().Pz(),mcAnalysis.mcH()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mc_H",myvect_XYZT_mcH);
+      //   NtupleFactory_->Fill4V("mc_H",myvect_XYZT_mcH);
       //   NtupleFactory_->FillFloat("mc_H_charge",mcAnalysis.mcH()->charge());
       //   
       //   math::XYZTLorentzVector* myvect_XYZT_mcV1 = new math::XYZTLorentzVector(mcAnalysis.mcV1()->p4().Px(),mcAnalysis.mcV1()->p4().Py(),mcAnalysis.mcV1()->p4().Pz(),mcAnalysis.mcV1()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcV1",myvect_XYZT_mcV1);
+      //   NtupleFactory_->Fill4V("mcV1",myvect_XYZT_mcV1);
       //   NtupleFactory_->FillFloat("mcV1_charge",mcAnalysis.mcV1()->charge());
       //   NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysis.mcV1()->pdgId());
       //   
       //   math::XYZTLorentzVector* myvect_XYZT_mcV2 = new math::XYZTLorentzVector(mcAnalysis.mcV2()->p4().Px(),mcAnalysis.mcV2()->p4().Py(),mcAnalysis.mcV2()->p4().Pz(),mcAnalysis.mcV2()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcV2",myvect_XYZT_mcV2);
+      //   NtupleFactory_->Fill4V("mcV2",myvect_XYZT_mcV2);
       //   NtupleFactory_->FillFloat("mcV2_charge",mcAnalysis.mcV2()->charge());
       //   NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysis.mcV2()->pdgId());
       //      
       //   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV1()->p4().Px(),mcAnalysis.mcF1_fromV1()->p4().Py(),mcAnalysis.mcF1_fromV1()->p4().Pz(),mcAnalysis.mcF1_fromV1()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF1_fromV1",myvect_XYZT_mcF1_fromV1);
+      //   NtupleFactory_->Fill4V("mcF1_fromV1",myvect_XYZT_mcF1_fromV1);
       //   NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysis.mcF1_fromV1()->charge());
       //   NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysis.mcF1_fromV1()->pdgId());
       // 
       //   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV1()->p4().Px(),mcAnalysis.mcF2_fromV1()->p4().Py(),mcAnalysis.mcF2_fromV1()->p4().Pz(),mcAnalysis.mcF2_fromV1()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF2_fromV1",myvect_XYZT_mcF2_fromV1);
+      //   NtupleFactory_->Fill4V("mcF2_fromV1",myvect_XYZT_mcF2_fromV1);
       //   NtupleFactory_->FillFloat("mcF2_fromV1_charge",mcAnalysis.mcF2_fromV1()->charge());
       //   NtupleFactory_->FillFloat("mcF2_fromV1_pdgId",mcAnalysis.mcF2_fromV1()->pdgId());
       // 
       //   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV2()->p4().Px(),mcAnalysis.mcF1_fromV2()->p4().Py(),mcAnalysis.mcF1_fromV2()->p4().Pz(),mcAnalysis.mcF1_fromV2()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF1_fromV2",myvect_XYZT_mcF1_fromV2);
+      //   NtupleFactory_->Fill4V("mcF1_fromV2",myvect_XYZT_mcF1_fromV2);
       //   NtupleFactory_->FillFloat("mcF1_fromV2_charge",mcAnalysis.mcF1_fromV2()->charge());
       //   NtupleFactory_->FillFloat("mcF1_fromV2_pdgId",mcAnalysis.mcF1_fromV2()->pdgId());
       // 
       //   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV2()->p4().Px(),mcAnalysis.mcF2_fromV2()->p4().Py(),mcAnalysis.mcF2_fromV2()->p4().Pz(),mcAnalysis.mcF2_fromV2()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF2_fromV2",myvect_XYZT_mcF2_fromV2);
+      //   NtupleFactory_->Fill4V("mcF2_fromV2",myvect_XYZT_mcF2_fromV2);
       //   NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
       //   NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
       //     
       //   math::XYZTLorentzVector* myvect_XYZT_mcQ1_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ1_tag()->p4().Px(),mcAnalysis.mcQ1_tag()->p4().Py(),mcAnalysis.mcQ1_tag()->p4().Pz(),mcAnalysis.mcQ1_tag()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcQ1_tag",myvect_XYZT_mcQ1_tag);
+      //   NtupleFactory_->Fill4V("mcQ1_tag",myvect_XYZT_mcQ1_tag);
       //   NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysis.mcQ1_tag()->charge());
       //   NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysis.mcQ1_tag()->pdgId());
       // 
       //   math::XYZTLorentzVector* myvect_XYZT_mcQ2_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ2_tag()->p4().Px(),mcAnalysis.mcQ2_tag()->p4().Py(),mcAnalysis.mcQ2_tag()->p4().Pz(),mcAnalysis.mcQ2_tag()->p4().E());
-      //   NtupleFactory_->FillStdXYZTLorentzVector("mcQ2_tag",myvect_XYZT_mcQ2_tag);
+      //   NtupleFactory_->Fill4V("mcQ2_tag",myvect_XYZT_mcQ2_tag);
       //   NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysis.mcQ2_tag()->charge());
       //   NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysis.mcQ2_tag()->pdgId());
       //       
@@ -298,7 +293,7 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 // ------------ method called once each job just before starting event loop  ------------
 void SimpleNtple::beginJob(const EventSetup& iSetup)
 {
- NtupleFactory_->AddStdXYZTLorentzVector("muons");
+ NtupleFactory_->Add4V("muons");
  NtupleFactory_->AddFloat("muons_charge"); 
  NtupleFactory_->AddFloat("muons_tkIsoR03"); 
  NtupleFactory_->AddFloat("muons_nTkIsoR03"); 
@@ -313,7 +308,7 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
  NtupleFactory_->AddFloat("muons_track_d0err"); 
  NtupleFactory_->AddFloat("muons_track_dzerr"); 
     
- NtupleFactory_->AddStdXYZTLorentzVector("electrons");
+ NtupleFactory_->Add4V("electrons");
  NtupleFactory_->AddFloat("electrons_charge"); 
  NtupleFactory_->AddFloat("electrons_tkIso"); 
  NtupleFactory_->AddFloat("electrons_emIso"); 
@@ -327,45 +322,45 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
  NtupleFactory_->AddFloat("electrons_track_d0err");
  NtupleFactory_->AddFloat("electrons_track_dzerr");
   
- NtupleFactory_->AddStdXYZVector("tracks_in");
- NtupleFactory_->AddStdXYZVector("tracks_out");   
+ NtupleFactory_->Add3V("tracks_in");
+ NtupleFactory_->Add3V("tracks_out");   
  NtupleFactory_->AddFloat("tracks_d0");
  NtupleFactory_->AddFloat("tracks_dz");   
  NtupleFactory_->AddFloat("tracks_d0err");
  NtupleFactory_->AddFloat("tracks_dzerr");   
 
-//  NtupleFactory_->AddStdXYZTLorentzVector("mc_H");    
+//  NtupleFactory_->Add4V("mc_H");    
 //  NtupleFactory_->AddFloat("mc_H_charge");    
 //       
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcV1");         
+//  NtupleFactory_->Add4V("mcV1");         
 //  NtupleFactory_->AddFloat("mcV1_charge");    
 //  NtupleFactory_->AddFloat("mcV1_pdgId");    
 //  
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcV2");         
+//  NtupleFactory_->Add4V("mcV2");         
 //  NtupleFactory_->AddFloat("mcV2_charge");    
 //  NtupleFactory_->AddFloat("mcV2_pdgId");  
 //   
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcF1_fromV1");   
+//  NtupleFactory_->Add4V("mcF1_fromV1");   
 //  NtupleFactory_->AddFloat("mcF1_fromV1_charge");    
 //  NtupleFactory_->AddFloat("mcF1_fromV1_pdgId");  
 //        
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcF2_fromV1");         
+//  NtupleFactory_->Add4V("mcF2_fromV1");         
 //  NtupleFactory_->AddFloat("mcF2_fromV1_charge");    
 //  NtupleFactory_->AddFloat("mcF2_fromV1_pdgId");  
 //  
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcF1_fromV2");         
+//  NtupleFactory_->Add4V("mcF1_fromV2");         
 //  NtupleFactory_->AddFloat("mcF1_fromV2_charge");    
 //  NtupleFactory_->AddFloat("mcF1_fromV2_pdgId");  
 //  
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcF2_fromV2");         
+//  NtupleFactory_->Add4V("mcF2_fromV2");         
 //  NtupleFactory_->AddFloat("mcF2_fromV2_charge");    
 //  NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");  
 //  
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcQ1_tag");    
+//  NtupleFactory_->Add4V("mcQ1_tag");    
 //  NtupleFactory_->AddFloat("mcQ1_tag_charge");    
 //  NtupleFactory_->AddFloat("mcQ1_tag_pdgId");  
 //       
-//  NtupleFactory_->AddStdXYZTLorentzVector("mcQ2_tag");         
+//  NtupleFactory_->Add4V("mcQ2_tag");         
 //  NtupleFactory_->AddFloat("mcQ2_tag_charge");    
 //  NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
 
