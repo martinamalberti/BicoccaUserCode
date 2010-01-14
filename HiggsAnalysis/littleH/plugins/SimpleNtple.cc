@@ -101,10 +101,11 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False")),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1))
 {
- Service<TFileService> fs ;
- outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
+  std::string treeName = iConfig.getUntrackedParameter<std::string> ("treeName","SimpleTree") ;
+  Service<TFileService> fs ;
+  outTree_ = fs->make<TTree> (treeName.c_str (), treeName.c_str ()) ; 
  
- NtupleFactory_ = new NtupleFactory(outTree_);
+  NtupleFactory_ = new NtupleFactory (outTree_) ;
 }
 
 
