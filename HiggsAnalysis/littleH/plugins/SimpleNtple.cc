@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.17 2010/01/14 15:18:42 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.18 2010/01/14 15:24:59 govoni Exp $
 //
 //
 
@@ -210,15 +210,14 @@ SimpleNtple::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & i
       k++;
     
       bool storeThisOther = true;
-// FIXME questo e' da far funzionare in modo sensato
-//      for (int j = 0; j<(int)theMuonTrkIndexes_.size(); ++j) 
-//        {
-//          if (k == theMuonTrkIndexes_.at(j)) 
-//            {
-//              storeThisOther = false;
-//              break;
-//            }
-//        }
+      for (int j = 0; j<(int)theMuonTrkIndexes_.size(); ++j) 
+        {
+          if (k == theMuonTrkIndexes_.at(j)) 
+            {
+              storeThisOther = false;
+              break;
+            }
+        }
       if (!storeThisOther) continue;
     
       NtupleFactory_->Fill3V("tracks_in",(*tkIt).innerMomentum ());  
