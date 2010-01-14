@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.2 2010/01/13 16:25:51 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.3 2010/01/13 17:27:12 dimatteo Exp $
 //
 //
 
@@ -42,11 +42,14 @@
 //--- objects ----
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -128,8 +131,13 @@ void
   NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
   NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
 
+  //Get Global Muon Track
+  TrackRef glbTrack = (*MuHandle)[i].globalTrack();
   
-  
+  NtupleFactory_->FillFloat("muons_track_d0", glbTrack->d0 ());
+  NtupleFactory_->FillFloat("muons_track_dz", glbTrack->dz ());
+  NtupleFactory_->FillFloat("muons_track_d0err", glbTrack->d0Error ());
+  NtupleFactory_->FillFloat("muons_track_dzerr", glbTrack->dzError ());
 }
 
  ///---- fill electrons ----
@@ -151,7 +159,6 @@ void
   
   //Get Ele Ref
   edm::Ref<edm::View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
-
   
   math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*EleHandle)[i].p4().Px(),(*EleHandle)[i].p4().Py(),(*EleHandle)[i].p4().Pz(),(*EleHandle)[i].p4().E());
   NtupleFactory_->FillStdXYZTLorentzVector("electrons",myvect_XYZT);
@@ -164,8 +171,15 @@ void
   NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
   NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
   NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);  
+  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
   
+  //Get Ele Track
+  reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
+  
+  NtupleFactory_->FillFloat("electrons_track_d0", eleTrack->d0 ());
+  NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
+  NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
+  NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
 }
 
  ///---- fill tracks ----
@@ -175,8 +189,14 @@ void
 { 
   math::XYZVector vector_in = (*tkIt).innerMomentum () ; 
   NtupleFactory_->FillStdXYZVector("tracks_in",&vector_in);
+  
   math::XYZVector vector_out = (*tkIt).outerMomentum () ; 
   NtupleFactory_->FillStdXYZVector("tracks_out",&vector_out);
+  
+  NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
+  NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
+  NtupleFactory_->FillFloat("tracks_d0err",(*tkIt).d0Error());
+  NtupleFactory_->FillFloat("tracks_dzerr",(*tkIt).dzError());
 }
  
 
@@ -261,6 +281,11 @@ void
  NtupleFactory_->AddFloat("muons_nTkIsoR05"); 
  NtupleFactory_->AddFloat("muons_emIsoR05"); 
  NtupleFactory_->AddFloat("muons_hadIsoR05"); 
+ NtupleFactory_->AddFloat("muons_track_d0"); 
+ NtupleFactory_->AddFloat("muons_track_dz"); 
+ NtupleFactory_->AddFloat("muons_track_d0err"); 
+ NtupleFactory_->AddFloat("muons_track_dzerr"); 
+ 
    
  NtupleFactory_->AddStdXYZTLorentzVector("electrons");
  NtupleFactory_->AddFloat("electrons_charge"); 
@@ -271,9 +296,17 @@ void
  NtupleFactory_->AddFloat("electrons_IdTight"); 
  NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
  NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
-   
+ NtupleFactory_->AddFloat("electrons_track_d0");
+ NtupleFactory_->AddFloat("electrons_track_dz");
+ NtupleFactory_->AddFloat("electrons_track_d0err");
+ NtupleFactory_->AddFloat("electrons_track_dzerr");
+  
  NtupleFactory_->AddStdXYZVector("tracks_in");
  NtupleFactory_->AddStdXYZVector("tracks_out");   
+ NtupleFactory_->AddFloat("tracks_d0");
+ NtupleFactory_->AddFloat("tracks_dz");   
+ NtupleFactory_->AddFloat("tracks_d0err");
+ NtupleFactory_->AddFloat("tracks_dzerr");   
 
 //  NtupleFactory_->AddStdXYZTLorentzVector("mc_H");    
 //  NtupleFactory_->AddFloat("mc_H_charge");    

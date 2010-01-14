@@ -26,7 +26,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 # --- INPUT  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.source = cms.Source(
     "PoolSource",
