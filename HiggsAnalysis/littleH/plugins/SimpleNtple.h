@@ -55,6 +55,9 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag m_eleIDCut_RLooseInputTag ;
   edm::InputTag m_eleIDCut_TightInputTag ;
   edm::InputTag m_eleIDCut_RTightInputTag ;
+
+  edm::InputTag barrelClusterCollection_;
+  edm::InputTag endcapClusterCollection_;
   
 //   string thetriggerEventLabel;
 //   string theHLTriggerResults;     // HLT trigger results

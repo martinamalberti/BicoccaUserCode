@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.13 2010/01/14 13:59:21 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.14 2010/01/14 14:12:38 govoni Exp $
 //
 //
 
@@ -80,26 +80,27 @@
 
 using namespace edm;
 
-SimpleNtple::SimpleNtple(const ParameterSet& iConfig) 
+SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
+  TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
+  EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
+  MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
+  PrimaryVertexTag_         (iConfig.getParameter<InputTag> ("PrimaryVertexTag")),
+  m_eleIDCut_LooseInputTag  (iConfig.getParameter<InputTag> ("eleIDCut_LooseInputTag")),
+  m_eleIDCut_RLooseInputTag (iConfig.getParameter<InputTag> ("eleIDCut_RLooseInputTag")),
+  m_eleIDCut_TightInputTag  (iConfig.getParameter<InputTag> ("eleIDCut_TightInputTag")),
+  m_eleIDCut_RTightInputTag (iConfig.getParameter<InputTag> ("eleIDCut_RTightInputTag")),
+  barrelClusterCollection_  (iConfig.getParameter<edm::InputTag> ("barrelClusterCollection")),
+  endcapClusterCollection_  (iConfig.getParameter<edm::InputTag> ("endcapClusterCollection")),
+  verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False")),
+  eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1))
+ 
 {
  Service<TFileService> fs ;
  outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
  
- TracksTag_ = iConfig.getParameter<InputTag>("TracksTag");
- EleTag_ = iConfig.getParameter<InputTag>("EleTag");
- MuTag_ = iConfig.getParameter<InputTag>("MuTag");
- PrimaryVertexTag_ = iConfig.getParameter<InputTag>("PrimaryVertexTag");
-
- m_eleIDCut_LooseInputTag  = iConfig.getParameter<InputTag> ("eleIDCut_LooseInputTag");
- m_eleIDCut_RLooseInputTag = iConfig.getParameter<InputTag> ("eleIDCut_RLooseInputTag");
- m_eleIDCut_TightInputTag  = iConfig.getParameter<InputTag> ("eleIDCut_TightInputTag");
- m_eleIDCut_RTightInputTag = iConfig.getParameter<InputTag> ("eleIDCut_RTightInputTag");
 
  //  MCtruthTag_ = iConfig.getParameter<InputTag>("MCtruthTag");
 
- verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
- eventType_ = iConfig.getUntrackedParameter<int>("eventType",1);
- 
  NtupleFactory_ = new NtupleFactory(outTree_);
 }
 
