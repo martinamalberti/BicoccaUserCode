@@ -73,5 +73,9 @@ class SimpleNtple : public edm::EDAnalyzer {
 
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  
+
+  //used to save all tracks BUT muons
+  std::vector<int> theMuonTrkIndexes_ ;
+ 
     
 };

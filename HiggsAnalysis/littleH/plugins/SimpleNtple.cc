@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.16 2010/01/14 15:05:06 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.17 2010/01/14 15:18:42 govoni Exp $
 //
 //
 
@@ -152,20 +152,17 @@ SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESe
   Handle<MuonCollection> MuHandle;
   iEvent.getByLabel(MuTag_,MuHandle);
  
-   //used to save all tracks BUT muons
-  vector<int> theMuonTrkIndexes;
- 
   MuonCollection theTrkMuons;
   MuonCollection theGlobalMuons;
  
   for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
    if (nmuon->isGlobalMuon()) {
     theGlobalMuons.push_back(*nmuon);
-    theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
+    theMuonTrkIndexes_.push_back(nmuon->innerTrack().index());
    }
    if (!(nmuon->isGlobalMuon()) && nmuon->isTrackerMuon()) {
     theTrkMuons.push_back(*nmuon);
-    theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
+    theMuonTrkIndexes_.push_back(nmuon->innerTrack().index());
    }
   }
  
@@ -214,9 +211,9 @@ SimpleNtple::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & i
     
       bool storeThisOther = true;
 // FIXME questo e' da far funzionare in modo sensato
-//      for (int j = 0; j<(int)theMuonTrkIndexes.size(); ++j) 
+//      for (int j = 0; j<(int)theMuonTrkIndexes_.size(); ++j) 
 //        {
-//          if (k == theMuonTrkIndexes.at(j)) 
+//          if (k == theMuonTrkIndexes_.at(j)) 
 //            {
 //              storeThisOther = false;
 //              break;
@@ -393,16 +390,15 @@ SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESe
 void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
 
-  
-  fillMuInfo (iEvent, iSetup) ;
-  fillTrackInfo (iEvent, iSetup) ;
+  fillVtxInfo (iEvent, iSetup) ;
+  fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
+  fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
   fillEleInfo (iEvent, iSetup) ;
   fillMCInfo (iEvent, iSetup) ;
   fillSCInfo (iEvent, iSetup) ;
 
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
-
 
 }
 
