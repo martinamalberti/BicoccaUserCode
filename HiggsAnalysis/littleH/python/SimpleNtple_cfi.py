@@ -5,6 +5,7 @@ SimpleNtple = cms.EDAnalyzer(
      MuTag = cms.InputTag("muons"),
      EleTag = cms.InputTag("gsfElectrons"),  # pixelMatchGsfElectrons
      TracksTag = cms.InputTag("generalTracks"),
+     PrimaryVertexTag   = cms.InputTag("offlinePrimaryVertices"),
 #      MCtruthTag = cms.InputTag("genParticles"),
      verbosity = cms.untracked.bool(False),
      eventType = cms.untracked.int32(0), 

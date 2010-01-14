@@ -47,7 +47,8 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag TracksTag_;
   edm::InputTag EleTag_;
   edm::InputTag MuTag_;
-  
+  edm::InputTag PrimaryVertexTag_;        
+
 //   edm::InputTag MCtruthTag_;
   
   edm::InputTag m_eleIDCut_LooseInputTag ;
@@ -55,6 +56,11 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag m_eleIDCut_TightInputTag ;
   edm::InputTag m_eleIDCut_RTightInputTag ;
   
+//   string thetriggerEventLabel;
+//   string theHLTriggerResults;     // HLT trigger results
+//   string the8e29ProcName;
+//   string the1e31ProcName;
+
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  
     
