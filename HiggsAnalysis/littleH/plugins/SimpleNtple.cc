@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.3 2010/01/13 17:27:12 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.4 2010/01/14 09:13:29 dimatteo Exp $
 //
 //
 
@@ -71,11 +71,7 @@
 #include "HiggsAnalysis/littleH/interface/MCDumper.h"
 
 
-SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
- m_eleIDCut_LooseInputTag (iConfig.getParameter<edm::InputTag> ("eleIDCut_LooseInputTag")) ,
- m_eleIDCut_RLooseInputTag (iConfig.getParameter<edm::InputTag> ("eleIDCut_RLooseInputTag")) ,
- m_eleIDCut_TightInputTag (iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag")) ,
- m_eleIDCut_RTightInputTag (iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag"))
+SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) 
 {
  edm::Service<TFileService> fs ;
  outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
@@ -83,6 +79,11 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
  TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
  EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
  MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
+
+ m_eleIDCut_LooseInputTag  = iConfig.getParameter<edm::InputTag> ("eleIDCut_LooseInputTag");
+ m_eleIDCut_RLooseInputTag = iConfig.getParameter<edm::InputTag> ("eleIDCut_RLooseInputTag");
+ m_eleIDCut_TightInputTag  = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
+ m_eleIDCut_RTightInputTag = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
 
  //  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
 
@@ -107,170 +108,195 @@ SimpleNtple::~SimpleNtple()
 //
 
 // ------------ method called to for each event  ------------
-void
-  SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
- ///---- fill muons ----
- edm::Handle<edm::View<reco::Muon> > MuHandle ;
- iEvent.getByLabel (MuTag_,MuHandle);
- int nMu;
- if(MuHandle->size() < 30 ){ nMu = MuHandle->size(); }
- else {nMu = 30;}
- for(int i=0; i< nMu; i++){
-  math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*MuHandle)[i].p4().Px(),(*MuHandle)[i].p4().Py(),(*MuHandle)[i].p4().Pz(),(*MuHandle)[i].p4().E());
-  NtupleFactory_->FillStdXYZTLorentzVector("muons",myvect_XYZT);
+  ///---- fill muons ----
+  edm::Handle<edm::View<reco::Muon> > MuHandle ;
+  iEvent.getByLabel (MuTag_,MuHandle);
+
+  //used to save all tracks BUT muons
+  vector<int> theMuonTrkIndexes;
+
+  MuonCollection theTrkMuons;
+  MuonCollection theGlobalMuons;
+
+  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != allmuons->end(); ++nmuon) {
+    if (nmuon->isGlobalMuon()) {
+      theGlobalMuons.push_back(*nmuon);
+      theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
+    }
+    if (!(nmuon->isGlobalMuon()) && nmuon->isTrackerMuon()) {
+      theTrkMuons.push_back(*nmuon);
+      theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
+    }
+  }
+
+  int nMu = MuHandle->size();
+
+  for(int i=0; i< nMu; i++){
+    math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*MuHandle)[i].p4().Px(),(*MuHandle)[i].p4().Py(),(*MuHandle)[i].p4().Pz(),(*MuHandle)[i].p4().E());
+    NtupleFactory_->FillStdXYZTLorentzVector("muons",myvect_XYZT);
   
-  NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
-  NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
-  NtupleFactory_->FillFloat("muons_nTkIsoR03",((*MuHandle)[i].isolationR03()).nTracks);    
-  NtupleFactory_->FillFloat("muons_emIsoR03",((*MuHandle)[i].isolationR03()).emEt);
-  NtupleFactory_->FillFloat("muons_hadIsoR03",((*MuHandle)[i].isolationR03()).hadEt);
+    NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
+    NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
+    NtupleFactory_->FillFloat("muons_nTkIsoR03",((*MuHandle)[i].isolationR03()).nTracks);    
+    NtupleFactory_->FillFloat("muons_emIsoR03",((*MuHandle)[i].isolationR03()).emEt);
+    NtupleFactory_->FillFloat("muons_hadIsoR03",((*MuHandle)[i].isolationR03()).hadEt);
     
-  NtupleFactory_->FillFloat("muons_tkIsoR05",((*MuHandle)[i].isolationR05()).sumPt);
-  NtupleFactory_->FillFloat("muons_nTkIsoR05",((*MuHandle)[i].isolationR05()).nTracks);    
-  NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
-  NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
+    NtupleFactory_->FillFloat("muons_tkIsoR05",((*MuHandle)[i].isolationR05()).sumPt);
+    NtupleFactory_->FillFloat("muons_nTkIsoR05",((*MuHandle)[i].isolationR05()).nTracks);    
+    NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
+    NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
 
-  //Get Global Muon Track
-  TrackRef glbTrack = (*MuHandle)[i].globalTrack();
+    //Get Global Muon Track
+    TrackRef glbTrack = (*MuHandle)[i].globalTrack();
   
-  NtupleFactory_->FillFloat("muons_track_d0", glbTrack->d0 ());
-  NtupleFactory_->FillFloat("muons_track_dz", glbTrack->dz ());
-  NtupleFactory_->FillFloat("muons_track_d0err", glbTrack->d0Error ());
-  NtupleFactory_->FillFloat("muons_track_dzerr", glbTrack->dzError ());
-}
+    NtupleFactory_->FillFloat("muons_track_d0", glbTrack->d0 ());
+    NtupleFactory_->FillFloat("muons_track_dz", glbTrack->dz ());
+    NtupleFactory_->FillFloat("muons_track_d0err", glbTrack->d0Error ());
+    NtupleFactory_->FillFloat("muons_track_dzerr", glbTrack->dzError ());
+  }
 
- ///---- fill electrons ----
- edm::Handle<edm::View<reco::GsfElectron> > EleHandle ;
- iEvent.getByLabel (EleTag_,EleHandle);
- int nEle;
- if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
- else {nEle = 30;}
+  ///---- fill electrons ----
+  edm::Handle<edm::View<reco::GsfElectron> > EleHandle ;
+  iEvent.getByLabel (EleTag_,EleHandle);
+
+  int nEle(0);
+
+  if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
+  else {nEle = 30;}
  
- //PG get the electron ID collections
- std::vector<edm::Handle<edm::ValueMap<float> > > eleIdCutHandles(4) ;
- iEvent.getByLabel (m_eleIDCut_LooseInputTag, eleIdCutHandles[0]) ;
- iEvent.getByLabel (m_eleIDCut_RLooseInputTag, eleIdCutHandles[1]) ;
- iEvent.getByLabel (m_eleIDCut_TightInputTag, eleIdCutHandles[2]) ;
- iEvent.getByLabel (m_eleIDCut_RTightInputTag, eleIdCutHandles[3]) ;
+  //PG get the electron ID collections
+  std::vector<edm::Handle<edm::ValueMap<float> > > eleIdCutHandles(4) ;
+  iEvent.getByLabel (m_eleIDCut_LooseInputTag, eleIdCutHandles[0]) ;
+  iEvent.getByLabel (m_eleIDCut_RLooseInputTag, eleIdCutHandles[1]) ;
+  iEvent.getByLabel (m_eleIDCut_TightInputTag, eleIdCutHandles[2]) ;
+  iEvent.getByLabel (m_eleIDCut_RTightInputTag, eleIdCutHandles[3]) ;
 
+  for(int i=0; i< nEle; i++){
+  
+    //Get Ele Ref
+    edm::Ref<edm::View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
+  
+    math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*EleHandle)[i].p4().Px(),(*EleHandle)[i].p4().Py(),(*EleHandle)[i].p4().Pz(),(*EleHandle)[i].p4().E());
+    NtupleFactory_->FillStdXYZTLorentzVector("electrons",myvect_XYZT);
+    NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
+    NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
+    NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
+    NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));   
+  
+    //ELE ID
+    NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
+    NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
+    NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
+    NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
+  
+    //Get Ele Track
+    reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
+  
+    NtupleFactory_->FillFloat("electrons_track_d0", eleTrack->d0 ());
+    NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
+    NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
+    NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
+  }
+
+  ///---- fill tracks ----
+  edm::Handle<edm::View<reco::Track> > TracksHandle ;
+  iEvent.getByLabel (TracksTag_, TracksHandle) ;
+
+  int k(0);
+  for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
+    { 
+      k++;
+
+      bool storeThisOther = true;
+      for (int j = 0; j<(int)theMuonTrkIndexes.size(); ++j) {
+	if (k == theMuonTrkIndexes.at(j)) {
+	  storeThisOther = false;
+	  break;
+	}
+      }
+      if(!storeThisOther) continue;
+
+      math::XYZVector vector_in = (*tkIt).innerMomentum () ; 
+      NtupleFactory_->FillStdXYZVector("tracks_in",&vector_in);
+  
+      math::XYZVector vector_out = (*tkIt).outerMomentum () ; 
+      NtupleFactory_->FillStdXYZVector("tracks_out",&vector_out);
+  
+      NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
+      NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
+      NtupleFactory_->FillFloat("tracks_d0err",(*tkIt).d0Error());
+      NtupleFactory_->FillFloat("tracks_dzerr",(*tkIt).dzError());
+    }
  
- for(int i=0; i< nEle; i++){
   
-  //Get Ele Ref
-  edm::Ref<edm::View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
+      ///---- fill MCParticle ---- 
+      //  edm::Handle<reco::GenParticleCollection> genParticles;
+      //  iEvent.getByLabel(MCtruthTag_, genParticles);
+      // 
+      // //  int eventType_ = 1; //---- 0 = signal      1 = background 
+      // //  bool verbosity_ = true; //---- true = loquacious     false = silence
+      //  MCDumper mcAnalysis(genParticles, eventType_, verbosity_); //---- i "tau" mi fanno scrivere a schermo anche se NON è segnale
+      //  bool isValid = mcAnalysis.isValid();
+      //   
+      //  if( (eventType_ == 0) && (isValid == true) )
+      // {
+      //   math::XYZTLorentzVector* myvect_XYZT_mcH = new math::XYZTLorentzVector(mcAnalysis.mcH()->p4().Px(),mcAnalysis.mcH()->p4().Py(),mcAnalysis.mcH()->p4().Pz(),mcAnalysis.mcH()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mc_H",myvect_XYZT_mcH);
+      //   NtupleFactory_->FillFloat("mc_H_charge",mcAnalysis.mcH()->charge());
+      //   
+      //   math::XYZTLorentzVector* myvect_XYZT_mcV1 = new math::XYZTLorentzVector(mcAnalysis.mcV1()->p4().Px(),mcAnalysis.mcV1()->p4().Py(),mcAnalysis.mcV1()->p4().Pz(),mcAnalysis.mcV1()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcV1",myvect_XYZT_mcV1);
+      //   NtupleFactory_->FillFloat("mcV1_charge",mcAnalysis.mcV1()->charge());
+      //   NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysis.mcV1()->pdgId());
+      //   
+      //   math::XYZTLorentzVector* myvect_XYZT_mcV2 = new math::XYZTLorentzVector(mcAnalysis.mcV2()->p4().Px(),mcAnalysis.mcV2()->p4().Py(),mcAnalysis.mcV2()->p4().Pz(),mcAnalysis.mcV2()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcV2",myvect_XYZT_mcV2);
+      //   NtupleFactory_->FillFloat("mcV2_charge",mcAnalysis.mcV2()->charge());
+      //   NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysis.mcV2()->pdgId());
+      //      
+      //   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV1()->p4().Px(),mcAnalysis.mcF1_fromV1()->p4().Py(),mcAnalysis.mcF1_fromV1()->p4().Pz(),mcAnalysis.mcF1_fromV1()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF1_fromV1",myvect_XYZT_mcF1_fromV1);
+      //   NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysis.mcF1_fromV1()->charge());
+      //   NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysis.mcF1_fromV1()->pdgId());
+      // 
+      //   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV1()->p4().Px(),mcAnalysis.mcF2_fromV1()->p4().Py(),mcAnalysis.mcF2_fromV1()->p4().Pz(),mcAnalysis.mcF2_fromV1()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF2_fromV1",myvect_XYZT_mcF2_fromV1);
+      //   NtupleFactory_->FillFloat("mcF2_fromV1_charge",mcAnalysis.mcF2_fromV1()->charge());
+      //   NtupleFactory_->FillFloat("mcF2_fromV1_pdgId",mcAnalysis.mcF2_fromV1()->pdgId());
+      // 
+      //   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV2()->p4().Px(),mcAnalysis.mcF1_fromV2()->p4().Py(),mcAnalysis.mcF1_fromV2()->p4().Pz(),mcAnalysis.mcF1_fromV2()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF1_fromV2",myvect_XYZT_mcF1_fromV2);
+      //   NtupleFactory_->FillFloat("mcF1_fromV2_charge",mcAnalysis.mcF1_fromV2()->charge());
+      //   NtupleFactory_->FillFloat("mcF1_fromV2_pdgId",mcAnalysis.mcF1_fromV2()->pdgId());
+      // 
+      //   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV2()->p4().Px(),mcAnalysis.mcF2_fromV2()->p4().Py(),mcAnalysis.mcF2_fromV2()->p4().Pz(),mcAnalysis.mcF2_fromV2()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcF2_fromV2",myvect_XYZT_mcF2_fromV2);
+      //   NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
+      //   NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
+      //     
+      //   math::XYZTLorentzVector* myvect_XYZT_mcQ1_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ1_tag()->p4().Px(),mcAnalysis.mcQ1_tag()->p4().Py(),mcAnalysis.mcQ1_tag()->p4().Pz(),mcAnalysis.mcQ1_tag()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcQ1_tag",myvect_XYZT_mcQ1_tag);
+      //   NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysis.mcQ1_tag()->charge());
+      //   NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysis.mcQ1_tag()->pdgId());
+      // 
+      //   math::XYZTLorentzVector* myvect_XYZT_mcQ2_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ2_tag()->p4().Px(),mcAnalysis.mcQ2_tag()->p4().Py(),mcAnalysis.mcQ2_tag()->p4().Pz(),mcAnalysis.mcQ2_tag()->p4().E());
+      //   NtupleFactory_->FillStdXYZTLorentzVector("mcQ2_tag",myvect_XYZT_mcQ2_tag);
+      //   NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysis.mcQ2_tag()->charge());
+      //   NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysis.mcQ2_tag()->pdgId());
+      //       
+      // }
   
-  math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*EleHandle)[i].p4().Px(),(*EleHandle)[i].p4().Py(),(*EleHandle)[i].p4().Pz(),(*EleHandle)[i].p4().E());
-  NtupleFactory_->FillStdXYZTLorentzVector("electrons",myvect_XYZT);
-  NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
-  NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
-  NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
-  NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));   
-  
-  //ELE ID
-  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
-  
-  //Get Ele Track
-  reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
-  
-  NtupleFactory_->FillFloat("electrons_track_d0", eleTrack->d0 ());
-  NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
-  NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
-  NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
-}
+      ///---- save the entry of the tree ----
+      NtupleFactory_->FillNtuple();
 
- ///---- fill tracks ----
- edm::Handle<edm::View<reco::Track> > TracksHandle ;
- iEvent.getByLabel (TracksTag_, TracksHandle) ;
- for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
-{ 
-  math::XYZVector vector_in = (*tkIt).innerMomentum () ; 
-  NtupleFactory_->FillStdXYZVector("tracks_in",&vector_in);
-  
-  math::XYZVector vector_out = (*tkIt).outerMomentum () ; 
-  NtupleFactory_->FillStdXYZVector("tracks_out",&vector_out);
-  
-  NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
-  NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
-  NtupleFactory_->FillFloat("tracks_d0err",(*tkIt).d0Error());
-  NtupleFactory_->FillFloat("tracks_dzerr",(*tkIt).dzError());
-}
- 
-
-  
- ///---- fill MCParticle ---- 
-//  edm::Handle<reco::GenParticleCollection> genParticles;
-//  iEvent.getByLabel(MCtruthTag_, genParticles);
-// 
-// //  int eventType_ = 1; //---- 0 = signal      1 = background 
-// //  bool verbosity_ = true; //---- true = loquacious     false = silence
-//  MCDumper mcAnalysis(genParticles, eventType_, verbosity_); //---- i "tau" mi fanno scrivere a schermo anche se NON è segnale
-//  bool isValid = mcAnalysis.isValid();
-//   
-//  if( (eventType_ == 0) && (isValid == true) )
-// {
-//   math::XYZTLorentzVector* myvect_XYZT_mcH = new math::XYZTLorentzVector(mcAnalysis.mcH()->p4().Px(),mcAnalysis.mcH()->p4().Py(),mcAnalysis.mcH()->p4().Pz(),mcAnalysis.mcH()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mc_H",myvect_XYZT_mcH);
-//   NtupleFactory_->FillFloat("mc_H_charge",mcAnalysis.mcH()->charge());
-//   
-//   math::XYZTLorentzVector* myvect_XYZT_mcV1 = new math::XYZTLorentzVector(mcAnalysis.mcV1()->p4().Px(),mcAnalysis.mcV1()->p4().Py(),mcAnalysis.mcV1()->p4().Pz(),mcAnalysis.mcV1()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcV1",myvect_XYZT_mcV1);
-//   NtupleFactory_->FillFloat("mcV1_charge",mcAnalysis.mcV1()->charge());
-//   NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysis.mcV1()->pdgId());
-//   
-//   math::XYZTLorentzVector* myvect_XYZT_mcV2 = new math::XYZTLorentzVector(mcAnalysis.mcV2()->p4().Px(),mcAnalysis.mcV2()->p4().Py(),mcAnalysis.mcV2()->p4().Pz(),mcAnalysis.mcV2()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcV2",myvect_XYZT_mcV2);
-//   NtupleFactory_->FillFloat("mcV2_charge",mcAnalysis.mcV2()->charge());
-//   NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysis.mcV2()->pdgId());
-//      
-//   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV1()->p4().Px(),mcAnalysis.mcF1_fromV1()->p4().Py(),mcAnalysis.mcF1_fromV1()->p4().Pz(),mcAnalysis.mcF1_fromV1()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcF1_fromV1",myvect_XYZT_mcF1_fromV1);
-//   NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysis.mcF1_fromV1()->charge());
-//   NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysis.mcF1_fromV1()->pdgId());
-// 
-//   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV1()->p4().Px(),mcAnalysis.mcF2_fromV1()->p4().Py(),mcAnalysis.mcF2_fromV1()->p4().Pz(),mcAnalysis.mcF2_fromV1()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcF2_fromV1",myvect_XYZT_mcF2_fromV1);
-//   NtupleFactory_->FillFloat("mcF2_fromV1_charge",mcAnalysis.mcF2_fromV1()->charge());
-//   NtupleFactory_->FillFloat("mcF2_fromV1_pdgId",mcAnalysis.mcF2_fromV1()->pdgId());
-// 
-//   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV2()->p4().Px(),mcAnalysis.mcF1_fromV2()->p4().Py(),mcAnalysis.mcF1_fromV2()->p4().Pz(),mcAnalysis.mcF1_fromV2()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcF1_fromV2",myvect_XYZT_mcF1_fromV2);
-//   NtupleFactory_->FillFloat("mcF1_fromV2_charge",mcAnalysis.mcF1_fromV2()->charge());
-//   NtupleFactory_->FillFloat("mcF1_fromV2_pdgId",mcAnalysis.mcF1_fromV2()->pdgId());
-// 
-//   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV2()->p4().Px(),mcAnalysis.mcF2_fromV2()->p4().Py(),mcAnalysis.mcF2_fromV2()->p4().Pz(),mcAnalysis.mcF2_fromV2()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcF2_fromV2",myvect_XYZT_mcF2_fromV2);
-//   NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
-//   NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
-//     
-//   math::XYZTLorentzVector* myvect_XYZT_mcQ1_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ1_tag()->p4().Px(),mcAnalysis.mcQ1_tag()->p4().Py(),mcAnalysis.mcQ1_tag()->p4().Pz(),mcAnalysis.mcQ1_tag()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcQ1_tag",myvect_XYZT_mcQ1_tag);
-//   NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysis.mcQ1_tag()->charge());
-//   NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysis.mcQ1_tag()->pdgId());
-// 
-//   math::XYZTLorentzVector* myvect_XYZT_mcQ2_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ2_tag()->p4().Px(),mcAnalysis.mcQ2_tag()->p4().Py(),mcAnalysis.mcQ2_tag()->p4().Pz(),mcAnalysis.mcQ2_tag()->p4().E());
-//   NtupleFactory_->FillStdXYZTLorentzVector("mcQ2_tag",myvect_XYZT_mcQ2_tag);
-//   NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysis.mcQ2_tag()->charge());
-//   NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysis.mcQ2_tag()->pdgId());
-//       
-// }
-  
- 
-  ///---- save the entry of the tree ----
- NtupleFactory_->FillNtuple();
-
-}
+    }
 
     
 // ------------ method called once each job just before starting event loop  ------------
-  
-  void 
-    SimpleNtple::beginJob(const edm::EventSetup& iSetup)
+void SimpleNtple::beginJob(const edm::EventSetup& iSetup)
 {
-   
  NtupleFactory_->AddStdXYZTLorentzVector("muons");
  NtupleFactory_->AddFloat("muons_charge"); 
  NtupleFactory_->AddFloat("muons_tkIsoR03"); 
@@ -285,8 +311,7 @@ void
  NtupleFactory_->AddFloat("muons_track_dz"); 
  NtupleFactory_->AddFloat("muons_track_d0err"); 
  NtupleFactory_->AddFloat("muons_track_dzerr"); 
- 
-   
+    
  NtupleFactory_->AddStdXYZTLorentzVector("electrons");
  NtupleFactory_->AddFloat("electrons_charge"); 
  NtupleFactory_->AddFloat("electrons_tkIso"); 
@@ -342,16 +367,16 @@ void
 //  NtupleFactory_->AddStdXYZTLorentzVector("mcQ2_tag");         
 //  NtupleFactory_->AddFloat("mcQ2_tag_charge");    
 //  NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
- 
+
+ return;
 }
    
    
 // ------------ method called once each job just after ending the event loop  ------------
      
-  void 
-    SimpleNtple::endJob() {
-   
-   NtupleFactory_->WriteNtuple();
-
+void SimpleNtple::endJob()
+{
+  NtupleFactory_->WriteNtuple();
+  return;
 }
 
