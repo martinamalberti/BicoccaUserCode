@@ -28,6 +28,8 @@
 #include "Math/LorentzVector.h"
 #include "Math/Vector3D.h"
 
+using namespace edm;
+using namespace std;
 
 //---------------------------
 //---- class declaration ----
@@ -49,6 +51,7 @@ class SimpleNtple : public edm::EDAnalyzer {
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
 
   template <class T> math::XYZTLorentzVector lorentzMomentum(const T & muon) const;
   std::vector<unsigned int> trackHits(const reco::Track& tr);
@@ -71,17 +74,24 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag barrelClusterCollection_;
   edm::InputTag endcapClusterCollection_;
   
+  string thetriggerEventTag_;
+  string theHLTriggerResults_;     // HLT trigger results
+  string the8e29ProcName_;
+  string the1e31ProcName_;
+  
+  static const unsigned int Max_trig_size = 10;
+  static const int NTRIGGERS = 5;
+  
+  InputTag hltModules[2][NTRIGGERS]; // in order: L2, L3
+  int hltBits[NTRIGGERS];
+  
   bool saveVtx_ ;
   bool saveMu_ ;
   bool saveTracks_ ;
   bool saveEle_ ;
   bool saveMC_ ;
   bool saveSC_ ;
-
-  //   string thetriggerEventLabel;
-  //   string theHLTriggerResults;     // HLT trigger results
-  //   string the8e29ProcName;
-  //   string the1e31ProcName;
+  bool saveTrigger_ ;
 
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  

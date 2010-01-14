@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.23 2010/01/14 16:37:28 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.24 2010/01/14 17:42:11 pellicci Exp $
 //
 //
 
@@ -67,6 +67,15 @@
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 #include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
 
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "DataFormats/Common/interface/ValueMap.h"
 
 //---- utilities ----
@@ -89,12 +98,17 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   m_eleIDCut_RTightInputTag (iConfig.getParameter<InputTag> ("eleIDCut_RTightInputTag")),
   barrelClusterCollection_  (iConfig.getParameter<edm::InputTag> ("barrelClusterCollection")),
   endcapClusterCollection_  (iConfig.getParameter<edm::InputTag> ("endcapClusterCollection")),
+  thetriggerEventTag_       (iConfig.getParameter<string>   ("triggerEventTag")),
+  theHLTriggerResults_      (iConfig.getParameter<string>   ("triggerResultsTag")),
+  the8e29ProcName_          (iConfig.getParameter<string>   ("HLTprocessName8e29")),
+  the1e31ProcName_          (iConfig.getParameter<string>   ("HLTprocessName1e31")),
   saveVtx_                  (iConfig.getUntrackedParameter<bool> ("saveVtx", true)),
   saveMu_                   (iConfig.getUntrackedParameter<bool> ("saveMu", true)),
   saveTracks_               (iConfig.getUntrackedParameter<bool> ("saveTracks", true)),
   saveEle_                  (iConfig.getUntrackedParameter<bool> ("saveEle", true)),
   saveMC_                   (iConfig.getUntrackedParameter<bool> ("saveMC", true)),
   saveSC_                   (iConfig.getUntrackedParameter<bool> ("saveSC", true)),
+  saveTrigger_                   (iConfig.getUntrackedParameter<bool> ("saveTrigger", true)),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -458,6 +472,94 @@ SimpleNtple::fillMCInfo (const Event & iEvent, const EventSetup & iESetup)
   return ;
 }
 
+// --------------------------------------------------------------------
+
+void 
+SimpleNtple::fillTriggerInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ using namespace trigger;
+ Handle<TriggerResults> HLTR;
+ iEvent.getByLabel(InputTag(theHLTriggerResults_,"",the8e29ProcName_), HLTR);
+ if (HLTR.isValid()) {
+  
+  NtupleFactory_->FillInt ("HLTGlobal_wasrun", HLTR->wasrun()) ;  
+  NtupleFactory_->FillInt ("HLTGlobal_Decision", HLTR->accept()) ;  
+  NtupleFactory_->FillInt ("HLTGlobal_error", HLTR->error()) ;  
+ 
+//   HLTGlobal_wasrun=HLTR->wasrun();
+//   HLTGlobal_Decision=HLTR->accept();
+//   HLTGlobal_error=HLTR->error();
+    
+ 
+  int HLTBits_size=HLTR->size();
+  for (int i=0; i<HLTBits_size && i<(int)Max_trig_size; i++) {
+//    HLTBits_accept[i]=(int) HLTR->accept(hltBits[i]);
+//    HLTBits_error[i] =(int) HLTR->error(hltBits[i]);
+   NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->wasrun(hltBits[i])) ;
+   NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->accept(hltBits[i])) ;
+   NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->error(hltBits[i])) ;
+  }
+   
+  Handle<TriggerEvent> trgEvent;
+  bool hltF = true;
+  try {
+   iEvent.getByLabel(InputTag(thetriggerEventTag_,"",the8e29ProcName_), trgEvent);
+  }
+  catch (const cms::Exception& e) {
+   hltF = false;
+   cout<<"Error!! No TriggerEvent with label " << thetriggerEventTag_ << endl;
+  }
+  if ( hltF ) {
+   const TriggerObjectCollection& TOC(trgEvent->getObjects());
+ 
+   for ( int lvl = 1; lvl<2; lvl++ ) { 
+    for ( int ipath = 0; ipath < HLTBits_size; ipath++) {
+     const InputTag trigName = hltModules[lvl][ipath];
+     size_type index = trgEvent->filterIndex(trigName);
+     if ( index < trgEvent->sizeFilters() ) {
+      const Keys& KEYS( trgEvent->filterKeys(index) );
+      int muonsize = KEYS.size();
+      int minNMuons = 1; if ( ipath>=3 ) minNMuons = 2;
+      if (  muonsize < minNMuons && HLTR->accept(hltBits[ipath]) ) {  
+       cout<<"Error!! Not enough HLT muons for "<<trigName.label()<<", but decision = "<<HLTR->accept(hltBits[ipath])<<endl;
+      }
+      for ( int hltm = 0; hltm < muonsize; hltm++ ) {
+       size_type hltf = KEYS[hltm];
+       const TriggerObject& TO(TOC[hltf]);
+//        TLorentzVector a = lorentzTriObj(TO);
+
+       if ( lvl==1 ) {
+        if ( ipath==0 ) {
+         NtupleFactory_->Fill4V ("HLT1Mu3_L3_4mom", TO.particle().p4());
+         NtupleFactory_->FillInt("HLT1Mu3_L3_id", TO.id()) ;
+        }
+        if ( ipath==1 ) {
+         NtupleFactory_->Fill4V ("HLT1Mu5_L3_4mom", TO.particle().p4());
+         NtupleFactory_->FillInt("HLT1Mu5_L3_id", TO.id()) ;
+        }
+        if ( ipath==2 ) {
+         NtupleFactory_->Fill4V ("HLT1Mu9_L3_4mom", TO.particle().p4());
+         NtupleFactory_->FillInt("HLT1Mu9_L3_id", TO.id()) ;
+        }
+        if ( ipath==3 ) {
+         NtupleFactory_->Fill4V ("HLT2Mu0_L3_4mom", TO.particle().p4());
+         NtupleFactory_->FillInt("HLT2Mu0_L3_id", TO.id()) ;
+        }
+        if ( ipath==4 ) {
+         NtupleFactory_->Fill4V ("HLT2Mu3_L3_4mom", TO.particle().p4());
+         NtupleFactory_->FillInt("HLT2Mu3_L3_id", TO.id()) ;
+        }
+       }
+      } 
+     } 
+    }
+   }
+  }
+ }
+
+ return;
+}
+
 
 // ------------ method called to for each event  ------------
 
@@ -470,7 +572,7 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
   if (saveEle_)    fillEleInfo (iEvent, iSetup) ;
   if (saveMC_)     fillMCInfo (iEvent, iSetup) ;
   if (saveSC_)     fillSCInfo (iEvent, iSetup) ;
-
+  if (saveTrigger_) fillTriggerInfo (iEvent, iSetup) ;
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
 
@@ -536,6 +638,24 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
   //PG supercluster information
   NtupleFactory_->AddFloat ("SC_Energy") ;
   NtupleFactory_->Add3V ("SC_position") ;
+  
+    //Trigger Info
+  NtupleFactory_->AddInt ("HLTBits_wasrun") ;
+  NtupleFactory_->AddInt ("HLTBits_wasrun") ;
+  NtupleFactory_->AddInt ("HLTBits_wasrun") ;
+  NtupleFactory_->AddInt ("HLTGlobal_wasrun") ;  
+  NtupleFactory_->AddInt ("HLTGlobal_Decision") ;  
+  NtupleFactory_->AddInt ("HLTGlobal_error") ;  
+  NtupleFactory_->Add4V ("HLT1Mu3_L3_4mom");
+  NtupleFactory_->AddInt("HLT1Mu3_L3_id") ;
+  NtupleFactory_->Add4V ("HLT1Mu5_L3_4mom");
+  NtupleFactory_->AddInt("HLT1Mu5_L3_id") ;
+  NtupleFactory_->Add4V ("HLT1Mu9_L3_4mom");
+  NtupleFactory_->AddInt("HLT1Mu9_L3_id") ;
+  NtupleFactory_->Add4V ("HLT2Mu0_L3_4mom");
+  NtupleFactory_->AddInt("HLT2Mu0_L3_id") ;
+  NtupleFactory_->Add4V ("HLT2Mu3_L3_4mom");
+  NtupleFactory_->AddInt("HLT2Mu3_L3_id") ;
 
   return ;
 }
