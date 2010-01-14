@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.14 2010/01/14 14:12:38 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.15 2010/01/14 14:25:58 govoni Exp $
 //
 //
 
@@ -114,11 +114,113 @@ SimpleNtple::~SimpleNtple()
 }
 
 
-//
-// member functions
-//
+// --------------------------------------------------------------------
+
+
+void 
+SimpleNtple::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  edm::Handle<reco::SuperClusterCollection> bscHandle ;  
+  iEvent.getByLabel (barrelClusterCollection_, bscHandle) ;
+//  if (!(bscHandle.isValid())) {// do something? }
+
+  //PG loop on superclusters in the barrel
+  for (reco::SuperClusterCollection::const_iterator iClus = bscHandle->begin () ; 
+       iClus != bscHandle->end () ; 
+       ++iClus) 
+    {
+
+      NtupleFactory_->FillFloat ("SC_Energy", iClus->energy ()) ;
+//      NtupleFactory_->Fill3V ("SC_position", iClus->position ()) ;
+    } //PG loop on superclusters in the barrel
+
+  edm::Handle<reco::SuperClusterCollection> escHandle ;  
+  iEvent.getByLabel (endcapClusterCollection_, escHandle) ;
+
+  //PG loop on superclusters in the endcaps
+  for (reco::SuperClusterCollection::const_iterator iClus = escHandle->begin () ; 
+       iClus != escHandle->end () ; 
+       ++iClus) 
+    {
+
+      NtupleFactory_->FillFloat ("SC_Energy", iClus->energy ()) ;
+//      NtupleFactory_->Fill3V ("SC_position", iClus->position ()) ;
+    } //PG loop on superclusters in the endcaps
+
+  return ;
+}
+
+
+
+
+// --------------------------------------------------------------------
+
+
+void 
+SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  iEvent.getByLabel(MCtruthTag_, genParticles);
+
+//  int eventType_ = 1; //---- 0 = signal      1 = background 
+//  bool verbosity_ = true; //---- true = loquacious     false = silence
+//  MCDumper mcAnalysis(genParticles, eventType_, verbosity_); //---- i "tau" mi fanno scrivere a schermo anche se NON è segnale
+//  bool isValid = mcAnalysis.isValid();
+
+  vector<const Candidate *> toBeSaved ;
+  //PG loop on gen particles
+  for (size_t i = 0 ; i < genParticles->size () ; ++i) 
+    {
+      const int pid = abs (genParticles->at (i).pdgId ()) ;
+      if ( (pid % 1000) / 10 == 55 || //PG bb mesons
+            (pid % 1000) / 10 == 44 || //PG cc mesons
+            pid == 11 ||               //PG electrons
+            pid == 13 ||               //PG muons
+            pid == 15                  //PG tau
+         )
+       {
+          toBeSaved.push_back (&genParticles->at (i)) ;
+       }
+    } //PG loop on gen particles 
+
+  //PG loop on gen particles to be saved
+  for (int iGen = 0; iGen < toBeSaved.size () ; ++iGen) 
+    {          
+      NtupleFactory_->FillFloat ("MC_pdgID", toBeSaved.at (iGen)->pdgId ()) ;
+      NtupleFactory_->Fill4V ("MC_particles4V", toBeSaved.at (iGen)->p4 ()) ;
+      
+      vector<const Candidate *>::const_iterator trovo =
+        find (toBeSaved.begin (), toBeSaved.end (), toBeSaved.at (iGen)->mother ()) ;
+      if (trovo != toBeSaved.end ()) 
+          NtupleFactory_->FillInt ("MC_iMother", trovo - toBeSaved.begin ()) ;
+      else 
+          NtupleFactory_->FillInt ("MC_iMother", -1) ;
+
+      int daughter[2] = {-1,-1} ;
+      
+      int daughters_num = toBeSaved.at (iGen)->numberOfDaughters () ;
+      for (int j = 0 ; j < daughters_num ; ++j)
+        {
+          if(j > 1) continue ;
+          vector<const Candidate *>::const_iterator trovo =
+            find (toBeSaved.begin (), toBeSaved.end (), toBeSaved.at (iGen)->daughter (j)) ;
+          if (trovo != toBeSaved.end ()) 
+            {
+              daughter[j] = trovo - toBeSaved.begin () ;
+            }
+        }
+      NtupleFactory_->FillInt ("MC_iDau0", daughter[0]) ;
+      NtupleFactory_->FillInt ("MC_iDau1", daughter[1]) ;
+      
+    } //PG loop on gen particles to be saved
+
+  return ;
+}
+
 
 // ------------ method called to for each event  ------------
+
+
 void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
   ///---- fill muons ----
@@ -259,63 +361,15 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
  }      
   
   ///---- fill MCParticles ---- 
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel(MCtruthTag_, genParticles);
 
-//  int eventType_ = 1; //---- 0 = signal      1 = background 
-//  bool verbosity_ = true; //---- true = loquacious     false = silence
-//  MCDumper mcAnalysis(genParticles, eventType_, verbosity_); //---- i "tau" mi fanno scrivere a schermo anche se NON è segnale
-//  bool isValid = mcAnalysis.isValid();
+  fillMCInfo (iEvent, iSetup) ;
+  fillSCInfo (iEvent, iSetup) ;
 
-  vector<const Candidate *> toBeSaved ;
-  //PG loop on gen particles
-  for (size_t i = 0 ; i < genParticles->size () ; ++i) 
-    {
-      const int pid = abs (genParticles->at (i).pdgId ()) ;
-      if ( (pid % 1000) / 10 == 55 || //PG bb mesons
-            (pid % 1000) / 10 == 44 || //PG cc mesons
-            pid == 11 ||               //PG electrons
-            pid == 13 ||               //PG muons
-            pid == 15                  //PG tau
-         )
-       {
-          toBeSaved.push_back (&genParticles->at (i)) ;
-       }
-    } //PG loop on gen particles 
-
-  //PG loop on gen particles to be saved
-  for (int iGen = 0; iGen < toBeSaved.size () ; ++iGen) 
-    {          
-      NtupleFactory_->FillFloat ("MCpdgID", toBeSaved.at (iGen)->pdgId ()) ;
-      NtupleFactory_->Fill4V ("MCparticles4V", toBeSaved.at (iGen)->p4 ()) ;
-      
-      vector<const Candidate *>::const_iterator trovo =
-        find (toBeSaved.begin (), toBeSaved.end (), toBeSaved.at (iGen)->mother ()) ;
-      if (trovo != toBeSaved.end ()) 
-          NtupleFactory_->FillInt ("MCiMother", trovo - toBeSaved.begin ()) ;
-      else 
-          NtupleFactory_->FillInt ("MCiMother", -1) ;
-
-      int daughter[2] = {-1,-1} ;
-      
-      int daughters_num = toBeSaved.at (iGen)->numberOfDaughters () ;
-      for (int j = 0 ; j < daughters_num ; ++j)
-        {
-          if(j > 1) continue ;
-          vector<const Candidate *>::const_iterator trovo =
-            find (toBeSaved.begin (), toBeSaved.end (), toBeSaved.at (iGen)->daughter (j)) ;
-          if (trovo != toBeSaved.end ()) 
-            {
-              daughter[j] = trovo - toBeSaved.begin () ;
-            }
-        }
-      NtupleFactory_->FillInt ("MCiDau0", daughter[0]) ;
-      NtupleFactory_->FillInt ("MCiDau1", daughter[1]) ;
-      
-    } //PG loop on gen particles to be saved
-
-      ///---- save the entry of the tree ----
- NtupleFactory_->FillNtuple();
+  /*       ---- ---- ---- save the entry of the tree  ---- ---- ----      */
+  /* */                                                                /* */
+  /* */                NtupleFactory_->FillNtuple();                   /* */
+  /* */                                                                /* */
+  /*       ---- ---- ---- save the entry of the tree  ---- ---- ----      */
 
 }
 
@@ -370,14 +424,17 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
  NtupleFactory_->AddFloat("priVtx_ndof");
 
   //PG MC truth
-  NtupleFactory_->AddFloat ("MCpdgID") ;
-  NtupleFactory_->Add4V ("MCparticles4V") ;
-  NtupleFactory_->AddInt ("MCiMother") ;
-  NtupleFactory_->AddInt ("MCiDau0") ;
-  NtupleFactory_->AddInt ("MCiDau1") ;
+  NtupleFactory_->AddFloat ("MC_pdgID") ;
+  NtupleFactory_->Add4V ("MC_particles4V") ;
+  NtupleFactory_->AddInt ("MC_iMother") ;
+  NtupleFactory_->AddInt ("MC_iDau0") ;
+  NtupleFactory_->AddInt ("MC_iDau1") ;
 
+  //PG supercluster information
+  NtupleFactory_->AddFloat ("SC_Energy") ;
+  NtupleFactory_->Add3V ("SC_position") ;
 
- return;
+  return ;
 }
    
    

@@ -38,11 +38,14 @@ class SimpleNtple : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
     
+  void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
     
   
-  ///---- input tag ----
+  ///---- input tags ----
 
   edm::InputTag TracksTag_;
   edm::InputTag EleTag_;
