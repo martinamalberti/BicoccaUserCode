@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.19 2010/01/14 15:34:51 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.20 2010/01/14 15:36:01 govoni Exp $
 //
 //
 
@@ -296,7 +296,8 @@ SimpleNtple::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESe
     {
 
       NtupleFactory_->FillFloat ("SC_Energy", iClus->energy ()) ;
-//      NtupleFactory_->Fill3V ("SC_position", iClus->position ()) ;
+      math::XYZVector dummy3V (iClus->x (), iClus->y (), iClus->z ()) ;
+      NtupleFactory_->Fill3V ("SC_position", dummy3V) ;
     } //PG loop on superclusters in the barrel
 
   edm::Handle<reco::SuperClusterCollection> escHandle ;  
@@ -309,7 +310,8 @@ SimpleNtple::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESe
     {
 
       NtupleFactory_->FillFloat ("SC_Energy", iClus->energy ()) ;
-//      NtupleFactory_->Fill3V ("SC_position", iClus->position ()) ;
+      math::XYZVector dummy3V (iClus->x (), iClus->y (), iClus->z ()) ;
+      NtupleFactory_->Fill3V ("SC_position", dummy3V) ;
     } //PG loop on superclusters in the endcaps
 
   return ;
