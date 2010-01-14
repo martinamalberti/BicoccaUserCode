@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessio Ghezzi
 //         Created:  Tue Jun  5 19:34:31 CEST 2007
-// $Id: SimpleNtple.cc,v 1.8 2009/05/14 09:31:53 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.9 2009/05/29 07:45:58 amassiro Exp $
 //
 //
 
@@ -49,6 +49,12 @@
 
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -108,6 +114,16 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) :
  genJetTag_ = iConfig.getParameter<edm::InputTag> ("genJetTag");
  genMetTag_ = iConfig.getParameter<edm::InputTag> ("genMetTag");
 
+ HLTTag_ = iConfig.getParameter<edm::InputTag> ("HLTTag");
+ 
+ bool_CaloMet_ = iConfig.getUntrackedParameter<bool>("bool_CaloMet",false);
+ bool_PFMet_ = iConfig.getUntrackedParameter<bool>("bool_PFMet",false);
+ 
+ if (bool_CaloMet_)  CaloMetTag_ = iConfig.getParameter<edm::InputTag>("CaloMetTag");
+ if (bool_PFMet_)  PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
+ 
+ 
+ 
  bool_JetTagSisCone5CaloJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagSisCone5CaloJets",false);
  bool_JetTagIterativeCone5CaloJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagIterativeCone5CaloJets",false);
  bool_JetTagSisCone5PFJets_= iConfig.getUntrackedParameter<bool>("bool_JetTagSisCone5PFJets",false);
@@ -173,6 +189,9 @@ SimpleNtple::~SimpleNtple()
  delete m_genJets;
  delete m_genMet;
   
+ delete m_CaloMET ;
+ delete m_PFMET ;
+ 
  delete m_otherJets_SisCone5CaloJets ;
  delete m_otherJets_IterativeCone5CaloJets ;
  delete m_otherJets_SisCone5PFJets ;
@@ -215,6 +234,9 @@ void
  m_genJets -> Clear () ;
  m_genMet -> Clear () ;
   
+ m_PFMET -> Clear ()  ;
+ m_CaloMET -> Clear ()  ;
+ 
  m_otherJets_SisCone5CaloJets -> Clear () ;
  m_otherJets_IterativeCone5CaloJets -> Clear () ;
  m_otherJets_SisCone5PFJets -> Clear () ;
@@ -265,9 +287,15 @@ void
  
  FillKindEvent (iEvent, iSetup);
 
+ FillHLT (iEvent, iSetup);
+ 
  FillEle (iEvent, iSetup);
  FillMu (iEvent, iSetup);
  FillMet (iEvent, iSetup);
+ 
+ if (bool_CaloMet_) FillCaloMet (iEvent, iSetup);
+ if (bool_PFMet_) FillPFMet (iEvent, iSetup);
+ 
   //   FillTagJet (iEvent, iSetup); //---- AM --- not now!
  FillJet (iEvent, iSetup, 0);
  FillTracks (iEvent, iSetup);
@@ -313,6 +341,21 @@ void SimpleNtple::FillKindEvent(const edm::Event& iEvent, const edm::EventSetup&
  
 }
 
+// --------------------------------------------------------------------
+
+void SimpleNtple::FillHLT(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+ //---- HLT information ----
+ edm::Handle<edm::TriggerResults> triggerResultsHandle;
+ iEvent.getByLabel (HLTTag_,triggerResultsHandle);
+//  iEvent.getByLabel ("TriggerResults",triggerResultsHandle);
+//  std::cerr << "triggerResultsHandle->size() = " << triggerResultsHandle->size() << std::endl;
+ for (int trigger=0; trigger<std::min(static_cast<int>(300),static_cast<int>(triggerResultsHandle->size())); trigger++) {
+  if (triggerResultsHandle->accept(trigger)) HLT[trigger] = 1;
+  else  HLT[trigger] = 0;
+ }
+
+}
 
 // --------------------------------------------------------------------
 
@@ -410,7 +453,7 @@ void SimpleNtple::FillEle(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   
  }
-
+ 
 }
 
 
@@ -429,6 +472,10 @@ void SimpleNtple::FillMu(const edm::Event& iEvent, const edm::EventSetup& iSetup
   IsolMuHCal[i]   = (*MuHandle)[i].isolationR03().hadEt; 
 
   IsolMuNTracks[i]= (*MuHandle)[i].isolationR03().nTracks;
+  
+  IsStandAloneMuon[i] = (*MuHandle)[i].isStandAloneMuon();
+  IsGlobalMuon[i] = (*MuHandle)[i].isGlobalMuon();
+  IsTrackerMuon[i] = (*MuHandle)[i].isTrackerMuon();
  }
 
  TClonesArray &muons = *m_muons;
@@ -455,13 +502,39 @@ void SimpleNtple::FillMet(const edm::Event& iEvent, const edm::EventSetup& iSetu
  iEvent.getByLabel (MetTag_ , metCollectionHandle);
  const CaloMETCollection *calometcol = metCollectionHandle.product();
  const CaloMET *calomet = &(calometcol->front());
-
  TClonesArray &MET = *m_MET;
  setMomentum (myvector, calomet->p4());
  new (MET[0]) TLorentzVector (myvector);
+ }
+
+// --------------------------------------------------------------------
+
+
+void SimpleNtple::FillCaloMet(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+ edm::Handle<reco::CaloMETCollection> metCollectionHandle;
+ iEvent.getByLabel (CaloMetTag_ , metCollectionHandle);
+ const CaloMETCollection *calometcol = metCollectionHandle.product();
+ const CaloMET *calomet = &(calometcol->front());
+
+ TClonesArray &CaloMET = *m_CaloMET;
+ setMomentum (myvector, calomet->p4());
+ new (CaloMET[0]) TLorentzVector (myvector);
   
 }
+// --------------------------------------------------------------------
 
+
+void SimpleNtple::FillPFMet(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+ edm::Handle<reco::PFMETCollection> metCollectionHandle;
+ iEvent.getByLabel (PFMetTag_ , metCollectionHandle);
+ const PFMETCollection *pfmetcol = metCollectionHandle.product();
+ const PFMET *pfmet = &(pfmetcol->front());
+
+ TClonesArray &PFMET = *m_PFMET;
+ setMomentum (myvector, pfmet->p4());
+ new (PFMET[0]) TLorentzVector (myvector);
+  
+}
 
 // --------------------------------------------------------------------
 
@@ -1055,8 +1128,16 @@ void SimpleNtple::Init(){
   IsolMuSumPt[i]=0;
   IsolMuNTracks[i]=0;
   MuCharge[i]=0;
+  
+  IsStandAloneMuon[i] = 0;
+  IsGlobalMuon[i] = 0;
+  IsTrackerMuon[i] = 0;
  }
 
+ for (int i=0; i<300; i++) {
+  HLT[i] = 0;
+ }
+ 
  MinvTags = -1;
 }
 
@@ -1154,10 +1235,17 @@ void
  mytree_->Branch("IsolMuTr",IsolMuTr,"IsolMuTr[30]/F");
 //   mytree_->Branch("IsolMuSumPt",IsolMuSumPt,"IsolMuSumPt[30]/F");
  mytree_->Branch("IsolMuNTracks",IsolMuNTracks,"IsolMuNTracks[30]/F");
+ 
+ mytree_->Branch("IsStandAloneMuon",IsStandAloneMuon,"IsStandAloneMuon[30]/I");
+ mytree_->Branch("IsGlobalMuon",IsGlobalMuon,"IsGlobalMuon[30]/I");
+ mytree_->Branch("IsTrackerMuon",IsTrackerMuon,"IsTrackerMuon[30]/I");
+ 
  mytree_->Branch("MuCharge",MuCharge,"MuCharge[30]/I");
  
  mytree_->Branch("MinvTags",&MinvTags,"MinvTags/F");
 
+ mytree_->Branch("HLT",HLT,"HLT[300]/I");
+ 
   // vector with the 2 tag TLorentzVectors
  m_tagJets = new TClonesArray ("TLorentzVector");
  mytree_->Branch ("tagJets", "TClonesArray", &m_tagJets, 256000,0);
@@ -1174,11 +1262,19 @@ void
  m_muons = new TClonesArray ("TLorentzVector");
  mytree_->Branch ("muons", "TClonesArray", &m_muons, 256000,0);
 
-  // vector of the TLorentz Vectors of other jets
+  // vector of the TLorentz Vectors of MET
  m_MET = new TClonesArray ("TLorentzVector");
  mytree_->Branch ("MET", "TClonesArray", &m_MET, 256000,0);
 
-  // vector of the TLorentz Vectors of other jets
+  // vector of the TLorentz Vectors of CaloMET
+ m_CaloMET = new TClonesArray ("TLorentzVector");
+ mytree_->Branch ("CaloMET", "TClonesArray", &m_CaloMET, 256000,0);
+  
+   // vector of the TLorentz Vectors of PFMET
+ m_PFMET = new TClonesArray ("TLorentzVector");
+ mytree_->Branch ("PFMET", "TClonesArray", &m_PFMET, 256000,0);
+
+ // vector of the TLorentz Vectors of other jets
  m_tracks = new TClonesArray ("TLorentzVector");
  mytree_->Branch ("tracks", "TClonesArray", &m_tracks, 256000,0);
 
