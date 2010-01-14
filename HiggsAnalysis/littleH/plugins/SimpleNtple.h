@@ -38,6 +38,10 @@ class SimpleNtple : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
     
+  void fillVtxInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
     

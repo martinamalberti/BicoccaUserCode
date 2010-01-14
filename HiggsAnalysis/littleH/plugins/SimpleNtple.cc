@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.15 2010/01/14 14:25:58 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.16 2010/01/14 15:05:06 govoni Exp $
 //
 //
 
@@ -118,6 +118,177 @@ SimpleNtple::~SimpleNtple()
 
 
 void 
+SimpleNtple::fillVtxInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  Handle<reco::VertexCollection> privtxs;
+  iEvent.getByLabel(PrimaryVertexTag_, privtxs);
+   
+  int nPriVtx;
+  if(privtxs->size() < 100 ){ nPriVtx = privtxs->size(); }
+  else {nPriVtx = 100;}
+ 
+  for(int i=0; i< nPriVtx; i++)
+   {     
+     math::XYZVector myvect_XYZ ((*privtxs)[i].position().x(),(*privtxs)[i].position().y(),(*privtxs)[i].position().z());
+     NtupleFactory_->Fill3V("priVtx_3vec",myvect_XYZ);
+     NtupleFactory_->FillFloat("priVtx_xxE",(*privtxs)[i].covariance(0,0));
+     NtupleFactory_->FillFloat("priVtx_yyE",(*privtxs)[i].covariance(1,1));
+     NtupleFactory_->FillFloat("priVtx_zzE",(*privtxs)[i].covariance(2,2));
+     NtupleFactory_->FillFloat("priVtx_yxE",(*privtxs)[i].covariance(1,0));
+     NtupleFactory_->FillFloat("priVtx_zyE",(*privtxs)[i].covariance(2,1));
+     NtupleFactory_->FillFloat("priVtx_zxE",(*privtxs)[i].covariance(2,0));
+     NtupleFactory_->FillFloat("priVtx_chi2",(*privtxs)[i].chi2());
+     NtupleFactory_->FillFloat("priVtx_ndof",(*privtxs)[i].ndof());
+   }      
+  return ;
+}  
+
+// --------------------------------------------------------------------
+
+
+void 
+SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  Handle<MuonCollection> MuHandle;
+  iEvent.getByLabel(MuTag_,MuHandle);
+ 
+   //used to save all tracks BUT muons
+  vector<int> theMuonTrkIndexes;
+ 
+  MuonCollection theTrkMuons;
+  MuonCollection theGlobalMuons;
+ 
+  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
+   if (nmuon->isGlobalMuon()) {
+    theGlobalMuons.push_back(*nmuon);
+    theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
+   }
+   if (!(nmuon->isGlobalMuon()) && nmuon->isTrackerMuon()) {
+    theTrkMuons.push_back(*nmuon);
+    theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
+   }
+  }
+ 
+  int nMu = MuHandle->size();
+ 
+  for(int i=0; i< nMu; i++){
+   NtupleFactory_->Fill4V("muons", (*MuHandle)[i].p4()) ;
+   
+   NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
+   NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
+   NtupleFactory_->FillFloat("muons_nTkIsoR03",((*MuHandle)[i].isolationR03()).nTracks);    
+   NtupleFactory_->FillFloat("muons_emIsoR03",((*MuHandle)[i].isolationR03()).emEt);
+   NtupleFactory_->FillFloat("muons_hadIsoR03",((*MuHandle)[i].isolationR03()).hadEt);
+     
+   NtupleFactory_->FillFloat("muons_tkIsoR05",((*MuHandle)[i].isolationR05()).sumPt);
+   NtupleFactory_->FillFloat("muons_nTkIsoR05",((*MuHandle)[i].isolationR05()).nTracks);    
+   NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
+   NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
+ 
+     //Get Global Muon Track
+   TrackRef glbTrack = (*MuHandle)[i].globalTrack();
+   
+   NtupleFactory_->FillFloat("muons_track_d0", glbTrack->d0 ());
+   NtupleFactory_->FillFloat("muons_track_dz", glbTrack->dz ());
+   NtupleFactory_->FillFloat("muons_track_d0err", glbTrack->d0Error ());
+   NtupleFactory_->FillFloat("muons_track_dzerr", glbTrack->dzError ());
+  }
+  return ;
+}  
+
+
+// --------------------------------------------------------------------
+
+
+void 
+SimpleNtple::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  Handle<View<reco::Track> > TracksHandle ;
+  iEvent.getByLabel (TracksTag_, TracksHandle) ;
+ 
+  int k(0);
+  for (View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); 
+       tkIt != TracksHandle->end (); ++tkIt ) 
+    { 
+      k++;
+    
+      bool storeThisOther = true;
+// FIXME questo e' da far funzionare in modo sensato
+//      for (int j = 0; j<(int)theMuonTrkIndexes.size(); ++j) 
+//        {
+//          if (k == theMuonTrkIndexes.at(j)) 
+//            {
+//              storeThisOther = false;
+//              break;
+//            }
+//        }
+      if (!storeThisOther) continue;
+    
+      NtupleFactory_->Fill3V("tracks_in",(*tkIt).innerMomentum ());  
+      NtupleFactory_->Fill3V("tracks_out",(*tkIt).outerMomentum ());
+      
+      NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
+      NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
+      NtupleFactory_->FillFloat("tracks_d0err",(*tkIt).d0Error());
+      NtupleFactory_->FillFloat("tracks_dzerr",(*tkIt).dzError());
+    }
+  return ; 
+}
+
+// --------------------------------------------------------------------
+
+
+void 
+SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  Handle<View<reco::GsfElectron> > EleHandle ;
+  iEvent.getByLabel (EleTag_,EleHandle);
+ 
+  int nEle(0);
+ 
+  if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
+  else {nEle = 30;}
+  
+   //PG get the electron ID collections
+  std::vector<Handle<ValueMap<float> > > eleIdCutHandles(4) ;
+  iEvent.getByLabel (m_eleIDCut_LooseInputTag, eleIdCutHandles[0]) ;
+  iEvent.getByLabel (m_eleIDCut_RLooseInputTag, eleIdCutHandles[1]) ;
+  iEvent.getByLabel (m_eleIDCut_TightInputTag, eleIdCutHandles[2]) ;
+  iEvent.getByLabel (m_eleIDCut_RTightInputTag, eleIdCutHandles[3]) ;
+ 
+  for (int i=0; i< nEle; i++)
+    {     
+        //Get Ele Ref
+      Ref<View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
+      
+      NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
+      NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
+      NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
+      NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
+      NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));   
+      
+        //ELE ID
+      NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
+      NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
+      NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
+      NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
+      
+        //Get Ele Track
+      reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
+      
+      NtupleFactory_->FillFloat("electrons_track_d0", eleTrack->d0 ());
+      NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
+      NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
+      NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
+    }  
+  return ;
+}
+
+
+// --------------------------------------------------------------------
+
+
+void 
 SimpleNtple::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
   edm::Handle<reco::SuperClusterCollection> bscHandle ;  
@@ -149,8 +320,6 @@ SimpleNtple::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESe
 
   return ;
 }
-
-
 
 
 // --------------------------------------------------------------------
@@ -223,153 +392,17 @@ SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESe
 
 void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
-  ///---- fill muons ----
- Handle<MuonCollection> MuHandle;
- iEvent.getByLabel(MuTag_,MuHandle);
 
-  //used to save all tracks BUT muons
- vector<int> theMuonTrkIndexes;
-
- MuonCollection theTrkMuons;
- MuonCollection theGlobalMuons;
-
- for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
-  if (nmuon->isGlobalMuon()) {
-   theGlobalMuons.push_back(*nmuon);
-   theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
-  }
-  if (!(nmuon->isGlobalMuon()) && nmuon->isTrackerMuon()) {
-   theTrkMuons.push_back(*nmuon);
-   theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
-  }
- }
-
- int nMu = MuHandle->size();
-
- for(int i=0; i< nMu; i++){
-  NtupleFactory_->Fill4V("muons", (*MuHandle)[i].p4()) ;
   
-  NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
-  NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
-  NtupleFactory_->FillFloat("muons_nTkIsoR03",((*MuHandle)[i].isolationR03()).nTracks);    
-  NtupleFactory_->FillFloat("muons_emIsoR03",((*MuHandle)[i].isolationR03()).emEt);
-  NtupleFactory_->FillFloat("muons_hadIsoR03",((*MuHandle)[i].isolationR03()).hadEt);
-    
-  NtupleFactory_->FillFloat("muons_tkIsoR05",((*MuHandle)[i].isolationR05()).sumPt);
-  NtupleFactory_->FillFloat("muons_nTkIsoR05",((*MuHandle)[i].isolationR05()).nTracks);    
-  NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
-  NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
-
-    //Get Global Muon Track
-  TrackRef glbTrack = (*MuHandle)[i].globalTrack();
-  
-  NtupleFactory_->FillFloat("muons_track_d0", glbTrack->d0 ());
-  NtupleFactory_->FillFloat("muons_track_dz", glbTrack->dz ());
-  NtupleFactory_->FillFloat("muons_track_d0err", glbTrack->d0Error ());
-  NtupleFactory_->FillFloat("muons_track_dzerr", glbTrack->dzError ());
- }
-
-  ///---- fill electrons ----
- Handle<View<reco::GsfElectron> > EleHandle ;
- iEvent.getByLabel (EleTag_,EleHandle);
-
- int nEle(0);
-
- if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
- else {nEle = 30;}
- 
-  //PG get the electron ID collections
- std::vector<Handle<ValueMap<float> > > eleIdCutHandles(4) ;
- iEvent.getByLabel (m_eleIDCut_LooseInputTag, eleIdCutHandles[0]) ;
- iEvent.getByLabel (m_eleIDCut_RLooseInputTag, eleIdCutHandles[1]) ;
- iEvent.getByLabel (m_eleIDCut_TightInputTag, eleIdCutHandles[2]) ;
- iEvent.getByLabel (m_eleIDCut_RTightInputTag, eleIdCutHandles[3]) ;
-
- for(int i=0; i< nEle; i++){
-  
-    //Get Ele Ref
-  Ref<View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
-  
-  NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
-  NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
-  NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
-  NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
-  NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));   
-  
-    //ELE ID
-  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
-  
-    //Get Ele Track
-  reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
-  
-  NtupleFactory_->FillFloat("electrons_track_d0", eleTrack->d0 ());
-  NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
-  NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
-  NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
- }
-
-  ///---- fill tracks ----
- Handle<View<reco::Track> > TracksHandle ;
- iEvent.getByLabel (TracksTag_, TracksHandle) ;
-
- int k(0);
- for (View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
- { 
-  k++;
-
-  bool storeThisOther = true;
-  for (int j = 0; j<(int)theMuonTrkIndexes.size(); ++j) {
-   if (k == theMuonTrkIndexes.at(j)) {
-    storeThisOther = false;
-    break;
-   }
-  }
-  if(!storeThisOther) continue;
-
-  NtupleFactory_->Fill3V("tracks_in",(*tkIt).innerMomentum ());  
-  NtupleFactory_->Fill3V("tracks_out",(*tkIt).outerMomentum ());
-  
-  NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
-  NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
-  NtupleFactory_->FillFloat("tracks_d0err",(*tkIt).d0Error());
-  NtupleFactory_->FillFloat("tracks_dzerr",(*tkIt).dzError());
- }
-
-   ///---- fill Primary Vertex
- Handle<reco::VertexCollection> privtxs;
- iEvent.getByLabel(PrimaryVertexTag_, privtxs);
-  
- int nPriVtx;
- if(privtxs->size() < 100 ){ nPriVtx = privtxs->size(); }
- else {nPriVtx = 100;}
-
- for(int i=0; i< nPriVtx; i++)
- {     
-  math::XYZVector myvect_XYZ ((*privtxs)[i].position().x(),(*privtxs)[i].position().y(),(*privtxs)[i].position().z());
-  NtupleFactory_->Fill3V("priVtx_3vec",myvect_XYZ);
-  NtupleFactory_->FillFloat("priVtx_xxE",(*privtxs)[i].covariance(0,0));
-  NtupleFactory_->FillFloat("priVtx_yyE",(*privtxs)[i].covariance(1,1));
-  NtupleFactory_->FillFloat("priVtx_zzE",(*privtxs)[i].covariance(2,2));
-  NtupleFactory_->FillFloat("priVtx_yxE",(*privtxs)[i].covariance(1,0));
-  NtupleFactory_->FillFloat("priVtx_zyE",(*privtxs)[i].covariance(2,1));
-  NtupleFactory_->FillFloat("priVtx_zxE",(*privtxs)[i].covariance(2,0));
-  NtupleFactory_->FillFloat("priVtx_chi2",(*privtxs)[i].chi2());
-  NtupleFactory_->FillFloat("priVtx_ndof",(*privtxs)[i].ndof());
- }      
-  
-  ///---- fill MCParticles ---- 
-
+  fillMuInfo (iEvent, iSetup) ;
+  fillTrackInfo (iEvent, iSetup) ;
+  fillEleInfo (iEvent, iSetup) ;
   fillMCInfo (iEvent, iSetup) ;
   fillSCInfo (iEvent, iSetup) ;
 
-  /*       ---- ---- ---- save the entry of the tree  ---- ---- ----      */
-  /* */                                                                /* */
-  /* */                NtupleFactory_->FillNtuple();                   /* */
-  /* */                                                                /* */
-  /*       ---- ---- ---- save the entry of the tree  ---- ---- ----      */
+  // save the entry of the tree 
+  NtupleFactory_->FillNtuple();
+
 
 }
 
