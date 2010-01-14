@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.12 2010/01/14 12:37:27 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.13 2010/01/14 13:59:21 govoni Exp $
 //
 //
 
@@ -283,69 +283,36 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
     } //PG loop on gen particles 
 
   //PG loop on gen particles to be saved
- for (int iGen = 0; iGen < toBeSaved.size () ; ++iGen) 
-   {          
-     NtupleFactory_->FillFloat ("MCpdgID", toBeSaved.at (iGen)->pdgId ()) ;
-     NtupleFactory_->Fill4V ("MCparticles4V", toBeSaved.at(iGen)->p4 ()) ;
-   } //PG loop on gen particles to be saved
+  for (int iGen = 0; iGen < toBeSaved.size () ; ++iGen) 
+    {          
+      NtupleFactory_->FillFloat ("MCpdgID", toBeSaved.at (iGen)->pdgId ()) ;
+      NtupleFactory_->Fill4V ("MCparticles4V", toBeSaved.at (iGen)->p4 ()) ;
+      
+      vector<const Candidate *>::const_iterator trovo =
+        find (toBeSaved.begin (), toBeSaved.end (), toBeSaved.at (iGen)->mother ()) ;
+      if (trovo != toBeSaved.end ()) 
+          NtupleFactory_->FillInt ("MCiMother", trovo - toBeSaved.begin ()) ;
+      else 
+          NtupleFactory_->FillInt ("MCiMother", -1) ;
 
-      ///---- fill MCParticle ---- 
-      //  Handle<reco::GenParticleCollection> genParticles;
-      //  iEvent.getByLabel(MCtruthTag_, genParticles);
- // 
-      // //  int eventType_ = 1; //---- 0 = signal      1 = background 
-      // //  bool verbosity_ = true; //---- true = loquacious     false = silence
-      //  MCDumper mcAnalysis(genParticles, eventType_, verbosity_); //---- i "tau" mi fanno scrivere a schermo anche se NON è segnale
-      //  bool isValid = mcAnalysis.isValid();
- //   
-      //  if( (eventType_ == 0) && (isValid == true) )
-      // {
-      //   math::XYZTLorentzVector* myvect_XYZT_mcH = new math::XYZTLorentzVector(mcAnalysis.mcH()->p4().Px(),mcAnalysis.mcH()->p4().Py(),mcAnalysis.mcH()->p4().Pz(),mcAnalysis.mcH()->p4().E());
-      //   NtupleFactory_->Fill4V("mc_H",myvect_XYZT_mcH);
-      //   NtupleFactory_->FillFloat("mc_H_charge",mcAnalysis.mcH()->charge());
- //   
-      //   math::XYZTLorentzVector* myvect_XYZT_mcV1 = new math::XYZTLorentzVector(mcAnalysis.mcV1()->p4().Px(),mcAnalysis.mcV1()->p4().Py(),mcAnalysis.mcV1()->p4().Pz(),mcAnalysis.mcV1()->p4().E());
-      //   NtupleFactory_->Fill4V("mcV1",myvect_XYZT_mcV1);
-      //   NtupleFactory_->FillFloat("mcV1_charge",mcAnalysis.mcV1()->charge());
-      //   NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysis.mcV1()->pdgId());
- //   
-      //   math::XYZTLorentzVector* myvect_XYZT_mcV2 = new math::XYZTLorentzVector(mcAnalysis.mcV2()->p4().Px(),mcAnalysis.mcV2()->p4().Py(),mcAnalysis.mcV2()->p4().Pz(),mcAnalysis.mcV2()->p4().E());
-      //   NtupleFactory_->Fill4V("mcV2",myvect_XYZT_mcV2);
-      //   NtupleFactory_->FillFloat("mcV2_charge",mcAnalysis.mcV2()->charge());
-      //   NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysis.mcV2()->pdgId());
- //      
-      //   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV1()->p4().Px(),mcAnalysis.mcF1_fromV1()->p4().Py(),mcAnalysis.mcF1_fromV1()->p4().Pz(),mcAnalysis.mcF1_fromV1()->p4().E());
-      //   NtupleFactory_->Fill4V("mcF1_fromV1",myvect_XYZT_mcF1_fromV1);
-      //   NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysis.mcF1_fromV1()->charge());
-      //   NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysis.mcF1_fromV1()->pdgId());
- // 
-      //   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV1 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV1()->p4().Px(),mcAnalysis.mcF2_fromV1()->p4().Py(),mcAnalysis.mcF2_fromV1()->p4().Pz(),mcAnalysis.mcF2_fromV1()->p4().E());
-      //   NtupleFactory_->Fill4V("mcF2_fromV1",myvect_XYZT_mcF2_fromV1);
-      //   NtupleFactory_->FillFloat("mcF2_fromV1_charge",mcAnalysis.mcF2_fromV1()->charge());
-      //   NtupleFactory_->FillFloat("mcF2_fromV1_pdgId",mcAnalysis.mcF2_fromV1()->pdgId());
- // 
-      //   math::XYZTLorentzVector* myvect_XYZT_mcF1_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF1_fromV2()->p4().Px(),mcAnalysis.mcF1_fromV2()->p4().Py(),mcAnalysis.mcF1_fromV2()->p4().Pz(),mcAnalysis.mcF1_fromV2()->p4().E());
-      //   NtupleFactory_->Fill4V("mcF1_fromV2",myvect_XYZT_mcF1_fromV2);
-      //   NtupleFactory_->FillFloat("mcF1_fromV2_charge",mcAnalysis.mcF1_fromV2()->charge());
-      //   NtupleFactory_->FillFloat("mcF1_fromV2_pdgId",mcAnalysis.mcF1_fromV2()->pdgId());
- // 
-      //   math::XYZTLorentzVector* myvect_XYZT_mcF2_fromV2 = new math::XYZTLorentzVector(mcAnalysis.mcF2_fromV2()->p4().Px(),mcAnalysis.mcF2_fromV2()->p4().Py(),mcAnalysis.mcF2_fromV2()->p4().Pz(),mcAnalysis.mcF2_fromV2()->p4().E());
-      //   NtupleFactory_->Fill4V("mcF2_fromV2",myvect_XYZT_mcF2_fromV2);
-      //   NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
-      //   NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
- //     
-      //   math::XYZTLorentzVector* myvect_XYZT_mcQ1_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ1_tag()->p4().Px(),mcAnalysis.mcQ1_tag()->p4().Py(),mcAnalysis.mcQ1_tag()->p4().Pz(),mcAnalysis.mcQ1_tag()->p4().E());
-      //   NtupleFactory_->Fill4V("mcQ1_tag",myvect_XYZT_mcQ1_tag);
-      //   NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysis.mcQ1_tag()->charge());
-      //   NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysis.mcQ1_tag()->pdgId());
- // 
-      //   math::XYZTLorentzVector* myvect_XYZT_mcQ2_tag = new math::XYZTLorentzVector(mcAnalysis.mcQ2_tag()->p4().Px(),mcAnalysis.mcQ2_tag()->p4().Py(),mcAnalysis.mcQ2_tag()->p4().Pz(),mcAnalysis.mcQ2_tag()->p4().E());
-      //   NtupleFactory_->Fill4V("mcQ2_tag",myvect_XYZT_mcQ2_tag);
-      //   NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysis.mcQ2_tag()->charge());
-      //   NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysis.mcQ2_tag()->pdgId());
- //       
-      // }
-  
+      int daughter[2] = {-1,-1} ;
+      
+      int daughters_num = toBeSaved.at (iGen)->numberOfDaughters () ;
+      for (int j = 0 ; j < daughters_num ; ++j)
+        {
+          if(j > 1) continue ;
+          vector<const Candidate *>::const_iterator trovo =
+            find (toBeSaved.begin (), toBeSaved.end (), toBeSaved.at (iGen)->daughter (j)) ;
+          if (trovo != toBeSaved.end ()) 
+            {
+              daughter[j] = trovo - toBeSaved.begin () ;
+            }
+        }
+      NtupleFactory_->FillInt ("MCiDau0", daughter[0]) ;
+      NtupleFactory_->FillInt ("MCiDau1", daughter[1]) ;
+      
+    } //PG loop on gen particles to be saved
+
       ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
 
@@ -400,6 +367,14 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
  NtupleFactory_->AddFloat("priVtx_zxE");
  NtupleFactory_->AddFloat("priVtx_chi2");
  NtupleFactory_->AddFloat("priVtx_ndof");
+
+  //PG MC truth
+  NtupleFactory_->AddFloat ("MCpdgID") ;
+  NtupleFactory_->Add4V ("MCparticles4V") ;
+  NtupleFactory_->AddInt ("MCiMother") ;
+  NtupleFactory_->AddInt ("MCiDau0") ;
+  NtupleFactory_->AddInt ("MCiDau1") ;
+
 
  return;
 }
