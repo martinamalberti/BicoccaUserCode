@@ -70,22 +70,23 @@
 //---- utilities ----
 #include "HiggsAnalysis/littleH/interface/MCDumper.h"
 
+using namespace edm;
 
-SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig) 
+SimpleNtple::SimpleNtple(const ParameterSet& iConfig) 
 {
- edm::Service<TFileService> fs ;
+ Service<TFileService> fs ;
  outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
  
- TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
- EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
- MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
+ TracksTag_ = iConfig.getParameter<InputTag>("TracksTag");
+ EleTag_ = iConfig.getParameter<InputTag>("EleTag");
+ MuTag_ = iConfig.getParameter<InputTag>("MuTag");
 
- m_eleIDCut_LooseInputTag  = iConfig.getParameter<edm::InputTag> ("eleIDCut_LooseInputTag");
- m_eleIDCut_RLooseInputTag = iConfig.getParameter<edm::InputTag> ("eleIDCut_RLooseInputTag");
- m_eleIDCut_TightInputTag  = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
- m_eleIDCut_RTightInputTag = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
+ m_eleIDCut_LooseInputTag  = iConfig.getParameter<InputTag> ("eleIDCut_LooseInputTag");
+ m_eleIDCut_RLooseInputTag = iConfig.getParameter<InputTag> ("eleIDCut_RLooseInputTag");
+ m_eleIDCut_TightInputTag  = iConfig.getParameter<InputTag> ("eleIDCut_TightInputTag");
+ m_eleIDCut_RTightInputTag = iConfig.getParameter<InputTag> ("eleIDCut_RTightInputTag");
 
- //  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
+ //  MCtruthTag_ = iConfig.getParameter<InputTag>("MCtruthTag");
 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
  eventType_ = iConfig.getUntrackedParameter<int>("eventType",1);
@@ -108,11 +109,11 @@ SimpleNtple::~SimpleNtple()
 //
 
 // ------------ method called to for each event  ------------
-void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
   ///---- fill muons ----
-  edm::Handle<edm::View<reco::Muon> > MuHandle ;
-  iEvent.getByLabel (MuTag_,MuHandle);
+  Handle<MuonCollection> MuHandle;
+  iEvent.getByLabel(MuTag_,MuHandle);
 
   //used to save all tracks BUT muons
   vector<int> theMuonTrkIndexes;
@@ -120,7 +121,7 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   MuonCollection theTrkMuons;
   MuonCollection theGlobalMuons;
 
-  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != allmuons->end(); ++nmuon) {
+  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
     if (nmuon->isGlobalMuon()) {
       theGlobalMuons.push_back(*nmuon);
       theMuonTrkIndexes.push_back(nmuon->innerTrack().index());
@@ -158,7 +159,7 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   ///---- fill electrons ----
-  edm::Handle<edm::View<reco::GsfElectron> > EleHandle ;
+  Handle<View<reco::GsfElectron> > EleHandle ;
   iEvent.getByLabel (EleTag_,EleHandle);
 
   int nEle(0);
@@ -167,7 +168,7 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   else {nEle = 30;}
  
   //PG get the electron ID collections
-  std::vector<edm::Handle<edm::ValueMap<float> > > eleIdCutHandles(4) ;
+  std::vector<Handle<ValueMap<float> > > eleIdCutHandles(4) ;
   iEvent.getByLabel (m_eleIDCut_LooseInputTag, eleIdCutHandles[0]) ;
   iEvent.getByLabel (m_eleIDCut_RLooseInputTag, eleIdCutHandles[1]) ;
   iEvent.getByLabel (m_eleIDCut_TightInputTag, eleIdCutHandles[2]) ;
@@ -176,7 +177,7 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for(int i=0; i< nEle; i++){
   
     //Get Ele Ref
-    edm::Ref<edm::View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
+    Ref<View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
   
     math::XYZTLorentzVector* myvect_XYZT = new math::XYZTLorentzVector((*EleHandle)[i].p4().Px(),(*EleHandle)[i].p4().Py(),(*EleHandle)[i].p4().Pz(),(*EleHandle)[i].p4().E());
     NtupleFactory_->FillStdXYZTLorentzVector("electrons",myvect_XYZT);
@@ -201,11 +202,11 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   ///---- fill tracks ----
-  edm::Handle<edm::View<reco::Track> > TracksHandle ;
+  Handle<View<reco::Track> > TracksHandle ;
   iEvent.getByLabel (TracksTag_, TracksHandle) ;
 
   int k(0);
-  for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
+  for (View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
     { 
       k++;
 
@@ -232,7 +233,7 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  
   
       ///---- fill MCParticle ---- 
-      //  edm::Handle<reco::GenParticleCollection> genParticles;
+      //  Handle<reco::GenParticleCollection> genParticles;
       //  iEvent.getByLabel(MCtruthTag_, genParticles);
       // 
       // //  int eventType_ = 1; //---- 0 = signal      1 = background 
@@ -295,7 +296,7 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     
 // ------------ method called once each job just before starting event loop  ------------
-void SimpleNtple::beginJob(const edm::EventSetup& iSetup)
+void SimpleNtple::beginJob(const EventSetup& iSetup)
 {
  NtupleFactory_->AddStdXYZTLorentzVector("muons");
  NtupleFactory_->AddFloat("muons_charge"); 
