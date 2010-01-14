@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.11 2010/01/14 12:29:34 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.12 2010/01/14 12:37:27 dimatteo Exp $
 //
 //
 
@@ -257,37 +257,37 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
   NtupleFactory_->FillFloat("priVtx_ndof",(*privtxs)[i].ndof());
  }      
   
- ///---- fill MCParticles ---- 
- edm::Handle<reco::GenParticleCollection> genParticles;
- iEvent.getByLabel(MCtruthTag_, genParticles);
+  ///---- fill MCParticles ---- 
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  iEvent.getByLabel(MCtruthTag_, genParticles);
 
 //  int eventType_ = 1; //---- 0 = signal      1 = background 
 //  bool verbosity_ = true; //---- true = loquacious     false = silence
 //  MCDumper mcAnalysis(genParticles, eventType_, verbosity_); //---- i "tau" mi fanno scrivere a schermo anche se NON è segnale
 //  bool isValid = mcAnalysis.isValid();
 
- vector<const Candidate *> toBeSaved ;
+  vector<const Candidate *> toBeSaved ;
   //PG loop on gen particles
- for (size_t i = 0 ; i < genParticles->size () ; ++i) 
- {
-  const int pid = abs (genParticles->at (i).pdgId ()) ;
-  if ( (pid % 1000) / 10 == 55 || //PG bb mesons
-        (pid % 1000) / 10 == 44 || //PG cc mesons
-        pid == 11 ||               //PG electrons
-        pid == 13 ||               //PG muons
-        pid == 15                  //PG tau
-     )
-  {
-   toBeSaved.push_back (&genParticles->at (i)) ;
-  }
- } //PG loop on gen particles 
+  for (size_t i = 0 ; i < genParticles->size () ; ++i) 
+    {
+      const int pid = abs (genParticles->at (i).pdgId ()) ;
+      if ( (pid % 1000) / 10 == 55 || //PG bb mesons
+            (pid % 1000) / 10 == 44 || //PG cc mesons
+            pid == 11 ||               //PG electrons
+            pid == 13 ||               //PG muons
+            pid == 15                  //PG tau
+         )
+       {
+          toBeSaved.push_back (&genParticles->at (i)) ;
+       }
+    } //PG loop on gen particles 
 
   //PG loop on gen particles to be saved
  for (int iGen = 0; iGen < toBeSaved.size () ; ++iGen) 
- {          
-  NtupleFactory_->FillFloat ("MCpdgID", toBeSaved.at (iGen)->pdgId ()) ;
-  NtupleFactory_->Fill4V ("MCparticles4V", toBeSaved.at(iGen)->p4 ()) ;
- } //PG loop on gen particles to be saved
+   {          
+     NtupleFactory_->FillFloat ("MCpdgID", toBeSaved.at (iGen)->pdgId ()) ;
+     NtupleFactory_->Fill4V ("MCparticles4V", toBeSaved.at(iGen)->p4 ()) ;
+   } //PG loop on gen particles to be saved
 
       ///---- fill MCParticle ---- 
       //  Handle<reco::GenParticleCollection> genParticles;
