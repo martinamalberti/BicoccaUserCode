@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.24 2010/01/14 17:42:11 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.25 2010/01/14 18:49:13 dimatteo Exp $
 //
 //
 
@@ -482,9 +482,9 @@ SimpleNtple::fillTriggerInfo(const edm::Event & iEvent, const edm::EventSetup & 
  iEvent.getByLabel(InputTag(theHLTriggerResults_,"",the8e29ProcName_), HLTR);
  if (HLTR.isValid()) {
   
-  NtupleFactory_->FillInt ("HLTGlobal_wasrun", HLTR->wasrun()) ;  
-  NtupleFactory_->FillInt ("HLTGlobal_Decision", HLTR->accept()) ;  
-  NtupleFactory_->FillInt ("HLTGlobal_error", HLTR->error()) ;  
+  NtupleFactory_->FillInt ("HLTGlobal_wasrun",(int) HLTR->wasrun()) ;  
+  NtupleFactory_->FillInt ("HLTGlobal_Decision",(int) HLTR->accept()) ;  
+  NtupleFactory_->FillInt ("HLTGlobal_error",(int) HLTR->error()) ;  
  
 //   HLTGlobal_wasrun=HLTR->wasrun();
 //   HLTGlobal_Decision=HLTR->accept();
@@ -496,8 +496,8 @@ SimpleNtple::fillTriggerInfo(const edm::Event & iEvent, const edm::EventSetup & 
 //    HLTBits_accept[i]=(int) HLTR->accept(hltBits[i]);
 //    HLTBits_error[i] =(int) HLTR->error(hltBits[i]);
    NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->wasrun(hltBits[i])) ;
-   NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->accept(hltBits[i])) ;
-   NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->error(hltBits[i])) ;
+   NtupleFactory_->FillInt ("HLTBits_accept",(int) HLTR->accept(hltBits[i])) ;
+   NtupleFactory_->FillInt ("HLTBits_error",(int) HLTR->error(hltBits[i])) ;
   }
    
   Handle<TriggerEvent> trgEvent;
@@ -641,8 +641,8 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
   
     //Trigger Info
   NtupleFactory_->AddInt ("HLTBits_wasrun") ;
-  NtupleFactory_->AddInt ("HLTBits_wasrun") ;
-  NtupleFactory_->AddInt ("HLTBits_wasrun") ;
+  NtupleFactory_->AddInt ("HLTBits_accept") ;
+  NtupleFactory_->AddInt ("HLTBits_error") ;
   NtupleFactory_->AddInt ("HLTGlobal_wasrun") ;  
   NtupleFactory_->AddInt ("HLTGlobal_Decision") ;  
   NtupleFactory_->AddInt ("HLTGlobal_error") ;  
