@@ -14,6 +14,7 @@
 #include "TParticle.h"
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
+#include "PhysicsTools/NtupleUtils/interface/MCDumper.h"
 
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"

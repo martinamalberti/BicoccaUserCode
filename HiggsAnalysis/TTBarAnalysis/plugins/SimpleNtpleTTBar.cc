@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtpleTTBar.cc,v 1.1 2010/01/13 13:13:22 amassiro Exp $
+// $Id: SimpleNtpleTTBar.cc,v 1.2 2010/01/14 10:41:39 amassiro Exp $
 //
 //
 
@@ -115,9 +115,7 @@ void
  if(MuHandle->size() < 30 ){ nMu = MuHandle->size(); }
  else {nMu = 30;}
  for(int i=0; i< nMu; i++){
-  math::XYZTLorentzVector myvect_XYZT((*MuHandle)[i].p4().Px(),(*MuHandle)[i].p4().Py(),(*MuHandle)[i].p4().Pz(),(*MuHandle)[i].p4().E());
-  NtupleFactory_->Fill4V("muons",myvect_XYZT);
-  
+  NtupleFactory_->Fill4V("muons",(*MuHandle)[i].p4());
   NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
   NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
   NtupleFactory_->FillFloat("muons_nTkIsoR03",((*MuHandle)[i].isolationR03()).nTracks);    
@@ -128,9 +126,6 @@ void
   NtupleFactory_->FillFloat("muons_nTkIsoR05",((*MuHandle)[i].isolationR05()).nTracks);    
   NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
   NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
-
-  
-  
  }
 
  ///---- fill electrons ----
@@ -140,13 +135,13 @@ void
  if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
  else {nEle = 30;}
  for(int i=0; i< nEle; i++){
-  math::XYZTLorentzVector myvect_XYZT((*EleHandle)[i].p4().Px(),(*EleHandle)[i].p4().Py(),(*EleHandle)[i].p4().Pz(),(*EleHandle)[i].p4().E());
-  NtupleFactory_->Fill4V("electrons",myvect_XYZT);
+  NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
   NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
   NtupleFactory_->FillFloat("electrons_tkIso",((*EleHandle)[i].dr03TkSumPt()));
   NtupleFactory_->FillFloat("electrons_emIso",((*EleHandle)[i].dr03EcalRecHitSumEt()));
-  NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));
-//   if ((*EleHandle)[i].classification()== GsfElectron::GOLDEN
+  NtupleFactory_->FillFloat("electrons_hadIso_1",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));
+  NtupleFactory_->FillFloat("electrons_hadIso_2",((*EleHandle)[i].dr03HcalDepth2TowerSumEt()));
+  //   if ((*EleHandle)[i].classification()== GsfElectron::GOLDEN
   NtupleFactory_->FillFloat("electrons_IdLoose",0);
   NtupleFactory_->FillFloat("electrons_IdTight",0);
   NtupleFactory_->FillFloat("electrons_IdRobustLoose",0);
@@ -158,10 +153,8 @@ void
  iEvent.getByLabel (TracksTag_, TracksHandle) ;
  for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
  { 
-  math::XYZVector vector_in = (*tkIt).innerMomentum () ; 
-  NtupleFactory_->Fill3V("tracks_in",vector_in);
-  math::XYZVector vector_out = (*tkIt).outerMomentum () ; 
-  NtupleFactory_->Fill3V("tracks_out",vector_out);
+  NtupleFactory_->Fill3V("tracks_in",(*tkIt).innerMomentum ());
+  NtupleFactory_->Fill3V("tracks_out",(*tkIt).outerMomentum ());
  }
  
  ///---- fill jets ---- 
@@ -174,8 +167,7 @@ void
  int counter_jet = 0;
  for (edm::View<reco::CaloJet>::const_iterator jetIt = JetHandle->begin (); jetIt != JetHandle->end (); ++jetIt ) 
  { 
-  math::XYZTLorentzVector myvect_XYZT(jetIt->p4().Px(),jetIt->p4().Py(),jetIt->p4().Pz(),jetIt->p4().E());
-  NtupleFactory_->Fill4V("jets",myvect_XYZT);
+  NtupleFactory_->Fill4V("jets",jetIt->p4());
   if (flag_JetBTag_) NtupleFactory_->FillFloat("jets_btagging",bTags[counter_jet].second);
   counter_jet++;
  }
@@ -184,8 +176,7 @@ void
  edm::Handle<reco::CaloMETCollection> MetHandle ;
  iEvent.getByLabel (MetTag_,MetHandle);
  const reco::CaloMET *calomet = &(MetHandle->front());
- math::XYZTLorentzVector myvect_XYZT_MET(calomet->p4().Px(),calomet->p4().Py(),calomet->p4().Pz(),calomet->p4().E());
- NtupleFactory_->Fill4V("met",myvect_XYZT_MET);
+ NtupleFactory_->Fill4V("met",calomet->p4());
 
  
  ///---- fill genJets ---- 
@@ -193,8 +184,7 @@ void
  iEvent.getByLabel (genJetTag_,genJetHandle);
  for (edm::View<reco::GenJet>::const_iterator genJetIt = genJetHandle->begin (); genJetIt != genJetHandle->end (); ++genJetIt ) 
  { 
-  math::XYZTLorentzVector myvect_XYZT(genJetIt->p4().Px(),genJetIt->p4().Py(),genJetIt->p4().Pz(),genJetIt->p4().E());
-  NtupleFactory_->Fill4V("genJets",myvect_XYZT);
+  NtupleFactory_->Fill4V("genJets",genJetIt->p4());
  }
 
  
@@ -207,63 +197,63 @@ void
   math::XYZTLorentzVector myvect_XYZT(gMIt->px(),gMIt->py(),gMIt->pz(),gMIt->energy());
   NtupleFactory_->Fill4V("genMet",myvect_XYZT);
  }
-
+ 
   
  ///---- fill MCParticle ---- 
  edm::Handle<reco::GenParticleCollection> genParticles;
  iEvent.getByLabel(MCtruthTag_, genParticles);
 
+ std::vector<int> whichOn;
+ whichOn.push_back(11);
+ whichOn.push_back(12);
+ MCDumper myMCDumper(genParticles, true, whichOn);
+
+ 
+ std::cerr << "num ele = " << (myMCDumper.Get(11)).size() << std::endl;
+ 
+ 
+ 
+ 
  MCDumperTTBar mcAnalysis(genParticles, eventType_, verbosity_);
  bool isValid = mcAnalysis.isValid();
   
  if( (eventType_ == 0) && (isValid == true) )
  {
-  math::XYZTLorentzVector myvect_XYZT_mcT1(mcAnalysis.mcT1()->p4().Px(),mcAnalysis.mcT1()->p4().Py(),mcAnalysis.mcT1()->p4().Pz(),mcAnalysis.mcT1()->p4().E());
-  NtupleFactory_->Fill4V("mcT1",myvect_XYZT_mcT1);
+  NtupleFactory_->Fill4V("mcT1",mcAnalysis.mcT1()->p4());
   NtupleFactory_->FillFloat("mcT1_charge",mcAnalysis.mcT1()->charge());
   
-  math::XYZTLorentzVector myvect_XYZT_mcT2(mcAnalysis.mcT2()->p4().Px(),mcAnalysis.mcT2()->p4().Py(),mcAnalysis.mcT2()->p4().Pz(),mcAnalysis.mcT2()->p4().E());
-  NtupleFactory_->Fill4V("mcT2",myvect_XYZT_mcT2);
+  NtupleFactory_->Fill4V("mcT2",mcAnalysis.mcT2()->p4());
   NtupleFactory_->FillFloat("mcT2_charge",mcAnalysis.mcT2()->charge());
   
-  math::XYZTLorentzVector myvect_XYZT_mcB1(mcAnalysis.mcB1()->p4().Px(),mcAnalysis.mcB1()->p4().Py(),mcAnalysis.mcB1()->p4().Pz(),mcAnalysis.mcB1()->p4().E());
-  NtupleFactory_->Fill4V("mcB1",myvect_XYZT_mcB1);
+  NtupleFactory_->Fill4V("mcB1",mcAnalysis.mcB1()->p4());
   NtupleFactory_->FillFloat("mcB1_charge",mcAnalysis.mcB1()->charge());
   
-  math::XYZTLorentzVector myvect_XYZT_mcB2(mcAnalysis.mcB2()->p4().Px(),mcAnalysis.mcB2()->p4().Py(),mcAnalysis.mcB2()->p4().Pz(),mcAnalysis.mcB2()->p4().E());
-  NtupleFactory_->Fill4V("mcB2",myvect_XYZT_mcB2);
+  NtupleFactory_->Fill4V("mcB2",mcAnalysis.mcB2()->p4());
   NtupleFactory_->FillFloat("mcB2_charge",mcAnalysis.mcB2()->charge());
   
-  math::XYZTLorentzVector myvect_XYZT_mcV1(mcAnalysis.mcV1()->p4().Px(),mcAnalysis.mcV1()->p4().Py(),mcAnalysis.mcV1()->p4().Pz(),mcAnalysis.mcV1()->p4().E());
-  NtupleFactory_->Fill4V("mcV1",myvect_XYZT_mcV1);
+  NtupleFactory_->Fill4V("mcV1",mcAnalysis.mcV1()->p4());
   NtupleFactory_->FillFloat("mcV1_charge",mcAnalysis.mcV1()->charge());
   NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysis.mcV1()->pdgId());
   
-  math::XYZTLorentzVector myvect_XYZT_mcV2(mcAnalysis.mcV2()->p4().Px(),mcAnalysis.mcV2()->p4().Py(),mcAnalysis.mcV2()->p4().Pz(),mcAnalysis.mcV2()->p4().E());
-  NtupleFactory_->Fill4V("mcV2",myvect_XYZT_mcV2);
+  NtupleFactory_->Fill4V("mcV2",mcAnalysis.mcV2()->p4());
   NtupleFactory_->FillFloat("mcV2_charge",mcAnalysis.mcV2()->charge());
   NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysis.mcV2()->pdgId());
      
-  math::XYZTLorentzVector myvect_XYZT_mcF1_fromV1(mcAnalysis.mcF1_fromV1()->p4().Px(),mcAnalysis.mcF1_fromV1()->p4().Py(),mcAnalysis.mcF1_fromV1()->p4().Pz(),mcAnalysis.mcF1_fromV1()->p4().E());
-  NtupleFactory_->Fill4V("mcF1_fromV1",myvect_XYZT_mcF1_fromV1);
+  NtupleFactory_->Fill4V("mcF1_fromV1",mcAnalysis.mcF1_fromV1()->p4());
   NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysis.mcF1_fromV1()->charge());
   NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysis.mcF1_fromV1()->pdgId());
 
-  math::XYZTLorentzVector myvect_XYZT_mcF2_fromV1(mcAnalysis.mcF2_fromV1()->p4().Px(),mcAnalysis.mcF2_fromV1()->p4().Py(),mcAnalysis.mcF2_fromV1()->p4().Pz(),mcAnalysis.mcF2_fromV1()->p4().E());
-  NtupleFactory_->Fill4V("mcF2_fromV1",myvect_XYZT_mcF2_fromV1);
+  NtupleFactory_->Fill4V("mcF2_fromV1",mcAnalysis.mcF2_fromV1()->p4());
   NtupleFactory_->FillFloat("mcF2_fromV1_charge",mcAnalysis.mcF2_fromV1()->charge());
   NtupleFactory_->FillFloat("mcF2_fromV1_pdgId",mcAnalysis.mcF2_fromV1()->pdgId());
 
-  math::XYZTLorentzVector myvect_XYZT_mcF1_fromV2(mcAnalysis.mcF1_fromV2()->p4().Px(),mcAnalysis.mcF1_fromV2()->p4().Py(),mcAnalysis.mcF1_fromV2()->p4().Pz(),mcAnalysis.mcF1_fromV2()->p4().E());
-  NtupleFactory_->Fill4V("mcF1_fromV2",myvect_XYZT_mcF1_fromV2);
+  NtupleFactory_->Fill4V("mcF1_fromV2",mcAnalysis.mcF1_fromV2()->p4());
   NtupleFactory_->FillFloat("mcF1_fromV2_charge",mcAnalysis.mcF1_fromV2()->charge());
   NtupleFactory_->FillFloat("mcF1_fromV2_pdgId",mcAnalysis.mcF1_fromV2()->pdgId());
 
-  math::XYZTLorentzVector myvect_XYZT_mcF2_fromV2(mcAnalysis.mcF2_fromV2()->p4().Px(),mcAnalysis.mcF2_fromV2()->p4().Py(),mcAnalysis.mcF2_fromV2()->p4().Pz(),mcAnalysis.mcF2_fromV2()->p4().E());
-  NtupleFactory_->Fill4V("mcF2_fromV2",myvect_XYZT_mcF2_fromV2);
+  NtupleFactory_->Fill4V("mcF2_fromV2",mcAnalysis.mcF2_fromV2()->p4());
   NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
   NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
-    
         
   }
   
@@ -295,7 +285,8 @@ void
  NtupleFactory_->AddFloat("electrons_charge"); 
  NtupleFactory_->AddFloat("electrons_tkIso"); 
  NtupleFactory_->AddFloat("electrons_emIso"); 
- NtupleFactory_->AddFloat("electrons_hadIso"); 
+ NtupleFactory_->AddFloat("electrons_hadIso_1"); 
+ NtupleFactory_->AddFloat("electrons_hadIso_2"); 
  NtupleFactory_->AddFloat("electrons_IdLoose"); 
  NtupleFactory_->AddFloat("electrons_IdTight"); 
  NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
