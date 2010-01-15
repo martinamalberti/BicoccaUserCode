@@ -23,6 +23,22 @@ NtupleFactory::~NtupleFactory(){
   delete outTree_;
   delete outFile_;
   }
+  
+  for (std::map<TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* >::iterator it=ArrayContent_StdXYZT_.begin() ; it != ArrayContent_StdXYZT_.end(); it++ ){
+   delete ((*it).second);
+  }
+  for (std::map<TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* >::iterator it=ArrayContent_StdXYZ_.begin() ; it != ArrayContent_StdXYZ_.end(); it++ ){
+   delete ((*it).second);
+  }
+  for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
+   delete ((*it).second);
+  }
+  for (std::map<TString,std::vector<double>* >::iterator it=ArrayContentDouble_.begin() ; it != ArrayContentDouble_.end(); it++ ){
+   delete ((*it).second);
+  }
+  for (std::map<TString,std::vector<int>* >::iterator it=ArrayContentInt_.begin() ; it != ArrayContentInt_.end(); it++ ){
+   delete ((*it).second);
+  }
 }
 
 
@@ -39,7 +55,6 @@ void NtupleFactory::Add4V(const TString &name){
  std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* dummy = new std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > ;
  ArrayContent_StdXYZT_[name] = dummy ;
  outTree_->Branch(name,"std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >",&(ArrayContent_StdXYZT_[name]));
- return ;                          
 }
 
 void NtupleFactory::Add3V(const TString &name){
@@ -51,7 +66,6 @@ void NtupleFactory::Add3V(const TString &name){
  std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* dummy = new std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> > ;
  ArrayContent_StdXYZ_[name] = dummy ;
  outTree_->Branch(name,"std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >",&(ArrayContent_StdXYZ_[name]));
- return ;                          
 }
 
 void NtupleFactory::AddFloat(const TString &name){
@@ -63,7 +77,6 @@ void NtupleFactory::AddFloat(const TString &name){
  std::vector<float>* dummy = new std::vector<float> ;
  ArrayContentFloat_[name] = dummy ;
  outTree_->Branch(name,"std::vector<float>",&(ArrayContentFloat_[name]));
- return ;                          
 }
 
 void NtupleFactory::AddDouble(const TString &name){
@@ -75,7 +88,6 @@ void NtupleFactory::AddDouble(const TString &name){
  std::vector<double>* dummy = new std::vector<double> ;
  ArrayContentDouble_[name] = dummy ;
  outTree_->Branch(name,"std::vector<double>",&(ArrayContentDouble_[name]));
- return ;                          
 }
 
 void NtupleFactory::AddInt(const TString &name){
@@ -87,7 +99,6 @@ void NtupleFactory::AddInt(const TString &name){
  std::vector<int>* dummy = new std::vector<int> ;
  ArrayContentInt_[name] = dummy ;
  outTree_->Branch(name,"std::vector<int>",&(ArrayContentInt_[name]));
- return ;                          
 }
 
 ////--------------------------
@@ -101,7 +112,6 @@ void NtupleFactory::Fill4V(const TString &name,const ROOT::Math::LorentzVector<R
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
   return ;        
  }
- return ;
 }
 
 void NtupleFactory::Fill3V(const TString &name,const ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> &vect){
@@ -112,7 +122,6 @@ void NtupleFactory::Fill3V(const TString &name,const ROOT::Math::DisplacementVec
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
   return ;        
  }
- return ;
 }
 
 void NtupleFactory::FillFloat(const TString &name,const float &vect){
@@ -123,7 +132,6 @@ void NtupleFactory::FillFloat(const TString &name,const float &vect){
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
   return ;        
  }
- return ;
 }
  
 void NtupleFactory::FillDouble(const TString &name,const double &vect){
@@ -134,7 +142,6 @@ void NtupleFactory::FillDouble(const TString &name,const double &vect){
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
   return ;        
  }
- return ;
 }
  
 void NtupleFactory::FillInt(const TString &name,const int &vect){
@@ -145,7 +152,6 @@ void NtupleFactory::FillInt(const TString &name,const int &vect){
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
   return ;        
  }
- return ;
 }
 
 
@@ -159,6 +165,12 @@ void NtupleFactory::FillNtuple(){
   ((*it).second)->clear();  
  }
  for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
+  ((*it).second)->clear();  
+ }
+ for (std::map<TString,std::vector<double>* >::iterator it=ArrayContentDouble_.begin() ; it != ArrayContentDouble_.end(); it++ ){
+  ((*it).second)->clear();  
+ }
+ for (std::map<TString,std::vector<int>* >::iterator it=ArrayContentInt_.begin() ; it != ArrayContentInt_.end(); it++ ){
   ((*it).second)->clear();  
  }
 }
