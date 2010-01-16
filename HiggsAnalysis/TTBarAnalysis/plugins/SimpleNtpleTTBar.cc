@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtpleTTBar.cc,v 1.2 2010/01/14 10:41:39 amassiro Exp $
+// $Id: SimpleNtpleTTBar.cc,v 1.3 2010/01/15 17:36:46 amassiro Exp $
 //
 //
 
@@ -45,6 +45,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -61,6 +62,8 @@
 
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
 
 
 //---- utilities ----
@@ -84,6 +87,22 @@ SimpleNtpleTTBar::SimpleNtpleTTBar(const edm::ParameterSet& iConfig)
  genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
  genMetTag_ = iConfig.getParameter<edm::InputTag>("genMetTag");
 
+ eleIDCut_LooseInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_LooseInputTag");
+ eleIDCut_RLooseInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RLooseInputTag");
+ eleIDCut_TightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
+ eleIDCut_RTightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
+ 
+ //---- flags ----
+ saveMu_ =iConfig.getUntrackedParameter<bool> ("saveMu", true);
+ saveTrack_ = iConfig.getUntrackedParameter<bool> ("saveTrack", true);
+ saveEle_ = iConfig.getUntrackedParameter<bool> ("saveEle", true);
+ saveJet_ = iConfig.getUntrackedParameter<bool> ("saveJet", true);
+ saveMet_ = iConfig.getUntrackedParameter<bool> ("saveMet", true);
+ saveGenJet_ = iConfig.getUntrackedParameter<bool> ("saveGenJet", true);
+ saveGenMet_ = iConfig.getUntrackedParameter<bool> ("saveGenMet", true);
+ saveMC_ = iConfig.getUntrackedParameter<bool> ("saveMC", true);
+ 
+ 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
  eventType_ = iConfig.getUntrackedParameter<int>("eventType",1);
  
@@ -104,11 +123,9 @@ SimpleNtpleTTBar::~SimpleNtpleTTBar()
 // member functions
 //
 
-// ------------ method called to for each event  ------------
-void
-  SimpleNtpleTTBar::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+///---- muons ----
+void SimpleNtpleTTBar::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- ///---- fill muons ----
  edm::Handle<edm::View<reco::Muon> > MuHandle ;
  iEvent.getByLabel (MuTag_,MuHandle);
  int nMu;
@@ -127,14 +144,28 @@ void
   NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
   NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
  }
+}
 
- ///---- fill electrons ----
+///---- electrons ----
+
+void SimpleNtpleTTBar::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
  edm::Handle<edm::View<reco::GsfElectron> > EleHandle ;
  iEvent.getByLabel (EleTag_,EleHandle);
  int nEle;
  if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
  else {nEle = 30;}
+ 
+ std::vector<edm::Handle<edm::ValueMap<float> > > eleIdCutHandles(4) ;
+ iEvent.getByLabel (eleIDCut_LooseInputTag_, eleIdCutHandles[0]) ;
+ iEvent.getByLabel (eleIDCut_RLooseInputTag_, eleIdCutHandles[1]) ;
+ iEvent.getByLabel (eleIDCut_TightInputTag_, eleIdCutHandles[2]) ;
+ iEvent.getByLabel (eleIDCut_RTightInputTag_, eleIdCutHandles[3]) ;
+
+ 
  for(int i=0; i< nEle; i++){
+  edm::Ref<edm::View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
+  
   NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
   NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
   NtupleFactory_->FillFloat("electrons_tkIso",((*EleHandle)[i].dr03TkSumPt()));
@@ -142,13 +173,27 @@ void
   NtupleFactory_->FillFloat("electrons_hadIso_1",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));
   NtupleFactory_->FillFloat("electrons_hadIso_2",((*EleHandle)[i].dr03HcalDepth2TowerSumEt()));
   //   if ((*EleHandle)[i].classification()== GsfElectron::GOLDEN
-  NtupleFactory_->FillFloat("electrons_IdLoose",0);
-  NtupleFactory_->FillFloat("electrons_IdTight",0);
-  NtupleFactory_->FillFloat("electrons_IdRobustLoose",0);
-  NtupleFactory_->FillFloat("electrons_IdRobustTight",0);  
+  
+  //ELE ID
+  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
+  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
+  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
+  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
+      
+  //Get Ele Track
+  reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
+      
+  NtupleFactory_->FillFloat("electrons_track_d0", eleTrack->d0 ());
+  NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
+  NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
+  NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
  }
+}
 
- ///---- fill tracks ----
+///---- tracks ----
+
+void SimpleNtpleTTBar::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
  edm::Handle<edm::View<reco::Track> > TracksHandle ;
  iEvent.getByLabel (TracksTag_, TracksHandle) ;
  for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
@@ -156,8 +201,11 @@ void
   NtupleFactory_->Fill3V("tracks_in",(*tkIt).innerMomentum ());
   NtupleFactory_->Fill3V("tracks_out",(*tkIt).outerMomentum ());
  }
- 
- ///---- fill jets ---- 
+}
+
+///---- Jets ----
+void SimpleNtpleTTBar::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
  edm::Handle<edm::View<reco::CaloJet> > JetHandle ;
  iEvent.getByLabel (JetTag_,JetHandle);
  edm::Handle<reco::JetTagCollection> bTagHandle;
@@ -171,45 +219,55 @@ void
   if (flag_JetBTag_) NtupleFactory_->FillFloat("jets_btagging",bTags[counter_jet].second);
   counter_jet++;
  }
+}
 
- ///---- fill met ---- 
+///---- MET ----
+void SimpleNtpleTTBar::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
  edm::Handle<reco::CaloMETCollection> MetHandle ;
  iEvent.getByLabel (MetTag_,MetHandle);
  const reco::CaloMET *calomet = &(MetHandle->front());
  NtupleFactory_->Fill4V("met",calomet->p4());
+}
 
- 
- ///---- fill genJets ---- 
+
+///---- GenMet ----
+void SimpleNtpleTTBar::fillGenMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ edm::Handle< reco::GenMETCollection > genMetHandle ;
+ iEvent.getByLabel( genMetTag_, genMetHandle ) ;
+ for (reco::GenMETCollection::const_iterator gMIt = genMetHandle->begin (); gMIt != genMetHandle->end (); ++gMIt ) 
+ {
+  math::XYZTLorentzVector myvect_XYZT(gMIt->px(),gMIt->py(),gMIt->pz(),gMIt->energy());
+  NtupleFactory_->Fill4V("genMet",myvect_XYZT);
+ }
+}
+
+
+///---- GenJet ----
+void SimpleNtpleTTBar::fillGenJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
  edm::Handle<edm::View<reco::GenJet> > genJetHandle ;
  iEvent.getByLabel (genJetTag_,genJetHandle);
  for (edm::View<reco::GenJet>::const_iterator genJetIt = genJetHandle->begin (); genJetIt != genJetHandle->end (); ++genJetIt ) 
  { 
   NtupleFactory_->Fill4V("genJets",genJetIt->p4());
  }
+}
 
- 
-  ///---- fill genMet ---- 
- edm::Handle< reco::GenMETCollection > genMetHandle ;
- iEvent.getByLabel( genMetTag_, genMetHandle ) ;
-
- for (reco::GenMETCollection::const_iterator gMIt = genMetHandle->begin (); gMIt != genMetHandle->end (); ++gMIt ) 
- {
-  math::XYZTLorentzVector myvect_XYZT(gMIt->px(),gMIt->py(),gMIt->pz(),gMIt->energy());
-  NtupleFactory_->Fill4V("genMet",myvect_XYZT);
- }
- 
-  
- ///---- fill MCParticle ---- 
+///---- MC ----
+void SimpleNtpleTTBar::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
  edm::Handle<reco::GenParticleCollection> genParticles;
  iEvent.getByLabel(MCtruthTag_, genParticles);
 
- std::vector<int> whichOn;
- whichOn.push_back(11);
- whichOn.push_back(12);
- MCDumper myMCDumper(genParticles, true, whichOn);
+//  std::vector<int> whichOn;
+//  whichOn.push_back(11);
+//  whichOn.push_back(12);
+//  MCDumper myMCDumper(genParticles, true, whichOn);
 
  
- std::cerr << "num ele = " << (myMCDumper.Get(11)).size() << std::endl;
+//  std::cerr << "num ele = " << (myMCDumper.Get(11)).size() << std::endl;
  
  
  
@@ -255,10 +313,41 @@ void
   NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
   NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
         
-  }
-  
+ }
+}
+
+
+
+
+// ------------ method called to for each event  ------------
+void
+  SimpleNtpleTTBar::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+ ///---- fill muons ----
+ if (saveMu_) fillMuInfo (iEvent, iSetup);
+
+ ///---- fill electrons ----
+ if (saveEle_)  fillEleInfo (iEvent, iSetup);
+
+ ///---- fill tracks ----
+ if (saveTrack_) fillTrackInfo (iEvent, iSetup);
  
-  ///---- save the entry of the tree ----
+ ///---- fill jets ---- 
+ if (saveJet_) fillJetInfo (iEvent, iSetup);
+
+ ///---- fill met ---- 
+ if (saveMet_) fillMetInfo (iEvent, iSetup);
+ 
+ ///---- fill genJets ---- 
+ if (saveGenJet_) fillGenJetInfo (iEvent, iSetup);
+
+  ///---- fill genMet ---- 
+ if (saveGenMet_)  fillGenMetInfo (iEvent, iSetup);
+ 
+ ///---- fill MCParticle ---- 
+ if (saveMC_) fillMCInfo (iEvent, iSetup);
+  
+ ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
 
 }
@@ -292,6 +381,10 @@ void
  NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
  NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
    
+ NtupleFactory_->AddFloat("electrons_track_d0");
+ NtupleFactory_->AddFloat("electrons_track_dz");
+ NtupleFactory_->AddFloat("electrons_track_d0err");
+ NtupleFactory_->AddFloat("electrons_track_dzerr");
  NtupleFactory_->Add3V("tracks_in");
  NtupleFactory_->Add3V("tracks_out");   
  NtupleFactory_->Add4V("jets");      

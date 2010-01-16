@@ -36,6 +36,15 @@ class SimpleNtpleTTBar : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
     
+  void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillGenJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillGenMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
     
@@ -53,6 +62,21 @@ class SimpleNtpleTTBar : public edm::EDAnalyzer {
   edm::InputTag MCtruthTag_;
   edm::InputTag genJetTag_;
   edm::InputTag genMetTag_;
+  
+  edm::InputTag eleIDCut_LooseInputTag_ ;
+  edm::InputTag eleIDCut_RLooseInputTag_ ;
+  edm::InputTag eleIDCut_TightInputTag_ ;
+  edm::InputTag eleIDCut_RTightInputTag_ ;
+
+  bool saveMu_ ;
+  bool saveTrack_ ;
+  bool saveEle_ ;
+  bool saveJet_ ;
+  bool saveMet_ ;
+  bool saveGenJet_ ;
+  bool saveGenMet_ ;
+  bool saveMC_ ;
+  
   
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  

@@ -35,7 +35,8 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
 #         'file:/tmp/amassiro/3C91077F-31FF-DD11-A251-001A64789D6C.root',
 #         'file:/tmp/amassiro/182AF539-30FC-DD11-A0A3-003048326930.root',
-        'file:/tmp/amassiro/FAC3FAF4-6B88-DE11-9B23-00215E21D894.root',      
+#         'file:/tmp/amassiro/FAC3FAF4-6B88-DE11-9B23-00215E21D894.root',      
+        'file:/tmp/amassiro/FE230B1F-E3DB-DE11-8620-002219826BD1.root',      
 #         'file:/tmp/amassiro/CMSSWfile_99.root',
 #         'file:/tmp/amassiro/VBFHWW2l2nuTest_9.root',
         )
@@ -101,7 +102,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 # process.o = cms.EndPath( process.out )
 
 process.TFileService = cms.Service("TFileService", 
-    fileName = cms.string("VBF_SimpleTree_TTBar.root"),
+    fileName = cms.string("/tmp/amassiro/VBF_SimpleTree_TTBar.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 
