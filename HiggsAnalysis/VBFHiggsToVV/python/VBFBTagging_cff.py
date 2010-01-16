@@ -73,7 +73,8 @@ newCombinedSecondaryVertexMVABJetTags
 )
 
 newJetBtaggingEle = cms.Sequence(
-btagSoftElectrons *
+softPFElectrons *
+# btagSoftElectrons *
 newSoftElectronTagInfos *
 newSoftElectronBJetTags
 )

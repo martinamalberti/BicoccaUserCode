@@ -1,7 +1,7 @@
 #ifndef VBFLeptonDistributions_h
 #define VBFLeptonDistributions_h
 
-#include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumper.h"
+#include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperVBF.h"
 #include "HiggsAnalysis/VBFHiggsToVV/interface/VBFUtils.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -18,7 +18,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" //---- CMSSW_2_X_Y
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" //---- CMSSW_3_X_Y
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/METReco/interface/GenMET.h"

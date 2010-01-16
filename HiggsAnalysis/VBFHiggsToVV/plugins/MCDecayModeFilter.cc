@@ -120,13 +120,13 @@ bool MCDecayModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   
   
-  // MCDumper  
+  // MCDumperVBF  
   double keepEvent = true;
 
   // if is signal
   if(m_eventType == 0)
   {
-    MCDumper mcAnalysis(genParticles, 0, false);
+    MCDumperVBF mcAnalysis(genParticles, 0, false);
     bool isValid = mcAnalysis.isValid();
     if(!isValid) keepEvent = false;
     

@@ -238,9 +238,9 @@ void VBFMuonDistributions::analyze(const edm::Event& iEvent, const edm::EventSet
   
   
   
-  // MCDumper
+  // MCDumperVBF
   if(m_eventType != 0) return;
-  MCDumper mcAnalysis(genParticles, 0, false);
+  MCDumperVBF mcAnalysis(genParticles, 0, false);
   bool isValid = mcAnalysis.isValid();
   if(!isValid) return;
   

@@ -1,7 +1,7 @@
 #ifndef MCDecayModeFilter_h
 #define MCDecayModeFilter_h
 
-#include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumper.h"
+#include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperVBF.h"
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -11,7 +11,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" //---- CMSSW_2_X_Y
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" //---- CMSSW_3_X_Y
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"

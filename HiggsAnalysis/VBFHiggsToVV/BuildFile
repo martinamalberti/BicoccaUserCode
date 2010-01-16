@@ -2,7 +2,7 @@
 <use name=rootmath>
 <use name=clhep>
 <use name=DataFormats/EgammaCandidates>
-<use name=SimDataFormats/HepMCProduct>
+<use name=PhysicsTools/NtupleUtils>
 
 <export>
    <lib name=HiggsAnalysisVBFHiggsToVV>

@@ -1,7 +1,7 @@
 #ifndef VBFJetDistributions_h
 #define VBFJetDistributions_h
 
-#include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumper.h"
+#include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperVBF.h"
 #include "HiggsAnalysis/VBFHiggsToVV/interface/VBFUtils.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -28,7 +28,9 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" //---- CMSSW_2_X_Y
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" //---- CMSSW_3_X_Y
+
 
 #include <iostream>
 #include <iomanip>
@@ -318,9 +320,9 @@ void VBFJetDistributions<TCollection>::analyze(const edm::Event& iEvent, const e
   
   
   
-  // MCDumper
+  // MCDumperVBF
   if(m_eventType != 0) return;
-  MCDumper mcAnalysis(genParticles, 0, false);
+  MCDumperVBF mcAnalysis(genParticles, 0, false);
   bool isValid = mcAnalysis.isValid();
   if(!isValid) return;
   
