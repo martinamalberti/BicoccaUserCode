@@ -16,3 +16,5 @@ DEFINE_SEAL_MODULE();
 #include "HiggsAnalysis/TTBarAnalysis/plugins/SimpleNtpleTTBar.h"
 DEFINE_ANOTHER_FWK_MODULE(SimpleNtpleTTBar) ;
 
+#include "HiggsAnalysis/TTBarAnalysis/plugins/SimpleNtpleWJets.h"
+DEFINE_ANOTHER_FWK_MODULE(SimpleNtpleWJets) ;
