@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.27 2010/01/15 08:50:18 govoni Exp $
+// $Id: SimpleNtple.cc,v 1.28 2010/01/18 10:10:32 dimatteo Exp $
 //
 //
 
@@ -654,12 +654,10 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
     }
 
   //PG supercluster information
-<<<<<<< SimpleNtple.cc
   NtupleFactory_->AddFloat ("SC_Energy") ;
   NtupleFactory_->Add3V ("SC_position") ;
   
   //Trigger Info
-//   int HLTBits_size = NTRIGGERS;
   string HLTbitNames[NTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3"};
   
   if (hltConfig.init(the8e29ProcName_)) 
@@ -713,7 +711,7 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
   NtupleFactory_->AddInt("HLT2Mu0_L3_id") ;
   NtupleFactory_->Add4V ("HLT2Mu3_L3_4mom");
   NtupleFactory_->AddInt("HLT2Mu3_L3_id") ;
-=======
+  
   if (saveSC_)
     {
       NtupleFactory_->AddFloat ("SC_Energy") ;
