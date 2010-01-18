@@ -112,6 +112,18 @@ DEFINE_ANOTHER_FWK_MODULE(VBFMuonIsolationRef);
 
 
 
+//-------------------------------------------------                                                                                             
+// VBFLeptonTipLipProducer                                                                                                                      
+//-------------------------------------------------                                                                                             
+
+#include "HiggsAnalysis/VBFHiggsToVV/plugins/VBFLeptonTipLipProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(VBFLeptonTipLipProducer);
+
+
+
+
+
+
 //-------------------------------------------------
 // VBFJetCleaner
 //-------------------------------------------------
