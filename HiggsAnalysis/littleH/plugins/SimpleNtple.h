@@ -16,6 +16,15 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 #include <TTree.h>
@@ -79,12 +88,14 @@ class SimpleNtple : public edm::EDAnalyzer {
   string the8e29ProcName_;
   string the1e31ProcName_;
   
-  static const unsigned int Max_trig_size = 10;
+  static const int Max_trig_size = 5; //why 10 in Onia2MuMu? ask to Mario
   static const int NTRIGGERS = 5;
   
   InputTag hltModules[2][NTRIGGERS]; // in order: L2, L3
   int hltBits[NTRIGGERS];
   
+  HLTConfigProvider hltConfig;
+
   bool saveVtx_ ;
   bool saveMu_ ;
   bool saveTracks_ ;

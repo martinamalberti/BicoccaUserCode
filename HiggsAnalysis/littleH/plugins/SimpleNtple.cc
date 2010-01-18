@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.26 2010/01/15 00:04:45 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.27 2010/01/15 08:50:18 govoni Exp $
 //
 //
 
@@ -480,21 +480,16 @@ SimpleNtple::fillTriggerInfo(const edm::Event & iEvent, const edm::EventSetup & 
  using namespace trigger;
  Handle<TriggerResults> HLTR;
  iEvent.getByLabel(InputTag(theHLTriggerResults_,"",the8e29ProcName_), HLTR);
- if (HLTR.isValid()) {
+ if (HLTR.isValid()) 
+ {
   
   NtupleFactory_->FillInt ("HLTGlobal_wasrun",(int) HLTR->wasrun()) ;  
   NtupleFactory_->FillInt ("HLTGlobal_Decision",(int) HLTR->accept()) ;  
   NtupleFactory_->FillInt ("HLTGlobal_error",(int) HLTR->error()) ;  
- 
-//   HLTGlobal_wasrun=HLTR->wasrun();
-//   HLTGlobal_Decision=HLTR->accept();
-//   HLTGlobal_error=HLTR->error();
-    
- 
+  
   int HLTBits_size=HLTR->size();
-  for (int i=0; i<HLTBits_size && i<(int)Max_trig_size; i++) {
-//    HLTBits_accept[i]=(int) HLTR->accept(hltBits[i]);
-//    HLTBits_error[i] =(int) HLTR->error(hltBits[i]);
+  for (int i=0; i<HLTBits_size && i<(int)Max_trig_size; i++) 
+  {   
    NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->wasrun(hltBits[i])) ;
    NtupleFactory_->FillInt ("HLTBits_accept",(int) HLTR->accept(hltBits[i])) ;
    NtupleFactory_->FillInt ("HLTBits_error",(int) HLTR->error(hltBits[i])) ;
@@ -509,27 +504,35 @@ SimpleNtple::fillTriggerInfo(const edm::Event & iEvent, const edm::EventSetup & 
    hltF = false;
    cout<<"Error!! No TriggerEvent with label " << thetriggerEventTag_ << endl;
   }
-  if ( hltF ) {
+  if ( hltF ) 
+  {
    const TriggerObjectCollection& TOC(trgEvent->getObjects());
  
-   for ( int lvl = 1; lvl<2; lvl++ ) { 
-    for ( int ipath = 0; ipath < HLTBits_size; ipath++) {
+   for ( int lvl = 1; lvl<2; lvl++ ) 
+   { 
+    for ( int ipath = 0; ipath < HLTBits_size && ipath<(int)Max_trig_size; ipath++) 
+    {
      const InputTag trigName = hltModules[lvl][ipath];
      size_type index = trgEvent->filterIndex(trigName);
-     if ( index < trgEvent->sizeFilters() ) {
+     if ( index < trgEvent->sizeFilters() ) 
+     {
       const Keys& KEYS( trgEvent->filterKeys(index) );
       int muonsize = KEYS.size();
+      
       int minNMuons = 1; if ( ipath>=3 ) minNMuons = 2;
-      if (  muonsize < minNMuons && HLTR->accept(hltBits[ipath]) ) {  
+      if (  muonsize < minNMuons && HLTR->accept(hltBits[ipath]) ) 
+      {  
        cout<<"Error!! Not enough HLT muons for "<<trigName.label()<<", but decision = "<<HLTR->accept(hltBits[ipath])<<endl;
       }
-      for ( int hltm = 0; hltm < muonsize; hltm++ ) {
+      for ( int hltm = 0; hltm < muonsize; hltm++ ) 
+      {
        size_type hltf = KEYS[hltm];
        const TriggerObject& TO(TOC[hltf]);
-//        TLorentzVector a = lorentzTriObj(TO);
 
-       if ( lvl==1 ) {
-        if ( ipath==0 ) {
+       if ( lvl==1 ) 
+       {
+        if ( ipath==0 ) 
+        {
          NtupleFactory_->Fill4V ("HLT1Mu3_L3_4mom", TO.particle().p4());
          NtupleFactory_->FillInt("HLT1Mu3_L3_id", TO.id()) ;
         }
@@ -651,6 +654,66 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
     }
 
   //PG supercluster information
+<<<<<<< SimpleNtple.cc
+  NtupleFactory_->AddFloat ("SC_Energy") ;
+  NtupleFactory_->Add3V ("SC_position") ;
+  
+  //Trigger Info
+//   int HLTBits_size = NTRIGGERS;
+  string HLTbitNames[NTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3"};
+  
+  if (hltConfig.init(the8e29ProcName_)) 
+  {
+      // check if trigger name in config
+   const unsigned int n(hltConfig.size());
+   for (int ihlt = 0; ihlt < NTRIGGERS; ihlt++) 
+   {
+    hltBits[ihlt] = 0;
+    unsigned int triggerIndex( hltConfig.triggerIndex(HLTbitNames[ihlt]) );
+    if (triggerIndex>=n) 
+    {
+     cout << "OniaToMuMu::beginRun: "
+       << " TriggerName " << HLTbitNames[ihlt]
+       << " not available in config!" << endl;
+    } else {
+     hltBits[ihlt] = triggerIndex;
+    }
+   }
+      // Level-2 FILTERS (module names)
+   hltModules[0][0] = InputTag("NotUsed","",the8e29ProcName_);
+   hltModules[0][1] = InputTag("NotUsed","",the8e29ProcName_);
+   hltModules[0][2] = InputTag("NotUsed","",the8e29ProcName_);
+   hltModules[0][3] = InputTag("NotUsed","",the8e29ProcName_);
+   hltModules[0][4] = InputTag("NotUsed","",the8e29ProcName_);
+
+      // Level-3 FILTERS (module names)
+   hltModules[1][0] = InputTag("hltSingleMu3L3Filtered3","",the8e29ProcName_);
+   hltModules[1][1] = InputTag("hltSingleMu5L3Filtered5","",the8e29ProcName_);
+   hltModules[1][2] = InputTag("hltSingleMu9L3Filtered9","",the8e29ProcName_);
+   hltModules[1][3] = InputTag("hltDiMuonL3PreFiltered0","",the8e29ProcName_);
+   hltModules[1][4] = InputTag("hltDiMuonL3PreFiltered","",the8e29ProcName_);
+  } else {
+   cout << "OniaToMuMu::beginRun:"
+     << " HLT config extraction failure with process name HLT" << endl;
+  }
+  
+  NtupleFactory_->AddInt ("HLTBits_wasrun") ;
+  NtupleFactory_->AddInt ("HLTBits_accept") ;
+  NtupleFactory_->AddInt ("HLTBits_error") ;
+  NtupleFactory_->AddInt ("HLTGlobal_wasrun") ;  
+  NtupleFactory_->AddInt ("HLTGlobal_Decision") ;  
+  NtupleFactory_->AddInt ("HLTGlobal_error") ;  
+  NtupleFactory_->Add4V ("HLT1Mu3_L3_4mom");
+  NtupleFactory_->AddInt("HLT1Mu3_L3_id") ;
+  NtupleFactory_->Add4V ("HLT1Mu5_L3_4mom");
+  NtupleFactory_->AddInt("HLT1Mu5_L3_id") ;
+  NtupleFactory_->Add4V ("HLT1Mu9_L3_4mom");
+  NtupleFactory_->AddInt("HLT1Mu9_L3_id") ;
+  NtupleFactory_->Add4V ("HLT2Mu0_L3_4mom");
+  NtupleFactory_->AddInt("HLT2Mu0_L3_id") ;
+  NtupleFactory_->Add4V ("HLT2Mu3_L3_4mom");
+  NtupleFactory_->AddInt("HLT2Mu3_L3_id") ;
+=======
   if (saveSC_)
     {
       NtupleFactory_->AddFloat ("SC_Energy") ;
