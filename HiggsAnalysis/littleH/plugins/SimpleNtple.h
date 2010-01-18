@@ -45,71 +45,73 @@ using namespace std;
 //---------------------------
 
 class SimpleNtple : public edm::EDAnalyzer {
- public:
-  explicit SimpleNtple(const edm::ParameterSet&);
-  ~SimpleNtple();
+  public:
+    explicit SimpleNtple(const edm::ParameterSet&);
+    ~SimpleNtple();
   
- private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  private:
+    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob() ;
     
-  void fillVtxInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillVtxInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
 
-  template <class T> math::XYZTLorentzVector lorentzMomentum(const T & muon) const;
-  std::vector<unsigned int> trackHits(const reco::Track& tr);
+    template <class T> math::XYZTLorentzVector lorentzMomentum(const T & muon) const;
+    std::vector<unsigned int> trackHits(const reco::Track& tr);
     
-  TTree* outTree_;
-  NtupleFactory* NtupleFactory_;
+    TTree* outTree_;
+    NtupleFactory* NtupleFactory_;
     
-  edm::InputTag TracksTag_;
-  edm::InputTag EleTag_;
-  edm::InputTag MuTag_;
-  edm::InputTag PrimaryVertexTag_;        
+    edm::InputTag TracksTag_;
+    edm::InputTag EleTag_;
+    edm::InputTag MuTag_;
+    edm::InputTag PrimaryVertexTag_;        
 
-  edm::InputTag MCtruthTag_;
+    edm::InputTag MCtruthTag_;
   
-  edm::InputTag m_eleIDCut_LooseInputTag ;
-  edm::InputTag m_eleIDCut_RLooseInputTag ;
-  edm::InputTag m_eleIDCut_TightInputTag ;
-  edm::InputTag m_eleIDCut_RTightInputTag ;
+    edm::InputTag m_eleIDCut_LooseInputTag ;
+    edm::InputTag m_eleIDCut_RLooseInputTag ;
+    edm::InputTag m_eleIDCut_TightInputTag ;
+    edm::InputTag m_eleIDCut_RTightInputTag ;
 
-  edm::InputTag barrelClusterCollection_;
-  edm::InputTag endcapClusterCollection_;
+    edm::InputTag barrelClusterCollection_;
+    edm::InputTag endcapClusterCollection_;
   
-  string thetriggerEventTag_;
-  string theHLTriggerResults_;     // HLT trigger results
-  string the8e29ProcName_;
-  string the1e31ProcName_;
+    string thetriggerEventTag_;
+    string theHLTriggerResults_;     // HLT trigger results
+    string the8e29ProcName_;
+    string the1e31ProcName_;
   
-  static const int Max_trig_size = 5; //why 10 in Onia2MuMu? ask to Mario
-  static const int NTRIGGERS = 5;
+    static const int Max_HLT_size = 7; //why 10 in Onia2MuMu? ask to Mario
+    static const int NHLTTRIGGERS = 7;
+    static const int Max_L1T_size = 8; 
+    static const int NL1TTRIGGERS = 8;
   
-  InputTag hltModules[2][NTRIGGERS]; // in order: L2, L3
-  int hltBits[NTRIGGERS];
+    int hltBits[NHLTTRIGGERS];
+    int l1tBits[NL1TTRIGGERS];
   
-  HLTConfigProvider hltConfig;
+    HLTConfigProvider hltConfig;
 
-  bool saveVtx_ ;
-  bool saveMu_ ;
-  bool saveTracks_ ;
-  bool saveEle_ ;
-  bool saveMC_ ;
-  bool saveSC_ ;
-  bool saveTrigger_ ;
+    bool saveVtx_ ;
+    bool saveMu_ ;
+    bool saveTracks_ ;
+    bool saveEle_ ;
+    bool saveMC_ ;
+    bool saveSC_ ;
+    bool saveTrigger_ ;
 
-  int eventType_; //---- 0 = signal      1 = background 
-  bool verbosity_; //---- true = loquacious     false = silence  
+    int eventType_; //---- 0 = signal      1 = background 
+    bool verbosity_; //---- true = loquacious     false = silence  
 
   //used to save all tracks BUT muons
-  std::vector<int> theMuonTrkIndexes_ ;
+    std::vector<int> theMuonTrkIndexes_ ;
 
-  int Reco_mu_glb_size;
-  int Reco_mu_trk_size;  
+    int Reco_mu_glb_size;
+    int Reco_mu_trk_size;  
 };
