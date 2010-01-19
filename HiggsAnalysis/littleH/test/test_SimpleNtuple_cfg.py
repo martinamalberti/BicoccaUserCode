@@ -38,23 +38,47 @@ process.source = cms.Source(
         )
     )
 
+# --- ====== --- --- --- --- --- --- --- --- --- --- --- 
+# --- SEQUENCES --- --- --- --- --- --- --- --- --- --- --- 
+# --- ====== --- --- --- --- --- --- --- --- --- --- --- 
+     
+# --- LeptonTipLip --- --- --- --- --- --- --- --- --- --- ---                           
+process.load("HiggsAnalysis.littleH.LeptonTipLipProducer_cfi")
+   
+# --- SimpleNtple --- --- --- --- --- --- --- --- --- --- ---                           
 process.load("HiggsAnalysis.littleH.SimpleNtple_cfi")
+
+# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
+
+process.SimpleNtpleSequence = cms.Sequence(
+process.LeptonTipLipProducer *
+process.SimpleNtple
+)
+
+# --- ====== --- --- --- --- --- --- --- --- --- --- --- 
+# --- PATHS --- --- --- --- --- --- --- --- --- --- --- 
+# --- ====== --- --- --- --- --- --- --- --- --- --- --- 
+
+process.p1 = cms.Path(
+process.SimpleNtpleSequence               )
+
+# --- ====== --- --- --- --- --- --- --- --- --- --- --- 
+# --- OUTPUT --- --- --- --- --- --- --- --- --- --- --- 
+# --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
 process.TFileService = cms.Service("TFileService", 
     fileName = cms.string("SimpleTree_Upsilon.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 
-process.SimpleNtpleSequence = cms.Sequence(
- process.SimpleNtple
-)
-
 process.options = cms.untracked.PSet(
   fileMode = cms.untracked.string('FULLMERGE')
 )
 
-process.p1 = cms.Path(
-process.SimpleNtpleSequence               )
+# --- ======== --- --- --- --- --- --- --- --- --- --- --- 
+# --- SCHEDULE --- --- --- --- --- --- --- --- --- --- --- 
+# --- ======== --- --- --- --- --- --- --- --- --- --- --- 
+
 
 # Schedule definition
 process.schedule = cms.Schedule(process.p1)

@@ -15,3 +15,10 @@ DEFINE_SEAL_MODULE();
 
 #include "HiggsAnalysis/littleH/plugins/SimpleNtple.h"
 DEFINE_ANOTHER_FWK_MODULE(SimpleNtple) ;
+
+//-------------
+// LeptonLipTipProducer 
+//-------------
+
+#include "HiggsAnalysis/littleH/plugins/LeptonTipLipProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(LeptonTipLipProducer) ;

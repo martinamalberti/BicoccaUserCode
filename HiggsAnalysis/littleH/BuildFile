@@ -4,6 +4,10 @@
 <use name=clhep>
 <use name=DataFormats/EgammaCandidates>
 <use name=SimDataFormats/HepMCProduct>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=PhysicsTools/UtilAlgos>
+<use name=RecoVertex/PrimaryVertexProducer>
 
 <export>
    <lib name=HiggsAnalysislittleH>
