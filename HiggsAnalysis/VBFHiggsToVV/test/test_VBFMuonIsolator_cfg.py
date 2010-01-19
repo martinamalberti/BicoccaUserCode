@@ -24,14 +24,15 @@ process.MessageLogger.cerr.threshold = 'INFO'
 # --- INPUT  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.source = cms.Source(
     "PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
-        'file:/data/NTUPLES/VBF/qqHWW_lnujj/H200/CMSSWfile_10.root',
+        #'file:/data/NTUPLES/VBF/qqHWW_lnujj/H200/CMSSWfile_10.root',
+        'file:/gwtera5/users/data/NTUPLES/VBF/CMSSWfile_3_1_X.root'
         )
     )
 
