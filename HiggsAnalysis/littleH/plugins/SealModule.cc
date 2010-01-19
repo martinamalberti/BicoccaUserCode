@@ -22,3 +22,10 @@ DEFINE_ANOTHER_FWK_MODULE(SimpleNtple) ;
 
 #include "HiggsAnalysis/littleH/plugins/LeptonTipLipProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(LeptonTipLipProducer) ;
+
+//-------------
+// Lepton3DipProducer 
+//-------------
+
+#include "HiggsAnalysis/littleH/plugins/Lepton3DipProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(Lepton3DipProducer) ;

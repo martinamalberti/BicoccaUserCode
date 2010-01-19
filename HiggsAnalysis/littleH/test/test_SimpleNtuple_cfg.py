@@ -44,6 +44,9 @@ process.source = cms.Source(
      
 # --- LeptonTipLip --- --- --- --- --- --- --- --- --- --- ---                           
 process.load("HiggsAnalysis.littleH.LeptonTipLipProducer_cfi")
+
+# --- Lepton3Dip --- --- --- --- --- --- --- --- --- --- ---                           
+process.load("HiggsAnalysis.littleH.Lepton3DipProducer_cfi")
    
 # --- SimpleNtple --- --- --- --- --- --- --- --- --- --- ---                           
 process.load("HiggsAnalysis.littleH.SimpleNtple_cfi")
@@ -52,6 +55,7 @@ process.load("HiggsAnalysis.littleH.SimpleNtple_cfi")
 
 process.SimpleNtpleSequence = cms.Sequence(
 process.LeptonTipLipProducer *
+process.Lepton3DipProducer *
 process.SimpleNtple
 )
 

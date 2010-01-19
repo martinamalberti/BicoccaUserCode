@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Benaglia
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: LeptonTipLipProducer.cc,v 1.30 2010/01/18 14:42:08 dimatteo Exp $
+// $Id: LeptonTipLipProducer.cc,v 1.1 2010/01/19 10:24:28 dimatteo Exp $
 //
 //
 
@@ -27,8 +27,7 @@ LeptonTipLipProducer::LeptonTipLipProducer(const edm::ParameterSet& iConfig):
 {
   std::string alias;
   std::string name = "";
-  
-  
+    
   // for electrons
   //produces<std::vector<float> >(alias = name + "EleLip").setBranchAlias(alias);
   //produces<std::vector<float> >(alias = name + "EleTip").setBranchAlias(alias);
