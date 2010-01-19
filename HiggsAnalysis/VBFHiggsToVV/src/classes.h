@@ -1,5 +1,3 @@
-#include "HiggsAnalysis/VBFHiggsToVV/interface/NtupleFactory.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
