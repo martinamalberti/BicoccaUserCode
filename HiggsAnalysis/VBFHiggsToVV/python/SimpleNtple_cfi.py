@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 SimpleNtple = cms.EDAnalyzer(
     "SimpleNtple",
      MuTag           = cms.InputTag("muons"),
+     MuTipSignificanceTag = cms.InputTag("muons"),
      EleTag          = cms.InputTag("gsfElectrons"),
      TracksTag       = cms.InputTag("generalTracks"),
      JetTag          = cms.InputTag("sisCone5CaloJets"),
@@ -22,7 +23,7 @@ SimpleNtple = cms.EDAnalyzer(
      saveMu          = cms.untracked.bool (True) ,
      saveTrack       = cms.untracked.bool (True) , 
      saveEle         = cms.untracked.bool (True) ,
-     saveJEt         = cms.untracked.bool (True) ,
+     saveJet         = cms.untracked.bool (True) ,
      saveMet         = cms.untracked.bool (True) ,
      saveGenJet      = cms.untracked.bool (True) ,
      saveGenMet      = cms.untracked.bool (True) ,                        
