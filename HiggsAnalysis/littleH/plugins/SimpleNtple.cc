@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.29 2010/01/18 10:15:43 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.30 2010/01/18 14:42:08 dimatteo Exp $
 //
 //
 
@@ -494,7 +494,6 @@ void
       NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->wasrun(hltBits[i])) ;
       NtupleFactory_->FillInt ("HLTBits_accept",(int) HLTR->accept(hltBits[i])) ;
       NtupleFactory_->FillInt ("HLTBits_error",(int) HLTR->error(hltBits[i])) ;
-      if ( i==5 ) cout << " L1 trigger bit " << (int) HLTR->wasrun(hltBits[i]) << endl ;
     }
   
   //Level-1
@@ -504,7 +503,6 @@ void
       NtupleFactory_->FillInt ("L1TBits_wasrun",(int) HLTR->wasrun(l1tBits[i])) ;
       NtupleFactory_->FillInt ("L1TBits_accept",(int) HLTR->accept(l1tBits[i])) ;
       NtupleFactory_->FillInt ("L1TBits_error",(int) HLTR->error(l1tBits[i])) ;
-//    if ( i==5 ) cout << " L1 trigger bit " << (int) HLTR->wasrun(hltBits[i]) << endl ;
     }
    
   }
@@ -617,7 +615,7 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
   {
    //Trigger Info
     string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R"};
-    string L1TbitNames[NL1TTRIGGERS]  = {"L1_SingleMuOpen","L1_SingleMu0", "L1_SingleMu3", "L1_SingleMu7", "L1_DoubleMuOpen", "L1_DoubleMu3", "L1_SingleEG5", "L1_DoubleEG5"};
+    string L1TbitNames[NL1TTRIGGERS]  = {"HLT_L1MuOpen","HLT_L1Mu", "HLT_L1DoubleMuOpen", "HLT_L1SingleEG5", "HLT_L1SingleEG8", "HLT_L1DoubleEG5"};
   
     if (hltConfig.init(the8e29ProcName_)) 
     {

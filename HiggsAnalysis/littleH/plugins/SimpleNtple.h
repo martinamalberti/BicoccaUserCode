@@ -90,8 +90,8 @@ class SimpleNtple : public edm::EDAnalyzer {
   
     static const int Max_HLT_size = 7; //why 10 in Onia2MuMu? ask to Mario
     static const int NHLTTRIGGERS = 7;
-    static const int Max_L1T_size = 8; 
-    static const int NL1TTRIGGERS = 8;
+    static const int Max_L1T_size = 6; 
+    static const int NL1TTRIGGERS = 6;
   
     int hltBits[NHLTTRIGGERS];
     int l1tBits[NL1TTRIGGERS];
