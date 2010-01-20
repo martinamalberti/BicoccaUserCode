@@ -1,3 +1,4 @@
+<use name=FWCore/ParameterSet>
 <use name=RecoMuon/MuonIdentification>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/JetReco>
@@ -5,6 +6,7 @@
 <use name=HLTrigger/HLTcore>
 <use name=root>
 <use name=TrackingTools/IPTools>
+<use name=RecoVertex/GaussianSumVertexFit>
 
 <library file="*.cc" name=HiggsAnalysislittleHPlugins>
     <flags EDM_PLUGIN=1>

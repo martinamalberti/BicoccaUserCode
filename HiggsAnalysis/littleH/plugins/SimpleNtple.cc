@@ -13,81 +13,17 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.31 2010/01/19 13:53:58 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.32 2010/01/20 10:10:54 dimatteo Exp $
 //
 //
-
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
-
-//--- objects ----
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-#include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
-#include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
-#include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
-
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include "DataFormats/Common/interface/ValueMap.h"
-
-//---- utilities ----
-#include "HiggsAnalysis/littleH/interface/MCDumper.h"
-
 
 #include "HiggsAnalysis/littleH/plugins/SimpleNtple.h"
 
 using namespace edm;
 
 SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
-    TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
+    gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
+  TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
   EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
   MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
   PrimaryVertexTag_         (iConfig.getParameter<InputTag> ("PrimaryVertexTag")),
@@ -111,6 +47,11 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   saveSC_                   (iConfig.getUntrackedParameter<bool> ("saveSC", true)),
   saveTrigger_              (iConfig.getUntrackedParameter<bool> ("saveTrigger", true)),
   saveBeamSpot_             (iConfig.getUntrackedParameter<bool> ("saveBeamSpot", true)),
+  saveOniaCand_             (iConfig.getUntrackedParameter<bool> ("saveOniaCand", true)),
+  theStoreWSOnia            (iConfig.getUntrackedParameter<bool> ("storeWSOnia", true)), 
+  theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
+  theOniaType               (iConfig.getUntrackedParameter<int> ("oniaType", 443)), 
+  theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)), 
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -169,9 +110,6 @@ void
   Handle<MuonCollection> MuHandle;
   iEvent.getByLabel(MuTag_,MuHandle);
  
-  MuonCollection theTrkMuons;
-  MuonCollection theGlobalMuons;
-
   Reco_mu_glb_size = 0;
 
   for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
@@ -344,6 +282,7 @@ void
  
   for (int i=0; i< nEle; i++)
   {     
+    theElectrons.push_back((*EleHandle)[i]);
       //Get Ele Ref
     Ref<View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
       
@@ -532,13 +471,354 @@ void
   NtupleFactory_->FillFloat("beamSpot_zyE",bs.covariance(2,1));
   NtupleFactory_->FillFloat("beamSpot_zxE",bs.covariance(2,0));
  
+  return;
+}
+
+// --------------------------------------------------------------------
+
+// fills Onia candidate block
+void 
+    SimpleNtple::findOniaCategories(const Event &iEvent, const EventSetup & iESetup) 
+{
+  
+  QQ_size=0;
+
+  Handle<reco::VertexCollection> privtxs;
+  iEvent.getByLabel(PrimaryVertexTag_, privtxs);
+  VertexCollection::const_iterator privtx;
+
+  Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel(beamSpotTag_ ,recoBeamSpotHandle);
+  reco::BeamSpot bs = *recoBeamSpotHandle;
+
+  TVector3 vperp2;
+  if ( theBeamSpotFlag ) {
+    vperp2.SetXYZ(bs.x0(), bs.y0(), 0);
+  }
+  else {
+    if ( privtxs->begin() != privtxs->end() ) {
+      privtx=privtxs->begin();
+      vperp2.SetXYZ(privtx->position().x(), privtx->position().y(), 0);
+    }
+    else {
+      vperp2.SetXYZ(0, 0, 0);
+    }
+  }
+  
+  MuonCollection::const_iterator nmuon1;
+  MuonCollection::const_iterator nmuon2;
+  MuonCollection::const_iterator tmuon1;
+  MuonCollection::const_iterator tmuon2;
+  reco::GsfElectronCollection::const_iterator nele1 ;
+  reco::GsfElectronCollection::const_iterator nele2 ;
+  
+  // int oniacato;
+  reco::TrackRef muon1;
+  reco::TrackRef muon2;
+  int m1=0;
+  int m2g=0;
+  int m2t=0;
+
+  reco::GsfTrackRef ele1;
+  reco::GsfTrackRef ele2;
+  int e1=0;
+  int e2=0;
+  
+  //Electrons
+  for ( nele1 = theElectrons.begin(); nele1 != theElectrons.end(); nele1++) 
+  {
+    for( nele2 = nele1+1; nele2 != theElectrons.end()&&QQ_size<3000; nele2++ ) 
+    {
+      ele1 = nele1->gsfTrack();    
+      ele2 = nele2->gsfTrack(); 
+      e2++;
+      fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, vperp2, 0);
+    }
+    e1++;
+  }
+  
+  //Muons
+  for ( nmuon1 = theGlobalMuons.begin(); nmuon1 != theGlobalMuons.end(); nmuon1++) 
+  {
+    for( nmuon2 = nmuon1+1; nmuon2 != theGlobalMuons.end()&&QQ_size<3000; nmuon2++ ) 
+    {
+      muon1 = nmuon1->innerTrack();    
+      muon2 = nmuon2->innerTrack(); 
+      m2g++;
+      if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, vperp2, 1);
+    }
+     
+    for( tmuon2 = theTrkMuons.begin(); tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
+    {
+      muon1 = nmuon1->innerTrack();    
+      muon2 = tmuon2->innerTrack(); 
+      if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, vperp2, 2);
+      m2t++;
+    }
+    m1++;
+  }
+  m1=0; m2t=0; 
+  for ( tmuon1 = theTrkMuons.begin(); tmuon1 != theTrkMuons.end(); tmuon1++) 
+  {
+    for( tmuon2 = tmuon1+1; tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
+    {
+      muon1 = tmuon1->innerTrack();    
+      muon2 = tmuon2->innerTrack(); 
+      m2t++; 
+      if (theOniaMaxCat >= 2) fillOnia2MuMuTracks(muon1, m1, muon2, m2t+m1, vperp2, 3);
+    }
+    m1++;
+  }
+    
+  NtupleFactory_->FillInt("QQ_size",QQ_size);
+  return;
+}
+
+
+// --------------------------------------------------------------------
+
+// Fill Onia2MuMu category
+void 
+    SimpleNtple::fillOnia2MuMuTracks(TrackRef lep1, int l1, TrackRef lep2, int l2, TVector3 vperp2, int oniacato) 
+{
+ 
+  if (oniacato<0  ) return;
+  // if ( lep1->charge() == lep2->charge() ) continue;
+  int QQ_sign = 0;
+  if ( lep1->charge() == lep2->charge() ) 
+  {
+    if (theStoreWSOnia) {
+      if (lep1->charge() == 1) {QQ_sign=1;}
+      else {QQ_sign=-1;}
+    }
+    else return;
+  }
+  
+  NtupleFactory_->FillInt("QQ_sign",QQ_sign);
+  
+  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+  math::XYZTLorentzVector onia = lp1 + lp2;
+  
+  NtupleFactory_->FillInt("QQ_type",oniacato);
+  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
+  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+
+  if ( lep1->charge() == 1 ) 
+  {
+    NtupleFactory_->FillInt("QQ_leppl",l1);
+    NtupleFactory_->FillInt("QQ_lepmi",l2);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
+  }
+  else {
+    NtupleFactory_->FillInt("QQ_leppl",l2);
+    NtupleFactory_->FillInt("QQ_lepmi",l1);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
+  }
+  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+  {   
+    NtupleFactory_->FillInt("QQ_muhpt",l1);
+    NtupleFactory_->FillInt("QQ_mulpt",l2);
+  } else 
+  {
+    NtupleFactory_->FillInt("QQ_mulpt",l1);
+    NtupleFactory_->FillInt("QQ_muhpt",l2);
+  }
+  
+  TransientTrack ttkp1   = (*theB).build(&(*lep1));
+  TransientTrack ttkp2   = (*theB).build(&(*lep2));
+
+  vector<TransientTrack> t_tks;
+  t_tks.push_back(ttkp1);
+  t_tks.push_back(ttkp2);
+
+  KalmanVertexFitter kvf;
+  TransientVertex tv = kvf.vertex(t_tks);
+    
+  if (  tv.isValid() ) 
+  {
+      
+    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
+      
+    GlobalPoint v = tv.position();
+    GlobalError err = tv.positionError();
+      
+    math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
+    NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
+
+    NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
+    NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
+    NtupleFactory_->FillFloat("QQ_VzzE",err.czz());
+    NtupleFactory_->FillFloat("QQ_VyxE",err.cyx());
+    NtupleFactory_->FillFloat("QQ_VzyE",err.czy());
+    NtupleFactory_->FillFloat("QQ_VzxE",err.czx());
+      
+    NtupleFactory_->FillFloat("QQ_lxy",v.perp());
+    NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
+    NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
+    NtupleFactory_->FillFloat("QQ_lxyErr",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
+      
+    TVector3 pperp(onia.Px(), onia.Py(), 0);
+    TVector3 vperp1(v.x(), v.y(), 0);
+    TVector3 vperp = vperp1 - vperp2;
+    double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
+    double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
+    NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
+    NtupleFactory_->FillFloat("QQ_ctau",ctau);
+  } else 
+  {
+      
+    NtupleFactory_->FillInt("QQ_VtxIsVal",0);
+
+    math::XYZVector v(-1,-1,-1);
+    NtupleFactory_->Fill3V("QQ_Vtx",v);
+
+    NtupleFactory_->FillFloat("QQ_VxxE",-1);
+    NtupleFactory_->FillFloat("QQ_VyyE",-1);
+    NtupleFactory_->FillFloat("QQ_VzzE",-1);
+    NtupleFactory_->FillFloat("QQ_VyxE",-1);
+    NtupleFactory_->FillFloat("QQ_VzyE",-1);
+    NtupleFactory_->FillFloat("QQ_VzxE",-1);
+      
+    NtupleFactory_->FillFloat("QQ_lxy",-1);
+    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+    NtupleFactory_->FillFloat("QQ_normChi2",-1);
+    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+      
+    NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
+    NtupleFactory_->FillFloat("QQ_ctau",-100);
+      
+  }
+    
+  QQ_size++;
+  return;
+}
+
+// --------------------------------------------------------------------
+
+// Fill Onia2EleEle category
+void 
+    SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, TVector3 vperp2, int oniacato) 
+{
+ 
+  if (oniacato<0  ) return;
+  // if ( lep1->charge() == lep2->charge() ) continue;
+  int QQ_sign = 0;
+  if ( lep1->charge() == lep2->charge() ) 
+  {
+    if (theStoreWSOnia) {
+      if (lep1->charge() == 1) {QQ_sign=1;}
+      else {QQ_sign=-1;}
+    }
+    else return;
+  }
+  
+  NtupleFactory_->FillInt("QQ_sign",QQ_sign);
+
+  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+  math::XYZTLorentzVector onia = lp1 + lp2;
+  
+  NtupleFactory_->FillInt("QQ_type",oniacato);
+  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
+  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+
+  if ( lep1->charge() == 1 ) 
+  {
+    NtupleFactory_->FillInt("QQ_leppl",l1);
+    NtupleFactory_->FillInt("QQ_lepmi",l2);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
+  }
+  else {
+    NtupleFactory_->FillInt("QQ_leppl",l2);
+    NtupleFactory_->FillInt("QQ_lepmi",l1);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
+  }
+  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+  {   
+    NtupleFactory_->FillInt("QQ_muhpt",l1);
+    NtupleFactory_->FillInt("QQ_mulpt",l2);
+  } else 
+  {
+    NtupleFactory_->FillInt("QQ_mulpt",l1);
+    NtupleFactory_->FillInt("QQ_muhpt",l2);
+  }
+  
+  TransientTrack ttkp1   = (*theB).build(&(*lep1));
+  TransientTrack ttkp2   = (*theB).build(&(*lep2));
+
+  vector<TransientTrack> t_tks;
+  t_tks.push_back(ttkp1);
+  t_tks.push_back(ttkp2);
+  
+  GsfVertexFitter gsf(gsfPSet);
+  TransientVertex tv = gsf.vertex(t_tks);
+    
+  if (  tv.isValid() ) 
+  {
+      
+    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
+      
+    GlobalPoint v = tv.position();
+    GlobalError err = tv.positionError();
+     
+    math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
+    NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
+
+    NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
+    NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
+    NtupleFactory_->FillFloat("QQ_VzzE",err.czz());
+    NtupleFactory_->FillFloat("QQ_VyxE",err.cyx());
+    NtupleFactory_->FillFloat("QQ_VzyE",err.czy());
+    NtupleFactory_->FillFloat("QQ_VzxE",err.czx());
+      
+    NtupleFactory_->FillFloat("QQ_lxy",v.perp());
+    NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
+    NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
+    NtupleFactory_->FillFloat("QQ_lxyErr",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
+      
+    TVector3 pperp(onia.Px(), onia.Py(), 0);
+    TVector3 vperp1(v.x(), v.y(), 0);
+    TVector3 vperp = vperp1 - vperp2;
+    double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
+    double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
+    NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
+    NtupleFactory_->FillFloat("QQ_ctau",ctau);
+  } else 
+  {
+      
+    NtupleFactory_->FillInt("QQ_VtxIsVal",0);
+
+    math::XYZVector v(-1,-1,-1);
+    NtupleFactory_->Fill3V("QQ_Vtx",v);
+
+    NtupleFactory_->FillFloat("QQ_VxxE",-1);
+    NtupleFactory_->FillFloat("QQ_VyyE",-1);
+    NtupleFactory_->FillFloat("QQ_VzzE",-1);
+    NtupleFactory_->FillFloat("QQ_VyxE",-1);
+    NtupleFactory_->FillFloat("QQ_VzyE",-1);
+    NtupleFactory_->FillFloat("QQ_VzxE",-1);
+      
+    NtupleFactory_->FillFloat("QQ_lxy",-1);
+    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+    NtupleFactory_->FillFloat("QQ_normChi2",-1);
+    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+      
+    NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
+    NtupleFactory_->FillFloat("QQ_ctau",-100);
+      
+  }
+    
+  QQ_size++;
+  return;
 }
 
 
 // ------------ method called to for each event  ------------
 
 
-void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
+void 
+    SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
   if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
   if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
@@ -548,6 +828,7 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
   if (saveSC_)     fillSCInfo (iEvent, iSetup) ;
   if (saveTrigger_) fillTriggerInfo (iEvent, iSetup) ;
   if (saveBeamSpot_) fillBeamSpotInfo (iEvent, iSetup) ;
+  if (saveOniaCand_) findOniaCategories (iEvent, iSetup) ;
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
 
@@ -555,8 +836,33 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 
     
 // ------------ method called once each job just before starting event loop  ------------
-void SimpleNtple::beginJob(const EventSetup& iSetup)
+void 
+    SimpleNtple::beginJob(const EventSetup& iSetup)
 {
+  if ( theOniaType==443 )  {
+    oniaMass=3.09688;
+    branch_ratio = 0.0593;
+  }
+  else if ( theOniaType==553 ) {
+    oniaMass=9.46030;
+    branch_ratio = 0.0248;
+  }
+  else if ( theOniaType==100443 ) {
+    oniaMass=3.68600;
+    branch_ratio = 0.0083;
+  }
+  else if ( theOniaType==100553 ) {
+    oniaMass=10.0233;
+    branch_ratio = 0.014;
+  }
+  else if ( theOniaType==200553 ) {
+    oniaMass=10.3552;
+    branch_ratio = 0.0218;
+  }
+  else {
+    cout<<"Please set the correct onia type: 443 (Jpsi), 100443(psi'), 553(Upsilon1S), 100553(Upsilon2S), 200553(Upsilon3S),"<<endl;
+  }
+  
   if (saveMu_)
   {
     NtupleFactory_->Add4V("muons");
@@ -714,7 +1020,8 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
       
 // ------------ method called once each job just after ending the event loop  ------------
      
-void SimpleNtple::endJob()
+void 
+    SimpleNtple::endJob()
 {
   NtupleFactory_->WriteNtuple();
   return;
@@ -724,7 +1031,7 @@ void SimpleNtple::endJob()
 // Returns Lorentz-vector of muon
 //////////////////////////////////////////////////////////////////////////////
 template <class T>
-    math::XYZTLorentzVector SimpleNtple::lorentzMomentum(const T& muon) const 
+            math::XYZTLorentzVector SimpleNtple::lorentzMomentum(const T& muon) const 
 {
   const double preco = muon.p();
   const double ereco = sqrt(preco*preco + 0.011163613);
@@ -764,3 +1071,46 @@ vector<unsigned int> SimpleNtple::trackHits(const Track& tr)
 
   return theTrackHits;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// calculates DeltaR
+//////////////////////////////////////////////////////////////////////////
+template <class T, class U>
+    double SimpleNtple::deltaR(const T & t, const U & u) const 
+{
+  return sqrt(pow(t.Eta()-u.Eta(),2) +pow(PhiInRange(t.Phi()-u.Phi()),2));
+}
+
+////////////////////////////////////////////////////////////////////////
+//calculates theta
+////////////////////////////////////////////////////////////////////////
+double SimpleNtple::GetTheta( math::XYZTLorentzVector & a,  math::XYZTLorentzVector & b) const 
+{
+  TLorentzVector aL, bL ; 
+  aL.SetXYZT(a.px(),a.py(),a.pz(),a.energy());
+  bL.SetXYZT(b.px(),b.py(),b.pz(),b.energy());
+  
+  TLorentzVector cL = aL+bL;
+  TVector3 bv=cL.BoostVector();
+  aL.Boost(-bv);
+  bL.Boost(-bv);
+  double theta = cL.Vect().Angle(aL.Vect());
+  return theta;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// checks if phi is in range
+//////////////////////////////////////////////////////////////////////////
+double SimpleNtple::PhiInRange(const double& phi) const 
+{
+  double phiout = phi;
+
+  if( phiout > 2*M_PI || phiout < -2*M_PI) {
+    phiout = fmod( phiout, 2*M_PI);
+  }
+  if (phiout <= -M_PI) phiout += 2*M_PI;
+  else if (phiout >  M_PI) phiout -= 2*M_PI;
+
+  return phiout;
+}
+

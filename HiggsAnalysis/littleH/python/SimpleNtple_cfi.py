@@ -28,7 +28,13 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      saveSC     = cms.untracked.bool (False) ,
      saveTrigger     = cms.untracked.bool (True) ,
      saveBeamSpot    = cms.untracked.bool (True) ,
-
+     saveOniaCand    = cms.untracked.bool (True) ,
+     
+     storeWSOnia     = cms.untracked.bool (True) ,
+     beamSpotFlag    = cms.untracked.bool (True) ,
+     oniaMaxCat    = cms.untracked.int32(1) ,
+     oniaType      = cms.untracked.int32(443) ,
+     
      treeName = cms.untracked.string ("SimpleTree") ,
      verbosity = cms.untracked.bool(False),
      eventType = cms.untracked.int32(0), # 1 for signal, 0 for bkg
