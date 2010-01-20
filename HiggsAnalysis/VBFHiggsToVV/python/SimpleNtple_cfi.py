@@ -3,11 +3,16 @@ import FWCore.ParameterSet.Config as cms
 SimpleNtple = cms.EDAnalyzer(
     "SimpleNtple",
      MuTag           = cms.InputTag("muons"),
-     MuTipSignificanceTag = cms.InputTag("muons"),
+     Mu3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducer:Mu3DipSignificanceMap"),
+     MuTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducer:MuTipSignificanceMap"),
+     MuLipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducer:MuLipSignificanceMap"),
      EleTag          = cms.InputTag("gsfElectrons"),
+     Ele3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducer:Ele3DipSignificanceMap"),
+     EleTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducer:EleTipSignificanceMap"),
+     EleLipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducer:EleLipSignificanceMap"),
      TracksTag       = cms.InputTag("generalTracks"),
      JetTag          = cms.InputTag("sisCone5CaloJets"),
-     flag_JetBTag    = cms.untracked.bool(True),
+     flag_JetBTag    = cms.untracked.bool(False),
      JetBTag         = cms.untracked.InputTag("newJetBProbabilityBJetTags"),
      correctedJetTag = cms.InputTag("dummy"),
      MetTag          = cms.InputTag("met"),         
@@ -30,7 +35,7 @@ SimpleNtple = cms.EDAnalyzer(
      saveMC          = cms.untracked.bool (True) ,
      
         
-     verbosity = cms.untracked.bool(True),
+     verbosity = cms.untracked.bool(False),
      eventType = cms.untracked.int32(0), 
 
 )

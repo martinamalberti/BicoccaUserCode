@@ -13,7 +13,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V11::All'
+process.GlobalTag.globaltag = 'MC_31X_V5::All'
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
@@ -36,9 +36,10 @@ process.source = cms.Source(
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
-#         'file:/tmp/amassiro/3C91077F-31FF-DD11-A251-001A64789D6C.root',
-        'file:/tmp/amassiro/182AF539-30FC-DD11-A0A3-003048326930.root',
-#         'file:/tmp/amassiro/VBFHWW2l2nuTest_9.root',
+        #'file:/tmp/amassiro/3C91077F-31FF-DD11-A251-001A64789D6C.root',
+        #'file:/tmp/amassiro/182AF539-30FC-DD11-A0A3-003048326930.root',
+        #'file:/tmp/amassiro/VBFHWW2l2nuTest_9.root',
+        'file:/gwtera5/users/data/NTUPLES/VBF/CMSSWfile_3_1_X.root'
         )
     )
 
@@ -49,6 +50,12 @@ process.source = cms.Source(
 # --- ==================== --- --- --- --- --- --- --- --- --- --- --- 
 # --- THE VBF SELECTIONS   --- --- --- --- --- --- --- --- --- --- --- 
 # --- ==================== --- --- --- --- --- --- --- --- --- --- --- 
+
+# --- THE LEPTON TIP/LIP PRODUCER --- --- --- --- --- --- --- --- --- --- ---
+
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFLeptonTipLipProducer_cfi")
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFLepton3DipProducer_cfi")
+
 
 # --- SimpleNtple --- --- --- --- --- --- --- --- --- --- --- 
 
@@ -61,11 +68,15 @@ process.VBFSimpleNtpleSequence = cms.Sequence(
 
 
 
+
+
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 # --- PATHS  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
                                
 process.SimpleNtplePath = cms.Path(
+   process.VBFLeptonTipLipProducer +
+   process.VBFLepton3DipProducer + 
    process.VBFSimpleNtpleSequence
 )
 
@@ -81,13 +92,13 @@ process.out = cms.OutputModule(
     "PoolOutputModule",
     process.AODSIMEventContent,
     verbose = cms.untracked.bool(True),
-    fileName = cms.untracked.string('/tmp/amassiro/VBFSimpleNtple.root'),
+    fileName = cms.untracked.string('./VBFSimpleNtpleTEST.root'),
     )
 
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_*_*_TEST'))
 
 process.TFileService = cms.Service("TFileService", 
-    fileName = cms.string("/tmp/amassiro/VBF_SimpleTree_NAME.root"),
+    fileName = cms.string("./VBFSimpleNtupleTEST.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 

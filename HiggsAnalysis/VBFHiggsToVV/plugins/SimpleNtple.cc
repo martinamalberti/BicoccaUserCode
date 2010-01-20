@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.3 2010/01/16 19:51:01 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.4 2010/01/16 19:52:31 amassiro Exp $
 //
 //
 
@@ -40,11 +40,6 @@
 
 
 //--- objects ----
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -75,8 +70,14 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
  
  TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
+ Ele3DipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("Ele3DipSignificanceTag");
+ EleTipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("EleTipSignificanceTag");
+ EleLipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("EleLipSignificanceTag");
  EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
  MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
+ Mu3DipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("Mu3DipSignificanceTag");
+ MuTipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("MuTipSignificanceTag");
+ MuLipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("MuLipSignificanceTag");
  MetTag_ = iConfig.getParameter<edm::InputTag>("MetTag");
  JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
  flag_JetBTag_ = iConfig.getUntrackedParameter<bool>("flag_JetBTag","False");
@@ -124,12 +125,22 @@ SimpleNtple::~SimpleNtple()
 ///---- muons ----
 void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- edm::Handle<edm::View<reco::Muon> > MuHandle ;
+ edm::Handle<reco::MuonCollection> MuHandle ;
  iEvent.getByLabel (MuTag_,MuHandle);
+
+ edm::Handle<muMap> Mu3DipSignificanceHandle ;
+ iEvent.getByLabel (Mu3DipSignificanceTag_,Mu3DipSignificanceHandle);
+ edm::Handle<muMap> MuTipSignificanceHandle ;
+ iEvent.getByLabel (MuTipSignificanceTag_,MuTipSignificanceHandle);
+ edm::Handle<muMap> MuLipSignificanceHandle ;
+ iEvent.getByLabel (MuLipSignificanceTag_,MuLipSignificanceHandle);
+
  int nMu;
  if(MuHandle->size() < 30 ){ nMu = MuHandle->size(); }
  else {nMu = 30;}
  for(int i=0; i< nMu; i++){
+  reco::MuonRef muRef(MuHandle, i);
+  
   NtupleFactory_->Fill4V("muons",(*MuHandle)[i].p4());
   NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
   NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
@@ -141,6 +152,10 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
   NtupleFactory_->FillFloat("muons_nTkIsoR05",((*MuHandle)[i].isolationR05()).nTracks);    
   NtupleFactory_->FillFloat("muons_emIsoR05",((*MuHandle)[i].isolationR05()).emEt);
   NtupleFactory_->FillFloat("muons_hadIsoR05",((*MuHandle)[i].isolationR05()).hadEt);
+
+  NtupleFactory_->FillFloat("muons_3DipSignificance",((*Mu3DipSignificanceHandle)[muRef]));
+  NtupleFactory_->FillFloat("muons_tipSignificance",((*MuTipSignificanceHandle)[muRef]));
+  NtupleFactory_->FillFloat("muons_lipSignificance",((*MuLipSignificanceHandle)[muRef]));
  }
 }
 
@@ -148,8 +163,16 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
 
 void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- edm::Handle<edm::View<reco::GsfElectron> > EleHandle ;
+ edm::Handle<reco::GsfElectronCollection> EleHandle ;
  iEvent.getByLabel (EleTag_,EleHandle);
+ 
+ edm::Handle<eleMap> Ele3DipSignificanceHandle ;
+ iEvent.getByLabel (Ele3DipSignificanceTag_,Ele3DipSignificanceHandle);
+ edm::Handle<eleMap> EleTipSignificanceHandle ;
+ iEvent.getByLabel (EleTipSignificanceTag_,EleTipSignificanceHandle);
+ edm::Handle<eleMap> EleLipSignificanceHandle ;
+ iEvent.getByLabel (EleLipSignificanceTag_,EleLipSignificanceHandle);
+  
  int nEle;
  if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
  else {nEle = 30;}
@@ -162,8 +185,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
 
  
  for(int i=0; i< nEle; i++){
-  edm::Ref<edm::View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
-  
+  reco::GsfElectronRef eleRef(EleHandle, i);  
+
   NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
   NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
   NtupleFactory_->FillFloat("electrons_tkIso",((*EleHandle)[i].dr03TkSumPt()));
@@ -173,10 +196,10 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   //   if ((*EleHandle)[i].classification()== GsfElectron::GOLDEN
   
   //ELE ID
-  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
+  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[eleRef]);
+  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[eleRef]);
+  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[eleRef]);
+  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[eleRef]);
       
   //Get Ele Track
   reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
@@ -185,6 +208,10 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
   NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
   NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
+  
+  NtupleFactory_->FillFloat("electrons_3DipSignificance",((*Ele3DipSignificanceHandle)[eleRef]));
+  NtupleFactory_->FillFloat("electrons_tipSignificance",((*EleTipSignificanceHandle)[eleRef]));
+  NtupleFactory_->FillFloat("electrons_lipSignificance",((*EleLipSignificanceHandle)[eleRef]));
  }
 }
 
@@ -356,7 +383,6 @@ void
   void 
     SimpleNtple::beginJob(const edm::EventSetup& iSetup)
 {
-   
  NtupleFactory_->Add4V("muons");
  NtupleFactory_->AddFloat("muons_charge"); 
  NtupleFactory_->AddFloat("muons_tkIsoR03"); 
@@ -367,7 +393,10 @@ void
  NtupleFactory_->AddFloat("muons_nTkIsoR05"); 
  NtupleFactory_->AddFloat("muons_emIsoR05"); 
  NtupleFactory_->AddFloat("muons_hadIsoR05"); 
-   
+ NtupleFactory_->AddFloat("muons_3DipSignificance");    
+ NtupleFactory_->AddFloat("muons_tipSignificance");    
+ NtupleFactory_->AddFloat("muons_lipSignificance");    
+ 
  NtupleFactory_->Add4V("electrons");
  NtupleFactory_->AddFloat("electrons_charge"); 
  NtupleFactory_->AddFloat("electrons_tkIso"); 
@@ -378,11 +407,14 @@ void
  NtupleFactory_->AddFloat("electrons_IdTight"); 
  NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
  NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
-   
  NtupleFactory_->AddFloat("electrons_track_d0");
  NtupleFactory_->AddFloat("electrons_track_dz");
  NtupleFactory_->AddFloat("electrons_track_d0err");
  NtupleFactory_->AddFloat("electrons_track_dzerr");
+ NtupleFactory_->AddFloat("electrons_3DipSignificance");    
+ NtupleFactory_->AddFloat("electrons_tipSignificance");    
+ NtupleFactory_->AddFloat("electrons_lipSignificance");    
+
  NtupleFactory_->Add3V("tracks_in");
  NtupleFactory_->Add3V("tracks_out");   
  NtupleFactory_->Add4V("jets");      
@@ -426,7 +458,7 @@ void
  NtupleFactory_->Add4V("mcQ2_tag");         
  NtupleFactory_->AddFloat("mcQ2_tag_charge");    
  NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
- 
+  
 }
    
    

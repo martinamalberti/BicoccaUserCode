@@ -13,6 +13,12 @@
 #include <TClonesArray.h>
 #include "TParticle.h"
 
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 #include "PhysicsTools/NtupleUtils/interface/MCDumper.h"
 #include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperVBF.h"
@@ -28,6 +34,11 @@
 //---------------------------
 
 class SimpleNtple : public edm::EDAnalyzer {
+
+public:
+ typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::GsfElectron>, float> > eleMap;
+ typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, float> > muMap;
+
  public:
   explicit SimpleNtple(const edm::ParameterSet&);
   ~SimpleNtple();
@@ -54,7 +65,13 @@ class SimpleNtple : public edm::EDAnalyzer {
 
   edm::InputTag TracksTag_;
   edm::InputTag EleTag_;
+  edm::InputTag Ele3DipSignificanceTag_;
+  edm::InputTag EleTipSignificanceTag_;
+  edm::InputTag EleLipSignificanceTag_;
   edm::InputTag MuTag_;
+  edm::InputTag Mu3DipSignificanceTag_;
+  edm::InputTag MuTipSignificanceTag_;
+  edm::InputTag MuLipSignificanceTag_;
   edm::InputTag MetTag_;
   edm::InputTag JetTag_;
   bool flag_JetBTag_;
