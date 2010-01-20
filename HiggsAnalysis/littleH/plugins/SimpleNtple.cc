@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.30 2010/01/18 14:42:08 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.31 2010/01/19 13:53:58 dimatteo Exp $
 //
 //
 
@@ -96,8 +96,9 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   m_eleIDCut_RLooseInputTag (iConfig.getParameter<InputTag> ("eleIDCut_RLooseInputTag")),
   m_eleIDCut_TightInputTag  (iConfig.getParameter<InputTag> ("eleIDCut_TightInputTag")),
   m_eleIDCut_RTightInputTag (iConfig.getParameter<InputTag> ("eleIDCut_RTightInputTag")),
-  barrelClusterCollection_  (iConfig.getParameter<edm::InputTag> ("barrelClusterCollection")),
-  endcapClusterCollection_  (iConfig.getParameter<edm::InputTag> ("endcapClusterCollection")),
+  barrelClusterCollection_  (iConfig.getParameter<InputTag> ("barrelClusterCollection")),
+  endcapClusterCollection_  (iConfig.getParameter<InputTag> ("endcapClusterCollection")),
+  beamSpotTag_              (iConfig.getParameter<InputTag> ("beamSpotTag")),
   thetriggerEventTag_       (iConfig.getParameter<string>   ("triggerEventTag")),
   theHLTriggerResults_      (iConfig.getParameter<string>   ("triggerResultsTag")),
   the8e29ProcName_          (iConfig.getParameter<string>   ("HLTprocessName8e29")),
@@ -109,6 +110,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   saveMC_                   (iConfig.getUntrackedParameter<bool> ("saveMC", true)),
   saveSC_                   (iConfig.getUntrackedParameter<bool> ("saveSC", true)),
   saveTrigger_              (iConfig.getUntrackedParameter<bool> ("saveTrigger", true)),
+  saveBeamSpot_             (iConfig.getUntrackedParameter<bool> ("saveBeamSpot", true)),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -475,7 +477,7 @@ void
 // --------------------------------------------------------------------
 
 void 
-    SimpleNtple::fillTriggerInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+    SimpleNtple::fillTriggerInfo(const Event & iEvent, const EventSetup & iESetup) 
 {
   using namespace trigger;
   Handle<TriggerResults> HLTR;
@@ -510,6 +512,28 @@ void
   return;
 }
 
+// --------------------------------------------------------------------
+
+void 
+    SimpleNtple::fillBeamSpotInfo(const Event & iEvent, const EventSetup & iESetup) 
+{
+
+  Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByLabel(beamSpotTag_ ,recoBeamSpotHandle);
+  reco::BeamSpot bs = *recoBeamSpotHandle; 
+
+  math::XYZVector myvect_XYZ (bs.x0(),bs.y0(),bs.z0());
+  NtupleFactory_->Fill3V("beamSpot_3vec",myvect_XYZ);
+
+  NtupleFactory_->FillFloat("beamSpot_xxE",bs.covariance(0,0));
+  NtupleFactory_->FillFloat("beamSpot_yyE",bs.covariance(1,1));
+  NtupleFactory_->FillFloat("beamSpot_zzE",bs.covariance(2,2));
+  NtupleFactory_->FillFloat("beamSpot_yxE",bs.covariance(1,0));
+  NtupleFactory_->FillFloat("beamSpot_zyE",bs.covariance(2,1));
+  NtupleFactory_->FillFloat("beamSpot_zxE",bs.covariance(2,0));
+ 
+}
+
 
 // ------------ method called to for each event  ------------
 
@@ -523,6 +547,7 @@ void SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
   if (saveMC_)     fillMCInfo (iEvent, iSetup) ;
   if (saveSC_)     fillSCInfo (iEvent, iSetup) ;
   if (saveTrigger_) fillTriggerInfo (iEvent, iSetup) ;
+  if (saveBeamSpot_) fillBeamSpotInfo (iEvent, iSetup) ;
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
 
@@ -672,10 +697,21 @@ void SimpleNtple::beginJob(const EventSetup& iSetup)
        
   }
 
-  return ;
+  //BeamSpot Info
+  if (saveBeamSpot_)
+  {
+    NtupleFactory_->Add3V("beamSpot_3vec");
+    NtupleFactory_->AddFloat("beamSpot_xxE");
+    NtupleFactory_->AddFloat("beamSpot_yyE");
+    NtupleFactory_->AddFloat("beamSpot_zzE");
+    NtupleFactory_->AddFloat("beamSpot_yxE");
+    NtupleFactory_->AddFloat("beamSpot_zyE");
+    NtupleFactory_->AddFloat("beamSpot_zxE");
+  }
+  
+  return;
 }
-   
-   
+      
 // ------------ method called once each job just after ending the event loop  ------------
      
 void SimpleNtple::endJob()

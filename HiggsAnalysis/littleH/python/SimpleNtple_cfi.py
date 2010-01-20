@@ -14,10 +14,11 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
 #     barrelClusterCollection = cms.InputTag("correctedHybridSuperClusters"), # w/ clustering corrections
 #     endcapClusterCollection = cms.InputTag("multi5x5SuperClusters", "multi5x5EndcapSuperClusters"), # w/o preshower energy
      endcapClusterCollection = cms.InputTag("multi5x5SuperClustersWithPreshower"), # w/ projective preshower energy
+     beamSpotTag             = cms.string("offlineBeamSpot"),
      triggerEventTag         = cms.string("hltTriggerSummaryAOD"),
      triggerResultsTag       = cms.string("TriggerResults"),
      HLTprocessName8e29      = cms.string("HLT8E29"),
-     HLTprocessName1e31      = cms.string("HLT"),  
+     HLTprocessName1e31      = cms.string("HLT"),
 
      saveVtx    = cms.untracked.bool (True) ,
      saveMu     = cms.untracked.bool (True) ,
@@ -26,6 +27,7 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      saveMC     = cms.untracked.bool (True) ,
      saveSC     = cms.untracked.bool (False) ,
      saveTrigger     = cms.untracked.bool (True) ,
+     saveBeamSpot    = cms.untracked.bool (True) ,
 
      treeName = cms.untracked.string ("SimpleTree") ,
      verbosity = cms.untracked.bool(False),

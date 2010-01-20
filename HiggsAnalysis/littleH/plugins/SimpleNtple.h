@@ -25,6 +25,8 @@
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 #include <TTree.h>
@@ -44,23 +46,24 @@ using namespace std;
 //---- class declaration ----
 //---------------------------
 
-class SimpleNtple : public edm::EDAnalyzer {
+class SimpleNtple : public EDAnalyzer {
   public:
-    explicit SimpleNtple(const edm::ParameterSet&);
+    explicit SimpleNtple(const ParameterSet&);
     ~SimpleNtple();
   
   private:
-    virtual void beginJob(const edm::EventSetup&) ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void beginJob(const EventSetup&) ;
+    virtual void analyze(const Event&, const EventSetup&);
     virtual void endJob() ;
     
-    void fillVtxInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-    void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-    void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-    void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-    void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-    void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+    void fillVtxInfo (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillMuInfo (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillTrackInfo (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillEleInfo (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillSCInfo (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillMCInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillBeamSpotInfo (const Event & iEvent, const EventSetup & iESetup) ;
 
     template <class T> math::XYZTLorentzVector lorentzMomentum(const T & muon) const;
     std::vector<unsigned int> trackHits(const reco::Track& tr);
@@ -68,20 +71,22 @@ class SimpleNtple : public edm::EDAnalyzer {
     TTree* outTree_;
     NtupleFactory* NtupleFactory_;
     
-    edm::InputTag TracksTag_;
-    edm::InputTag EleTag_;
-    edm::InputTag MuTag_;
-    edm::InputTag PrimaryVertexTag_;        
+    InputTag TracksTag_;
+    InputTag EleTag_;
+    InputTag MuTag_;
+    InputTag PrimaryVertexTag_;        
 
-    edm::InputTag MCtruthTag_;
+    InputTag MCtruthTag_;
   
-    edm::InputTag m_eleIDCut_LooseInputTag ;
-    edm::InputTag m_eleIDCut_RLooseInputTag ;
-    edm::InputTag m_eleIDCut_TightInputTag ;
-    edm::InputTag m_eleIDCut_RTightInputTag ;
+    InputTag m_eleIDCut_LooseInputTag ;
+    InputTag m_eleIDCut_RLooseInputTag ;
+    InputTag m_eleIDCut_TightInputTag ;
+    InputTag m_eleIDCut_RTightInputTag ;
 
-    edm::InputTag barrelClusterCollection_;
-    edm::InputTag endcapClusterCollection_;
+    InputTag barrelClusterCollection_;
+    InputTag endcapClusterCollection_;
+    
+    InputTag beamSpotTag_;
   
     string thetriggerEventTag_;
     string theHLTriggerResults_;     // HLT trigger results
@@ -105,6 +110,7 @@ class SimpleNtple : public edm::EDAnalyzer {
     bool saveMC_ ;
     bool saveSC_ ;
     bool saveTrigger_ ;
+    bool saveBeamSpot_ ;
 
     int eventType_; //---- 0 = signal      1 = background 
     bool verbosity_; //---- true = loquacious     false = silence  
