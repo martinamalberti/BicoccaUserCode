@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 
 VBFAmbiguityResolvedElectrons = cms.EDFilter(
     "VBFElectronAmbiguityResolution",
-    src = cms.InputTag("pixelMatchGsfElectrons"),
+    src = cms.InputTag("gsfElectrons"),
     doRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -15,9 +15,9 @@ VBFAmbiguityResolvedElectrons = cms.EDFilter(
 
 VBFAmbiguityResolvedElectronsRef = cms.EDFilter(
     "VBFElectronAmbiguityResolutionRef",
-    src = cms.InputTag("pixelMatchGsfElectrons"),
+    src = cms.InputTag("gsfElectrons"),
     doRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 

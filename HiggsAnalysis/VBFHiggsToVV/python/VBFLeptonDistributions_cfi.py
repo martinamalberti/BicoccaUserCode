@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 VBFLeptonDistributions = cms.EDAnalyzer(
     "VBFLeptonDistributions",
     srcGenParticles                = cms.InputTag("genParticles"),
-    srcElectrons                   = cms.InputTag("pixelMatchGsfElectrons"),
+    srcElectrons                   = cms.InputTag("gsfElectrons"),
     srcElectronTkIsoValues         = cms.InputTag("eleIsoFromDepsTk"),
     srcElectronEmIsoValues         = cms.InputTag("eleIsoFromDepsEcalFromHits"),
     srcElectronHadIsoValues        = cms.InputTag("eleIsoFromDepsHcalFromHits"),
@@ -18,7 +18,7 @@ VBFLeptonDistributions = cms.EDAnalyzer(
     emIsoCoeff  = cms.double(1.),
     hadIsoCoeff = cms.double(1.),
     doElectronRefCheck = cms.bool(False),
-    srcElectronsRef    = cms.InputTag("pixelMatchGsfElectrons"),
+    srcElectronsRef    = cms.InputTag("gsfElectrons"),
     doMuonRefCheck     = cms.bool(False),
     srcMuonsRef        = cms.InputTag("muons"),
     fileName  = cms.untracked.string("VBFLeptonDistributions"),

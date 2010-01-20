@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 VBFIsolatedElectrons = cms.EDFilter(
     "VBFElectronIsolation",
-    src = cms.InputTag("pixelMatchGsfElectrons"),
+    src = cms.InputTag("gsfElectrons"),
     srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
     srcElectronEmIsoValues  = cms.InputTag("eleIsoFromDepsEcalFromHits"),
     srcElectronHadIsoValues = cms.InputTag("eleIsoFromDepsHcalFromHits"),
@@ -18,7 +18,7 @@ VBFIsolatedElectrons = cms.EDFilter(
     hadIsoCoeff = cms.double(1.),
     dividePt = cms.bool(True),
     doRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -27,7 +27,7 @@ VBFIsolatedElectrons = cms.EDFilter(
 
 VBFIsolatedElectronsRef = cms.EDFilter(
     "VBFElectronIsolationRef",
-    src = cms.InputTag("pixelMatchGsfElectrons"),
+    src = cms.InputTag("gsfElectrons"),
     srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
     srcElectronEmIsoValues  = cms.InputTag("eleIsoFromDepsEcalFromHits"),
     srcElectronHadIsoValues = cms.InputTag("eleIsoFromDepsHcalFromHits"),
@@ -41,7 +41,7 @@ VBFIsolatedElectronsRef = cms.EDFilter(
     hadIsoCoeff = cms.double(1.),
     dividePt = cms.bool(True),
     doRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

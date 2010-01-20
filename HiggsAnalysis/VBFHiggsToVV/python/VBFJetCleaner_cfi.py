@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 VBFCleanedCaloJets = cms.EDFilter(
     "VBFCaloJetCleaning",
     src = cms.InputTag("sisCone5CaloJets"),
-    srcElectrons = cms.InputTag("pixelMatchGsfElectrons"),
+    srcElectrons = cms.InputTag("gsfElectrons"),
     srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
     srcElectronIdValues = cms.InputTag("eidRobustTight"),
     tkIsoCut  = cms.double(0.1),
@@ -18,7 +18,7 @@ VBFCleanedCaloJets = cms.EDFilter(
     doJetRefCheck = cms.bool(False),
     srcJetsRef = cms.InputTag("sisCone5CaloJets"),
     doElectronRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -28,7 +28,7 @@ VBFCleanedCaloJets = cms.EDFilter(
 VBFCleanedCaloJetsRef = cms.EDFilter(
     "VBFCaloJetCleaningRef",
     src = cms.InputTag("sisCone5CaloJets"),
-    srcElectrons = cms.InputTag("pixelMatchGsfElectrons"),
+    srcElectrons = cms.InputTag("gsfElectrons"),
     srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
     srcElectronIdValues = cms.InputTag("eidRobustTight"),
     tkIsoCut  = cms.double(0.1),
@@ -37,7 +37,7 @@ VBFCleanedCaloJetsRef = cms.EDFilter(
     doJetRefCheck = cms.bool(False),
     srcJetsRef = cms.InputTag("sisCone5CaloJets"),
     doElectronRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -63,7 +63,7 @@ VBFCleanedCaloJetsSequence = cms.Sequence(
 VBFCleanedPFJets = cms.EDFilter(
     "VBFPFJetCleaning",
     src = cms.InputTag("sisCone5PFJets"),
-    srcElectrons = cms.InputTag("pixelMatchGsfElectrons"),
+    srcElectrons = cms.InputTag("gsfElectrons"),
     srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
     srcElectronIdValues = cms.InputTag("eidRobustTight"),
     tkIsoCut  = cms.double(0.1),
@@ -72,7 +72,7 @@ VBFCleanedPFJets = cms.EDFilter(
     doJetRefCheck = cms.bool(False),
     srcJetsRef = cms.InputTag("sisCone5PFJets"),
     doElectronRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
@@ -82,7 +82,7 @@ VBFCleanedPFJets = cms.EDFilter(
 VBFCleanedPFJetsRef = cms.EDFilter(
     "VBFPFJetCleaningRef",
     src = cms.InputTag("sisCone5PFJets"),
-    srcElectrons = cms.InputTag("pixelMatchGsfElectrons"),
+    srcElectrons = cms.InputTag("gsfElectrons"),
     srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
     srcElectronIdValues = cms.InputTag("eidRobustTight"),
     tkIsoCut  = cms.double(0.1),
@@ -91,7 +91,7 @@ VBFCleanedPFJetsRef = cms.EDFilter(
     doJetRefCheck = cms.bool(False),
     srcJetsRef = cms.InputTag("sisCone5PFJets"),
     doElectronRefCheck = cms.bool(False),
-    srcElectronsRef = cms.InputTag("pixelMatchGsfElectrons")
+    srcElectronsRef = cms.InputTag("gsfElectrons")
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
