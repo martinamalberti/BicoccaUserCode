@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.32 2010/01/20 10:10:54 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.33 2010/01/20 18:51:11 dimatteo Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 using namespace edm;
 
 SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
-    gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
+  gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
   TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
   EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
   MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
@@ -593,7 +593,6 @@ void
     }
     else return;
   }
-  
   NtupleFactory_->FillInt("QQ_sign",QQ_sign);
   
   math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
@@ -656,7 +655,7 @@ void
     NtupleFactory_->FillFloat("QQ_lxy",v.perp());
     NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
     NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
-    NtupleFactory_->FillFloat("QQ_lxyErr",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
+    NtupleFactory_->FillFloat("QQ_probChi2",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
       
     TVector3 pperp(onia.Px(), onia.Py(), 0);
     TVector3 vperp1(v.x(), v.y(), 0);
@@ -683,7 +682,7 @@ void
     NtupleFactory_->FillFloat("QQ_lxy",-1);
     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
     NtupleFactory_->FillFloat("QQ_normChi2",-1);
-    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+    NtupleFactory_->FillFloat("QQ_probChi2",-1);
       
     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
     NtupleFactory_->FillFloat("QQ_ctau",-100);
@@ -775,7 +774,7 @@ void
     NtupleFactory_->FillFloat("QQ_lxy",v.perp());
     NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
     NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
-    NtupleFactory_->FillFloat("QQ_lxyErr",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
+    NtupleFactory_->FillFloat("QQ_probChi2",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
       
     TVector3 pperp(onia.Px(), onia.Py(), 0);
     TVector3 vperp1(v.x(), v.y(), 0);
@@ -802,7 +801,7 @@ void
     NtupleFactory_->FillFloat("QQ_lxy",-1);
     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
     NtupleFactory_->FillFloat("QQ_normChi2",-1);
-    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+    NtupleFactory_->FillFloat("QQ_probChi2",-1);
       
     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
     NtupleFactory_->FillFloat("QQ_ctau",-100);
@@ -1013,6 +1012,41 @@ void
     NtupleFactory_->AddFloat("beamSpot_yxE");
     NtupleFactory_->AddFloat("beamSpot_zyE");
     NtupleFactory_->AddFloat("beamSpot_zxE");
+  }
+
+  //Onia Cand Info
+  if (saveOniaCand_)
+  {
+    NtupleFactory_->AddInt("QQ_size");
+    NtupleFactory_->AddInt("QQ_sign");
+    NtupleFactory_->AddInt("QQ_type");
+    
+    NtupleFactory_->AddFloat("QQ_DeltaR");
+    NtupleFactory_->AddFloat("QQ_s");
+    
+    NtupleFactory_->AddInt("QQ_leppl");
+    NtupleFactory_->AddInt("QQ_lepmi");
+    
+    NtupleFactory_->AddFloat("QQ_cosTheta");
+    
+    NtupleFactory_->AddInt("QQ_muhpt");
+    NtupleFactory_->AddInt("QQ_mulpt");
+    
+    NtupleFactory_->AddInt("QQ_VtxIsVal");
+    NtupleFactory_->Add3V("QQ_Vtx");
+    NtupleFactory_->AddFloat("QQ_VxxE");
+    NtupleFactory_->AddFloat("QQ_VyyE");
+    NtupleFactory_->AddFloat("QQ_VzzE");
+    NtupleFactory_->AddFloat("QQ_VyxE");
+    NtupleFactory_->AddFloat("QQ_VzyE");
+    NtupleFactory_->AddFloat("QQ_VzxE");
+    NtupleFactory_->AddFloat("QQ_lxy");
+    NtupleFactory_->AddFloat("QQ_lxyErr");
+    NtupleFactory_->AddFloat("QQ_normChi2");
+    NtupleFactory_->AddFloat("QQ_probChi2");
+    
+    NtupleFactory_->AddFloat("QQ_cosAlpha");
+    NtupleFactory_->AddFloat("QQ_ctau");
   }
   
   return;

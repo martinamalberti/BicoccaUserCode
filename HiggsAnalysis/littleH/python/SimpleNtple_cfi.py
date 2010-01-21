@@ -14,7 +14,7 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
 #     barrelClusterCollection = cms.InputTag("correctedHybridSuperClusters"), # w/ clustering corrections
 #     endcapClusterCollection = cms.InputTag("multi5x5SuperClusters", "multi5x5EndcapSuperClusters"), # w/o preshower energy
      endcapClusterCollection = cms.InputTag("multi5x5SuperClustersWithPreshower"), # w/ projective preshower energy
-     beamSpotTag             = cms.string("offlineBeamSpot"),
+     beamSpotTag             = cms.InputTag("offlineBeamSpot"),
      triggerEventTag         = cms.string("hltTriggerSummaryAOD"),
      triggerResultsTag       = cms.string("TriggerResults"),
      HLTprocessName8e29      = cms.string("HLT8E29"),
@@ -27,8 +27,8 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      saveMC     = cms.untracked.bool (True) ,
      saveSC     = cms.untracked.bool (False) ,
      saveTrigger     = cms.untracked.bool (True) ,
-     saveBeamSpot    = cms.untracked.bool (True) ,
-     saveOniaCand    = cms.untracked.bool (True) ,
+     saveBeamSpot    = cms.untracked.bool (False) ,
+     saveOniaCand    = cms.untracked.bool (False) ,
      
      storeWSOnia     = cms.untracked.bool (True) ,
      beamSpotFlag    = cms.untracked.bool (True) ,
@@ -38,4 +38,16 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      treeName = cms.untracked.string ("SimpleTree") ,
      verbosity = cms.untracked.bool(False),
      eventType = cms.untracked.int32(0), # 1 for signal, 0 for bkg
+     
+     GsfParameters = cms.PSet(           # Parameters are described here https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideGaussianSumFitter
+      maxDistance = cms.double(0.01),
+      maxNbrOfIterations = cms.int32(10),
+      limitComponents = cms.bool(True),
+      smoothTracks = cms.bool(True),
+      GsfMergerParameters = cms.PSet(
+        maxNbrComponents= cms.int32(4),
+        merger = cms.string("CloseComponentsMerger"),
+        distance = cms.string("KullbackLeiblerDistance")
+          )
+      ),
 )
