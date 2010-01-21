@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.35 2010/01/21 10:59:19 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.36 2010/01/21 14:26:38 dimatteo Exp $
 //
 //
 
@@ -493,15 +493,25 @@ void
   reco::BeamSpot bs = *recoBeamSpotHandle;
 
   TVector3 vperp2;
-  if ( theBeamSpotFlag ) {
+  if ( theBeamSpotFlag ) 
+  {
     vperp2.SetXYZ(bs.x0(), bs.y0(), 0);
   }
   else {
-    if ( privtxs->begin() != privtxs->end() ) {
-      privtx=privtxs->begin();
-      vperp2.SetXYZ(privtx->position().x(), privtx->position().y(), 0);
+    if ( privtxs->begin() != privtxs->end() ) 
+    {
+      // select the primary vertex as the one
+      // with higest sum of (pt)^2 of tracks
+      PrimaryVertexSorter PVSorter;
+      std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(privtxs.product()) );
+      reco::Vertex PV = sortedVertices.front();
+      vperp2.SetXYZ(PV.position().x(), PV.position().y(), 0);
+      
+//       privtx=privtxs->begin();
+//       vperp2.SetXYZ(privtx->position().x(), privtx->position().y(), 0);
     }
-    else {
+    else 
+    {
       vperp2.SetXYZ(0, 0, 0);
     }
   }
@@ -597,100 +607,100 @@ void
     
   if ( ! tv.isValid() ) return;
 //   {
-    GlobalPoint v = tv.position();
-    GlobalError err = tv.positionError();
+  GlobalPoint v = tv.position();
+  GlobalError err = tv.positionError();
    
-    if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
+  if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
 
-    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
+  NtupleFactory_->FillInt("QQ_VtxIsVal",1);
 
          // if ( lep1->charge() == lep2->charge() ) continue;
-    int QQ_sign = 0;
-    if ( lep1->charge() == lep2->charge() ) 
-    {
-      if (theStoreWSOnia) {
-        if (lep1->charge() == 1) {QQ_sign=1;}
-        else {QQ_sign=-1;}
-      }
-      else return;
+  int QQ_sign = 0;
+  if ( lep1->charge() == lep2->charge() ) 
+  {
+    if (theStoreWSOnia) {
+      if (lep1->charge() == 1) {QQ_sign=1;}
+      else {QQ_sign=-1;}
     }
-    NtupleFactory_->FillInt("QQ_sign",QQ_sign);
+    else return;
+  }
+  NtupleFactory_->FillInt("QQ_sign",QQ_sign);
   
-    math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-    math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-    math::XYZTLorentzVector onia = lp1 + lp2;
+  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+  math::XYZTLorentzVector onia = lp1 + lp2;
   
-    NtupleFactory_->FillInt("QQ_type",oniacato);
-    NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
-    NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+  NtupleFactory_->FillInt("QQ_type",oniacato);
+  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
+  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
 
-    if ( lep1->charge() == 1 ) 
-    {
-      NtupleFactory_->FillInt("QQ_leppl",l1);
-      NtupleFactory_->FillInt("QQ_lepmi",l2);
-      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
-    }
-    else {
-      NtupleFactory_->FillInt("QQ_leppl",l2);
-      NtupleFactory_->FillInt("QQ_lepmi",l1);
-      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
-    }
-    if (oniacato == 2 || lp1.pt() > lp2.pt()) 
-    {   
-      NtupleFactory_->FillInt("QQ_lephpt",l1);
-      NtupleFactory_->FillInt("QQ_lephp",l2);
-    } else 
-    {
-      NtupleFactory_->FillInt("QQ_lephp",l1);
-      NtupleFactory_->FillInt("QQ_lephpt",l2);
-    }
+  if ( lep1->charge() == 1 ) 
+  {
+    NtupleFactory_->FillInt("QQ_leppl",l1);
+    NtupleFactory_->FillInt("QQ_lepmi",l2);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
+  }
+  else {
+    NtupleFactory_->FillInt("QQ_leppl",l2);
+    NtupleFactory_->FillInt("QQ_lepmi",l1);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
+  }
+  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+  {   
+    NtupleFactory_->FillInt("QQ_lephpt",l1);
+    NtupleFactory_->FillInt("QQ_lephp",l2);
+  } else 
+  {
+    NtupleFactory_->FillInt("QQ_lephp",l1);
+    NtupleFactory_->FillInt("QQ_lephpt",l2);
+  }
            
-    math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
-    NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
+  math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
+  NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
 
-    NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
-    NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
-    NtupleFactory_->FillFloat("QQ_VzzE",err.czz());
-    NtupleFactory_->FillFloat("QQ_VyxE",err.cyx());
-    NtupleFactory_->FillFloat("QQ_VzyE",err.czy());
-    NtupleFactory_->FillFloat("QQ_VzxE",err.czx());
+  NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
+  NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
+  NtupleFactory_->FillFloat("QQ_VzzE",err.czz());
+  NtupleFactory_->FillFloat("QQ_VyxE",err.cyx());
+  NtupleFactory_->FillFloat("QQ_VzyE",err.czy());
+  NtupleFactory_->FillFloat("QQ_VzxE",err.czx());
       
-    NtupleFactory_->FillFloat("QQ_lxy",v.perp());
-    NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
-    NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
-    NtupleFactory_->FillFloat("QQ_probChi2",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
+  NtupleFactory_->FillFloat("QQ_lxy",v.perp());
+  NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
+  NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
+  NtupleFactory_->FillFloat("QQ_probChi2",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
       
-    TVector3 pperp(onia.Px(), onia.Py(), 0);
-    TVector3 vperp1(v.x(), v.y(), 0);
-    TVector3 vperp = vperp1 - vperp2;
-    double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-    double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
-    NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
-    NtupleFactory_->FillFloat("QQ_ctau",ctau);   
+  TVector3 pperp(onia.Px(), onia.Py(), 0);
+  TVector3 vperp1(v.x(), v.y(), 0);
+  TVector3 vperp = vperp1 - vperp2;
+  double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
+  double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
+  NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
+  NtupleFactory_->FillFloat("QQ_ctau",ctau);   
      
 //   } else 
 //   {
-//       
+  //       
 //     NtupleFactory_->FillInt("QQ_VtxIsVal",0);
-//     
+  //     
 //     math::XYZVector v(-1,-1,-1);
 //     NtupleFactory_->Fill3V("QQ_Vtx",v);
-//     
+  //     
 //     NtupleFactory_->FillFloat("QQ_VxxE",-1);
 //     NtupleFactory_->FillFloat("QQ_VyyE",-1);
 //     NtupleFactory_->FillFloat("QQ_VzzE",-1);
 //     NtupleFactory_->FillFloat("QQ_VyxE",-1);
 //     NtupleFactory_->FillFloat("QQ_VzyE",-1);
 //     NtupleFactory_->FillFloat("QQ_VzxE",-1);
-//           
+  //           
 //     NtupleFactory_->FillFloat("QQ_lxy",-1);
 //     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
 //     NtupleFactory_->FillFloat("QQ_normChi2",-1);
 //     NtupleFactory_->FillFloat("QQ_probChi2",-1);
-//           
+  //           
 //     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
 //     NtupleFactory_->FillFloat("QQ_ctau",-100);
-//       
+  //       
 //   }
     
   QQ_size++;
@@ -722,100 +732,100 @@ void
     
   if ( ! tv.isValid() ) return;
 //   {
-    GlobalPoint v = tv.position();
-    GlobalError err = tv.positionError();
+  GlobalPoint v = tv.position();
+  GlobalError err = tv.positionError();
     
-    if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
+  if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
     
-    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
+  NtupleFactory_->FillInt("QQ_VtxIsVal",1);
      
   // if ( lep1->charge() == lep2->charge() ) continue;
-    int QQ_sign = 0;
-    if ( lep1->charge() == lep2->charge() ) 
-    {
-      if (theStoreWSOnia) {
-        if (lep1->charge() == 1) {QQ_sign=1;}
-        else {QQ_sign=-1;}
-      }
-      else return;
+  int QQ_sign = 0;
+  if ( lep1->charge() == lep2->charge() ) 
+  {
+    if (theStoreWSOnia) {
+      if (lep1->charge() == 1) {QQ_sign=1;}
+      else {QQ_sign=-1;}
     }
+    else return;
+  }
   
-    NtupleFactory_->FillInt("QQ_sign",QQ_sign);
+  NtupleFactory_->FillInt("QQ_sign",QQ_sign);
 
-    math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-    math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-    math::XYZTLorentzVector onia = lp1 + lp2;
+  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+  math::XYZTLorentzVector onia = lp1 + lp2;
   
-    NtupleFactory_->FillInt("QQ_type",oniacato);
-    NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
-    NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+  NtupleFactory_->FillInt("QQ_type",oniacato);
+  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
+  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
 
-    if ( lep1->charge() == 1 ) 
-    {
-      NtupleFactory_->FillInt("QQ_leppl",l1);
-      NtupleFactory_->FillInt("QQ_lepmi",l2);
-      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
-    }
-    else {
-      NtupleFactory_->FillInt("QQ_leppl",l2);
-      NtupleFactory_->FillInt("QQ_lepmi",l1);
-      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
-    }
-    if (oniacato == 2 || lp1.pt() > lp2.pt()) 
-    {   
-      NtupleFactory_->FillInt("QQ_lephpt",l1);
-      NtupleFactory_->FillInt("QQ_lephp",l2);
-    } else 
-    {
-      NtupleFactory_->FillInt("QQ_lephp",l1);
-      NtupleFactory_->FillInt("QQ_lephpt",l2);
-    }
+  if ( lep1->charge() == 1 ) 
+  {
+    NtupleFactory_->FillInt("QQ_leppl",l1);
+    NtupleFactory_->FillInt("QQ_lepmi",l2);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
+  }
+  else {
+    NtupleFactory_->FillInt("QQ_leppl",l2);
+    NtupleFactory_->FillInt("QQ_lepmi",l1);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
+  }
+  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+  {   
+    NtupleFactory_->FillInt("QQ_lephpt",l1);
+    NtupleFactory_->FillInt("QQ_lephp",l2);
+  } else 
+  {
+    NtupleFactory_->FillInt("QQ_lephp",l1);
+    NtupleFactory_->FillInt("QQ_lephpt",l2);
+  }
       
-    math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
-    NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
+  math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
+  NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
 
-    NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
-    NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
-    NtupleFactory_->FillFloat("QQ_VzzE",err.czz());
-    NtupleFactory_->FillFloat("QQ_VyxE",err.cyx());
-    NtupleFactory_->FillFloat("QQ_VzyE",err.czy());
-    NtupleFactory_->FillFloat("QQ_VzxE",err.czx());
+  NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
+  NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
+  NtupleFactory_->FillFloat("QQ_VzzE",err.czz());
+  NtupleFactory_->FillFloat("QQ_VyxE",err.cyx());
+  NtupleFactory_->FillFloat("QQ_VzyE",err.czy());
+  NtupleFactory_->FillFloat("QQ_VzxE",err.czx());
       
-    NtupleFactory_->FillFloat("QQ_lxy",v.perp());
-    NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
-    NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
-    NtupleFactory_->FillFloat("QQ_probChi2",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
+  NtupleFactory_->FillFloat("QQ_lxy",v.perp());
+  NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
+  NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
+  NtupleFactory_->FillFloat("QQ_probChi2",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
       
-    TVector3 pperp(onia.Px(), onia.Py(), 0);
-    TVector3 vperp1(v.x(), v.y(), 0);
-    TVector3 vperp = vperp1 - vperp2;
-    double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-    double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
-    NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
-    NtupleFactory_->FillFloat("QQ_ctau",ctau);
+  TVector3 pperp(onia.Px(), onia.Py(), 0);
+  TVector3 vperp1(v.x(), v.y(), 0);
+  TVector3 vperp = vperp1 - vperp2;
+  double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
+  double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
+  NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
+  NtupleFactory_->FillFloat("QQ_ctau",ctau);
 //   } else 
 //   {
-//       
+  //       
 //     NtupleFactory_->FillInt("QQ_VtxIsVal",0);
-//     
+  //     
 //     math::XYZVector v(-1,-1,-1);
 //     NtupleFactory_->Fill3V("QQ_Vtx",v);
-//     
+  //     
 //     NtupleFactory_->FillFloat("QQ_VxxE",-1);
 //     NtupleFactory_->FillFloat("QQ_VyyE",-1);
 //     NtupleFactory_->FillFloat("QQ_VzzE",-1);
 //     NtupleFactory_->FillFloat("QQ_VyxE",-1);
 //     NtupleFactory_->FillFloat("QQ_VzyE",-1);
 //     NtupleFactory_->FillFloat("QQ_VzxE",-1);
-//           
+  //           
 //     NtupleFactory_->FillFloat("QQ_lxy",-1);
 //     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
 //     NtupleFactory_->FillFloat("QQ_normChi2",-1);
 //     NtupleFactory_->FillFloat("QQ_probChi2",-1);
-//           
+  //           
 //     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
 //     NtupleFactory_->FillFloat("QQ_ctau",-100);
-//       
+  //       
 //   }
     
   QQ_size++;

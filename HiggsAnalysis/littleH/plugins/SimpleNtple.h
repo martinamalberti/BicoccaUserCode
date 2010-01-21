@@ -58,6 +58,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
