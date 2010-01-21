@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.33 2010/01/20 18:51:11 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.34 2010/01/21 08:33:09 dimatteo Exp $
 //
 //
 
@@ -476,7 +476,7 @@ void
 
 // --------------------------------------------------------------------
 
-// fills Onia candidate block
+// Onia candidate block
 void 
     SimpleNtple::findOniaCategories(const Event &iEvent, const EventSetup & iESetup) 
 {
@@ -577,7 +577,7 @@ void
 
 // --------------------------------------------------------------------
 
-// Fill Onia2MuMu category
+//Fill Onia2MuMu category
 void 
     SimpleNtple::fillOnia2MuMuTracks(TrackRef lep1, int l1, TrackRef lep2, int l2, TVector3 vperp2, int oniacato) 
 {
@@ -616,12 +616,12 @@ void
   }
   if (oniacato == 2 || lp1.pt() > lp2.pt()) 
   {   
-    NtupleFactory_->FillInt("QQ_muhpt",l1);
-    NtupleFactory_->FillInt("QQ_mulpt",l2);
+    NtupleFactory_->FillInt("QQ_lephpt",l1);
+    NtupleFactory_->FillInt("QQ_lephp",l2);
   } else 
   {
-    NtupleFactory_->FillInt("QQ_mulpt",l1);
-    NtupleFactory_->FillInt("QQ_muhpt",l2);
+    NtupleFactory_->FillInt("QQ_lephp",l1);
+    NtupleFactory_->FillInt("QQ_lephpt",l2);
   }
   
   TransientTrack ttkp1   = (*theB).build(&(*lep1));
@@ -695,7 +695,7 @@ void
 
 // --------------------------------------------------------------------
 
-// Fill Onia2EleEle category
+//Fill Onia2EleEle category
 void 
     SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, TVector3 vperp2, int oniacato) 
 {
@@ -735,12 +735,12 @@ void
   }
   if (oniacato == 2 || lp1.pt() > lp2.pt()) 
   {   
-    NtupleFactory_->FillInt("QQ_muhpt",l1);
-    NtupleFactory_->FillInt("QQ_mulpt",l2);
+    NtupleFactory_->FillInt("QQ_lephpt",l1);
+    NtupleFactory_->FillInt("QQ_lephp",l2);
   } else 
   {
-    NtupleFactory_->FillInt("QQ_mulpt",l1);
-    NtupleFactory_->FillInt("QQ_muhpt",l2);
+    NtupleFactory_->FillInt("QQ_lephp",l1);
+    NtupleFactory_->FillInt("QQ_lephpt",l2);
   }
   
   TransientTrack ttkp1   = (*theB).build(&(*lep1));
@@ -750,8 +750,12 @@ void
   t_tks.push_back(ttkp1);
   t_tks.push_back(ttkp2);
   
-  GsfVertexFitter gsf(gsfPSet);
-  TransientVertex tv = gsf.vertex(t_tks);
+  KalmanVertexFitter kvf;
+  TransientVertex tv = kvf.vertex(t_tks);
+
+//  // Gaussian Sum Filter Algorithm 
+//   GsfVertexFitter gsf(gsfPSet);
+//   TransientVertex tv = gsf.vertex(t_tks);
     
   if (  tv.isValid() ) 
   {
@@ -819,6 +823,9 @@ void
 void 
     SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
+  // get TTRHBuilder 
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
   if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
   if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
   if (saveTracks_) fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
@@ -830,7 +837,14 @@ void
   if (saveOniaCand_) findOniaCategories (iEvent, iSetup) ;
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
-
+  
+  //Clear RECO Collections
+  theGlobalMuons.clear();
+  theTrkMuons.clear();
+  theElectrons.clear();
+  
+  //Clear vectors
+  theMuonTrkIndexes_.clear();
 }
 
     
@@ -1029,8 +1043,8 @@ void
     
     NtupleFactory_->AddFloat("QQ_cosTheta");
     
-    NtupleFactory_->AddInt("QQ_muhpt");
-    NtupleFactory_->AddInt("QQ_mulpt");
+    NtupleFactory_->AddInt("QQ_lephpt");
+    NtupleFactory_->AddInt("QQ_lephp");
     
     NtupleFactory_->AddInt("QQ_VtxIsVal");
     NtupleFactory_->Add3V("QQ_Vtx");

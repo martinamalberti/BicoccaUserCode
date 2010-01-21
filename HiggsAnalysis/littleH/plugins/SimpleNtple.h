@@ -171,7 +171,7 @@ class SimpleNtple : public EDAnalyzer {
     int eventType_; //---- 0 = signal      1 = background 
     bool verbosity_; //---- true = loquacious     false = silence  
 
-  //used to save all tracks BUT muons
+    //used to save all tracks BUT muons
     std::vector<int> theMuonTrkIndexes_ ;
     
     //RECO Objects    
