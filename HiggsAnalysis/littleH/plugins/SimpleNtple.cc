@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.34 2010/01/21 08:33:09 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.35 2010/01/21 10:59:19 dimatteo Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 using namespace edm;
 
 SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
-  gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
+    gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
   TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
   EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
   MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
@@ -51,7 +51,8 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   theStoreWSOnia            (iConfig.getUntrackedParameter<bool> ("storeWSOnia", true)), 
   theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
   theOniaType               (iConfig.getUntrackedParameter<int> ("oniaType", 443)), 
-  theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)), 
+  theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)),
+  Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.01)), 
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -583,46 +584,6 @@ void
 {
  
   if (oniacato<0  ) return;
-  // if ( lep1->charge() == lep2->charge() ) continue;
-  int QQ_sign = 0;
-  if ( lep1->charge() == lep2->charge() ) 
-  {
-    if (theStoreWSOnia) {
-      if (lep1->charge() == 1) {QQ_sign=1;}
-      else {QQ_sign=-1;}
-    }
-    else return;
-  }
-  NtupleFactory_->FillInt("QQ_sign",QQ_sign);
-  
-  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-  math::XYZTLorentzVector onia = lp1 + lp2;
-  
-  NtupleFactory_->FillInt("QQ_type",oniacato);
-  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
-  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
-
-  if ( lep1->charge() == 1 ) 
-  {
-    NtupleFactory_->FillInt("QQ_leppl",l1);
-    NtupleFactory_->FillInt("QQ_lepmi",l2);
-    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
-  }
-  else {
-    NtupleFactory_->FillInt("QQ_leppl",l2);
-    NtupleFactory_->FillInt("QQ_lepmi",l1);
-    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
-  }
-  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
-  {   
-    NtupleFactory_->FillInt("QQ_lephpt",l1);
-    NtupleFactory_->FillInt("QQ_lephp",l2);
-  } else 
-  {
-    NtupleFactory_->FillInt("QQ_lephp",l1);
-    NtupleFactory_->FillInt("QQ_lephpt",l2);
-  }
   
   TransientTrack ttkp1   = (*theB).build(&(*lep1));
   TransientTrack ttkp2   = (*theB).build(&(*lep2));
@@ -634,14 +595,56 @@ void
   KalmanVertexFitter kvf;
   TransientVertex tv = kvf.vertex(t_tks);
     
-  if (  tv.isValid() ) 
-  {
-      
-    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
-      
+  if ( ! tv.isValid() ) return;
+//   {
     GlobalPoint v = tv.position();
     GlobalError err = tv.positionError();
-      
+   
+    if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
+
+    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
+
+         // if ( lep1->charge() == lep2->charge() ) continue;
+    int QQ_sign = 0;
+    if ( lep1->charge() == lep2->charge() ) 
+    {
+      if (theStoreWSOnia) {
+        if (lep1->charge() == 1) {QQ_sign=1;}
+        else {QQ_sign=-1;}
+      }
+      else return;
+    }
+    NtupleFactory_->FillInt("QQ_sign",QQ_sign);
+  
+    math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+    math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+    math::XYZTLorentzVector onia = lp1 + lp2;
+  
+    NtupleFactory_->FillInt("QQ_type",oniacato);
+    NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
+    NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+
+    if ( lep1->charge() == 1 ) 
+    {
+      NtupleFactory_->FillInt("QQ_leppl",l1);
+      NtupleFactory_->FillInt("QQ_lepmi",l2);
+      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
+    }
+    else {
+      NtupleFactory_->FillInt("QQ_leppl",l2);
+      NtupleFactory_->FillInt("QQ_lepmi",l1);
+      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
+    }
+    if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+    {   
+      NtupleFactory_->FillInt("QQ_lephpt",l1);
+      NtupleFactory_->FillInt("QQ_lephp",l2);
+    } else 
+    {
+      NtupleFactory_->FillInt("QQ_lephp",l1);
+      NtupleFactory_->FillInt("QQ_lephpt",l2);
+    }
+           
     math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
     NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
 
@@ -661,33 +664,34 @@ void
     TVector3 vperp1(v.x(), v.y(), 0);
     TVector3 vperp = vperp1 - vperp2;
     double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-    double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
+    double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
     NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
-    NtupleFactory_->FillFloat("QQ_ctau",ctau);
-  } else 
-  {
-      
-    NtupleFactory_->FillInt("QQ_VtxIsVal",0);
-
-    math::XYZVector v(-1,-1,-1);
-    NtupleFactory_->Fill3V("QQ_Vtx",v);
-
-    NtupleFactory_->FillFloat("QQ_VxxE",-1);
-    NtupleFactory_->FillFloat("QQ_VyyE",-1);
-    NtupleFactory_->FillFloat("QQ_VzzE",-1);
-    NtupleFactory_->FillFloat("QQ_VyxE",-1);
-    NtupleFactory_->FillFloat("QQ_VzyE",-1);
-    NtupleFactory_->FillFloat("QQ_VzxE",-1);
-      
-    NtupleFactory_->FillFloat("QQ_lxy",-1);
-    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
-    NtupleFactory_->FillFloat("QQ_normChi2",-1);
-    NtupleFactory_->FillFloat("QQ_probChi2",-1);
-      
-    NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
-    NtupleFactory_->FillFloat("QQ_ctau",-100);
-      
-  }
+    NtupleFactory_->FillFloat("QQ_ctau",ctau);   
+     
+//   } else 
+//   {
+//       
+//     NtupleFactory_->FillInt("QQ_VtxIsVal",0);
+//     
+//     math::XYZVector v(-1,-1,-1);
+//     NtupleFactory_->Fill3V("QQ_Vtx",v);
+//     
+//     NtupleFactory_->FillFloat("QQ_VxxE",-1);
+//     NtupleFactory_->FillFloat("QQ_VyyE",-1);
+//     NtupleFactory_->FillFloat("QQ_VzzE",-1);
+//     NtupleFactory_->FillFloat("QQ_VyxE",-1);
+//     NtupleFactory_->FillFloat("QQ_VzyE",-1);
+//     NtupleFactory_->FillFloat("QQ_VzxE",-1);
+//           
+//     NtupleFactory_->FillFloat("QQ_lxy",-1);
+//     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+//     NtupleFactory_->FillFloat("QQ_normChi2",-1);
+//     NtupleFactory_->FillFloat("QQ_probChi2",-1);
+//           
+//     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
+//     NtupleFactory_->FillFloat("QQ_ctau",-100);
+//       
+//   }
     
   QQ_size++;
   return;
@@ -701,47 +705,6 @@ void
 {
  
   if (oniacato<0  ) return;
-  // if ( lep1->charge() == lep2->charge() ) continue;
-  int QQ_sign = 0;
-  if ( lep1->charge() == lep2->charge() ) 
-  {
-    if (theStoreWSOnia) {
-      if (lep1->charge() == 1) {QQ_sign=1;}
-      else {QQ_sign=-1;}
-    }
-    else return;
-  }
-  
-  NtupleFactory_->FillInt("QQ_sign",QQ_sign);
-
-  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-  math::XYZTLorentzVector onia = lp1 + lp2;
-  
-  NtupleFactory_->FillInt("QQ_type",oniacato);
-  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
-  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
-
-  if ( lep1->charge() == 1 ) 
-  {
-    NtupleFactory_->FillInt("QQ_leppl",l1);
-    NtupleFactory_->FillInt("QQ_lepmi",l2);
-    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
-  }
-  else {
-    NtupleFactory_->FillInt("QQ_leppl",l2);
-    NtupleFactory_->FillInt("QQ_lepmi",l1);
-    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
-  }
-  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
-  {   
-    NtupleFactory_->FillInt("QQ_lephpt",l1);
-    NtupleFactory_->FillInt("QQ_lephp",l2);
-  } else 
-  {
-    NtupleFactory_->FillInt("QQ_lephp",l1);
-    NtupleFactory_->FillInt("QQ_lephpt",l2);
-  }
   
   TransientTrack ttkp1   = (*theB).build(&(*lep1));
   TransientTrack ttkp2   = (*theB).build(&(*lep2));
@@ -757,14 +720,57 @@ void
 //   GsfVertexFitter gsf(gsfPSet);
 //   TransientVertex tv = gsf.vertex(t_tks);
     
-  if (  tv.isValid() ) 
-  {
-      
-    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
-      
+  if ( ! tv.isValid() ) return;
+//   {
     GlobalPoint v = tv.position();
     GlobalError err = tv.positionError();
+    
+    if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
+    
+    NtupleFactory_->FillInt("QQ_VtxIsVal",1);
      
+  // if ( lep1->charge() == lep2->charge() ) continue;
+    int QQ_sign = 0;
+    if ( lep1->charge() == lep2->charge() ) 
+    {
+      if (theStoreWSOnia) {
+        if (lep1->charge() == 1) {QQ_sign=1;}
+        else {QQ_sign=-1;}
+      }
+      else return;
+    }
+  
+    NtupleFactory_->FillInt("QQ_sign",QQ_sign);
+
+    math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+    math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+    math::XYZTLorentzVector onia = lp1 + lp2;
+  
+    NtupleFactory_->FillInt("QQ_type",oniacato);
+    NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
+    NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+
+    if ( lep1->charge() == 1 ) 
+    {
+      NtupleFactory_->FillInt("QQ_leppl",l1);
+      NtupleFactory_->FillInt("QQ_lepmi",l2);
+      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
+    }
+    else {
+      NtupleFactory_->FillInt("QQ_leppl",l2);
+      NtupleFactory_->FillInt("QQ_lepmi",l1);
+      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
+    }
+    if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+    {   
+      NtupleFactory_->FillInt("QQ_lephpt",l1);
+      NtupleFactory_->FillInt("QQ_lephp",l2);
+    } else 
+    {
+      NtupleFactory_->FillInt("QQ_lephp",l1);
+      NtupleFactory_->FillInt("QQ_lephpt",l2);
+    }
+      
     math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
     NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
 
@@ -784,33 +790,33 @@ void
     TVector3 vperp1(v.x(), v.y(), 0);
     TVector3 vperp = vperp1 - vperp2;
     double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-    double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
+    double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
     NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
     NtupleFactory_->FillFloat("QQ_ctau",ctau);
-  } else 
-  {
-      
-    NtupleFactory_->FillInt("QQ_VtxIsVal",0);
-
-    math::XYZVector v(-1,-1,-1);
-    NtupleFactory_->Fill3V("QQ_Vtx",v);
-
-    NtupleFactory_->FillFloat("QQ_VxxE",-1);
-    NtupleFactory_->FillFloat("QQ_VyyE",-1);
-    NtupleFactory_->FillFloat("QQ_VzzE",-1);
-    NtupleFactory_->FillFloat("QQ_VyxE",-1);
-    NtupleFactory_->FillFloat("QQ_VzyE",-1);
-    NtupleFactory_->FillFloat("QQ_VzxE",-1);
-      
-    NtupleFactory_->FillFloat("QQ_lxy",-1);
-    NtupleFactory_->FillFloat("QQ_lxyErr",-1);
-    NtupleFactory_->FillFloat("QQ_normChi2",-1);
-    NtupleFactory_->FillFloat("QQ_probChi2",-1);
-      
-    NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
-    NtupleFactory_->FillFloat("QQ_ctau",-100);
-      
-  }
+//   } else 
+//   {
+//       
+//     NtupleFactory_->FillInt("QQ_VtxIsVal",0);
+//     
+//     math::XYZVector v(-1,-1,-1);
+//     NtupleFactory_->Fill3V("QQ_Vtx",v);
+//     
+//     NtupleFactory_->FillFloat("QQ_VxxE",-1);
+//     NtupleFactory_->FillFloat("QQ_VyyE",-1);
+//     NtupleFactory_->FillFloat("QQ_VzzE",-1);
+//     NtupleFactory_->FillFloat("QQ_VyxE",-1);
+//     NtupleFactory_->FillFloat("QQ_VzyE",-1);
+//     NtupleFactory_->FillFloat("QQ_VzxE",-1);
+//           
+//     NtupleFactory_->FillFloat("QQ_lxy",-1);
+//     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
+//     NtupleFactory_->FillFloat("QQ_normChi2",-1);
+//     NtupleFactory_->FillFloat("QQ_probChi2",-1);
+//           
+//     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
+//     NtupleFactory_->FillFloat("QQ_ctau",-100);
+//       
+//   }
     
   QQ_size++;
   return;
@@ -1079,7 +1085,7 @@ void
 // Returns Lorentz-vector of muon
 //////////////////////////////////////////////////////////////////////////////
 template <class T>
-            math::XYZTLorentzVector SimpleNtple::lorentzMomentum(const T& muon) const 
+    math::XYZTLorentzVector SimpleNtple::lorentzMomentum(const T& muon) const 
 {
   const double preco = muon.p();
   const double ereco = sqrt(preco*preco + 0.011163613);

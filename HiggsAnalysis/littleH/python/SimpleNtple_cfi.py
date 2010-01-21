@@ -34,6 +34,8 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      beamSpotFlag    = cms.untracked.bool (True) ,
      oniaMaxCat    = cms.untracked.int32(1) ,
      oniaType      = cms.untracked.int32(443) ,
+    
+     Chi2OniaVtxCut= cms.untracked.double(0.01),      
      
      treeName = cms.untracked.string ("SimpleTree") ,
      verbosity = cms.untracked.bool(False),

@@ -191,5 +191,8 @@ class SimpleNtple : public EDAnalyzer {
     // 1 = goldenMuMu (2 global muons)
     // 2 = silverMuMu (1 global - 1 tracker muon)
     // 3 = bronzeMuMu (2 tracker muons)
+    
+    //CUTS
+    double Chi2OniaVtxCut_;
 
 };
