@@ -129,9 +129,15 @@ void VBFLepton3DipProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       eleIt != electrons -> end(); ++eleIt)
   {
     eleTrack = eleIt -> get<reco::GsfTrackRef>();
-    eleTransTrack = trackBuilder -> build(eleTrack);
-    TrajectoryStateOnSurface eleTSOS = eleTransTrack.stateOnSurface(PVPoint);
-   
+    
+    if(!eleTrack.isNull())
+     eleTransTrack = trackBuilder -> build(eleTrack);
+    
+    TrajectoryStateOnSurface eleTSOS;
+    
+    if(!eleTrack.isNull())
+     eleTSOS = eleTransTrack.stateOnSurface(PVPoint);
+
     reco::GsfElectronRef eleRef(electrons, eleIndex);
     
     
@@ -188,8 +194,14 @@ void VBFLepton3DipProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       muIt != muons -> end(); ++muIt)
   {
     muTrack = muIt -> get<reco::TrackRef>();
-    muTransTrack = trackBuilder -> build(muTrack);    
-    TrajectoryStateOnSurface muTSOS = muTransTrack.stateOnSurface(PVPoint);
+    
+    if(!muTrack.isNull())
+     muTransTrack = trackBuilder -> build(muTrack);  
+    
+    TrajectoryStateOnSurface muTSOS;
+    
+    if(!muTrack.isNull())
+     muTSOS = muTransTrack.stateOnSurface(PVPoint);
      
     reco::MuonRef muRef(muons, muIndex);
     
