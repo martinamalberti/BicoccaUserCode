@@ -132,6 +132,9 @@ void MCDumperWJets::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   mcF1_fromV_p = fFromVBuffer.at(0);
   mcF2_fromV_p = fFromVBuffer.at(1);
   
+  std::cerr << mcF1_fromV_p->p4().Pt() << " " << mcF1_fromV_p->pdgId() << std::endl;
+  std::cerr << mcF2_fromV_p->p4().Pt() << " " << mcF2_fromV_p->pdgId() << std::endl;
+  
   // If leptons, see if there is a photon emission
   if(abs(mcF1_fromV_p -> pdgId()) >= 11)
     FindDaughterParticles(&mcF1_fromV_p, verbosity_p, 1);
