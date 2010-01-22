@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.36 2010/01/21 14:26:38 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.37 2010/01/21 15:04:11 dimatteo Exp $
 //
 //
 
@@ -674,7 +674,7 @@ void
   TVector3 vperp1(v.x(), v.y(), 0);
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-  double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
+  double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
   NtupleFactory_->FillFloat("QQ_ctau",ctau);   
      
@@ -800,7 +800,7 @@ void
   TVector3 vperp1(v.x(), v.y(), 0);
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-  double ctau = vperp.Perp()*fabs(cosAlpha)*oniaMass/onia.pt();
+  double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
   NtupleFactory_->FillFloat("QQ_ctau",ctau);
 //   } else 
