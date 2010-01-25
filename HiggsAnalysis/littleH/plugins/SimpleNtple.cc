@@ -13,11 +13,44 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.37 2010/01/21 15:04:11 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.38 2010/01/22 14:54:10 dimatteo Exp $
 //
 //
 
 #include "HiggsAnalysis/littleH/plugins/SimpleNtple.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 using namespace edm;
 
@@ -492,29 +525,20 @@ void
   iEvent.getByLabel(beamSpotTag_ ,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;
 
-  TVector3 vperp2;
-  if ( theBeamSpotFlag ) 
+  reco::Vertex PV;
+  if ( privtxs->begin() != privtxs->end() ) 
   {
-    vperp2.SetXYZ(bs.x0(), bs.y0(), 0);
+    // select the primary vertex as the one
+    // with higest sum of (pt)^2 of tracks
+    PrimaryVertexSorter PVSorter;
+    std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(privtxs.product()) );
+    PV = sortedVertices.front();
   }
-  else {
-    if ( privtxs->begin() != privtxs->end() ) 
-    {
-      // select the primary vertex as the one
-      // with higest sum of (pt)^2 of tracks
-      PrimaryVertexSorter PVSorter;
-      std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(privtxs.product()) );
-      reco::Vertex PV = sortedVertices.front();
-      vperp2.SetXYZ(PV.position().x(), PV.position().y(), 0);
-      
-//       privtx=privtxs->begin();
-//       vperp2.SetXYZ(privtx->position().x(), privtx->position().y(), 0);
-    }
-    else 
-    {
-      vperp2.SetXYZ(0, 0, 0);
-    }
+  else 
+  {
+    cout << " No PV found! " << endl ;
   }
+  
   
   MuonCollection::const_iterator nmuon1;
   MuonCollection::const_iterator nmuon2;
@@ -543,7 +567,7 @@ void
       ele1 = nele1->gsfTrack();    
       ele2 = nele2->gsfTrack(); 
       e2++;
-      fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, vperp2, 0);
+      fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, PV, 0);
     }
     e1++;
   }
@@ -556,14 +580,14 @@ void
       muon1 = nmuon1->innerTrack();    
       muon2 = nmuon2->innerTrack(); 
       m2g++;
-      if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, vperp2, 1);
+      if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
     }
      
     for( tmuon2 = theTrkMuons.begin(); tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
     {
       muon1 = nmuon1->innerTrack();    
       muon2 = tmuon2->innerTrack(); 
-      if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, vperp2, 2);
+      if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
       m2t++;
     }
     m1++;
@@ -576,7 +600,7 @@ void
       muon1 = tmuon1->innerTrack();    
       muon2 = tmuon2->innerTrack(); 
       m2t++; 
-      if (theOniaMaxCat >= 2) fillOnia2MuMuTracks(muon1, m1, muon2, m2t+m1, vperp2, 3);
+      if (theOniaMaxCat >= 2) fillOnia2MuMuTracks(muon1, m1, muon2, m2t+m1, PV, 3);
     }
     m1++;
   }
@@ -590,7 +614,7 @@ void
 
 //Fill Onia2MuMu category
 void 
-    SimpleNtple::fillOnia2MuMuTracks(TrackRef lep1, int l1, TrackRef lep2, int l2, TVector3 vperp2, int oniacato) 
+    SimpleNtple::fillOnia2MuMuTracks(TrackRef lep1, int l1, TrackRef lep2, int l2, reco::Vertex &PV, int oniacato) 
 {
  
   if (oniacato<0  ) return;
@@ -672,37 +696,73 @@ void
       
   TVector3 pperp(onia.Px(), onia.Py(), 0);
   TVector3 vperp1(v.x(), v.y(), 0);
+  TVector3 vperp2(PV.position().x(), PV.position().y(), 0. );
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
   double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
   NtupleFactory_->FillFloat("QQ_ctau",ctau);   
      
-//   } else 
-//   {
-  //       
-//     NtupleFactory_->FillInt("QQ_VtxIsVal",0);
-  //     
-//     math::XYZVector v(-1,-1,-1);
-//     NtupleFactory_->Fill3V("QQ_Vtx",v);
-  //     
-//     NtupleFactory_->FillFloat("QQ_VxxE",-1);
-//     NtupleFactory_->FillFloat("QQ_VyyE",-1);
-//     NtupleFactory_->FillFloat("QQ_VzzE",-1);
-//     NtupleFactory_->FillFloat("QQ_VyxE",-1);
-//     NtupleFactory_->FillFloat("QQ_VzyE",-1);
-//     NtupleFactory_->FillFloat("QQ_VzxE",-1);
-  //           
-//     NtupleFactory_->FillFloat("QQ_lxy",-1);
-//     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
-//     NtupleFactory_->FillFloat("QQ_normChi2",-1);
-//     NtupleFactory_->FillFloat("QQ_probChi2",-1);
-  //           
-//     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
-//     NtupleFactory_->FillFloat("QQ_ctau",-100);
-  //       
-//   }
-    
+  //COMPUTE T.IP, L.IP and 3D IP
+  
+  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
+  GlobalVector DistVector = v - PVposition; 
+      
+  AlgebraicSymMatrix33 PVerrMat;
+  PVerrMat(0,0) = PV.covariance(0,0) ; 
+  PVerrMat(1,1) = PV.covariance(1,1);
+  PVerrMat(2,2) = PV.covariance(2,2);
+  PVerrMat(0,1) = PVerrMat(1,0) = PV.covariance(1,0); 
+  PVerrMat(0,2) = PVerrMat(2,0) = PV.covariance(2,0); 
+  PVerrMat(1,2) = PVerrMat(2,1) = PV.covariance(2,1); 
+
+  AlgebraicSymMatrix33 OniaVerrMat;
+  OniaVerrMat(0,0) = err.cxx() ; 
+  OniaVerrMat(1,1) = err.cyy();
+  OniaVerrMat(2,2) = err.czz();
+  OniaVerrMat(0,1) = OniaVerrMat(1,0) = err.cyx(); 
+  OniaVerrMat(0,2) = OniaVerrMat(2,0) = err.czx(); 
+  OniaVerrMat(1,2) = OniaVerrMat(2,1) = err.czy();
+  
+  // total error matrix
+  AlgebraicSymMatrix33 totErrMat = PVerrMat + OniaVerrMat;
+  
+  AlgebraicVector3 mjacobian3dV;
+  mjacobian3dV[0] = 1.;	
+  mjacobian3dV[1] = 1.;
+  mjacobian3dV[2] = 1.;
+        
+  AlgebraicVector2 mjacobianTranV;
+  mjacobianTranV[0] = DistVector.x()/DistVector.perp();	
+  mjacobianTranV[1] = DistVector.y()/DistVector.perp();
+        
+  AlgebraicVector1 mjacobianLongV;
+  mjacobianLongV[0] = 1.;	
+   
+  //LIP,TIP,3DIP
+  float QQ_Tip = DistVector.perp(); // positive by definition
+  float QQ_Lip = DistVector.z(); // signed by definition
+  float QQ_3Dip = DistVector.mag(); // positive by definition
+  
+  NtupleFactory_->FillFloat("QQ_Tip",QQ_Tip);
+  NtupleFactory_->FillFloat("QQ_Lip",QQ_Lip);
+  NtupleFactory_->FillFloat("QQ_3Dip",QQ_3Dip);
+  	
+  //LIP,TIP,3DIP errors
+  float QQ_errTip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix22>(0,0), mjacobianTranV));
+  float QQ_errLip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix11>(2,2), mjacobianLongV));
+  float QQ_err3Dip = sqrt(ROOT::Math::Similarity(totErrMat, mjacobian3dV));
+
+  NtupleFactory_->FillFloat("QQ_errTip",QQ_errTip);
+  NtupleFactory_->FillFloat("QQ_errLip",QQ_errLip);
+  NtupleFactory_->FillFloat("QQ_err3Dip",QQ_err3Dip);
+  
+  //LIP,TIP,3DIP significances
+
+  NtupleFactory_->FillFloat("QQ_STip",QQ_Tip/QQ_errTip);
+  NtupleFactory_->FillFloat("QQ_SLip",QQ_Lip/QQ_errLip);
+  NtupleFactory_->FillFloat("QQ_S3Dip",QQ_3Dip/QQ_err3Dip);
+  
   QQ_size++;
   return;
 }
@@ -711,7 +771,7 @@ void
 
 //Fill Onia2EleEle category
 void 
-    SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, TVector3 vperp2, int oniacato) 
+    SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, reco::Vertex &PV, int oniacato) 
 {
  
   if (oniacato<0  ) return;
@@ -798,35 +858,72 @@ void
       
   TVector3 pperp(onia.Px(), onia.Py(), 0);
   TVector3 vperp1(v.x(), v.y(), 0);
+  TVector3 vperp2(PV.position().x(), PV.position().y(), 0);
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
   double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
   NtupleFactory_->FillFloat("QQ_ctau",ctau);
-//   } else 
-//   {
-  //       
-//     NtupleFactory_->FillInt("QQ_VtxIsVal",0);
-  //     
-//     math::XYZVector v(-1,-1,-1);
-//     NtupleFactory_->Fill3V("QQ_Vtx",v);
-  //     
-//     NtupleFactory_->FillFloat("QQ_VxxE",-1);
-//     NtupleFactory_->FillFloat("QQ_VyyE",-1);
-//     NtupleFactory_->FillFloat("QQ_VzzE",-1);
-//     NtupleFactory_->FillFloat("QQ_VyxE",-1);
-//     NtupleFactory_->FillFloat("QQ_VzyE",-1);
-//     NtupleFactory_->FillFloat("QQ_VzxE",-1);
-  //           
-//     NtupleFactory_->FillFloat("QQ_lxy",-1);
-//     NtupleFactory_->FillFloat("QQ_lxyErr",-1);
-//     NtupleFactory_->FillFloat("QQ_normChi2",-1);
-//     NtupleFactory_->FillFloat("QQ_probChi2",-1);
-  //           
-//     NtupleFactory_->FillFloat("QQ_cosAlpha",-2);
-//     NtupleFactory_->FillFloat("QQ_ctau",-100);
-  //       
-//   }
+ 
+  //COMPUTE T.IP, L.IP and 3D IP
+
+  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
+  GlobalVector DistVector = v - PVposition; 
+      
+  AlgebraicSymMatrix33 PVerrMat;
+  PVerrMat(0,0) = PV.covariance(0,0) ; 
+  PVerrMat(1,1) = PV.covariance(1,1);
+  PVerrMat(2,2) = PV.covariance(2,2);
+  PVerrMat(0,1) = PVerrMat(1,0) = PV.covariance(1,0); 
+  PVerrMat(0,2) = PVerrMat(2,0) = PV.covariance(2,0); 
+  PVerrMat(1,2) = PVerrMat(2,1) = PV.covariance(2,1); 
+
+  AlgebraicSymMatrix33 OniaVerrMat;
+  OniaVerrMat(0,0) = err.cxx() ; 
+  OniaVerrMat(1,1) = err.cyy();
+  OniaVerrMat(2,2) = err.czz();
+  OniaVerrMat(0,1) = OniaVerrMat(1,0) = err.cyx(); 
+  OniaVerrMat(0,2) = OniaVerrMat(2,0) = err.czx(); 
+  OniaVerrMat(1,2) = OniaVerrMat(2,1) = err.czy();
+  
+  // total error matrix
+  AlgebraicSymMatrix33 totErrMat = PVerrMat + OniaVerrMat;
+  
+  AlgebraicVector3 mjacobian3dV;
+  mjacobian3dV[0] = 1.;	
+  mjacobian3dV[1] = 1.;
+  mjacobian3dV[2] = 1.;
+        
+  AlgebraicVector2 mjacobianTranV;
+  mjacobianTranV[0] = DistVector.x()/DistVector.perp();	
+  mjacobianTranV[1] = DistVector.y()/DistVector.perp();
+        
+  AlgebraicVector1 mjacobianLongV;
+  mjacobianLongV[0] = 1.;	
+   
+  //LIP,TIP,3DIP
+  float QQ_Tip = DistVector.perp(); // positive by definition
+  float QQ_Lip = DistVector.z(); // signed by definition
+  float QQ_3Dip = DistVector.mag(); // positive by definition
+  
+  NtupleFactory_->FillFloat("QQ_Tip",QQ_Tip);
+  NtupleFactory_->FillFloat("QQ_Lip",QQ_Lip);
+  NtupleFactory_->FillFloat("QQ_3Dip",QQ_3Dip);
+  	
+  //LIP,TIP,3DIP errors
+  float QQ_errTip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix22>(0,0), mjacobianTranV));
+  float QQ_errLip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix11>(2,2), mjacobianLongV));
+  float QQ_err3Dip = sqrt(ROOT::Math::Similarity(totErrMat, mjacobian3dV));
+
+  NtupleFactory_->FillFloat("QQ_errTip",QQ_errTip);
+  NtupleFactory_->FillFloat("QQ_errLip",QQ_errLip);
+  NtupleFactory_->FillFloat("QQ_err3Dip",QQ_err3Dip);
+  
+  //LIP,TIP,3DIP significances
+
+  NtupleFactory_->FillFloat("QQ_STip",QQ_Tip/QQ_errTip);
+  NtupleFactory_->FillFloat("QQ_SLip",QQ_Lip/QQ_errLip);
+  NtupleFactory_->FillFloat("QQ_S3Dip",QQ_3Dip/QQ_err3Dip);
     
   QQ_size++;
   return;
@@ -1077,6 +1174,17 @@ void
     
     NtupleFactory_->AddFloat("QQ_cosAlpha");
     NtupleFactory_->AddFloat("QQ_ctau");
+    
+    NtupleFactory_->AddFloat("QQ_Tip");
+    NtupleFactory_->AddFloat("QQ_Lip");
+    NtupleFactory_->AddFloat("QQ_3Dip");
+    NtupleFactory_->AddFloat("QQ_errTip");
+    NtupleFactory_->AddFloat("QQ_errLip");
+    NtupleFactory_->AddFloat("QQ_err3Dip");
+    NtupleFactory_->AddFloat("QQ_STip");
+    NtupleFactory_->AddFloat("QQ_SLip");
+    NtupleFactory_->AddFloat("QQ_S3Dip");
+
   }
   
   return;

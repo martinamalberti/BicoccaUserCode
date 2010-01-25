@@ -107,8 +107,8 @@ class SimpleNtple : public EDAnalyzer {
     void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillBeamSpotInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void findOniaCategories (const Event & iEvent, const EventSetup & iESetup) ;
-    void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, TVector3 vperp2, int oniacato);
-    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, TVector3 vperp2, int oniacato);
+    void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, reco::Vertex &PV, int oniacato);
+    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV, int oniacato);
     double PhiInRange(const double& phi) const;
 
     template <class T> math::XYZTLorentzVector lorentzMomentum(const T & muon) const;
