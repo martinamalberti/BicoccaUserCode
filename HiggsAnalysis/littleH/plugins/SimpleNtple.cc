@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.38 2010/01/22 14:54:10 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.39 2010/01/25 13:32:00 dimatteo Exp $
 //
 //
 
@@ -831,7 +831,7 @@ void
     NtupleFactory_->FillInt("QQ_lepmi",l1);
     NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
   }
-  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+  if (lp1.pt() > lp2.pt()) 
   {   
     NtupleFactory_->FillInt("QQ_lephpt",l1);
     NtupleFactory_->FillInt("QQ_lephp",l2);
