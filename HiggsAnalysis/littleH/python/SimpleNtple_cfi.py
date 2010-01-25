@@ -36,7 +36,8 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      oniaType      = cms.untracked.int32(443) ,
     
      Chi2OniaVtxCut= cms.untracked.double(0.01),      
-     OniaMassCut= cms.untracked.double(3.2),      
+     OniaMassCut= cms.untracked.double(3.2),
+     Onia3DipCut= cms.untracked.double(5),
      
      treeName = cms.untracked.string ("SimpleTree") ,
      verbosity = cms.untracked.bool(False),

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.40 2010/01/25 13:50:53 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.41 2010/01/25 13:58:47 dimatteo Exp $
 //
 //
 
@@ -86,7 +86,8 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   theOniaType               (iConfig.getUntrackedParameter<int> ("oniaType", 443)), 
   theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)),
   Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.01)),
-  OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),  
+  OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
+  Onia3DipCut_              (iConfig.getUntrackedParameter<double> ("Onia3DipCut", 5.)),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -635,12 +636,16 @@ void
   GlobalPoint v = tv.position();
   GlobalError err = tv.positionError();
  
+  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
+  GlobalVector DistVector = v - PVposition; 
+ 
   math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
   math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
   math::XYZTLorentzVector onia = lp1 + lp2;
    
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
   if ( onia.mass() < OniaMassCut_ ) return;//Cut on Onia invariant mass
+  if ( DistVector.mag() > Onia3DipCut_ ) return;//Cut on Onia 3Dip
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
 
@@ -707,9 +712,6 @@ void
      
   //COMPUTE T.IP, L.IP and 3D IP
   
-  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
-  GlobalVector DistVector = v - PVposition; 
-      
   AlgebraicSymMatrix33 PVerrMat;
   PVerrMat(0,0) = PV.covariance(0,0) ; 
   PVerrMat(1,1) = PV.covariance(1,1);
@@ -797,12 +799,16 @@ void
   GlobalPoint v = tv.position();
   GlobalError err = tv.positionError();
   
+  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
+  GlobalVector DistVector = v - PVposition; 
+  
   math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
   math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
   math::XYZTLorentzVector onia = lp1 + lp2;
     
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
   if ( onia.mass() < OniaMassCut_ ) return;//Cut on Onia invariant mass
+  if ( DistVector.mag() > Onia3DipCut_ ) return;//Cut on Onia 3Dip
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
      
@@ -869,9 +875,6 @@ void
   NtupleFactory_->FillFloat("QQ_ctau",ctau);
  
   //COMPUTE T.IP, L.IP and 3D IP
-
-  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
-  GlobalVector DistVector = v - PVposition; 
       
   AlgebraicSymMatrix33 PVerrMat;
   PVerrMat(0,0) = PV.covariance(0,0) ; 
