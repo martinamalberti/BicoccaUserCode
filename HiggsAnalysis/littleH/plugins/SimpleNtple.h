@@ -195,5 +195,6 @@ class SimpleNtple : public EDAnalyzer {
     
     //CUTS
     double Chi2OniaVtxCut_;
+    double OniaMassCut_;
 
 };

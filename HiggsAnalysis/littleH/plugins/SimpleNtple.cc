@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.39 2010/01/25 13:32:00 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.40 2010/01/25 13:50:53 dimatteo Exp $
 //
 //
 
@@ -85,7 +85,8 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
   theOniaType               (iConfig.getUntrackedParameter<int> ("oniaType", 443)), 
   theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)),
-  Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.01)), 
+  Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.01)),
+  OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),  
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -633,8 +634,13 @@ void
 //   {
   GlobalPoint v = tv.position();
   GlobalError err = tv.positionError();
+ 
+  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+  math::XYZTLorentzVector onia = lp1 + lp2;
    
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
+  if ( onia.mass() < OniaMassCut_ ) return;//Cut on Onia invariant mass
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
 
@@ -649,11 +655,7 @@ void
     else return;
   }
   NtupleFactory_->FillInt("QQ_sign",QQ_sign);
-  
-  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-  math::XYZTLorentzVector onia = lp1 + lp2;
-  
+    
   NtupleFactory_->FillInt("QQ_type",oniacato);
   NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
   NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
@@ -794,9 +796,14 @@ void
 //   {
   GlobalPoint v = tv.position();
   GlobalError err = tv.positionError();
+  
+  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
+  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
+  math::XYZTLorentzVector onia = lp1 + lp2;
     
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
-    
+  if ( onia.mass() < OniaMassCut_ ) return;//Cut on Onia invariant mass
+
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
      
   // if ( lep1->charge() == lep2->charge() ) continue;
@@ -811,10 +818,6 @@ void
   }
   
   NtupleFactory_->FillInt("QQ_sign",QQ_sign);
-
-  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-  math::XYZTLorentzVector onia = lp1 + lp2;
   
   NtupleFactory_->FillInt("QQ_type",oniacato);
   NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
