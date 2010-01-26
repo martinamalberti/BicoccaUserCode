@@ -118,7 +118,7 @@ VBFNtupleSisCone5CaloJets.genJetTag = cms.InputTag("sisCone5GenJets")
 VBFNtupleSisCone5CaloJets.Type1MetTag = cms.InputTag("VBFType1SisCone5CaloMet")
 
 VBFNtupleSisCone5CaloJets.saveMu          = cms.untracked.bool(True)
-VBFNtupleSisCone5CaloJets.saveTrack       = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveTrack       = cms.untracked.bool(False)
 VBFNtupleSisCone5CaloJets.saveEle         = cms.untracked.bool(True)
 VBFNtupleSisCone5CaloJets.saveJet         = cms.untracked.bool(True)
 VBFNtupleSisCone5CaloJets.savePFJet       = cms.untracked.bool(False)
