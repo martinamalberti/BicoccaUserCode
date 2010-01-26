@@ -1,0 +1,23 @@
+setting up a local machine to check out & in the ntuples analysis code
+----------------------------------------------------------------------
+
+1. environment variables (remember to change the login name!)
+
+export CVS_RSH=ssh
+export CVSROOT=:ext:govoni@cmssw.cvs.cern.ch:/cvs/CMSSW
+
+2. get the code with a meningful folder structure
+
+cvs co -d smallH UserCode/Bicocca/HiggsAnalysis/littleH/bin
+cvs co -d smallH/PhysicsTools/NtupleUtils/bin UserCode/Bicocca/PhysicsTools/NtupleUtils/bin
+
+3. compile the code, an example
+
+cd smallH/
+cd PhysicsTools/NtupleUtils/bin/
+rm dict.*
+rootcint -f dict.cpp -c LinkDef.h
+cd -
+c++ -o test_001 `root-config --cflags --glibs` -lGenVector \
+     test_001.cpp PhysicsTools/NtupleUtils/bin/dict.cpp \
+     PhysicsTools/NtupleUtils/bin/treeReader.cc
