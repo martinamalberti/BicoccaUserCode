@@ -52,7 +52,7 @@ process.load("HiggsAnalysis.VBFHiggsToVV.VBFJetCorrector_cff")
 
 process.load("HiggsAnalysis.VBFHiggsToVV.VBFJetDistributions_cfi")
 process.VBFCaloJetDistributions.fileName = cms.untracked.string("VBFJetCorrectorTEST_caloJetDistributions.root")
-process.VBFCaloJetDistributions.srcJets = cms.InputTag("VBFCorrectedSisCone5CaloJets")
+process.VBFCaloJetDistributions.srcJets = cms.InputTag("VBFL2L3SisCone5CaloJets")
 
 
 
@@ -83,7 +83,7 @@ process.out.outputCommands.extend(cms.untracked.vstring('keep *_*_*_TEST'))
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
                                
 process.p = cms.Path(
-    process.VBFCorrectedSisCone5CaloJetsSequence +
+    process.VBFL2L3SisCone5CaloJetsSequence +
     process.VBFCaloJetDistributionsSequence
     )
 

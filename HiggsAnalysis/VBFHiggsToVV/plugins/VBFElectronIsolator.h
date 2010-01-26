@@ -50,10 +50,6 @@ class VBFElectronIsolator
   
   container m_selected;        
   
-  edm::InputTag m_srcElectronTkIsoValues;
-  edm::InputTag m_srcElectronEmIsoValues;
-  edm::InputTag m_srcElectronHadIsoValues;
-  
   double m_tkIsoCut;
   double m_emIsoCut;
   double m_hadIsoCut;

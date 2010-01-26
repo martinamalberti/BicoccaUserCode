@@ -12,6 +12,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration.StandardSequences.Services_cff')
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag="MC_31X_V5::All"
 
@@ -36,7 +37,7 @@ process.TFileService = cms.Service(
 # --- INPUT  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 process.source = cms.Source(
     "PoolSource",
@@ -57,9 +58,12 @@ process.source = cms.Source(
 # --- PRESELECTION  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
 
-process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_sisCone5CaloJets_cff")
-#process.load("HiggsAnalysis.VBFHiggsToWWTolnujj.VBFPreselection_correctedSisCone5CaloJets_cff")
-#process.load("HiggsAnalysis.VBFHiggsToWWTolnujj.VBFPreselection_sisCone5PFJets_cff")
+#process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_sisCone5CaloJets_cff")
+#process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3SisCone5CaloJets_cff")
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5CaloJets_cff")
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5CaloJets_cff")
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5PFJets_cff")
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5PFJets_cff")
 
 
 
@@ -90,16 +94,28 @@ process.out.outputCommands.extend(cms.untracked.vstring('keep *_*_*_TEST'))
 # --- PATHS  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
                                
-process.p1 = cms.Path(
-    process.VBFPreselectionSequenceSisCone5CaloJets
-    )
+#process.p1 = cms.Path(
+#    process.VBFPreselectionSequenceSisCone5CaloJets
+#    )
 
 #process.p2 = cms.Path(
-#    process.VBFPreselectionSequenceCorrectedSisCone5CaloJets
+#    process.VBFPreselectionSequenceL2L3SisCone5CaloJets
 #    )
 
-#process.p3 = cms.Path(
-#    process.VBFPreselectionSequenceSisCone5PFJets
-#    )
+process.p3 = cms.Path(
+    process.VBFPreselectionSequenceAntikt5CaloJets
+    )
+
+process.p4 = cms.Path(
+    process.VBFPreselectionSequenceL2L3Antikt5CaloJets
+    )
+
+process.p5 = cms.Path(
+    process.VBFPreselectionSequenceAntikt5PFJets
+    )
+
+process.p6 = cms.Path(
+    process.VBFPreselectionSequenceL2L3Antikt5PFJets
+    )
 
 #process.o = cms.EndPath( process.out )

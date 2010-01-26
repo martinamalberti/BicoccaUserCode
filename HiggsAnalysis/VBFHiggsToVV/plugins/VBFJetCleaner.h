@@ -66,7 +66,6 @@ class VBFJetCleaner
   container m_selected;
   
   edm::InputTag m_srcElectrons;
-  edm::InputTag m_srcElectronTkIsoValues;
   edm::InputTag m_srcElectronIdValues;
   
   double m_tkIsoCut;
@@ -87,7 +86,6 @@ class VBFJetCleaner
 template <class TCollection>
 VBFJetCleaner<TCollection>::VBFJetCleaner(const edm::ParameterSet& iConfig):
   m_srcElectrons          (iConfig.getParameter<edm::InputTag>("srcElectrons")),
-  m_srcElectronTkIsoValues(iConfig.getParameter<edm::InputTag>("srcElectronTkIsoValues")),
   m_srcElectronIdValues   (iConfig.getParameter<edm::InputTag>("srcElectronIdValues")),
   m_tkIsoCut           (iConfig.getParameter<double>("tkIsoCut")), 
   m_maxDeltaR          (iConfig.getParameter<double>("maxDeltaR")),
@@ -137,10 +135,6 @@ void VBFJetCleaner<TCollection>::select(edm::Handle<VBFJetCleaner<TCollection>::
   if(m_doElectronRefCheck)
     iEvent.getByLabel(m_srcElectronsRef, electronsRef);  
   
-  // Get the isolation maps
-  edm::Handle<edm::ValueMap<double> > electronTkIsoValues;
-  iEvent.getByLabel(m_srcElectronTkIsoValues, electronTkIsoValues);
-  
   // Get the electronid maps
   edm::Handle<edm::ValueMap<float> > electronIdValues;
   iEvent.getByLabel(m_srcElectronIdValues, electronIdValues);
@@ -183,7 +177,7 @@ void VBFJetCleaner<TCollection>::select(edm::Handle<VBFJetCleaner<TCollection>::
       //This is not an electron - ISOLATION
           
       // get the isolation deposits
-      double tkIso  = (*electronTkIsoValues)[electronRef];
+      double tkIso  = (electrons -> at(i)).dr03TkSumPt();
       tkIso  /= electronRef -> pt();
       
       // do the actual cut

@@ -5,9 +5,6 @@ import FWCore.ParameterSet.Config as cms
 VBFIsolatedElectrons = cms.EDFilter(
     "VBFElectronIsolation",
     src = cms.InputTag("gsfElectrons"),
-    srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
-    srcElectronEmIsoValues  = cms.InputTag("eleIsoFromDepsEcalFromHits"),
-    srcElectronHadIsoValues = cms.InputTag("eleIsoFromDepsHcalFromHits"),
     tkIsoCut  = cms.double(9999.),
     emIsoCut  = cms.double(9999.),
     hadIsoCut = cms.double(9999.),
@@ -28,9 +25,6 @@ VBFIsolatedElectrons = cms.EDFilter(
 VBFIsolatedElectronsRef = cms.EDFilter(
     "VBFElectronIsolationRef",
     src = cms.InputTag("gsfElectrons"),
-    srcElectronTkIsoValues  = cms.InputTag("eleIsoFromDepsTk"),
-    srcElectronEmIsoValues  = cms.InputTag("eleIsoFromDepsEcalFromHits"),
-    srcElectronHadIsoValues = cms.InputTag("eleIsoFromDepsHcalFromHits"),
     tkIsoCut  = cms.double(9999.),
     emIsoCut  = cms.double(9999.),
     hadIsoCut = cms.double(9999.),

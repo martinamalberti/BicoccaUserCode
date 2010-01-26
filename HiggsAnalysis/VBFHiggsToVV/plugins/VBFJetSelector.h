@@ -109,6 +109,7 @@ void VBFJetSelector<TCollection>::select(edm::Handle<collection> jets,
     iEvent.getByLabel(m_srcJetsRef, jetsRef);  
   
   
+  
   for(unsigned int i = 0; i < jets -> size(); ++i)
   {
     // do the reference check
@@ -117,15 +118,14 @@ void VBFJetSelector<TCollection>::select(edm::Handle<collection> jets,
     if(m_doRefCheck)
       if(find(jetsRef -> begin(), jetsRef -> end(), jetRef) == jetsRef -> end())
 	isRefCheckOk = false;
-
+    
     if(!isRefCheckOk) continue;
     
-    
+
     if( ((jets -> at(i)).et() < m_etMin) ||
         ((jets -> at(i)).eta() < m_etaMin) ||
         ((jets -> at(i)).eta() > m_etaMax) )
       continue;
-    
     
     m_selected.push_back(jetRef);
   }

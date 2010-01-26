@@ -6,9 +6,6 @@
 
 
 VBFElectronIsolator::VBFElectronIsolator(const edm::ParameterSet& iConfig):
-  m_srcElectronTkIsoValues (iConfig.getParameter<edm::InputTag>("srcElectronTkIsoValues")),
-  m_srcElectronEmIsoValues (iConfig.getParameter<edm::InputTag>("srcElectronEmIsoValues")),
-  m_srcElectronHadIsoValues(iConfig.getParameter<edm::InputTag>("srcElectronHadIsoValues")),
   m_tkIsoCut       (iConfig.getParameter<double>("tkIsoCut")), 
   m_emIsoCut       (iConfig.getParameter<double>("emIsoCut")), 
   m_hadIsoCut      (iConfig.getParameter<double>("hadIsoCut")), 
@@ -47,18 +44,7 @@ void VBFElectronIsolator::select(edm::Handle<collection> electrons,
   
   
   
-  // Get the isolation maps
-  edm::Handle<edm::ValueMap<double> > electronTkIsoValues;
-  iEvent.getByLabel(m_srcElectronTkIsoValues, electronTkIsoValues);
-  
-  edm::Handle<edm::ValueMap<double> > electronEmIsoValues;
-  iEvent.getByLabel(m_srcElectronEmIsoValues, electronEmIsoValues);
-  
-  edm::Handle<edm::ValueMap<double> > electronHadIsoValues;
-  iEvent.getByLabel(m_srcElectronHadIsoValues, electronHadIsoValues);
-  
-  
-  
+  // Get the electron refs
   edm::Handle< edm::RefVector<collection> > electronsRef;
   if(m_doRefCheck)
     iEvent.getByLabel(m_srcElectronsRef, electronsRef);
@@ -90,9 +76,9 @@ void VBFElectronIsolator::select(edm::Handle<collection> electrons,
     
     
     // get the isolation deposits
-    double tkIso  = (*electronTkIsoValues)[electronRef];
-    double emIso  = (*electronEmIsoValues)[electronRef];
-    double hadIso = (*electronHadIsoValues)[electronRef];
+    double tkIso  = (electrons -> at(i)).dr03TkSumPt();
+    double emIso  = (electrons -> at(i)).dr03EcalRecHitSumEt();
+    double hadIso = (electrons -> at(i)).dr03HcalDepth1TowerSumEt();
     double combinedIso = 0.;    
 
     if(m_dividePt)

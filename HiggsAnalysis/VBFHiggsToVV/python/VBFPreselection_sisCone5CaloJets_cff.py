@@ -21,6 +21,12 @@ from HiggsAnalysis.VBFHiggsToVV.VBFPreselection_all_cff import *
 
 
 
+# --- THE JET/MET CORRECTOR --- --- --- --- --- --- --- --- --- --- ---
+
+from HiggsAnalysis.VBFHiggsToVV.VBFMetCorrector_cff import *
+
+
+
 # --- THE JET CLEANER --- --- --- --- --- --- --- --- --- --- ---
 
 from HiggsAnalysis.VBFHiggsToVV.VBFJetCleaner_cfi import *
@@ -42,12 +48,14 @@ from HiggsAnalysis.VBFHiggsToVV.VBFJetSelector_cfi import *
 VBFSelectedCaloJetsSisCone5CaloJets = VBFSelectedCaloJets.clone()
 VBFSelectedCaloJetsRefSisCone5CaloJets = VBFSelectedCaloJetsRef.clone()
 
+VBFSelectedCaloJetsSisCone5CaloJets.src = cms.InputTag("sisCone5CaloJets")
 VBFSelectedCaloJetsSisCone5CaloJets.etMin = cms.double(15.)
 VBFSelectedCaloJetsSisCone5CaloJets.etaMin = cms.double(-5.0)
 VBFSelectedCaloJetsSisCone5CaloJets.etaMax = cms.double(+5.0)
 VBFSelectedCaloJetsSisCone5CaloJets.doRefCheck = cms.bool(True)
 VBFSelectedCaloJetsSisCone5CaloJets.srcJetsRef = cms.InputTag("VBFCleanedCaloJetsRefSisCone5CaloJets")
 
+VBFSelectedCaloJetsRefSisCone5CaloJets.src = cms.InputTag("sisCone5CaloJets")
 VBFSelectedCaloJetsRefSisCone5CaloJets.etMin = cms.double(15.)
 VBFSelectedCaloJetsRefSisCone5CaloJets.etaMin = cms.double(-5.0)
 VBFSelectedCaloJetsSisCone5CaloJets.etaMax = cms.double(+5.0)
@@ -86,27 +94,39 @@ VBFEtMinCaloJetCountFilterSisCone5CaloJets.minNumber = cms.int32(2)
 # --- THE NTUPLE --- --- --- --- --- --- --- --- --- --- ---
 
 from HiggsAnalysis.VBFHiggsToVV.SimpleNtple_cfi import *
-VBFNtupleCaloJetsSisCone5CaloJets = SimpleNtple.clone()
+VBFNtupleSisCone5CaloJets = SimpleNtple.clone()
 
-#VBFNtupleCaloJetsSisCone5CaloJets.eventType = cms.untracked.int32(0)
-#VBFNtupleCaloJetsSisCone5CaloJets.fileName = cms.untracked.string("VBFPreselectionNtuple_sisCone5CaloJets.root")
+VBFNtupleSisCone5CaloJets.EleTag = cms.InputTag("gsfElectrons")
+VBFNtupleSisCone5CaloJets.doEleRefCheck = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.EleRefTag = cms.InputTag("VBFIdSelectedElectronsRefAll")
+VBFNtupleSisCone5CaloJets.Ele3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducerAll:Ele3DipSignificanceMap")
+VBFNtupleSisCone5CaloJets.EleTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:EleTipSignificanceMap")
+VBFNtupleSisCone5CaloJets.EleLipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:EleLipSignificanceMap")
 
-#VBFNtupleCaloJetsSisCone5CaloJets.doElectronRefCheck = cms.bool(True)
-#VBFNtupleCaloJetsSisCone5CaloJets.srcElectronsRef = cms.InputTag("VBFIdSelectedElectronsRefAll")
+VBFNtupleSisCone5CaloJets.MuTag = cms.InputTag("muons")
+VBFNtupleSisCone5CaloJets.doMuRefCheck = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.MuRefTag = cms.InputTag("VBFIsolatedMuonsRefAll")
+VBFNtupleSisCone5CaloJets.Mu3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducerAll:Mu3DipSignificanceMap")
+VBFNtupleSisCone5CaloJets.MuTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:MuTipSignificanceMap")
+VBFNtupleSisCone5CaloJets.MuLipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:MuLipSignificanceMap")
 
-#VBFNtupleCaloJetsSisCone5CaloJets.doMuonRefCheck = cms.bool(True)
-#VBFNtupleCaloJetsSisCone5CaloJets.srcMuonsRef = cms.InputTag("VBFIsolatedMuonsRefAll")
+VBFNtupleSisCone5CaloJets.JetTag = cms.InputTag("sisCone5CaloJets")
+VBFNtupleSisCone5CaloJets.doJetRefCheck = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.JetRefTag = cms.InputTag("VBFSelectedCaloJetsRefSisCone5CaloJets")
+VBFNtupleSisCone5CaloJets.genJetTag = cms.InputTag("sisCone5GenJets")
 
-#VBFNtupleCaloJetsSisCone5CaloJets.doRecoJetRefCheck = cms.bool(True)
-#VBFNtupleCaloJetsSisCone5CaloJets.srcRecoJetsRef = cms.InputTag("VBFSelectedCaloJetsRefSisCone5CaloJets")
+VBFNtupleSisCone5CaloJets.Type1MetTag = cms.InputTag("VBFType1SisCone5CaloMet")
 
-# ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-
-
-
-
-
+VBFNtupleSisCone5CaloJets.saveMu          = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveTrack       = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveEle         = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveJet         = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.savePFJet       = cms.untracked.bool(False)
+VBFNtupleSisCone5CaloJets.saveJetBTagging = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveMet         = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveGenJet      = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveGenMet      = cms.untracked.bool(True)
+VBFNtupleSisCone5CaloJets.saveMC          = cms.untracked.bool(True)
 
 
 
@@ -119,6 +139,10 @@ VBFPreselectionSequenceSisCone5CaloJets = cms.Sequence(
     
     
     
+    VBFType1SisCone5CaloMetSequence +
+
+
+
     VBFCleanedCaloJetsSisCone5CaloJets +
     VBFCleanedCaloJetsRefSisCone5CaloJets +
     
@@ -127,12 +151,12 @@ VBFPreselectionSequenceSisCone5CaloJets = cms.Sequence(
     
     
     
-    VBFEtMinCaloJetCountFilterSisCone5CaloJets
-    #VBFFwdCaloJetCountFilterSisCone5CaloJets
+    VBFEtMinCaloJetCountFilterSisCone5CaloJets +
+    #VBFFwdCaloJetCountFilterSisCone5CaloJets +
     
     
     
-    #VBFNtupleCaloJetsSisCone5CaloJets
+    VBFNtupleSisCone5CaloJets
     )
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
