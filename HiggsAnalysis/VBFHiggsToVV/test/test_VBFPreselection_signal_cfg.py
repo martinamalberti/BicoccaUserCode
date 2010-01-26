@@ -58,20 +58,49 @@ process.source = cms.Source(
 # --- PRESELECTION  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
 
-#process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_sisCone5CaloJets_cff")
-#process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3SisCone5CaloJets_cff")
-process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5CaloJets_cff")
-process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5CaloJets_cff")
-process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5PFJets_cff")
-process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5PFJets_cff")
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_all_cff")
+process.MCDecayModeFilterAll.eventType = cms.untracked.int32(1)
 
-process.MCDecayModeFilterAll.eventType = cms.untracked.int32(0)
-process.VBFNtupleSisCone5CaloJets.eventType = cms.untracked.int32(0)
-process.VBFNtupleL2L3SisCone5CaloJets.eventType = cms.untracked.int32(0)
+
+# --- ====== --- --- --- --- --- --- --- --- --- --- ---
+# sisCone5CaloJets
+# --- ====== --- --- --- --- --- --- --- --- --- --- ---
+
+#process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_sisCone5CaloJets_cff")
+#process.VBFNtupleSisCone5CaloJets.eventType = cms.untracked.int32(0)
+#process.VBFNtupleSisCone5CaloJets.saveMC = cms.untracked.bool(True)
+
+#process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3SisCone5CaloJets_cff")
+#process.VBFNtupleL2L3SisCone5CaloJets.eventType = cms.untracked.int32(0)
+#process.VBFNtupleL2L3SisCone5CaloJets.saveMC = cms.untracked.bool(True)
+
+
+# --- ====== --- --- --- --- --- --- --- --- --- --- ---
+# antikt5CaloJets
+# --- ====== --- --- --- --- --- --- --- --- --- --- ---
+
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5CaloJets_cff")
 process.VBFNtupleAntikt5CaloJets.eventType = cms.untracked.int32(0)
+process.VBFNtupleAntikt5CaloJets.saveMC = cms.untracked.bool(True)
+
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5CaloJets_cff")
 process.VBFNtupleL2L3Antikt5CaloJets.eventType = cms.untracked.int32(0)
+process.VBFNtupleL2L3Antikt5CaloJets.saveMC = cms.untracked.bool(True)
+
+
+# --- ====== --- --- --- --- --- --- --- --- --- --- ---
+# antikt5PFJets
+# --- ====== --- --- --- --- --- --- --- --- --- --- ---
+
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5PFJets_cff")
 process.VBFNtupleAntikt5PFJets.eventType = cms.untracked.int32(0)
+process.VBFNtupleAntikt5PFJets.saveMC = cms.untracked.bool(True)
+
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5PFJets_cff")
 process.VBFNtupleL2L3Antikt5PFJets.eventType = cms.untracked.int32(0)
+process.VBFNtupleL2L3Antikt5PFJets.saveMC = cms.untracked.bool(True)
+
+
 
 
 
