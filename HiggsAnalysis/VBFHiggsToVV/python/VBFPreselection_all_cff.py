@@ -39,13 +39,6 @@ MCDecayModeFilterAll.V2_b_c = cms.bool(True)
 
 
 
-# --- THE ELECTRON AMBIGUITY RESOLVER --- --- --- --- --- --- --- --- --- --- ---
-
-from HiggsAnalysis.VBFHiggsToVV.VBFElectronAmbiguityResolver_cfi import *
-VBFAmbiguityResolvedElectronsAll = VBFAmbiguityResolvedElectrons.clone()
-VBFAmbiguityResolvedElectronsRefAll = VBFAmbiguityResolvedElectronsRef.clone()
-
-
 # --- THE ELECTRON SELECTOR --- --- --- --- --- --- --- --- --- --- ---
 
 from HiggsAnalysis.VBFHiggsToVV.VBFElectronSelector_cfi import *
@@ -55,14 +48,12 @@ VBFSelectedElectronsRefAll = VBFSelectedElectronsRef.clone()
 VBFSelectedElectronsAll.ptMin  = cms.double(5.)
 VBFSelectedElectronsAll.etaMin = cms.double(-2.5)
 VBFSelectedElectronsAll.etaMax = cms.double(+2.5)
-VBFSelectedElectronsAll.doRefCheck = cms.bool(True)
-VBFSelectedElectronsAll.srcElectronsRef = cms.InputTag("VBFAmbiguityResolvedElectronsRefAll")
+VBFSelectedElectronsAll.doRefCheck = cms.bool(False)
 
 VBFSelectedElectronsRefAll.ptMin  = cms.double(5.)
 VBFSelectedElectronsRefAll.etaMin = cms.double(-2.5)
 VBFSelectedElectronsRefAll.etaMax = cms.double(+2.5)
-VBFSelectedElectronsRefAll.doRefCheck = cms.bool(True)
-VBFSelectedElectronsRefAll.srcElectronsRef = cms.InputTag("VBFAmbiguityResolvedElectronsRefAll")
+VBFSelectedElectronsRefAll.doRefCheck = cms.bool(False)
 
 
 # --- THE ELECTRON ISOLATOR --- --- --- --- --- --- --- --- --- --- ---
