@@ -60,9 +60,9 @@ int main (int argc, char ** argv)
       //Trigger Leg:     
       //string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R"};
       //string L1TbitNames[NL1TTRIGGERS]  = {"HLT_L1MuOpen","HLT_L1Mu", "HLT_L1DoubleMuOpen", "HLT_L1SingleEG5", "HLT_L1SingleEG8", "HLT_L1DoubleEG5"};
-      std::vector<float>* HLTBits_accept = reader.GetInt("HLTBits_accept");
+      std::vector<int>* HLTBits_accept = reader.GetInt("HLTBits_accept");
       
-      if (!HLTBits_accept[0]) continue; 
+      if (!HLTBits_accept->at (0)) continue; 
 
 
 
