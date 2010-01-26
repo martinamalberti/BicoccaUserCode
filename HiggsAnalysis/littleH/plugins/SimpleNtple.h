@@ -64,6 +64,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexFitter.h"
+#include "RecoVertex/GaussianSumVertexFit/interface/AdaptiveGsfVertexFitter.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 

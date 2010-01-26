@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.41 2010/01/25 13:58:47 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.42 2010/01/25 14:10:56 dimatteo Exp $
 //
 //
 
@@ -341,6 +341,13 @@ void
     NtupleFactory_->FillFloat("electrons_track_dz", eleTrack->dz ());
     NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
     NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
+    
+    int myWord = 0;
+    if ((*EleHandle)[i].isTrackerDriven ()) myWord += (int)pow(2.,0);
+    if ((*EleHandle)[i].isEcalDriven ())    myWord += (int)pow(2.,0);
+
+    NtupleFactory_->FillFloat("electrons_flag_mask", myWord);
+
   }  
   return ;
 }
@@ -664,6 +671,8 @@ void
   NtupleFactory_->FillInt("QQ_type",oniacato);
   NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
   NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+  math::XYZTLorentzVector my4mom (onia.px(),onia.py(),onia.pz(),onia.energy()) ;
+  NtupleFactory_->Fill4V("QQ_4mom",my4mom);
 
   if ( lep1->charge() == 1 ) 
   {
@@ -790,8 +799,8 @@ void
   KalmanVertexFitter kvf;
   TransientVertex tv = kvf.vertex(t_tks);
 
-//  // Gaussian Sum Filter Algorithm 
-//   GsfVertexFitter gsf(gsfPSet);
+//   // Gaussian Sum Filter Algorithm 
+//   AdaptiveGsfVertexFitter gsf(gsfPSet);
 //   TransientVertex tv = gsf.vertex(t_tks);
     
   if ( ! tv.isValid() ) return;
@@ -827,7 +836,9 @@ void
   
   NtupleFactory_->FillInt("QQ_type",oniacato);
   NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
-  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
+  NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));  
+  math::XYZTLorentzVector my4mom (onia.px(),onia.py(),onia.pz(),onia.energy()) ;
+  NtupleFactory_->Fill4V("QQ_4mom",my4mom);
 
   if ( lep1->charge() == 1 ) 
   {
@@ -1028,6 +1039,7 @@ void
     NtupleFactory_->AddFloat("electrons_track_dz");
     NtupleFactory_->AddFloat("electrons_track_d0err");
     NtupleFactory_->AddFloat("electrons_track_dzerr");
+    NtupleFactory_->AddFloat("electrons_flag_mask");
   }
 
   if (saveTracks_)
@@ -1156,6 +1168,7 @@ void
     
     NtupleFactory_->AddFloat("QQ_DeltaR");
     NtupleFactory_->AddFloat("QQ_s");
+    NtupleFactory_->Add4V("QQ_4mom");
     
     NtupleFactory_->AddInt("QQ_leppl");
     NtupleFactory_->AddInt("QQ_lepmi");

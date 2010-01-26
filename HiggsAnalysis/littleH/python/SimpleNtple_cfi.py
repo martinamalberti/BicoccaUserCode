@@ -54,4 +54,19 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
         distance = cms.string("KullbackLeiblerDistance")
           )
       ),
+     
+#      GsfParameters = cms.PSet(
+#         maxshift = cms.double(0.0001),
+#         maxstep = cms.int32(30),
+#         maxlpshift = cms.double(0.1),
+#         weightthreshold = cms.double(0.001),
+#         limitComponents = cms.bool(True),
+#         smoothTracks = cms.bool(True),
+#         GsfMergerParameters = cms.PSet(
+#                 maxNbrComponents= cms.int32(4),
+#                 merger = cms.string("CloseComponentsMerger"),
+#                 distance = cms.string("KullbackLeiblerDistance")
+#          )
+#     ),
+  
 )
