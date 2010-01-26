@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.4 2010/01/16 19:52:31 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.5 2010/01/20 10:29:43 abenagli Exp $
 //
 //
 
@@ -45,18 +45,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 
@@ -67,7 +57,7 @@
 SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 {
  edm::Service<TFileService> fs ;
- outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
+ outTree_  = fs->make <TTree>("SimpleNtple","SimpleNtple"); 
  
  TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
  Ele3DipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("Ele3DipSignificanceTag");
@@ -79,10 +69,9 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  MuTipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("MuTipSignificanceTag");
  MuLipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("MuLipSignificanceTag");
  MetTag_ = iConfig.getParameter<edm::InputTag>("MetTag");
+ Type1MetTag_ = iConfig.getParameter<edm::InputTag>("Type1MetTag");
+ PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
  JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
- flag_JetBTag_ = iConfig.getUntrackedParameter<bool>("flag_JetBTag","False");
- if (flag_JetBTag_) JetBTag_ = iConfig.getUntrackedParameter<edm::InputTag>("JetBTag");
- correctedJetTag_ = iConfig.getParameter<edm::InputTag>("correctedJetTag");
  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
  genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
  genMetTag_ = iConfig.getParameter<edm::InputTag>("genMetTag");
@@ -92,11 +81,22 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  eleIDCut_TightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
  eleIDCut_RTightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
  
+ //---- ref check ----
+ doEleRefCheck_ = iConfig.getUntrackedParameter<bool>("doEleRefCheck", false);
+ if(doEleRefCheck_) EleRefTag_  = iConfig.getParameter<edm::InputTag>("EleRefTag");
+ 
+ doMuRefCheck_ = iConfig.getUntrackedParameter<bool>("doMuRefCheck", false);
+ if(doMuRefCheck_) MuRefTag_ = iConfig.getParameter<edm::InputTag>("MuRefTag");
+ 
+ doJetRefCheck_ = iConfig.getUntrackedParameter<bool>("doJetRefCheck", false);
+ if(doJetRefCheck_) JetRefTag_ = iConfig.getParameter<edm::InputTag>("JetRefTag");
+ 
  //---- flags ----
  saveMu_ =iConfig.getUntrackedParameter<bool> ("saveMu", true);
  saveTrack_ = iConfig.getUntrackedParameter<bool> ("saveTrack", true);
  saveEle_ = iConfig.getUntrackedParameter<bool> ("saveEle", true);
  saveJet_ = iConfig.getUntrackedParameter<bool> ("saveJet", true);
+ savePFJet_ = iConfig.getUntrackedParameter<bool> ("savePFJet", false);
  saveMet_ = iConfig.getUntrackedParameter<bool> ("saveMet", true);
  saveGenJet_ = iConfig.getUntrackedParameter<bool> ("saveGenJet", true);
  saveGenMet_ = iConfig.getUntrackedParameter<bool> ("saveGenMet", true);
@@ -122,24 +122,41 @@ SimpleNtple::~SimpleNtple()
 // member functions
 //
 
+
+
+
+
+
 ///---- muons ----
 void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
  edm::Handle<reco::MuonCollection> MuHandle ;
  iEvent.getByLabel (MuTag_,MuHandle);
-
+ 
+ edm::Handle<edm::RefVector<reco::MuonCollection> > MuRefHandle;
+ if(doMuRefCheck_)
+   iEvent.getByLabel(MuRefTag_, MuRefHandle);
+ 
+ 
  edm::Handle<muMap> Mu3DipSignificanceHandle ;
  iEvent.getByLabel (Mu3DipSignificanceTag_,Mu3DipSignificanceHandle);
  edm::Handle<muMap> MuTipSignificanceHandle ;
  iEvent.getByLabel (MuTipSignificanceTag_,MuTipSignificanceHandle);
  edm::Handle<muMap> MuLipSignificanceHandle ;
  iEvent.getByLabel (MuLipSignificanceTag_,MuLipSignificanceHandle);
-
- int nMu;
- if(MuHandle->size() < 30 ){ nMu = MuHandle->size(); }
- else {nMu = 30;}
- for(int i=0; i< nMu; i++){
+ 
+ 
+ for(unsigned int i=0; i<MuHandle->size(); i++){
   reco::MuonRef muRef(MuHandle, i);
+  
+  // do the reference check
+  bool isMuRefCheckOk = true;
+  if(doMuRefCheck_)
+    if(find(MuRefHandle -> begin(), MuRefHandle -> end(), muRef) == MuRefHandle -> end())
+      isMuRefCheckOk = false;
+
+  if(!isMuRefCheckOk) continue;
+  
   
   NtupleFactory_->Fill4V("muons",(*MuHandle)[i].p4());
   NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
@@ -159,6 +176,11 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
  }
 }
 
+
+
+
+
+
 ///---- electrons ----
 
 void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
@@ -166,6 +188,10 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
  edm::Handle<reco::GsfElectronCollection> EleHandle ;
  iEvent.getByLabel (EleTag_,EleHandle);
  
+ edm::Handle<edm::RefVector<reco::GsfElectronCollection> > EleRefHandle;
+ if(doEleRefCheck_)
+   iEvent.getByLabel(EleRefTag_, EleRefHandle);
+
  edm::Handle<eleMap> Ele3DipSignificanceHandle ;
  iEvent.getByLabel (Ele3DipSignificanceTag_,Ele3DipSignificanceHandle);
  edm::Handle<eleMap> EleTipSignificanceHandle ;
@@ -173,10 +199,6 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
  edm::Handle<eleMap> EleLipSignificanceHandle ;
  iEvent.getByLabel (EleLipSignificanceTag_,EleLipSignificanceHandle);
   
- int nEle;
- if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
- else {nEle = 30;}
- 
  std::vector<edm::Handle<edm::ValueMap<float> > > eleIdCutHandles(4) ;
  iEvent.getByLabel (eleIDCut_LooseInputTag_, eleIdCutHandles[0]) ;
  iEvent.getByLabel (eleIDCut_RLooseInputTag_, eleIdCutHandles[1]) ;
@@ -184,9 +206,18 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
  iEvent.getByLabel (eleIDCut_RTightInputTag_, eleIdCutHandles[3]) ;
 
  
- for(int i=0; i< nEle; i++){
+ for(unsigned int i=0; i<EleHandle->size(); i++){
   reco::GsfElectronRef eleRef(EleHandle, i);  
 
+  // do the reference check 
+  bool isEleRefCheckOk = true;
+  if(doEleRefCheck_)
+    if(find(EleRefHandle -> begin(), EleRefHandle -> end(), eleRef) == EleRefHandle -> end())
+      isEleRefCheckOk = false;
+
+  if(!isEleRefCheckOk) continue;
+  
+  
   NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
   NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
   NtupleFactory_->FillFloat("electrons_tkIso",((*EleHandle)[i].dr03TkSumPt()));
@@ -215,6 +246,11 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
  }
 }
 
+
+
+
+
+
 ///---- tracks ----
 
 void SimpleNtple::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
@@ -228,35 +264,375 @@ void SimpleNtple::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetu
  }
 }
 
+
+
+
+
+
 ///---- Jets ----
+
 void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- edm::Handle<edm::View<reco::CaloJet> > JetHandle ;
+ edm::Handle<reco::CaloJetCollection> JetHandle ;
  iEvent.getByLabel (JetTag_,JetHandle);
- edm::Handle<reco::JetTagCollection> bTagHandle;
- if (flag_JetBTag_) iEvent.getByLabel(JetBTag_, bTagHandle);
- reco::JetTagCollection bTags;
- if (flag_JetBTag_) bTags = *(bTagHandle.product());
- int counter_jet = 0;
- for (edm::View<reco::CaloJet>::const_iterator jetIt = JetHandle->begin (); jetIt != JetHandle->end (); ++jetIt ) 
+
+ edm::Handle<edm::RefVector<reco::CaloJetCollection> > JetRefHandle;
+ if(doJetRefCheck_)
+   iEvent.getByLabel(JetRefTag_, JetRefHandle);
+ 
+ 
+ for(unsigned int i=0; i<JetHandle->size(); ++i) 
  { 
-  NtupleFactory_->Fill4V("jets",jetIt->p4());
-  if (flag_JetBTag_) NtupleFactory_->FillFloat("jets_btagging",bTags[counter_jet].second);
-  counter_jet++;
- }
+   reco::CaloJetRef jetRef(JetHandle, i);
+   
+   // do the reference check
+   bool isJetRefCheckOk = true;
+   if(doJetRefCheck_)
+     if(find(JetRefHandle -> begin(), JetRefHandle -> end(), jetRef) == JetRefHandle -> end())
+       isJetRefCheckOk = false;
+
+   if(!isJetRefCheckOk) continue;
+   
+   
+   NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
+   
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v1((*JetHandle)[i].px(),
+                                                                (*JetHandle)[i].py(),
+                                                                (*JetHandle)[i].pz(),
+                                                                (*JetHandle)[i].energy());
+   if(saveJetBTagging_)
+     fillJetBTaggingInfo(iEvent, iESetup, v1);
+   
+  }// loop on jets
+ 
 }
 
+
+
+
+
+
+///---- PFJets ----
+void SimpleNtple::fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ edm::Handle<reco::PFJetCollection> JetHandle ;
+ iEvent.getByLabel (JetTag_,JetHandle);
+ 
+ edm::Handle<edm::RefVector<reco::PFJetCollection> > JetRefHandle;
+ if(doJetRefCheck_)
+   iEvent.getByLabel(JetRefTag_, JetRefHandle);
+ 
+ 
+ for(unsigned int i=0; i<JetHandle->size(); ++i) 
+ { 
+   reco::PFJetRef jetRef(JetHandle, i);
+   
+   // do the reference check
+   bool isJetRefCheckOk = true;
+   if(doJetRefCheck_)
+     if(find(JetRefHandle -> begin(), JetRefHandle -> end(), jetRef) == JetRefHandle -> end())
+       isJetRefCheckOk = false;
+
+   if(!isJetRefCheckOk) continue;
+   
+   
+   NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
+   
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v1((*JetHandle)[i].px(),
+                                                                (*JetHandle)[i].py(),
+                                                                (*JetHandle)[i].pz(),
+                                                                (*JetHandle)[i].energy());
+   if(saveJetBTagging_)
+     fillJetBTaggingInfo(iEvent, iESetup, v1);
+  }
+}
+
+
+
+
+
+
+///---- JetBTagging ----
+void SimpleNtple::fillJetBTaggingInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup,
+                                      const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >& v1)
+{
+  edm::Handle<reco::JetTagCollection> bTagHandle_trackCountingHighEff;
+  iEvent.getByLabel("trackCountingHighEffBJetTags", bTagHandle_trackCountingHighEff);  
+
+  edm::Handle<reco::JetTagCollection> bTagHandle_trackCountingHighPur;
+  iEvent.getByLabel("trackCountingHighPurBJetTags", bTagHandle_trackCountingHighPur);  
+
+  edm::Handle<reco::JetTagCollection> bTagHandle_simpleSecondaryVertex;
+  iEvent.getByLabel("simpleSecondaryVertexBJetTags", bTagHandle_simpleSecondaryVertex);
+  
+  edm::Handle<reco::JetTagCollection> bTagHandle_combinedSecondaryVertex;
+  iEvent.getByLabel("combinedSecondaryVertexBJetTags", bTagHandle_combinedSecondaryVertex);
+  
+  edm::Handle<reco::JetTagCollection> bTagHandle_combinedSecondaryVertexMVA;
+  iEvent.getByLabel("combinedSecondaryVertexMVABJetTags", bTagHandle_combinedSecondaryVertexMVA);  
+  
+  edm::Handle<reco::JetTagCollection> bTagHandle_jetProbability;
+  iEvent.getByLabel("jetProbabilityBJetTags", bTagHandle_jetProbability);
+  
+  edm::Handle<reco::JetTagCollection> bTagHandle_jetBProbability;
+  iEvent.getByLabel("jetBProbabilityBJetTags", bTagHandle_jetBProbability);
+  
+  
+  
+    // trackCountingHighEff
+    float DRMin = 999999;
+    int jMin = -1;
+    
+    for(unsigned int j = 0; j < bTagHandle_trackCountingHighEff->size(); ++j)
+    {
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_trackCountingHighEff)[j].first->px(),
+                                                                   (*bTagHandle_trackCountingHighEff)[j].first->py(),
+                                                                   (*bTagHandle_trackCountingHighEff)[j].first->pz(),
+                                                                   (*bTagHandle_trackCountingHighEff)[j].first->energy());
+      float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+      if(DRTemp < DRMin)
+      {
+        DRMin = DRTemp;
+        jMin = j;
+      }
+    }
+    
+    if(jMin != -1)
+    {
+      NtupleFactory_->FillFloat("jets_trackCountingHighEffBJetTags", (*bTagHandle_trackCountingHighEff)[jMin].second);
+      NtupleFactory_->FillFloat("jets_trackCountingHighEffBJetTagsDR", DRMin);
+    }
+    else
+    {
+      NtupleFactory_->FillFloat("jets_trackCountingHighEffBJetTags", -999999.);
+      NtupleFactory_->FillFloat("jets_trackCountingHighEffBJetTagsDR", -1.);
+    }
+    
+    
+    
+    // trackCountingHighPur
+    DRMin = 999999;
+    jMin = -1;
+    
+    for(unsigned int j = 0; j < bTagHandle_trackCountingHighPur->size(); ++j)
+    {
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_trackCountingHighPur)[j].first->px(),
+                                                                   (*bTagHandle_trackCountingHighPur)[j].first->py(),
+                                                                   (*bTagHandle_trackCountingHighPur)[j].first->pz(),
+                                                                   (*bTagHandle_trackCountingHighPur)[j].first->energy());
+      float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+      if(DRTemp < DRMin)
+      {
+        DRMin = DRTemp;
+        jMin = j;
+      }
+    }
+    
+    if(jMin != -1)
+    {
+      NtupleFactory_->FillFloat("jets_trackCountingHighPurBJetTags", (*bTagHandle_trackCountingHighPur)[jMin].second);
+      NtupleFactory_->FillFloat("jets_trackCountingHighPurBJetTagsDR", DRMin);
+    }
+    else
+    {
+      NtupleFactory_->FillFloat("jets_trackCountingHighPurBJetTags", -999999.);
+      NtupleFactory_->FillFloat("jets_trackCountingHighPurBJetTagsDR", -1.);
+    }
+    
+    
+    
+    // simpleSecondaryVertex
+    DRMin = 999999;
+    jMin = -1;
+    
+    for(unsigned int j = 0; j < bTagHandle_simpleSecondaryVertex->size(); ++j)
+    {
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_simpleSecondaryVertex)[j].first->px(),
+                                                                   (*bTagHandle_simpleSecondaryVertex)[j].first->py(),
+                                                                   (*bTagHandle_simpleSecondaryVertex)[j].first->pz(),
+                                                                   (*bTagHandle_simpleSecondaryVertex)[j].first->energy());
+      float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+      if(DRTemp < DRMin)
+      {
+        DRMin = DRTemp;
+        jMin = j;
+      }
+    }
+    
+    if(jMin != -1)
+    {
+      NtupleFactory_->FillFloat("jets_simpleSecondaryVertexBJetTags", (*bTagHandle_simpleSecondaryVertex)[jMin].second);
+      NtupleFactory_->FillFloat("jets_simpleSecondaryVertexBJetTagsDR", DRMin);
+    }
+    else
+    {
+      NtupleFactory_->FillFloat("jets_simpleSecondaryVertexBJetTags", -999999.);
+      NtupleFactory_->FillFloat("jets_simpleSecondaryVertexBJetTagsDR", -1.);
+    }
+    
+    
+    
+    // combinedSecondaryVertex
+    DRMin = 999999;
+    jMin = -1;
+    
+    for(unsigned int j = 0; j < bTagHandle_combinedSecondaryVertex->size(); ++j)
+    {
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_combinedSecondaryVertex)[j].first->px(),
+                                                                   (*bTagHandle_combinedSecondaryVertex)[j].first->py(),
+                                                                   (*bTagHandle_combinedSecondaryVertex)[j].first->pz(),
+                                                                   (*bTagHandle_combinedSecondaryVertex)[j].first->energy());
+      float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+      if(DRTemp < DRMin)
+      {
+        DRMin = DRTemp;
+        jMin = j;
+      }
+    }
+    
+    if(jMin != -1)
+    {
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexBJetTags", (*bTagHandle_combinedSecondaryVertex)[jMin].second);
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexBJetTagsDR", DRMin);
+    }
+    else
+    {
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexBJetTags", -999999.);
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexBJetTagsDR", -1.);
+    }
+    
+    
+    
+    // combinedSecondaryVertexMVA
+    DRMin = 999999;
+    jMin = -1;
+    
+    for(unsigned int j = 0; j < bTagHandle_combinedSecondaryVertexMVA->size(); ++j)
+    {
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_combinedSecondaryVertexMVA)[j].first->px(),
+                                                                   (*bTagHandle_combinedSecondaryVertexMVA)[j].first->py(),
+                                                                   (*bTagHandle_combinedSecondaryVertexMVA)[j].first->pz(),
+                                                                   (*bTagHandle_combinedSecondaryVertexMVA)[j].first->energy());
+      float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+      if(DRTemp < DRMin)
+      {
+        DRMin = DRTemp;
+        jMin = j;
+      }
+    }
+    
+    if(jMin != -1)
+    {
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexMVABJetTags", (*bTagHandle_combinedSecondaryVertexMVA)[jMin].second);
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexMVABJetTagsDR", DRMin);
+    }
+    else
+    {
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexMVABJetTags", -999999.);
+      NtupleFactory_->FillFloat("jets_combinedSecondaryVertexMVABJetTagsDR", -1.);
+    }
+    
+    
+    
+    // jetProbability
+    DRMin = 999999;
+    jMin = -1;
+    
+    for(unsigned int j = 0; j < bTagHandle_jetProbability->size(); ++j)
+    {
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_jetProbability)[j].first->px(),
+                                                                    (*bTagHandle_jetProbability)[j].first->py(),
+                                                                    (*bTagHandle_jetProbability)[j].first->pz(),
+                                                                    (*bTagHandle_jetProbability)[j].first->energy());
+      float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+      if(DRTemp < DRMin)
+      {
+        DRMin = DRTemp;
+        jMin = j;
+      }
+    }
+    
+    if(jMin != -1)
+    {
+      NtupleFactory_->FillFloat("jets_jetProbabilityBJetTags", (*bTagHandle_jetProbability)[jMin].second);
+      NtupleFactory_->FillFloat("jets_jetProbabilityBJetTagsDR", DRMin);
+    }
+    else
+    {
+      NtupleFactory_->FillFloat("jets_jetProbabilityBJetTags", -999999.);
+      NtupleFactory_->FillFloat("jets_jetProbabilityBJetTagsDR", -1.);
+    }
+    
+    
+    
+    // jetBProbability
+    DRMin = 999999;
+    jMin = -1;
+    
+    for(unsigned int j = 0; j < bTagHandle_jetBProbability->size(); ++j)
+    {
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_jetBProbability)[j].first->px(),
+                                                                   (*bTagHandle_jetBProbability)[j].first->py(),
+                                                                   (*bTagHandle_jetBProbability)[j].first->pz(),
+                                                                   (*bTagHandle_jetBProbability)[j].first->energy());
+      float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+      if(DRTemp < DRMin)
+      {
+        DRMin = DRTemp;
+        jMin = j;
+      }
+    }
+    
+    if(jMin != -1)
+    {
+      NtupleFactory_->FillFloat("jets_jetBProbabilityBJetTags", (*bTagHandle_jetBProbability)[jMin].second);
+      NtupleFactory_->FillFloat("jets_jetBProbabilityBJetTagsDR", DRMin);
+    }
+    else
+    {
+      NtupleFactory_->FillFloat("jets_jetBProbabilityBJetTags", -999999.);
+      NtupleFactory_->FillFloat("jets_jetBProbabilityBJetTagsDR", -1.);
+    }
+    
+}  
+
+
+
+
+
+
 ///---- MET ----
+
 void SimpleNtple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
  edm::Handle<reco::CaloMETCollection> MetHandle ;
  iEvent.getByLabel (MetTag_,MetHandle);
- const reco::CaloMET *calomet = &(MetHandle->front());
- NtupleFactory_->Fill4V("met",calomet->p4());
+ 
+ edm::Handle<reco::CaloMETCollection> Type1MetHandle ;
+ iEvent.getByLabel (Type1MetTag_,Type1MetHandle);
+ 
+ edm::Handle<reco::PFMETCollection> PFMetHandle ;
+ iEvent.getByLabel (PFMetTag_,PFMetHandle);
+ 
+ 
+ 
+ const reco::CaloMET* met = &(MetHandle->front());
+ NtupleFactory_->Fill4V("met",met->p4());
+ 
+ const reco::MET* type1Met = &(Type1MetHandle->front());
+ NtupleFactory_->Fill4V("type1Met",type1Met->p4());
+ 
+ const reco::PFMET* PFMet = &(PFMetHandle->front());
+ NtupleFactory_->Fill4V("PFMet",PFMet->p4());
 }
 
 
+
+
+
+
 ///---- GenMet ----
+
 void SimpleNtple::fillGenMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
  edm::Handle< reco::GenMETCollection > genMetHandle ;
@@ -269,7 +645,12 @@ void SimpleNtple::fillGenMetInfo (const edm::Event & iEvent, const edm::EventSet
 }
 
 
+
+
+
+
 ///---- GenJet ----
+
 void SimpleNtple::fillGenJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
  edm::Handle<edm::View<reco::GenJet> > genJetHandle ;
@@ -281,7 +662,12 @@ void SimpleNtple::fillGenJetInfo (const edm::Event & iEvent, const edm::EventSet
 }
 
 
+
+
+
+
 ///---- MC ----
+
 void SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
  edm::Handle<reco::GenParticleCollection> genParticles;
@@ -331,9 +717,6 @@ void SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup &
       
  }
  
- 
- 
- 
 }
  
 
@@ -359,6 +742,9 @@ void
  
  ///---- fill jets ---- 
  if (saveJet_) fillJetInfo (iEvent, iSetup);
+ 
+ ///---- fill jets ---- 
+ if (savePFJet_) fillPFJetInfo (iEvent, iSetup);
 
  ///---- fill met ---- 
  if (saveMet_) fillMetInfo (iEvent, iSetup);
@@ -417,13 +803,29 @@ void
 
  NtupleFactory_->Add3V("tracks_in");
  NtupleFactory_->Add3V("tracks_out");   
+ 
  NtupleFactory_->Add4V("jets");      
- NtupleFactory_->AddFloat("jets_btagging");   
+ NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTags");   
+ NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTagsDR");   
+ NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTags");   
+ NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTagsDR");   
+ NtupleFactory_->AddFloat("jets_simpleSecondaryVertexBJetTags");   
+ NtupleFactory_->AddFloat("jets_simpleSecondaryVertexBJetTagsDR");   
+ NtupleFactory_->AddFloat("jets_combinedSecondaryVertexBJetTags");   
+ NtupleFactory_->AddFloat("jets_combinedSecondaryVertexBJetTagsDR");   
+ NtupleFactory_->AddFloat("jets_combinedSecondaryVertexMVABJetTags");   
+ NtupleFactory_->AddFloat("jets_combinedSecondaryVertexMVABJetTagsDR");   
+ NtupleFactory_->AddFloat("jets_jetProbabilityBJetTags");   
+ NtupleFactory_->AddFloat("jets_jetProbabilityBJetTagsDR");   
+ NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTags");   
+ NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTagsDR");   
+ NtupleFactory_->Add4V("genJets");         
    
  NtupleFactory_->Add4V("met");         
- NtupleFactory_->Add4V("genJets");         
+ NtupleFactory_->Add4V("type1Met");         
+ NtupleFactory_->Add4V("PFMet");         
  NtupleFactory_->Add4V("genMet");                
-
+ 
  NtupleFactory_->Add4V("mc_H");    
  NtupleFactory_->AddFloat("mc_H_charge");    
       
