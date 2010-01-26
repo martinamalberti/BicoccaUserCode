@@ -1,4 +1,6 @@
 #include "hChain.h"
+#include "TStyle.h"
+#include "TROOT.h"
 
 hChain::hChain (TString baseName, TString baseTitle, 
                 int nbins, double min, double max, int NUM) :
@@ -68,6 +70,8 @@ hChain::Fill (int i, double val)
 void 
 hChain::Print (bool isLog, int rebin, TString altName) 
   {
+    gROOT->SetStyle ("Plain") ;
+
     for (int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->SetFillStyle (3001) ;
     for (int i=0 ; i<m_histos.size () ; ++i)
