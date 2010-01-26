@@ -58,6 +58,7 @@ process.source = cms.Source(
 # --- PRESELECTION  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
 
+process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_all_cff")
 process.MCDecayModeFilterAll.eventType = cms.untracked.int32(1)
 
 

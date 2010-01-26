@@ -49,6 +49,5 @@ SimpleNtple = cms.EDAnalyzer(
      
         
      verbosity = cms.untracked.bool(False),
-     eventType = cms.untracked.int32(0), 
-
+     eventType = cms.untracked.int32(0) 
 )

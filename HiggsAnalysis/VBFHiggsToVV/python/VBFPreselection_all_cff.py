@@ -161,9 +161,6 @@ VBFPreselectionSequenceAll = cms.Sequence(
     
 
     # electrons
-    VBFAmbiguityResolvedElectronsAll +
-    VBFAmbiguityResolvedElectronsRefAll +  
-    
     VBFSelectedElectronsAll +
     VBFSelectedElectronsRefAll +
     
