@@ -22,11 +22,11 @@ MCDecayModeFilterAll.H_W_W = cms.bool(True)
 
 MCDecayModeFilterAll.V1_e_nue = cms.bool(True)
 MCDecayModeFilterAll.V1_mu_numu = cms.bool(True)
-MCDecayModeFilterAll.V1_tau_nutau = cms.bool(False)
+MCDecayModeFilterAll.V1_tau_nutau = cms.bool(True)
 
 MCDecayModeFilterAll.V2_e_nue = cms.bool(True)
 MCDecayModeFilterAll.V2_mu_numu = cms.bool(True)
-MCDecayModeFilterAll.V2_tau_nutau = cms.bool(False)
+MCDecayModeFilterAll.V2_tau_nutau = cms.bool(True)
 MCDecayModeFilterAll.V2_d_u = cms.bool(True)
 MCDecayModeFilterAll.V2_d_c = cms.bool(True)
 MCDecayModeFilterAll.V2_s_u = cms.bool(True)
