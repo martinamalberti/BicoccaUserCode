@@ -24,7 +24,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("./TTBarPreselection.root"),
+    fileName = cms.string("VBF_SimpleTree_TTBar.root"),
     closeFileFast = cms.untracked.bool(True)
     )
 
@@ -62,7 +62,7 @@ process.MCDecayModeFilterAll.eventType = cms.untracked.int32(1)
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
 
 process.load("HiggsAnalysis.TTBarAnalysis.TTBarPreselection_antikt5CaloJets_cff")
-process.TTbarNtupleAntikt5CaloJets.eventType = cms.untracked.int32(0)
+process.TTBarNtupleAntikt5CaloJets.eventType = cms.untracked.int32(0)
 process.TTBarNtupleAntikt5CaloJets.saveMC = cms.untracked.bool(True)
 
 process.load("HiggsAnalysis.TTBarAnalysis.TTBarPreselection_L2L3Antikt5CaloJets_cff")
@@ -127,25 +127,3 @@ process.p6 = cms.Path(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-   
-      
