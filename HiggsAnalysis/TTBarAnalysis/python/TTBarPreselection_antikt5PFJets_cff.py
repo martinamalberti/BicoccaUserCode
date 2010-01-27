@@ -133,7 +133,7 @@ TTBarNtupleAntikt5PFJets.saveMC          = cms.untracked.bool(True)
 
 
 
-VBFPreselectionSequenceAntikt5PFJets = cms.Sequence(
+TTBarPreselectionSequenceAntikt5PFJets = cms.Sequence(
     
     VBFPreselectionSequenceAll +
     

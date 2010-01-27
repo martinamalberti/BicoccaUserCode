@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtpleTTBar.cc,v 1.4 2010/01/16 18:40:17 amassiro Exp $
+// $Id: SimpleNtpleTTBar.cc,v 1.5 2010/01/27 09:14:34 amassiro Exp $
 //
 //
 
@@ -86,6 +86,8 @@ SimpleNtpleTTBar::SimpleNtpleTTBar(const edm::ParameterSet& iConfig)
  saveEle_ = iConfig.getUntrackedParameter<bool> ("saveEle", true);
  saveJet_ = iConfig.getUntrackedParameter<bool> ("saveJet", true);
  savePFJet_ = iConfig.getUntrackedParameter<bool> ("savePFJet", false);
+ if(saveJet_ && savePFJet_) savePFJet_ = false;
+ saveJetBTagging_ = iConfig.getUntrackedParameter<bool> ("saveJetBTagging", true);
  saveMet_ = iConfig.getUntrackedParameter<bool> ("saveMet", true);
  saveGenJet_ = iConfig.getUntrackedParameter<bool> ("saveGenJet", true);
  saveGenMet_ = iConfig.getUntrackedParameter<bool> ("saveGenMet", true);
@@ -114,6 +116,8 @@ SimpleNtpleTTBar::~SimpleNtpleTTBar()
 ///---- muons ----
 void SimpleNtpleTTBar::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+ //std::cout << "SimpleNtple::fillMuInfo" << std::endl;
+ 
  edm::Handle<reco::MuonCollection> MuHandle ;
  iEvent.getByLabel (MuTag_,MuHandle);
  
@@ -164,6 +168,8 @@ void SimpleNtpleTTBar::fillMuInfo (const edm::Event & iEvent, const edm::EventSe
 
 void SimpleNtpleTTBar::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+ //std::cout << "SimpleNtple::fillEleInfo" << std::endl;
+ 
  edm::Handle<reco::GsfElectronCollection> EleHandle ;
  iEvent.getByLabel (EleTag_,EleHandle);
  
@@ -229,6 +235,8 @@ void SimpleNtpleTTBar::fillEleInfo (const edm::Event & iEvent, const edm::EventS
 
 void SimpleNtpleTTBar::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+ //std::cout << "SimpleNtple::fillTrackInfo" << std::endl;
+ 
  edm::Handle<edm::View<reco::Track> > TracksHandle ;
  iEvent.getByLabel (TracksTag_, TracksHandle) ;
  for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
@@ -242,6 +250,8 @@ void SimpleNtpleTTBar::fillTrackInfo (const edm::Event & iEvent, const edm::Even
 
 void SimpleNtpleTTBar::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+  //std::cout << "SimpleNtple::fillJetInfo" << std::endl;
+ 
  edm::Handle<reco::CaloJetCollection> JetHandle ;
  iEvent.getByLabel (JetTag_,JetHandle);
 
@@ -262,15 +272,10 @@ void SimpleNtpleTTBar::fillJetInfo (const edm::Event & iEvent, const edm::EventS
 
   if(!isJetRefCheckOk) continue;
    
-   
   NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
    
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v1((*JetHandle)[i].px(),
-    (*JetHandle)[i].py(),
-    (*JetHandle)[i].pz(),
-    (*JetHandle)[i].energy());
   if(saveJetBTagging_)
-   fillJetBTaggingInfo(iEvent, iESetup, v1);
+   fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());
    
  }// loop on jets
  
@@ -281,6 +286,8 @@ void SimpleNtpleTTBar::fillJetInfo (const edm::Event & iEvent, const edm::EventS
 ///---- PFJets ----
 void SimpleNtpleTTBar::fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+ //std::cout << "SimpleNtple::fillPFJetInfo" << std::endl;
+ 
  edm::Handle<reco::PFJetCollection> JetHandle ;
  iEvent.getByLabel (JetTag_,JetHandle);
  
@@ -301,13 +308,9 @@ void SimpleNtpleTTBar::fillPFJetInfo (const edm::Event & iEvent, const edm::Even
   if(!isJetRefCheckOk) continue;
   
   NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4()); 
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v1(
-    (*JetHandle)[i].px(),
-    (*JetHandle)[i].py(),
-    (*JetHandle)[i].pz(),
-    (*JetHandle)[i].energy());
+
   if(saveJetBTagging_)
-   fillJetBTaggingInfo(iEvent, iESetup, v1);
+   fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());
  }
 }
 
@@ -320,6 +323,8 @@ void SimpleNtpleTTBar::fillPFJetInfo (const edm::Event & iEvent, const edm::Even
 void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup,
                                       const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >& v1)
 {
+ //std::cout << "SimpleNtple::fillJetBTaggingInfo" << std::endl;
+ 
  edm::Handle<reco::JetTagCollection> bTagHandle_trackCountingHighEff;
  iEvent.getByLabel("trackCountingHighEffBJetTags", bTagHandle_trackCountingHighEff);  
 
@@ -347,12 +352,7 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
     
  for(unsigned int j = 0; j < bTagHandle_trackCountingHighEff->size(); ++j)
  {
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2(
-    (*bTagHandle_trackCountingHighEff)[j].first->px(),
-    (*bTagHandle_trackCountingHighEff)[j].first->py(),
-    (*bTagHandle_trackCountingHighEff)[j].first->pz(),
-    (*bTagHandle_trackCountingHighEff)[j].first->energy());
-  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1, (*bTagHandle_trackCountingHighEff)[j].first->p4());
   if(DRTemp < DRMin)
   {
    DRMin = DRTemp;
@@ -378,12 +378,7 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
     
  for(unsigned int j = 0; j < bTagHandle_trackCountingHighPur->size(); ++j)
  {
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2(
-    (*bTagHandle_trackCountingHighPur)[j].first->px(),
-    (*bTagHandle_trackCountingHighPur)[j].first->py(),
-    (*bTagHandle_trackCountingHighPur)[j].first->pz(),
-    (*bTagHandle_trackCountingHighPur)[j].first->energy());
-  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1, (*bTagHandle_trackCountingHighPur)[j].first->p4());
   if(DRTemp < DRMin)
   {
    DRMin = DRTemp;
@@ -408,11 +403,7 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
     
  for(unsigned int j = 0; j < bTagHandle_simpleSecondaryVertex->size(); ++j)
  {
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_simpleSecondaryVertex)[j].first->px(),
-    (*bTagHandle_simpleSecondaryVertex)[j].first->py(),
-    (*bTagHandle_simpleSecondaryVertex)[j].first->pz(),
-    (*bTagHandle_simpleSecondaryVertex)[j].first->energy());
-  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1, (*bTagHandle_simpleSecondaryVertex)[j].first->p4());
   if(DRTemp < DRMin)
   {
    DRMin = DRTemp;
@@ -438,11 +429,7 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
     
  for(unsigned int j = 0; j < bTagHandle_combinedSecondaryVertex->size(); ++j)
  {
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_combinedSecondaryVertex)[j].first->px(),
-    (*bTagHandle_combinedSecondaryVertex)[j].first->py(),
-    (*bTagHandle_combinedSecondaryVertex)[j].first->pz(),
-    (*bTagHandle_combinedSecondaryVertex)[j].first->energy());
-  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1, (*bTagHandle_combinedSecondaryVertex)[j].first->p4());
   if(DRTemp < DRMin)
   {
    DRMin = DRTemp;
@@ -468,11 +455,7 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
     
  for(unsigned int j = 0; j < bTagHandle_combinedSecondaryVertexMVA->size(); ++j)
  {
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_combinedSecondaryVertexMVA)[j].first->px(),
-    (*bTagHandle_combinedSecondaryVertexMVA)[j].first->py(),
-    (*bTagHandle_combinedSecondaryVertexMVA)[j].first->pz(),
-    (*bTagHandle_combinedSecondaryVertexMVA)[j].first->energy());
-  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1, (*bTagHandle_combinedSecondaryVertexMVA)[j].first->p4());
   if(DRTemp < DRMin)
   {
    DRMin = DRTemp;
@@ -498,11 +481,7 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
     
  for(unsigned int j = 0; j < bTagHandle_jetProbability->size(); ++j)
  {
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_jetProbability)[j].first->px(),
-    (*bTagHandle_jetProbability)[j].first->py(),
-    (*bTagHandle_jetProbability)[j].first->pz(),
-    (*bTagHandle_jetProbability)[j].first->energy());
-  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1, (*bTagHandle_jetProbability)[j].first->p4());
   if(DRTemp < DRMin)
   {
    DRMin = DRTemp;
@@ -528,11 +507,7 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
     
  for(unsigned int j = 0; j < bTagHandle_jetBProbability->size(); ++j)
  {
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > v2((*bTagHandle_jetBProbability)[j].first->px(),
-    (*bTagHandle_jetBProbability)[j].first->py(),
-    (*bTagHandle_jetBProbability)[j].first->pz(),
-    (*bTagHandle_jetBProbability)[j].first->energy());
-  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1,v2);
+  float DRTemp = ROOT::Math::VectorUtil::DeltaR(v1, (*bTagHandle_jetBProbability)[j].first->p4());
   if(DRTemp < DRMin)
   {
    DRMin = DRTemp;
@@ -557,6 +532,8 @@ void SimpleNtpleTTBar::fillJetBTaggingInfo(const edm::Event & iEvent, const edm:
 
 void SimpleNtpleTTBar::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+   //std::cout << "SimpleNtple::fillMetInfo" << std::endl;
+ 
  edm::Handle<reco::CaloMETCollection> MetHandle ;
  iEvent.getByLabel (MetTag_,MetHandle);
  
@@ -583,6 +560,8 @@ void SimpleNtpleTTBar::fillMetInfo (const edm::Event & iEvent, const edm::EventS
 
 void SimpleNtpleTTBar::fillGenMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+   //std::cout << "SimpleNtple::fillGenMetInfo" << std::endl;
+ 
  edm::Handle< reco::GenMETCollection > genMetHandle ;
  iEvent.getByLabel( genMetTag_, genMetHandle ) ;
  for (reco::GenMETCollection::const_iterator gMIt = genMetHandle->begin (); gMIt != genMetHandle->end (); ++gMIt ) 
@@ -596,6 +575,8 @@ void SimpleNtpleTTBar::fillGenMetInfo (const edm::Event & iEvent, const edm::Eve
 ///---- GenJet ----
 void SimpleNtpleTTBar::fillGenJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+   //std::cout << "SimpleNtple::fillGenJetInfo" << std::endl;
+ 
  edm::Handle<edm::View<reco::GenJet> > genJetHandle ;
  iEvent.getByLabel (genJetTag_,genJetHandle);
  for (edm::View<reco::GenJet>::const_iterator genJetIt = genJetHandle->begin (); genJetIt != genJetHandle->end (); ++genJetIt ) 
@@ -607,6 +588,8 @@ void SimpleNtpleTTBar::fillGenJetInfo (const edm::Event & iEvent, const edm::Eve
 ///---- MC ----
 void SimpleNtpleTTBar::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+   //std::cout << "SimpleNtple::fillMCInfo" << std::endl;
+ 
  edm::Handle<reco::GenParticleCollection> genParticles;
  iEvent.getByLabel(MCtruthTag_, genParticles);
  
