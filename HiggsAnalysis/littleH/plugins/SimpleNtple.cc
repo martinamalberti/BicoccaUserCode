@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.43 2010/01/26 14:22:58 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.44 2010/01/27 08:12:46 dimatteo Exp $
 //
 //
 
@@ -801,7 +801,7 @@ void
   TransientVertex tv = kvf.vertex(t_tks);
 
 //   // Gaussian Sum Filter Algorithm 
-//   AdaptiveGsfVertexFitter gsf(gsfPSet);
+//   GsfVertexFitter gsf(gsfPSet);
 //   TransientVertex tv = gsf.vertex(t_tks);
     
   if ( ! tv.isValid() ) return;
