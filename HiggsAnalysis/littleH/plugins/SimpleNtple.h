@@ -108,19 +108,20 @@ class SimpleNtple : public EDAnalyzer {
     void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillBeamSpotInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void findOniaCategories (const Event & iEvent, const EventSetup & iESetup) ;
-    void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, reco::Vertex &PV, int oniacato);
-    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV, int oniacato);
+    void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, reco::Vertex &PV, int oniacato, float lepMass);
+    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV, int oniacato, float lepMass);
     double PhiInRange(const double& phi) const;
 
-    template <class T> math::XYZTLorentzVector lorentzMomentum(const T & muon) const;
+    template <class T> TLorentzVector lorentzMomentumMu(const T & muon) const;
+    template <class T> TLorentzVector lorentzMomentumLep(const T & lep, float mass) const;
     std::vector<unsigned int> trackHits(const reco::Track& tr);
     template <class T, class U> double deltaR(const T & t, const U & u) const;
-    double GetTheta( math::XYZTLorentzVector & a,  math::XYZTLorentzVector & b) const; 
+    double GetTheta( TLorentzVector & a,  TLorentzVector & b) const; 
  
     TTree* outTree_;
     NtupleFactory* NtupleFactory_;
-    double oniaMass;
-    double branch_ratio;
+    float oniaMass_, muMass_, eleMass_;
+    float branch_ratio;
     
     ParameterSet gsfPSet;
 

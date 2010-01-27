@@ -35,7 +35,8 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
 #         'file:/tmp/dimatteo/66E38069-7EDB-DE11-9027-002264055CE4.root',
         'file:/tmp/dimatteo/EA493E35-D787-DE11-843A-00215E221692.root',
-        )
+#         'file:/tmp/dimatteo/RECO_A0prod_1.root',
+)
     )
 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 

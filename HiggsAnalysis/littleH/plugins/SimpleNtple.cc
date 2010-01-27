@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.44 2010/01/27 08:12:46 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.45 2010/01/27 15:17:16 dimatteo Exp $
 //
 //
 
@@ -55,7 +55,7 @@
 using namespace edm;
 
 SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
-    gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
+  gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
   TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
   EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
   MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
@@ -123,8 +123,8 @@ void
  
   for(int i=0; i< nPriVtx; i++)
   {     
-    math::XYZVector myvect_XYZ ((*privtxs)[i].position().x(),(*privtxs)[i].position().y(),(*privtxs)[i].position().z());
-    NtupleFactory_->Fill3V("priVtx_3vec",myvect_XYZ);
+    TVector3 myvect3 ((*privtxs)[i].position().x(),(*privtxs)[i].position().y(),(*privtxs)[i].position().z());
+    NtupleFactory_->Fill3TV("priVtx_3vec",myvect3);
     NtupleFactory_->FillFloat("priVtx_xxE",(*privtxs)[i].covariance(0,0));
     NtupleFactory_->FillFloat("priVtx_yyE",(*privtxs)[i].covariance(1,1));
     NtupleFactory_->FillFloat("priVtx_zzE",(*privtxs)[i].covariance(2,2));
@@ -165,8 +165,8 @@ void
          TrackRef glbTrack = glbmuon->globalTrack();
          TrackRef innTrack = glbmuon->innerTrack();
 
-         NtupleFactory_->Fill4V("muons_glb_4mom", lorentzMomentum(*glbTrack)) ;
-         NtupleFactory_->Fill4V("muons_glb_track4mom", lorentzMomentum(*innTrack)) ;
+         NtupleFactory_->Fill4TV("muons_glb_4mom", lorentzMomentumMu(*glbTrack)) ;
+         NtupleFactory_->Fill4TV("muons_glb_track4mom", lorentzMomentumMu(*innTrack)) ;
 
          NtupleFactory_->FillInt("muons_glb_charge",(glbmuon->charge()));
          NtupleFactory_->FillFloat("muons_glb_tkIsoR03",(glbmuon->isolationR03()).sumPt);
@@ -208,7 +208,7 @@ void
             trkmuon++) {
               TrackRef innTrack = trkmuon->innerTrack();
 
-              NtupleFactory_->Fill4V("muons_trk_4mom", lorentzMomentum(*innTrack)) ;
+              NtupleFactory_->Fill4TV("muons_trk_4mom", lorentzMomentumMu(*innTrack)) ;
 
               NtupleFactory_->FillInt("muons_trk_charge",(trkmuon->charge()));
      
@@ -285,8 +285,10 @@ void
     }
     if (!storeThisOther) continue;
     
-    NtupleFactory_->Fill3V("tracks_in",(*tkIt).innerMomentum ());  
-    NtupleFactory_->Fill3V("tracks_out",(*tkIt).outerMomentum ());
+    TVector3 myvect3 ((*tkIt).innerMomentum().x(), (*tkIt).innerMomentum().y(), (*tkIt).innerMomentum().z());
+    NtupleFactory_->Fill3TV("tracks_in",myvect3);  
+    myvect3.SetXYZ ((*tkIt).innerMomentum().x(), (*tkIt).innerMomentum().y(), (*tkIt).innerMomentum().z());
+    NtupleFactory_->Fill3TV("tracks_out",myvect3);
       
     NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
     NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
@@ -322,8 +324,9 @@ void
     theElectrons.push_back((*EleHandle)[i]);
       //Get Ele Ref
     Ref<View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
-      
-    NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
+
+    TLorentzVector myvec4 ((*EleHandle)[i].px(), (*EleHandle)[i].py(), (*EleHandle)[i].pz(), (*EleHandle)[i].energy());      
+    NtupleFactory_->Fill4TV("electrons",myvec4);
     NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
     NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
     NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
@@ -371,8 +374,8 @@ void
   {
 
     NtupleFactory_->FillFloat ("SC_Energy", iClus->energy ()) ;
-    math::XYZVector dummy3V (iClus->x (), iClus->y (), iClus->z ()) ;
-    NtupleFactory_->Fill3V ("SC_position", dummy3V) ;
+    TVector3 dummy3V (iClus->x (), iClus->y (), iClus->z ()) ;
+    NtupleFactory_->Fill3TV ("SC_position", dummy3V) ;
   } //PG loop on superclusters in the barrel
 
   Handle<reco::SuperClusterCollection> escHandle ;  
@@ -385,8 +388,8 @@ void
   {
 
     NtupleFactory_->FillFloat ("SC_Energy", iClus->energy ()) ;
-    math::XYZVector dummy3V (iClus->x (), iClus->y (), iClus->z ()) ;
-    NtupleFactory_->Fill3V ("SC_position", dummy3V) ;
+    TVector3 dummy3V (iClus->x (), iClus->y (), iClus->z ()) ;
+    NtupleFactory_->Fill3TV ("SC_position", dummy3V) ;
   } //PG loop on superclusters in the endcaps
 
   return ;
@@ -427,7 +430,8 @@ void
   for (int iGen = 0; iGen < (int)toBeSaved.size () ; ++iGen) 
   {          
     NtupleFactory_->FillFloat ("MC_pdgID", toBeSaved.at (iGen)->pdgId ()) ;
-    NtupleFactory_->Fill4V ("MC_particles4V", toBeSaved.at (iGen)->p4 ()) ;
+    TLorentzVector myvec4(toBeSaved.at (iGen)->px(),toBeSaved.at (iGen)->py(),toBeSaved.at (iGen)->pz(),toBeSaved.at (iGen)->energy());
+    NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
       
     vector<const Candidate *>::const_iterator trovo =
         find (toBeSaved.begin (), toBeSaved.end (), toBeSaved.at (iGen)->mother ()) ;
@@ -505,8 +509,8 @@ void
   iEvent.getByLabel(beamSpotTag_ ,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle; 
 
-  math::XYZVector myvect_XYZ (bs.x0(),bs.y0(),bs.z0());
-  NtupleFactory_->Fill3V("beamSpot_3vec",myvect_XYZ);
+  TVector3 myvect3 (bs.x0(),bs.y0(),bs.z0());
+  NtupleFactory_->Fill3TV("beamSpot_3vec",myvect3);
 
   NtupleFactory_->FillFloat("beamSpot_xxE",bs.covariance(0,0));
   NtupleFactory_->FillFloat("beamSpot_yyE",bs.covariance(1,1));
@@ -577,7 +581,7 @@ void
       ele1 = nele1->gsfTrack();    
       ele2 = nele2->gsfTrack(); 
       e2++;
-      fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, PV, 0);
+      fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, PV, 0, eleMass_);
     }
     e1++;
   }
@@ -590,14 +594,14 @@ void
       muon1 = nmuon1->innerTrack();    
       muon2 = nmuon2->innerTrack(); 
       m2g++;
-      if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
+      if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1, muMass_);
     }
      
     for( tmuon2 = theTrkMuons.begin(); tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
     {
       muon1 = nmuon1->innerTrack();    
       muon2 = tmuon2->innerTrack(); 
-      if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
+      if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2, muMass_);
       m2t++;
     }
     m1++;
@@ -610,7 +614,7 @@ void
       muon1 = tmuon1->innerTrack();    
       muon2 = tmuon2->innerTrack(); 
       m2t++; 
-      if (theOniaMaxCat >= 2) fillOnia2MuMuTracks(muon1, m1, muon2, m2t+m1, PV, 3);
+      if (theOniaMaxCat >= 2) fillOnia2MuMuTracks(muon1, m1, muon2, m2t+m1, PV, 3, muMass_);
     }
     m1++;
   }
@@ -624,7 +628,7 @@ void
 
 //Fill Onia2MuMu category
 void 
-    SimpleNtple::fillOnia2MuMuTracks(TrackRef lep1, int l1, TrackRef lep2, int l2, reco::Vertex &PV, int oniacato) 
+    SimpleNtple::fillOnia2MuMuTracks(TrackRef lep1, int l1, TrackRef lep2, int l2, reco::Vertex &PV, int oniacato, float lepMass) 
 {
  
   if (oniacato<0  ) return;
@@ -647,12 +651,12 @@ void
   GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
   GlobalVector DistVector = v - PVposition; 
  
-  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-  math::XYZTLorentzVector onia = lp1 + lp2;
+  TLorentzVector lp1=lorentzMomentumLep(*lep1, lepMass);
+  TLorentzVector lp2=lorentzMomentumLep(*lep2, lepMass);
+  TLorentzVector onia = lp1 + lp2;
    
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
-  if ( onia.mass() < OniaMassCut_ ) return;//Cut on Onia invariant mass
+  if ( onia.M() < OniaMassCut_ ) return;//Cut on Onia invariant mass
   if ( DistVector.mag() > Onia3DipCut_ ) return;//Cut on Onia 3Dip
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
@@ -672,8 +676,8 @@ void
   NtupleFactory_->FillInt("QQ_type",oniacato);
   NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
   NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));
-  math::XYZTLorentzVector my4mom (onia.px(),onia.py(),onia.pz(),onia.energy()) ;
-  NtupleFactory_->Fill4V("QQ_4mom",my4mom);
+  TLorentzVector my4mom (onia.Px(),onia.Py(),onia.Pz(),onia.E()) ;
+  NtupleFactory_->Fill4TV("QQ_4mom",my4mom);
 
   if ( lep1->charge() == 1 ) 
   {
@@ -686,7 +690,7 @@ void
     NtupleFactory_->FillInt("QQ_lepmi",l1);
     NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
   }
-  if (oniacato == 2 || lp1.pt() > lp2.pt()) 
+  if (oniacato == 2 || lp1.Perp() > lp2.Perp()) 
   {   
     NtupleFactory_->FillInt("QQ_lephpt",l1);
     NtupleFactory_->FillInt("QQ_lephp",l2);
@@ -696,8 +700,8 @@ void
     NtupleFactory_->FillInt("QQ_lephpt",l2);
   }
            
-  math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
-  NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
+  TVector3 myvect3 (v.x(),v.y(),v.z());
+  NtupleFactory_->Fill3TV("QQ_Vtx",myvect3);
 
   NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
   NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
@@ -710,13 +714,13 @@ void
   NtupleFactory_->FillFloat("QQ_lxyErr",err.rerr(v));
   NtupleFactory_->FillFloat("QQ_normChi2",tv.normalisedChiSquared());
   NtupleFactory_->FillFloat("QQ_probChi2",TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()));
-      
+    
   TVector3 pperp(onia.Px(), onia.Py(), 0);
   TVector3 vperp1(v.x(), v.y(), 0);
   TVector3 vperp2(PV.position().x(), PV.position().y(), 0. );
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-  double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
+  double ctau = vperp.Perp()*cosAlpha*oniaMass_/onia.Perp();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
   NtupleFactory_->FillFloat("QQ_ctau",ctau);   
      
@@ -785,7 +789,7 @@ void
 
 //Fill Onia2EleEle category
 void 
-    SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, reco::Vertex &PV, int oniacato) 
+    SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, reco::Vertex &PV, int oniacato, float lepMass) 
 {
  
   if (oniacato<0  ) return;
@@ -812,12 +816,12 @@ void
   GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
   GlobalVector DistVector = v - PVposition; 
   
-  math::XYZTLorentzVector lp1=lorentzMomentum(*lep1);
-  math::XYZTLorentzVector lp2=lorentzMomentum(*lep2);
-  math::XYZTLorentzVector onia = lp1 + lp2;
+  TLorentzVector lp1=lorentzMomentumLep(*lep1, lepMass);
+  TLorentzVector lp2=lorentzMomentumLep(*lep2, lepMass);
+  TLorentzVector onia = lp1 + lp2;
     
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
-  if ( onia.mass() < OniaMassCut_ ) return;//Cut on Onia invariant mass
+  if ( onia.M() < OniaMassCut_ ) return;//Cut on Onia invariant mass
   if ( DistVector.mag() > Onia3DipCut_ ) return;//Cut on Onia 3Dip
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
@@ -838,8 +842,8 @@ void
   NtupleFactory_->FillInt("QQ_type",oniacato);
   NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
   NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));  
-  math::XYZTLorentzVector my4mom (onia.px(),onia.py(),onia.pz(),onia.energy()) ;
-  NtupleFactory_->Fill4V("QQ_4mom",my4mom);
+  TLorentzVector my4mom (onia.Px(),onia.Py(),onia.Pz(),onia.E()) ;
+  NtupleFactory_->Fill4TV("QQ_4mom",my4mom);
 
   if ( lep1->charge() == 1 ) 
   {
@@ -852,7 +856,7 @@ void
     NtupleFactory_->FillInt("QQ_lepmi",l1);
     NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
   }
-  if (lp1.pt() > lp2.pt()) 
+  if (lp1.Perp() > lp2.Perp()) 
   {   
     NtupleFactory_->FillInt("QQ_lephpt",l1);
     NtupleFactory_->FillInt("QQ_lephp",l2);
@@ -862,8 +866,8 @@ void
     NtupleFactory_->FillInt("QQ_lephpt",l2);
   }
       
-  math::XYZVector myvect_XYZ (v.x(),v.y(),v.z());
-  NtupleFactory_->Fill3V("QQ_Vtx",myvect_XYZ);
+  TVector3 myvect3 (v.x(),v.y(),v.z());
+  NtupleFactory_->Fill3TV("QQ_Vtx",myvect3);
 
   NtupleFactory_->FillFloat("QQ_VxxE",err.cxx());
   NtupleFactory_->FillFloat("QQ_VyyE",err.cyy());
@@ -882,7 +886,7 @@ void
   TVector3 vperp2(PV.position().x(), PV.position().y(), 0);
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-  double ctau = vperp.Perp()*cosAlpha*oniaMass/onia.pt();
+  double ctau = vperp.Perp()*cosAlpha*oniaMass_/onia.Perp();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
   NtupleFactory_->FillFloat("QQ_ctau",ctau);
  
@@ -984,33 +988,36 @@ void
     SimpleNtple::beginJob(const EventSetup& iSetup)
 {
   if ( theOniaType==443 )  {
-    oniaMass=3.09688;
+    oniaMass_=3.09688;
     branch_ratio = 0.0593;
   }
   else if ( theOniaType==553 ) {
-    oniaMass=9.46030;
+    oniaMass_=9.46030;
     branch_ratio = 0.0248;
   }
   else if ( theOniaType==100443 ) {
-    oniaMass=3.68600;
+    oniaMass_=3.68600;
     branch_ratio = 0.0083;
   }
   else if ( theOniaType==100553 ) {
-    oniaMass=10.0233;
+    oniaMass_=10.0233;
     branch_ratio = 0.014;
   }
   else if ( theOniaType==200553 ) {
-    oniaMass=10.3552;
+    oniaMass_=10.3552;
     branch_ratio = 0.0218;
   }
   else {
     cout<<"Please set the correct onia type: 443 (Jpsi), 100443(psi'), 553(Upsilon1S), 100553(Upsilon2S), 200553(Upsilon3S),"<<endl;
   }
   
+  muMass_  = 0.105658;
+  eleMass_ = 0.000511;
+  
   if (saveMu_)
   {
-    NtupleFactory_->Add4V("muons_glb_4mom");
-    NtupleFactory_->Add4V("muons_glb_track4mom");
+    NtupleFactory_->Add4TV("muons_glb_4mom");
+    NtupleFactory_->Add4TV("muons_glb_track4mom");
     
     NtupleFactory_->AddFloat("muons_glb_charge"); 
     NtupleFactory_->AddFloat("muons_glb_tkIsoR03"); 
@@ -1042,7 +1049,7 @@ void
     NtupleFactory_->AddFloat("muons_glb_nhitsPix1HitBE");
 
         
-    NtupleFactory_->Add4V("muons_trk_4mom");
+    NtupleFactory_->Add4TV("muons_trk_4mom");
     
     NtupleFactory_->AddFloat("muons_trk_charge"); 
     NtupleFactory_->AddFloat("muons_trk_tkIsoR03"); 
@@ -1071,7 +1078,7 @@ void
 
   if (saveEle_)
   {
-    NtupleFactory_->Add4V("electrons");
+    NtupleFactory_->Add4TV("electrons");
     NtupleFactory_->AddFloat("electrons_charge"); 
     NtupleFactory_->AddFloat("electrons_tkIso"); 
     NtupleFactory_->AddFloat("electrons_emIso"); 
@@ -1089,8 +1096,8 @@ void
 
   if (saveTracks_)
   {
-    NtupleFactory_->Add3V("tracks_in");
-    NtupleFactory_->Add3V("tracks_out");   
+    NtupleFactory_->Add3TV("tracks_in");
+    NtupleFactory_->Add3TV("tracks_out");   
     NtupleFactory_->AddFloat("tracks_d0");
     NtupleFactory_->AddFloat("tracks_dz");   
     NtupleFactory_->AddFloat("tracks_d0err");
@@ -1099,7 +1106,7 @@ void
 
   if (saveVtx_)
   {
-    NtupleFactory_->Add3V("priVtx_3vec");
+    NtupleFactory_->Add3TV("priVtx_3vec");
     NtupleFactory_->AddFloat("priVtx_xxE");
     NtupleFactory_->AddFloat("priVtx_yyE");
     NtupleFactory_->AddFloat("priVtx_zzE");
@@ -1114,7 +1121,7 @@ void
   if (saveMC_)
   {
     NtupleFactory_->AddFloat ("MC_pdgID") ;
-    NtupleFactory_->Add4V ("MC_particles4V") ;
+    NtupleFactory_->Add4TV ("MC_particles4V") ;
     NtupleFactory_->AddInt ("MC_iMother") ;
     NtupleFactory_->AddInt ("MC_iDau0") ;
     NtupleFactory_->AddInt ("MC_iDau1") ;
@@ -1122,12 +1129,12 @@ void
 
   //PG supercluster information
   NtupleFactory_->AddFloat ("SC_Energy") ;
-  NtupleFactory_->Add3V ("SC_position") ;
+  NtupleFactory_->Add3TV ("SC_position") ;
   
   if (saveSC_)
   {
     NtupleFactory_->AddFloat ("SC_Energy") ;
-    NtupleFactory_->Add3V ("SC_position") ;
+    NtupleFactory_->Add3TV ("SC_position") ;
   }
 
   //Trigger Info
@@ -1195,7 +1202,7 @@ void
   //BeamSpot Info
   if (saveBeamSpot_)
   {
-    NtupleFactory_->Add3V("beamSpot_3vec");
+    NtupleFactory_->Add3TV("beamSpot_3vec");
     NtupleFactory_->AddFloat("beamSpot_xxE");
     NtupleFactory_->AddFloat("beamSpot_yyE");
     NtupleFactory_->AddFloat("beamSpot_zzE");
@@ -1213,7 +1220,7 @@ void
     
     NtupleFactory_->AddFloat("QQ_DeltaR");
     NtupleFactory_->AddFloat("QQ_s");
-    NtupleFactory_->Add4V("QQ_4mom");
+    NtupleFactory_->Add4TV("QQ_4mom");
     
     NtupleFactory_->AddInt("QQ_leppl");
     NtupleFactory_->AddInt("QQ_lepmi");
@@ -1224,7 +1231,7 @@ void
     NtupleFactory_->AddInt("QQ_lephp");
     
     NtupleFactory_->AddInt("QQ_VtxIsVal");
-    NtupleFactory_->Add3V("QQ_Vtx");
+    NtupleFactory_->Add3TV("QQ_Vtx");
     NtupleFactory_->AddFloat("QQ_VxxE");
     NtupleFactory_->AddFloat("QQ_VyyE");
     NtupleFactory_->AddFloat("QQ_VzzE");
@@ -1267,13 +1274,25 @@ void
 // Returns Lorentz-vector of muon
 //////////////////////////////////////////////////////////////////////////////
 template <class T>
-    math::XYZTLorentzVector SimpleNtple::lorentzMomentum(const T& muon) const 
+    TLorentzVector SimpleNtple::lorentzMomentumMu(const T& muon) const 
 {
   const double preco = muon.p();
-  const double ereco = sqrt(preco*preco + 0.011163613);
+  const double ereco = sqrt(preco*preco + 0.011163613); 
 
-  return math::XYZTLorentzVector(muon.px(), muon.py(), muon.pz(), ereco);
+  return TLorentzVector(muon.px(), muon.py(), muon.pz(), ereco);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Returns Lorentz-vector of muon or ele
+//////////////////////////////////////////////////////////////////////////////
+template <class T> 
+    TLorentzVector SimpleNtple::lorentzMomentumLep(const T & lep, float mass) const
+{
+  const double preco = lep.p();
+  const double ereco = sqrt(preco*preco + mass*mass); 
+
+  return TLorentzVector(lep.px(), lep.py(), lep.pz(), ereco);
+}    
 
 /////////////////////////////////////////////////////////////////////
 // Number of hits per muon/track
@@ -1320,17 +1339,13 @@ template <class T, class U>
 ////////////////////////////////////////////////////////////////////////
 //calculates theta
 ////////////////////////////////////////////////////////////////////////
-double SimpleNtple::GetTheta( math::XYZTLorentzVector & a,  math::XYZTLorentzVector & b) const 
+double SimpleNtple::GetTheta( TLorentzVector & a,  TLorentzVector & b ) const 
 {
-  TLorentzVector aL, bL ; 
-  aL.SetXYZT(a.px(),a.py(),a.pz(),a.energy());
-  bL.SetXYZT(b.px(),b.py(),b.pz(),b.energy());
-  
-  TLorentzVector cL = aL+bL;
-  TVector3 bv=cL.BoostVector();
-  aL.Boost(-bv);
-  bL.Boost(-bv);
-  double theta = cL.Vect().Angle(aL.Vect());
+  TLorentzVector c = a+b;
+  TVector3 bv=c.BoostVector();
+  a.Boost(-bv);
+  b.Boost(-bv);
+  double theta = c.Vect().Angle(a.Vect());
   return theta;
 }
 
