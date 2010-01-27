@@ -2,8 +2,8 @@
 Test per Onia2EE!!!
 
 compiling:
-rootcint -f dict.cpp -c LinkDef.h
-c++ -o test_001 `root-config --cflags --glibs` -lGenVector test_001.cpp PhysicsTools/NtupleUtils/bin/dict.cpp PhysicsTools/NtupleUtils/bin/treeReader.cc
+c++ -o test_001 `root-config --cflags --glibs` -lGenVector test_001.cpp \
+   PhysicsTools/NtupleUtils/bin/dict.cpp PhysicsTools/NtupleUtils/bin/treeReader.cc
 
 running example:
 ./testReader ../Ntuple/900GeV/Upsilon1StoEE/SimpleTree_Upsilon_900GeV.root SimpleNtple/SimpleTree
@@ -13,6 +13,9 @@ PIETRO WAS HERE
 */
 
 #include "PhysicsTools/NtupleUtils/bin/treeReader.h"
+#include "TH1.h"
+#include "TCanvas.h"
+#include "TROOT.h"
 
 using namespace std;
 
@@ -23,6 +26,7 @@ int main (int argc, char ** argv)
 
   treeReader reader (tr) ;
   
+  TH1F triggerBit ("triggerBit", "triggerBit", 5, 0, 5) ;
   
   /// SELECTION CUTS ///
   int MIN_nhits_trk = 12;   
@@ -50,7 +54,7 @@ int main (int argc, char ** argv)
   int passedCandidates = 0;
 
   for (int iEvent = 0 ; iEvent < tr->GetEntries () ; ++iEvent)
-{
+    {
       reader.GetEntry (iEvent) ;
       if (iEvent%100 == 0) cout << ">>> Processing event # " << iEvent << endl;
 
@@ -62,12 +66,19 @@ int main (int argc, char ** argv)
       //string L1TbitNames[NL1TTRIGGERS]  = {"HLT_L1MuOpen","HLT_L1Mu", "HLT_L1DoubleMuOpen", "HLT_L1SingleEG5", "HLT_L1SingleEG8", "HLT_L1DoubleEG5"};
       std::vector<int>* HLTBits_accept = reader.GetInt("HLTBits_accept");
       
-      if (!HLTBits_accept->at (0)) continue; 
+      triggerBit.Fill (HLTBits_accept->size ()) ;
+      if (HLTBits_accept->size () && !HLTBits_accept->at (0)) continue; 
 
 
 
       std::vector<float>* electrons_charge= reader.GetFloat("electrons_charge");
-//       cout << electrons_charge->size() << endl ;
-} //PG loop over the events
+      //       cout << electrons_charge->size() << endl ;
+    } //PG loop over the events
+
+  TCanvas c1 ;
+  gROOT->SetStyle ("Plain") ;
+  triggerBit.Draw () ;
+  c1.Print ("triggerBit.gif","gif") ;
+
   return 0 ;
 }
