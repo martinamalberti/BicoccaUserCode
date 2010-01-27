@@ -7,6 +7,7 @@
 #include <iostream>
 #include "TString.h"
 #include "TClonesArray.h"
+#include "TVector3.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -28,9 +29,15 @@ class NtupleFactory{
       
   void Add4V(const TString &name);
   void Fill4V(const TString &name,const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > &vect);
-
+  
+  void Add4TV(const TString &name);
+  void Fill4TV(const TString &name,const TLorentzVector &vect);
+ 
   void Add3V(const TString &name);
   void Fill3V(const TString &name,const ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> &vect);
+      
+  void Add3TV(const TString &name);
+  void Fill3TV(const TString &name,const TVector3 &vect);
       
   void AddFloat(const TString &name);
   void FillFloat(const TString &name,const float &vect);
@@ -50,7 +57,11 @@ class NtupleFactory{
  private:
   TLorentzVector myvector ;
   std::map <TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* > ArrayContent_StdXYZT_ ;
+  std::map <TString,TClonesArray*> ArrayContent_4TV_ ;
+  std::map <TString,int> ArrayContent_4TV_num_ ;
   std::map <TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* > ArrayContent_StdXYZ_ ;
+  std::map <TString,TClonesArray*> ArrayContent_3TV_ ;
+  std::map <TString,int> ArrayContent_3TV_num_ ;
   std::map <TString,std::vector<float>* > ArrayContentFloat_ ;
   std::map <TString,std::vector<double>* > ArrayContentDouble_ ;
   std::map <TString,std::vector<int>* > ArrayContentInt_ ;

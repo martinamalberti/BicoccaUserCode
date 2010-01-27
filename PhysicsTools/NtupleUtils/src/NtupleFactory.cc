@@ -27,8 +27,14 @@ NtupleFactory::~NtupleFactory(){
   for (std::map<TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* >::iterator it=ArrayContent_StdXYZT_.begin() ; it != ArrayContent_StdXYZT_.end(); it++ ){
    delete ((*it).second);
   }
+  for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_4TV_.begin() ; it != ArrayContent_4TV_.end(); it++ ){
+   delete ((*it).second); 
+  }
   for (std::map<TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* >::iterator it=ArrayContent_StdXYZ_.begin() ; it != ArrayContent_StdXYZ_.end(); it++ ){
    delete ((*it).second);
+  }
+  for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_3TV_.begin() ; it != ArrayContent_3TV_.end(); it++ ){
+   delete ((*it).second); 
   }
   for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
    delete ((*it).second);
@@ -57,6 +63,19 @@ void NtupleFactory::Add4V(const TString &name){
  outTree_->Branch(name,"std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >",&(ArrayContent_StdXYZT_[name]));
 }
 
+void NtupleFactory::Add4TV(const TString &name){
+ if (ArrayContent_4TV_.find (name) != ArrayContent_4TV_.end ())
+ {
+  std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
+  return ;                
+ }
+ TClonesArray* dummy = new TClonesArray ("TLorentzVector");
+ ArrayContent_4TV_[name] = dummy ;
+ outTree_->Branch (name, "TClonesArray", &(ArrayContent_4TV_[name]), 256000,0);
+ ArrayContent_4TV_num_[name] = 0;
+ return ;
+}
+
 void NtupleFactory::Add3V(const TString &name){
  if (ArrayContent_StdXYZ_.find (name) != ArrayContent_StdXYZ_.end ())
  {
@@ -66,6 +85,19 @@ void NtupleFactory::Add3V(const TString &name){
  std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* dummy = new std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> > ;
  ArrayContent_StdXYZ_[name] = dummy ;
  outTree_->Branch(name,"std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >",&(ArrayContent_StdXYZ_[name]));
+}
+
+void NtupleFactory::Add3TV(const TString &name){
+ if (ArrayContent_4TV_.find (name) != ArrayContent_4TV_.end ())
+ {
+  std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
+  return ;                
+ }
+ TClonesArray* dummy = new TClonesArray ("TVector3");
+ ArrayContent_3TV_[name] = dummy ;
+ outTree_->Branch (name, "TClonesArray", &(ArrayContent_3TV_[name]), 256000,0);
+ ArrayContent_3TV_num_[name] = 0;
+ return ;
 }
 
 void NtupleFactory::AddFloat(const TString &name){
@@ -114,9 +146,33 @@ void NtupleFactory::Fill4V(const TString &name,const ROOT::Math::LorentzVector<R
  }
 }
 
+void NtupleFactory::Fill4TV(const TString &name,const TLorentzVector &vect){
+ if (ArrayContent_4TV_.find (name) != ArrayContent_4TV_.end ()){
+  int counter = ArrayContent_4TV_num_[name];
+  new ((*(ArrayContent_4TV_[name]))[counter]) TLorentzVector (vect);
+  ArrayContent_4TV_num_[name] += 1;
+ }
+ else {
+  std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
+  return ;        
+ }
+}
+
 void NtupleFactory::Fill3V(const TString &name,const ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> &vect){
  if (ArrayContent_StdXYZ_.find (name) != ArrayContent_StdXYZ_.end ()){
   ArrayContent_StdXYZ_[name]->push_back(vect);
+ }
+ else {
+  std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
+  return ;        
+ }
+}
+
+void NtupleFactory::Fill3TV(const TString &name,const TVector3 &vect){
+ if (ArrayContent_3TV_.find (name) != ArrayContent_3TV_.end ()){
+  int counter = ArrayContent_3TV_num_[name];
+  new ((*(ArrayContent_3TV_[name]))[counter]) TVector3 (vect);
+  ArrayContent_3TV_num_[name] += 1;
  }
  else {
   std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
@@ -161,8 +217,16 @@ void NtupleFactory::FillNtuple(){
  for (std::map<TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* >::iterator it=ArrayContent_StdXYZT_.begin() ; it != ArrayContent_StdXYZT_.end(); it++ ){
   ((*it).second)->clear();  
  }
+ for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_4TV_.begin() ; it != ArrayContent_4TV_.end(); it++ ){
+  ((*it).second)->Clear(); 
+  ArrayContent_4TV_num_[(*it).first] = 0;
+ }
  for (std::map<TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* >::iterator it=ArrayContent_StdXYZ_.begin() ; it != ArrayContent_StdXYZ_.end(); it++ ){
   ((*it).second)->clear();  
+ }
+ for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_3TV_.begin() ; it != ArrayContent_3TV_.end(); it++ ){
+  ((*it).second)->Clear(); 
+  ArrayContent_3TV_num_[(*it).first] = 0;
  }
  for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
   ((*it).second)->clear();  
