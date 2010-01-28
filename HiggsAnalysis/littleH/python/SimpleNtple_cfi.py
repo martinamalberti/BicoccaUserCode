@@ -35,7 +35,7 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      oniaMaxCat    = cms.untracked.int32(1) ,
      oniaType      = cms.untracked.int32(443) ,
     
-     Chi2OniaVtxCut= cms.untracked.double(0.01),      
+     Chi2OniaVtxCut= cms.untracked.double(0.0), #0.01      
      OniaMassCut= cms.untracked.double(3.2),
      Onia3DipCut= cms.untracked.double(5),
      
