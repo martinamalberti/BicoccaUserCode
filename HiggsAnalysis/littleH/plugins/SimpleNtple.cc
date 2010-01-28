@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.46 2010/01/27 17:15:55 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.47 2010/01/28 13:47:35 dimatteo Exp $
 //
 //
 
@@ -83,7 +83,6 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   saveOniaCand_             (iConfig.getUntrackedParameter<bool> ("saveOniaCand", true)),
   theStoreWSOnia            (iConfig.getUntrackedParameter<bool> ("storeWSOnia", true)), 
   theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
-  theOniaType               (iConfig.getUntrackedParameter<int> ("oniaType", 443)), 
   theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)),
   Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.01)),
   OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
@@ -720,9 +719,7 @@ void
   TVector3 vperp2(PV.position().x(), PV.position().y(), 0. );
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-  double ctau = vperp.Perp()*cosAlpha*oniaMass_/onia.Perp();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
-  NtupleFactory_->FillFloat("QQ_ctau",ctau);   
      
   //COMPUTE T.IP, L.IP and 3D IP
   
@@ -886,9 +883,7 @@ void
   TVector3 vperp2(PV.position().x(), PV.position().y(), 0);
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
-  double ctau = vperp.Perp()*cosAlpha*oniaMass_/onia.Perp();
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
-  NtupleFactory_->FillFloat("QQ_ctau",ctau);
  
   //COMPUTE T.IP, L.IP and 3D IP
       
@@ -987,30 +982,6 @@ void
 void 
     SimpleNtple::beginJob(const EventSetup& iSetup)
 {
-  if ( theOniaType==443 )  {
-    oniaMass_=3.09688;
-    branch_ratio = 0.0593;
-  }
-  else if ( theOniaType==553 ) {
-    oniaMass_=9.46030;
-    branch_ratio = 0.0248;
-  }
-  else if ( theOniaType==100443 ) {
-    oniaMass_=3.68600;
-    branch_ratio = 0.0083;
-  }
-  else if ( theOniaType==100553 ) {
-    oniaMass_=10.0233;
-    branch_ratio = 0.014;
-  }
-  else if ( theOniaType==200553 ) {
-    oniaMass_=10.3552;
-    branch_ratio = 0.0218;
-  }
-  else {
-    cout<<"Please set the correct onia type: 443 (Jpsi), 100443(psi'), 553(Upsilon1S), 100553(Upsilon2S), 200553(Upsilon3S),"<<endl;
-  }
-  
   muMass_  = 0.105658;
   eleMass_ = 0.000511;
   
@@ -1048,7 +1019,6 @@ void
     NtupleFactory_->AddFloat("muons_glb_nhitsPix1Hit");
     NtupleFactory_->AddFloat("muons_glb_nhitsPix1HitBE");
 
-        
     NtupleFactory_->Add4TV("muons_trk_4mom");
     
     NtupleFactory_->AddFloat("muons_trk_charge"); 

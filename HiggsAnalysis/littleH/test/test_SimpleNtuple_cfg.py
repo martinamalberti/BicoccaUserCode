@@ -72,7 +72,7 @@ process.SimpleNtpleSequence               )
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
 process.TFileService = cms.Service("TFileService", 
-    fileName = cms.string("SimpleTree_Upsilon.root"),
+    fileName = cms.string("SimpleTree_ppMux.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 

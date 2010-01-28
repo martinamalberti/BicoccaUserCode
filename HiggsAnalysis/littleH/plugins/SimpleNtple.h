@@ -120,7 +120,7 @@ class SimpleNtple : public EDAnalyzer {
  
     TTree* outTree_;
     NtupleFactory* NtupleFactory_;
-    float oniaMass_, muMass_, eleMass_;
+    float muMass_, eleMass_;
     float branch_ratio;
     
     ParameterSet gsfPSet;
@@ -187,7 +187,6 @@ class SimpleNtple : public EDAnalyzer {
     int Reco_mu_trk_size;  
     
     int QQ_size;
-    int theOniaType;
     int theOniaMaxCat;
     // Onia category:
     // 0 = EleEle 
