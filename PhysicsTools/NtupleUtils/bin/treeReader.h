@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TMath.h"
+#include "TH2.h"
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
 #include "TBranch.h"
@@ -28,8 +29,10 @@ class treeReader
     std::vector<int>*                    GetInt   (const std::string &name);
     std::vector<ROOT::Math::XYZVector>*  Get3V    (const std::string &name);
     std::vector<ROOT::Math::XYZTVector>* Get4V    (const std::string &name);
-    
-    
+
+    TH2F * PrepareTest () ; //PG NB the TH2F has to be deleted
+    void FillTest (TH2F * testMe) ;
+        
   private:
 
     std::map <std::string, std::vector<double> * >                 m_Dvectors ;

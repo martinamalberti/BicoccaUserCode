@@ -115,3 +115,57 @@ std::vector<ROOT::Math::XYZTVector>* treeReader::Get4V(const std::string &name){
  if (it_4V  != m_4Vvectors.end()  ) return m_4Vvectors[name];
 }
 
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+TH2F * treeReader::PrepareTest ()  
+{
+  int dim = m_Dvectors.size () + m_Fvectors.size () +
+            m_Ivectors.size () + m_3Vvectors.size () + m_4Vvectors.size () ;
+            
+  TH2F * testMe = new TH2F ("testMe", "vectors size", dim, 0, dim, 10, 0, 10) ;
+
+  return testMe ;                             
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void 
+treeReader::FillTest (TH2F * testMe) 
+{
+    int pos = 0 ;
+    for (std::map <std::string, std::vector<double> * >::const_iterator                 iMap = m_Dvectors.begin () ;
+         iMap != m_Dvectors.end () ;
+         ++iMap)
+      {
+        testMe->Fill (pos++, iMap->second->size ()) ;
+      }
+    for (std::map <std::string, std::vector<float> * >::const_iterator                  iMap = m_Fvectors.begin () ;
+         iMap != m_Fvectors.end () ;
+         ++iMap)
+      {
+        testMe->Fill (pos++, iMap->second->size ()) ;
+      }
+    for (std::map <std::string, std::vector<int> * >::const_iterator                    iMap = m_Ivectors.begin () ;
+         iMap != m_Ivectors.end () ;
+         ++iMap)
+      {
+        testMe->Fill (pos++, iMap->second->size ()) ;
+      }
+    for (std::map <std::string, std::vector<ROOT::Math::XYZVector> * >::const_iterator  iMap = m_3Vvectors.begin () ;
+         iMap != m_3Vvectors.end () ;
+         ++iMap)
+      {
+        testMe->Fill (pos++, iMap->second->size ()) ;
+      }
+    for (std::map <std::string, std::vector<ROOT::Math::XYZTVector> * >::const_iterator iMap = m_4Vvectors.begin () ;
+         iMap != m_4Vvectors.end () ;
+         ++iMap)
+      {
+        testMe->Fill (pos++, iMap->second->size ()) ;
+      }  
+}
+
