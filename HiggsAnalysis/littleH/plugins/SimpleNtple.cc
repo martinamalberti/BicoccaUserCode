@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.45 2010/01/27 15:17:16 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.46 2010/01/27 17:15:55 dimatteo Exp $
 //
 //
 
@@ -801,12 +801,12 @@ void
   t_tks.push_back(ttkp1);
   t_tks.push_back(ttkp2);
   
-  KalmanVertexFitter kvf;
-  TransientVertex tv = kvf.vertex(t_tks);
+//  KalmanVertexFitter kvf;
+//  TransientVertex tv = kvf.vertex(t_tks);
 
 //   // Gaussian Sum Filter Algorithm 
-//   GsfVertexFitter gsf(gsfPSet);
-//   TransientVertex tv = gsf.vertex(t_tks);
+   GsfVertexFitter gsf(gsfPSet);
+   TransientVertex tv = gsf.vertex(t_tks);
     
   if ( ! tv.isValid() ) return;
 //   {
