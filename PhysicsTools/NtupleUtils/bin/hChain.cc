@@ -30,7 +30,7 @@ hChain::hChain (TString baseName, TString baseTitle,
 
 hChain::~hChain () 
 {
-  for (int i=0 ; i<m_histos.size () ; ++i)
+  for (unsigned int i=0 ; i<m_histos.size () ; ++i)
     delete m_histos.at (i) ;
 //  for (int i=0 ; i<m_ntuples.size () ; ++i)
 //    delete m_ntuples.at (i) ;  
@@ -44,7 +44,7 @@ void
 hChain::SetColors (std::vector<int> colors)
   {
     //PG this is weak, assumes correct number of elements
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       {
         m_histos.at (i)->SetLineColor (colors.at (i)) ;
         m_histos.at (i)->SetLineWidth (2) ;
@@ -72,18 +72,18 @@ hChain::Print (bool isLog, int rebin, TString altName)
   {
     gROOT->SetStyle ("Plain") ;
 
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->SetFillStyle (3001) ;
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->SetStats (0) ;
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->Rebin (rebin) ;
     
     TString name = "s_" ;
     if (altName == "default") name += m_baseName ;
     else name += altName ;
     THStack hs (name,"stacked m_histos") ;
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       hs.Add (m_histos.at (i)) ;
   
     TCanvas c1 ;
@@ -103,7 +103,7 @@ hChain::Print (bool isLog, int rebin, TString altName)
     bkg.SetStats (0) ;            
     bkg.AddDirectory (0) ;            
     bkg.Draw () ;          
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->DrawNormalized ("same") ;
     name = TString ("N") + m_baseName + TString ("_h1.gif") ;
     c1.Print (name,"gif") ;
@@ -116,16 +116,16 @@ hChain::Print (bool isLog, int rebin, TString altName)
 void 
 hChain::PrintEach (bool isLog, int rebin, TString altName) 
   {
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->SetFillStyle (3001) ;
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->SetStats (0) ;
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->Rebin (rebin) ;
     
     TCanvas c1 ;
     c1.cd () ;
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       {
         m_histos.at (i)->SetStats (0) ;
         m_histos.at (i)->Draw () ;
@@ -146,9 +146,9 @@ void
 hChain::Write (TFile & outputFile)
   {
     outputFile.cd () ;
-    for (int i=0 ; i<m_histos.size () ; ++i)
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
       m_histos.at (i)->Write () ;
-//    for (int i=0 ; i<m_ntuples.size () ; ++i)
+//    for (unsigned int i=0 ; i<m_ntuples.size () ; ++i)
 //      m_ntuples.at (i)->Write () ;
     return ;
   }
@@ -162,7 +162,7 @@ hChain::findNMin ()
   {
     double minVal = m_histos.at (0)->GetMinimum (0.0000001)/
                     m_histos.at (0)->Integral () ;
-    for (int i = 0 ; i < m_histos.size () ; ++i)
+    for (unsigned int i = 0 ; i < m_histos.size () ; ++i)
       {
         double dummy = m_histos.at (i)->GetMinimum (0.0000001)/
                        m_histos.at (i)->Integral () ;
@@ -180,7 +180,7 @@ hChain::findNMax ()
   {
     double maxVal = m_histos.at (0)->GetMaximum ()/
                     m_histos.at (0)->Integral () ;
-    for (int i = 0 ; i < m_histos.size () ; ++i)
+    for (unsigned int i = 0 ; i < m_histos.size () ; ++i)
       {
         double dummy = m_histos.at (i)->GetMaximum ()/
                        m_histos.at (i)->Integral () ;
