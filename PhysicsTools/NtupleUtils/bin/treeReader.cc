@@ -4,7 +4,7 @@
 treeReader::treeReader (TTree * tree) :
 m_tree (tree)
 {
-  std::cout << ">>>>> treeReader::Read " << m_tree -> GetEntries << " entries" << std::endl; 
+  std::cout << ">>>>> treeReader::Read " << m_tree -> GetEntries() << " entries" << std::endl; 
 
  TObjArray * br_list = m_tree->GetListOfBranches () ;
  TIter br_it (br_list) ;
