@@ -18,6 +18,7 @@ struct hChain
   
   void SetColors (std::vector<int> colors) ;
   void Fill (int i, double val) ;
+  void SetBinContent (int i, int bin, double val) ;
   void Print (bool isLog = false, int rebin = 1, TString altName = "default") ;
   void PrintEach (bool isLog = false, int rebin = 1, TString altName = "default") ;
   void Scale (int index, double factor) ;

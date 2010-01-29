@@ -73,6 +73,18 @@ hFactory::Fill (const TString & name, int i, double val)
 //PG --------------------------------------------------------   
 
 
+void 
+hFactory::SetBinContent (const TString & name, int i, int bin, double val) 
+  {
+    if (m_H1content.find (name) != m_H1content.end ())
+      m_H1content[name]->SetBinContent (i,bin,val) ;
+    return ;
+  }
+
+
+//PG --------------------------------------------------------   
+
+
 hChain * 
 hFactory::operator[] (const TString& name)
   {

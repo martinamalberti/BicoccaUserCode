@@ -67,6 +67,19 @@ hChain::Fill (int i, double val)
 //PG --------------------------------------------------------   
 
 
+
+void 
+hChain::SetBinContent (int i, int bin, double val) 
+  {
+    m_histos.at (i)->SetBinContent (bin,val) ;
+//    m_ntuples.at (i)->Fill (val) ;
+    return ;
+  }
+
+
+//PG --------------------------------------------------------   
+
+
 void 
 hChain::Print (bool isLog, int rebin, TString altName) 
   {

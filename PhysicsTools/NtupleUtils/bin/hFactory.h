@@ -29,6 +29,7 @@ class hFactory
       }
 
     void Fill (const TString & name, int i, double val) ;
+    void SetBinContent (const TString & name, int i, int bin, double val) ;
     hChain * operator[] (const TString& name) ;
     void Print (int isLog = 0, int rebin = 1) ;
 
