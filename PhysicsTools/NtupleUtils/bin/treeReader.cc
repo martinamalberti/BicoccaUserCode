@@ -97,22 +97,27 @@ treeReader::~treeReader ()
 std::vector<double>* treeReader::GetDouble(const std::string &name){
  std::map<std::string,std::vector<double> * >::const_iterator                 it_D  = m_Dvectors.find(name);
  if (it_D  != m_Dvectors.end()  ) return m_Dvectors[name];
+ else return NULL;
 }
 std::vector<float>* treeReader::GetFloat(const std::string &name){
  std::map<std::string,std::vector<float> * >::const_iterator           it_F  = m_Fvectors.find(name);
  if (it_F  != m_Fvectors.end()  ) return m_Fvectors[name];
+ else return NULL;
 }
 std::vector<int>* treeReader::GetInt(const std::string &name){
  std::map<std::string,std::vector<int> * >::const_iterator             it_I  = m_Ivectors.find(name);
  if (it_I  != m_Ivectors.end()  ) return m_Ivectors[name];
+ else return NULL;
 }
 std::vector<ROOT::Math::XYZVector>* treeReader::Get3V(const std::string &name){
  std::map<std::string,std::vector<ROOT::Math::XYZVector> * >::const_iterator    it_3V  = m_3Vvectors.find(name);
  if (it_3V  != m_3Vvectors.end()  ) return m_3Vvectors[name];
+ else return NULL;
 }
 std::vector<ROOT::Math::XYZTVector>* treeReader::Get4V(const std::string &name){
  std::map<std::string,std::vector<ROOT::Math::XYZTVector> * >::const_iterator   it_4V  = m_4Vvectors.find(name);
  if (it_4V  != m_4Vvectors.end()  ) return m_4Vvectors[name];
+ else return NULL;
 }
 
 
