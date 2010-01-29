@@ -14,7 +14,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # process.GlobalTag.globaltag = 'IDEAL_V11::All'
 # process.GlobalTag.globaltag = 'DESIGN_3X_V8A::All'
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
@@ -72,7 +72,7 @@ process.SimpleNtpleSequence               )
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
 process.TFileService = cms.Service("TFileService", 
-    fileName = cms.string("SimpleTree_ppMux.root"),
+    fileName = cms.string("SimpleTree.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 
