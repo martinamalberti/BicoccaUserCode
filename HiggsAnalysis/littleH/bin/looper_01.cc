@@ -4,6 +4,7 @@
 
 void looper_01::Begin ()
 {
+  //PG initialize here your histograms
   std::cout << "Begin" << std::endl ;
 }
 
@@ -39,5 +40,6 @@ void looper_01::Loop ()
 
 void looper_01::Terminate ()
 {
+  //PG make here your plots
   std::cout << "Terminate" << std::endl ;
 }

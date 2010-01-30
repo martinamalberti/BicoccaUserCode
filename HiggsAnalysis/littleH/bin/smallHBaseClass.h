@@ -13,10 +13,10 @@
 #include <TFile.h>
 
 
-#include <vector>
-#include "TClonesArray.h"
+#include <vector> //PG added
+#include "TClonesArray.h" //PG added
 
-using namespace std ;
+using namespace std ; //PG added
 
 class smallHBaseClass {
 public :
@@ -328,7 +328,7 @@ smallHBaseClass::smallHBaseClass(TTree *tree)
 smallHBaseClass::~smallHBaseClass()
 {
    if (!fChain) return;
-//   delete fChain->GetCurrentFile();
+//PG   delete fChain->GetCurrentFile();
 }
 
 Int_t smallHBaseClass::GetEntry(Long64_t entry)
