@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.47 2010/01/28 13:47:35 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.48 2010/01/28 14:41:02 pellicci Exp $
 //
 //
 
@@ -84,7 +84,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   theStoreWSOnia            (iConfig.getUntrackedParameter<bool> ("storeWSOnia", true)), 
   theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
   theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)),
-  Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.01)),
+  Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.001)),
   OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
   Onia3DipCut_              (iConfig.getUntrackedParameter<double> ("Onia3DipCut", 5.)),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
