@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.48 2010/01/28 14:41:02 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.49 2010/01/31 21:29:30 dimatteo Exp $
 //
 //
 
@@ -185,7 +185,7 @@ void
          NtupleFactory_->FillFloat("muons_glb_d0err", glbTrack->d0Error ());
          NtupleFactory_->FillFloat("muons_glb_dz", glbTrack->dz ());
          NtupleFactory_->FillFloat("muons_glb_dzerr", glbTrack->dzError ());
-         NtupleFactory_->FillFloat("muons_glb_normchi", glbTrack->chi2()/glbTrack->ndof());
+         NtupleFactory_->FillFloat("muons_glb_normchi2", glbTrack->chi2()/glbTrack->ndof());
 
          vector<unsigned int> theHits = this->trackHits(*glbTrack);
          NtupleFactory_->FillFloat("muons_glb_nhitstrack", innTrack->numberOfValidHits());
@@ -218,7 +218,7 @@ void
               NtupleFactory_->FillFloat("muons_trk_d0err", innTrack->d0Error ());
               NtupleFactory_->FillFloat("muons_trk_dz", innTrack->dz ());
               NtupleFactory_->FillFloat("muons_trk_dzerr", innTrack->dzError ());
-              NtupleFactory_->FillFloat("muons_trk_normchi", innTrack->chi2()/innTrack->ndof());
+              NtupleFactory_->FillFloat("muons_trk_normchi2", innTrack->chi2()/innTrack->ndof());
 
               vector<unsigned int> theHits = this->trackHits(*innTrack);
               NtupleFactory_->FillFloat("muons_trk_nhitstrack", innTrack->numberOfValidHits());
@@ -326,7 +326,7 @@ void
 
     TLorentzVector myvec4 ((*EleHandle)[i].px(), (*EleHandle)[i].py(), (*EleHandle)[i].pz(), (*EleHandle)[i].energy());      
     NtupleFactory_->Fill4TV("electrons",myvec4);
-    NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
+    NtupleFactory_->FillInt("electrons_charge",((*EleHandle)[i].charge()));
     NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
     NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
     NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));   
@@ -552,7 +552,6 @@ void
     cout << " No PV found! " << endl ;
   }
   
-  
   MuonCollection::const_iterator nmuon1;
   MuonCollection::const_iterator nmuon2;
   MuonCollection::const_iterator tmuon1;
@@ -563,14 +562,14 @@ void
   // int oniacato;
   reco::TrackRef muon1;
   reco::TrackRef muon2;
-  int m1=0;
-  int m2g=0;
-  int m2t=0;
+  int m1(0);
+  int m2g(0);
+  int m2t(0);
 
   reco::GsfTrackRef ele1;
   reco::GsfTrackRef ele2;
-  int e1=0;
-  int e2=0;
+  int e1(0);
+  int e2(0);
   
   //Electrons
   for ( nele1 = theElectrons.begin(); nele1 != theElectrons.end(); nele1++) 
@@ -628,9 +627,8 @@ void
 //Fill Onia2MuMu category
 void 
     SimpleNtple::fillOnia2MuMuTracks(TrackRef lep1, int l1, TrackRef lep2, int l2, reco::Vertex &PV, int oniacato, float lepMass) 
-{
- 
-  if (oniacato<0  ) return;
+{ 
+  if (oniacato < 0) return;
   
   TransientTrack ttkp1   = (*theB).build(&(*lep1));
   TransientTrack ttkp2   = (*theB).build(&(*lep2));
@@ -660,7 +658,6 @@ void
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
 
-         // if ( lep1->charge() == lep2->charge() ) continue;
   int QQ_sign = 0;
   if ( lep1->charge() == lep2->charge() ) 
   {
@@ -695,7 +692,7 @@ void
     NtupleFactory_->FillInt("QQ_lephp",l2);
   } else 
   {
-    NtupleFactory_->FillInt("QQ_lephp",l1);
+    NtupleFactory_->FillInt("QQ_leplpt",l1);
     NtupleFactory_->FillInt("QQ_lephpt",l2);
   }
            
@@ -823,7 +820,6 @@ void
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
      
-  // if ( lep1->charge() == lep2->charge() ) continue;
   int QQ_sign = 0;
   if ( lep1->charge() == lep2->charge() ) 
   {
@@ -990,7 +986,7 @@ void
     NtupleFactory_->Add4TV("muons_glb_4mom");
     NtupleFactory_->Add4TV("muons_glb_track4mom");
     
-    NtupleFactory_->AddFloat("muons_glb_charge"); 
+    NtupleFactory_->AddInt("muons_glb_charge"); 
     NtupleFactory_->AddFloat("muons_glb_tkIsoR03"); 
     NtupleFactory_->AddFloat("muons_glb_nTkIsoR03"); 
     NtupleFactory_->AddFloat("muons_glb_emIsoR03"); 
@@ -1004,11 +1000,11 @@ void
     NtupleFactory_->AddFloat("muons_glb_ptErr");
     NtupleFactory_->AddFloat("muons_glb_phiErr");
     NtupleFactory_->AddFloat("muons_glb_etaErr");
-    NtupleFactory_->AddFloat("muons_glb_track_d0"); 
-    NtupleFactory_->AddFloat("muons_glb_track_d0err"); 
-    NtupleFactory_->AddFloat("muons_glb_track_dz"); 
-    NtupleFactory_->AddFloat("muons_glb_track_dzerr"); 
-    NtupleFactory_->AddFloat("muons_glb_normchi");
+    NtupleFactory_->AddFloat("muons_glb_d0"); 
+    NtupleFactory_->AddFloat("muons_glb_d0err"); 
+    NtupleFactory_->AddFloat("muons_glb_dz"); 
+    NtupleFactory_->AddFloat("muons_glb_dzerr"); 
+    NtupleFactory_->AddFloat("muons_glb_normchi2");
 
     NtupleFactory_->AddFloat("muons_glb_nhitstrack");
     NtupleFactory_->AddFloat("muons_glb_nhitsDT");
@@ -1021,7 +1017,7 @@ void
 
     NtupleFactory_->Add4TV("muons_trk_4mom");
     
-    NtupleFactory_->AddFloat("muons_trk_charge"); 
+    NtupleFactory_->AddInt("muons_trk_charge"); 
     NtupleFactory_->AddFloat("muons_trk_tkIsoR03"); 
     NtupleFactory_->AddFloat("muons_trk_nTkIsoR03"); 
     NtupleFactory_->AddFloat("muons_trk_emIsoR03"); 
@@ -1034,7 +1030,7 @@ void
     NtupleFactory_->AddFloat("muons_trk_track_d0err"); 
     NtupleFactory_->AddFloat("muons_trk_track_dz"); 
     NtupleFactory_->AddFloat("muons_trk_track_dzerr"); 
-    NtupleFactory_->AddFloat("muons_trk_normchi");
+    NtupleFactory_->AddFloat("muons_trk_normchi2");
 
     NtupleFactory_->AddFloat("muons_trk_nhitstrack");
     NtupleFactory_->AddFloat("muons_trk_nhitsStrip");
@@ -1049,7 +1045,7 @@ void
   if (saveEle_)
   {
     NtupleFactory_->Add4TV("electrons");
-    NtupleFactory_->AddFloat("electrons_charge"); 
+    NtupleFactory_->AddInt("electrons_charge"); 
     NtupleFactory_->AddFloat("electrons_tkIso"); 
     NtupleFactory_->AddFloat("electrons_emIso"); 
     NtupleFactory_->AddFloat("electrons_hadIso"); 
@@ -1198,7 +1194,7 @@ void
     NtupleFactory_->AddFloat("QQ_cosTheta");
     
     NtupleFactory_->AddInt("QQ_lephpt");
-    NtupleFactory_->AddInt("QQ_lephp");
+    NtupleFactory_->AddInt("QQ_leplpt");
     
     NtupleFactory_->AddInt("QQ_VtxIsVal");
     NtupleFactory_->Add3TV("QQ_Vtx");

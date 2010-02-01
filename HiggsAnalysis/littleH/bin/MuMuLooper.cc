@@ -58,6 +58,8 @@ void MuMuLooper::Loop() {
     // TRIGGER CUTS 
     if (!(*HLTBits_accept)[0]) continue;    // SingleMu3
 
+    passedTriggers++;
+
     //estrablish which kind of MC this is
     MCcat = -999;
     TString filestring(fChain->GetCurrentFile()->GetName());
@@ -93,18 +95,33 @@ void MuMuLooper::Loop() {
 
     }
   }
-  
+
+  cout << "###############" << endl;
+  cout << "Some statistics " << endl;
+  cout << "Total number of processed events = " << totalEvents << endl;
+  cout << "Total number of triggered events = " << passedTriggers << endl;
+  cout << "Total number of selected  events = " << passedCandidates << endl;
+  cout << "###############" << endl;
 
 } // end of program
 
 bool MuMuLooper::accept_glb_mu(const int mu_index) const
 {
+  TLorentzVector *mu_4mom = (TLorentzVector*)muons_glb_4mom->At(mu_index);
+
+  cout << muons_glb_nhitstrack->at(mu_index) << endl;
+  cout << muons_glb_normchi->at(mu_index) << endl;
+  cout << muons_glb_track_d0->size() << endl;
+  cout << muons_glb_track_dz->size() << endl;
+
   if(muons_glb_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
      muons_glb_normchi->at(mu_index)   < MAX_normchi2_glb  &&
      fabs(muons_glb_track_d0->at(mu_index))   < MAX_d0_trk        &&
      fabs(muons_glb_track_dz->at(mu_index))   < MAX_dz_trk        &&
      (((muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) ||
-      ((muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel-1 && muons_glb_nhitsPix1Hit->at(mu_index) == 1))
+      ((muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel-1 && muons_glb_nhitsPix1Hit->at(mu_index) == 1)) &&
+     muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt() < 0.2 &&
+     muons_glb_emIsoR03->at(mu_index) < 1.
      ) return true;
 
   return false;
@@ -112,13 +129,17 @@ bool MuMuLooper::accept_glb_mu(const int mu_index) const
 
 bool MuMuLooper::accept_trk_mu(const int mu_index) const
 {
+  TLorentzVector *mu_4mom = (TLorentzVector*)muons_trk_4mom->At(mu_index);
+
   if(muons_trk_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
      muons_trk_normchi->at(mu_index)   < MAX_normchi2_trk  &&
      fabs(muons_trk_track_d0->at(mu_index))   < MAX_d0_trk        &&
      fabs(muons_trk_track_dz->at(mu_index))   < MAX_dz_trk        &&
      ((muons_trk_nhitsPixB->at(mu_index) + muons_trk_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) &&
-     ((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0)
-     ) return true;
+     ((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0) &&
+     muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt() < 0.2 &&
+     muons_trk_emIsoR03->at(mu_index) < 1. 
+    ) return true;
 
   return false;
 }
@@ -134,8 +155,10 @@ int MuMuLooper::theBestQQ() const
 
     if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 1 ) {
 
-      const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_charge->size()) continue;
-      const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_glb_charge->size()) continue;
+      cout << QQ_probChi2->size() << endl;
+
+      const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normchi->size()) continue;
+      const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_glb_normchi->size()) continue;
 
       if (QQ_probChi2->at(iqq) > MIN_vtxprob_jpsi && accept_glb_mu(thehptMu) && accept_glb_mu(thelptMu)) return iqq;
     }
@@ -146,8 +169,8 @@ int MuMuLooper::theBestQQ() const
 
     if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 2 ) {
       
-      const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_charge->size()) continue;
-      const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_trk_charge->size()) continue;
+      const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normchi->size()) continue;
+      const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_trk_normchi->size()) continue;
 
       if (QQ_probChi2->at(iqq) > MIN_vtxprob_jpsi && accept_glb_mu(thehptMu) && accept_trk_mu(thelptMu)) {
 	
@@ -167,8 +190,10 @@ int MuMuLooper::theBestQQ() const
 
     if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 3 ) {
       
-      const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_trk_charge->size()) continue;
-      const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_trk_charge->size()) continue;
+      cout << "trktrk " << QQ_probChi2->size() << endl;
+
+      const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_trk_normchi->size()) continue;
+      const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_trk_normchi->size()) continue;
 
       if (QQ_probChi2->at(iqq) > MIN_vtxprob_jpsi && accept_trk_mu(thehptMu) && accept_trk_mu(thelptMu)){
         TLorentzVector *theTrMumom = (TLorentzVector*)muons_trk_4mom->At(thehptMu);
