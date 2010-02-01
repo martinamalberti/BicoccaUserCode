@@ -109,11 +109,6 @@ bool MuMuLooper::accept_glb_mu(const int mu_index) const
 {
   TLorentzVector *mu_4mom = (TLorentzVector*)muons_glb_4mom->At(mu_index);
 
-  cout << muons_glb_nhitstrack->at(mu_index) << endl;
-  cout << muons_glb_normchi->at(mu_index) << endl;
-  cout << muons_glb_track_d0->size() << endl;
-  cout << muons_glb_track_dz->size() << endl;
-
   if(muons_glb_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
      muons_glb_normchi->at(mu_index)   < MAX_normchi2_glb  &&
      fabs(muons_glb_track_d0->at(mu_index))   < MAX_d0_trk        &&
@@ -155,8 +150,6 @@ int MuMuLooper::theBestQQ() const
 
     if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 1 ) {
 
-      cout << QQ_probChi2->size() << endl;
-
       const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normchi->size()) continue;
       const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_glb_normchi->size()) continue;
 
@@ -190,8 +183,6 @@ int MuMuLooper::theBestQQ() const
 
     if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 3 ) {
       
-      cout << "trktrk " << QQ_probChi2->size() << endl;
-
       const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_trk_normchi->size()) continue;
       const int thelptMu = QQ_lephp->at(iqq);    if (thelptMu >= muons_trk_normchi->size()) continue;
 

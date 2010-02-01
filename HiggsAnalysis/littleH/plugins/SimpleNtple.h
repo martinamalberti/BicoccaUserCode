@@ -77,10 +77,10 @@
 #include <TClonesArray.h>
 #include <TParticle.h>
 
-#include "Math/PtEtaPhiE4D.h"
-#include "Math/PtEtaPhiM4D.h"
-#include "Math/LorentzVector.h"
-#include "Math/Vector3D.h"
+//#include "Math/PtEtaPhiE4D.h"
+//#include "Math/PtEtaPhiM4D.h"
+//#include "Math/LorentzVector.h"
+//#include "Math/Vector3D.h"
 
 using namespace edm;
 using namespace std;
@@ -108,8 +108,8 @@ class SimpleNtple : public EDAnalyzer {
     void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillBeamSpotInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void findOniaCategories (const Event & iEvent, const EventSetup & iESetup) ;
-    void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, reco::Vertex &PV, int oniacato, float lepMass);
-    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV, int oniacato, float lepMass);
+    void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, reco::Vertex &PV, const int oniacato);
+    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV);
     double PhiInRange(const double& phi) const;
 
     template <class T> TLorentzVector lorentzMomentumMu(const T & muon) const;
@@ -120,7 +120,6 @@ class SimpleNtple : public EDAnalyzer {
  
     TTree* outTree_;
     NtupleFactory* NtupleFactory_;
-    float muMass_, eleMass_;
     float branch_ratio;
     
     ParameterSet gsfPSet;
