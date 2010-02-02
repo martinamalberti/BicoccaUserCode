@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.51 2010/02/01 16:28:10 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.52 2010/02/01 16:41:05 dimatteo Exp $
 //
 //
 
@@ -1010,10 +1010,10 @@ void
     NtupleFactory_->AddFloat("muons_trk_ptErr");
     NtupleFactory_->AddFloat("muons_trk_phiErr");
     NtupleFactory_->AddFloat("muons_trk_etaErr");
-    NtupleFactory_->AddFloat("muons_trk_track_d0"); 
-    NtupleFactory_->AddFloat("muons_trk_track_d0err"); 
-    NtupleFactory_->AddFloat("muons_trk_track_dz"); 
-    NtupleFactory_->AddFloat("muons_trk_track_dzerr"); 
+    NtupleFactory_->AddFloat("muons_trk_d0"); 
+    NtupleFactory_->AddFloat("muons_trk_d0err"); 
+    NtupleFactory_->AddFloat("muons_trk_dz"); 
+    NtupleFactory_->AddFloat("muons_trk_dzerr"); 
     NtupleFactory_->AddFloat("muons_trk_normChi2");
 
     NtupleFactory_->AddFloat("muons_trk_nhitstrack");
