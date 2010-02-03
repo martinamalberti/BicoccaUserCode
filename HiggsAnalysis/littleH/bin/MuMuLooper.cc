@@ -12,7 +12,8 @@
 
 using namespace std;
 
-MuMuLooper::MuMuLooper(TTree *tree) 
+
+MuMuLooper::MuMuLooper(TChain *tree) 
   : smallHBaseClass(tree) {
 
   onlyTheBest = true;

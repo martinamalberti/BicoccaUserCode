@@ -20,7 +20,7 @@ using namespace std;
 
 class smallHBaseClass {
 public :
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+   TChain          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
@@ -295,12 +295,12 @@ public :
    TBranch        *b_QQ_SLip;   //!
    TBranch        *b_QQ_S3Dip;   //!
 
-   smallHBaseClass(TTree *tree=0);
+   smallHBaseClass(TChain *tree=0);
    virtual ~smallHBaseClass();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
-   virtual void     Init(TTree *tree);
+   virtual void     Init(TChain *tree);
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -309,7 +309,7 @@ public :
 #endif
 
 #ifdef smallHBaseClass_cxx
-smallHBaseClass::smallHBaseClass(TTree *tree)
+smallHBaseClass::smallHBaseClass(TChain *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -319,7 +319,7 @@ smallHBaseClass::smallHBaseClass(TTree *tree)
          f = new TFile("SimpleTree_A0_10GEV.root");
          f->cd("SimpleTree_A0_10GEV.root:/SimpleNtple");
       }
-      tree = (TTree*)gDirectory->Get("SimpleTree");
+      tree = (TChain*)gDirectory->Get("SimpleTree");
 
    }
    Init(tree);
@@ -352,7 +352,7 @@ Long64_t smallHBaseClass::LoadTree(Long64_t entry)
    return centry;
 }
 
-void smallHBaseClass::Init(TTree *tree)
+void smallHBaseClass::Init(TChain *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch

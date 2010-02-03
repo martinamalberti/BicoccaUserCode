@@ -10,7 +10,7 @@
 class MuMuLooper : public smallHBaseClass{
 public:
   
-  MuMuLooper(TTree *tree=0);
+  MuMuLooper(TChain *tree=0);
   virtual ~MuMuLooper() {};
   void bookHistos();
   void saveHistos();
