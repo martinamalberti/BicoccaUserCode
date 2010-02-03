@@ -2,6 +2,8 @@
 #define MuMuLooper_h
 
 #include <TVector3.h>
+#include <TH1F.h>
+
 #include "smallHBaseClass.h"
 #include <vector>
 
@@ -9,7 +11,9 @@ class MuMuLooper : public smallHBaseClass{
 public:
   
   MuMuLooper(TTree *tree=0);
-  virtual ~MuMuLooper();
+  virtual ~MuMuLooper() {};
+  void bookHistos();
+  void saveHistos();
   void Loop();
   int theBestQQ() const;
   bool accept_glb_mu(const int mu_index) const;
@@ -27,6 +31,7 @@ private:
 
   bool onlyTheBest;
               
+  TH1F *hInvMass;
 };
 #endif
 

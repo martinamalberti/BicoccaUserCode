@@ -23,12 +23,20 @@ MuMuLooper::MuMuLooper(TTree *tree)
   MAX_normchi2_trk = 5.0;
   MAX_normchi2_glb = 20.0;
   MIN_nhits_pixel = 2;
-  MAX_d0_trk = 5.0;
-  MAX_dz_trk = 20.0;
+  MAX_d0_trk = 2.0;
+  MAX_dz_trk = 25.0;
   MIN_vtxprob_jpsi = 0.001;
+
+  bookHistos();
 }
 
-MuMuLooper::~MuMuLooper(){ } 
+void MuMuLooper::bookHistos()
+{
+  hInvMass = new TH1F("hInvMass","#mu-#mu invariant mass",100,3.2,12.);
+
+  return;
+}
+
 
 void MuMuLooper::Loop() {
 
@@ -56,7 +64,7 @@ void MuMuLooper::Loop() {
     totalEvents++;
 
     // TRIGGER CUTS 
-    if (!(*HLTBits_accept)[0]) continue;    // SingleMu3
+    //if (!(*HLTBits_accept)[0]) continue;    // SingleMu3
 
     passedTriggers++;
 
@@ -91,10 +99,15 @@ void MuMuLooper::Loop() {
 
 	passedCandidates++;
 	
+	const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
+
         // Fill histos
+	hInvMass->Fill(invMass);
 
     }
   }
+
+  saveHistos();
 
   cout << "###############" << endl;
   cout << "Some statistics " << endl;
@@ -103,7 +116,20 @@ void MuMuLooper::Loop() {
   cout << "Total number of selected  events = " << passedCandidates << endl;
   cout << "###############" << endl;
 
+  return;
 } // end of program
+
+void MuMuLooper::saveHistos()
+{
+  TCanvas c1;
+  c1.cd();
+  hInvMass->Draw();
+  c1.SaveAs("invMass.gif");
+
+
+  return;
+}
+
 
 bool MuMuLooper::accept_glb_mu(const int mu_index) const
 {

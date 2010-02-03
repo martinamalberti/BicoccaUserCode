@@ -1,13 +1,43 @@
 
 #include "MuMuLooper.hh"
 #include <iostream>
+#include <fstream>
 
 int main (int argc, char ** argv) 
 {
+  /*
+  char inputFileName[150];
+  if ( argc < 2 ){
+    std::cout << "missing argument: insert inputFile with list of root files" << std::endl; 
+    return 1;
+  }
+
+  TChain *theChain = new TChain("SimpleTree");
+
+  TList *treelist = new TList();
+
+  for(int i=1;i<argc;i++){
+
+    string filename(argv[i]);
+    filename += "/SimpleNtple";
+
+    cout << "Adding " << filename.c_str() << endl;
+
+    theChain->Add(filename.c_str());
+  }
+
+  cout << "Total number of entries" << theChain->GetEntries() << endl;
+  */
+  
   TFile f (argv[1]) ;
   TTree * albero = (TTree *) f.Get (argv[2]) ;
   std::cout << "al : " << albero->GetEntries () << std::endl ;
+  
 
   MuMuLooper analyzer(albero);
   analyzer.Loop();
+
+  delete albero;
+
+  return 0;
 }
