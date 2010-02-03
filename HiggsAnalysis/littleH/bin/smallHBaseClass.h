@@ -1,22 +1,22 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Sat Jan 30 14:13:22 2010 by ROOT version 5.22/00d
+// Wed Feb  3 10:16:17 2010 by ROOT version 5.22/00d
 // from TTree SimpleTree/SimpleTree
-// found on file: /home/govoni/CMSSW_3_3_6/src/HiggsAnalysis/littleH/test/SimpleTree_Upsilon.root
+// found on file: SimpleTree_A0_10GEV.root
 //////////////////////////////////////////////////////////
 
 #ifndef smallHBaseClass_h
 #define smallHBaseClass_h
 
+#include "TClonesArray.h" //PG added
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
 
+#include <vector>
 
-#include <vector> //PG added
-#include "TClonesArray.h" //PG added
-
-using namespace std ; //PG added
+using namespace std;
 
 class smallHBaseClass {
 public :
@@ -26,7 +26,7 @@ public :
    // Declaration of leaf types
    TClonesArray    *muons_glb_4mom;
    TClonesArray    *muons_glb_track4mom;
-   vector<float>   *muons_glb_charge;
+   vector<int>     *muons_glb_charge;
    vector<float>   *muons_glb_tkIsoR03;
    vector<float>   *muons_glb_nTkIsoR03;
    vector<float>   *muons_glb_emIsoR03;
@@ -38,11 +38,11 @@ public :
    vector<float>   *muons_glb_ptErr;
    vector<float>   *muons_glb_phiErr;
    vector<float>   *muons_glb_etaErr;
-   vector<float>   *muons_glb_track_d0;
-   vector<float>   *muons_glb_track_d0err;
-   vector<float>   *muons_glb_track_dz;
-   vector<float>   *muons_glb_track_dzerr;
-   vector<float>   *muons_glb_normchi;
+   vector<float>   *muons_glb_d0;
+   vector<float>   *muons_glb_d0err;
+   vector<float>   *muons_glb_dz;
+   vector<float>   *muons_glb_dzerr;
+   vector<float>   *muons_glb_normChi2;
    vector<float>   *muons_glb_nhitstrack;
    vector<float>   *muons_glb_nhitsDT;
    vector<float>   *muons_glb_nhitsCSC;
@@ -52,7 +52,7 @@ public :
    vector<float>   *muons_glb_nhitsPix1Hit;
    vector<float>   *muons_glb_nhitsPix1HitBE;
    TClonesArray    *muons_trk_4mom;
-   vector<float>   *muons_trk_charge;
+   vector<int>     *muons_trk_charge;
    vector<float>   *muons_trk_tkIsoR03;
    vector<float>   *muons_trk_nTkIsoR03;
    vector<float>   *muons_trk_emIsoR03;
@@ -60,11 +60,11 @@ public :
    vector<float>   *muons_trk_ptErr;
    vector<float>   *muons_trk_phiErr;
    vector<float>   *muons_trk_etaErr;
-   vector<float>   *muons_trk_track_d0;
-   vector<float>   *muons_trk_track_d0err;
-   vector<float>   *muons_trk_track_dz;
-   vector<float>   *muons_trk_track_dzerr;
-   vector<float>   *muons_trk_normchi;
+   vector<float>   *muons_trk_d0;
+   vector<float>   *muons_trk_d0err;
+   vector<float>   *muons_trk_dz;
+   vector<float>   *muons_trk_dzerr;
+   vector<float>   *muons_trk_normChi2;
    vector<float>   *muons_trk_nhitstrack;
    vector<float>   *muons_trk_nhitsStrip;
    vector<float>   *muons_trk_nhitsPixB;
@@ -73,7 +73,7 @@ public :
    vector<float>   *muons_trk_nhitsPix1HitBE;
    vector<float>   *muons_trk_PIDmask;
    TClonesArray    *electrons;
-   vector<float>   *electrons_charge;
+   vector<int>     *electrons_charge;
    vector<float>   *electrons_tkIso;
    vector<float>   *electrons_emIso;
    vector<float>   *electrons_hadIso;
@@ -134,7 +134,7 @@ public :
    vector<int>     *QQ_lepmi;
    vector<float>   *QQ_cosTheta;
    vector<int>     *QQ_lephpt;
-   vector<int>     *QQ_lephp;
+   vector<int>     *QQ_leplpt;
    vector<int>     *QQ_VtxIsVal;
    TClonesArray    *QQ_Vtx;
    vector<float>   *QQ_VxxE;
@@ -174,11 +174,11 @@ public :
    TBranch        *b_muons_glb_ptErr;   //!
    TBranch        *b_muons_glb_phiErr;   //!
    TBranch        *b_muons_glb_etaErr;   //!
-   TBranch        *b_muons_glb_track_d0;   //!
-   TBranch        *b_muons_glb_track_d0err;   //!
-   TBranch        *b_muons_glb_track_dz;   //!
-   TBranch        *b_muons_glb_track_dzerr;   //!
-   TBranch        *b_muons_glb_normchi;   //!
+   TBranch        *b_muons_glb_d0;   //!
+   TBranch        *b_muons_glb_d0err;   //!
+   TBranch        *b_muons_glb_dz;   //!
+   TBranch        *b_muons_glb_dzerr;   //!
+   TBranch        *b_muons_glb_normChi2;   //!
    TBranch        *b_muons_glb_nhitstrack;   //!
    TBranch        *b_muons_glb_nhitsDT;   //!
    TBranch        *b_muons_glb_nhitsCSC;   //!
@@ -196,11 +196,11 @@ public :
    TBranch        *b_muons_trk_ptErr;   //!
    TBranch        *b_muons_trk_phiErr;   //!
    TBranch        *b_muons_trk_etaErr;   //!
-   TBranch        *b_muons_trk_track_d0;   //!
-   TBranch        *b_muons_trk_track_d0err;   //!
-   TBranch        *b_muons_trk_track_dz;   //!
-   TBranch        *b_muons_trk_track_dzerr;   //!
-   TBranch        *b_muons_trk_normchi;   //!
+   TBranch        *b_muons_trk_d0;   //!
+   TBranch        *b_muons_trk_d0err;   //!
+   TBranch        *b_muons_trk_dz;   //!
+   TBranch        *b_muons_trk_dzerr;   //!
+   TBranch        *b_muons_trk_normChi2;   //!
    TBranch        *b_muons_trk_nhitstrack;   //!
    TBranch        *b_muons_trk_nhitsStrip;   //!
    TBranch        *b_muons_trk_nhitsPixB;   //!
@@ -270,7 +270,7 @@ public :
    TBranch        *b_QQ_lepmi;   //!
    TBranch        *b_QQ_cosTheta;   //!
    TBranch        *b_QQ_lephpt;   //!
-   TBranch        *b_QQ_lephp;   //!
+   TBranch        *b_QQ_leplpt;   //!
    TBranch        *b_QQ_VtxIsVal;   //!
    TBranch        *b_QQ_Vtx;   //!
    TBranch        *b_QQ_VxxE;   //!
@@ -314,10 +314,10 @@ smallHBaseClass::smallHBaseClass(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/home/govoni/CMSSW_3_3_6/src/HiggsAnalysis/littleH/test/SimpleTree_Upsilon.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("SimpleTree_A0_10GEV.root");
       if (!f) {
-         f = new TFile("/home/govoni/CMSSW_3_3_6/src/HiggsAnalysis/littleH/test/SimpleTree_Upsilon.root");
-         f->cd("/home/govoni/CMSSW_3_3_6/src/HiggsAnalysis/littleH/test/SimpleTree_Upsilon.root:/SimpleNtple");
+         f = new TFile("SimpleTree_A0_10GEV.root");
+         f->cd("SimpleTree_A0_10GEV.root:/SimpleNtple");
       }
       tree = (TTree*)gDirectory->Get("SimpleTree");
 
@@ -328,7 +328,7 @@ smallHBaseClass::smallHBaseClass(TTree *tree)
 smallHBaseClass::~smallHBaseClass()
 {
    if (!fChain) return;
-//PG   delete fChain->GetCurrentFile();
+   delete fChain->GetCurrentFile();
 }
 
 Int_t smallHBaseClass::GetEntry(Long64_t entry)
@@ -377,11 +377,11 @@ void smallHBaseClass::Init(TTree *tree)
    muons_glb_ptErr = 0;
    muons_glb_phiErr = 0;
    muons_glb_etaErr = 0;
-   muons_glb_track_d0 = 0;
-   muons_glb_track_d0err = 0;
-   muons_glb_track_dz = 0;
-   muons_glb_track_dzerr = 0;
-   muons_glb_normchi = 0;
+   muons_glb_d0 = 0;
+   muons_glb_d0err = 0;
+   muons_glb_dz = 0;
+   muons_glb_dzerr = 0;
+   muons_glb_normChi2 = 0;
    muons_glb_nhitstrack = 0;
    muons_glb_nhitsDT = 0;
    muons_glb_nhitsCSC = 0;
@@ -399,11 +399,11 @@ void smallHBaseClass::Init(TTree *tree)
    muons_trk_ptErr = 0;
    muons_trk_phiErr = 0;
    muons_trk_etaErr = 0;
-   muons_trk_track_d0 = 0;
-   muons_trk_track_d0err = 0;
-   muons_trk_track_dz = 0;
-   muons_trk_track_dzerr = 0;
-   muons_trk_normchi = 0;
+   muons_trk_d0 = 0;
+   muons_trk_d0err = 0;
+   muons_trk_dz = 0;
+   muons_trk_dzerr = 0;
+   muons_trk_normChi2 = 0;
    muons_trk_nhitstrack = 0;
    muons_trk_nhitsStrip = 0;
    muons_trk_nhitsPixB = 0;
@@ -473,7 +473,7 @@ void smallHBaseClass::Init(TTree *tree)
    QQ_lepmi = 0;
    QQ_cosTheta = 0;
    QQ_lephpt = 0;
-   QQ_lephp = 0;
+   QQ_leplpt = 0;
    QQ_VtxIsVal = 0;
    QQ_Vtx = 0;
    QQ_VxxE = 0;
@@ -517,11 +517,11 @@ void smallHBaseClass::Init(TTree *tree)
    fChain->SetBranchAddress("muons_glb_ptErr", &muons_glb_ptErr, &b_muons_glb_ptErr);
    fChain->SetBranchAddress("muons_glb_phiErr", &muons_glb_phiErr, &b_muons_glb_phiErr);
    fChain->SetBranchAddress("muons_glb_etaErr", &muons_glb_etaErr, &b_muons_glb_etaErr);
-   fChain->SetBranchAddress("muons_glb_track_d0", &muons_glb_track_d0, &b_muons_glb_track_d0);
-   fChain->SetBranchAddress("muons_glb_track_d0err", &muons_glb_track_d0err, &b_muons_glb_track_d0err);
-   fChain->SetBranchAddress("muons_glb_track_dz", &muons_glb_track_dz, &b_muons_glb_track_dz);
-   fChain->SetBranchAddress("muons_glb_track_dzerr", &muons_glb_track_dzerr, &b_muons_glb_track_dzerr);
-   fChain->SetBranchAddress("muons_glb_normchi", &muons_glb_normchi, &b_muons_glb_normchi);
+   fChain->SetBranchAddress("muons_glb_d0", &muons_glb_d0, &b_muons_glb_d0);
+   fChain->SetBranchAddress("muons_glb_d0err", &muons_glb_d0err, &b_muons_glb_d0err);
+   fChain->SetBranchAddress("muons_glb_dz", &muons_glb_dz, &b_muons_glb_dz);
+   fChain->SetBranchAddress("muons_glb_dzerr", &muons_glb_dzerr, &b_muons_glb_dzerr);
+   fChain->SetBranchAddress("muons_glb_normChi2", &muons_glb_normChi2, &b_muons_glb_normChi2);
    fChain->SetBranchAddress("muons_glb_nhitstrack", &muons_glb_nhitstrack, &b_muons_glb_nhitstrack);
    fChain->SetBranchAddress("muons_glb_nhitsDT", &muons_glb_nhitsDT, &b_muons_glb_nhitsDT);
    fChain->SetBranchAddress("muons_glb_nhitsCSC", &muons_glb_nhitsCSC, &b_muons_glb_nhitsCSC);
@@ -539,11 +539,11 @@ void smallHBaseClass::Init(TTree *tree)
    fChain->SetBranchAddress("muons_trk_ptErr", &muons_trk_ptErr, &b_muons_trk_ptErr);
    fChain->SetBranchAddress("muons_trk_phiErr", &muons_trk_phiErr, &b_muons_trk_phiErr);
    fChain->SetBranchAddress("muons_trk_etaErr", &muons_trk_etaErr, &b_muons_trk_etaErr);
-   fChain->SetBranchAddress("muons_trk_track_d0", &muons_trk_track_d0, &b_muons_trk_track_d0);
-   fChain->SetBranchAddress("muons_trk_track_d0err", &muons_trk_track_d0err, &b_muons_trk_track_d0err);
-   fChain->SetBranchAddress("muons_trk_track_dz", &muons_trk_track_dz, &b_muons_trk_track_dz);
-   fChain->SetBranchAddress("muons_trk_track_dzerr", &muons_trk_track_dzerr, &b_muons_trk_track_dzerr);
-   fChain->SetBranchAddress("muons_trk_normchi", &muons_trk_normchi, &b_muons_trk_normchi);
+   fChain->SetBranchAddress("muons_trk_d0", &muons_trk_d0, &b_muons_trk_d0);
+   fChain->SetBranchAddress("muons_trk_d0err", &muons_trk_d0err, &b_muons_trk_d0err);
+   fChain->SetBranchAddress("muons_trk_dz", &muons_trk_dz, &b_muons_trk_dz);
+   fChain->SetBranchAddress("muons_trk_dzerr", &muons_trk_dzerr, &b_muons_trk_dzerr);
+   fChain->SetBranchAddress("muons_trk_normChi2", &muons_trk_normChi2, &b_muons_trk_normChi2);
    fChain->SetBranchAddress("muons_trk_nhitstrack", &muons_trk_nhitstrack, &b_muons_trk_nhitstrack);
    fChain->SetBranchAddress("muons_trk_nhitsStrip", &muons_trk_nhitsStrip, &b_muons_trk_nhitsStrip);
    fChain->SetBranchAddress("muons_trk_nhitsPixB", &muons_trk_nhitsPixB, &b_muons_trk_nhitsPixB);
@@ -613,7 +613,7 @@ void smallHBaseClass::Init(TTree *tree)
    fChain->SetBranchAddress("QQ_lepmi", &QQ_lepmi, &b_QQ_lepmi);
    fChain->SetBranchAddress("QQ_cosTheta", &QQ_cosTheta, &b_QQ_cosTheta);
    fChain->SetBranchAddress("QQ_lephpt", &QQ_lephpt, &b_QQ_lephpt);
-   fChain->SetBranchAddress("QQ_lephp", &QQ_lephp, &b_QQ_lephp);
+   fChain->SetBranchAddress("QQ_leplpt", &QQ_leplpt, &b_QQ_leplpt);
    fChain->SetBranchAddress("QQ_VtxIsVal", &QQ_VtxIsVal, &b_QQ_VtxIsVal);
    fChain->SetBranchAddress("QQ_Vtx", &QQ_Vtx, &b_QQ_Vtx);
    fChain->SetBranchAddress("QQ_VxxE", &QQ_VxxE, &b_QQ_VxxE);
