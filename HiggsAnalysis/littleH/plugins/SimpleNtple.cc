@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.52 2010/02/01 16:41:05 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.53 2010/02/02 15:50:15 pellicci Exp $
 //
 //
 
@@ -320,7 +320,10 @@ void
     NtupleFactory_->FillInt("electrons_charge",((*EleHandle)[i].charge()));
     NtupleFactory_->FillFloat("electrons_tkIso", ((*EleHandle)[i].dr03TkSumPt()));
     NtupleFactory_->FillFloat("electrons_emIso", ((*EleHandle)[i].dr03EcalRecHitSumEt()));
-    NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));   
+    NtupleFactory_->FillFloat("electrons_hadIso",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));
+       
+      // electron ID variable from mva (tracker driven electrons)
+    NtupleFactory_->FillFloat("electrons_IdBDT",((*EleHandle)[i].mva()));
       
       //ELE ID
     NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
@@ -338,7 +341,7 @@ void
     
     int myWord = 0;
     if ((*EleHandle)[i].isTrackerDriven ()) myWord += (int)pow(2.,0);
-    if ((*EleHandle)[i].isEcalDriven ())    myWord += (int)pow(2.,0);
+    if ((*EleHandle)[i].isEcalDriven ())    myWord += (int)pow(2.,1);
 
     NtupleFactory_->FillFloat("electrons_flag_mask", myWord);
 
@@ -1032,7 +1035,8 @@ void
     NtupleFactory_->AddInt("electrons_charge"); 
     NtupleFactory_->AddFloat("electrons_tkIso"); 
     NtupleFactory_->AddFloat("electrons_emIso"); 
-    NtupleFactory_->AddFloat("electrons_hadIso"); 
+    NtupleFactory_->AddFloat("electrons_hadIso");
+    NtupleFactory_->AddFloat("electrons_IdBDT");
     NtupleFactory_->AddFloat("electrons_IdLoose"); 
     NtupleFactory_->AddFloat("electrons_IdTight"); 
     NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
