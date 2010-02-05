@@ -31,7 +31,7 @@ int main (int argc, char ** argv)
   
   TChain * albero = new TChain (argv[2]) ;
   string filename(argv[1]);
-  filename += "_*.root" ;
+  filename += "*.root" ;
   albero -> Add(filename.c_str());
   std::cout << "al : " << albero->GetEntries () << std::endl ;
   

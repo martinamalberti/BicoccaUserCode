@@ -122,11 +122,10 @@ void MuMuLooper::Loop() {
 
 void MuMuLooper::saveHistos()
 {
-  TCanvas c1;
-  c1.cd();
-  hInvMass->Draw();
-  c1.SaveAs("invMass.gif");
-
+  TFile f1("out.root","RECREATE");
+  f1.cd();
+  hInvMass->Write();
+  f1.Close();
 
   return;
 }
