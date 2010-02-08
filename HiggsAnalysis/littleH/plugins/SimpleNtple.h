@@ -146,8 +146,9 @@ class SimpleNtple : public EDAnalyzer {
     string the8e29ProcName_;
     string the1e31ProcName_;
   
-    static const int Max_HLT_size = 9; //why 10 in Onia2MuMu? ask to Mario
-    static const int NHLTTRIGGERS = 9;
+    static const int Max_HLT_size = 10;
+    static const int NHLTTRIGGERS = 10;
+    
     static const int Max_L1T_size = 6; 
     static const int NL1TTRIGGERS = 6;
   

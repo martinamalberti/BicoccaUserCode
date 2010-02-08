@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.53 2010/02/02 15:50:15 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.54 2010/02/04 14:56:40 dimatteo Exp $
 //
 //
 
@@ -1095,7 +1095,7 @@ void
   if (saveTrigger_)
   {
    //Trigger Info
-    string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R", "HLT_DoublePhoton5_Jpsi_L1R", "HLT_DoublePhoton5_Upsilon_L1R"};
+    string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R", "HLT_DoublePhoton5_Jpsi_L1R", "HLT_DoublePhoton5_Upsilon_L1R", "HLT_DoublePhoton5_eeRes_L1R"};
     string L1TbitNames[NL1TTRIGGERS]  = {"HLT_L1MuOpen","HLT_L1Mu", "HLT_L1DoubleMuOpen", "HLT_L1SingleEG5", "HLT_L1SingleEG8", "HLT_L1DoubleEG5"};
   
     if (hltConfig.init(the8e29ProcName_)) 
