@@ -30,17 +30,20 @@ DICTHDRS  =  $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
 ROOTCFLAGS    = $(shell root-config --cflags)
 ROOTGLIBS     = $(shell root-config --glibs)
 
+CLHEPCFLAGS   =  $(shell clhep-config --include)
+CLHEPLIBS     =  $(shell clhep-config --libs)
+
 CXX  =  c++
-CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS)
+CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 CPP  =  c++
-CPPFLAGS  = -Wall -m32 -I$(HDR) $(ROOTCFLAGS)
+CPPFLAGS  = -Wall -m32 -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
 LD       =  c++
 LDFLAGS  =  -rdynamic -shared -m32
 SONAME	 =  libEvent.so
 SOFLAGS  =  -Wl,-soname,$(SONAME)
 
-GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) -lGenVector
+GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) $(CLHEPLIBS) -lGenVector
 
 
 #################################################
@@ -49,9 +52,9 @@ ARCH  =  $(shell root-config --arch)
 ifeq ($(ARCH),macosx)
 LibSuf  =  .dylib
 
-CPPFLAGS  =  -Wall -W -Woverloaded-virtual -O2 -m32 -pipe -I$(HDR) $(ROOTCFLAGS)
+CPPFLAGS  =  -Wall -W -Woverloaded-virtual -O2 -m32 -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
-CXXFLAGS  =  -Wall -W -Woverloaded-virtual -O2 -m32 -pipe -I$(HDR) $(ROOTCFLAGS)
+CXXFLAGS  =  -Wall -W -Woverloaded-virtual -O2 -m32 -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
 LDFLAGS  =  -dynamiclib -shared -single_module -undefined dynamic_lookup -m32
 SONAME	 =  libEvent.dylib
