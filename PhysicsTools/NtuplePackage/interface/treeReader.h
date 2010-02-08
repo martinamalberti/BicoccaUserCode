@@ -17,7 +17,7 @@ class treeReader
 {
   public:
   
-    treeReader (TTree *) ;
+    treeReader (TTree *, bool verbosity = false) ;
     ~treeReader () ;
   
     void GetEntry (int iEvent) {m_tree->GetEntry (iEvent) ; } ;
@@ -39,6 +39,7 @@ class treeReader
     std::map <std::string, std::vector<ROOT::Math::XYZTVector> * > m_4Vvectors ;
     
     TTree * m_tree ;
+    bool m_verbosity ;
 
 } ;
 

@@ -1,8 +1,9 @@
 #include "treeReader.h"
 
 
-treeReader::treeReader (TTree * tree) :
-m_tree (tree)
+treeReader::treeReader (TTree * tree, bool verbosity) :
+m_tree (tree),
+m_verbosity (verbosity)
 {
  TObjArray * br_list = m_tree->GetListOfBranches () ;
  TIter br_it (br_list) ;
@@ -17,7 +18,8 @@ m_tree (tree)
   
   if (bname.find ("vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >") != std::string::npos)
   {
-   std::cout << "4V | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
+   if (m_verbosity)
+     std::cout << "4V | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
    std::vector<ROOT::Math::XYZTVector> * dummy = new std::vector<ROOT::Math::XYZTVector> ;
    m_4Vvectors[bre->GetName ()] = dummy ;
    m_tree->SetBranchAddress (bre->GetName (), &m_4Vvectors[bre->GetName ()]) ;
@@ -25,7 +27,8 @@ m_tree (tree)
   
   if (bname.find ("vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >") != std::string::npos)
   {
-   std::cout << "3V | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
+   if (m_verbosity)
+     std::cout << "3V | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
    std::vector<ROOT::Math::XYZVector> * dummy = new std::vector<ROOT::Math::XYZVector> ;
    m_3Vvectors[bre->GetName ()] = dummy ;
    m_tree->SetBranchAddress (bre->GetName (), &m_3Vvectors[bre->GetName ()]) ;
@@ -33,7 +36,8 @@ m_tree (tree)
   
   if (bname.find ("vector<int>") != std::string::npos)
   {
-   std::cout << "IV | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
+   if (m_verbosity)
+     std::cout << "IV | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
    std::vector<int> * dummy = new std::vector<int> ;
    m_Ivectors[bre->GetName ()] = dummy ;
    m_tree->SetBranchAddress (bre->GetName (), &m_Ivectors[bre->GetName ()]) ;
@@ -41,7 +45,8 @@ m_tree (tree)
   
   if (bname.find ("vector<float>") != std::string::npos)
   {
-   std::cout << "FV | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
+   if (m_verbosity)
+     std::cout << "FV | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
    std::vector<float> * dummy = new std::vector<float> ;
    m_Fvectors[bre->GetName ()] = dummy ;
    m_tree->SetBranchAddress (bre->GetName (), &m_Fvectors[bre->GetName ()]) ;
@@ -49,7 +54,8 @@ m_tree (tree)
   
   if (bname.find ("vector<double>") != std::string::npos)
   {
-   std::cout << "DV | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
+   if (m_verbosity)
+     std::cout << "DV | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
    std::vector<double> * dummy = new std::vector<double> ;
    m_Dvectors[bre->GetName ()] = dummy ;
    m_tree->SetBranchAddress (bre->GetName (), &m_Dvectors[bre->GetName ()]) ;
