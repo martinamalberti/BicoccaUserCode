@@ -13,7 +13,7 @@ public:
   MuMuLooper(TChain *tree=0);
   virtual ~MuMuLooper() {};
   void bookHistos();
-  void saveHistos();
+  void saveHistos(TFile *f1);
   void Loop();
   int theBestQQ() const;
   bool accept_glb_mu(const int mu_index) const;

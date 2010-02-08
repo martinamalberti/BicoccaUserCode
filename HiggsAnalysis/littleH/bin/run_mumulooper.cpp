@@ -29,16 +29,19 @@ int main (int argc, char ** argv)
   cout << "Total number of entries" << theChain->GetEntries() << endl;
   */
   
-  TChain * albero = new TChain (argv[2]) ;
+  TChain * albero = new TChain ("SimpleNtple/SimpleTree") ;
   string filename(argv[1]);
   filename += "*.root" ;
   albero -> Add(filename.c_str());
   std::cout << "al : " << albero->GetEntries () << std::endl ;
-  
+
+  string outputfile(argv[2]);
+  outputfile += ".root" ;
+  TFile *f1 = new TFile(outputfile.c_str(),"RECREATE");  
 
   MuMuLooper analyzer(albero);
   analyzer.Loop();
-
+  analyzer.saveHistos(f1);
   delete albero;
 
   return 0;

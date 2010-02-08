@@ -108,7 +108,7 @@ void MuMuLooper::Loop() {
     }
   }
 
-  saveHistos();
+  //  saveHistos(f1);
 
   cout << "###############" << endl;
   cout << "Some statistics " << endl;
@@ -120,12 +120,12 @@ void MuMuLooper::Loop() {
   return;
 } // end of program
 
-void MuMuLooper::saveHistos()
+void MuMuLooper::saveHistos(TFile * f1)
 {
-  TFile f1("out.root","RECREATE");
-  f1.cd();
+  //  TFile f1("out.root","RECREATE");
+  f1->cd();
   hInvMass->Write();
-  f1.Close();
+  f1->Close();
 
   return;
 }
