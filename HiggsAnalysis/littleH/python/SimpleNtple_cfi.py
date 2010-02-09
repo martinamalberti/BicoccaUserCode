@@ -43,9 +43,9 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      eventType = cms.untracked.int32(0), # 1 for signal, 0 for bkg
      
      GsfParameters = cms.PSet(           # Parameters are described here https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideGaussianSumFitter
-      maxDistance = cms.double(0.01),
+      maxDistance = cms.double(0.01), #0.01
       maxNbrOfIterations = cms.int32(10),
-      limitComponents = cms.bool(True),
+      limitComponents = cms.bool(False), #True
       smoothTracks = cms.bool(False),
       GsfMergerParameters = cms.PSet(
         maxNbrComponents= cms.int32(4),
