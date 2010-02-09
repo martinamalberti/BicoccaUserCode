@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <cmath>
+#include <algorithm>
 
 #include "TChain.h"
 #include "TVector3.h"
@@ -148,4 +149,14 @@ double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jet
                   const double& etMin,
                   const std::vector<int>* blacklist = 0);
 
+
+
+
+
+
+/** build combinations of n jets */
+int Build4JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets);
+
+/** build combinations of n jets */
+void Print4JetCombination(const std::vector<int>& combination);
 #endif

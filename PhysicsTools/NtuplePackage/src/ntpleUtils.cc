@@ -101,6 +101,9 @@ double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jet
   
   
   // initialize the selection variable
+  double maxDeta = -999999.;
+  double tempDeta = 0.;
+  
   double maxMJJ = -999999.;
   double tempMJJ = 0.;
   
@@ -142,6 +145,20 @@ double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jet
       // select jets with different techniques
       // -------------------------------------
       
+      if(method == "maxDeta")
+      {
+        tempDeta = deltaEta(jets.at(i).Eta(), jets.at(j).Eta());
+        if(tempDeta > maxDeta)
+        {
+          maxDeta = tempDeta;
+          
+    	    it.at(0) = i;
+	        it.at(1) = j;
+        }
+      }
+      
+      // -------------------------------------
+      
       if(method == "maxMJJ")
       {
         tempMJJ = (jets.at(i) + jets.at(j)).mass();
@@ -155,7 +172,6 @@ double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jet
       }
       
       // -------------------------------------
-      
       else if(method == "maxPt")
       {
         tempPt = sqrt( (jets.at(i) + jets.at(j)).perp2() );
@@ -201,6 +217,55 @@ double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jet
     return maxSumPt;
   
   else return -1.;
+}
+
+//  ------------------------------------------------------------
+
+
+
+
+
+
+int Build4JetCombinations(std::vector<std::vector<int> >& combinations, const int& nJets)
+{
+  combinations.clear();
+  
+  std::vector<int> vi;
+  for(int i = 0; i < nJets; ++i)
+ 	  vi.push_back(i);
+  
+  std::vector<int> buffer;
+  buffer.push_back(0);
+  buffer.push_back(1);
+  buffer.push_back(2);
+  buffer.push_back(3);
+  
+  combinations.push_back(buffer);
+  
+  while( next_permutation(vi.begin(), vi.end()) )      
+  {
+    if( (vi.at(0) < vi.at(1)) && (vi.at(2) < vi.at(3)) )
+    {
+      buffer.at(0) = vi.at(0);
+      buffer.at(1) = vi.at(1);
+      buffer.at(2) = vi.at(2);
+      buffer.at(3) = vi.at(3);                  
+      
+      combinations.push_back(buffer);
+    }  
+  }
+  
+  return buffer.size();
+}
+
+//  ------------------------------------------------------------
+
+void Print4JetCombination(const std::vector<int>& combination)
+{
+  std::cout << "(" << combination.at(0) << "," << combination.at(1) << ")";
+  std::cout << "   ---   ";
+  std::cout << "(" << combination.at(2) << "," << combination.at(3) << ")";  
+  std::cout << std::endl;
 }
 
 //  ------------------------------------------------------------
