@@ -28,7 +28,7 @@ void Kolmogorov () {
 
   TH1F * h_bkg_SM_2mumass [n_bkg_SM] ;
 
-  TCanvas *can = new TCanvas("can", "can",4,48,800,658);;
+  TCanvas *can = new TCanvas("can", "can",4,48,800,658);
   TLegend *leg = new TLegend(0.2123116,0.6412698,0.5565327,0.9174603,NULL,"brNDC");;
   
   THStack *a_2muMass = new THStack(); ;
@@ -44,7 +44,7 @@ void Kolmogorov () {
       s_histo_input = "hInvMass" ;
       h_bkg_SM_2mumass [iSM] = (TH1F *) bkg_fin-> Get (s_histo_input) ;
       h_bkg_SM_2mumass[iSM]->Rebin(2);
-
+      h_bkg_SM_2mumass [iSM]->Sumw2(); 
       ( *h_bkg_SM_2mumass [iSM] ) =  ( *h_bkg_SM_2mumass[iSM] )*(1/h_bkg_SM_2mumass[iSM]->GetEntries()) ; //rescaling with the event weight 
 
       h_bkg_SM_2mumass [iSM] ->SetMarkerStyle(bkg_SM_markers[iSM]) ;
@@ -55,20 +55,20 @@ void Kolmogorov () {
       h_bkg_SM_2mumass [iSM] -> SetFillColor (bkg_SM_colors [iSM]) ;
       h_bkg_SM_2mumass [iSM] -> SetFillStyle (3018) ;
 
-      if(iSM==0){
-	samesign = *h_bkg_SM_2mumass [iSM];
-	samesign->Sumw2();          
-      }
-      if(iSM==1){
-	oppositesign = *h_bkg_SM_2mumass [iSM]; 
-	oppositesign->Sumw2();
-      }
+//       if(iSM==0){
+// 	samesign = *h_bkg_SM_2mumass [iSM];
+// 	samesign->Sumw2();          
+//       }
+//       if(iSM==1){
+// 	oppositesign = *h_bkg_SM_2mumass [iSM]; 
+// 	oppositesign->Sumw2();
+//       }
       leg->AddEntry( h_bkg_SM_2mumass [iSM] ,v_leg_bkg_SM_names [iSM] ,"f");
       
       a_2muMass->Add(h_bkg_SM_2mumass [iSM]);
 
-      //     if(iSM==1)
-      //	std::cout << h_bkg_SM_2mumass [iSM]->KolmogorovTest(h_bkg_SM_2mumass [iSM-1]) << std::endl;
+      if(iSM==1)
+      	std::cout << h_bkg_SM_2mumass [iSM]->KolmogorovTest(h_bkg_SM_2mumass [iSM-1]) << std::endl;
     }      
     a_2muMass ->Draw("nostack") ;
 
@@ -77,9 +77,10 @@ void Kolmogorov () {
     a_2muMass ->GetXaxis()->SetRangeUser(0,500) ;
     leg->Draw() ;
     
-    samesign->Sumw2();     
-    oppositesign->Sumw2();  
-    std::cout << samesign->KolmogorovTest(oppositesign, "UO") << std::endl;
+//     samesign->Sumw2();     
+//     oppositesign->Sumw2();  
+//     if(iSM==1)
+//       std::cout << h_bkg_SM_2mumass [iSM]->KolmogorovTest(h_bkg_SM_2mumass [iSM-1], "UO") << std::endl;
 //     std::cout << Lum << endl;
 //     s_plot_name = "~/www/little" + "_" + Lum + "pb_" + "tanB"+ tanB + "samesign.gif" ;
 
