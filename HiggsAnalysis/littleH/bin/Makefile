@@ -16,7 +16,7 @@ ifeq ($(ARCH),macosx)
 # MacOS X with cc (GNU cc 2.95.2 and gcc 3.3)
 MACOSX_MINOR := $(shell sw_vers | sed -n 's/ProductVersion://p' | cut -d . -f 2)
 CXX           = c++ -lm
-CXXFLAGS      = -O2 -pipe -Wall -W -Woverloaded-virtual -fPIC -Wno-deprecated -O -ansi -D_GNU_SOURCE  
+CXXFLAGS      = -O2 -pipe -Wall -W -Woverloaded-virtual -fPIC -Wno-deprecated -O -ansi -D_GNU_SOURCE  -j 4
 LD           = c++
 LDFLAGS       = -O2 -g
 # The SOFLAGS will be used to create the .dylib,
@@ -59,12 +59,21 @@ $(OUTLIB)smallHBaseClass.o: $(INCLUDEDIR)/smallHBaseClass.C $(INCLUDEDIR)/MuMuLo
 $(OUTLIB)MuMuLooper.o: $(INCLUDEDIR)/MuMuLooper.cc
 	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)MuMuLooper.o $<
 
+$(OUTLIB)EleEleLooper.o: $(INCLUDEDIR)/EleEleLooper.cc 
+	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)EleEleLooper.o $<
+        
+$(OUTLIB)hChain.o: $(INCLUDEDIR)/hChain.cc 
+	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)hChain.o $<
+        
 RunMuMu:  $(INCLUDEDIR)run_mumulooper.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)MuMuLooper.o
 	$(CXX) $(CXXFLAGS) -o RunMuMu $(OUTLIB)/*.o $(GLIBS) $ $<
+
+RunEleEle:  $(INCLUDEDIR)run_eleelelooper.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)EleEleLooper.o $(OUTLIB)hChain.o
+	$(CXX) $(CXXFLAGS) -o RunEleEle $(OUTLIB)/*.o $(GLIBS) $ $<
 
 clean:
 	rm -f $(OUTLIB)*.o $(OUTLIBCOMMON)*.o
 	rm -f $(OUTLIB)*.so
 	rm -f JPsiApp
 
-all:  RunMuMu
+all:  RunMuMu RunEleEle
