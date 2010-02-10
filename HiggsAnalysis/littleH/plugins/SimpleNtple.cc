@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.54 2010/02/04 14:56:40 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.55 2010/02/08 08:18:08 dimatteo Exp $
 //
 //
 
@@ -785,12 +785,12 @@ void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef le
   t_tks.push_back(ttkp1);
   t_tks.push_back(ttkp2);
   
-  //  KalmanVertexFitter kvf;
-  //  TransientVertex tv = kvf.vertex(t_tks);
-
   //   // Gaussian Sum Filter Algorithm 
-  GsfVertexFitter gsf(gsfPSet);
-  TransientVertex tv = gsf.vertex(t_tks);
+  KalmanVertexFitter kvf;
+  TransientVertex tv = kvf.vertex(t_tks);
+//   AdaptiveGsfVertexFitter gsf(gsfPSet); 
+//   GsfVertexFitter gsf(gsfPSet);
+//   TransientVertex tv = gsf.vertex(t_tks);
     
   if ( ! tv.isValid() ) return;
   //   {
