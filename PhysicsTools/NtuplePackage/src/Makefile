@@ -34,15 +34,18 @@ ROOTGLIBS     = $(shell root-config --glibs)
 CLHEPCFLAGS   =  $(shell clhep-config --include)
 CLHEPLIBS     =  $(shell clhep-config --libs)
 
+ARCHL = -m64
+
 CXX  =  c++
 CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 CPP  =  c++
-CPPFLAGS  = -Wall -m32 -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
+CPPFLAGS  = -Wall $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
-BOOSTFLAGS = -lboost_program_options-mt
+BOOSTFLAGS = -I/afs/cern.ch/sw/lcg/external/Boost/1.42.0_python2.5/slc4_amd64_gcc34/include/boost-1_42/
+BOOSTLIBS = -L/afs/cern.ch/sw/lcg/external/Boost/1.42.0_python2.5/slc4_amd64_gcc34/lib/ -lboost_program_options-gcc34-mt
 
 LD       =  c++
-LDFLAGS  =  -rdynamic -shared -m32
+LDFLAGS  =  -rdynamic -shared $(ARCHL)
 SONAME	 =  libEvent.so
 SOFLAGS  =  -Wl,-soname,$(SONAME)
 
@@ -55,11 +58,11 @@ ARCH  =  $(shell root-config --arch)
 ifeq ($(ARCH),macosx)
 LibSuf  =  .dylib
 
-CPPFLAGS  =  -Wall -W -Woverloaded-virtual -O2 -m32 -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
+CPPFLAGS  =  -Wall -W -Woverloaded-virtual -O2 $(ARCHL) -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
-CXXFLAGS  =  -Wall -W -Woverloaded-virtual -O2 -m32 -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
+CXXFLAGS  =  -Wall -W -Woverloaded-virtual -O2 $(ARCHL) -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
-LDFLAGS  =  -dynamiclib -shared -single_module -undefined dynamic_lookup -m32
+LDFLAGS  =  -dynamiclib -shared -single_module -undefined dynamic_lookup $(ARCHL)
 SONAME	 =  libEvent.dylib
 SOFLAGS  =
 endif
@@ -102,7 +105,7 @@ $(OBJ)mydict.cc: $(DICTHDRS)
 $(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o $(SCRIPT)ntuplepkg-config.cc
 	@echo "Linking $(SONAME):" 
 	$(LD) $(LDFLAGS) $(OBJS) $(OBJ)mydict.o $(SOFLAGS) -o $(LIB)$(SONAME) 
-	$(CXX) $(BOOSTFLAGS) -o $(SCRIPT)ntuplepkg-config $(SCRIPT)ntuplepkg-config.cc 
+	$(CXX) $(BOOSTFLAGS) $(BOOSTLIBS) -o $(SCRIPT)ntuplepkg-config $(SCRIPT)ntuplepkg-config.cc 
 
 $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf) $(HDRS) $(LIB)$(SONAME)
 	$(CPP) $(CPPFLAGS) -L$(LIB) $(GLIBS) -lEvent  -o $@ $<
