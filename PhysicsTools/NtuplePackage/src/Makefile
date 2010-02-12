@@ -1,17 +1,18 @@
-HDR   = ../interface/
-OBJ   = ../obj/
-LIB   = ../lib/
-BIN   =  ../bin/
-PRG  =  ../test/
+HDR      = ../interface/
+OBJ      = ../obj/
+LIB      = ../lib/
+BIN      =  ../bin/
+PRG      =  ../test/
+SCRIPT   = ../scripts/
 
 
+Shell   =  .sh
 HdrSuf  =  .h
 SrcSuf  =  .cc
 ObjSuf  =  .o
 PrgSuf  =  .cpp
 BinSuf  =  .exe
 LibSuf  =  .so
-
 
 HDRS  =  $(wildcard $(HDR)*$(HdrSuf))
 SRCS  =  $(wildcard *$(SrcSuf))
@@ -37,6 +38,8 @@ CXX  =  c++
 CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 CPP  =  c++
 CPPFLAGS  = -Wall -m32 -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
+
+BOOSTFLAGS = -lboost_program_options-mt
 
 LD       =  c++
 LDFLAGS  =  -rdynamic -shared -m32
@@ -96,9 +99,10 @@ $(OBJ)mydict.cc: $(DICTHDRS)
 	@echo "Generating dictionary for  ..."
 	rootcint -f $(OBJ)mydict.cc -c -p ${CXXFLAGS} $(DICTHDRS)
 
-$(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o
-	@echo "Linking $(SONAME):"
-	$(LD) $(LDFLAGS) $(OBJS) $(OBJ)mydict.o $(SOFLAGS) -o $(LIB)$(SONAME)
+$(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o $(SCRIPT)ntuplepkg-config.cc
+	@echo "Linking $(SONAME):" 
+	$(LD) $(LDFLAGS) $(OBJS) $(OBJ)mydict.o $(SOFLAGS) -o $(LIB)$(SONAME) 
+	$(CXX) $(BOOSTFLAGS) -o $(SCRIPT)ntuplepkg-config $(SCRIPT)ntuplepkg-config.cc 
 
 $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf) $(HDRS) $(LIB)$(SONAME)
 	$(CPP) $(CPPFLAGS) -L$(LIB) $(GLIBS) -lEvent  -o $@ $<
