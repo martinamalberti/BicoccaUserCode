@@ -100,7 +100,7 @@
   tdrStyle->SetTitleXOffset(0.8);
 //   tdrStyle->SetTitleYOffset(0.8);
   //Inv Mass Presel
-    tdrStyle->SetTitleYOffset(1.0);
+  tdrStyle->SetTitleYOffset(1.0);
 
   tdrStyle->SetLabelOffset(0.005, "XYZ");
   tdrStyle->SetTitleSize(0.07, "XYZ");
@@ -129,7 +129,7 @@
   tdrStyle->SetPadBottomMargin(0.15);
   tdrStyle->SetPadTopMargin(0.05);
   tdrStyle->SetPadLeftMargin(0.15);
-  tdrStyle->SetPadRightMargin(0.20);
+  tdrStyle->SetPadRightMargin(0.05);
 /*  //PlotEffvsEff=====================
   tdrStyle->SetPadBottomMargin(0.15);
   tdrStyle->SetPadTopMargin(0.05);

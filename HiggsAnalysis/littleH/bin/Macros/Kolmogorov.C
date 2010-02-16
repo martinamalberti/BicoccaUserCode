@@ -12,11 +12,11 @@ void Kolmogorov () {
   std::TString s_histo_input ;
   std::TString s_plot_name ;
 
-  v_bkg_SM_names.push_back("SameSign") ;
-  v_bkg_SM_names.push_back("OppositeSign");
+  v_bkg_SM_names.push_back("MuMuBkg_samesign") ;
+  v_bkg_SM_names.push_back("MuMuBkg");
   
-  v_leg_bkg_SM_names.push_back("Comb ee samesign") ;
-  v_leg_bkg_SM_names.push_back("Comb ee") ;
+  v_leg_bkg_SM_names.push_back("Comb #mu#mu samesign") ;
+  v_leg_bkg_SM_names.push_back("Comb #mu#mu") ;
   
   double IntLum = 500. ; // In Inverse pb
   TString Lum = "500";
@@ -38,22 +38,22 @@ void Kolmogorov () {
 
   //SM BKG
   for ( int iSM = 0; iSM < n_bkg_SM; iSM++ )	
-    {
-      TFile *bkg_fin = new TFile ( "../" + v_bkg_SM_names[iSM] + ".root", "READ" ) ;
+  {
+    TFile *bkg_fin = new TFile ( "../" + v_bkg_SM_names[iSM] + ".root", "READ" ) ;
             
-      s_histo_input = "h_1_InvMass" ;
-      h_bkg_SM_2mumass [iSM] = (TH1F *) bkg_fin-> Get (s_histo_input) ;
-      h_bkg_SM_2mumass[iSM]->Rebin(2);
-      h_bkg_SM_2mumass [iSM]->Sumw2(); 
-      ( *h_bkg_SM_2mumass [iSM] ) =  ( *h_bkg_SM_2mumass[iSM] )*(1/h_bkg_SM_2mumass[iSM]->GetEntries()) ; //rescaling with the event weight 
+    s_histo_input = "hInvMass" ;
+    h_bkg_SM_2mumass [iSM] = (TH1F *) bkg_fin-> Get (s_histo_input) ;
+    h_bkg_SM_2mumass[iSM]->Rebin(2);
+    h_bkg_SM_2mumass [iSM]->Sumw2(); 
+    ( *h_bkg_SM_2mumass [iSM] ) =  ( *h_bkg_SM_2mumass[iSM] )*(1/h_bkg_SM_2mumass[iSM]->GetEntries()) ; //rescaling with the event weight 
 
-      h_bkg_SM_2mumass [iSM] ->SetMarkerStyle(bkg_SM_markers[iSM]) ;
-      h_bkg_SM_2mumass [iSM]->SetMarkerColor ( bkg_SM_colors[iSM] ) ;
-      h_bkg_SM_2mumass [iSM]->SetMarkerSize(1.6) ;
-      h_bkg_SM_2mumass [iSM]->SetLineColor ( bkg_SM_colors[iSM] ) ;
-      h_bkg_SM_2mumass [iSM]->SetLineWidth(2.5) ;
-      h_bkg_SM_2mumass [iSM] -> SetFillColor (bkg_SM_colors [iSM]) ;
-      h_bkg_SM_2mumass [iSM] -> SetFillStyle (3018) ;
+    h_bkg_SM_2mumass [iSM] ->SetMarkerStyle(bkg_SM_markers[iSM]) ;
+    h_bkg_SM_2mumass [iSM]->SetMarkerColor ( bkg_SM_colors[iSM] ) ;
+    h_bkg_SM_2mumass [iSM]->SetMarkerSize(1.6) ;
+    h_bkg_SM_2mumass [iSM]->SetLineColor ( bkg_SM_colors[iSM] ) ;
+    h_bkg_SM_2mumass [iSM]->SetLineWidth(2.5) ;
+    h_bkg_SM_2mumass [iSM] -> SetFillColor (bkg_SM_colors [iSM]) ;
+    h_bkg_SM_2mumass [iSM] -> SetFillStyle (3018) ;
 
 //       if(iSM==0){
 // 	samesign = *h_bkg_SM_2mumass [iSM];
@@ -63,19 +63,19 @@ void Kolmogorov () {
 // 	oppositesign = *h_bkg_SM_2mumass [iSM]; 
 // 	oppositesign->Sumw2();
 //       }
-      leg->AddEntry( h_bkg_SM_2mumass [iSM] ,v_leg_bkg_SM_names [iSM] ,"f");
+    leg->AddEntry( h_bkg_SM_2mumass [iSM] ,v_leg_bkg_SM_names [iSM] ,"f");
       
-      a_2muMass->Add(h_bkg_SM_2mumass [iSM]);
+    a_2muMass->Add(h_bkg_SM_2mumass [iSM]);
 
-      if(iSM==1)
-      	std::cout << h_bkg_SM_2mumass [iSM]->KolmogorovTest(h_bkg_SM_2mumass [iSM-1]) << std::endl;
-    }      
-    a_2muMass ->Draw("nostack") ;
+    if(iSM==1)
+      std::cout << h_bkg_SM_2mumass [iSM]->KolmogorovTest(h_bkg_SM_2mumass [iSM-1]) << std::endl;
+  }      
+  a_2muMass ->Draw("nostack") ;
 
-    a_2muMass ->GetYaxis()->SetTitle("d#sigma/dm (pb/100 MeV/c^{2})") ;
-    a_2muMass ->GetXaxis()->SetTitle("m_{#mu#mu} (GeV/c^{2})") ;
-    a_2muMass ->GetXaxis()->SetRangeUser(0,500) ;
-    leg->Draw() ;
+  a_2muMass ->GetYaxis()->SetTitle("d#sigma/dm (pb/100 MeV/c^{2})") ;
+  a_2muMass ->GetXaxis()->SetTitle("m_{#mu#mu} (GeV/c^{2})") ;
+  a_2muMass ->GetXaxis()->SetRangeUser(0,500) ;
+  leg->Draw() ;
     
 //     samesign->Sumw2();     
 //     oppositesign->Sumw2();  
@@ -89,9 +89,3 @@ void Kolmogorov () {
 //     can-> Print ( s_plot_name, "eps" ) ;
 
 }
-
-
-  
-
-
-
