@@ -179,6 +179,13 @@ int MuMuLooper::theBestQQ() const
       const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
       const int thelptMu = QQ_leplpt->at(iqq);    if (thelptMu >= muons_glb_normChi2->size()) continue;
 
+      if( ((TLorentzVector*)muons_glb_4mom->At(QQ_lephpt->at(iqq))) -> Pt() < ((TLorentzVector*)muons_glb_4mom->At(QQ_leplpt->at(iqq))) -> Pt() )
+      {
+        int temp_iMu = thelptMu ;
+        thelptMu = thehptMu ;
+        thehptMu = temp_iMu ;
+      }
+
       if (QQ_probChi2->at(iqq) > MIN_vtxprob_jpsi && accept_glb_mu(thehptMu) && accept_glb_mu(thelptMu)) return iqq;
     }
   }
@@ -191,6 +198,13 @@ int MuMuLooper::theBestQQ() const
       const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
       const int thelptMu = QQ_leplpt->at(iqq);    if (thelptMu >= muons_trk_normChi2->size()) continue;
 
+      if( ((TLorentzVector*)muons_glb_4mom->At(QQ_lephpt->at(iqq))) -> Pt() < ((TLorentzVector*)muons_trk_4mom->At(QQ_leplpt->at(iqq))) -> Pt() )
+      {
+        int temp_iMu = thelptMu ;
+        thelptMu = thehptMu ;
+        thehptMu = temp_iMu ;
+      }
+      
       if (QQ_probChi2->at(iqq) > MIN_vtxprob_jpsi && accept_glb_mu(thehptMu) && accept_trk_mu(thelptMu)) {
 	
         TLorentzVector *theTrMumom = (TLorentzVector*)muons_trk_4mom->At(thelptMu);
@@ -211,6 +225,14 @@ int MuMuLooper::theBestQQ() const
       
       const int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_trk_normChi2->size()) continue;
       const int thelptMu = QQ_leplpt->at(iqq);    if (thelptMu >= muons_trk_normChi2->size()) continue;
+      
+      if( ((TLorentzVector*)muons_trk_4mom->At(QQ_lephpt->at(iqq))) -> Pt() < ((TLorentzVector*)muons_trk_4mom->At(QQ_leplpt->at(iqq))) -> Pt() )
+      {
+        int temp_iMu = thelptMu ;
+        thelptMu = thehptMu ;
+        thehptMu = temp_iMu ;
+      }
+
 
       if (QQ_probChi2->at(iqq) > MIN_vtxprob_jpsi && accept_trk_mu(thehptMu) && accept_trk_mu(thelptMu)){
         TLorentzVector *theTrMumom = (TLorentzVector*)muons_trk_4mom->At(thehptMu);
