@@ -129,7 +129,7 @@
   tdrStyle->SetPadBottomMargin(0.15);
   tdrStyle->SetPadTopMargin(0.05);
   tdrStyle->SetPadLeftMargin(0.15);
-  tdrStyle->SetPadRightMargin(0.05);
+  tdrStyle->SetPadRightMargin(0.20);
 /*  //PlotEffvsEff=====================
   tdrStyle->SetPadBottomMargin(0.15);
   tdrStyle->SetPadTopMargin(0.05);

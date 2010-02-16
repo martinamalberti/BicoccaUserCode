@@ -77,6 +77,7 @@ public :
    vector<float>   *electrons_tkIso;
    vector<float>   *electrons_emIso;
    vector<float>   *electrons_hadIso;
+   vector<float>   *electrons_IdBDT;
    vector<float>   *electrons_IdLoose;
    vector<float>   *electrons_IdTight;
    vector<float>   *electrons_IdRobustLoose;
@@ -213,6 +214,7 @@ public :
    TBranch        *b_electrons_tkIso;   //!
    TBranch        *b_electrons_emIso;   //!
    TBranch        *b_electrons_hadIso;   //!
+   TBranch        *b_electrons_IdBDT;   //!
    TBranch        *b_electrons_IdLoose;   //!
    TBranch        *b_electrons_IdTight;   //!
    TBranch        *b_electrons_IdRobustLoose;   //!
@@ -416,6 +418,7 @@ void smallHBaseClass::Init(TChain *tree)
    electrons_tkIso = 0;
    electrons_emIso = 0;
    electrons_hadIso = 0;
+   electrons_IdBDT = 0;
    electrons_IdLoose = 0;
    electrons_IdTight = 0;
    electrons_IdRobustLoose = 0;
@@ -556,6 +559,7 @@ void smallHBaseClass::Init(TChain *tree)
    fChain->SetBranchAddress("electrons_tkIso", &electrons_tkIso, &b_electrons_tkIso);
    fChain->SetBranchAddress("electrons_emIso", &electrons_emIso, &b_electrons_emIso);
    fChain->SetBranchAddress("electrons_hadIso", &electrons_hadIso, &b_electrons_hadIso);
+   fChain->SetBranchAddress("electrons_IdBDT", &electrons_IdBDT, &b_electrons_IdBDT);
    fChain->SetBranchAddress("electrons_IdLoose", &electrons_IdLoose, &b_electrons_IdLoose);
    fChain->SetBranchAddress("electrons_IdTight", &electrons_IdTight, &b_electrons_IdTight);
    fChain->SetBranchAddress("electrons_IdRobustLoose", &electrons_IdRobustLoose, &b_electrons_IdRobustLoose);

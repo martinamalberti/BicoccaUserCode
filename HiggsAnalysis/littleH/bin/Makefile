@@ -41,7 +41,7 @@ CXXFLAGS      += $(ROOTCFLAGS)
 
 NGLIBS         = $(ROOTGLIBS) 
 # Hack here, because RooFit is removed from ROOT:
-NGLIBS        += -L/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/cmssw/CMSSW_3_3_4/external/slc4_ia32_gcc345/lib/ -lMinuit -lRooFit
+NGLIBS        += -L/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/cmssw/CMSSW_3_3_4/external/slc4_ia32_gcc345/lib/ -lMinuit #-lRooFit
 GLIBS          = $(filter-out -lNew, $(NGLIBS))
 
 INCLUDEDIR       = ./
@@ -61,9 +61,15 @@ $(OUTLIB)MuMuLooper.o: $(INCLUDEDIR)/MuMuLooper.cc
 
 $(OUTLIB)EleEleLooper.o: $(INCLUDEDIR)/EleEleLooper.cc 
 	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)EleEleLooper.o $<
+
+$(OUTLIB)MakeElePlots.o: $(INCLUDEDIR)/MakeElePlots.cc 
+	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)MakeElePlots.o $<
         
 $(OUTLIB)hChain.o: $(INCLUDEDIR)/hChain.cc 
 	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)hChain.o $<
+
+$(OUTLIB)h2Chain.o: $(INCLUDEDIR)/h2Chain.cc 
+	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)h2Chain.o $<
         
 RunMuMu:  $(INCLUDEDIR)run_mumulooper.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)MuMuLooper.o
 	$(CXX) $(CXXFLAGS) -o RunMuMu $(OUTLIB)/*.o $(GLIBS) $ $<
@@ -71,9 +77,12 @@ RunMuMu:  $(INCLUDEDIR)run_mumulooper.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)Mu
 RunEleEle:  $(INCLUDEDIR)run_eleelelooper.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)EleEleLooper.o $(OUTLIB)hChain.o
 	$(CXX) $(CXXFLAGS) -o RunEleEle $(OUTLIB)/*.o $(GLIBS) $ $<
 
+MakeElePlots:  $(INCLUDEDIR)run_makeeleplots.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)MakeElePlots.o $(OUTLIB)hChain.o $(OUTLIB)h2Chain.o
+	$(CXX) $(CXXFLAGS) -o MakeElePlots $(OUTLIB)/*.o $(GLIBS) $ $<
+
 clean:
 	rm -f $(OUTLIB)*.o $(OUTLIBCOMMON)*.o
 	rm -f $(OUTLIB)*.so
 	rm -f JPsiApp
 
-all:  RunMuMu RunEleEle
+all:  RunMuMu RunEleEle MakeElePlots

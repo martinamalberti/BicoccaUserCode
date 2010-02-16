@@ -12,11 +12,11 @@ void Kolmogorov () {
   std::TString s_histo_input ;
   std::TString s_plot_name ;
 
-  v_bkg_SM_names.push_back("MuMuBkg_samesign") ;
-  v_bkg_SM_names.push_back("MuMuBkg");
+  v_bkg_SM_names.push_back("SameSign") ;
+  v_bkg_SM_names.push_back("OppositeSign");
   
-  v_leg_bkg_SM_names.push_back("Comb #mu#mu samesign") ;
-  v_leg_bkg_SM_names.push_back("Comb #mu#mu") ;
+  v_leg_bkg_SM_names.push_back("Comb ee samesign") ;
+  v_leg_bkg_SM_names.push_back("Comb ee") ;
   
   double IntLum = 500. ; // In Inverse pb
   TString Lum = "500";
@@ -41,7 +41,7 @@ void Kolmogorov () {
     {
       TFile *bkg_fin = new TFile ( "../" + v_bkg_SM_names[iSM] + ".root", "READ" ) ;
             
-      s_histo_input = "hInvMass" ;
+      s_histo_input = "h_1_InvMass" ;
       h_bkg_SM_2mumass [iSM] = (TH1F *) bkg_fin-> Get (s_histo_input) ;
       h_bkg_SM_2mumass[iSM]->Rebin(2);
       h_bkg_SM_2mumass [iSM]->Sumw2(); 

@@ -60,14 +60,14 @@ void EleEleLooper::Loop() {
     //MC block
     GetMcInfo() ;
         
-    // TRIGGER CUTS 
-    if (
-      !(*HLTBits_accept)[5] &&            // Ele10_LW_L1R
-      !(*HLTBits_accept)[6] &&            // DoubleEle5_SW_L1R
-      !(*HLTBits_accept)[7] &&            // DoublePhoton5_Jpsi_L1R
-      !(*HLTBits_accept)[8] &&            // DoublePhoton5_Upsilon_L1R
-      !(*HLTBits_accept)[9]               // DoublePhoton5_eeRes_L1R
-      ) continue;    
+//     TRIGGER CUTS 
+//     if (
+//       !(*HLTBits_accept)[5] &&            // Ele10_LW_L1R
+//       !(*HLTBits_accept)[6] &&            // DoubleEle5_SW_L1R
+//       !(*HLTBits_accept)[7] &&            // DoublePhoton5_Jpsi_L1R
+//       !(*HLTBits_accept)[8] &&            // DoublePhoton5_Upsilon_L1R
+//       !(*HLTBits_accept)[9]               // DoublePhoton5_eeRes_L1R
+//       ) continue;    
 
     passedTriggers++;
     
@@ -77,18 +77,19 @@ void EleEleLooper::Loop() {
          
     for (int iqq=0; iqq<(*QQ_size)[0]; iqq++) {
 
-      if ((*QQ_sign)[iqq] != 0) continue;
+      if ((*QQ_sign)[iqq] != 0) continue; //exclude same sign
+//       if ((*QQ_sign)[iqq] == 0) continue; //exclude opposite sign
 
       if((*QQ_type)[iqq] != 0) continue;
 
       if (onlyTheBest && iqq != myBest) continue;
 
-	passedCandidates++;
-	
-	const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
+      passedCandidates++;
+      
+      const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
 
-        // Fill histos
-        hC_InvMass->Fill(1, invMass) ;
+      // Fill histos
+      hC_InvMass->Fill(1, invMass) ;
         
 
 
@@ -122,7 +123,9 @@ bool EleEleLooper::accept_ele(const int ele_index) const
 
   if(
      //Check Normalized Iso Variable 
-     (electrons_tkIso->at(ele_index) + electrons_hadIso->at(ele_index))/ele_4mom->Pt() < 10000. //0.4
+     (electrons_tkIso->at(ele_index) + electrons_hadIso->at(ele_index)) < 0.4 //0.4
+     //Check BDT Id Variable - see  CMS AN -2010/034
+   && electrons_IdBDT->at(ele_index) > -0.1 //0.4
      ) 
   {
     hC_ElePt->Fill(1, ele_4mom -> Pt()) ;
@@ -138,7 +141,8 @@ int EleEleLooper::theBestQQ() const
 
   for (int iqq=0; iqq<QQ_size->at(0); iqq++) {
 
-    if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 0 ) {
+    if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 0 ) { //Opposite Sign
+//     if (QQ_sign->at(iqq) != 0 && QQ_type->at(iqq) == 0 ) { //Same Sign
 
       const int thehptEle = QQ_lephpt->at(iqq);    if (thehptEle >= electrons_charge->size()) continue;
       const int thelptEle = QQ_leplpt->at(iqq);    if (thelptEle >= electrons_charge->size()) continue;
