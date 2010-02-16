@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.57 2010/02/16 09:51:43 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.58 2010/02/16 10:33:13 pellicci Exp $
 //
 //
 
@@ -76,7 +76,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   theStoreWSOnia            (iConfig.getUntrackedParameter<bool> ("storeWSOnia", true)), 
   theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
   theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)),
-  Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.001)),
+  Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.05)),
   OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
   Onia3DipCut_              (iConfig.getUntrackedParameter<double> ("Onia3DipCut", 5.)),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
@@ -1292,6 +1292,8 @@ double SimpleNtple::GetTheta( TLorentzVector & a,  TLorentzVector & b ) const
   a.Boost(-bv);
   b.Boost(-bv);
   double theta = c.Vect().Angle(a.Vect());
+  a.Boost(bv);
+  b.Boost(bv);
   return theta;
 }
 
