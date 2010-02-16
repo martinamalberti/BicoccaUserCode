@@ -32,16 +32,6 @@ void Draw_InvMass () {
   v_leg_bkg_SM_names.push_back("Comb #mu#mu + #Upsilon_{1S} + #Upsilon_{2S}") ;
   v_leg_bkg_SM_names.push_back("Comb #mu#mu + #Upsilon_{1S} + #Upsilon_{2S} + #Upsilon_{3S}") ; 
   
-  v_bkg_SM_names.push_back("MuMuBkg") ;
-  v_bkg_SM_names.push_back("Upsilon1S") ;
-  v_bkg_SM_names.push_back("Upsilon2S") ;
-  v_bkg_SM_names.push_back("Upsilon3S") ;
-  
-  v_leg_bkg_SM_names.push_back("Comb #mu#mu") ;
-  v_leg_bkg_SM_names.push_back("Comb #mu#mu + #Upsilon_{1S}") ; 
-  v_leg_bkg_SM_names.push_back("Comb #mu#mu + #Upsilon_{1S} + #Upsilon_{2S}") ;
-  v_leg_bkg_SM_names.push_back("Comb #mu#mu + #Upsilon_{1S} + #Upsilon_{2S} + #Upsilon_{3S}") ; 
-  
   double IntLum = 500. ; // In Inverse pb
   TString Lum = "500";
   TString tanB = "10";
@@ -120,7 +110,7 @@ void Draw_InvMass () {
 	  leg[i]->AddEntry( h_bkg_SM_2mumass [i][iSM] ,v_leg_bkg_SM_names [iSM] ,"f");
 	  
 	  a_2muMass[i]->Add(h_bkg_SM_2mumass [i][iSM]);
-	  
+	  h_2muMass[i]->Add(h_bkg_SM_2mumass [i][iSM]);	  
 	}      
       //SIGNALS
       signal_weight [i] = IntLum * signal_Xsec [i] * signal_filter_eff [i] / signal_genMCevts [i] ;
