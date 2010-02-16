@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.58 2010/02/16 10:33:13 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.59 2010/02/16 16:56:28 dimatteo Exp $
 //
 //
 
@@ -576,29 +576,31 @@ void
       fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, PV);
     }
     e1++;
+    e2 = 0;
   }
   
   //Muons
   for ( nmuon1 = theGlobalMuons.begin(); nmuon1 != theGlobalMuons.end(); nmuon1++) 
   {
     for( nmuon2 = nmuon1+1; nmuon2 != theGlobalMuons.end()&&QQ_size<3000; nmuon2++ ) 
-    {
-      muon1 = nmuon1->innerTrack();    
-      muon2 = nmuon2->innerTrack(); 
-      m2g++;
-      if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
-    }
+      {
+	muon1 = nmuon1->innerTrack();    
+	muon2 = nmuon2->innerTrack(); 
+	m2g++;
+	if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
+      }
      
     for( tmuon2 = theTrkMuons.begin(); tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
-    {
-      muon1 = nmuon1->innerTrack();    
-      muon2 = tmuon2->innerTrack(); 
-      if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
-      m2t++;
-    }
+      {
+	muon1 = nmuon1->innerTrack();    
+	muon2 = tmuon2->innerTrack(); 
+	if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
+	m2t++;
+      }
     m1++;
+    m2g = 0;
+    m2t = 0;
   }
-  m1=0; m2t=0; 
     
   NtupleFactory_->FillInt("QQ_size",QQ_size);
   return;
