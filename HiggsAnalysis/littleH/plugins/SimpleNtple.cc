@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.56 2010/02/10 08:17:08 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.57 2010/02/16 09:51:43 dimatteo Exp $
 //
 //
 
@@ -599,17 +599,6 @@ void
     m1++;
   }
   m1=0; m2t=0; 
-  for ( tmuon1 = theTrkMuons.begin(); tmuon1 != theTrkMuons.end(); tmuon1++) 
-  {
-    for( tmuon2 = tmuon1+1; tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
-    {
-      muon1 = tmuon1->innerTrack();    
-      muon2 = tmuon2->innerTrack(); 
-      m2t++; 
-      if (theOniaMaxCat >= 2) fillOnia2MuMuTracks(muon1, m1, muon2, m2t+m1, PV, 3);
-    }
-    m1++;
-  }
     
   NtupleFactory_->FillInt("QQ_size",QQ_size);
   return;
@@ -951,6 +940,9 @@ void
   if (saveTrigger_) fillTriggerInfo (iEvent, iSetup) ;
   if (saveBeamSpot_) fillBeamSpotInfo (iEvent, iSetup) ;
   if (saveOniaCand_) findOniaCategories (iEvent, iSetup) ;
+
+  if(QQ_size < 1) return;
+
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
   
