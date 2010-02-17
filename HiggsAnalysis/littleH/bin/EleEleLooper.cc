@@ -123,7 +123,7 @@ bool EleEleLooper::accept_ele(const int ele_index) const
 
   if(
      //Check Normalized Iso Variable 
-     (electrons_tkIso->at(ele_index) + electrons_hadIso->at(ele_index)) < 0.4 //0.4
+     (electrons_tkIso->at(ele_index) + electrons_hadIso->at(ele_index))/ele_4mom->Pt() < 0.4 //0.4
      //Check BDT Id Variable - see  CMS AN -2010/034
    && electrons_IdBDT->at(ele_index) > -0.1 //0.4
      ) 
