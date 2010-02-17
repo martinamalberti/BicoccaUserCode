@@ -99,6 +99,7 @@ class SimpleNtple : public EDAnalyzer {
     virtual void analyze(const Event&, const EventSetup&);
     virtual void endJob() ;
     
+    void buildLepCollections (const Event & iEvent, const EventSetup & iESetup) ;
     void fillVtxInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillMuInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillTrackInfo (const Event & iEvent, const EventSetup & iESetup) ;

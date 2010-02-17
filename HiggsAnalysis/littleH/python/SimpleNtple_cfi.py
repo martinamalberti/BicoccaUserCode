@@ -32,7 +32,7 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      
      storeWSOnia     = cms.untracked.bool (True) ,
      beamSpotFlag    = cms.untracked.bool (True) ,
-     oniaMaxCat    = cms.untracked.int32(1) ,
+     oniaMaxCat    = cms.untracked.int32(2) ,
     
      Chi2OniaVtxCut= cms.untracked.double(0.05), #0.01      
      OniaMassCut= cms.untracked.double(3.2),

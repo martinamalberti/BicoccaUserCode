@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.59 2010/02/16 16:56:28 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.60 2010/02/16 17:06:30 pellicci Exp $
 //
 //
 
@@ -75,7 +75,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   saveOniaCand_             (iConfig.getUntrackedParameter<bool> ("saveOniaCand", true)),
   theStoreWSOnia            (iConfig.getUntrackedParameter<bool> ("storeWSOnia", true)), 
   theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
-  theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 1)),
+  theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 2)),
   Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.05)),
   OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
   Onia3DipCut_              (iConfig.getUntrackedParameter<double> ("Onia3DipCut", 5.)),
@@ -98,9 +98,32 @@ SimpleNtple::~SimpleNtple()
   delete NtupleFactory_;
 }
 
-
 // --------------------------------------------------------------------
 
+void SimpleNtple::buildLepCollections (const Event & iEvent, const EventSetup & iESetup) 
+{
+  Handle<MuonCollection> MuHandle;
+  iEvent.getByLabel(MuTag_,MuHandle);
+
+  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
+    if (nmuon->isGlobalMuon()) {
+      theGlobalMuons.push_back(*nmuon);
+      theMuonTrkIndexes_.push_back(nmuon->innerTrack().index());
+    }
+    if (!(nmuon->isGlobalMuon()) && nmuon->isTrackerMuon()) {
+      theTrkMuons.push_back(*nmuon);
+      theMuonTrkIndexes_.push_back(nmuon->innerTrack().index());
+    }
+  }
+  
+  Handle<View<reco::GsfElectron> > EleHandle ;
+  iEvent.getByLabel (EleTag_,EleHandle);
+  
+  for (int iEle = 0; iEle < EleHandle->size(); iEle++) theElectrons.push_back((*EleHandle)[iEle]);
+  return;
+}
+
+// --------------------------------------------------------------------
 
 void 
     SimpleNtple::fillVtxInfo (const Event & iEvent, const EventSetup & iESetup) 
@@ -130,24 +153,9 @@ void
 
 // --------------------------------------------------------------------
 
-
 void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup) 
 {
-  Handle<MuonCollection> MuHandle;
-  iEvent.getByLabel(MuTag_,MuHandle);
- 
   Reco_mu_glb_size = 0;
-
-  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
-    if (nmuon->isGlobalMuon()) {
-      theGlobalMuons.push_back(*nmuon);
-      theMuonTrkIndexes_.push_back(nmuon->innerTrack().index());
-    }
-    if (!(nmuon->isGlobalMuon()) && nmuon->isTrackerMuon()) {
-      theTrkMuons.push_back(*nmuon);
-      theMuonTrkIndexes_.push_back(nmuon->innerTrack().index());
-    }
-  }
 
   for (MuonCollection::const_iterator glbmuon = theGlobalMuons.begin();
        glbmuon != theGlobalMuons.end() ; 
@@ -311,7 +319,6 @@ void
  
   for (int i=0; i< nEle; i++)
   {     
-    theElectrons.push_back((*EleHandle)[i]);
       //Get Ele Ref
     Ref<View<reco::GsfElectron> > electronEdmRef(EleHandle,i);
 
@@ -587,14 +594,14 @@ void
 	muon1 = nmuon1->innerTrack();    
 	muon2 = nmuon2->innerTrack(); 
 	m2g++;
-	if (theOniaMaxCat >= 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
+	if (theOniaMaxCat > 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
       }
      
     for( tmuon2 = theTrkMuons.begin(); tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
       {
 	muon1 = nmuon1->innerTrack();    
 	muon2 = tmuon2->innerTrack(); 
-	if (theOniaMaxCat >= 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
+	if (theOniaMaxCat > 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
 	m2t++;
       }
     m1++;
@@ -933,17 +940,20 @@ void
   // get TTRHBuilder 
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 
-  if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
-  if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
-  if (saveTracks_) fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
-  if (saveEle_)    fillEleInfo (iEvent, iSetup) ;
-  if (saveMC_)     fillMCInfo (iEvent, iSetup) ;
-  if (saveSC_)     fillSCInfo (iEvent, iSetup) ;
-  if (saveTrigger_) fillTriggerInfo (iEvent, iSetup) ;
-  if (saveBeamSpot_) fillBeamSpotInfo (iEvent, iSetup) ;
+  buildLepCollections (iEvent, iSetup) ;
   if (saveOniaCand_) findOniaCategories (iEvent, iSetup) ;
-
-  if(QQ_size < 1) return;
+  
+  if (QQ_size > 0)
+  {
+    if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
+    if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
+    if (saveTracks_) fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
+    if (saveEle_)    fillEleInfo (iEvent, iSetup) ;
+    if (saveMC_)     fillMCInfo (iEvent, iSetup) ;
+    if (saveSC_)     fillSCInfo (iEvent, iSetup) ;
+    if (saveTrigger_) fillTriggerInfo (iEvent, iSetup) ;
+    if (saveBeamSpot_) fillBeamSpotInfo (iEvent, iSetup) ;
+  }
 
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
