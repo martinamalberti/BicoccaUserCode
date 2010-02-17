@@ -11,8 +11,6 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      eleIDCut_TightInputTag  = cms.InputTag("eidTight"), 
      eleIDCut_RTightInputTag = cms.InputTag("eidRobustTight"),
      barrelClusterCollection = cms.InputTag("hybridSuperClusters"), # w/o clustering corrections
-#     barrelClusterCollection = cms.InputTag("correctedHybridSuperClusters"), # w/ clustering corrections
-#     endcapClusterCollection = cms.InputTag("multi5x5SuperClusters", "multi5x5EndcapSuperClusters"), # w/o preshower energy
      endcapClusterCollection = cms.InputTag("multi5x5SuperClustersWithPreshower"), # w/ projective preshower energy
      beamSpotTag             = cms.InputTag("offlineBeamSpot"),
      triggerEventTag         = cms.string("hltTriggerSummaryAOD"),
@@ -36,8 +34,7 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
     
      Chi2OniaVtxCut= cms.untracked.double(0.05), #0.01      
      OniaMassCut= cms.untracked.double(3.2),
-     Onia3DipCut= cms.untracked.double(5),
-     OniaS3DipCut= cms.untracked.double(4),
+     OniaS3DipCut= cms.untracked.double(4.),
      
      treeName = cms.untracked.string ("SimpleTree") ,
      verbosity = cms.untracked.bool(False),

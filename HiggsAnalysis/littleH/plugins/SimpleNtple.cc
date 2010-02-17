@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.61 2010/02/17 09:02:04 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.62 2010/02/17 10:24:00 dimatteo Exp $
 //
 //
 
@@ -78,8 +78,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 2)),
   Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.05)),
   OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
-  Onia3DipCut_              (iConfig.getUntrackedParameter<double> ("Onia3DipCut", 5.)),
-  OniaS3DipCut_              (iConfig.getUntrackedParameter<double> ("OniaS3DipCut", 4.)),
+  OniaS3DipCut_             (iConfig.getUntrackedParameter<double> ("OniaS3DipCut", 4.)),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -120,7 +119,7 @@ void SimpleNtple::buildLepCollections (const Event & iEvent, const EventSetup & 
   Handle<View<reco::GsfElectron> > EleHandle ;
   iEvent.getByLabel (EleTag_,EleHandle);
   
-  for (int iEle = 0; iEle < EleHandle->size(); iEle++) theElectrons.push_back((*EleHandle)[iEle]);
+  for (int iEle = 0; iEle < (int)EleHandle->size(); iEle++) theElectrons.push_back((*EleHandle)[iEle]);
   return;
 }
 
@@ -687,8 +686,7 @@ void
    
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
   if ( onia.M() < OniaMassCut_ ) return;//Cut on Onia invariant mass
-  if ( QQ_3Dip > Onia3DipCut_ ) return;//Cut on Onia 3Dip
-  if ( QQ_3Dip/QQ_err3Dip > Onia3DipCut_ ) return;//Cut on Onia S3Dip
+  if ( QQ_3Dip/QQ_err3Dip > OniaS3DipCut_ ) return;//Cut on Onia S3Dip
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
 
@@ -845,8 +843,7 @@ void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef le
     
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
   if ( onia.M() < OniaMassCut_ ) return;//Cut on Onia invariant mass
-  if ( QQ_3Dip > Onia3DipCut_ ) return;//Cut on Onia 3Dip
-  if ( QQ_3Dip/QQ_err3Dip > Onia3DipCut_ ) return;//Cut on Onia S3Dip
+  if ( QQ_3Dip/QQ_err3Dip > OniaS3DipCut_ ) return;//Cut on Onia S3Dip
   
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
      

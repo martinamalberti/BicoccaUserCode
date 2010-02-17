@@ -12,8 +12,6 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.GlobalTag.globaltag = 'IDEAL_V11::All'
-# process.GlobalTag.globaltag = 'DESIGN_3X_V8A::All'
 process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -33,7 +31,6 @@ process.source = cms.Source(
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
     fileNames = cms.untracked.vstring(
-#         'file:/tmp/dimatteo/66E38069-7EDB-DE11-9027-002264055CE4.root',
         'file:/tmp/dimatteo/EA493E35-D787-DE11-843A-00215E221692.root',
 #         'file:/tmp/dimatteo/RECO_A0prod_1.root',
 )
@@ -43,20 +40,12 @@ process.source = cms.Source(
 # --- SEQUENCES --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
      
-# --- LeptonTipLip --- --- --- --- --- --- --- --- --- --- ---                           
-# process.load("HiggsAnalysis.littleH.LeptonTipLipProducer_cfi")
-
-# --- Lepton3Dip --- --- --- --- --- --- --- --- --- --- ---                           
-# process.load("HiggsAnalysis.littleH.Lepton3DipProducer_cfi")
-   
 # --- SimpleNtple --- --- --- --- --- --- --- --- --- --- ---                           
 process.load("HiggsAnalysis.littleH.SimpleNtple_cfi")
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 
 process.SimpleNtpleSequence = cms.Sequence(
-# process.LeptonTipLipProducer *
-# process.Lepton3DipProducer *
 process.SimpleNtple
 )
 
