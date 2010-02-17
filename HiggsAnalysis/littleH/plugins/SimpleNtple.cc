@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.60 2010/02/16 17:06:30 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.61 2010/02/17 09:02:04 dimatteo Exp $
 //
 //
 
@@ -79,6 +79,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.05)),
   OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
   Onia3DipCut_              (iConfig.getUntrackedParameter<double> ("Onia3DipCut", 5.)),
+  OniaS3DipCut_              (iConfig.getUntrackedParameter<double> ("OniaS3DipCut", 4.)),
   eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
   verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -633,7 +634,7 @@ void
   TransientVertex tv = kvf.vertex(t_tks);
     
   if ( ! tv.isValid() ) return;
-//   {
+  
   GlobalPoint v = tv.position();
   GlobalError err = tv.positionError();
  
@@ -643,10 +644,51 @@ void
   TLorentzVector lp1=lorentzMomentumLep(*lep1, muMass_);
   TLorentzVector lp2=lorentzMomentumLep(*lep2, muMass_);
   TLorentzVector onia = lp1 + lp2;
+  
+  //COMPUTE T.IP, L.IP and 3D IP
+  AlgebraicSymMatrix33 PVerrMat;
+  PVerrMat(0,0) = PV.covariance(0,0) ; 
+  PVerrMat(1,1) = PV.covariance(1,1);
+  PVerrMat(2,2) = PV.covariance(2,2);
+  PVerrMat(0,1) = PVerrMat(1,0) = PV.covariance(1,0); 
+  PVerrMat(0,2) = PVerrMat(2,0) = PV.covariance(2,0); 
+  PVerrMat(1,2) = PVerrMat(2,1) = PV.covariance(2,1); 
+
+  AlgebraicSymMatrix33 OniaVerrMat;
+  OniaVerrMat(0,0) = err.cxx() ; 
+  OniaVerrMat(1,1) = err.cyy();
+  OniaVerrMat(2,2) = err.czz();
+  OniaVerrMat(0,1) = OniaVerrMat(1,0) = err.cyx(); 
+  OniaVerrMat(0,2) = OniaVerrMat(2,0) = err.czx(); 
+  OniaVerrMat(1,2) = OniaVerrMat(2,1) = err.czy();
+  
+  // total error matrix
+  AlgebraicSymMatrix33 totErrMat = PVerrMat + OniaVerrMat;
+  
+  AlgebraicVector3 mjacobian3dV;
+  mjacobian3dV[0] = 1.;	
+  mjacobian3dV[1] = 1.;
+  mjacobian3dV[2] = 1.;
+        
+  AlgebraicVector2 mjacobianTranV;
+  mjacobianTranV[0] = DistVector.x()/DistVector.perp();	
+  mjacobianTranV[1] = DistVector.y()/DistVector.perp();
+        
+  AlgebraicVector1 mjacobianLongV;
+  mjacobianLongV[0] = 1.;	
+   
+  //LIP,TIP,3DIP
+  float QQ_Tip = DistVector.perp(); // positive by definition
+  float QQ_Lip = DistVector.z(); // signed by definition
+  float QQ_3Dip = DistVector.mag(); // positive by definition
+  float QQ_errTip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix22>(0,0), mjacobianTranV));
+  float QQ_errLip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix11>(2,2), mjacobianLongV));
+  float QQ_err3Dip = sqrt(ROOT::Math::Similarity(totErrMat, mjacobian3dV));
    
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
   if ( onia.M() < OniaMassCut_ ) return;//Cut on Onia invariant mass
-  if ( DistVector.mag() > Onia3DipCut_ ) return;//Cut on Onia 3Dip
+  if ( QQ_3Dip > Onia3DipCut_ ) return;//Cut on Onia 3Dip
+  if ( QQ_3Dip/QQ_err3Dip > Onia3DipCut_ ) return;//Cut on Onia S3Dip
 
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
 
@@ -709,9 +751,59 @@ void
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
-     
-  //COMPUTE T.IP, L.IP and 3D IP
+   
+  //LIP,TIP,3DIP
+  NtupleFactory_->FillFloat("QQ_Tip",QQ_Tip);
+  NtupleFactory_->FillFloat("QQ_Lip",QQ_Lip);
+  NtupleFactory_->FillFloat("QQ_3Dip",QQ_3Dip);
+  	
+  //LIP,TIP,3DIP errors
+  NtupleFactory_->FillFloat("QQ_errTip",QQ_errTip);
+  NtupleFactory_->FillFloat("QQ_errLip",QQ_errLip);
+  NtupleFactory_->FillFloat("QQ_err3Dip",QQ_err3Dip);
   
+  //LIP,TIP,3DIP significances
+
+  NtupleFactory_->FillFloat("QQ_STip",QQ_Tip/QQ_errTip);
+  NtupleFactory_->FillFloat("QQ_SLip",QQ_Lip/QQ_errLip);
+  NtupleFactory_->FillFloat("QQ_S3Dip",QQ_3Dip/QQ_err3Dip);
+  
+  QQ_size++;
+  return;
+}
+
+// --------------------------------------------------------------------
+
+//Fill Onia2EleEle category
+void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, reco::Vertex &PV) 
+{
+  TransientTrack ttkp1   = (*theB).build(&(*lep1));
+  TransientTrack ttkp2   = (*theB).build(&(*lep2));
+
+  vector<TransientTrack> t_tks;
+  t_tks.push_back(ttkp1);
+  t_tks.push_back(ttkp2);
+  
+  //   // Gaussian Sum Filter Algorithm 
+  KalmanVertexFitter kvf;
+  TransientVertex tv = kvf.vertex(t_tks);
+//   AdaptiveGsfVertexFitter gsf(gsfPSet); 
+//   GsfVertexFitter gsf(gsfPSet);
+//   TransientVertex tv = gsf.vertex(t_tks);
+    
+  if ( ! tv.isValid() ) return;
+  
+  GlobalPoint v = tv.position();
+  GlobalError err = tv.positionError();
+  
+  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
+  GlobalVector DistVector = v - PVposition; 
+  
+  TLorentzVector lp1=lorentzMomentumLep(*lep1, eleMass_);
+  TLorentzVector lp2=lorentzMomentumLep(*lep2, eleMass_);
+  TLorentzVector onia = lp1 + lp2;
+  
+  //COMPUTE T.IP, L.IP and 3D IP
   AlgebraicSymMatrix33 PVerrMat;
   PVerrMat(0,0) = PV.covariance(0,0) ; 
   PVerrMat(1,1) = PV.covariance(1,1);
@@ -747,65 +839,15 @@ void
   float QQ_Tip = DistVector.perp(); // positive by definition
   float QQ_Lip = DistVector.z(); // signed by definition
   float QQ_3Dip = DistVector.mag(); // positive by definition
-  
-  NtupleFactory_->FillFloat("QQ_Tip",QQ_Tip);
-  NtupleFactory_->FillFloat("QQ_Lip",QQ_Lip);
-  NtupleFactory_->FillFloat("QQ_3Dip",QQ_3Dip);
-  	
-  //LIP,TIP,3DIP errors
   float QQ_errTip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix22>(0,0), mjacobianTranV));
   float QQ_errLip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix11>(2,2), mjacobianLongV));
   float QQ_err3Dip = sqrt(ROOT::Math::Similarity(totErrMat, mjacobian3dV));
-
-  NtupleFactory_->FillFloat("QQ_errTip",QQ_errTip);
-  NtupleFactory_->FillFloat("QQ_errLip",QQ_errLip);
-  NtupleFactory_->FillFloat("QQ_err3Dip",QQ_err3Dip);
-  
-  //LIP,TIP,3DIP significances
-
-  NtupleFactory_->FillFloat("QQ_STip",QQ_Tip/QQ_errTip);
-  NtupleFactory_->FillFloat("QQ_SLip",QQ_Lip/QQ_errLip);
-  NtupleFactory_->FillFloat("QQ_S3Dip",QQ_3Dip/QQ_err3Dip);
-  
-  QQ_size++;
-  return;
-}
-
-// --------------------------------------------------------------------
-
-//Fill Onia2EleEle category
-void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, reco::Vertex &PV) 
-{
-  TransientTrack ttkp1   = (*theB).build(&(*lep1));
-  TransientTrack ttkp2   = (*theB).build(&(*lep2));
-
-  vector<TransientTrack> t_tks;
-  t_tks.push_back(ttkp1);
-  t_tks.push_back(ttkp2);
-  
-  //   // Gaussian Sum Filter Algorithm 
-  KalmanVertexFitter kvf;
-  TransientVertex tv = kvf.vertex(t_tks);
-//   AdaptiveGsfVertexFitter gsf(gsfPSet); 
-//   GsfVertexFitter gsf(gsfPSet);
-//   TransientVertex tv = gsf.vertex(t_tks);
-    
-  if ( ! tv.isValid() ) return;
-  //   {
-  GlobalPoint v = tv.position();
-  GlobalError err = tv.positionError();
-  
-  GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
-  GlobalVector DistVector = v - PVposition; 
-  
-  TLorentzVector lp1=lorentzMomentumLep(*lep1, eleMass_);
-  TLorentzVector lp2=lorentzMomentumLep(*lep2, eleMass_);
-  TLorentzVector onia = lp1 + lp2;
     
   if ( TMath::Prob(tv.totalChiSquared(), (int)tv.degreesOfFreedom()) < Chi2OniaVtxCut_ ) return;//Loose Cut on Onia Vertex Chi2
   if ( onia.M() < OniaMassCut_ ) return;//Cut on Onia invariant mass
-  if ( DistVector.mag() > Onia3DipCut_ ) return;//Cut on Onia 3Dip
-
+  if ( QQ_3Dip > Onia3DipCut_ ) return;//Cut on Onia 3Dip
+  if ( QQ_3Dip/QQ_err3Dip > Onia3DipCut_ ) return;//Cut on Onia S3Dip
+  
   NtupleFactory_->FillInt("QQ_VtxIsVal",1);
      
   int QQ_sign = 0;
@@ -868,60 +910,18 @@ void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef le
   TVector3 vperp = vperp1 - vperp2;
   double cosAlpha = vperp.Dot(pperp)/(vperp.Perp()*pperp.Perp());
   NtupleFactory_->FillFloat("QQ_cosAlpha",cosAlpha);
- 
-  //COMPUTE T.IP, L.IP and 3D IP
-      
-  AlgebraicSymMatrix33 PVerrMat;
-  PVerrMat(0,0) = PV.covariance(0,0) ; 
-  PVerrMat(1,1) = PV.covariance(1,1);
-  PVerrMat(2,2) = PV.covariance(2,2);
-  PVerrMat(0,1) = PVerrMat(1,0) = PV.covariance(1,0); 
-  PVerrMat(0,2) = PVerrMat(2,0) = PV.covariance(2,0); 
-  PVerrMat(1,2) = PVerrMat(2,1) = PV.covariance(2,1); 
-
-  AlgebraicSymMatrix33 OniaVerrMat;
-  OniaVerrMat(0,0) = err.cxx() ; 
-  OniaVerrMat(1,1) = err.cyy();
-  OniaVerrMat(2,2) = err.czz();
-  OniaVerrMat(0,1) = OniaVerrMat(1,0) = err.cyx(); 
-  OniaVerrMat(0,2) = OniaVerrMat(2,0) = err.czx(); 
-  OniaVerrMat(1,2) = OniaVerrMat(2,1) = err.czy();
-  
-  // total error matrix
-  AlgebraicSymMatrix33 totErrMat = PVerrMat + OniaVerrMat;
-  
-  AlgebraicVector3 mjacobian3dV;
-  mjacobian3dV[0] = 1.;	
-  mjacobian3dV[1] = 1.;
-  mjacobian3dV[2] = 1.;
-        
-  AlgebraicVector2 mjacobianTranV;
-  mjacobianTranV[0] = DistVector.x()/DistVector.perp();	
-  mjacobianTranV[1] = DistVector.y()/DistVector.perp();
-        
-  AlgebraicVector1 mjacobianLongV;
-  mjacobianLongV[0] = 1.;	
    
   //LIP,TIP,3DIP
-  float QQ_Tip = DistVector.perp(); // positive by definition
-  float QQ_Lip = DistVector.z(); // signed by definition
-  float QQ_3Dip = DistVector.mag(); // positive by definition
-  
   NtupleFactory_->FillFloat("QQ_Tip",QQ_Tip);
   NtupleFactory_->FillFloat("QQ_Lip",QQ_Lip);
   NtupleFactory_->FillFloat("QQ_3Dip",QQ_3Dip);
   	
   //LIP,TIP,3DIP errors
-  float QQ_errTip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix22>(0,0), mjacobianTranV));
-  float QQ_errLip = sqrt(ROOT::Math::Similarity(totErrMat.Sub<AlgebraicSymMatrix11>(2,2), mjacobianLongV));
-  float QQ_err3Dip = sqrt(ROOT::Math::Similarity(totErrMat, mjacobian3dV));
-
   NtupleFactory_->FillFloat("QQ_errTip",QQ_errTip);
   NtupleFactory_->FillFloat("QQ_errLip",QQ_errLip);
   NtupleFactory_->FillFloat("QQ_err3Dip",QQ_err3Dip);
   
   //LIP,TIP,3DIP significances
-
   NtupleFactory_->FillFloat("QQ_STip",QQ_Tip/QQ_errTip);
   NtupleFactory_->FillFloat("QQ_SLip",QQ_Lip/QQ_errLip);
   NtupleFactory_->FillFloat("QQ_S3Dip",QQ_3Dip/QQ_err3Dip);
@@ -953,10 +953,13 @@ void
     if (saveSC_)     fillSCInfo (iEvent, iSetup) ;
     if (saveTrigger_) fillTriggerInfo (iEvent, iSetup) ;
     if (saveBeamSpot_) fillBeamSpotInfo (iEvent, iSetup) ;
+    
+    // save the entry of the tree 
+    NtupleFactory_->FillNtuple();
   }
 
-  // save the entry of the tree 
-  NtupleFactory_->FillNtuple();
+  // clear the entry of the tree 
+  NtupleFactory_->ClearNtuple();
   
   //Clear RECO Collections
   theGlobalMuons.clear();
