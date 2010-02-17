@@ -49,6 +49,8 @@ class NtupleFactory{
   void FillInt(const TString &name,const int &vect);
   
   void FillNtuple();
+
+  void ClearNtuple();
     
   void WriteNtuple(); 
   

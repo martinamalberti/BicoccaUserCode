@@ -210,33 +210,37 @@ void NtupleFactory::FillInt(const TString &name,const int &vect){
  }
 }
 
+///---- Clear Ntuple ------------
+void NtupleFactory::ClearNtuple(){
+  for (std::map<TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* >::iterator it=ArrayContent_StdXYZT_.begin() ; it != ArrayContent_StdXYZT_.end(); it++ ){
+    ((*it).second)->clear();  
+  }
+  for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_4TV_.begin() ; it != ArrayContent_4TV_.end(); it++ ){
+    ((*it).second)->Clear(); 
+    ArrayContent_4TV_num_[(*it).first] = 0;
+  }
+  for (std::map<TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* >::iterator it=ArrayContent_StdXYZ_.begin() ; it != ArrayContent_StdXYZ_.end(); it++ ){
+    ((*it).second)->clear();  
+  }
+  for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_3TV_.begin() ; it != ArrayContent_3TV_.end(); it++ ){
+    ((*it).second)->Clear(); 
+    ArrayContent_3TV_num_[(*it).first] = 0;
+  }
+  for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
+    ((*it).second)->clear();  
+  }
+  for (std::map<TString,std::vector<double>* >::iterator it=ArrayContentDouble_.begin() ; it != ArrayContentDouble_.end(); it++ ){
+    ((*it).second)->clear();  
+  }
+  for (std::map<TString,std::vector<int>* >::iterator it=ArrayContentInt_.begin() ; it != ArrayContentInt_.end(); it++ ){
+    ((*it).second)->clear();  
+  }
+}
 
 ///---- Write entry to TTree ----
 void NtupleFactory::FillNtuple(){
  outTree_->Fill();
- for (std::map<TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* >::iterator it=ArrayContent_StdXYZT_.begin() ; it != ArrayContent_StdXYZT_.end(); it++ ){
-  ((*it).second)->clear();  
- }
- for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_4TV_.begin() ; it != ArrayContent_4TV_.end(); it++ ){
-  ((*it).second)->Clear(); 
-  ArrayContent_4TV_num_[(*it).first] = 0;
- }
- for (std::map<TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* >::iterator it=ArrayContent_StdXYZ_.begin() ; it != ArrayContent_StdXYZ_.end(); it++ ){
-  ((*it).second)->clear();  
- }
- for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_3TV_.begin() ; it != ArrayContent_3TV_.end(); it++ ){
-  ((*it).second)->Clear(); 
-  ArrayContent_3TV_num_[(*it).first] = 0;
- }
- for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
-  ((*it).second)->clear();  
- }
- for (std::map<TString,std::vector<double>* >::iterator it=ArrayContentDouble_.begin() ; it != ArrayContentDouble_.end(); it++ ){
-  ((*it).second)->clear();  
- }
- for (std::map<TString,std::vector<int>* >::iterator it=ArrayContentInt_.begin() ; it != ArrayContentInt_.end(); it++ ){
-  ((*it).second)->clear();  
- }
+ ClearNtuple();
 }
 
 
