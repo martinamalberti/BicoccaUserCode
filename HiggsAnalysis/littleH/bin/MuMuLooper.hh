@@ -29,6 +29,8 @@ private:
   float MAX_dz_trk;
   float MIN_vtxprob;
   float MAX_S3Dip;
+  float MAX_muisol;
+
   float weight;
   bool onlyTheBest;
               

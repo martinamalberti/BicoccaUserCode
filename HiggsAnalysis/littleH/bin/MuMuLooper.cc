@@ -29,6 +29,8 @@ MuMuLooper::MuMuLooper(TChain *tree)
   MAX_dz_trk = 25.0;
   MIN_vtxprob = 0.05;
   MAX_S3Dip = 4.;
+  MAX_muisol = 0.11;
+
   bookHistos();
 }
 
@@ -118,7 +120,18 @@ void MuMuLooper::Loop() {
       hQQlxy->Fill(QQ_lxy -> at(iqq)/QQ_lxyErr -> at(iqq));
       hQQS3Dip -> Fill(QQ_S3Dip -> at(iqq));
       hQQSTip  -> Fill(QQ_STip -> at(iqq) );
-      
+ 
+     //hIsoVar03_glb_TKECAL1->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_glb_emIsoR03->at(mu_index));
+     //hIsoVar03_glb_TKECAL2->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt());
+     //hIsoVar03_glb_TK->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt());
+     //hIsoVar03_glb_ECAL->Fill(muons_glb_emIsoR03->at(mu_index));
+
+     //hIsoVar03_trk_TKECAL1->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_trk_emIsoR03->at(mu_index));
+     //hIsoVar03_glb_TKECAL2->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt());
+     //hIsoVar03_trk_TK->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt());
+     //hIsoVar03_trk_ECAL->Fill(muons_trk_emIsoR03->at(mu_index));
+
+    
     }
 
   }//end loop on events
@@ -167,14 +180,9 @@ bool MuMuLooper::accept_glb_mu(const int mu_index) const
      fabs(muons_glb_dz->at(mu_index))   < MAX_dz_trk        &&
      (((muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) ||
       ((muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel-1 && muons_glb_nhitsPix1Hit->at(mu_index) == 1)) && 
-     (muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt() < 0.11)
+     (muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt() < MAX_muisol)
     return true;
-  
-  //     hIsoVar03_glb_TKECAL1->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_glb_emIsoR03->at(mu_index));
-  //     hIsoVar03_glb_TKECAL2->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt());
-  //     hIsoVar03_glb_TK->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt());
-  //     hIsoVar03_glb_ECAL->Fill(muons_glb_emIsoR03->at(mu_index));
-  
+    
   return false;
 }
 
@@ -188,12 +196,8 @@ bool MuMuLooper::accept_trk_mu(const int mu_index) const
      fabs(muons_trk_dz->at(mu_index))   < MAX_dz_trk        &&
      ((muons_trk_nhitsPixB->at(mu_index) + muons_trk_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) &&
      ((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0) && 
-     (muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt() < 0.11)
+     (muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt() < MAX_muisol)
     return true;
-  //       hIsoVar03_trk_TKECAL1->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_trk_emIsoR03->at(mu_index));
-  //       hIsoVar03_glb_TKECAL2->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt());
-  //       hIsoVar03_trk_TK->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt());
-  //       hIsoVar03_trk_ECAL->Fill(muons_trk_emIsoR03->at(mu_index));
   
   return false;
 }
