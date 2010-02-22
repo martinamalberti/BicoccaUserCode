@@ -28,19 +28,24 @@ private:
   float MAX_d0_trk;
   float MAX_dz_trk;
   float MIN_vtxprob_jpsi;
-
+  float MAX_S3Dip;
+  float weight;
   bool onlyTheBest;
               
   TH1F *hInvMass;
+  TH1F *hIsoVar03_glb_TKECAL1;
+  TH1F *hIsoVar03_glb_TKECAL2;
   TH1F *hIsoVar03_glb_TK;
-  TH1F *hIsoVar05_glb_TK;
   TH1F *hIsoVar03_glb_ECAL;
-  TH1F *hIsoVar05_glb_ECAL;
+  TH1F *hIsoVar03_trk_TKECAL1;
+  TH1F *hIsoVar03_trk_TKECAL2;
   TH1F *hIsoVar03_trk_TK;
-  TH1F *hIsoVar05_trk_TK;
   TH1F *hIsoVar03_trk_ECAL;
-  TH1F *hIsoVar05_trk_ECAL;
 
+  TH1F * hQQProbChi2;
+  TH1F * hQQlxy ;
+  TH1F *hQQS3Dip; 
+  TH1F *hQQSTip ;
 };
 #endif
 
