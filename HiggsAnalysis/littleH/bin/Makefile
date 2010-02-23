@@ -57,6 +57,9 @@ $(OUTLIB)smallHBaseClass.o: $(INCLUDEDIR)/smallHBaseClass.C $(INCLUDEDIR)/MuMuLo
 $(OUTLIB)MuMuLooper.o: $(INCLUDEDIR)/MuMuLooper.cc
 	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)MuMuLooper.o $<
 
+$(OUTLIB)MuMuCutOptimizer.o: $(INCLUDEDIR)/MuMuCutOptimizer.cc
+	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)MuMuCutOptimizer.o $<
+
 $(OUTLIB)EleEleLooper.o: $(INCLUDEDIR)/EleEleLooper.cc 
 	$(CXX) $(CXXFLAGS) -c -o $(OUTLIB)EleEleLooper.o $<
 
@@ -72,6 +75,9 @@ $(OUTLIB)h2Chain.o: $(INCLUDEDIR)/h2Chain.cc
 RunMuMu:  $(INCLUDEDIR)run_mumulooper.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)MuMuLooper.o
 	$(CXX) $(CXXFLAGS) -o RunMuMu $(OUTLIB)/*.o $(GLIBS) $ $<
 
+RunMuMuOpt:  $(INCLUDEDIR)run_mumucutoptimizer.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)MuMuCutOptimizer.o
+	$(CXX) $(CXXFLAGS) -o RunMuMuOpt $(OUTLIB)/*.o $(GLIBS) $ $<
+
 RunEleEle:  $(INCLUDEDIR)run_eleelelooper.cpp $(OUTLIB)smallHBaseClass.o $(OUTLIB)EleEleLooper.o $(OUTLIB)hChain.o
 	$(CXX) $(CXXFLAGS) -o RunEleEle $(OUTLIB)/*.o $(GLIBS) $ $<
 
@@ -83,4 +89,4 @@ clean:
 	rm -f $(OUTLIB)*.so
 	rm -f JPsiApp
 
-all:  RunMuMu RunEleEle MakeElePlots
+all:  RunMuMu RunMuMuOpt RunEleEle MakeElePlots
