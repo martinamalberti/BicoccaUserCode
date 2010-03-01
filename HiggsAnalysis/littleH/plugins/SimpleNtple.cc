@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.62 2010/02/17 10:24:00 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.63 2010/02/17 10:54:18 pellicci Exp $
 //
 //
 
@@ -331,7 +331,17 @@ void
        
       // electron ID variable from mva (tracker driven electrons)
     NtupleFactory_->FillFloat("electrons_IdBDT",((*EleHandle)[i].mva()));
-      
+
+      // electron quality observables
+    NtupleFactory_->FillFloat("electrons_HoE",((*EleHandle)[i].hadronicOverEm()));
+    NtupleFactory_->FillFloat("electrons_dEtaSc",((*EleHandle)[i].deltaEtaSuperClusterTrackAtVtx()));
+    NtupleFactory_->FillFloat("electrons_dPhiSc",((*EleHandle)[i].deltaPhiSuperClusterTrackAtVtx()));
+    NtupleFactory_->FillFloat("electrons_SigiEtaiEtaSc",((*EleHandle)[i].scSigmaIEtaIEta()));
+    NtupleFactory_->FillFloat("electrons_EoP",((*EleHandle)[i].eSuperClusterOverP()));
+    NtupleFactory_->FillFloat("electrons_Et",((*EleHandle)[i].superCluster()->energy())/cosh((*EleHandle)[i].superCluster()->eta()));
+    NtupleFactory_->FillFloat("electrons_pAtVtx",((*EleHandle)[i].trackMomentumAtVtx().R()));
+    NtupleFactory_->FillFloat("electrons_ptAtVtx",((*EleHandle)[i].trackMomentumAtVtx().Rho()));
+    
       //ELE ID
     NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
     NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
@@ -1044,7 +1054,17 @@ void
     NtupleFactory_->AddFloat("electrons_IdLoose"); 
     NtupleFactory_->AddFloat("electrons_IdTight"); 
     NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
-    NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
+    NtupleFactory_->AddFloat("electrons_IdRobustTight");
+    
+    NtupleFactory_->AddFloat("electrons_HoE");
+    NtupleFactory_->AddFloat("electrons_dEtaSc");
+    NtupleFactory_->AddFloat("electrons_dPhiSc");
+    NtupleFactory_->AddFloat("electrons_SigiEtaiEtaSc");
+    NtupleFactory_->AddFloat("electrons_EoP");
+    NtupleFactory_->AddFloat("electrons_Et");
+    NtupleFactory_->AddFloat("electrons_pAtVtx");
+    NtupleFactory_->AddFloat("electrons_ptAtVtx");
+
     NtupleFactory_->AddFloat("electrons_track_d0");
     NtupleFactory_->AddFloat("electrons_track_dz");
     NtupleFactory_->AddFloat("electrons_track_d0err");
