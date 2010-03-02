@@ -19,7 +19,7 @@ process.load('FastSimulation/Configuration/CommonInputs_cff')
 process.load('FastSimulation/Configuration/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.123.4.4 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('PYTHIA6_H170WWlnujj_pythiaHad_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -36,7 +36,7 @@ process.source = cms.Source("EmptySource")
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('PYTHIA6_H170WWlnujj_pythiaHad.root'),
+    fileName = cms.untracked.string('PYTHIA6_qqH170_WW_lnujj.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
         filterName = cms.untracked.string('')
