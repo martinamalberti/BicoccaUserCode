@@ -60,7 +60,7 @@ process.source = cms.Source(
     debugVebosity = cms.untracked.uint32(1),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring(
-        LISTOFFILE
+        LISTOFFILES
         )
     )
 

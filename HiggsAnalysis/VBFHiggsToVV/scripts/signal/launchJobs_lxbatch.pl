@@ -102,7 +102,7 @@ for($jobIt = 1; $jobIt <= $jobNumber; ++$jobIt)
  
    
   $tempo1 = "./tempo1" ;
-  system ("cat "".$CMSSWCfgTemplate."   | sed -e s%LOCALFOLDER%".$LOCALFolder.
+  system ("cat ".$CMSSWCfgTemplate."   | sed -e s%LOCALFOLDER%".$LOCALFolder.
                                     "%g | sed -e s%JOBIT%".$jobIt.
                                     "%g | sed -e s%OUTPUTFILENAME%".$OUTPUTFileName. 
                                     "%g > ".$tempo1) ;
