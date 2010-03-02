@@ -181,7 +181,7 @@ for($jobIt = 1; $jobIt <= $jobNumber; ++$jobIt)
   
   system ("cd ".$currDir." \n") ;
   print ("bsub -q 1nh -cwd ".$currDir." ".$tempBjob."\n") ;
-  system ("bsub -q 1nh ".$tempBjob) ;
+  system ("bsub -q 1nh -cwd ".$currDir." ".$tempBjob) ;
   
   print "\n" ;
 }
