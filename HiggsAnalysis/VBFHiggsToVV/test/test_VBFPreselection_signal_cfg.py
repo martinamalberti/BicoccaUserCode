@@ -125,7 +125,7 @@ process.out = cms.OutputModule(
     "PoolOutputModule",
     process.AODSIMEventContent,
     verbose = cms.untracked.bool(True),
-    fileName = cms.untracked.string('VBFPreselectionTEST.root'),
+    fileName = cms.untracked.string('VBFPreselection_signalTEST.root'),
     )
 
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_*_*_TEST'))
