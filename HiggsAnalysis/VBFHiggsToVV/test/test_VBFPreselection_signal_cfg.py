@@ -43,6 +43,7 @@ process.source = cms.Source(
     "PoolSource",
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(1),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring(
         #'file:/data/NTUPLES/VBF/qqHWW_lnujj/H200/CMSSWfile_10.root',
         'file:/gwtera5/users/data/NTUPLES/VBF/CMSSWfile_3_1_X.root'
@@ -68,11 +69,9 @@ process.MCDecayModeFilterAll.eventType = cms.untracked.int32(0)
 
 #process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_sisCone5CaloJets_cff")
 #process.VBFNtupleSisCone5CaloJets.eventType = cms.untracked.int32(0)
-#process.VBFNtupleSisCone5CaloJets.saveMC = cms.untracked.bool(True)
 
 #process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3SisCone5CaloJets_cff")
 #process.VBFNtupleL2L3SisCone5CaloJets.eventType = cms.untracked.int32(0)
-#process.VBFNtupleL2L3SisCone5CaloJets.saveMC = cms.untracked.bool(True)
 
 
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
@@ -81,11 +80,9 @@ process.MCDecayModeFilterAll.eventType = cms.untracked.int32(0)
 
 process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5CaloJets_cff")
 process.VBFNtupleAntikt5CaloJets.eventType = cms.untracked.int32(0)
-process.VBFNtupleAntikt5CaloJets.saveMC = cms.untracked.bool(True)
 
 process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5CaloJets_cff")
 process.VBFNtupleL2L3Antikt5CaloJets.eventType = cms.untracked.int32(0)
-process.VBFNtupleL2L3Antikt5CaloJets.saveMC = cms.untracked.bool(True)
 
 
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
@@ -94,11 +91,9 @@ process.VBFNtupleL2L3Antikt5CaloJets.saveMC = cms.untracked.bool(True)
 
 process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5PFJets_cff")
 process.VBFNtupleAntikt5PFJets.eventType = cms.untracked.int32(0)
-process.VBFNtupleAntikt5PFJets.saveMC = cms.untracked.bool(True)
 
 process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5PFJets_cff")
 process.VBFNtupleL2L3Antikt5PFJets.eventType = cms.untracked.int32(0)
-process.VBFNtupleL2L3Antikt5PFJets.saveMC = cms.untracked.bool(True)
 
 
 
