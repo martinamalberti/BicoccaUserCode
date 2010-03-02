@@ -160,6 +160,9 @@ for($jobIt = 1; $jobIt <= $jobNumber; ++$jobIt)
   
   $command = "eval `scramv1 runt -sh`" ;
   system ("echo ".$command." >> ".$tempBjob) ;
+
+  $command = "cd -" ;
+  system ("echo ".$command." >> ".$tempBjob) ;
   
   $command = "cmsRun ".$CMSSWCfgFile ;
   system ("echo ".$command." >> ".$tempBjob) ;
