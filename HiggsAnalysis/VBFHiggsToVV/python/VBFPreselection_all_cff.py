@@ -62,11 +62,11 @@ from HiggsAnalysis.VBFHiggsToVV.VBFElectronIsolator_cfi import *
 VBFIsolatedElectronsAll = VBFIsolatedElectrons.clone()
 VBFIsolatedElectronsRefAll = VBFIsolatedElectronsRef.clone()
 
-VBFIsolatedElectronsAll.tkIsoCut = cms.double(1.)
+VBFIsolatedElectronsAll.tkIsoCut = cms.double(0.5)
 VBFIsolatedElectronsAll.doRefCheck = cms.bool(True)
 VBFIsolatedElectronsAll.srcElectronsRef = cms.InputTag("VBFSelectedElectronsRefAll")
 
-VBFIsolatedElectronsRefAll.tkIsoCut = cms.double(1.)
+VBFIsolatedElectronsRefAll.tkIsoCut = cms.double(0.5)
 VBFIsolatedElectronsRefAll.doRefCheck = cms.bool(True)
 VBFIsolatedElectronsRefAll.srcElectronsRef = cms.InputTag("VBFSelectedElectronsRefAll")
 
@@ -111,11 +111,11 @@ from HiggsAnalysis.VBFHiggsToVV.VBFMuonIsolator_cfi import *
 VBFIsolatedMuonsAll = VBFIsolatedMuons.clone()
 VBFIsolatedMuonsRefAll = VBFIsolatedMuonsRef.clone()
 
-VBFIsolatedMuonsAll.tkIsoCut = cms.double(1.)
+VBFIsolatedMuonsAll.tkIsoCut = cms.double(0.5)
 VBFIsolatedMuonsAll.doRefCheck = cms.bool(True)
 VBFIsolatedMuonsAll.srcMuonsRef = cms.InputTag("VBFSelectedMuonsRefAll")
 
-VBFIsolatedMuonsRefAll.tkIsoCut = cms.double(1.)
+VBFIsolatedMuonsRefAll.tkIsoCut = cms.double(0.5)
 VBFIsolatedMuonsRefAll.doRefCheck = cms.bool(True)
 VBFIsolatedMuonsRefAll.srcMuonsRef = cms.InputTag("VBFSelectedMuonsRefAll")
 
@@ -131,7 +131,7 @@ VBFPtMinLeptonCountFilterAll = VBFPtMinLeptonCountFilter.clone()
 
 VBFPtMinLeptonCountFilterAll.srcElectrons = cms.InputTag("VBFIdSelectedElectronsAll")
 VBFPtMinLeptonCountFilterAll.srcMuons = cms.InputTag("VBFIsolatedMuonsAll")
-VBFPtMinLeptonCountFilterAll.ptMin  = cms.double(15.)
+VBFPtMinLeptonCountFilterAll.ptMin  = cms.double(10.)
 VBFPtMinLeptonCountFilterAll.etaMin = cms.double(-2.7)
 VBFPtMinLeptonCountFilterAll.etaMax = cms.double(+2.7)
 VBFPtMinLeptonCountFilterAll.minNumber = cms.int32(1)

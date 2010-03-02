@@ -74,7 +74,7 @@ from HiggsAnalysis.VBFHiggsToVV.VBFEtMinJetCountFilter_cfi import *
 VBFEtMinCaloJetCountFilterL2L3Antikt5CaloJets = VBFEtMinCaloJetCountFilter.clone()
 
 VBFEtMinCaloJetCountFilterL2L3Antikt5CaloJets.srcJets = cms.InputTag("VBFSelectedCaloJetsL2L3Antikt5CaloJets")
-VBFEtMinCaloJetCountFilterL2L3Antikt5CaloJets.etMin = cms.double(20.)
+VBFEtMinCaloJetCountFilterL2L3Antikt5CaloJets.etMin = cms.double(30.)
 VBFEtMinCaloJetCountFilterL2L3Antikt5CaloJets.etaMin = cms.double(-5.0)
 VBFEtMinCaloJetCountFilterL2L3Antikt5CaloJets.etaMax = cms.double(+5.0)
 VBFEtMinCaloJetCountFilterL2L3Antikt5CaloJets.minNumber = cms.int32(2)
