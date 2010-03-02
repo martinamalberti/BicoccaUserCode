@@ -170,7 +170,7 @@ for($jobIt = 1; $jobIt <= $jobNumber; ++$jobIt)
   # copy files to castor
   ######################    
   
-  $command = "rfcp /tmp/".$OUTPUTFileName."_".$jobIt.".root ".$OUTPUTSAVEPath.$OUTPUTSAVEFolder; 
+  $command = "rfcp ./".$OUTPUTFileName."_".$jobIt.".root ".$OUTPUTSAVEPath.$OUTPUTSAVEFolder; 
   system ("echo ".$command." >> ".$tempBjob) ;
 
   
