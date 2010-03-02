@@ -244,7 +244,8 @@ int Build4JetCombinations(std::vector<std::vector<int> >& combinations, const in
   
 
   std::vector<int> oldCombination = buffer;
-  while( next_permutation(vi.begin(), vi.end()) )      
+  while( next_permutation(vi.begin(), vi.end()) )   
+  {
     if( (vi.at(0) < vi.at(1)) && (vi.at(2) < vi.at(3)) )
     {
       buffer.at(0) = vi.at(0);
