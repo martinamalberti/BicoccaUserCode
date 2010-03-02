@@ -39,7 +39,7 @@ process.MessageLogger = cms.Service(
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("/tmp/OUTPUTFILENAME_JOBIT.root"),
+    fileName = cms.string("./OUTPUTFILENAME_JOBIT.root"),
     closeFileFast = cms.untracked.bool(True)
     )
 
