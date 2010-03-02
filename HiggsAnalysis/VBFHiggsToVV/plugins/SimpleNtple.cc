@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.7 2010/01/26 16:24:49 abenagli Exp $
+// $Id: SimpleNtple.cc,v 1.8 2010/01/27 09:15:39 abenagli Exp $
 //
 //
 
@@ -50,8 +50,9 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 
-//---- utilities ----
-#include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperVBF.h"
+
+
+
 
 
 SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
@@ -102,14 +103,23 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  saveMet_ = iConfig.getUntrackedParameter<bool> ("saveMet", true);
  saveGenJet_ = iConfig.getUntrackedParameter<bool> ("saveGenJet", true);
  saveGenMet_ = iConfig.getUntrackedParameter<bool> ("saveGenMet", true);
- saveMC_ = iConfig.getUntrackedParameter<bool> ("saveMC", true);
+ saveMCHiggs_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", true);
+ saveMCHiggsDecay_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsDecay", true);
+ saveMCEle_ = iConfig.getUntrackedParameter<bool> ("saveMCEle", true);
+ saveMCMu_ = iConfig.getUntrackedParameter<bool> ("saveMCMu", true);
  
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
  eventType_ = iConfig.getUntrackedParameter<int>("eventType",1);
+
+ mcAnalysis_ = NULL; 
  
  NtupleFactory_ = new NtupleFactory(outTree_);
-}
+ 
+ 
+ 
 
+ 
+}
 
 // --------------------------------------------------------------------
 
@@ -652,59 +662,89 @@ void SimpleNtple::fillGenJetInfo (const edm::Event & iEvent, const edm::EventSet
 
 ///---- MC ----
 
-void SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void SimpleNtple::fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtple::fillMCInfo" << std::endl; 
+ //std::cout << "SimpleNtple::fillMCHiggsInfo" << std::endl; 
+ 
+ NtupleFactory_->Fill4V("mc_H",mcAnalysis_ -> mcH()->p4());
+ NtupleFactory_->FillFloat("mc_H_charge",mcAnalysis_ -> mcH()->charge());
+ 
+}
 
- edm::Handle<reco::GenParticleCollection> genParticles;
- iEvent.getByLabel(MCtruthTag_, genParticles);
 
-//  int eventType_ = 1; //---- 0 = signal      1 = background 
-//  bool verbosity_ = true; //---- true = loquacious     false = silence
- MCDumperVBF mcAnalysis(genParticles, eventType_, verbosity_); //---- i "tau" mi fanno scrivere a schermo anche se NON è segnale
- bool isValid = mcAnalysis.isValid();
+
+void SimpleNtple::fillMCHiggsDecayInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtple::fillMCHiggsDecayInfo" << std::endl; 
+
+ bool isValid = mcAnalysis_ -> isValid();
   
  if( (eventType_ == 0) && (isValid == true) )
  {
-  NtupleFactory_->Fill4V("mc_H",mcAnalysis.mcH()->p4());
-  NtupleFactory_->FillFloat("mc_H_charge",mcAnalysis.mcH()->charge());
+  NtupleFactory_->Fill4V("mcV1",mcAnalysis_ -> mcV1()->p4());
+  NtupleFactory_->FillFloat("mcV1_charge",mcAnalysis_ -> mcV1()->charge());
+  NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysis_ -> mcV1()->pdgId());
   
-  NtupleFactory_->Fill4V("mcV1",mcAnalysis.mcV1()->p4());
-  NtupleFactory_->FillFloat("mcV1_charge",mcAnalysis.mcV1()->charge());
-  NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysis.mcV1()->pdgId());
-  
-  NtupleFactory_->Fill4V("mcV2",mcAnalysis.mcV2()->p4());
-  NtupleFactory_->FillFloat("mcV2_charge",mcAnalysis.mcV2()->charge());
-  NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysis.mcV2()->pdgId());
+  NtupleFactory_->Fill4V("mcV2",mcAnalysis_ -> mcV2()->p4());
+  NtupleFactory_->FillFloat("mcV2_charge",mcAnalysis_ -> mcV2()->charge());
+  NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysis_ -> mcV2()->pdgId());
      
-  NtupleFactory_->Fill4V("mcF1_fromV1",mcAnalysis.mcF1_fromV1()->p4());
-  NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysis.mcF1_fromV1()->charge());
-  NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysis.mcF1_fromV1()->pdgId());
+  NtupleFactory_->Fill4V("mcF1_fromV1",mcAnalysis_ -> mcF1_fromV1()->p4());
+  NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysis_ -> mcF1_fromV1()->charge());
+  NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysis_ -> mcF1_fromV1()->pdgId());
 
-  NtupleFactory_->Fill4V("mcF2_fromV1",mcAnalysis.mcF2_fromV1()->p4());
-  NtupleFactory_->FillFloat("mcF2_fromV1_charge",mcAnalysis.mcF2_fromV1()->charge());
-  NtupleFactory_->FillFloat("mcF2_fromV1_pdgId",mcAnalysis.mcF2_fromV1()->pdgId());
+  NtupleFactory_->Fill4V("mcF2_fromV1",mcAnalysis_ -> mcF2_fromV1()->p4());
+  NtupleFactory_->FillFloat("mcF2_fromV1_charge",mcAnalysis_ -> mcF2_fromV1()->charge());
+  NtupleFactory_->FillFloat("mcF2_fromV1_pdgId",mcAnalysis_ -> mcF2_fromV1()->pdgId());
 
-  NtupleFactory_->Fill4V("mcF1_fromV2",mcAnalysis.mcF1_fromV2()->p4());
-  NtupleFactory_->FillFloat("mcF1_fromV2_charge",mcAnalysis.mcF1_fromV2()->charge());
-  NtupleFactory_->FillFloat("mcF1_fromV2_pdgId",mcAnalysis.mcF1_fromV2()->pdgId());
+  NtupleFactory_->Fill4V("mcF1_fromV2",mcAnalysis_ -> mcF1_fromV2()->p4());
+  NtupleFactory_->FillFloat("mcF1_fromV2_charge",mcAnalysis_ -> mcF1_fromV2()->charge());
+  NtupleFactory_->FillFloat("mcF1_fromV2_pdgId",mcAnalysis_ -> mcF1_fromV2()->pdgId());
 
-  NtupleFactory_->Fill4V("mcF2_fromV2",mcAnalysis.mcF2_fromV2()->p4());
-  NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
-  NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
+  NtupleFactory_->Fill4V("mcF2_fromV2",mcAnalysis_ -> mcF2_fromV2()->p4());
+  NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis_ -> mcF2_fromV2()->charge());
+  NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis_ -> mcF2_fromV2()->pdgId());
     
-  NtupleFactory_->Fill4V("mcQ1_tag",mcAnalysis.mcQ1_tag()->p4());
-  NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysis.mcQ1_tag()->charge());
-  NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysis.mcQ1_tag()->pdgId());
+  NtupleFactory_->Fill4V("mcQ1_tag",mcAnalysis_ -> mcQ1_tag()->p4());
+  NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysis_ -> mcQ1_tag()->charge());
+  NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysis_ -> mcQ1_tag()->pdgId());
 
-  NtupleFactory_->Fill4V("mcQ2_tag",mcAnalysis.mcQ2_tag()->p4());
-  NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysis.mcQ2_tag()->charge());
-  NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysis.mcQ2_tag()->pdgId());
+  NtupleFactory_->Fill4V("mcQ2_tag",mcAnalysis_ -> mcQ2_tag()->p4());
+  NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysis_ -> mcQ2_tag()->charge());
+  NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysis_ -> mcQ2_tag()->pdgId());
       
  }
  
 }
  
+
+
+void SimpleNtple::fillMCEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtple::fillMCEleInfo" << std::endl; 
+ 
+  for(unsigned int eleIt = 0; eleIt < (mcAnalysis_ -> GetMcE()).size(); ++eleIt)
+  {
+    NtupleFactory_->Fill4V("mc_ele", (mcAnalysis_ -> GetMcE()).at(eleIt)->p4());
+    NtupleFactory_->FillFloat("mc_ele_charge", (mcAnalysis_ -> GetMcE()).at(eleIt)->charge());
+  }
+}
+
+
+
+void SimpleNtple::fillMCMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtple::fillMCMuInfo" << std::endl; 
+ 
+ for(unsigned int muIt = 0; muIt < (mcAnalysis_ -> GetMcMu()).size(); ++muIt)
+ {
+   NtupleFactory_->Fill4V("mc_mu", (mcAnalysis_ -> GetMcMu()).at(muIt)->p4());
+   NtupleFactory_->FillFloat("mc_mu_charge", (mcAnalysis_ -> GetMcMu()).at(muIt)->charge());
+ }
+}
+
+
+
 
 
 
@@ -714,9 +754,18 @@ void SimpleNtple::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup &
 
 
 // ------------ method called to for each event  ------------
-void
-  SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+ edm::Handle<reco::GenParticleCollection> genParticles;
+
+ if(saveMCHiggs_ || saveMCHiggsDecay_ || saveMCEle_ || saveMCMu_)
+ {
+   iEvent.getByLabel(MCtruthTag_, genParticles);
+  
+   mcAnalysis_ = new MCDumperVBF(genParticles, eventType_, verbosity_);
+ }
+  
+  
  ///---- fill muons ----
  if (saveMu_) fillMuInfo (iEvent, iSetup);
 
@@ -742,8 +791,17 @@ void
  if (saveGenMet_)  fillGenMetInfo (iEvent, iSetup);
  
  ///---- fill MCParticle ---- 
- if (saveMC_) fillMCInfo (iEvent, iSetup);
-  
+ if (saveMCHiggs_) fillMCHiggsInfo (iEvent, iSetup);
+
+ ///---- fill MCParticle ---- 
+ if (saveMCHiggsDecay_) fillMCHiggsDecayInfo (iEvent, iSetup);
+
+ ///---- fill MCParticle ---- 
+ if (saveMCEle_) fillMCEleInfo (iEvent, iSetup);
+
+ ///---- fill MCParticle ---- 
+ if (saveMCMu_) fillMCMuInfo (iEvent, iSetup);
+
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
 
@@ -835,11 +893,14 @@ void
    NtupleFactory_->Add4V("genMet");                
   }
   
-  if(saveMC_)
+  if(saveMCHiggs_)
   {
     NtupleFactory_->Add4V("mc_H");    
     NtupleFactory_->AddFloat("mc_H_charge");    
-      
+  }
+
+  if(saveMCHiggsDecay_)
+  {
     NtupleFactory_->Add4V("mcV1");         
     NtupleFactory_->AddFloat("mcV1_charge");    
     NtupleFactory_->AddFloat("mcV1_pdgId");    
@@ -872,6 +933,19 @@ void
     NtupleFactory_->AddFloat("mcQ2_tag_charge");    
     NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
   }
+  
+  if(saveMCEle_)
+  {
+    NtupleFactory_->Add4V("mc_ele");    
+    NtupleFactory_->AddFloat("mc_ele_charge");    
+  }
+
+  if(saveMCMu_)
+  {
+    NtupleFactory_->Add4V("mc_mu");    
+    NtupleFactory_->AddFloat("mc_mu_charge");    
+  }
+  
 }
    
    

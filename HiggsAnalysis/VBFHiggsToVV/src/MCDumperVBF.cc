@@ -30,7 +30,7 @@ MCDumperVBF::MCDumperVBF(edm::Handle<reco::GenParticleCollection>& genParticles,
  {
   if(verbosity_p)
     std::cerr << "*** MCDumperVBF::ctor ***" << std::endl;
-  
+
   Analyze(genParticles);
 }
 
@@ -86,7 +86,7 @@ void MCDumperVBF::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles
     // charged
     if( (abs(charge) != 0) && (status == 1) )
       mcCharged_p.push_back(pCurrent);
-    
+
     // electrons
     if( (abs(pdgId) == 11) && (status == 1) )
       mcE_p.push_back(pCurrent);
@@ -133,9 +133,6 @@ void MCDumperVBF::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles
   
   
   
-  
-  
-  
   // return if background
   if(eventType_p != 0) return;
   
@@ -154,14 +151,14 @@ void MCDumperVBF::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles
   }
   
   //if(verbosity_p)
-    //PrintDecayTree(mcH_p);
+  //PrintDecayTree(mcH_p);
   // check if it is signal
   
   
   
   
   
-  
+    
   // find vector bosons
   std::vector<const reco::Candidate*> VBuffer;
   FindDaughterParticles(&mcH_p, verbosity_p, 1, &VBuffer);
@@ -186,13 +183,13 @@ void MCDumperVBF::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles
   
   GetHDecayMode();
   // find vector bosons
+  PrintEventInfo();  
+  return;
   
   
-
-
-
   
-
+  
+  
   // find fermions from vector boson decay
   std::vector<const reco::Candidate*> fFromV1Buffer;
   FindDaughterParticles(&mcV1_p, verbosity_p, 1, &fFromV1Buffer);
@@ -286,7 +283,7 @@ void MCDumperVBF::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles
   
   
   // Print event summary
-  if(verbosity_p)
+  //if(verbosity_p)
     PrintEventInfo();
   
   
@@ -320,13 +317,12 @@ void MCDumperVBF::PrintEventInfo()
   std::cout << "Vector bosons:   V1 -> " << mcV1DecayMode_p << std::endl;
   if(mcV1_p)
     PrintParticleInfo(mcV1_p);
-  
+
   std::cout << "Vector bosons:   V2 -> " << mcV2DecayMode_p << std::endl;  
   if(mcV2_p)
     PrintParticleInfo(mcV2_p);
   
   std::cout << std::endl;
-  
   
   
   

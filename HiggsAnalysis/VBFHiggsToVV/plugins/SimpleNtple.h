@@ -33,7 +33,6 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
-#include "PhysicsTools/NtupleUtils/interface/MCDumper.h"
 #include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperVBF.h"
 
 #include "Math/PtEtaPhiE4D.h"
@@ -72,7 +71,10 @@ public:
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillGenJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillGenMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCHiggsDecayInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
   
   
@@ -120,11 +122,15 @@ public:
   bool saveMet_ ;
   bool saveGenJet_ ;
   bool saveGenMet_ ;
-  bool saveMC_ ;
+  bool saveMCHiggs_ ;
+  bool saveMCHiggsDecay_ ;
+  bool saveMCEle_ ;
+  bool saveMCMu_ ;
  
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  
-    
+  
+  MCDumperVBF* mcAnalysis_;    
 };
 
 
