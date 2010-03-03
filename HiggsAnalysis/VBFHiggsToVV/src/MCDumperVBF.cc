@@ -183,8 +183,7 @@ void MCDumperVBF::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles
   
   GetHDecayMode();
   // find vector bosons
-  PrintEventInfo();  
-  return;
+  
   
   
   
@@ -283,7 +282,7 @@ void MCDumperVBF::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles
   
   
   // Print event summary
-  //if(verbosity_p)
+  if(verbosity_p)
     PrintEventInfo();
   
   
