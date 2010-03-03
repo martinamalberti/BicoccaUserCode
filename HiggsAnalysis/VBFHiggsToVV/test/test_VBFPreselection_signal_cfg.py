@@ -19,22 +19,22 @@ process.GlobalTag.globaltag = "MC_31X_V5::All"
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    #destinations = cms.untracked.vstring('detailedInfo'),
-    #detailedInfo = cms.untracked.PSet(
-    #FwkReport = cms.untracked.PSet(
-    #    reportEvery = cms.untracked.int32(5000),
-    #    limit = cms.untracked.int32(10000000)
-    #    )
-    #),
-    default = cms.untracked.PSet(
-        FwkReport = cms.untracked.PSet(
-            reportEvery = cms.untracked.int32(1000),
-            limit = cms.untracked.int32(10000000)
-            )
-        )
-    )
+#process.MessageLogger = cms.Service(
+#    "MessageLogger",
+#    #destinations = cms.untracked.vstring('detailedInfo'),
+#    #detailedInfo = cms.untracked.PSet(
+#    #FwkReport = cms.untracked.PSet(
+#    #    reportEvery = cms.untracked.int32(5000),
+#    #    limit = cms.untracked.int32(10000000)
+#    #    )
+#    #),
+#    default = cms.untracked.PSet(
+#        FwkReport = cms.untracked.PSet(
+#            reportEvery = cms.untracked.int32(1000),
+#            limit = cms.untracked.int32(10000000)
+#            )
+#        )
+#    )
 
 
 process.TFileService = cms.Service(
@@ -52,7 +52,7 @@ process.TFileService = cms.Service(
 # --- INPUT  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.source = cms.Source(
     "PoolSource",
