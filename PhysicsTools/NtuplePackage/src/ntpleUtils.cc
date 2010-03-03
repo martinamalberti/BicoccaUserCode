@@ -2,7 +2,36 @@
 
 
 
+int GetTotalEvents(const std::string& histoName, const std::string& inputFileList)
+{
+  std::ifstream inFile(inputFileList.c_str());
+  std::string buffer;
 
+  if(!inFile.is_open())
+  {
+    std::cerr << "** ERROR: Can't open '" << inputFileList << "' for input" << std::endl;
+    return false;
+  }
+  
+  int totalEvents = 0;
+  while(1)
+  {
+    inFile >> buffer;
+    if(!inFile.good()) break;
+
+    TFile* f = new TFile(buffer.c_str(), "READ");
+    TH1F* histo = (TH1F*)(f -> Get(histoName.c_str()));
+    totalEvents += int(histo -> GetBinContent(1));
+    
+    f -> Close();
+    
+    delete f;
+  }
+
+  return totalEvents;
+}
+
+//  ------------------------------------------------------------
 
 
 bool FillChain(TChain& chain, const std::string& inputFileList)
@@ -221,6 +250,66 @@ double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jet
 
 //  ------------------------------------------------------------
 
+int SelectLepton(std::vector<ROOT::Math::XYZTVector>& leptons,
+                 const std::string& method,
+                 const double& ptMin,
+                 const std::vector<int>* blacklist)
+{
+  // initialize variable with result
+  int it = -1;
+  
+  
+  
+  // initialize the selection variable
+  double maxPt = -999999.;
+  double tempPt = 0.;
+  
+  
+  
+  // loop over leptons
+  for(unsigned int i = 0; i < leptons.size(); ++i)
+  {
+    if( sqrt(leptons.at(i).Perp2()) < ptMin ) continue;
+    
+    bool skipLep = false;
+    if(blacklist)
+      for(unsigned int kk = 0; kk < blacklist -> size(); ++kk)
+        if(blacklist -> at(kk) == static_cast<int>(i)) skipLep = true;
+    if(skipLep) continue;
+    
+    
+    
+    // -------------------------------------
+    // select jets with different techniques
+    // -------------------------------------
+    
+    if(method == "maxPt")
+    {
+      tempPt = sqrt(leptons.at(i).perp2());
+      if(tempPt > maxPt)
+      {
+        maxPt = tempPt;
+        
+        it = i;
+      }
+    }
+    
+    // -------------------------------------
+    
+    
+    
+  } // loop over leptons
+  
+  
+  
+  if(method == "maxPt")
+    return it;
+  
+  else return -1;
+}
+
+//  ------------------------------------------------------------
+
 
 
 
@@ -244,7 +333,7 @@ int Build4JetCombinations(std::vector<std::vector<int> >& combinations, const in
   
 
   std::vector<int> oldCombination = buffer;
-  while( next_permutation(vi.begin(), vi.end()) )   
+  while( next_permutation(vi.begin(), vi.end()) )      
   {
     if( (vi.at(0) < vi.at(1)) && (vi.at(2) < vi.at(3)) )
     {

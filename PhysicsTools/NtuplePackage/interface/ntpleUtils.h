@@ -8,6 +8,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include "TFile.h"
+#include "TH1F.h"
 #include "TChain.h"
 #include "TVector3.h"
 #include "Math/Vector4D.h"
@@ -17,6 +19,9 @@
 
 
 
+
+/** get the number of events from a list of files */
+int GetTotalEvents(const std::string& histoName, const std::string& inputFileList);
 
 /** fill a chain from a list of files */
 bool FillChain(TChain& chain, const std::string& inputFileList);
@@ -149,6 +154,12 @@ double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jet
                   const double& etMin,
                   const std::vector<int>* blacklist = 0);
 
+/** select leptons */
+int SelectLepton(std::vector<ROOT::Math::XYZTVector>& leptons,
+                 const std::string& method,
+                 const double& ptMin,
+                 const std::vector<int>* blacklist = 0);
+
 
 
 
@@ -159,4 +170,5 @@ int Build4JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets
 
 /** build combinations of n jets */
 void Print4JetCombination(const std::vector<int>& combination);
+
 #endif
