@@ -55,6 +55,8 @@ ARCH  =  $(shell root-config --arch)
 ifeq ($(ARCH),macosx64)
 LibSuf  =  .dylib
 
+ARCHL = -m64
+
 CPPFLAGS  =  -Wall -W -Woverloaded-virtual -O2 $(ARCHL) -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
 CXXFLAGS  =  -Wall -W -Woverloaded-virtual -O2 $(ARCHL) -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
