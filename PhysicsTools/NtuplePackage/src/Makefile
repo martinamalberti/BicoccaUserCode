@@ -52,7 +52,7 @@ GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) $(CLHEPLIBS) -lGenVector
 #################################################
 #if mac
 ARCH  =  $(shell root-config --arch)
-ifeq ($(ARCH),macosx)
+ifeq ($(ARCH),macosx64)
 LibSuf  =  .dylib
 
 CPPFLAGS  =  -Wall -W -Woverloaded-virtual -O2 $(ARCHL) -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
