@@ -82,14 +82,14 @@ public :
    vector<float>   *electrons_IdTight;
    vector<float>   *electrons_IdRobustLoose;
    vector<float>   *electrons_IdRobustTight;
-   vector<float>   *electrons_HoE;
-   vector<float>   *electrons_dEtaSc;
-   vector<float>   *electrons_dPhiSc;
-   vector<float>   *electrons_SigiEtaiEtaSc;
-   vector<float>   *electrons_EoP;
-   vector<float>   *electrons_Et;
-   vector<float>   *electrons_pAtVtx;
-   vector<float>   *electrons_ptAtVtx;
+//    vector<float>   *electrons_HoE;
+//    vector<float>   *electrons_dEtaSc;
+//    vector<float>   *electrons_dPhiSc;
+//    vector<float>   *electrons_SigiEtaiEtaSc;
+//    vector<float>   *electrons_EoP;
+//    vector<float>   *electrons_Et;
+//    vector<float>   *electrons_pAtVtx;
+//    vector<float>   *electrons_ptAtVtx;
    vector<float>   *electrons_track_d0;
    vector<float>   *electrons_track_dz;
    vector<float>   *electrons_track_d0err;
@@ -227,14 +227,14 @@ public :
    TBranch        *b_electrons_IdTight;   //!
    TBranch        *b_electrons_IdRobustLoose;   //!
    TBranch        *b_electrons_IdRobustTight;   //!
-   TBranch        *b_electrons_HoE; //!
-   TBranch        *b_electrons_dEtaSc; //!
-   TBranch        *b_electrons_dPhiSc; //!
-   TBranch        *b_electrons_SigiEtaiEtaSc; //!
-   TBranch        *b_electrons_EoP; //!
-   TBranch        *b_electrons_Et; //!
-   TBranch        *b_electrons_pAtVtx; //!
-   TBranch        *b_electrons_ptAtVtx; //!
+//   TBranch        *b_electrons_HoE; //!
+//   TBranch        *b_electrons_dEtaSc; //!
+//   TBranch        *b_electrons_dPhiSc; //!
+//   TBranch        *b_electrons_SigiEtaiEtaSc; //!
+//   TBranch        *b_electrons_EoP; //!
+//   TBranch        *b_electrons_Et; //!
+//   TBranch        *b_electrons_pAtVtx; //!
+//   TBranch        *b_electrons_ptAtVtx; //!
    TBranch        *b_electrons_track_d0;   //!
    TBranch        *b_electrons_track_dz;   //!
    TBranch        *b_electrons_track_d0err;   //!
@@ -439,14 +439,14 @@ void smallHBaseClass::Init(TChain *tree)
    electrons_IdTight = 0;
    electrons_IdRobustLoose = 0;
    electrons_IdRobustTight = 0;
-   electrons_HoE = 0;
-   electrons_dEtaSc = 0;
-   electrons_dPhiSc = 0;
-   electrons_SigiEtaiEtaSc = 0;
-   electrons_EoP = 0;
-   electrons_Et = 0;
-   electrons_pAtVtx = 0;
-   electrons_ptAtVtx = 0;
+//    electrons_HoE = 0;
+//    electrons_dEtaSc = 0;
+//    electrons_dPhiSc = 0;
+//    electrons_SigiEtaiEtaSc = 0;
+//    electrons_EoP = 0;
+//    electrons_Et = 0;
+//    electrons_pAtVtx = 0;
+//    electrons_ptAtVtx = 0;
    electrons_track_d0 = 0;
    electrons_track_dz = 0;
    electrons_track_d0err = 0;
@@ -588,14 +588,14 @@ void smallHBaseClass::Init(TChain *tree)
    fChain->SetBranchAddress("electrons_IdTight", &electrons_IdTight, &b_electrons_IdTight);
    fChain->SetBranchAddress("electrons_IdRobustLoose", &electrons_IdRobustLoose, &b_electrons_IdRobustLoose);
    fChain->SetBranchAddress("electrons_IdRobustTight", &electrons_IdRobustTight, &b_electrons_IdRobustTight);
-   fChain->SetBranchAddress("electrons_HoE", &electrons_HoE, &b_electrons_HoE);
-   fChain->SetBranchAddress("electrons_dEtaSc", &electrons_dEtaSc, &b_electrons_dEtaSc);
-   fChain->SetBranchAddress("electrons_dPhiSc", &electrons_dPhiSc, &b_electrons_dPhiSc);
-   fChain->SetBranchAddress("electrons_SigiEtaiEtaSc", &electrons_SigiEtaiEtaSc, &b_electrons_SigiEtaiEtaSc);
-   fChain->SetBranchAddress("electrons_EoP", &electrons_EoP, &b_electrons_EoP);
-   fChain->SetBranchAddress("electrons_Et", &electrons_Et, &b_electrons_Et);
-   fChain->SetBranchAddress("electrons_pAtVtx", &electrons_pAtVtx, &b_electrons_pAtVtx);
-   fChain->SetBranchAddress("electrons_ptAtVtx", &electrons_ptAtVtx, &b_electrons_ptAtVtx);
+//    fChain->SetBranchAddress("electrons_HoE", &electrons_HoE, &b_electrons_HoE);
+//    fChain->SetBranchAddress("electrons_dEtaSc", &electrons_dEtaSc, &b_electrons_dEtaSc);
+//    fChain->SetBranchAddress("electrons_dPhiSc", &electrons_dPhiSc, &b_electrons_dPhiSc);
+//    fChain->SetBranchAddress("electrons_SigiEtaiEtaSc", &electrons_SigiEtaiEtaSc, &b_electrons_SigiEtaiEtaSc);
+//    fChain->SetBranchAddress("electrons_EoP", &electrons_EoP, &b_electrons_EoP);
+//    fChain->SetBranchAddress("electrons_Et", &electrons_Et, &b_electrons_Et);
+//    fChain->SetBranchAddress("electrons_pAtVtx", &electrons_pAtVtx, &b_electrons_pAtVtx);
+//    fChain->SetBranchAddress("electrons_ptAtVtx", &electrons_ptAtVtx, &b_electrons_ptAtVtx);
    fChain->SetBranchAddress("electrons_track_d0", &electrons_track_d0, &b_electrons_track_d0);
    fChain->SetBranchAddress("electrons_track_dz", &electrons_track_dz, &b_electrons_track_dz);
    fChain->SetBranchAddress("electrons_track_d0err", &electrons_track_d0err, &b_electrons_track_d0err);
