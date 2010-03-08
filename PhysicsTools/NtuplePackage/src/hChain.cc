@@ -162,8 +162,8 @@ hChain::Write (TFile & outputFile)
   {
     outputFile.cd () ;
     for (unsigned int i=0 ; i<m_histos.size () ; ++i)
-      if(m_histos.at (i) -> GetEntries() > 0)
-        m_histos.at (i)->Write () ; 
+      //if(m_histos.at (i) -> GetEntries() > 0)
+      m_histos.at (i)->Write () ; 
 //    for (unsigned int i=0 ; i<m_ntuples.size () ; ++i)
 //      m_ntuples.at (i)->Write () ;
     return ;
