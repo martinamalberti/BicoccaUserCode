@@ -17,6 +17,7 @@ class stdHisto
   
   //!ctor
   stdHisto(const int& nStep,
+           const std::string& outFileName,
            treeReader* reader = NULL);
   
   //!dtor
@@ -24,11 +25,6 @@ class stdHisto
   
   
   //! methods
-  
-  void SetOutFileName(const std::string& outFileName)
-  {
-    m_outFileName = outFileName;
-  }
   
   // add histograms
   void Add1(const std::string& histoName,
