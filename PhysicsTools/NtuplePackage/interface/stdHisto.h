@@ -42,7 +42,11 @@ class stdHisto
   void Fill1(const std::vector<ROOT::Math::XYZTVector>& vet,
              const std::string& histoName,
              const int& step);
-
+  
+  void Fill1(const ROOT::Math::XYZTVector& p,
+             const std::string& histoName,
+             const int& step);
+  
   void Fill2(const std::string& histoName,
              const std::string& branchName,
              const int& nStep,

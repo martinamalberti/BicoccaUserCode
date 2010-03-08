@@ -144,6 +144,25 @@ void stdHisto::Fill1(const std::vector<ROOT::Math::XYZTVector>& vet,
 
 
 
+//! fill histograms
+void stdHisto::Fill1(const ROOT::Math::XYZTVector& p,
+                     const std::string& histoName,
+                     const int& step)
+{
+  m_hFactory -> Fill( histoName+"_energy", step, p.energy());
+  m_hFactory -> Fill( histoName+"_p",      step, p.P());
+  m_hFactory -> Fill( histoName+"_pt",     step, p.pt());
+  m_hFactory -> Fill( histoName+"_pl",     step, p.pz());
+  m_hFactory -> Fill( histoName+"_eta",    step, p.eta());
+  m_hFactory -> Fill( histoName+"_absEta", step, p.eta());
+  m_hFactory -> Fill( histoName+"_phi",    step, p.phi());
+  m_hFactory -> Fill( histoName+"_n", step, 1 );
+}
+
+// ------------------------------------------------
+
+
+
 
 
 
