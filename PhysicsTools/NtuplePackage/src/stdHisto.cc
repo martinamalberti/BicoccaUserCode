@@ -4,11 +4,10 @@
 
 //!ctor
 stdHisto::stdHisto(const int& nStep,
-                   treeReader* reader,
-                   const std::string& outFileName):
+                   treeReader* reader):
  m_nStep(nStep),
  m_reader(reader),
- m_outFileName(outFileName),
+ m_outFileName("stdHistoTEST.root"),
  m_hFactory(new hFactory(m_outFileName, true))
 {}
 
