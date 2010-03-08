@@ -1,33 +1,16 @@
 #include "stdHisto.h"
 
 
+
 //!ctor
-stdHisto::stdHisto(treeReader& reader,
-                         const int& nStep,
-                         const std::string& outFileName):
- m_reader(&reader),
+stdHisto::stdHisto(const int& nStep,
+                   treeReader* reader,
+                   const std::string& outFileName):
  m_nStep(nStep),
- m_outFileName(outFileName),
- m_hFactory(new hFactory(m_outFileName, true))
-{
-  //AddStdH1();
-}
-
-// ------------------------------------------------
-
-
-
-//!ctor
-stdHisto::stdHisto(treeReader* reader,
-                         const int& nStep,
-                         const std::string& outFileName):
  m_reader(reader),
- m_nStep(nStep),
  m_outFileName(outFileName),
  m_hFactory(new hFactory(m_outFileName, true))
-{
-  //AddStdH1();
-}
+{}
 
 // ------------------------------------------------
 
@@ -41,25 +24,6 @@ stdHisto::~stdHisto()
 {
   delete m_hFactory;
 }
-
-// ------------------------------------------------
-
-
-
-
-
-
-//! add standard histograms
-//void stdHisto::AddStdH1()
-//{
-//  std::string histoName;
-//  
-//  histoName = "mcF1_fromV1_pt";
-//  m_hFactory -> add_h1(histoName, histoName, 500, 0., 250., m_nStep);
-//  
-//  histoName = "mcF1_fromV1_eta";
-//  m_hFactory -> add_h1(histoName, histoName, 500, -10., 10., m_nStep);
-//}
 
 // ------------------------------------------------
 
@@ -157,6 +121,30 @@ void stdHisto::Fill1(const std::string& histoName,
 
 
 
+//! fill histograms
+void stdHisto::Fill1(const std::vector<ROOT::Math::XYZTVector>& vet,
+                     const std::string& histoName,
+                     const int& step)
+{
+  for(unsigned int it = 0; it < vet.size(); ++it)
+  {
+    m_hFactory -> Fill( histoName+"_energy", step, (vet.at(it)).energy());
+    m_hFactory -> Fill( histoName+"_p",      step, (vet.at(it)).P());
+    m_hFactory -> Fill( histoName+"_pt",     step, (vet.at(it)).pt());
+    m_hFactory -> Fill( histoName+"_pl",     step, (vet.at(it)).pz());
+    m_hFactory -> Fill( histoName+"_eta",    step, (vet.at(it)).eta());
+    m_hFactory -> Fill( histoName+"_absEta", step, (vet.at(it)).eta());
+    m_hFactory -> Fill( histoName+"_phi",    step, (vet.at(it)).phi());
+  }
+  
+  m_hFactory -> Fill( histoName+"_n", step, vet.size() );
+}
+
+// ------------------------------------------------
+
+
+
+
 
 
 //! fill histograms
@@ -201,18 +189,40 @@ void stdHisto::Fill2(const std::string& histoName,
 
 
 
+//! fill histograms
+void stdHisto::Fill2(const ROOT::Math::XYZTVector& v1,
+                     const ROOT::Math::XYZTVector& v2, 
+                     const std::string& histoName,
+                     const int& step)
+{
+  ROOT::Math::XYZTVector vSum = v1 + v2;
 
+  m_hFactory -> Fill( histoName+"_mass",   step, vSum.mass() );
+  m_hFactory -> Fill( histoName+"_energy", step, vSum.energy() );
+  m_hFactory -> Fill( histoName+"_p",      step, sqrt(vSum.P()) );    
+  m_hFactory -> Fill( histoName+"_pt",     step, vSum.pt() );        
+  m_hFactory -> Fill( histoName+"_pl",     step, vSum.pz() );            
+  m_hFactory -> Fill( histoName+"_eta",    step, vSum.eta() );
+  m_hFactory -> Fill( histoName+"_absEta", step, fabs(vSum.eta()) );
+  m_hFactory -> Fill( histoName+"_phi",    step, vSum.phi() );
+  m_hFactory -> Fill( histoName+"_Deta",   step, fabs(v1.eta() - v2.eta()) );
+  m_hFactory -> Fill( histoName+"_Dphi",   step, ROOT::Math::VectorUtil::DeltaPhi(v1, v2) );
+  m_hFactory -> Fill( histoName+"_DR",     step, ROOT::Math::VectorUtil::DeltaR(v1, v2) );
+  
+  m_hFactory -> Fill( histoName+"_max_energy", step, std::max(v1.energy(), v2.energy()) );
+  m_hFactory -> Fill( histoName+"_max_p",      step, std::max(sqrt(v1.P()), sqrt(v2.P())) );    
+  m_hFactory -> Fill( histoName+"_max_pt",     step, std::max(v1.pt(), v2.pt()) );        
+  m_hFactory -> Fill( histoName+"_max_pl",     step, std::max(v1.pz(), v2.pz()) );            
+  m_hFactory -> Fill( histoName+"_max_eta",    step, std::max(v1.eta(), v2.eta()) );
+  m_hFactory -> Fill( histoName+"_max_absEta", step, std::max(fabs(v1.eta()), fabs(v2.eta())) );
 
+  m_hFactory -> Fill( histoName+"_min_energy", step, std::min(v1.energy(), v2.energy()) );
+  m_hFactory -> Fill( histoName+"_min_p",      step, std::min(sqrt(v1.P()), sqrt(v2.P())) );    
+  m_hFactory -> Fill( histoName+"_min_pt",     step, std::min(v1.pt(), v2.pt()) );        
+  m_hFactory -> Fill( histoName+"_min_pl",     step, std::min(v1.pz(), v2.pz()) );            
+  m_hFactory -> Fill( histoName+"_min_eta",    step, std::min(v1.eta(), v2.eta()) );
+  m_hFactory -> Fill( histoName+"_min_absEta", step, std::min(fabs(v1.eta()), fabs(v2.eta())) );
 
+}
 
-//! fill standard histograms
-//void stdHisto::FillStdH1(const int& step)
-//{
-//  std::string histoName;
-//  
-//  histoName = "mcF1_fromV1_pt";
-//  m_hFactory -> Fill(histoName, step, m_reader->Get4V("mcF1_fromV1")->at(0).pt());
-//  
-//  histoName = "mcF1_fromV1_eta";
-//  m_hFactory -> Fill(histoName, step, m_reader->Get4V("mcF1_fromV1")->at(0).eta());
-//}
+// ------------------------------------------------

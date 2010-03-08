@@ -16,47 +16,52 @@ class stdHisto
  public:
   
   //!ctor
-  stdHisto(treeReader&, const int&,
-           const std::string& outFileName = "stdHisto.root");
-  stdHisto(treeReader*, const int&,
+  stdHisto(const int& nStep,
+           treeReader* reader = NULL,
            const std::string& outFileName = "stdHisto.root");
   
   //!dtor
   ~stdHisto();
   
   //! methods
-  //void FillStdH1(const int&);
+  
+  // add histograms
   void Add1(const std::string& histoName,
             const int& nStep);
   
   void Add2(const std::string& histoName,
             const int& nStep);
-                 
+  
+  // fill histograms
   void Fill1(const std::string& histoName,
              const std::string& branchName,
              const int& nStep,
              std::vector<int>* selectionIt = NULL);
+  
+  void Fill1(const std::vector<ROOT::Math::XYZTVector>& vet,
+             const std::string& histoName,
+             const int& step);
 
   void Fill2(const std::string& histoName,
              const std::string& branchName,
              const int& nStep,
              const int& it1, const int& it2);
   
- private:
- 
-  //void  AddStdH1();
+  void Fill2(const ROOT::Math::XYZTVector& v1,
+             const ROOT::Math::XYZTVector& v2, 
+             const std::string& histoName,
+             const int& step);
   
   
   
  private:
   
-  treeReader* m_reader; 
   int m_nStep;
+  treeReader* m_reader; 
   std::string m_outFileName;
   
   hFactory* m_hFactory;
   
-
 };
 
 #endif
