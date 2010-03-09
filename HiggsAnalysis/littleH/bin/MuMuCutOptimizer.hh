@@ -13,9 +13,6 @@ public:
   MuMuCutOptimizer(TChain *tree=0);
   virtual ~MuMuCutOptimizer() {};
   void Loop();
-  int theBestQQ() const;
-  bool accept_glb_mu(const int mu_index) const;
-  bool accept_trk_mu(const int mu_index) const;
 
 private:
 
@@ -25,8 +22,9 @@ private:
   int MIN_nhits_pixel;
   float MAX_d0_trk;
   float MAX_dz_trk;
+
   float weight;
-  bool onlyTheBest;            
+
 };
 #endif
 
