@@ -28,15 +28,16 @@ MuMuLooper::MuMuLooper(TChain *tree)
   MAX_d0_trk = 2.0;
   MAX_dz_trk = 25.0;
   MIN_vtxprob = 0.05;
-  MAX_S3Dip = 4.;
+  MAX_S3Dip = 1.1;
   MAX_muisol = 0.11;
-
+  //  MAX_DeltaR = 3.5;
+  MIN_muP = 4.4;
   bookHistos();
 }
 
 void MuMuLooper::bookHistos()
 {
-  hInvMass = new TH1F("hInvMass","#mu-#mu invariant mass",100,3.2,12.);
+  hInvMass = new TH1F("hInvMass","#mu-#mu invariant mass",200,4.,12.);
 //   hIsoVar03_glb_TKECAL1 = new TH1F("hIsoVar03_glb_TKECAL1", "isolation var03 on tk+ecal, glb", 200, 0., 5. );
 //   hIsoVar03_glb_TKECAL2 = new TH1F("hIsoVar03_glb_TKECAL2", "isolation var03 on tk+ecal, glb", 200, 0., 5. );
 //   hIsoVar03_trk_TKECAL1 = new TH1F("hIsoVar03_trk_TKECAL1", "isolation var03 on tk+ecal, trk", 200, 0., 5. );
@@ -49,6 +50,18 @@ void MuMuLooper::bookHistos()
   hQQlxy = new TH1F("hQQlxy", "significance", 100, 0., 5.);
   hQQS3Dip = new TH1F("hQQS3Dip", "", 100, 0., 5.);
   hQQSTip = new TH1F("hQQSTip", "", 100, 0., 5.);
+  hQQDeltaR = new TH1F("hQQDeltaR","DeltaR",100,0.,6.);
+  hQQEta = new TH1F("hQQEta", "Eta", 100, -5.,5.);
+  hQQPt = new TH1F("hQQPt", "Pt", 100, 0., 50.);
+  hMuEtaTk = new TH1F("hMuEtaTk","Muon Eta Tk", 100, -5., 5.);
+  hMuPtTk = new TH1F("hMuPtTk","Muon Pt Tk", 100, 0., 50.);
+  hMuEtaGlb = new TH1F("hMuEtaGlb","Muon Eta Glb", 100, -5., 5.);
+  hMuPtGlb = new TH1F("hMuPtGlb","Muon Pt Glb", 100, 0., 50.);
+
+  hMuPGlb = new TH1F("hMuPGlb","Muon P Glb", 100, 0., 50.);
+  hMuPTk = new TH1F("hMuPTk","Muon P Tk", 100, 0., 50.);
+
+  hQQDeltaRvsM = new TH2F("hQQDeltaRvsM","DeltaR vs M",100,4.,12.,100,0.,6.);
 
   return;
 }
@@ -84,19 +97,19 @@ void MuMuLooper::Loop() {
     TString filestring(fChain->GetCurrentFile()->GetName());
 
     //FIXME to be defined
-
-    if (filestring.Contains("SimpleTree_ppMuX"))
-      weight = 4080.96;
-    else if (filestring.Contains("SimpleTree_Upsilon1S"))
-      weight = 70;
-    else if (filestring.Contains("SimpleTree_Upsilon2S"))
-      weight = 28;
-    else if (filestring.Contains("SimpleTree_Upsilon3S")) 
-      weight = 8;
-    else if (filestring.Contains("SimpleTree_A0_8GEV"))
-      weight = 0.12766; 
-    else if (filestring.Contains("SimpleTree_A0_10GEV"))
-      weight = 0.319149;
+    weight = 1.;
+//     if (filestring.Contains("SimpleTree_ppMuX"))
+//       weight = 4080.96;
+//     else if (filestring.Contains("SimpleTree_Upsilon1S"))
+//       weight = 70;
+//     else if (filestring.Contains("SimpleTree_Upsilon2S"))
+//       weight = 28;
+//     else if (filestring.Contains("SimpleTree_Upsilon3S")) 
+//       weight = 8;
+//     else if (filestring.Contains("SimpleTree_A0_8GEV"))
+//       weight = 0.12766; 
+//     else if (filestring.Contains("SimpleTree_A0_10GEV"))
+//       weight = 0.319149;
     
     // Find the best candidate (if needed)
     int myBest = 0;
@@ -108,6 +121,17 @@ void MuMuLooper::Loop() {
 
       if((*QQ_type)[iqq] == 0) continue;
 
+      hQQProbChi2->Fill(QQ_probChi2 -> at(iqq));
+      hQQlxy->Fill(QQ_lxy -> at(iqq)/QQ_lxyErr -> at(iqq));
+      hQQS3Dip -> Fill(QQ_S3Dip -> at(iqq));
+      hQQSTip  -> Fill(QQ_STip -> at(iqq) );
+      hQQDeltaR->Fill (QQ_DeltaR->at(iqq));
+      hQQEta->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Eta());
+      hQQPt->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Pt());
+      hQQEta->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Eta());
+      hQQPt->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Pt());
+      hQQDeltaRvsM->Fill (invMass, QQ_DeltaR->at(iqq));
+
       if (onlyTheBest && iqq != myBest) continue;
 
       passedCandidates++;
@@ -116,11 +140,7 @@ void MuMuLooper::Loop() {
 	
       // Fill histos
       hInvMass->Fill(invMass, weight);
-      hQQProbChi2->Fill(QQ_probChi2 -> at(iqq));
-      hQQlxy->Fill(QQ_lxy -> at(iqq)/QQ_lxyErr -> at(iqq));
-      hQQS3Dip -> Fill(QQ_S3Dip -> at(iqq));
-      hQQSTip  -> Fill(QQ_STip -> at(iqq) );
- 
+
      //hIsoVar03_glb_TKECAL1->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_glb_emIsoR03->at(mu_index));
      //hIsoVar03_glb_TKECAL2->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt());
      //hIsoVar03_glb_TK->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt());
@@ -142,6 +162,7 @@ void MuMuLooper::Loop() {
   cout << "Total number of triggered events = " << passedTriggers << endl;
   cout << "Total number of selected  events = " << passedCandidates << endl;
   cout << "###############" << endl;
+  cout << "Total number of events scaled = " << hInvMass->Integral() << endl;
 
   return;
 } // end of program
@@ -164,6 +185,17 @@ void MuMuLooper::saveHistos(TFile * f1)
   hQQS3Dip->Write();
   hQQlxy->Write();
 
+  hQQDeltaR->Write();
+  hQQEta->Write()   ;
+  hQQPt->Write()    ;
+  hMuEtaTk->Write()   ;
+  hMuPtTk->Write()    ;
+  hMuEtaGlb ->Write()  ;
+  hMuPtGlb->Write()    ;
+  hQQDeltaRvsM->Write();
+  hMuPGlb->Write();
+  hMuPTk->Write();
+
   f1->Close();
 
   return;
@@ -173,15 +205,21 @@ void MuMuLooper::saveHistos(TFile * f1)
 bool MuMuLooper::accept_glb_mu(const int mu_index) const
 {
   TLorentzVector *mu_4mom = (TLorentzVector*)muons_glb_4mom->At(mu_index);
-  
   if(muons_glb_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
      muons_glb_normChi2->at(mu_index)   < MAX_normchi2_glb  &&
      fabs(muons_glb_d0->at(mu_index))   < MAX_d0_trk        &&
      fabs(muons_glb_dz->at(mu_index))   < MAX_dz_trk        &&
      (((muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) ||
       ((muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel-1 && muons_glb_nhitsPix1Hit->at(mu_index) == 1)) && 
-     (muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt() < MAX_muisol)
+     (muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt() < MAX_muisol){
+    hMuPtGlb->Fill(mu_4mom->Pt());
+    hMuEtaGlb->Fill(mu_4mom->Eta()); 
+    if(fabs(mu_4mom->Eta()) > 1.1){
+      hMuPGlb->Fill(mu_4mom->Rho());
+      hMuPGlb->Fill(mu_4mom->Rho()); 
+    }
     return true;
+  }
     
   return false;
 }
@@ -189,15 +227,23 @@ bool MuMuLooper::accept_glb_mu(const int mu_index) const
 bool MuMuLooper::accept_trk_mu(const int mu_index) const
 {
   TLorentzVector *mu_4mom = (TLorentzVector*)muons_trk_4mom->At(mu_index);
-  
+  if(mu_4mom->Eta() > 1.1 && mu_4mom->Rho() < MIN_muP) return false;
+
   if(muons_trk_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
      muons_trk_normChi2->at(mu_index)   < MAX_normchi2_trk  &&
      fabs(muons_trk_d0->at(mu_index))   < MAX_d0_trk        &&
      fabs(muons_trk_dz->at(mu_index))   < MAX_dz_trk        &&
      ((muons_trk_nhitsPixB->at(mu_index) + muons_trk_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) &&
      ((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0) && 
-     (muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt() < MAX_muisol)
+     (muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt() < MAX_muisol){
+    hMuPtTk->Fill(mu_4mom->Pt());
+    hMuEtaTk->Fill(mu_4mom->Eta());
+    if(fabs(mu_4mom->Eta()) > 1.1){
+      hMuPTk->Fill(mu_4mom->Rho());
+      hMuPTk->Fill(mu_4mom->Rho()); 
+    }
     return true;
+  }
   
   return false;
 }
@@ -214,13 +260,6 @@ int MuMuLooper::theBestQQ() const
 
       int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
       int thelptMu = QQ_leplpt->at(iqq);    if (thelptMu >= muons_glb_normChi2->size()) continue;
-
-      if( ((TLorentzVector*)muons_glb_4mom->At(QQ_lephpt->at(iqq))) -> Pt() < ((TLorentzVector*)muons_glb_4mom->At(QQ_leplpt->at(iqq))) -> Pt() )
-      {
-        int temp_iMu = thelptMu ;
-        thelptMu = thehptMu ;
-        thehptMu = temp_iMu ;
-      }
 
       if (QQ_probChi2->at(iqq) > MIN_vtxprob && QQ_S3Dip->at(iqq) < MAX_S3Dip && accept_glb_mu(thehptMu) && accept_glb_mu(thelptMu)) return iqq;
     }

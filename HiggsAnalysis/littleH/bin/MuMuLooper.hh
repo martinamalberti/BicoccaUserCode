@@ -3,6 +3,7 @@
 
 #include <TVector3.h>
 #include <TH1F.h>
+#include <TH2F.h>
 
 #include "smallHBaseClass.h"
 #include <vector>
@@ -30,6 +31,8 @@ private:
   float MIN_vtxprob;
   float MAX_S3Dip;
   float MAX_muisol;
+  //  float MAX_DeltaR;
+  float MIN_muP;
 
   float weight;
   bool onlyTheBest;
@@ -48,6 +51,18 @@ private:
   TH1F * hQQlxy ;
   TH1F *hQQS3Dip; 
   TH1F *hQQSTip ;
+  TH1F *hQQDeltaR;
+  TH1F *hQQEta   ;
+  TH1F *hQQPt    ;
+  TH1F *hMuEtaTk   ;
+  TH1F * hMuPtTk    ;
+  TH1F *hMuEtaGlb   ;
+  TH1F * hMuPtGlb    ;
+  TH1F * hMuPGlb    ;
+  TH1F * hMuPTk    ;
+
+  TH2F *hQQDeltaRvsM;
+
 };
 #endif
 
