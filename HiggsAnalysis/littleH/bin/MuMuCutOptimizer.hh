@@ -12,7 +12,7 @@ public:
   
   MuMuCutOptimizer(TChain *tree=0);
   virtual ~MuMuCutOptimizer() {};
-  void Loop();
+  void Loop(TString optVar);
 
 private:
 
@@ -23,6 +23,18 @@ private:
   float MAX_d0_trk;
   float MAX_dz_trk;
 
+  float MIN_P;
+  float MIN_PtTk;
+  float MIN_Pt;
+  float MAX_S3Dip;
+  float MIN_Chi2;
+  float MAX_iso;
+
+  int n_step;
+  int n_signal;
+
+  bool optCond;
+  TString optVar;
   float weight;
 
 };
