@@ -25,13 +25,13 @@ hFactory::~hFactory ()
 //      }
   if (m_H1content.size () && m_fileName != "no")
     {
-      TFile histosFile (m_fileName.c_str (),"recreate") ;
+      TFile histosFile (m_fileName.c_str (),"update") ;
       histosFile.cd () ;
       for (std::map <std::string, hChain *>::iterator mapIt = m_H1content.begin () ;
            mapIt != m_H1content.end () ;
            ++mapIt)
         {
-          mapIt->second->Write (histosFile) ; 
+          mapIt->second->Write (mapIt->first, histosFile) ; 
         }
       histosFile.Close () ;
     }  

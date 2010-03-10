@@ -26,6 +26,7 @@ struct hChain
   void Normalize (int index) ;
   void Scale (int index, double factor) ;
   void Write (TFile & outputFile) ;
+  void Write (const std::string& dirName, TFile & outputFile) ;
   unsigned int Size() { return m_histos.size(); };
         
   private :

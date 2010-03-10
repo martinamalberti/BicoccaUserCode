@@ -37,13 +37,14 @@ void stdHisto::Add1(const std::string& histoName,
                     const int& nStep)
 {
   m_hFactory -> add_h1(histoName+"_n",      histoName+"_n",       100,   0.,  100., nStep);
-  m_hFactory -> add_h1(histoName+"_energy", histoName+"_energy", 2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_p",      histoName+"_p",      2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_pt",     histoName+"_pt",     2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_pl",     histoName+"_pl",     2000,   0., 1000., nStep);  
+  m_hFactory -> add_h1(histoName+"_energy", histoName+"_energy", 3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_et",     histoName+"_et",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_p",      histoName+"_p",      3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_pt",     histoName+"_pt",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_pl",     histoName+"_pl",     3000,   0., 3000., nStep);  
   m_hFactory -> add_h1(histoName+"_eta",    histoName+"_eta",     400, -10.,   10., nStep);
   m_hFactory -> add_h1(histoName+"_absEta", histoName+"_absEta",  200,   0.,   10., nStep);
-  m_hFactory -> add_h1(histoName+"_phi",    histoName+"_phi",     100,   0.,    5., nStep);
+  m_hFactory -> add_h1(histoName+"_phi",    histoName+"_phi",     200,   0.,    5., nStep);
 }
 
 // ------------------------------------------------
@@ -56,29 +57,32 @@ void stdHisto::Add1(const std::string& histoName,
 void stdHisto::Add2(const std::string& histoName,
                     const int& nStep)
 {
-  m_hFactory -> add_h1(histoName+"_mass",   histoName+"_energy", 2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_energy", histoName+"_energy", 2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_p",      histoName+"_p",      2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_pt",     histoName+"_pt",     2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_pl",     histoName+"_pl",     2000,   0., 1000., nStep);  
+  m_hFactory -> add_h1(histoName+"_mass",   histoName+"_energy", 3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_energy", histoName+"_energy", 3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_et",     histoName+"_et",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_p",      histoName+"_p",      3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_pt",     histoName+"_pt",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_pl",     histoName+"_pl",     3000,   0., 3000., nStep);  
   m_hFactory -> add_h1(histoName+"_eta",    histoName+"_eta",     400, -10.,   10., nStep);
   m_hFactory -> add_h1(histoName+"_absEta", histoName+"_absEta",  200,   0.,   10., nStep);
-  m_hFactory -> add_h1(histoName+"_phi",    histoName+"_phi",     100,   0.,    5., nStep);
+  m_hFactory -> add_h1(histoName+"_phi",    histoName+"_phi",     200,   0.,    5., nStep);
   m_hFactory -> add_h1(histoName+"_Deta",   histoName+"_Deta",    200,   0.,   10., nStep);
-  m_hFactory -> add_h1(histoName+"_Dphi",   histoName+"_Dphi",    100,   0.,    5., nStep);
+  m_hFactory -> add_h1(histoName+"_Dphi",   histoName+"_Dphi",    200,   0.,    5., nStep);
   m_hFactory -> add_h1(histoName+"_DR",     histoName+"_DR",      200,   0.,   10., nStep);
   
-  m_hFactory -> add_h1(histoName+"_max_energy", histoName+"_max_energy", 2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_max_p",      histoName+"_max_p",      2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_max_pt",     histoName+"_max_pt",     2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_max_pl",     histoName+"_max_pl",     2000,   0., 1000., nStep);  
+  m_hFactory -> add_h1(histoName+"_max_energy", histoName+"_max_energy", 3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_max_et",     histoName+"_max_et",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_max_p",      histoName+"_max_p",      3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_max_pt",     histoName+"_max_pt",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_max_pl",     histoName+"_max_pl",     3000,   0., 3000., nStep);  
   m_hFactory -> add_h1(histoName+"_max_eta",    histoName+"_max_eta",     400, -10.,   10., nStep);
   m_hFactory -> add_h1(histoName+"_max_absEta", histoName+"_max_absEta",  200,   0.,   10., nStep);
   
-  m_hFactory -> add_h1(histoName+"_min_energy", histoName+"_min_energy", 2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_min_p",      histoName+"_min_p",      2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_min_pt",     histoName+"_min_pt",     2000,   0., 1000., nStep);
-  m_hFactory -> add_h1(histoName+"_min_pl",     histoName+"_min_pl",     2000,   0., 1000., nStep);  
+  m_hFactory -> add_h1(histoName+"_min_energy", histoName+"_min_energy", 3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_min_et",     histoName+"_min_et",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_min_p",      histoName+"_min_p",      3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_min_pt",     histoName+"_min_pt",     3000,   0., 3000., nStep);
+  m_hFactory -> add_h1(histoName+"_min_pl",     histoName+"_min_pl",     3000,   0., 3000., nStep);  
   m_hFactory -> add_h1(histoName+"_min_eta",    histoName+"_min_eta",     400, -10.,   10., nStep);
   m_hFactory -> add_h1(histoName+"_min_absEta", histoName+"_min_absEta",  200,   0.,   10., nStep);
 
@@ -104,7 +108,8 @@ void stdHisto::Fill1(const std::string& histoName,
       if( (selectionIt -> at(it)) != 1 )
         continue;
     ++n;
-    m_hFactory -> Fill( histoName+"_energy", step, m_reader->Get4V(branchName)->at(it).energy());
+    m_hFactory -> Fill( histoName+"_energy", step, m_reader->Get4V(branchName)->at(it).E());
+    m_hFactory -> Fill( histoName+"_et",     step, m_reader->Get4V(branchName)->at(it).Et());
     m_hFactory -> Fill( histoName+"_p",      step, sqrt(m_reader->Get4V(branchName)->at(it).P()));    
     m_hFactory -> Fill( histoName+"_pt",     step, m_reader->Get4V(branchName)->at(it).pt());        
     m_hFactory -> Fill( histoName+"_pl",     step, m_reader->Get4V(branchName)->at(it).pz());            
@@ -128,7 +133,8 @@ void stdHisto::Fill1(const std::vector<ROOT::Math::XYZTVector>& vet,
 {
   for(unsigned int it = 0; it < vet.size(); ++it)
   {
-    m_hFactory -> Fill( histoName+"_energy", step, (vet.at(it)).energy());
+    m_hFactory -> Fill( histoName+"_energy", step, (vet.at(it)).E());
+    m_hFactory -> Fill( histoName+"_et",     step, (vet.at(it)).Et());
     m_hFactory -> Fill( histoName+"_p",      step, (vet.at(it)).P());
     m_hFactory -> Fill( histoName+"_pt",     step, (vet.at(it)).pt());
     m_hFactory -> Fill( histoName+"_pl",     step, (vet.at(it)).pz());
@@ -149,7 +155,8 @@ void stdHisto::Fill1(const ROOT::Math::XYZTVector& p,
                      const std::string& histoName,
                      const int& step)
 {
-  m_hFactory -> Fill( histoName+"_energy", step, p.energy());
+  m_hFactory -> Fill( histoName+"_energy", step, p.E());
+  m_hFactory -> Fill( histoName+"_et",     step, p.Et());
   m_hFactory -> Fill( histoName+"_p",      step, p.P());
   m_hFactory -> Fill( histoName+"_pt",     step, p.pt());
   m_hFactory -> Fill( histoName+"_pl",     step, p.pz());
@@ -177,8 +184,9 @@ void stdHisto::Fill2(const std::string& histoName,
   ROOT::Math::XYZTVector vSum = v1 + v2;
 
   m_hFactory -> Fill( histoName+"_mass",   step, vSum.mass() );
-  m_hFactory -> Fill( histoName+"_energy", step, vSum.energy() );
-  m_hFactory -> Fill( histoName+"_p",      step, sqrt(vSum.P()) );    
+  m_hFactory -> Fill( histoName+"_energy", step, vSum.E() );
+  m_hFactory -> Fill( histoName+"_et",     step, vSum.Et() );
+  m_hFactory -> Fill( histoName+"_p",      step, vSum.P() );    
   m_hFactory -> Fill( histoName+"_pt",     step, vSum.pt() );        
   m_hFactory -> Fill( histoName+"_pl",     step, vSum.pz() );            
   m_hFactory -> Fill( histoName+"_eta",    step, vSum.eta() );
@@ -188,15 +196,17 @@ void stdHisto::Fill2(const std::string& histoName,
   m_hFactory -> Fill( histoName+"_Dphi",   step, ROOT::Math::VectorUtil::DeltaPhi(v1, v2) );
   m_hFactory -> Fill( histoName+"_DR",     step, ROOT::Math::VectorUtil::DeltaR(v1, v2) );
   
-  m_hFactory -> Fill( histoName+"_max_energy", step, std::max(v1.energy(), v2.energy()) );
-  m_hFactory -> Fill( histoName+"_max_p",      step, std::max(sqrt(v1.P()), sqrt(v2.P())) );    
+  m_hFactory -> Fill( histoName+"_max_energy", step, std::max(v1.E(), v2.E()) );
+  m_hFactory -> Fill( histoName+"_max_et",     step, std::max(v1.Et(), v2.Et()) );
+  m_hFactory -> Fill( histoName+"_max_p",      step, std::max(v1.P(), v2.P()) );    
   m_hFactory -> Fill( histoName+"_max_pt",     step, std::max(v1.pt(), v2.pt()) );        
   m_hFactory -> Fill( histoName+"_max_pl",     step, std::max(v1.pz(), v2.pz()) );            
   m_hFactory -> Fill( histoName+"_max_eta",    step, std::max(v1.eta(), v2.eta()) );
   m_hFactory -> Fill( histoName+"_max_absEta", step, std::max(fabs(v1.eta()), fabs(v2.eta())) );
 
-  m_hFactory -> Fill( histoName+"_min_energy", step, std::min(v1.energy(), v2.energy()) );
-  m_hFactory -> Fill( histoName+"_min_p",      step, std::min(sqrt(v1.P()), sqrt(v2.P())) );    
+  m_hFactory -> Fill( histoName+"_min_energy", step, std::min(v1.E(), v2.E()) );
+  m_hFactory -> Fill( histoName+"_min_et",     step, std::min(v1.Et(), v2.Et()) );
+  m_hFactory -> Fill( histoName+"_min_p",      step, std::min(v1.P(), v2.P()) );    
   m_hFactory -> Fill( histoName+"_min_pt",     step, std::min(v1.pt(), v2.pt()) );        
   m_hFactory -> Fill( histoName+"_min_pl",     step, std::min(v1.pz(), v2.pz()) );            
   m_hFactory -> Fill( histoName+"_min_eta",    step, std::min(v1.eta(), v2.eta()) );
@@ -217,26 +227,29 @@ void stdHisto::Fill2(const ROOT::Math::XYZTVector& v1,
   ROOT::Math::XYZTVector vSum = v1 + v2;
 
   m_hFactory -> Fill( histoName+"_mass",   step, vSum.mass() );
-  m_hFactory -> Fill( histoName+"_energy", step, vSum.energy() );
-  m_hFactory -> Fill( histoName+"_p",      step, sqrt(vSum.P()) );    
+  m_hFactory -> Fill( histoName+"_energy", step, vSum.E() );
+  m_hFactory -> Fill( histoName+"_et",     step, vSum.Et() );
+  m_hFactory -> Fill( histoName+"_p",      step, vSum.P() );    
   m_hFactory -> Fill( histoName+"_pt",     step, vSum.pt() );        
   m_hFactory -> Fill( histoName+"_pl",     step, vSum.pz() );            
   m_hFactory -> Fill( histoName+"_eta",    step, vSum.eta() );
-  m_hFactory -> Fill( histoName+"_absEta", step, fabs(vSum.eta()) );
+  m_hFactory -> Fill( histoName+"_absEta", step, vSum.eta() );
   m_hFactory -> Fill( histoName+"_phi",    step, vSum.phi() );
   m_hFactory -> Fill( histoName+"_Deta",   step, fabs(v1.eta() - v2.eta()) );
   m_hFactory -> Fill( histoName+"_Dphi",   step, ROOT::Math::VectorUtil::DeltaPhi(v1, v2) );
   m_hFactory -> Fill( histoName+"_DR",     step, ROOT::Math::VectorUtil::DeltaR(v1, v2) );
   
-  m_hFactory -> Fill( histoName+"_max_energy", step, std::max(v1.energy(), v2.energy()) );
-  m_hFactory -> Fill( histoName+"_max_p",      step, std::max(sqrt(v1.P()), sqrt(v2.P())) );    
+  m_hFactory -> Fill( histoName+"_max_energy", step, std::max(v1.E(), v2.E()) );
+  m_hFactory -> Fill( histoName+"_max_et",     step, std::max(v1.Et(), v2.Et()) );
+  m_hFactory -> Fill( histoName+"_max_p",      step, std::max(v1.P(), v2.P()) );    
   m_hFactory -> Fill( histoName+"_max_pt",     step, std::max(v1.pt(), v2.pt()) );        
   m_hFactory -> Fill( histoName+"_max_pl",     step, std::max(v1.pz(), v2.pz()) );            
   m_hFactory -> Fill( histoName+"_max_eta",    step, std::max(v1.eta(), v2.eta()) );
   m_hFactory -> Fill( histoName+"_max_absEta", step, std::max(fabs(v1.eta()), fabs(v2.eta())) );
 
-  m_hFactory -> Fill( histoName+"_min_energy", step, std::min(v1.energy(), v2.energy()) );
-  m_hFactory -> Fill( histoName+"_min_p",      step, std::min(sqrt(v1.P()), sqrt(v2.P())) );    
+  m_hFactory -> Fill( histoName+"_min_energy", step, std::min(v1.E(), v2.E()) );
+  m_hFactory -> Fill( histoName+"_min_et",     step, std::min(v1.Et(), v2.Et()) );
+  m_hFactory -> Fill( histoName+"_min_p",      step, std::min(v1.P(), v2.P()) );    
   m_hFactory -> Fill( histoName+"_min_pt",     step, std::min(v1.pt(), v2.pt()) );        
   m_hFactory -> Fill( histoName+"_min_pl",     step, std::min(v1.pz(), v2.pz()) );            
   m_hFactory -> Fill( histoName+"_min_eta",    step, std::min(v1.eta(), v2.eta()) );

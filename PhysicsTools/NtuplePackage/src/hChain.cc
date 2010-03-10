@@ -173,6 +173,27 @@ hChain::Write (TFile & outputFile)
 //PG --------------------------------------------------------   
 
 
+
+
+void 
+hChain::Write (const std::string& dirName, TFile & outputFile)
+  {
+    outputFile.cd () ;
+    outputFile.mkdir(dirName.c_str());
+    outputFile.cd(dirName.c_str());
+    for (unsigned int i=0 ; i<m_histos.size () ; ++i)
+      //if(m_histos.at (i) -> GetEntries() > 0)
+      m_histos.at (i)->Write () ; 
+//    for (unsigned int i=0 ; i<m_ntuples.size () ; ++i)
+//      m_ntuples.at (i)->Write () ;
+    return ;
+  }
+
+
+//PG --------------------------------------------------------   
+
+
+
 double 
 hChain::findNMin () 
   {
