@@ -27,10 +27,10 @@ MuMuCutOptimizer::MuMuCutOptimizer(TChain *tree)
   MAX_d0_trk = 2.0;
   MAX_dz_trk = 25.0;
   MIN_PtTk = 3.;
-  MIN_Pt = 3.;
+  MIN_Pt = 0.;
   MIN_P = 0.;
   MAX_iso = 10.;
-  MIN_Chi2 = 10.;
+  MIN_Chi2 = 0.;
   n_step = 40;
   n_signal = 7;
 }
@@ -132,18 +132,7 @@ void MuMuCutOptimizer::Loop(TString optVar) {
       TLorentzVector *mu_4momH;
       TLorentzVector *mu_4momL;
 
-      if(optVar.Contains("Tk")){
-	thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_trk_normChi2->size()) continue;
-	thelptMu = QQ_leplpt->at(iqq);   if (thelptMu >= muons_trk_normChi2->size()) continue;
-	
-	mu_4momH = (TLorentzVector*)muons_trk_4mom->At(thehptMu);
-	mu_4momL = (TLorentzVector*)muons_trk_4mom->At(thelptMu); 
-
-	isoVarh = (muons_trk_tkIsoR03->at(thehptMu) + muons_trk_emIsoR03->at(thehptMu))/((TLorentzVector*)muons_trk_4mom->At(thehptMu))->Pt();
-	isoVarl = (muons_trk_tkIsoR03->at(thelptMu) + muons_trk_emIsoR03->at(thelptMu))/((TLorentzVector*)muons_trk_4mom->At(thelptMu))->Pt();    
-      }
-      
-      if(optVar.Contains("Glb")){
+      if((*QQ_type)[iqq] == 1){//GLB-GLB
 	thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
 	thelptMu = QQ_leplpt->at(iqq);   if (thelptMu >= muons_glb_normChi2->size()) continue;
 	
@@ -152,24 +141,49 @@ void MuMuCutOptimizer::Loop(TString optVar) {
 
 	isoVarh = (muons_glb_tkIsoR03->at(thehptMu) + muons_glb_emIsoR03->at(thehptMu))/((TLorentzVector*)muons_glb_4mom->At(thehptMu))->Pt();
 	isoVarl = (muons_glb_tkIsoR03->at(thelptMu) + muons_glb_emIsoR03->at(thelptMu))/((TLorentzVector*)muons_glb_4mom->At(thelptMu))->Pt();      
-	
+
+	if(!(accept_glb_mu(thehptMu) && accept_glb_mu(thelptMu))) continue;	
       }
 
-      if( fabs(mu_4momL->Eta()) > 2.4  && fabs(mu_4momH->Eta()) > 2.4 ) continue;     
+      if((*QQ_type)[iqq] == 2){//GLB-TRK
+	
+	thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
+	thelptMu = QQ_leplpt->at(iqq);   if (thelptMu >= muons_trk_normChi2->size()) continue;
+	
+	mu_4momH = (TLorentzVector*)muons_glb_4mom->At(thehptMu);
+	mu_4momL = (TLorentzVector*)muons_trk_4mom->At(thelptMu); 
+
+	isoVarh = (muons_glb_tkIsoR03->at(thehptMu) + muons_glb_emIsoR03->at(thehptMu))/((TLorentzVector*)muons_glb_4mom->At(thehptMu))->Pt();
+	isoVarl = (muons_trk_tkIsoR03->at(thelptMu) + muons_trk_emIsoR03->at(thelptMu))/((TLorentzVector*)muons_trk_4mom->At(thelptMu))->Pt();    
+
+	if(!(accept_glb_mu(thehptMu) && accept_trk_mu(thelptMu))) continue;
+      }
+      
+      if( fabs(mu_4momL->Eta()) > 2.4 && fabs(mu_4momH->Eta()) > 2.4 ) continue;     
 
       for(Int_t i=0; i<n_step; i++){
-	if(optVar.Contains("Pt")){
+
+	if(optVar.Contains("PtTk") && (*QQ_type)[iqq] == 2 ){
+	  cut[i] = 1. + 0.1*i;
+	  if(!(mu_4momL->Pt() > cut[i])) continue;
+ 	}
+	else if( optVar.Contains("PtGlb") && (*QQ_type)[iqq] == 2){
+	  cut[i] = 1. + 0.1*i;
+	  if(!(mu_4momH->Pt() > cut[i] && mu_4momL->Pt() > MIN_PtTk)) continue;
+	}
+	else if( optVar.Contains("PtGlb") && (*QQ_type)[iqq] == 1){
 	  cut[i] = 1. + 0.1*i;
 	  if(!(mu_4momL->Pt() > cut[i] && mu_4momH->Pt() > cut[i])) continue;
- 	}
+	}
+ 
 	else if (optVar.Contains("PfwdTk")){
-	  //	  if(!(mu_4momL->Pt() > MIN_Pt && mu_4momH->Pt() > MIN_Pt)) continue;//previous cut implementation
+	  if(!(mu_4momL->Pt() > MIN_Pt && mu_4momH->Pt() > MIN_Pt)) continue;//previous cut implementation
 	  cut[i] = 3. + 0.02*i;
 	  if(!(mu_4momL->Rho() > cut[i] && fabs(mu_4momL->Eta()) > 1.1 && mu_4momH->Rho() > cut[i] && fabs(mu_4momH->Eta()) > 1.1)) continue;
 	}
 	else if (optVar.Contains("Iso")){
 	  if(!(mu_4momL->Pt() > MIN_Pt && mu_4momH->Pt() > MIN_Pt &&
-	       (mu_4momL->Rho() > cut[i] && fabs(mu_4momL->Eta()) > 1.1 && mu_4momH->Rho() > cut[i] && fabs(mu_4momH->Eta()) > 1.1)) ) continue;//previous cut implementation
+	       (mu_4momL->Rho() > MIN_P && fabs(mu_4momL->Eta()) > 1.1 && mu_4momH->Rho() > MIN_P && fabs(mu_4momH->Eta()) > 1.1)) ) continue;//previous cut implementation
 	  cut[i] = 0.05 + 0.01*i;
 	  if(!(isoVarh < cut[i] && isoVarl < cut[i])) continue;
 	}
@@ -286,3 +300,29 @@ void MuMuCutOptimizer::Loop(TString optVar) {
   return;
   } // end of program
 
+bool MuMuCutOptimizer::accept_glb_mu(const int mu_index) const
+{
+  TLorentzVector *mu_4mom = (TLorentzVector*)muons_glb_4mom->At(mu_index);
+  if(muons_glb_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
+     muons_glb_normChi2->at(mu_index)   < MAX_normchi2_glb  &&
+     fabs(muons_glb_d0->at(mu_index))   < MAX_d0_trk        &&
+     fabs(muons_glb_dz->at(mu_index))   < MAX_dz_trk        &&
+     ( ( (muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) ||
+       ( (muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel-1 && muons_glb_nhitsPix1Hit->at(mu_index) == 1) ) )     
+    return true;
+
+  return false;
+}
+
+bool MuMuCutOptimizer::accept_trk_mu(const int mu_index) const
+{
+  if(muons_trk_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
+     muons_trk_normChi2->at(mu_index)   < MAX_normchi2_trk  &&
+     fabs(muons_trk_d0->at(mu_index))   < MAX_d0_trk        &&
+     fabs(muons_trk_dz->at(mu_index))   < MAX_dz_trk        &&
+     ((muons_trk_nhitsPixB->at(mu_index) + muons_trk_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) &&
+     ((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0))
+    return true;
+  
+  return false;
+}

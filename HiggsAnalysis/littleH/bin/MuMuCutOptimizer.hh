@@ -13,6 +13,8 @@ public:
   MuMuCutOptimizer(TChain *tree=0);
   virtual ~MuMuCutOptimizer() {};
   void Loop(TString optVar);
+  bool accept_glb_mu(const int mu_index) const;
+  bool accept_trk_mu(const int mu_index) const;
 
 private:
 
