@@ -52,6 +52,24 @@ GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) $(CLHEPLIBS) -lGenVector
 #################################################
 #if mac
 ARCH  =  $(shell root-config --arch)
+ifeq ($(ARCH),macosx)
+LibSuf  =  .dylib
+
+ARCHL = -m32
+
+CPPFLAGS  =  -Wall -W -Woverloaded-virtual -O2 $(ARCHL) -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
+
+CXXFLAGS  =  -Wall -W -Woverloaded-virtual -O2 $(ARCHL) -pipe -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
+
+LDFLAGS  =  -dynamiclib -shared -single_module -undefined dynamic_lookup $(ARCHL)
+SONAME	 =  libEvent.dylib
+SOFLAGS  =
+endif
+#################################################
+
+#################################################
+#if mac 64
+ARCH  =  $(shell root-config --arch)
 ifeq ($(ARCH),macosx64)
 LibSuf  =  .dylib
 
@@ -66,7 +84,6 @@ SONAME	 =  libEvent.dylib
 SOFLAGS  =
 endif
 #################################################
-
 
 
 
