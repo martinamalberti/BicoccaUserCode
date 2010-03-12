@@ -13,8 +13,8 @@ public:
   MuMuCutOptimizer(TChain *tree=0);
   virtual ~MuMuCutOptimizer() {};
   void Loop(TString optVar);
-  bool accept_glb_mu(const int mu_index) const;
-  bool accept_trk_mu(const int mu_index) const;
+  bool accept_glb_mu(const int mu_index, float cut, float cut2, TString optVar) const;
+  bool accept_trk_mu(const int mu_index, float cut, float cut2, TString optVar) const;
 
 private:
 
@@ -26,8 +26,8 @@ private:
   float MAX_dz_trk;
 
   float MIN_P;
-  float MIN_PtTk;
-  float MIN_Pt;
+  float MIN_PtBar;
+  float MIN_PtEndc;
   float MAX_S3Dip;
   float MIN_Chi2;
   float MAX_iso;
