@@ -90,6 +90,17 @@ void stdHisto::Add2(const std::string& histoName,
 
 // ------------------------------------------------
 
+void stdHisto::Add1Float(const std::string& histoName,
+                    const int& nStep,
+		    int nbins,
+		    double min,
+		    double max
+		    )
+{
+ m_hFactory -> add_h1(histoName+"_value",      histoName+"_value",       nbins,   min,  max, nStep);
+}
+
+// ------------------------------------------------
 
 
 
@@ -258,3 +269,33 @@ void stdHisto::Fill2(const ROOT::Math::XYZTVector& v1,
 }
 
 // ------------------------------------------------
+
+
+void stdHisto::Fill1Float(const std::string& histoName,
+                     const std::string& branchName,
+                     const int& step,
+                     std::vector<int>* selectionIt)
+{
+  int n = 0;
+  for(unsigned int it = 0; it < m_reader -> GetFloat(branchName) -> size(); ++it)
+  {
+    if(selectionIt != NULL)
+      if( (selectionIt -> at(it)) != 1 )
+        continue;
+    ++n;
+    m_hFactory -> Fill( histoName+"_value", step, m_reader->GetFloat(branchName)->at(it));
+  }
+}
+
+// ------------------------------------------------
+
+
+void stdHisto::Fill1Float(const std::string& histoName,
+                     const double& value,
+                     const int& step)
+{
+ m_hFactory -> Fill( histoName+"_value", step, value); 
+}
+
+// ------------------------------------------------
+

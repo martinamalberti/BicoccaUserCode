@@ -32,7 +32,13 @@ class stdHisto
   
   void Add2(const std::string& histoName,
             const int& nStep);
-  
+
+  void Add1Float(const std::string& histoName,
+           const int& nStep,
+	   int nbins,
+	   double min,
+	   double max);
+
   // fill histograms
   void Fill1(const std::string& histoName,
              const std::string& branchName,
@@ -57,7 +63,14 @@ class stdHisto
              const std::string& histoName,
              const int& step);
   
+  void Fill1Float(const std::string& histoName,
+             const std::string& branchName,
+             const int& nStep,
+             std::vector<int>* selectionIt = NULL);
   
+  void Fill1Float(const std::string& histoName,
+             const double& value,
+             const int& nStep);
   
  private:
   

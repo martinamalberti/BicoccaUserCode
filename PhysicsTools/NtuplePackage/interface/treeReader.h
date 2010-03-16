@@ -21,6 +21,7 @@ class treeReader
     ~treeReader () ;
   
     void GetEntry (int iEvent) {m_tree->GetEntry (iEvent) ; } ;
+    int GetEntries () {return m_tree->GetEntries () ; } ;
     
 //     template <class T> std::vector<T>* Get(const std::string &name);
     std::vector<double>*                 GetDouble(const std::string &name);
