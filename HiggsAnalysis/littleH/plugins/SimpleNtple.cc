@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.63 2010/02/17 10:54:18 pellicci Exp $
+// $Id: SimpleNtple.cc,v 1.64 2010/03/01 21:55:36 dimatteo Exp $
 //
 //
 
@@ -341,6 +341,10 @@ void
     NtupleFactory_->FillFloat("electrons_Et",((*EleHandle)[i].superCluster()->energy())/cosh((*EleHandle)[i].superCluster()->eta()));
     NtupleFactory_->FillFloat("electrons_pAtVtx",((*EleHandle)[i].trackMomentumAtVtx().R()));
     NtupleFactory_->FillFloat("electrons_ptAtVtx",((*EleHandle)[i].trackMomentumAtVtx().Rho()));
+    NtupleFactory_->FillFloat("electrons_#LostHits",((*EleHandle)[i].gsfTrack()->numberOfLostHits()));
+    NtupleFactory_->FillFloat("electrons_fbrem",((*EleHandle)[i].fbrem()));
+    NtupleFactory_->FillFloat("electrons_EseedOP",((*EleHandle)[i].eSeedClusterOverP()));
+    NtupleFactory_->FillInt("electrons_class",(int)((*EleHandle)[i].classification()));
     
       //ELE ID
     NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
@@ -1064,6 +1068,10 @@ void
     NtupleFactory_->AddFloat("electrons_Et");
     NtupleFactory_->AddFloat("electrons_pAtVtx");
     NtupleFactory_->AddFloat("electrons_ptAtVtx");
+    NtupleFactory_->AddFloat("electrons_#LostHits");
+    NtupleFactory_->AddFloat("electrons_fbrem");
+    NtupleFactory_->AddFloat("electrons_EseedOP");
+    NtupleFactory_->AddInt  ("electrons_class");
 
     NtupleFactory_->AddFloat("electrons_track_d0");
     NtupleFactory_->AddFloat("electrons_track_dz");
