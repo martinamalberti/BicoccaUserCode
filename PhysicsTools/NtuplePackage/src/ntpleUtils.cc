@@ -14,10 +14,9 @@ int GetTotalEvents(const std::string& histoName, const std::string& inputFileLis
   }
   
   int totalEvents = 0;
-  while(1)
+  while(!inFile.eof())
   {
     inFile >> buffer;
-    if(!inFile.good()) break;
 
     TFile* f = new TFile(buffer.c_str(), "READ");
     TH1F* histo = (TH1F*)(f -> Get(histoName.c_str()));
@@ -36,7 +35,7 @@ int GetTotalEvents(const std::string& histoName, const std::string& inputFileLis
 
 bool FillChain(TChain& chain, const std::string& inputFileList)
 {
-  std::ifstream inFile(inputFileList.c_str());
+  std::ifstream inFile(inputFileList.c_str(), std::ios::in);
   std::string buffer;
 
   if(!inFile.is_open())
@@ -45,10 +44,9 @@ bool FillChain(TChain& chain, const std::string& inputFileList)
     return false;
   }
   
-  while(1)
+  while(!inFile.eof())
   {
     inFile >> buffer;
-    if(!inFile.good()) break;
     chain.Add(buffer.c_str());
   }
 
