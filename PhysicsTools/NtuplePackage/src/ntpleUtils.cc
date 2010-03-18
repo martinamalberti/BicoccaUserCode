@@ -4,7 +4,7 @@
 
 int GetTotalEvents(const std::string& histoName, const std::string& inputFileList)
 {
-  std::ifstream inFile(inputFileList.c_str());
+  std::ifstream inFile(inputFileList.c_str(), std::ios::in);
   std::string buffer;
 
   if(!inFile.is_open())
