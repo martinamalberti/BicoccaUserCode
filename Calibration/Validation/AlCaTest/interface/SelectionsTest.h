@@ -53,11 +53,11 @@ class SelectionsTest : public edm::EDAnalyzer {
     std::vector<int> m_counter ;
     TH1F m_h1_poMpiOpi ;
     TH1F m_h1_poMpiOpi_sel ;
-    TH1F m_EseedOPout ;
-    TH1F m_EseedOPout_sel ;
-    TH1F m_EoPin ;
-    TH1F m_EoPin_sel ;
-    TH1F m_EoPout ;
-    TH1F m_EoPout_sel ;
+    TH1F m_h1_EseedOPout ;
+    TH1F m_h1_EseedOPout_sel ;
+    TH1F m_h1_EoPin ;
+    TH1F m_h1_EoPin_sel ;
+    TH1F m_h1_EoPout ;
+    TH1F m_h1_EoPout_sel ;
 } ;
 #endif

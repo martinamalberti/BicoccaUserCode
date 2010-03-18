@@ -65,12 +65,12 @@ SelectionsTest::SelectionsTest (const edm::ParameterSet& iConfig) :
   m_counter (std::vector<int> (0., 4)),
   m_h1_poMpiOpi     ("m_h1_poMpiOpi", "m_h1_poMpiOpi", 100, 0., 1.2) , 
   m_h1_poMpiOpi_sel ("m_h1_poMpiOpi_sel", "m_h1_poMpiOpi_sel", 100, 0., 1.2) ,  
-  m_EseedOPout      ("m_EseedOPout", "m_EseedOPout", 100, 0., 2.) , 
-  m_EseedOPout_sel  ("m_EseedOPout_sel", "m_EseedOPout_sel", 100, 0., 2.) , 
-  m_EoPin           ("m_EoPin", "m_EoPin", 100, 0., 2.) , 
-  m_EoPin_sel       ("m_EoPin_sel", "m_EoPin_sel", 100, 0., 2.) , 
-  m_EoPout          ("m_EoPout", "m_EoPout", 100, 0., 2.) , 
-  m_EoPout_sel      ("m_EoPout_sel", "m_EoPout_sel", 100, 0., 2.)  
+  m_h1_EseedOPout      ("m_h1_EseedOPout", "m_h1_EseedOPout", 100, 0., 2.) , 
+  m_h1_EseedOPout_sel  ("m_h1_EseedOPout_sel", "m_h1_EseedOPout_sel", 100, 0., 2.) , 
+  m_h1_EoPin           ("m_h1_EoPin", "m_h1_EoPin", 100, 0., 2.) , 
+  m_h1_EoPin_sel       ("m_h1_EoPin_sel", "m_h1_EoPin_sel", 100, 0., 2.) , 
+  m_h1_EoPout          ("m_h1_EoPout", "m_h1_EoPout", 100, 0., 2.) , 
+  m_h1_EoPout_sel      ("m_h1_EoPout_sel", "m_h1_EoPout_sel", 100, 0., 2.)  
 {}
 
 
@@ -99,6 +99,14 @@ SelectionsTest::endJob ()
 
   TFile outputFile (m_outputFileName.c_str (), "recreate") ;
   trend.Write () ;
+  m_h1_poMpiOpi.Write () ;
+  m_h1_poMpiOpi_sel.Write () ;
+  m_h1_EseedOPout.Write () ;
+  m_h1_EseedOPout_sel.Write () ; 
+  m_h1_EoPin.Write () ;
+  m_h1_EoPin_sel.Write () ;
+  m_h1_EoPout.Write () ;
+  m_h1_EoPout_sel.Write () ;
 //  edm::LogWarning ("loop") << "PIETRO endjob" ;
   outputFile.Close () ;
   return ;
@@ -135,23 +143,42 @@ SelectionsTest::analyze (const edm::Event& iEvent,
       double EseedOPout = eleIt->eSeedClusterOverPout () ;
       double EoPin = eleIt->eSuperClusterOverP () ;
       double EoPout = (ESC)/pOut;
+
+      m_h1_poMpiOpi.Fill (poMpiOpi) ; 
+      m_h1_EseedOPout.Fill (EseedOPout) ;
+      m_h1_EoPin.Fill (EoPin) ;
+      m_h1_EoPout.Fill (EoPout) ;
+
+      double sel = 1 ;
       if (poMpiOpi   > m_PinMPoutOPinMin && poMpiOpi   < m_PinMPoutOPinMax)   // min < fbrem < max
         {
           ++m_counter.at (0) ;
         } 
+      else sel = 0 ;  
       if (EseedOPout > m_ESeedOPoutMin   && EseedOPout < m_ESeedOPoutMax  )   // min < Eseed/pout < max
         {
           ++m_counter.at (1) ;
         } 
+      else sel = 0 ;  
       if (EoPin      > m_ESCOPinMin      && EoPin      < m_ESCOPinMax     )   // min < ESC/pin < max
         {
           ++m_counter.at (2) ;
         } 
+      else sel = 0 ;  
   	  if (EoPout     > m_EMPoutMin       && EoPout     < m_EMPoutMax      )   // min < ESC/pout < max
         {
           ++m_counter.at (3) ;
         } 
+      else sel = 0 ;  
 
+      if (sel)
+        {
+          m_h1_poMpiOpi_sel.Fill (poMpiOpi) ; 
+          m_h1_EseedOPout_sel.Fill (EseedOPout) ;
+          m_h1_EoPin_sel.Fill (EoPin) ;
+          m_h1_EoPout_sel.Fill (EoPout) ;
+        }
+       
     } //PG loop over electrons
 }
 
