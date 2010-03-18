@@ -35,7 +35,29 @@ class SelectionsTest : public edm::EDAnalyzer {
 
   private:
 
+    // I/O
     edm::InputTag m_ElectronLabel ;
     std::string m_outputFileName ;
+    
+    // selections thresholds
+    double m_PinMPoutOPinMin ;
+    double m_PinMPoutOPinMax ;
+    double m_ESeedOPoutMin ;
+    double m_ESeedOPoutMax ;
+    double m_ESCOPinMin ;
+    double m_ESCOPinMax ;
+    double m_EMPoutMin ;
+    double m_EMPoutMax ;
+
+    // efficiencies and distributions
+    std::vector<int> m_counter ;
+    TH1F m_h1_poMpiOpi ;
+    TH1F m_h1_poMpiOpi_sel ;
+    TH1F m_EseedOPout ;
+    TH1F m_EseedOPout_sel ;
+    TH1F m_EoPin ;
+    TH1F m_EoPin_sel ;
+    TH1F m_EoPout ;
+    TH1F m_EoPout_sel ;
 } ;
 #endif
