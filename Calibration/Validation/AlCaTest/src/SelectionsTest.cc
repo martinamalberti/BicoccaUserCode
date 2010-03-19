@@ -62,7 +62,7 @@ SelectionsTest::SelectionsTest (const edm::ParameterSet& iConfig) :
   m_ESCOPinMax      (iConfig.getParameter<double> ("ESCOPinMax")),
   m_EMPoutMin       (iConfig.getParameter<double> ("EMPoutMin")),
   m_EMPoutMax       (iConfig.getParameter<double> ("EMPoutMax")),
-  m_counter (std::vector<int> (0., 4)),
+  m_counter (std::vector<double> (6, 0)),
   m_h1_poMpiOpi     ("m_h1_poMpiOpi", "m_h1_poMpiOpi", 100, 0., 1.2) , 
   m_h1_poMpiOpi_sel ("m_h1_poMpiOpi_sel", "m_h1_poMpiOpi_sel", 100, 0., 1.2) ,  
   m_h1_EseedOPout      ("m_h1_EseedOPout", "m_h1_EseedOPout", 100, 0., 2.) , 
@@ -92,13 +92,13 @@ void
 SelectionsTest::endJob ()
 {      
   TGraph trend ;
-  trend.SetPoint (0, 1, m_counter.at (0)) ;
-  trend.SetPoint (1, 2, m_counter.at (1)) ;
-  trend.SetPoint (2, 3, m_counter.at (2)) ;
-  trend.SetPoint (4, 4, m_counter.at (3)) ;
+  trend.SetPoint (0, 1, m_counter.at (0) / m_counter.at (4)) ;
+  trend.SetPoint (1, 2, m_counter.at (1) / m_counter.at (4)) ;
+  trend.SetPoint (2, 3, m_counter.at (2) / m_counter.at (4)) ;
+  trend.SetPoint (4, 4, m_counter.at (3) / m_counter.at (4)) ;
 
   TFile outputFile (m_outputFileName.c_str (), "recreate") ;
-  trend.Write () ;
+  trend.Write ("selectionsTrend") ;
   m_h1_poMpiOpi.Write () ;
   m_h1_poMpiOpi_sel.Write () ;
   m_h1_EseedOPout.Write () ;
@@ -170,6 +170,8 @@ SelectionsTest::analyze (const edm::Event& iEvent,
           ++m_counter.at (3) ;
         } 
       else sel = 0 ;  
+      ++m_counter.at (4) ;
+      ++m_counter.at (5) ;
 
       if (sel)
         {

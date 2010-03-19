@@ -50,7 +50,7 @@ class SelectionsTest : public edm::EDAnalyzer {
     double m_EMPoutMax ;
 
     // efficiencies and distributions
-    std::vector<int> m_counter ;
+    std::vector<double> m_counter ;
     TH1F m_h1_poMpiOpi ;
     TH1F m_h1_poMpiOpi_sel ;
     TH1F m_h1_EseedOPout ;
