@@ -21,7 +21,7 @@
 
 
 /** get the number of events from a list of files */
-int GetTotalEvents(const std::string& histoName, const std::string& inputFileList);
+std::map<int, int> GetTotalEvents(const std::string& histoName, const std::string& inputFileList);
 
 /** fill a chain from a list of files */
 bool FillChain(TChain& chain, const std::string& inputFileList);
