@@ -61,6 +61,8 @@ class MCDumperTTBar
   const reco::Candidate* mcF1_fromV2() { return mcF1_fromV2_p; };
   const reco::Candidate* mcF2_fromV2() { return mcF2_fromV2_p; };
   
+  const std::vector<const reco::Candidate*>* mcFX_fromV1_TauParticles() { return &mcFX_fromV1_TauParticles_p; };
+  const std::vector<const reco::Candidate*>* mcFX_fromV2_TauParticles() { return &mcFX_fromV2_TauParticles_p; };
   
   
  private:
@@ -97,6 +99,10 @@ class MCDumperTTBar
   const reco::Candidate* mcF2_fromV1_p;
   const reco::Candidate* mcF1_fromV2_p;
   const reco::Candidate* mcF2_fromV2_p;
+  
+  std::vector<const reco::Candidate*> mcFX_fromV1_TauParticles_p;
+  std::vector<const reco::Candidate*> mcFX_fromV2_TauParticles_p;
+  
 };
 
 #endif
