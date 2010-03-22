@@ -34,7 +34,7 @@ process.TFileService = cms.Service(
 # --- INPUT  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.source = cms.Source(
     "PoolSource",
@@ -65,10 +65,14 @@ process.load("HiggsAnalysis.TTBarAnalysis.TTBarPreselection_antikt5CaloJets_cff"
 process.TTBarNtupleAntikt5CaloJets.eventType = cms.untracked.int32(0)
 process.TTBarNtupleAntikt5CaloJets.saveMC = cms.untracked.bool(True)
 
+
 process.load("HiggsAnalysis.TTBarAnalysis.TTBarPreselection_L2L3Antikt5CaloJets_cff")
 process.TTBarNtupleL2L3Antikt5CaloJets.eventType = cms.untracked.int32(0)
 process.TTBarNtupleL2L3Antikt5CaloJets.saveMC = cms.untracked.bool(True)
 
+process.load("HiggsAnalysis.TTBarAnalysis.TTBarPreselection_L2L3L5L7Antikt5CaloJets_cff")
+process.TTBarNtupleL2L3L5L7Antikt5CaloJets.eventType = cms.untracked.int32(0)
+process.TTBarNtupleL2L3L5L7Antikt5CaloJets.saveMC = cms.untracked.bool(True)
 
 
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
@@ -125,5 +129,8 @@ process.p6 = cms.Path(
     process.TTBarPreselectionSequenceL2L3Antikt5PFJets
     )
 
+process.p7 = cms.Path(
+    process.TTBarPreselectionSequenceL2L3L5L7Antikt5CaloJets
+    )
 
 
