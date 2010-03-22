@@ -215,6 +215,23 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
     mcF2_fromV1_p = buffer;
   }
   
+  //---- check if tau ---
+  if (abs(mcF1_fromV1_p -> pdgId()) == 15 || abs(mcF2_fromV1_p -> pdgId()) == 15){
+   if (abs(mcF1_fromV1_p -> pdgId()) == 15){
+//     std::vector<const reco::Candidate*> tauJBuffer;
+    std::vector<const reco::Candidate*> nuBuffer;
+    FindTauDecayParticles(mcFX_fromV1_TauParticles_p, nuBuffer, mcF1_fromV1_p, verbosity_p);
+//     mcFX_fromV1_TauParticles_p.push_back(tauJBuffer);
+   }
+   else if (abs(mcF2_fromV1_p -> pdgId()) == 15){
+//     std::vector<const reco::Candidate*> tauJBuffer;
+    std::vector<const reco::Candidate*> nuBuffer;
+    FindTauDecayParticles(mcFX_fromV1_TauParticles_p, nuBuffer, mcF2_fromV1_p, verbosity_p);
+//     mcFX_fromV1_TauParticles_p.push_back(tauJBuffer);
+   }
+  }
+   
+  
   
   std::vector<const reco::Candidate*> fFromV2Buffer;
   FindDaughterParticles(&mcV2_p, verbosity_p, 1, &fFromV2Buffer);
@@ -242,6 +259,24 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
     mcF1_fromV2_p = mcF2_fromV2_p;
     mcF2_fromV2_p = buffer;
   }
+  
+  if (abs(mcF1_fromV2_p -> pdgId()) == 15 || abs(mcF2_fromV2_p -> pdgId()) == 15){
+   if (abs(mcF1_fromV2_p -> pdgId()) == 15){
+//     std::vector<const reco::Candidate*> tauJBuffer;
+    std::vector<const reco::Candidate*> nuBuffer;
+    FindTauDecayParticles(mcFX_fromV2_TauParticles_p, nuBuffer, mcF1_fromV2_p, verbosity_p);
+//     mcFX_fromV2_TauParticles_p = tauJBuffer;
+   }
+   else if (abs(mcF2_fromV2_p -> pdgId()) == 15){
+//     std::vector<const reco::Candidate*> tauJBuffer;
+    std::vector<const reco::Candidate*> nuBuffer;
+    FindTauDecayParticles(mcFX_fromV2_TauParticles_p, nuBuffer, mcF2_fromV2_p, verbosity_p);
+//     mcFX_fromV2_TauParticles_p = tauJBuffer;
+   }
+  }
+
+  
+  
   
   
   GetVDecayMode(1);
