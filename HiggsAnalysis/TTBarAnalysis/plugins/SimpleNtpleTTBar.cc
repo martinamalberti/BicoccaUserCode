@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtpleTTBar.cc,v 1.5 2010/01/27 09:14:34 amassiro Exp $
+// $Id: SimpleNtpleTTBar.cc,v 1.6 2010/01/27 10:39:48 amassiro Exp $
 //
 //
 
@@ -161,6 +161,12 @@ void SimpleNtpleTTBar::fillMuInfo (const edm::Event & iEvent, const edm::EventSe
   NtupleFactory_->FillFloat("muons_3DipSignificance",((*Mu3DipSignificanceHandle)[muRef]));
   NtupleFactory_->FillFloat("muons_tipSignificance",((*MuTipSignificanceHandle)[muRef]));
   NtupleFactory_->FillFloat("muons_lipSignificance",((*MuLipSignificanceHandle)[muRef]));
+        
+  NtupleFactory_->FillFloat("muons_track_d0", ((*MuHandle)[i].track())->d0 ());
+  NtupleFactory_->FillFloat("muons_track_dz", ((*MuHandle)[i].track())->dz ());
+  NtupleFactory_->FillFloat("muons_track_d0err",  ((*MuHandle)[i].track())->d0Error ());
+  NtupleFactory_->FillFloat("muons_track_dzerr",  ((*MuHandle)[i].track())->dzError ());
+  
  }
 }
 
@@ -634,6 +640,15 @@ void SimpleNtpleTTBar::fillMCInfo (const edm::Event & iEvent, const edm::EventSe
   NtupleFactory_->FillFloat("mcF2_fromV2_charge",mcAnalysis.mcF2_fromV2()->charge());
   NtupleFactory_->FillFloat("mcF2_fromV2_pdgId",mcAnalysis.mcF2_fromV2()->pdgId());
         
+  for (int iPartTau = 0; iPartTau<mcAnalysis.mcFX_fromV1_TauParticles()->size(); iPartTau++ ){
+   NtupleFactory_->Fill4V("mcFX_fromV1_TauJet",mcAnalysis.mcFX_fromV1_TauParticles()->at(iPartTau)->p4());
+   NtupleFactory_->FillFloat("mcFX_fromV1_TauJet_pfgId",mcAnalysis.mcFX_fromV1_TauParticles()->at(iPartTau)->pdgId());    
+  }
+  for (int iPartTau = 0; iPartTau<mcAnalysis.mcFX_fromV2_TauParticles()->size(); iPartTau++ ){
+   NtupleFactory_->Fill4V("mcFX_fromV2_TauJet",mcAnalysis.mcFX_fromV2_TauParticles()->at(iPartTau)->p4());
+   NtupleFactory_->FillFloat("mcFX_fromV2_TauJet_pfgId",mcAnalysis.mcFX_fromV2_TauParticles()->at(iPartTau)->pdgId());    
+  }
+
  }
 }
 
@@ -697,6 +712,10 @@ void
   NtupleFactory_->AddFloat("muons_3DipSignificance");    
   NtupleFactory_->AddFloat("muons_tipSignificance");    
   NtupleFactory_->AddFloat("muons_lipSignificance");    
+  NtupleFactory_->AddFloat("muons_track_d0");
+  NtupleFactory_->AddFloat("muons_track_dz");
+  NtupleFactory_->AddFloat("muons_track_d0err");
+  NtupleFactory_->AddFloat("muons_track_dzerr");  
  }
   
  if(saveEle_)
@@ -796,7 +815,13 @@ void
  
   NtupleFactory_->Add4V("mcF2_fromV2");         
   NtupleFactory_->AddFloat("mcF2_fromV2_charge");    
-  NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");  
+  NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");    
+  
+  NtupleFactory_->Add4V("mcFX_fromV1_TauJet");         
+  NtupleFactory_->AddFloat("mcFX_fromV1_TauJet_pfgId");    
+  NtupleFactory_->Add4V("mcFX_fromV2_TauJet");         
+  NtupleFactory_->AddFloat("mcFX_fromV2_TauJet_pfgId");    
+  
  }
 }
    
