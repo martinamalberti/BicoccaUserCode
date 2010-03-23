@@ -98,6 +98,8 @@ void
 AlCaSuperClustersTest::endJob ()
 {      
   TFile output (m_outputFileName.c_str (),"recreate") ;
+  for (int iSCColl = 0 ; iSCColl < m_nSCColl ; ++iSCColl) m_energies.at (iSCColl)->Write () ;
+  
   output.Close () ;
   return ;
 }
@@ -171,10 +173,6 @@ AlCaSuperClustersTest::analyze (const edm::Event& iEvent,
     {
     } //PG loop over electrons
 }
-
-
-// ----------------------------------------------------------------
-
 
 
 
