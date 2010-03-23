@@ -76,7 +76,7 @@ class AlCaSuperClustersTest : public edm::EDAnalyzer {
   
     template <typename TColl>
     void fillHisto (
-      TH1F & energy_h1,
+      TH1F * energy_h1,
       edm::Handle<TColl> & handle 
       ) 
     {
@@ -85,7 +85,7 @@ class AlCaSuperClustersTest : public edm::EDAnalyzer {
            iSC != handle->end () ;
            ++iSC) 
         {
-          energy_h1.Fill (iSC->Energy ()) ;
+          energy_h1->Fill (iSC->energy ()) ;
         } //PG loop over the collection      
     }
   
