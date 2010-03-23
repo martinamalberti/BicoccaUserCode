@@ -54,7 +54,7 @@ AlCaSuperClustersTest::AlCaSuperClustersTest (const edm::ParameterSet& iConfig) 
   m_EB_SC         (iConfig.getParameter<edm::InputTag> ("EB_SC")),
   m_EB_SC_corr    (iConfig.getParameter<edm::InputTag> ("EB_SC_corr")),
   m_EE_SC         (iConfig.getParameter<edm::InputTag> ("EE_SC")),
-  m_EE_SC_corr    (iConfig.getParameter<edm::InputTag> ("EE_SC_corr")),
+  m_EE_SC_ES      (iConfig.getParameter<edm::InputTag> ("EE_SC_ES")),
   m_EE_SC_corr_ES (iConfig.getParameter<edm::InputTag> ("EE_SC_corr_ES")),
   m_ES_SC         (iConfig.getParameter<edm::InputTag> ("ES_SC")),
   m_HF_SC         (iConfig.getParameter<edm::InputTag> ("HF_SC")),
@@ -72,7 +72,7 @@ AlCaSuperClustersTest::AlCaSuperClustersTest (const edm::ParameterSet& iConfig) 
   m_energies.push_back (new TH1F ("EB_SC_E", "EB_SC_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("EB_SC_corr_E", "EB_SC_corr_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("EE_SC_E", "EE_SC_E", bins, min, max)) ; 
-  m_energies.push_back (new TH1F ("EE_SC_corr_E", "EE_SC_corr_E", bins, min, max)) ; 
+  m_energies.push_back (new TH1F ("EE_SC_ES_E", "EE_SC_ES_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("EE_SC_corr_SC_E", "EE_SC_corr_SC_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("ES_SC_E", "ES_SC_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("ES_HF_E", "ES_HF_E", bins, min, max)) ; 
@@ -131,10 +131,10 @@ AlCaSuperClustersTest::analyze (const edm::Event& iEvent,
   ++m_getCollStatus.at (iSCColl).at (outCode) ;
   fillHisto (m_energies.at (iSCColl++), h_EE_SC) ;  
 
-  Handle<SuperClusterCollection> h_EE_SC_corr ;   
-  outCode = getCollection (h_EE_SC_corr, m_EE_SC_corr, iEvent) ;
+  Handle<SuperClusterCollection> h_EE_SC_ES ;   
+  outCode = getCollection (h_EE_SC_ES, m_EE_SC_ES, iEvent) ;
   ++m_getCollStatus.at (iSCColl).at (outCode) ;
-  fillHisto (m_energies.at (iSCColl++), h_EE_SC_corr) ;  
+  fillHisto (m_energies.at (iSCColl++), h_EE_SC_ES) ;  
 
   Handle<SuperClusterCollection> h_EE_SC_corr_ES ;
   outCode = getCollection (h_EE_SC_corr_ES, m_EE_SC_corr_ES, iEvent) ;

@@ -42,7 +42,7 @@ class AlCaSuperClustersTest : public edm::EDAnalyzer {
     edm::InputTag m_EB_SC ;         // barrel superclusters (SC)
     edm::InputTag m_EB_SC_corr ;    // corrected barrel SC
     edm::InputTag m_EE_SC ;         // endcap SC
-    edm::InputTag m_EE_SC_corr ;    // corrected endcap SC
+    edm::InputTag m_EE_SC_ES ;      // endcap SC + preshower energy
     edm::InputTag m_EE_SC_corr_ES ; // corr. endcap SC + preshower energy
     edm::InputTag m_ES_SC ;         // preshower SC
     edm::InputTag m_HF_SC ;         // fwd calorimeter elctro magnetic SC
