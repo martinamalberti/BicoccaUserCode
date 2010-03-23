@@ -46,13 +46,23 @@
  ESCoP.SetLineColor(kBlue);
  HitsOe.SetLineColor(kBlue);
 
+ TLegend* leg = new TLegend(0.1,0.7,0.48,0.9);
+ leg->AddEntry(&etaDist,"","l");
+ leg->AddEntry(&etaDistOld,"","l");
+
+ TLegend* legMiddle = new TLegend(0.3333333,0.190678,0.7140805,0.3898305);
+ legMiddle->AddEntry(&etaDist,"","l");
+ legMiddle->AddEntry(&etaDistOld,"","l");
 
  TCanvas ccetaDist("ccetaDist","ccetaDist");
  etaDist.GetXaxis().SetTitle("#eta");
  etaDist.DrawNormalized();
  etaDistOld.DrawNormalized("same");
  ccetaDist.SetLogy();
- ccetaDist.BuildLegend();
+ legMiddle->Draw();
+//  ccetaDist.BuildLegend();
+ccetaDist.SetGrid();
+ ccetaDist.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_etaDist.gif");
 
  TCanvas ccenergy("ccenergy","ccenergy");
  energy.GetXaxis()->SetTitle("Energy [GeV]");
@@ -60,6 +70,8 @@
  energyOld.DrawNormalized("same");
  ccenergy.SetLogy();
  ccenergy.BuildLegend();
+ccenergy.SetGrid();
+ ccenergy.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_energy_dist.gif");
 
  TCanvas ccESCoP("ccESCoP","ccESCoP");
  ESCoP.GetXaxis()->SetTitle("E_{SC}/p");
@@ -67,17 +79,17 @@
  ESCoPOld.DrawNormalized("same");
  ccESCoP.SetLogy();
  ccESCoP.BuildLegend();
+ccESCoP.SetGrid();
+ ccESCoP.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_ESCoP_dist.gif");
 
  TCanvas ccHitsOe("ccHitsOe","ccHitsOe");
- HitsOeNew.GetXaxis()->SetTitle("#frac{#sum Hits}{energy}");
- HitsOeNew.DrawNormalized();
+ HitsOe.GetXaxis()->SetTitle("#frac{#sum Hits}{energy}");
+ HitsOe.DrawNormalized();
  HitsOeOld.DrawNormalized("same");
  ccHitsOe.SetLogy();
- ccHitsOe.BuildLegend();
-
- ccetaDist.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_etaDist.gif");
- ccenergy.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_energy_dist.gif");
- ccESCoP.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_ESCoP_dist.gif");
+//  ccHitsOe.BuildLegend();
+ leg->Draw();
+ ccHitsOe.SetGrid(); 
  ccHitsOe.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_HitsOe.gif");
 
  gApplication->Terminate(0);
