@@ -22,15 +22,15 @@ readFiles.extend( [
 
 
 process.alCaSuperClustersTest = cms.EDAnalyzer("AlCaSuperClustersTest",
-  EB_SC         = cms.inputTag ("hybridSuperClusters"),
-  EB_SC_corr    = cms.inputTag ("correctedHybridSuperClusters"),
-  EE_SC         = cms.inputTag ("multi5x5SuperClusters"),
-  EE_SC_ES      = cms.inputTag ("multi5x5SuperClustersWithPreshower"),
-  EE_SC_corr_ES = cms.inputTag ("correctedMulti5x5SuperClustersWithPreshower"),
-  ES_SC         = cms.inputTag ("FIXME"),
-  HF_SC         = cms.inputTag ("hfEMClusters"),
-  PF_SC         = cms.inputTag ("pfElectronTranslator"),
-  merge_SC      = cms.inputTag ("superClusterMerger"),
+  EB_SC         = cms.InputTag ("hybridSuperClusters"),
+  EB_SC_corr    = cms.InputTag ("correctedHybridSuperClusters"),
+  EE_SC         = cms.InputTag ("multi5x5SuperClusters"),
+  EE_SC_ES      = cms.InputTag ("multi5x5SuperClustersWithPreshower"),
+  EE_SC_corr_ES = cms.InputTag ("correctedMulti5x5SuperClustersWithPreshower"),
+  ES_SC         = cms.InputTag ("FIXME"),
+  HF_SC         = cms.InputTag ("hfEMClusters"),
+  PF_SC         = cms.InputTag ("pfElectronTranslator"),
+  merge_SC      = cms.InputTag ("superClusterMerger"),
   electronLabel = cms.InputTag("gsfElectrons"),
   HistOutFile   = cms.untracked.string("alCaSuperClustersTest.root")
   )
