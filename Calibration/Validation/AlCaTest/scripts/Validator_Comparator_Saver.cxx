@@ -48,22 +48,22 @@
 
 
  TCanvas ccetaDist("ccetaDist","ccetaDist");
- etaDistNew.GetXaxis().SetTitle("#eta");
- etaDistNew.DrawNormalized();
+ etaDist.GetXaxis().SetTitle("#eta");
+ etaDist.DrawNormalized();
  etaDistOld.DrawNormalized("same");
  ccetaDist.SetLogy();
  ccetaDist.BuildLegend();
 
  TCanvas ccenergy("ccenergy","ccenergy");
- energyNew.GetXaxis()->SetTitle("Energy [GeV]");
- energyNew.DrawNormalized();
+ energy.GetXaxis()->SetTitle("Energy [GeV]");
+ energy.DrawNormalized();
  energyOld.DrawNormalized("same");
  ccenergy.SetLogy();
  ccenergy.BuildLegend();
 
  TCanvas ccESCoP("ccESCoP","ccESCoP");
- ESCoPNew.GetXaxis()->SetTitle("E_{SC}/p");
- ESCoPNew.DrawNormalized();
+ ESCoP.GetXaxis()->SetTitle("E_{SC}/p");
+ ESCoP.DrawNormalized();
  ESCoPOld.DrawNormalized("same");
  ccESCoP.SetLogy();
  ccESCoP.BuildLegend();
@@ -80,7 +80,6 @@
  ccESCoP.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_ESCoP_dist.gif");
  ccHitsOe.SaveAs("~/public/html/AlCaRecoValidation/RelVal__NEWRELEASE_/SAMPLE_HitsOe.gif");
 
-
- fileNew.close();
+ gApplication->Terminate(0);
 
 }
