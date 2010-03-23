@@ -97,9 +97,17 @@ AlCaSuperClustersTest::beginJob ()
 void 
 AlCaSuperClustersTest::endJob ()
 {      
+  TH2F readingSummary ("readingSummary", "success = 0", m_nSCColl, 0, m_nSCColl, 2, 0, 2) ;
+  for (int iSCColl = 0 ; iSCColl < m_nSCColl ; ++iSCColl) 
+    {
+      readingSummary.Fill (iSCColl, 0., m_getCollStatus.at (iSCColl).at (0)) ;  
+      readingSummary.Fill (iSCColl, 1., m_getCollStatus.at (iSCColl).at (1)) ;  
+    }
+  readingSummary.SetStats (0) ;  
+    
   TFile output (m_outputFileName.c_str (),"recreate") ;
   for (int iSCColl = 0 ; iSCColl < m_nSCColl ; ++iSCColl) m_energies.at (iSCColl)->Write () ;
-  
+  readingSummary.Write () ;
   output.Close () ;
   return ;
 }
