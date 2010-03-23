@@ -64,7 +64,7 @@ AlCaSuperClustersTest::AlCaSuperClustersTest (const edm::ParameterSet& iConfig) 
                       ("HistOutFile",std::string ("AlCaSuperClustersTest.root"))) 
 {
   vector<double> dummy (2, 0.) ;
-  for (int iColl = 0 ; iColl < m_nSCColl ; ++iColl) m_getCollStatus.push_back (dummy) ;
+  for (int iSCColl = 0 ; iSCColl < m_nSCColl ; ++iSCColl) m_getCollStatus.push_back (dummy) ;
   double min = 0. ;
   double max = 100. ;
   int bins = 100 ;
@@ -109,29 +109,40 @@ void
 AlCaSuperClustersTest::analyze (const edm::Event& iEvent, 
                             const edm::EventSetup& iSetup)
 {
-//FIXME      ++m_getCollStatus.at (iColl).at (result) ;
   
+  // get each collection. save the output code.
+  int outCode = 0 ;
+  int iSCColl = 0 ;
   Handle<SuperClusterCollection> h_EB_SC ;        
-  getCollection (h_EB_SC, m_EB_SC, iEvent) ;
+  outCode = getCollection (h_EB_SC, m_EB_SC, iEvent) ;
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<SuperClusterCollection> h_EB_SC_corr ;   
-  getCollection (h_EB_SC_corr, m_EB_SC_corr, iEvent) ;
+  outCode = getCollection (h_EB_SC_corr, m_EB_SC_corr, iEvent) ;
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<SuperClusterCollection> h_EE_SC ;
-  getCollection (h_EE_SC, m_EE_SC, iEvent) ;        
+  outCode = getCollection (h_EE_SC, m_EE_SC, iEvent) ;        
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<SuperClusterCollection> h_EE_SC_corr ;   
-  getCollection (h_EE_SC_corr, m_EE_SC_corr, iEvent) ;
+  outCode = getCollection (h_EE_SC_corr, m_EE_SC_corr, iEvent) ;
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<SuperClusterCollection> h_EE_SC_corr_ES ;
-  getCollection (h_EE_SC_corr_ES, m_EE_SC_corr_ES, iEvent) ;
+  outCode = getCollection (h_EE_SC_corr_ES, m_EE_SC_corr_ES, iEvent) ;
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<PreshowerClusterCollection> h_ES_SC ;       
-  getCollection (h_ES_SC, m_ES_SC, iEvent) ; 
+  outCode = getCollection (h_ES_SC, m_ES_SC, iEvent) ; 
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<SuperClusterCollection> h_HF_SC ;        
-  getCollection (h_HF_SC, m_HF_SC, iEvent) ;
+  outCode = getCollection (h_HF_SC, m_HF_SC, iEvent) ;
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<SuperClusterCollection> h_PF_SC ;  //PG FIXME controlla qs   
-  getCollection (h_PF_SC, m_PF_SC, iEvent) ;   
+  outCode = getCollection (h_PF_SC, m_PF_SC, iEvent) ;   
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<SuperClusterCollection> h_merge_SC ;  
-  getCollection (h_merge_SC, m_merge_SC, iEvent) ;   
+  outCode = getCollection (h_merge_SC, m_merge_SC, iEvent) ;   
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   Handle<reco::GsfElectronCollection> pElectrons ;
-  getCollection (pElectrons, m_ElectronLabel, iEvent) ;   
-
+  outCode = getCollection (pElectrons, m_ElectronLabel, iEvent) ;   
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
 
   //PG loop on the electrons
   for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin () ;
