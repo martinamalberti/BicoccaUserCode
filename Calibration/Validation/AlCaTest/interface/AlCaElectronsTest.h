@@ -85,5 +85,6 @@ class AlCaElectronsTest : public edm::EDAnalyzer {
     double m_momentum;
     double m_ndof;
     double m_chisN;
+    
 } ;
 #endif
