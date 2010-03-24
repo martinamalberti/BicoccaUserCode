@@ -50,17 +50,17 @@ using namespace std ;
 
 
 AlCaSuperClustersTest::AlCaSuperClustersTest (const edm::ParameterSet& iConfig) :
-  m_nSCColl (9),
+  m_nSCColl (10),
   m_EB_SC         (iConfig.getParameter<edm::InputTag> ("EB_SC")),
   m_EB_SC_corr    (iConfig.getParameter<edm::InputTag> ("EB_SC_corr")),
   m_EE_SC         (iConfig.getParameter<edm::InputTag> ("EE_SC")),
   m_EE_SC_ES      (iConfig.getParameter<edm::InputTag> ("EE_SC_ES")),
-  m_EE_SC_corr_ES (iConfig.getParameter<edm::InputTag> ("EE_SC_corr_ES")),
-  m_ES_SC         (iConfig.getParameter<edm::InputTag> ("ES_SC")),
+  m_EE_SC_ES_corr (iConfig.getParameter<edm::InputTag> ("EE_SC_ES_corr")),
+  m_ES_SC_X       (iConfig.getParameter<edm::InputTag> ("ES_SC_X")),
+  m_ES_SC_Y       (iConfig.getParameter<edm::InputTag> ("ES_SC_Y")),
   m_HF_SC         (iConfig.getParameter<edm::InputTag> ("HF_SC")),
   m_PF_SC         (iConfig.getParameter<edm::InputTag> ("PF_SC")),
   m_merge_SC      (iConfig.getParameter<edm::InputTag> ("merge_SC")),
-  m_ElectronLabel (iConfig.getParameter<edm::InputTag> ("electronLabel")),
   m_outputFileName (iConfig.getUntrackedParameter<std::string>
                       ("HistOutFile",std::string ("AlCaSuperClustersTest.root"))) 
 {
@@ -73,8 +73,9 @@ AlCaSuperClustersTest::AlCaSuperClustersTest (const edm::ParameterSet& iConfig) 
   m_energies.push_back (new TH1F ("EB_SC_corr_E", "EB_SC_corr_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("EE_SC_E", "EE_SC_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("EE_SC_ES_E", "EE_SC_ES_E", bins, min, max)) ; 
-  m_energies.push_back (new TH1F ("EE_SC_corr_SC_E", "EE_SC_corr_SC_E", bins, min, max)) ; 
-  m_energies.push_back (new TH1F ("ES_SC_E", "ES_SC_E", bins, min, max)) ; 
+  m_energies.push_back (new TH1F ("EE_SC_ES_corr_E", "EE_SC_ES_corr_E", bins, min, max)) ; 
+  m_energies.push_back (new TH1F ("ES_SC_E_X", "ES_SC_E_X", bins, min, max)) ; 
+  m_energies.push_back (new TH1F ("ES_SC_E_Y", "ES_SC_E_Y", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("ES_HF_E", "ES_HF_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("ES_PF_E", "ES_PF_E", bins, min, max)) ; 
   m_energies.push_back (new TH1F ("ES_merge_E", "ES_merge_E", bins, min, max)) ; 
@@ -144,15 +145,20 @@ AlCaSuperClustersTest::analyze (const edm::Event& iEvent,
   ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_EE_SC_ES) ;  
 
-  Handle<SuperClusterCollection> h_EE_SC_corr_ES ;
-  outCode = getCollection (h_EE_SC_corr_ES, m_EE_SC_corr_ES, iEvent) ;
+  Handle<SuperClusterCollection> h_EE_SC_ES_corr ;
+  outCode = getCollection (h_EE_SC_ES_corr, m_EE_SC_ES_corr, iEvent) ;
   ++m_getCollStatus.at (iSCColl++).at (outCode) ;
-  if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_EE_SC_corr_ES) ;  
+  if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_EE_SC_ES_corr) ;  
 
-  Handle<PreshowerClusterCollection> h_ES_SC ;       
-  outCode = getCollection (h_ES_SC, m_ES_SC, iEvent) ; 
+  Handle<PreshowerClusterCollection> h_ES_SC_X ;       
+  outCode = getCollection (h_ES_SC_X, m_ES_SC_X, iEvent) ; 
   ++m_getCollStatus.at (iSCColl++).at (outCode) ;
-  if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_ES_SC) ;  
+  if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_ES_SC_X) ;  
+
+  Handle<PreshowerClusterCollection> h_ES_SC_Y ;       
+  outCode = getCollection (h_ES_SC_Y, m_ES_SC_Y, iEvent) ; 
+  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
+  if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_ES_SC_Y) ;  
 
   Handle<SuperClusterCollection> h_HF_SC ;        
   outCode = getCollection (h_HF_SC, m_HF_SC, iEvent) ;
@@ -169,21 +175,10 @@ AlCaSuperClustersTest::analyze (const edm::Event& iEvent,
   ++m_getCollStatus.at (iSCColl++).at (outCode) ;
   if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_merge_SC) ;  
 
-  Handle<reco::GsfElectronCollection> pElectrons ;
-  outCode = getCollection (pElectrons, m_ElectronLabel, iEvent) ;   
-//  ++m_getCollStatus.at (iSCColl++).at (outCode) ;
-//  if (!outCode) fillHisto (m_energies.at (iSCColl - 1), h_EB_SC_corr) ;  
-
-  //PG loop on the electrons
-  for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin () ;
-       eleIt != pElectrons->end () ;
-       ++eleIt) 
-    {
-    } //PG loop over electrons
 }
 
 
 
 
-//PG FIXME ctrl di avere tutti i cristalli
+//PG FIXME ctrl di avere tutti i cristalli <-- questo con un altro analyzer
 //PG FIXME ctrl quanti SC fanno parte degli elettroni

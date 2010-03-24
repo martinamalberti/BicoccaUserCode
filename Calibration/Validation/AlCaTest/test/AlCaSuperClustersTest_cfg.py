@@ -32,7 +32,6 @@ process.alCaSuperClustersTest = cms.EDAnalyzer("AlCaSuperClustersTest",
   HF_SC         = cms.InputTag ("hfEMClusters"),
   PF_SC         = cms.InputTag ("pfElectronTranslator:pf"),
   merge_SC      = cms.InputTag ("superClusterMerger"),
-  electronLabel = cms.InputTag("gsfElectrons"),
   HistOutFile   = cms.untracked.string("alCaSuperClustersTest.root")
   )
 

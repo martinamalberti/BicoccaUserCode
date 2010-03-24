@@ -43,13 +43,13 @@ class AlCaSuperClustersTest : public edm::EDAnalyzer {
     edm::InputTag m_EB_SC_corr ;    // corrected barrel SC
     edm::InputTag m_EE_SC ;         // endcap SC
     edm::InputTag m_EE_SC_ES ;      // endcap SC + preshower energy
-    edm::InputTag m_EE_SC_corr_ES ; // corr. endcap SC + preshower energy
-    edm::InputTag m_ES_SC ;         // preshower SC
+    edm::InputTag m_EE_SC_ES_corr ; // corr. endcap SC + preshower energy
+    edm::InputTag m_ES_SC_X ;       // preshower SC
+    edm::InputTag m_ES_SC_Y ;       // preshower SC
     edm::InputTag m_HF_SC ;         // fwd calorimeter elctro magnetic SC
     edm::InputTag m_PF_SC ;         // particle flow SC
     edm::InputTag m_merge_SC ;      // merged SC
 
-    edm::InputTag m_ElectronLabel ;
     std::string m_outputFileName ;
 
     std::vector<std::vector<double> > m_getCollStatus ;
@@ -77,7 +77,7 @@ class AlCaSuperClustersTest : public edm::EDAnalyzer {
     template <typename TColl>
     void fillHisto (
       TH1F * energy_h1,
-      edm::Handle<TColl> & handle 
+      const edm::Handle<TColl> & handle 
       ) 
     {
       //PG loop over the collection
@@ -88,7 +88,6 @@ class AlCaSuperClustersTest : public edm::EDAnalyzer {
           energy_h1->Fill (iSC->energy ()) ;
         } //PG loop over the collection      
     }
-  
-     
+       
 } ;
 #endif
