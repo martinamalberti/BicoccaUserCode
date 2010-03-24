@@ -8,5 +8,8 @@ DEFINE_ANOTHER_FWK_MODULE (AlCaElectronsTest) ;
 #include "Validation/AlCaTest/interface/AlCaSuperClustersTest.h"
 DEFINE_ANOTHER_FWK_MODULE (AlCaSuperClustersTest) ;
 
+#include "Validation/AlCaTest/interface/AlCaL1Efficiencies.h"
+DEFINE_ANOTHER_FWK_MODULE (AlCaL1Efficiencies) ;
+
 #include "Validation/AlCaTest/interface/SelectionsTest.h"
 DEFINE_ANOTHER_FWK_MODULE (SelectionsTest) ;
