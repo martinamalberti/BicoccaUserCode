@@ -155,32 +155,28 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
      DetId Max = 0 ;
      if ( (fabs (eleIt->eta ())<1.49))
        {
-         DetId temp ;
-         temp = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),barrelHitsCollection).first ;
-         Max=temp ;
+         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),barrelHitsCollection).first ;
        }
      else 
        {
-         DetId temp ;
-         temp = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),endcapHitsCollection).first ;
-         Max=temp ;
+         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),endcapHitsCollection).first ;
        }
-     if (Max.det () == 0){ continue ; }  
+     if (Max.det () == 0) { continue ; }  
      if ( Max.subdetId () == EcalBarrel  ) //PG in the barrel
        {
          EBDetId EBMax (Max) ;    
          EBRecHitCollection::const_iterator itrechit ;
          itrechit = barrelHitsCollection->find (Max) ;
-         m_barrelGlobalCrystalsMap->Fill (
-                EBMax.ieta () ,
-                EBMax.iphi () 
-              ) ;
-         fillAroundBarrel (
-             barrelHitsCollection, 
-             EBMax.ieta (), 
-             EBMax.iphi (),
-             pTk 
-            ) ;
+//         m_barrelGlobalCrystalsMap->Fill (
+//                EBMax.ieta () ,
+//                EBMax.iphi () 
+//              ) ;
+//         fillAroundBarrel (
+//             barrelHitsCollection, 
+//             EBMax.ieta (), 
+//             EBMax.iphi (),
+//             pTk 
+//            ) ;
        } //PG in the barrel
      
      else //PG in the endcap
@@ -189,16 +185,16 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
          EEDetId EEMax (Max) ;  
          EERecHitCollection::const_iterator itrechit ;
          itrechit = endcapHitsCollection->find (Max) ;
-         m_endcapGlobalCrystalsMap->Fill (
-                EEMax.ix () ,
-                EEMax.iy () 
-              ) ;
-         fillAroundEndcap (
-            endcapHitsCollection, 
-            EEMax.ix (), 
-            EEMax.iy (),
-            pTk
-            ) ;
+//         m_endcapGlobalCrystalsMap->Fill (
+//                EEMax.ix () ,
+//                EEMax.iy () 
+//              ) ;
+//         fillAroundEndcap (
+//            endcapHitsCollection, 
+//            EEMax.ix (), 
+//            EEMax.iy (),
+//            pTk
+//            ) ;
        } //PG in the endcap
    } //PG loop over electrons
 
