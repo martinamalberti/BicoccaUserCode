@@ -5,6 +5,9 @@ DEFINE_SEAL_MODULE();
 #include "Validation/AlCaTest/interface/AlCaElectronsTest.h"
 DEFINE_ANOTHER_FWK_MODULE (AlCaElectronsTest) ;
 
+#include "Validation/AlCaTest/interface/AlCaRecHitsTest.h"
+DEFINE_ANOTHER_FWK_MODULE (AlCaRecHitsTest) ;
+
 #include "Validation/AlCaTest/interface/AlCaSuperClustersTest.h"
 DEFINE_ANOTHER_FWK_MODULE (AlCaSuperClustersTest) ;
 
