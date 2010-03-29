@@ -17,6 +17,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 //DS momentum
@@ -139,7 +140,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
      ++iRecHit)
     {
       ESDetId elementId = iRecHit->id () ; 
-//      map->Fill (elementId.ix (), elementId.iy ()) ;
+//      map->Fill (elementId.six (), elementId.siy ()) ;
     }   
 
   
