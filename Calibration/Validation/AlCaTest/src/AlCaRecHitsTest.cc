@@ -135,19 +135,19 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   //PG fill bare maps
   // -----------------
   
-  for (EcalRecHitCollection::const_iterator iRecHit = m_barrelRecHits->begin () ;
-     iRecHit != m_barrelRecHits->end () ;
+  for (EcalRecHitCollection::const_iterator iRecHit = barrelRecHitsHandle->begin () ;
+     iRecHit != barrelRecHitsHandle->end () ;
      ++iRecHit)
     {
-      ESDetId elementId = iRecHit->id () ; 
+      EBDetId elementId = iRecHit->id () ; 
       m_barrelGlobalCrystalsMap->Fill (elementId.ieta (), elementId.iphi ()) ;
     }   
   
-  for (EcalRecHitCollection::const_iterator iRecHit = m_endcapRecHits->begin () ;
-     iRecHit != m_endcapRecHits->end () ;
+  for (EcalRecHitCollection::const_iterator iRecHit = endcapRecHitsHandle->begin () ;
+     iRecHit != endcapRecHitsHandle->end () ;
      ++iRecHit)
     {
-      ESDetId elementId = iRecHit->id () ; 
+      EExDetId elementId = iRecHit->id () ; 
       m_endcapGlobalCrystalsMap->Fill (elementId.ix (), elementId.iy ()) ;
     }   
  
