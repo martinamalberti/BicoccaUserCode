@@ -69,7 +69,7 @@ AlCaRecHitsTest::beginJob ()
   m_barrelGlobalCrystalsMap ->SetDirectory (0) ;
   m_endcapGlobalCrystalsMap = new TH2F ("m_endcapGlobalCrystalsMap","m_endcapGlobalCrystalsMap",100,0,100,100,0,100) ;
   m_endcapGlobalCrystalsMap ->SetDirectory (0) ;
-  m_preshowerGlobalChannelsMap = new TH2F ("m_preshowerGlobalChannelsMap","m_preshowerGlobalChannelsMap",100,0,100,100,0,100) ;
+  m_preshowerGlobalChannelsMap = new TH2F ("m_preshowerGlobalChannelsMap","m_preshowerGlobalChannelsMap",100,0,40,100,0,40) ;
   m_preshowerGlobalChannelsMap ->SetDirectory (0) ;
 
   //Energy around the MOX 
