@@ -174,7 +174,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
           EBDetId EBMax (Max) ;
 
           //PG some of these will be out of range, that's ok
-          m_barrelLocalCrystalsMap->Fill (elementId.ieta () - EBMax.ieta (), elementId.iphi () - EBMax.iphi ()) ;
+          m_barrelLocalCrystalsMap->Fill (eleIt->id ().ieta () - EBMax.ieta (), eleIt->id ().iphi () - EBMax.iphi ()) ;
         }
     
 //    TH2F * m_endcapLocalCrystalsMap ;
