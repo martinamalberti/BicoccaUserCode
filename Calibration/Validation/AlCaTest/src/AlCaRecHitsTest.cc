@@ -107,10 +107,7 @@ void
 AlCaRecHitsTest::analyze (const edm::Event& iEvent, 
                             const edm::EventSetup& iSetup)
 {
-  double energia5 = 0 ;
-  m_pTk = 0. ;
-  math::XYZVector Zmoment (0.,0.,0.) ;
-  double  Zenergy=0 ;
+  double pTk = 0. ;
   //get the EB rechit collection
   Handle<EBRecHitCollection> barrelRecHitsHandle ;
   const EBRecHitCollection*  barrelHitsCollection = 0 ;
@@ -140,14 +137,12 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
             {
               EBRecHitCollection::const_iterator itrechit = barrelHitsCollection->find ( (*rh).first) ;
               if (itrechit==barrelHitsCollection->end ()) continue ;
-              m_recHits+=itrechit->energy () ;
             }
       
           if ( (*rh).first.subdetId ()== EcalEndcap)
             {
               EERecHitCollection::const_iterator itrechit = endcapHitsCollection->find ( (*rh).first) ;
               if (itrechit==endcapHitsCollection->end ()) continue ;
-              m_recHits+=itrechit->energy () ;
             }
           else
             { 
@@ -156,7 +151,6 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
             }
     
         } //PG loop on SC crystals Ids
-     if (m_energy>40) ++i ;
      //PG look for the max detid in the cluster relative to the electron
      DetId Max = 0 ;
      if ( (fabs (eleIt->eta ())<1.49))
@@ -185,7 +179,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
              barrelHitsCollection, 
              EBMax.ieta (), 
              EBMax.iphi (),
-             m_pTk 
+             pTk 
             ) ;
        } //PG in the barrel
      
@@ -203,7 +197,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
             endcapHitsCollection, 
             EEMax.ix (), 
             EEMax.iy (),
-            m_pTk
+            pTk
             ) ;
        } //PG in the endcap
    } //PG loop over electrons
