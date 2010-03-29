@@ -186,7 +186,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
       if (eleIt->isEE ())
         {
           DetId Max = findMax (endcapHitsCollection) ;
-          EEDetId EBMax (Max) ;
+          EEDetId EEMax (Max) ;
         
           for (EcalRecHitCollection::const_iterator iRecHit = endcapRecHitsHandle->begin () ;
             iRecHit != endcapRecHitsHandle->end () ;
