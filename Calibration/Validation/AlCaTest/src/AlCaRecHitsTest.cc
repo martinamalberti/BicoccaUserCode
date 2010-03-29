@@ -197,7 +197,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
            }   
 
           Max = findMax (preshowerHitsCollection) ;
-          ESDetId EEMax (Max) ;
+          ESDetId ESMax (Max) ;
 
           for (EcalRecHitCollection::const_iterator iRecHit = preshowerRecHitsHandle->begin () ;
              iRecHit != preshowerRecHitsHandle->end () ;
