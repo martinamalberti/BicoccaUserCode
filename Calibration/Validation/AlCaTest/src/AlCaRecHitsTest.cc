@@ -112,12 +112,12 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   Handle<EBRecHitCollection> barrelRecHitsHandle ;
   const EBRecHitCollection*  barrelHitsCollection = 0 ;
   iEvent.getByLabel (m_barrelRecHits, barrelRecHitsHandle) ;
-//  barrelHitsCollection = barrelRecHitsHandle.product () ; // get a ptr to the product
+  barrelHitsCollection = barrelRecHitsHandle.product () ; // get a ptr to the product
 
   Handle<EERecHitCollection> endcapRecHitsHandle ;
   const EERecHitCollection*  endcapHitsCollection = 0 ; 
   iEvent.getByLabel (m_endcapRecHits,endcapRecHitsHandle) ;
-//  endcapHitsCollection = endcapRecHitsHandle.product () ; // get a ptr to the product
+  endcapHitsCollection = endcapRecHitsHandle.product () ; // get a ptr to the product
   
   edm::Handle<reco::GsfElectronCollection> pElectrons ;
   iEvent.getByLabel (m_ElectronLabel, pElectrons) ;
