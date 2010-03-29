@@ -155,17 +155,13 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
             }
     
         } //PG loop on SC crystals Ids
-//     //PG look for the max detid in the cluster relative to the electron
-//     DetId Max = 0 ;
-//     if ( (fabs (eleIt->eta ())<1.49))
-//       {
-//         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),barrelHitsCollection).first ;
-//       }
-//     else 
-//       {
-//         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),endcapHitsCollection).first ;
-//       }
-//     if (Max.det () == 0) { continue ; }  
+     //PG look for the max detid in the cluster relative to the electron
+     DetId Max = 0 ;
+     if ( (fabs (eleIt->eta ())<1.49))
+       Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),barrelHitsCollection).first ;
+     else 
+       Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),endcapHitsCollection).first ;
+     if (Max.det () == 0) { continue ; }  
 //     if ( Max.subdetId () == EcalBarrel  ) //PG in the barrel
 //       {
 //         EBDetId EBMax (Max) ;    
