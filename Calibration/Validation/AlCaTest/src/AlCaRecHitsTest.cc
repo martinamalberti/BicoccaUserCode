@@ -113,6 +113,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   const EBRecHitCollection*  barrelHitsCollection = 0 ;
   iEvent.getByLabel (m_barrelRecHits, barrelRecHitsHandle) ;
   barrelHitsCollection = barrelRecHitsHandle.product () ; // get a ptr to the product
+  // this is necessary for the hitsAndFractions to work!
 
   Handle<EERecHitCollection> endcapRecHitsHandle ;
   const EERecHitCollection*  endcapHitsCollection = 0 ; 
@@ -140,17 +141,17 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
               if (itrechit==barrelHitsCollection->end ()) continue ;
             }
       
-//          if ( (*rh).first.subdetId ()== EcalEndcap)
-//            {
-//              EERecHitCollection::const_iterator itrechit = endcapHitsCollection->find ( (*rh).first) ;
-//              if (itrechit==endcapHitsCollection->end ()) continue ;
-//            }
-//          else
-//            { 
-////              std::cerr<<"something is wrong about where the hit is\n" ;
-////              std::cerr<<"subDetID= "<< (*rh).first.subdetId ()<<"\n" ;
-//            }
-//    
+          if ( (*rh).first.subdetId ()== EcalEndcap)
+            {
+              EERecHitCollection::const_iterator itrechit = endcapHitsCollection->find ( (*rh).first) ;
+              if (itrechit==endcapHitsCollection->end ()) continue ;
+            }
+          else
+            { 
+//              std::cerr<<"something is wrong about where the hit is\n" ;
+//              std::cerr<<"subDetID= "<< (*rh).first.subdetId ()<<"\n" ;
+            }
+    
         } //PG loop on SC crystals Ids
 //     //PG look for the max detid in the cluster relative to the electron
 //     DetId Max = 0 ;
