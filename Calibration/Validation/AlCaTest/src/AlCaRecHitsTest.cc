@@ -303,11 +303,11 @@ AlCaRecHitsTest::findMax (const EcalRecHitCollection * recHits)
       if (dummy > max)
         {
           max = dummy ;
-          output = *elem ;
+          output = elem->id () ;
         }
         
     }   
-  return  output ;
+  return output ;
 }
 
 
