@@ -135,18 +135,32 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   //PG fill bare maps
   // -----------------
   
+  for (EcalRecHitCollection::const_iterator iRecHit = m_barrelRecHits->begin () ;
+     iRecHit != m_barrelRecHits->end () ;
+     ++iRecHit)
+    {
+      ESDetId elementId = iRecHit->id () ; 
+      m_barrelGlobalCrystalsMap->Fill (elementId.ieta (), elementId.iphi ()) ;
+    }   
+  
+  for (EcalRecHitCollection::const_iterator iRecHit = m_endcapRecHits->begin () ;
+     iRecHit != m_endcapRecHits->end () ;
+     ++iRecHit)
+    {
+      ESDetId elementId = iRecHit->id () ; 
+      m_endcapGlobalCrystalsMap->Fill (elementId.ix (), elementId.iy ()) ;
+    }   
+ 
   for (EcalRecHitCollection::const_iterator iRecHit = preshowerRecHitsHandle->begin () ;
      iRecHit != preshowerRecHitsHandle->end () ;
      ++iRecHit)
     {
       ESDetId elementId = iRecHit->id () ; 
-//      map->Fill (elementId.six (), elementId.siy ()) ;
+      m_preshowerGlobalChannelsMap->Fill (elementId.six (), elementId.siy ()) ;
     }   
 
   
   //PG loop on the electrons
-  int i=0 ;
-  bool EE=0 ;
   int regionIDfailures = 0 ;
   for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin () ;
        eleIt != pElectrons->end () ;
