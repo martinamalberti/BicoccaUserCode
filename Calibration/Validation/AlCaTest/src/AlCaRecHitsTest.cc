@@ -147,7 +147,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
      iRecHit != endcapRecHitsHandle->end () ;
      ++iRecHit)
     {
-      EExDetId elementId = iRecHit->id () ; 
+      EEDetId elementId = iRecHit->id () ; 
       m_endcapGlobalCrystalsMap->Fill (elementId.ix (), elementId.iy ()) ;
     }   
  
