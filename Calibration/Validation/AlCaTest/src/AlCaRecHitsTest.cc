@@ -169,7 +169,8 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
       //PG barrel
       if (eleIt->isEB ())
         {
-          DetId Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (), barrelHitsCollection).first ;
+//          DetId Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (), barrelHitsCollection).first ;
+          DetId Max = findMax (barrelHitsCollection) ;
 
         
         }

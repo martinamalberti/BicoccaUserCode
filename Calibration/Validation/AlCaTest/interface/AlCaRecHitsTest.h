@@ -40,7 +40,7 @@ class AlCaRecHitsTest : public edm::EDAnalyzer {
      void fillAroundEndcap (const EcalRecHitCollection * recHits, 
                             int ics, int ips, double momentum) ;
 
-     DetId findMax (const EcalRecHitCollection * ) ;
+     DetId findMax (const EcalRecHitCollection *) ;
 
   private:
 
