@@ -129,6 +129,19 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   
   edm::Handle<reco::GsfElectronCollection> pElectrons ;
   iEvent.getByLabel (m_ElectronLabel, pElectrons) ;
+
+
+  //PG fill bare maps
+  // -----------------
+  
+  for (EcalRecHitCollection::const_iterator iRecHit = recHits->begin () ;
+     iRecHit != recHits->end () ;
+     ++iRecHit)
+    {
+      ESDetId iRecHitentId = iRecHit->id () ; 
+//      map->Fill (iRecHitentId.ix (), iRecHitentId.iy ()) ;
+    }   
+
   
   //PG loop on the electrons
   int i=0 ;
@@ -243,6 +256,26 @@ AlCaRecHitsTest::fillAroundEndcap (const EcalRecHitCollection * recHits, int ics
       m_endcapLocalCrystalsMap->Fill (
         elementId.ix () - ics ,
         elementId.iy () - ips
+      ) ;
+    }   
+  return ;
+}
+
+
+// ----------------------------------------------------------------
+
+
+void
+AlCaRecHitsTest::fillBareMap (const EcalRecHitCollection * recHits, TH2F * map)
+{
+  for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
+       elem != recHits->end () ;
+       ++elem)
+    {
+      EEDetId elementId = elem->id () ; 
+      map->Fill (
+        elementId.ix () ,
+        elementId.iy ()
       ) ;
     }   
   return ;
