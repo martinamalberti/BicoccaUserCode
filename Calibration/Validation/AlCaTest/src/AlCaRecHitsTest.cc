@@ -88,17 +88,14 @@ AlCaRecHitsTest::beginJob ()
 void 
 AlCaRecHitsTest::endJob ()
 {      
-   m_File = new TFile (m_outputFileName.c_str (),"recreate") ;
-  edm::LogWarning ("loop") << "PIETRO endjob" ;
+  TFile output (m_outputFileName.c_str (), "recreate") ;
   m_barrelGlobalCrystalsMap->Write () ; 
   m_endcapGlobalCrystalsMap->Write () ;  
   m_preshowerGlobalChannelsMap->Write () ;  
   m_barrelLocalCrystalsMap->Write () ;
   m_endcapLocalCrystalsMap->Write () ;
   m_preshowerLocalChannelsMap->Write () ;
-  m_tree->Write () ;
-  Zee->Write () ;
-  m_File->Close () ;
+  output.Close () ;
   return ;
 }
 
