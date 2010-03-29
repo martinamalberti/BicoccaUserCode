@@ -138,8 +138,8 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
      iRecHit != preshowerRecHitsHandle->end () ;
      ++iRecHit)
     {
-      ESDetId iRecHitentId = iRecHit->id () ; 
-//      map->Fill (iRecHitentId.ix (), iRecHitentId.iy ()) ;
+      ESDetId elementId = iRecHit->id () ; 
+//      map->Fill (elementId.ix (), elementId.iy ()) ;
     }   
 
   
@@ -261,24 +261,5 @@ AlCaRecHitsTest::fillAroundEndcap (const EcalRecHitCollection * recHits, int ics
   return ;
 }
 
-
-// ----------------------------------------------------------------
-
-
-void
-AlCaRecHitsTest::fillBareMap (const EcalRecHitCollection * recHits, TH2F * map)
-{
-  for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
-       elem != recHits->end () ;
-       ++elem)
-    {
-      EEDetId elementId = elem->id () ; 
-      map->Fill (
-        elementId.ix () ,
-        elementId.iy ()
-      ) ;
-    }   
-  return ;
-}
 
 
