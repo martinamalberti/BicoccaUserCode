@@ -110,15 +110,22 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   double pTk = 0. ;
   //get the EB rechit collection
   Handle<EBRecHitCollection> barrelRecHitsHandle ;
-  const EBRecHitCollection*  barrelHitsCollection = 0 ;
   iEvent.getByLabel (m_barrelRecHits, barrelRecHitsHandle) ;
+  const EBRecHitCollection * barrelHitsCollection = 0 ;
   barrelHitsCollection = barrelRecHitsHandle.product () ; // get a ptr to the product
   // this is necessary for the hitsAndFractions to work!
 
+  //get the EE rechit collection
   Handle<EERecHitCollection> endcapRecHitsHandle ;
-  const EERecHitCollection*  endcapHitsCollection = 0 ; 
-  iEvent.getByLabel (m_endcapRecHits,endcapRecHitsHandle) ;
+  iEvent.getByLabel (m_endcapRecHits, endcapRecHitsHandle) ;
+  const EERecHitCollection * endcapHitsCollection = 0 ; 
   endcapHitsCollection = endcapRecHitsHandle.product () ; // get a ptr to the product
+  
+  //get the ES rechit collection
+  Handle<ESRecHitCollection> preshowerRecHitsHandle ;
+  iEvent.getByLabel (m_preshowerRecHits, preshowerRecHitsHandle) ;
+  const ESRecHitCollection * preshowerHitsCollection = 0 ; 
+  preshowerHitsCollection = preshowerRecHitsHandle.product () ; // get a ptr to the product
   
   edm::Handle<reco::GsfElectronCollection> pElectrons ;
   iEvent.getByLabel (m_ElectronLabel, pElectrons) ;
