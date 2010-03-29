@@ -195,11 +195,18 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
              EEDetId elementId = iRecHit->id () ; 
              m_endcapLocalCrystalsMap->Fill (elementId.ix () - EEMax.ix (), elementId.iy () - EEMax.iy ()) ;
            }   
-          //PG FIXME preshower 
-       
+
+          Max = findMax (preshowerHitsCollection) ;
+          ESDetId EEMax (Max) ;
+
+          for (EcalRecHitCollection::const_iterator iRecHit = preshowerRecHitsHandle->begin () ;
+             iRecHit != preshowerRecHitsHandle->end () ;
+             ++iRecHit)
+            {
+              ESDetId elementId = iRecHit->id () ; 
+              m_preshowerLocalChannelsMap->Fill (elementId.six () - ESMax.six (), elementId.siy () - ESMax.siy ()) ;
+            }          
         }
-//    TH2F * m_endcapLocalCrystalsMap ;
-//    TH2F * m_preshowerLocalChannelsMap ;
     
       const std::vector<std::pair<DetId,float> > & hits = eleIt->superCluster ()->hitsAndFractions () ;
       //PG loop on SC crystals Ids
