@@ -129,7 +129,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
        eleIt != pElectrons->end () ;
        ++eleIt) 
     {
-//      const std::vector<std::pair<DetId,float> > & hits = eleIt->superCluster ()->hitsAndFractions () ;
+      const std::vector<std::pair<DetId,float> > & hits = eleIt->superCluster ()->hitsAndFractions () ;
 //      //PG loop on SC crystals Ids
 //      for (std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin () ;
 //           rh!=hits.end () ; ++rh)
