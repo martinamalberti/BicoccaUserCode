@@ -171,10 +171,14 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
         {
 //          DetId Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (), barrelHitsCollection).first ;
           DetId Max = findMax (barrelHitsCollection) ;
+          EBDetId EBMax (Max) ;
 
-        
+          //PG some of these will be out of range, that's ok
+          m_barrelLocalCrystalsMap->Fill (elementId.ieta () - EBMax.ieta (), elementId.iphi () - EBMax.iphi ()) ;
         }
     
+//    TH2F * m_endcapLocalCrystalsMap ;
+//    TH2F * m_preshowerLocalChannelsMap ;
     
       const std::vector<std::pair<DetId,float> > & hits = eleIt->superCluster ()->hitsAndFractions () ;
       //PG loop on SC crystals Ids
@@ -304,8 +308,7 @@ AlCaRecHitsTest::findMax (const EcalRecHitCollection * recHits)
         {
           max = dummy ;
           output = elem->id () ;
-        }
-        
+        }       
     }   
   return output ;
 }
