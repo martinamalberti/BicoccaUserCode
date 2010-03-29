@@ -134,8 +134,8 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   //PG fill bare maps
   // -----------------
   
-  for (EcalRecHitCollection::const_iterator iRecHit = recHits->begin () ;
-     iRecHit != recHits->end () ;
+  for (EcalRecHitCollection::const_iterator iRecHit = preshowerRecHitsHandle->begin () ;
+     iRecHit != preshowerRecHitsHandle->end () ;
      ++iRecHit)
     {
       ESDetId iRecHitentId = iRecHit->id () ; 
