@@ -134,12 +134,12 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
       for (std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin () ;
            rh!=hits.end () ; ++rh)
         {
-//          if ( (*rh).first.subdetId ()== EcalBarrel)
-//            {
-//              EBRecHitCollection::const_iterator itrechit = barrelHitsCollection->find ( (*rh).first) ;
-//              if (itrechit==barrelHitsCollection->end ()) continue ;
-//            }
-//      
+          if ( (*rh).first.subdetId ()== EcalBarrel)
+            {
+              EBRecHitCollection::const_iterator itrechit = barrelHitsCollection->find ( (*rh).first) ;
+              if (itrechit==barrelHitsCollection->end ()) continue ;
+            }
+      
 //          if ( (*rh).first.subdetId ()== EcalEndcap)
 //            {
 //              EERecHitCollection::const_iterator itrechit = endcapHitsCollection->find ( (*rh).first) ;
