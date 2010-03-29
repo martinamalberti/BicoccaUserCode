@@ -126,6 +126,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   //PG loop on the electrons
   int i=0 ;
   bool EE=0 ;
+  int regionIDfailures = 0 ;
   for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin () ;
        eleIt != pElectrons->end () ;
        ++eleIt) 
@@ -148,6 +149,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
             }
           else
             { 
+              ++regionIDfailures ;
 //              std::cerr<<"something is wrong about where the hit is\n" ;
 //              std::cerr<<"subDetID= "<< (*rh).first.subdetId ()<<"\n" ;
             }
