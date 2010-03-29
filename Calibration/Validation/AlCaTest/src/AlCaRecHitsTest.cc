@@ -130,10 +130,10 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
        ++eleIt) 
     {
       const std::vector<std::pair<DetId,float> > & hits = eleIt->superCluster ()->hitsAndFractions () ;
-//      //PG loop on SC crystals Ids
-//      for (std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin () ;
-//           rh!=hits.end () ; ++rh)
-//        {
+      //PG loop on SC crystals Ids
+      for (std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin () ;
+           rh!=hits.end () ; ++rh)
+        {
 //          if ( (*rh).first.subdetId ()== EcalBarrel)
 //            {
 //              EBRecHitCollection::const_iterator itrechit = barrelHitsCollection->find ( (*rh).first) ;
@@ -151,7 +151,7 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
 ////              std::cerr<<"subDetID= "<< (*rh).first.subdetId ()<<"\n" ;
 //            }
 //    
-//        } //PG loop on SC crystals Ids
+        } //PG loop on SC crystals Ids
 //     //PG look for the max detid in the cluster relative to the electron
 //     DetId Max = 0 ;
 //     if ( (fabs (eleIt->eta ())<1.49))
