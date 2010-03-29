@@ -183,6 +183,21 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
             }
         }
     
+      if (eleIt->isEE ())
+        {
+          DetId Max = findMax (endcapHitsCollection) ;
+          EEDetId EBMax (Max) ;
+        
+          for (EcalRecHitCollection::const_iterator iRecHit = endcapRecHitsHandle->begin () ;
+            iRecHit != endcapRecHitsHandle->end () ;
+            ++iRecHit)
+           {
+             EEDetId elementId = iRecHit->id () ; 
+             m_endcapLocalCrystalsMap->Fill (elementId.ix () - EEMax.ix (), elementId.iy () - EEMax.iy ()) ;
+           }   
+          //PG FIXME preshower 
+       
+        }
 //    TH2F * m_endcapLocalCrystalsMap ;
 //    TH2F * m_preshowerLocalChannelsMap ;
     
