@@ -132,8 +132,8 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
   iEvent.getByLabel (m_ElectronLabel, pElectrons) ;
 
 
-  //PG fill bare maps
-  // -----------------
+  //PG fill rechit maps
+  // ------------------
   
   for (EcalRecHitCollection::const_iterator iRecHit = barrelRecHitsHandle->begin () ;
      iRecHit != barrelRecHitsHandle->end () ;
@@ -166,21 +166,30 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
        eleIt != pElectrons->end () ;
        ++eleIt) 
     {
+      //PG barrel
+      if (eleIt->isEB ())
+        {
+          DetId Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (), barrelHitsCollection).first ;
+
+        
+        }
+    
+    
       const std::vector<std::pair<DetId,float> > & hits = eleIt->superCluster ()->hitsAndFractions () ;
       //PG loop on SC crystals Ids
       for (std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin () ;
            rh!=hits.end () ; ++rh)
         {
-          if ( (*rh).first.subdetId ()== EcalBarrel)
+          if ( (*rh).first.subdetId () == EcalBarrel)
             {
               EBRecHitCollection::const_iterator itrechit = barrelHitsCollection->find ( (*rh).first) ;
-              if (itrechit==barrelHitsCollection->end ()) continue ;
+              if (itrechit == barrelHitsCollection->end ()) continue ;
             }
       
-          if ( (*rh).first.subdetId ()== EcalEndcap)
+          if ( (*rh).first.subdetId () == EcalEndcap)
             {
               EERecHitCollection::const_iterator itrechit = endcapHitsCollection->find ( (*rh).first) ;
-              if (itrechit==endcapHitsCollection->end ()) continue ;
+              if (itrechit == endcapHitsCollection->end ()) continue ;
             }
           else
             { 
@@ -193,9 +202,9 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
      //PG look for the max detid in the cluster relative to the electron
      DetId Max = 0 ;
      if ( (fabs (eleIt->eta ())<1.49))
-       Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),barrelHitsCollection).first ;
+       Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (), barrelHitsCollection).first ;
      else 
-       Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),endcapHitsCollection).first ;
+       Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (), endcapHitsCollection).first ;
      if (Max.det () == 0) { continue ; }  
 //     if ( Max.subdetId () == EcalBarrel  ) //PG in the barrel
 //       {
@@ -276,5 +285,28 @@ AlCaRecHitsTest::fillAroundEndcap (const EcalRecHitCollection * recHits, int ics
   return ;
 }
 
+
+// ----------------------------------------------------------------
+
+
+DetId 
+AlCaRecHitsTest::findMax (const EcalRecHitCollection * recHits)
+{
+  DetId output ;
+  double max = -1. ;
+  for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
+       elem != recHits->end () ;
+       ++elem)
+    {
+      double dummy = elem->energy () ;
+      if (dummy > max)
+        {
+          max = dummy ;
+          output = *elem ;
+        }
+        
+    }   
+  return  output ;
+}
 
 
