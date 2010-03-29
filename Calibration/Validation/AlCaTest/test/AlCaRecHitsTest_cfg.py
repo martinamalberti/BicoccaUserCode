@@ -25,7 +25,7 @@ process.alCaRecHitsTest = cms.EDAnalyzer("AlCaRecHitsTest",
   electronLabel        = cms.InputTag ("gsfElectrons") ,
   alcaBarrelRecHits    = cms.InputTag ("alCaIsolatedElectrons:alcaBarrelHits") ,
   alcaEndcapRecHits    = cms.InputTag ("alCaIsolatedElectrons:alcaEndcapHits") ,
-  alcaPreshowerRecHits = cms.InputTag ("alCaIsolatedElectrons:alcaEndcapHits") ,
+  alcaPreshowerRecHits = cms.InputTag ("alCaIsolatedElectrons:alcaPreshowerHits") ,
   HistOutFile          = cms.untracked.string ("alCaRecHitsTest.root")
   )
 
