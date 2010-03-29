@@ -128,74 +128,74 @@ AlCaRecHitsTest::analyze (const edm::Event& iEvent,
        eleIt != pElectrons->end () ;
        ++eleIt) 
     {
-      const std::vector<std::pair<DetId,float> > & hits= eleIt->superCluster ()->hitsAndFractions () ;
-      //PG loop on SC crystals Ids
-      for (std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin () ;
-           rh!=hits.end () ; ++rh)
-        {
-          if ( (*rh).first.subdetId ()== EcalBarrel)
-            {
-              EBRecHitCollection::const_iterator itrechit = barrelHitsCollection->find ( (*rh).first) ;
-              if (itrechit==barrelHitsCollection->end ()) continue ;
-            }
-      
-          if ( (*rh).first.subdetId ()== EcalEndcap)
-            {
-              EERecHitCollection::const_iterator itrechit = endcapHitsCollection->find ( (*rh).first) ;
-              if (itrechit==endcapHitsCollection->end ()) continue ;
-            }
-          else
-            { 
-//              std::cerr<<"something is wrong about where the hit is\n" ;
-//              std::cerr<<"subDetID= "<< (*rh).first.subdetId ()<<"\n" ;
-            }
-    
-        } //PG loop on SC crystals Ids
-     //PG look for the max detid in the cluster relative to the electron
-     DetId Max = 0 ;
-     if ( (fabs (eleIt->eta ())<1.49))
-       {
-         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),barrelHitsCollection).first ;
-       }
-     else 
-       {
-         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),endcapHitsCollection).first ;
-       }
-     if (Max.det () == 0) { continue ; }  
-     if ( Max.subdetId () == EcalBarrel  ) //PG in the barrel
-       {
-         EBDetId EBMax (Max) ;    
-         EBRecHitCollection::const_iterator itrechit ;
-         itrechit = barrelHitsCollection->find (Max) ;
-//         m_barrelGlobalCrystalsMap->Fill (
-//                EBMax.ieta () ,
-//                EBMax.iphi () 
-//              ) ;
-//         fillAroundBarrel (
-//             barrelHitsCollection, 
-//             EBMax.ieta (), 
-//             EBMax.iphi (),
-//             pTk 
-//            ) ;
-       } //PG in the barrel
-     
-     else //PG in the endcap
-       {      
-         EE=1 ;
-         EEDetId EEMax (Max) ;  
-         EERecHitCollection::const_iterator itrechit ;
-         itrechit = endcapHitsCollection->find (Max) ;
-//         m_endcapGlobalCrystalsMap->Fill (
-//                EEMax.ix () ,
-//                EEMax.iy () 
-//              ) ;
-//         fillAroundEndcap (
-//            endcapHitsCollection, 
-//            EEMax.ix (), 
-//            EEMax.iy (),
-//            pTk
-//            ) ;
-       } //PG in the endcap
+//      const std::vector<std::pair<DetId,float> > & hits = eleIt->superCluster ()->hitsAndFractions () ;
+//      //PG loop on SC crystals Ids
+//      for (std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin () ;
+//           rh!=hits.end () ; ++rh)
+//        {
+//          if ( (*rh).first.subdetId ()== EcalBarrel)
+//            {
+//              EBRecHitCollection::const_iterator itrechit = barrelHitsCollection->find ( (*rh).first) ;
+//              if (itrechit==barrelHitsCollection->end ()) continue ;
+//            }
+//      
+//          if ( (*rh).first.subdetId ()== EcalEndcap)
+//            {
+//              EERecHitCollection::const_iterator itrechit = endcapHitsCollection->find ( (*rh).first) ;
+//              if (itrechit==endcapHitsCollection->end ()) continue ;
+//            }
+//          else
+//            { 
+////              std::cerr<<"something is wrong about where the hit is\n" ;
+////              std::cerr<<"subDetID= "<< (*rh).first.subdetId ()<<"\n" ;
+//            }
+//    
+//        } //PG loop on SC crystals Ids
+//     //PG look for the max detid in the cluster relative to the electron
+//     DetId Max = 0 ;
+//     if ( (fabs (eleIt->eta ())<1.49))
+//       {
+//         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),barrelHitsCollection).first ;
+//       }
+//     else 
+//       {
+//         Max = EcalClusterTools::getMaximum (eleIt->superCluster ()->hitsAndFractions (),endcapHitsCollection).first ;
+//       }
+//     if (Max.det () == 0) { continue ; }  
+//     if ( Max.subdetId () == EcalBarrel  ) //PG in the barrel
+//       {
+//         EBDetId EBMax (Max) ;    
+//         EBRecHitCollection::const_iterator itrechit ;
+//         itrechit = barrelHitsCollection->find (Max) ;
+////         m_barrelGlobalCrystalsMap->Fill (
+////                EBMax.ieta () ,
+////                EBMax.iphi () 
+////              ) ;
+////         fillAroundBarrel (
+////             barrelHitsCollection, 
+////             EBMax.ieta (), 
+////             EBMax.iphi (),
+////             pTk 
+////            ) ;
+//       } //PG in the barrel
+//     
+//     else //PG in the endcap
+//       {      
+//         EE=1 ;
+//         EEDetId EEMax (Max) ;  
+//         EERecHitCollection::const_iterator itrechit ;
+//         itrechit = endcapHitsCollection->find (Max) ;
+////         m_endcapGlobalCrystalsMap->Fill (
+////                EEMax.ix () ,
+////                EEMax.iy () 
+////              ) ;
+////         fillAroundEndcap (
+////            endcapHitsCollection, 
+////            EEMax.ix (), 
+////            EEMax.iy (),
+////            pTk
+////            ) ;
+//       } //PG in the endcap
    } //PG loop over electrons
 
 }
