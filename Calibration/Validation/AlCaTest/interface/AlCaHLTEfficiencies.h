@@ -40,9 +40,8 @@ class AlCaHLTEfficiencies : public edm::EDAnalyzer {
 
   private:
 
-    std::string m_outputFileName ;
-    /// InputTag for the L1 Global Trigger DAQ readout record
     edm::InputTag m_HLTResultsTag ;
+    std::string m_outputFileName ;
        
 } ;
 #endif

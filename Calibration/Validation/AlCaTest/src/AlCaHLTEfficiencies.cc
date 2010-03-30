@@ -98,17 +98,17 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   edm::Handle<TriggerResults> HLTHandle ;
   iEvent.getByLabel (m_HLTResultsTag, HLTHandle) ;
 
-  if (!HLTHandle->isValid ()) {
-      edm::LogWarning ("AlCaHLTEfficiencies")
-              << "\nWarning: L1GlobalTriggerReadoutRecord with input tag "
-              << m_L1GtReadoutRecordTag
-              << "\nrequested in configuration, but not found in the event."
-              << std::endl ;
+//  if (!HLTHandle->isValid ()) {
+//      edm::LogWarning ("AlCaHLTEfficiencies")
+//              << "\nWarning: L1GlobalTriggerReadoutRecord with input tag "
+//              << m_L1GtReadoutRecordTag
+//              << "\nrequested in configuration, but not found in the event."
+//              << std::endl ;
+//
+//      return ;
+//    }
 
-      return ;
-    }
-
-   
+  return ; 
 }
 
 

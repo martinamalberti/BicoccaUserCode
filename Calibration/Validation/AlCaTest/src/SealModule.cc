@@ -14,5 +14,8 @@ DEFINE_ANOTHER_FWK_MODULE (AlCaSuperClustersTest) ;
 #include "Validation/AlCaTest/interface/AlCaL1Efficiencies.h"
 DEFINE_ANOTHER_FWK_MODULE (AlCaL1Efficiencies) ;
 
+#include "Validation/AlCaTest/interface/AlCaHLTEfficiencies.h"
+DEFINE_ANOTHER_FWK_MODULE (AlCaHLTEfficiencies) ;
+
 #include "Validation/AlCaTest/interface/SelectionsTest.h"
 DEFINE_ANOTHER_FWK_MODULE (SelectionsTest) ;
