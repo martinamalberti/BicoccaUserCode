@@ -20,15 +20,7 @@
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-
+#include "DataFormats/Common/interface/TriggerResults.h"
 //DS momentum
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -95,7 +87,7 @@ void
 AlCaHLTEfficiencies::analyze (const edm::Event& iEvent, 
                             const edm::EventSetup& iSetup)
 {
-  edm::Handle<TriggerResults> HLTHandle ;
+  Handle<TriggerResults> HLTHandle ;
   iEvent.getByLabel (m_HLTResultsTag, HLTHandle) ;
 
 //  if (!HLTHandle->isValid ()) {
