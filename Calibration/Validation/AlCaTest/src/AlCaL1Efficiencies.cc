@@ -59,6 +59,7 @@ using namespace std ;
 
 
 AlCaL1Efficiencies::AlCaL1Efficiencies (const edm::ParameterSet& iConfig) :
+  m_L1GtReadoutRecordTag (iConfig.getParameter<edm::InputTag> ("L1GtRecordInputTag")),
   m_outputFileName (iConfig.getUntrackedParameter<std::string>
                       ("HistOutFile",std::string ("AlCaL1Efficiencies.root"))) 
 {
@@ -95,14 +96,14 @@ AlCaL1Efficiencies::analyze (const edm::Event& iEvent,
                             const edm::EventSetup& iSetup)
 {
   edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord ;
-  iEvent.getByLabel (m_l1GtReadoutRecordTag, gtReadoutRecord) ;
+  iEvent.getByLabel (m_L1GtReadoutRecordTag, gtReadoutRecord) ;
   const L1GlobalTriggerReadoutRecord* gtReadoutRecordPtr =
           gtReadoutRecord.product () ;
 
   if (!gtReadoutRecord.isValid ()) {
       edm::LogWarning ("AlCaL1Efficiencies")
               << "\nWarning: L1GlobalTriggerReadoutRecord with input tag "
-              << m_l1GtReadoutRecordTag
+              << m_L1GtReadoutRecordTag
               << "\nrequested in configuration, but not found in the event."
               << std::endl ;
 
