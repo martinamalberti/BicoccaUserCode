@@ -108,8 +108,10 @@ AlCaL1Efficiencies::analyze (const edm::Event& iEvent,
               << std::endl ;
 
       return ;
-  }
+    }
 
+  std::cout << gtReadoutRecord->decision () << std::endl ;
+  gtReadoutRecord->decisionWord () ;
    
 }
 
