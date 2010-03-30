@@ -8,7 +8,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-        wantSummary = cms.untracked.bool(True)
+        wantSummary = cms.untracked.bool(True),
+        SkipEvent = cms.untracked.vstring('ProductNotFound')
         )
 
 readFiles = cms.untracked.vstring()
