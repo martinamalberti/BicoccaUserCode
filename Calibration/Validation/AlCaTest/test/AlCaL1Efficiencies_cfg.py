@@ -23,10 +23,10 @@ readFiles.extend( [
 
 process.alCaL1Efficiencies = cms.EDAnalyzer("AlCaL1Efficiencies",
 #  electronLabel        = cms.InputTag ("gsfElectrons") ,
-  L1GtRecordInputTag   = cms.InputTag ("FIXME") ,
+  L1GtRecordInputTag   = cms.InputTag ("gtDigis") ,
   HistOutFile          = cms.untracked.string ("AlCaL1Efficiencies.root")
   )
 
-process.path = cms.Path(process.AlCaL1Efficiencies)
+process.path = cms.Path(process.alCaL1Efficiencies)
 
 
