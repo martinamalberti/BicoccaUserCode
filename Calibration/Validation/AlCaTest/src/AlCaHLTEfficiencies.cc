@@ -90,16 +90,6 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   Handle<TriggerResults> HLTHandle ;
   iEvent.getByLabel (m_HLTResultsTag, HLTHandle) ;
 
-  if (!HLTHandle->isValid ()) {
-      edm::LogWarning ("AlCaHLTEfficiencies")
-              << "\nWarning: HLTResultsTag with input tag "
-              << m_HLTResultsTag
-              << "\nrequested in configuration, but not found in the event."
-              << std::endl ;
-
-      return ;
-    }
-
   return ; 
 }
 
