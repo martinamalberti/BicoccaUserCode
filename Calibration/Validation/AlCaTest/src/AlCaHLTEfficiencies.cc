@@ -92,8 +92,8 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
 
   if (!HLTHandle->isValid ()) {
       edm::LogWarning ("AlCaHLTEfficiencies")
-              << "\nWarning: L1GlobalTriggerReadoutRecord with input tag "
-              << m_L1GtReadoutRecordTag
+              << "\nWarning: HLTResultsTag with input tag "
+              << m_HLTResultsTag
               << "\nrequested in configuration, but not found in the event."
               << std::endl ;
 
