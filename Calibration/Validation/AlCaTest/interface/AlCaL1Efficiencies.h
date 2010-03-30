@@ -42,7 +42,7 @@ class AlCaL1Efficiencies : public edm::EDAnalyzer {
 
     std::string m_outputFileName ;
     /// InputTag for the L1 Global Trigger DAQ readout record
-    edm::InputTag m_l1GtReadoutRecordTag ;
+    edm::InputTag m_L1GtReadoutRecordTag ;
        
 } ;
 #endif
