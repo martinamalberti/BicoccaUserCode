@@ -92,6 +92,7 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   if (!HLTHandle.isValid ()) return ;
 
   const edm::TriggerNames & triggerNames = iEvent.triggerNames (*HLTHandle) ;
+  const ParameterSetID & HLTHandle->parameterSetID () ;
 
   return ; 
 }
