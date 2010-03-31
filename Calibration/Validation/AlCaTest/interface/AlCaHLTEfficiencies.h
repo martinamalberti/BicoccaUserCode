@@ -12,6 +12,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <memory>
 #include <string>
