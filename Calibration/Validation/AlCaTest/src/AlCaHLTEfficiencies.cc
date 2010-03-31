@@ -98,7 +98,7 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   const ParameterSetID & HLTPSetID = HLTHandle->parameterSetID () ;
 
   // decision for each HL algorithm
-  const unsigned int HLTNum (triggerNames.size ()) ;
+  const unsigned int HLTNum (triggerNames.triggerNames ().size ()) ;
   for (unsigned int iHLT = 0 ; iHLT < HLTNum ; ++iHLT) 
   {
     if (HLTR->wasrun (iHLT)) {} // ++hlWasRun_[iHLT] ;
