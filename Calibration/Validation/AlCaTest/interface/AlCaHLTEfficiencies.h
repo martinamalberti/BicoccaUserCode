@@ -44,7 +44,7 @@ class AlCaHLTEfficiencies : public edm::EDAnalyzer {
     edm::InputTag m_HLTResultsTag ;
     std::string m_outputFileName ;
     
-    const ParameterSetID m_HLTPSetID ;
+    const edm::ParameterSetID m_HLTPSetID ;
        
 } ;
 #endif

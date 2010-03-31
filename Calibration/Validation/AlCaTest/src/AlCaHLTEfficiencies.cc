@@ -21,7 +21,6 @@
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
 //DS momentum
