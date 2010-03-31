@@ -101,9 +101,9 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   const unsigned int HLTNum (triggerNames.triggerNames ().size ()) ;
   for (unsigned int iHLT = 0 ; iHLT < HLTNum ; ++iHLT) 
   {
-    if (HLTR->wasrun (iHLT)) {} // ++hlWasRun_[iHLT] ;
-    if (HLTR->accept (iHLT)) {} // ++hlAccept_[iHLT] ;
-    if (HLTR->error (iHLT) ) {} // ++hlErrors_[iHLT] ;
+    if (HLTHandle->wasrun (iHLT)) {} // ++hlWasRun_[iHLT] ;
+    if (HLTHandle->accept (iHLT)) {} // ++hlAccept_[iHLT] ;
+    if (HLTHandle->error (iHLT) ) {} // ++hlErrors_[iHLT] ;
   }
 
   return ; 
