@@ -97,7 +97,7 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   //PG this is used to see whether the trigger settings are changed
   const ParameterSetID & HLTPSetID = HLTHandle->parameterSetID () ;
 
-  triggerNames.triggerNames () ;
+  std::vector<std::string> names = triggerNames.triggerNames () ;
   // decision for each HL algorithm
 //  const unsigned int HLTNum (triggerNames.triggerNames ().size ()) ;
   const unsigned int HLTNum (10) ;
