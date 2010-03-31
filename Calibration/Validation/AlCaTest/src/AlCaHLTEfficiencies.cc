@@ -97,8 +97,10 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   //PG this is used to see whether the trigger settings are changed
   const ParameterSetID & HLTPSetID = HLTHandle->parameterSetID () ;
 
+  triggerNames.triggerNames () ;
   // decision for each HL algorithm
-  const unsigned int HLTNum (triggerNames.triggerNames ().size ()) ;
+//  const unsigned int HLTNum (triggerNames.triggerNames ().size ()) ;
+  const unsigned int HLTNum (10) ;
   for (unsigned int iHLT = 0 ; iHLT < HLTNum ; ++iHLT) 
   {
     if (HLTHandle->wasrun (iHLT)) {} // ++hlWasRun_[iHLT] ;
