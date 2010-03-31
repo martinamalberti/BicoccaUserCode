@@ -92,6 +92,7 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   if (!HLTHandle.isValid ()) return ;
 
   const edm::TriggerNames & triggerNames = iEvent.triggerNames (*HLTHandle) ;
+  //PG this is used to see whether the trigger settings are changed
   const ParameterSetID & HLTHandle->parameterSetID () ;
 
   return ; 
