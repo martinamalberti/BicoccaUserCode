@@ -56,7 +56,8 @@ using namespace std ;
 AlCaHLTEfficiencies::AlCaHLTEfficiencies (const edm::ParameterSet& iConfig) :
   m_HLTResultsTag (iConfig.getParameter<edm::InputTag> ("HLTResultsTag")),
   m_outputFileName (iConfig.getUntrackedParameter<std::string>
-                      ("HistOutFile",std::string ("AlCaHLTEfficiencies.root"))) 
+                      ("HistOutFile",std::string ("AlCaHLTEfficiencies.root"))),
+  m_HLTPSetID () 
 {
 }
 
