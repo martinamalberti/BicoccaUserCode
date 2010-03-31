@@ -22,6 +22,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 //DS momentum
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
