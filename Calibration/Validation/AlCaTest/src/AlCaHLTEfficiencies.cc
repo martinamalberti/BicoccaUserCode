@@ -21,6 +21,8 @@
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+
 //DS momentum
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
