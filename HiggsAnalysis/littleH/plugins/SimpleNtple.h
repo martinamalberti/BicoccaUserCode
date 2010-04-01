@@ -73,6 +73,7 @@
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 #include <TTree.h>
+#include <TH1.h>
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
 #include <TParticle.h>
@@ -110,7 +111,7 @@ class SimpleNtple : public EDAnalyzer {
     void fillBeamSpotInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void findOniaCategories (const Event & iEvent, const EventSetup & iESetup) ;
     void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, reco::Vertex &PV, const int oniacato);
-    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV);
+    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV, TLorentzVector & lep1_4mom, TLorentzVector & lep2_4mom);
     double PhiInRange(const double& phi) const;
 
     template <class T> TLorentzVector lorentzMomentumMu(const T & muon) const;
@@ -155,6 +156,11 @@ class SimpleNtple : public EDAnalyzer {
   
     int hltBits[NHLTTRIGGERS];
     int l1tBits[NL1TTRIGGERS];
+    
+    int HLTcounters [NHLTTRIGGERS+1+1] ; //Count Triggered Events. Same order defined for HLTbitNames + 1 counter for FakeEleHLT + 1 counter keeping the number of analyzed events 
+    
+    TH1F * h_HLTcounters ;
+
   
     HLTConfigProvider hltConfig;
     ESHandle<TransientTrackBuilder> theB;

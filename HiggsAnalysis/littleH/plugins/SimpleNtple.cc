@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.64 2010/03/01 21:55:36 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.65 2010/03/17 09:07:57 dimatteo Exp $
 //
 //
 
@@ -47,7 +47,7 @@ const float muMass_  = 0.105658;
 const float eleMass_ = 0.000511;
 
 SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
-  gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
+    gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
   TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
   EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
   MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
@@ -85,10 +85,10 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   std::string treeName = iConfig.getUntrackedParameter<std::string> ("treeName","SimpleTree") ;
   Service<TFileService> fs ;
   outTree_ = fs->make<TTree> (treeName.c_str (), treeName.c_str ()) ; 
+  h_HLTcounters = fs->make<TH1F>( "h_HLTcounters","h_HLTcounters",NHLTTRIGGERS+1+1,-0.5,NHLTTRIGGERS+1+1-0.5 );
  
   NtupleFactory_ = new NtupleFactory (outTree_) ;
 }
-
 
 // --------------------------------------------------------------------
 
@@ -160,100 +160,100 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
   for (MuonCollection::const_iterator glbmuon = theGlobalMuons.begin();
        glbmuon != theGlobalMuons.end() ; 
        glbmuon++) {
-    TrackRef glbTrack = glbmuon->globalTrack();
-    TrackRef innTrack = glbmuon->innerTrack();
+         TrackRef glbTrack = glbmuon->globalTrack();
+         TrackRef innTrack = glbmuon->innerTrack();
 
-    NtupleFactory_->Fill4TV("muons_glb_4mom", lorentzMomentumMu(*glbTrack)) ;
-    NtupleFactory_->Fill4TV("muons_glb_track4mom", lorentzMomentumMu(*innTrack)) ;
+         NtupleFactory_->Fill4TV("muons_glb_4mom", lorentzMomentumMu(*glbTrack)) ;
+         NtupleFactory_->Fill4TV("muons_glb_track4mom", lorentzMomentumMu(*innTrack)) ;
 
-    NtupleFactory_->FillInt("muons_glb_charge",(glbmuon->charge()));
-    NtupleFactory_->FillFloat("muons_glb_tkIsoR03",(glbmuon->isolationR03()).sumPt);
-    NtupleFactory_->FillFloat("muons_glb_nTkIsoR03",(glbmuon->isolationR03()).nTracks);    
-    NtupleFactory_->FillFloat("muons_glb_emIsoR03",(glbmuon->isolationR03()).emEt);
-    NtupleFactory_->FillFloat("muons_glb_hadIsoR03",(glbmuon->isolationR03()).hadEt);
+         NtupleFactory_->FillInt("muons_glb_charge",(glbmuon->charge()));
+         NtupleFactory_->FillFloat("muons_glb_tkIsoR03",(glbmuon->isolationR03()).sumPt);
+         NtupleFactory_->FillFloat("muons_glb_nTkIsoR03",(glbmuon->isolationR03()).nTracks);    
+         NtupleFactory_->FillFloat("muons_glb_emIsoR03",(glbmuon->isolationR03()).emEt);
+         NtupleFactory_->FillFloat("muons_glb_hadIsoR03",(glbmuon->isolationR03()).hadEt);
      
-    NtupleFactory_->FillFloat("muons_glb_tkIsoR05",(glbmuon->isolationR05()).sumPt);
-    NtupleFactory_->FillFloat("muons_glb_nTkIsoR05",(glbmuon->isolationR05()).nTracks);    
-    NtupleFactory_->FillFloat("muons_glb_emIsoR05",(glbmuon->isolationR05()).emEt);
-    NtupleFactory_->FillFloat("muons_glb_hadIsoR05",(glbmuon->isolationR05()).hadEt);
+         NtupleFactory_->FillFloat("muons_glb_tkIsoR05",(glbmuon->isolationR05()).sumPt);
+         NtupleFactory_->FillFloat("muons_glb_nTkIsoR05",(glbmuon->isolationR05()).nTracks);    
+         NtupleFactory_->FillFloat("muons_glb_emIsoR05",(glbmuon->isolationR05()).emEt);
+         NtupleFactory_->FillFloat("muons_glb_hadIsoR05",(glbmuon->isolationR05()).hadEt);
 
-    NtupleFactory_->FillFloat("muons_glb_ptErr", glbTrack->ptError ());
-    NtupleFactory_->FillFloat("muons_glb_phiErr", glbTrack->phiError ());
-    NtupleFactory_->FillFloat("muons_glb_etaErr", glbTrack->etaError ());
-    NtupleFactory_->FillFloat("muons_glb_d0", glbTrack->d0 ());
-    NtupleFactory_->FillFloat("muons_glb_d0err", glbTrack->d0Error ());
-    NtupleFactory_->FillFloat("muons_glb_dz", glbTrack->dz ());
-    NtupleFactory_->FillFloat("muons_glb_dzerr", glbTrack->dzError ());
-    NtupleFactory_->FillFloat("muons_glb_normChi2", glbTrack->chi2()/glbTrack->ndof());
+         NtupleFactory_->FillFloat("muons_glb_ptErr", glbTrack->ptError ());
+         NtupleFactory_->FillFloat("muons_glb_phiErr", glbTrack->phiError ());
+         NtupleFactory_->FillFloat("muons_glb_etaErr", glbTrack->etaError ());
+         NtupleFactory_->FillFloat("muons_glb_d0", glbTrack->d0 ());
+         NtupleFactory_->FillFloat("muons_glb_d0err", glbTrack->d0Error ());
+         NtupleFactory_->FillFloat("muons_glb_dz", glbTrack->dz ());
+         NtupleFactory_->FillFloat("muons_glb_dzerr", glbTrack->dzError ());
+         NtupleFactory_->FillFloat("muons_glb_normChi2", glbTrack->chi2()/glbTrack->ndof());
 
-    vector<unsigned int> theHits = this->trackHits(*glbTrack);
-    NtupleFactory_->FillFloat("muons_glb_nhitstrack", innTrack->numberOfValidHits());
-    NtupleFactory_->FillFloat("muons_glb_nhitsDT", theHits.at(0));
-    NtupleFactory_->FillFloat("muons_glb_nhitsCSC", theHits.at(1));
-    NtupleFactory_->FillFloat("muons_glb_nhitsStrip", theHits.at(3));
-    NtupleFactory_->FillFloat("muons_glb_nhitsPixB", theHits.at(4));
-    NtupleFactory_->FillFloat("muons_glb_nhitsPixE", theHits.at(5));
-    NtupleFactory_->FillFloat("muons_glb_nhitsPix1Hit", theHits.at(6));
-    NtupleFactory_->FillFloat("muons_glb_nhitsPix1HitBE", theHits.at(7));
+         vector<unsigned int> theHits = this->trackHits(*glbTrack);
+         NtupleFactory_->FillFloat("muons_glb_nhitstrack", innTrack->numberOfValidHits());
+         NtupleFactory_->FillFloat("muons_glb_nhitsDT", theHits.at(0));
+         NtupleFactory_->FillFloat("muons_glb_nhitsCSC", theHits.at(1));
+         NtupleFactory_->FillFloat("muons_glb_nhitsStrip", theHits.at(3));
+         NtupleFactory_->FillFloat("muons_glb_nhitsPixB", theHits.at(4));
+         NtupleFactory_->FillFloat("muons_glb_nhitsPixE", theHits.at(5));
+         NtupleFactory_->FillFloat("muons_glb_nhitsPix1Hit", theHits.at(6));
+         NtupleFactory_->FillFloat("muons_glb_nhitsPix1HitBE", theHits.at(7));
 
-    Reco_mu_glb_size++;
-  }
+         Reco_mu_glb_size++;
+       }
 
-  Reco_mu_trk_size = 0;
+       Reco_mu_trk_size = 0;
 
-  for (MuonCollection::const_iterator trkmuon = theTrkMuons.begin();
-       trkmuon != theTrkMuons.end(); 
-       trkmuon++) {
-    TrackRef innTrack = trkmuon->innerTrack();
+       for (MuonCollection::const_iterator trkmuon = theTrkMuons.begin();
+            trkmuon != theTrkMuons.end(); 
+            trkmuon++) {
+              TrackRef innTrack = trkmuon->innerTrack();
 
-    NtupleFactory_->Fill4TV("muons_trk_4mom", lorentzMomentumMu(*innTrack)) ;
+              NtupleFactory_->Fill4TV("muons_trk_4mom", lorentzMomentumMu(*innTrack)) ;
 
-    NtupleFactory_->FillInt("muons_trk_charge",(trkmuon->charge()));
+              NtupleFactory_->FillInt("muons_trk_charge",(trkmuon->charge()));
      
-    NtupleFactory_->FillFloat("muons_trk_ptErr", innTrack->ptError ());
-    NtupleFactory_->FillFloat("muons_trk_phiErr", innTrack->phiError ());
-    NtupleFactory_->FillFloat("muons_trk_etaErr", innTrack->etaError ());
-    NtupleFactory_->FillFloat("muons_trk_d0", innTrack->d0 ());
-    NtupleFactory_->FillFloat("muons_trk_d0err", innTrack->d0Error ());
-    NtupleFactory_->FillFloat("muons_trk_dz", innTrack->dz ());
-    NtupleFactory_->FillFloat("muons_trk_dzerr", innTrack->dzError ());
-    NtupleFactory_->FillFloat("muons_trk_normChi2", innTrack->chi2()/innTrack->ndof());
+              NtupleFactory_->FillFloat("muons_trk_ptErr", innTrack->ptError ());
+              NtupleFactory_->FillFloat("muons_trk_phiErr", innTrack->phiError ());
+              NtupleFactory_->FillFloat("muons_trk_etaErr", innTrack->etaError ());
+              NtupleFactory_->FillFloat("muons_trk_d0", innTrack->d0 ());
+              NtupleFactory_->FillFloat("muons_trk_d0err", innTrack->d0Error ());
+              NtupleFactory_->FillFloat("muons_trk_dz", innTrack->dz ());
+              NtupleFactory_->FillFloat("muons_trk_dzerr", innTrack->dzError ());
+              NtupleFactory_->FillFloat("muons_trk_normChi2", innTrack->chi2()/innTrack->ndof());
 
-    vector<unsigned int> theHits = this->trackHits(*innTrack);
-    NtupleFactory_->FillFloat("muons_trk_nhitstrack", innTrack->numberOfValidHits());
-    NtupleFactory_->FillFloat("muons_trk_nhitsStrip", theHits.at(3));
-    NtupleFactory_->FillFloat("muons_trk_nhitsPixB", theHits.at(4));
-    NtupleFactory_->FillFloat("muons_trk_nhitsPixE", theHits.at(5));
-    NtupleFactory_->FillFloat("muons_trk_nhitsPix1Hit", theHits.at(6));
-    NtupleFactory_->FillFloat("muons_trk_nhitsPix1HitBE", theHits.at(7));
+              vector<unsigned int> theHits = this->trackHits(*innTrack);
+              NtupleFactory_->FillFloat("muons_trk_nhitstrack", innTrack->numberOfValidHits());
+              NtupleFactory_->FillFloat("muons_trk_nhitsStrip", theHits.at(3));
+              NtupleFactory_->FillFloat("muons_trk_nhitsPixB", theHits.at(4));
+              NtupleFactory_->FillFloat("muons_trk_nhitsPixE", theHits.at(5));
+              NtupleFactory_->FillFloat("muons_trk_nhitsPix1Hit", theHits.at(6));
+              NtupleFactory_->FillFloat("muons_trk_nhitsPix1HitBE", theHits.at(7));
 
     // STANDARD SELECTORS
-    int myWord = 0;
-    if (muon::isGoodMuon(*trkmuon, muon::AllTrackerMuons))                   myWord += (int)pow(2.,0);
-    if (muon::isGoodMuon(*trkmuon, muon::TrackerMuonArbitrated))             myWord += (int)pow(2.,1);
-    if (muon::isGoodMuon(*trkmuon, muon::TMLastStationLoose))                myWord += (int)pow(2.,2);
-    if (muon::isGoodMuon(*trkmuon, muon::TMLastStationTight))                myWord += (int)pow(2.,3);
-    if (muon::isGoodMuon(*trkmuon, muon::TM2DCompatibilityLoose))            myWord += (int)pow(2.,4);
-    if (muon::isGoodMuon(*trkmuon, muon::TM2DCompatibilityTight))            myWord += (int)pow(2.,5);
-    if (muon::isGoodMuon(*trkmuon, muon::TMOneStationLoose))                 myWord += (int)pow(2.,6);
-    if (muon::isGoodMuon(*trkmuon, muon::TMOneStationTight))                 myWord += (int)pow(2.,7);
-    if (muon::isGoodMuon(*trkmuon, muon::TMLastStationOptimizedLowPtLoose))  myWord += (int)pow(2.,8);
-    if (muon::isGoodMuon(*trkmuon, muon::TMLastStationOptimizedLowPtTight))  myWord += (int)pow(2.,9);
+              int myWord = 0;
+              if (muon::isGoodMuon(*trkmuon, muon::AllTrackerMuons))                   myWord += (int)pow(2.,0);
+              if (muon::isGoodMuon(*trkmuon, muon::TrackerMuonArbitrated))             myWord += (int)pow(2.,1);
+              if (muon::isGoodMuon(*trkmuon, muon::TMLastStationLoose))                myWord += (int)pow(2.,2);
+              if (muon::isGoodMuon(*trkmuon, muon::TMLastStationTight))                myWord += (int)pow(2.,3);
+              if (muon::isGoodMuon(*trkmuon, muon::TM2DCompatibilityLoose))            myWord += (int)pow(2.,4);
+              if (muon::isGoodMuon(*trkmuon, muon::TM2DCompatibilityTight))            myWord += (int)pow(2.,5);
+              if (muon::isGoodMuon(*trkmuon, muon::TMOneStationLoose))                 myWord += (int)pow(2.,6);
+              if (muon::isGoodMuon(*trkmuon, muon::TMOneStationTight))                 myWord += (int)pow(2.,7);
+              if (muon::isGoodMuon(*trkmuon, muon::TMLastStationOptimizedLowPtLoose))  myWord += (int)pow(2.,8);
+              if (muon::isGoodMuon(*trkmuon, muon::TMLastStationOptimizedLowPtTight))  myWord += (int)pow(2.,9);
 
-    NtupleFactory_->FillFloat("muons_trk_PIDmask", myWord);
+              NtupleFactory_->FillFloat("muons_trk_PIDmask", myWord);
 
     //isolation
-    const MuonIsolation& muonIso = trkmuon->isolationR03() ; 
+              const MuonIsolation& muonIso = trkmuon->isolationR03() ; 
 
-    NtupleFactory_->FillFloat("muons_trk_tkIsoR03", muonIso.sumPt);
-    NtupleFactory_->FillFloat("muons_trk_nTkIsoR03",muonIso.nTracks);    
-    NtupleFactory_->FillFloat("muons_trk_emIsoR03", muonIso.emEt);
-    NtupleFactory_->FillFloat("muons_trk_hadIsoR03", muonIso.hadEt);
+              NtupleFactory_->FillFloat("muons_trk_tkIsoR03", muonIso.sumPt);
+              NtupleFactory_->FillFloat("muons_trk_nTkIsoR03",muonIso.nTracks);    
+              NtupleFactory_->FillFloat("muons_trk_emIsoR03", muonIso.emEt);
+              NtupleFactory_->FillFloat("muons_trk_hadIsoR03", muonIso.hadEt);
 
-    Reco_mu_trk_size++;
-  }
+              Reco_mu_trk_size++;
+            }
 
-  return;
+            return;
 }  
 
 
@@ -269,30 +269,30 @@ void
   int k(0);
   for (View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); 
        tkIt != TracksHandle->end (); ++tkIt ) 
-    { 
-      k++;
+  { 
+    k++;
     
-      bool storeThisOther = true;
-      for (int j = 0; j<(int)theMuonTrkIndexes_.size(); ++j) 
-	{
-	  if (k == theMuonTrkIndexes_.at(j)) 
-	    {
-	      storeThisOther = false;
-	      break;
-	    }
-	}
-      if (!storeThisOther) continue;
-    
-      TVector3 myvect3 ((*tkIt).innerMomentum().x(), (*tkIt).innerMomentum().y(), (*tkIt).innerMomentum().z());
-      NtupleFactory_->Fill3TV("tracks_in",myvect3);  
-      myvect3.SetXYZ ((*tkIt).innerMomentum().x(), (*tkIt).innerMomentum().y(), (*tkIt).innerMomentum().z());
-      NtupleFactory_->Fill3TV("tracks_out",myvect3);
-      
-      NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
-      NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
-      NtupleFactory_->FillFloat("tracks_d0err",(*tkIt).d0Error());
-      NtupleFactory_->FillFloat("tracks_dzerr",(*tkIt).dzError());
+    bool storeThisOther = true;
+    for (int j = 0; j<(int)theMuonTrkIndexes_.size(); ++j) 
+    {
+      if (k == theMuonTrkIndexes_.at(j)) 
+      {
+        storeThisOther = false;
+        break;
+      }
     }
+    if (!storeThisOther) continue;
+    
+    TVector3 myvect3 ((*tkIt).innerMomentum().x(), (*tkIt).innerMomentum().y(), (*tkIt).innerMomentum().z());
+    NtupleFactory_->Fill3TV("tracks_in",myvect3);  
+    myvect3.SetXYZ ((*tkIt).innerMomentum().x(), (*tkIt).innerMomentum().y(), (*tkIt).innerMomentum().z());
+    NtupleFactory_->Fill3TV("tracks_out",myvect3);
+      
+    NtupleFactory_->FillFloat("tracks_d0",(*tkIt).d0());
+    NtupleFactory_->FillFloat("tracks_dz",(*tkIt).dz());
+    NtupleFactory_->FillFloat("tracks_d0err",(*tkIt).d0Error());
+    NtupleFactory_->FillFloat("tracks_dzerr",(*tkIt).dzError());
+  }
   return ; 
 }
 
@@ -490,16 +490,41 @@ void
     NtupleFactory_->FillInt ("HLTGlobal_Decision",(int) HLTR->accept()) ;  
     NtupleFactory_->FillInt ("HLTGlobal_error",(int) HLTR->error()) ;  
   
-  //HLT
+    //HLT
     int HLTBits_size=HLTR->size();
     for (int i=0; i<HLTBits_size && i<(int)Max_HLT_size; i++) 
     {   
       NtupleFactory_->FillInt ("HLTBits_wasrun",(int) HLTR->wasrun(hltBits[i])) ;
       NtupleFactory_->FillInt ("HLTBits_accept",(int) HLTR->accept(hltBits[i])) ;
       NtupleFactory_->FillInt ("HLTBits_error",(int) HLTR->error(hltBits[i])) ;
+      HLTcounters [i] += (int) HLTR->accept(hltBits[i]) ;
     }
-  
-  //Level-1
+    
+    //Save Fake ele HLT
+    Handle<View<reco::GsfElectron> > EleHandle ;
+    iEvent.getByLabel (EleTag_,EleHandle);
+ 
+    int nEle(0);
+    int ele_HLT(0);
+
+    if(EleHandle->size() < 30 ){ nEle = EleHandle->size(); }
+    else {nEle = 30;}
+
+    for (int i=0; i< nEle; i++)
+    {
+      int EleCharge1 = ((*EleHandle)[i].charge());
+      TLorentzVector my4vec1 ((*EleHandle)[i].px(), (*EleHandle)[i].py(), (*EleHandle)[i].pz(), (*EleHandle)[i].energy());
+      if ( my4vec1.Pt() > 3. ) for (int j=i+1; j< nEle; j++)
+      {
+        int EleCharge2 = ((*EleHandle)[j].charge());
+        TLorentzVector my4vec2 ((*EleHandle)[j].px(), (*EleHandle)[j].py(), (*EleHandle)[j].pz(), (*EleHandle)[j].energy());
+        if ( EleCharge1*EleCharge2 < 0. && my4vec2.Pt() > 3. && (my4vec1+my4vec2).M() > 6. ) ele_HLT = 1;
+      }
+    }
+    NtupleFactory_->FillInt("HLTBits_accept",ele_HLT);
+    HLTcounters[NHLTTRIGGERS] += ele_HLT ;
+
+    //Level-1
     int L1TBits_size=HLTR->size();
     for (int i=0; i<L1TBits_size && i<(int)Max_L1T_size; i++) 
     {   
@@ -508,8 +533,8 @@ void
       NtupleFactory_->FillInt ("L1TBits_error",(int) HLTR->error(l1tBits[i])) ;
     }
    
-  }
-
+  }  
+  
   return;
 }
 
@@ -589,12 +614,14 @@ void
   //Electrons
   for ( nele1 = theElectrons.begin(); nele1 != theElectrons.end(); nele1++) 
   {
+    TLorentzVector myvec4_1 (nele1->px(), nele1->py(), nele1->pz(), nele1->energy());      
     for( nele2 = nele1+1; nele2 != theElectrons.end()&&QQ_size<3000; nele2++ ) 
     {
       ele1 = nele1->gsfTrack();    
       ele2 = nele2->gsfTrack(); 
       e2++;
-      fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, PV);
+      TLorentzVector myvec4_2 (nele2->px(), nele2->py(), nele2->pz(), nele2->energy());      
+      fillOnia2EleEleTracks(ele1, e1, ele2, e1+e2, PV, myvec4_1, myvec4_2);
     }
     e1++;
     e2 = 0;
@@ -604,20 +631,20 @@ void
   for ( nmuon1 = theGlobalMuons.begin(); nmuon1 != theGlobalMuons.end(); nmuon1++) 
   {
     for( nmuon2 = nmuon1+1; nmuon2 != theGlobalMuons.end()&&QQ_size<3000; nmuon2++ ) 
-      {
-	muon1 = nmuon1->innerTrack();    
-	muon2 = nmuon2->innerTrack(); 
-	m2g++;
-	if (theOniaMaxCat > 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
-      }
+    {
+      muon1 = nmuon1->innerTrack();    
+      muon2 = nmuon2->innerTrack(); 
+      m2g++;
+      if (theOniaMaxCat > 0) fillOnia2MuMuTracks(muon1, m1, muon2, m1+m2g, PV, 1);
+    }
      
     for( tmuon2 = theTrkMuons.begin(); tmuon2 != theTrkMuons.end()&&QQ_size<3000; tmuon2++ ) 
-      {
-	muon1 = nmuon1->innerTrack();    
-	muon2 = tmuon2->innerTrack(); 
-	if (theOniaMaxCat > 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
-	m2t++;
-      }
+    {
+      muon1 = nmuon1->innerTrack();    
+      muon2 = tmuon2->innerTrack(); 
+      if (theOniaMaxCat > 1) fillOnia2MuMuTracks(muon1, m1, muon2, m2t, PV, 2);
+      m2t++;
+    }
     m1++;
     m2g = 0;
     m2t = 0;
@@ -787,7 +814,7 @@ void
 // --------------------------------------------------------------------
 
 //Fill Onia2EleEle category
-void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, reco::Vertex &PV) 
+void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef lep2, int l2, reco::Vertex &PV, TLorentzVector & lep1_4mom, TLorentzVector & lep2_4mom) 
 {
   TransientTrack ttkp1   = (*theB).build(&(*lep1));
   TransientTrack ttkp2   = (*theB).build(&(*lep2));
@@ -811,9 +838,7 @@ void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef le
   GlobalPoint  PVposition(PV.position().x(), PV.position().y(), PV.position().z()) ;
   GlobalVector DistVector = v - PVposition; 
   
-  TLorentzVector lp1=lorentzMomentumLep(*lep1, eleMass_);
-  TLorentzVector lp2=lorentzMomentumLep(*lep2, eleMass_);
-  TLorentzVector onia = lp1 + lp2;
+  TLorentzVector onia = lep1_4mom + lep2_4mom;
   
   //COMPUTE T.IP, L.IP and 3D IP
   AlgebraicSymMatrix33 PVerrMat;
@@ -863,42 +888,42 @@ void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef le
      
   int QQ_sign = 0;
   if ( lep1->charge() == lep2->charge() ) 
-    {
-      if (theStoreWSOnia) {
-	if (lep1->charge() == 1) {QQ_sign=1;}
-	else {QQ_sign=-1;}
-      }
-      else return;
+  {
+    if (theStoreWSOnia) {
+      if (lep1->charge() == 1) {QQ_sign=1;}
+      else {QQ_sign=-1;}
     }
+    else return;
+  }
   
   NtupleFactory_->FillInt("QQ_sign",QQ_sign);
   
   NtupleFactory_->FillInt("QQ_type",0);
-  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lp1, lp2));
+  NtupleFactory_->FillFloat("QQ_DeltaR",deltaR(lep1_4mom, lep2_4mom));
   NtupleFactory_->FillFloat("QQ_s",pow((lep1->d0()/lep1->d0Error()),2)+pow((lep2->d0()/lep2->d0Error()),2));  
   TLorentzVector my4mom (onia.Px(),onia.Py(),onia.Pz(),onia.E()) ;
   NtupleFactory_->Fill4TV("QQ_4mom",my4mom);
 
   if ( lep1->charge() == 1 ) 
-    {
-      NtupleFactory_->FillInt("QQ_leppl",l1);
-      NtupleFactory_->FillInt("QQ_lepmi",l2);
-      NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp1, lp2)));
-    }
+  {
+    NtupleFactory_->FillInt("QQ_leppl",l1);
+    NtupleFactory_->FillInt("QQ_lepmi",l2);
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lep1_4mom, lep2_4mom)));
+  }
   else {
     NtupleFactory_->FillInt("QQ_leppl",l2);
     NtupleFactory_->FillInt("QQ_lepmi",l1);
-    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lp2, lp1)));
+    NtupleFactory_->FillFloat("QQ_cosTheta",cos(GetTheta(lep2_4mom, lep1_4mom)));
   }
-  if (lp1.Perp() > lp2.Perp()) 
-    {   
-      NtupleFactory_->FillInt("QQ_lephpt",l1);
-      NtupleFactory_->FillInt("QQ_leplpt",l2);
-    } else 
-      {
-	NtupleFactory_->FillInt("QQ_leplpt",l1);
-	NtupleFactory_->FillInt("QQ_lephpt",l2);
-      }
+  if (lep1_4mom.Perp() > lep2_4mom.Perp()) 
+  {   
+    NtupleFactory_->FillInt("QQ_lephpt",l1);
+    NtupleFactory_->FillInt("QQ_leplpt",l2);
+  } else 
+  {
+    NtupleFactory_->FillInt("QQ_leplpt",l1);
+    NtupleFactory_->FillInt("QQ_lephpt",l2);
+  }
       
   TVector3 myvect3 (v.x(),v.y(),v.z());
   NtupleFactory_->Fill3TV("QQ_Vtx",myvect3);
@@ -948,6 +973,7 @@ void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef le
 void 
     SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
+  HLTcounters [NHLTTRIGGERS+1] ++;
   // get TTRHBuilder 
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 
@@ -986,6 +1012,8 @@ void
 void 
     SimpleNtple::beginJob(const EventSetup& iSetup)
 {
+  for ( int icount=0 ; icount < NHLTTRIGGERS+1+1; icount++ ) HLTcounters [icount] = 0;
+
   if (saveMu_)
   {
     NtupleFactory_->Add4TV("muons_glb_4mom");
@@ -1127,7 +1155,7 @@ void
   if (saveTrigger_)
   {
    //Trigger Info
-    string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R", "HLT_DoublePhoton5_Jpsi_L1R", "HLT_DoublePhoton5_Upsilon_L1R", "HLT_DoublePhoton5_eeRes_L1R"};
+    string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R", "HLT_DoublePhoton5_Jpsi_L1R", "HLT_DoublePhoton5_Upsilon_L1R", "HLT_DoublePhoton5_eeRes_L1R" }; //+ Fale EleHLT
     string L1TbitNames[NL1TTRIGGERS]  = {"HLT_L1MuOpen","HLT_L1Mu", "HLT_L1DoubleMuOpen", "HLT_L1SingleEG5", "HLT_L1SingleEG8", "HLT_L1DoubleEG5"};
   
     if (hltConfig.init(the8e29ProcName_)) 
@@ -1252,6 +1280,8 @@ void
 void 
     SimpleNtple::endJob()
 {
+  for ( int icount=0; icount < NHLTTRIGGERS+1+1; icount++ ) h_HLTcounters -> SetBinContent(icount+1,HLTcounters [icount]) ;
+
   NtupleFactory_->WriteNtuple();
   return;
 }
