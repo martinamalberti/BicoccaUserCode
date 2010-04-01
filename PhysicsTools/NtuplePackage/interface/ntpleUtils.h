@@ -147,7 +147,7 @@ int GetMatching(const std::vector<T1>& collection1, //---- RECO
 
 
 /** Central Jet Veto */
-double getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
+int getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
 	      int q1,
 	      int q2,
 	      const double& EtMin,
@@ -155,9 +155,7 @@ double getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
 
 
 /** Jet Veto */
-double getJV(std::vector<ROOT::Math::XYZTVector>& jets,
-	      int q1,
-	      int q2,
+int getJV(std::vector<ROOT::Math::XYZTVector>& jets,
 	      const double& EtMin,
 	      const std::vector<int>* blacklist = 0);
 

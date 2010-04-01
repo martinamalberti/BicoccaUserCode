@@ -116,7 +116,7 @@ double deltaR(const double& eta1, const double& phi1,
 
 
 
-double getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
+int getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
 	      int q1,
 	      int q2,
 	      const double& EtMin,
@@ -152,9 +152,7 @@ double getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
 //  ------------------------------------------------------------
 
 
-double getJV(std::vector<ROOT::Math::XYZTVector>& jets,
-	      int q1,
-	      int q2,
+int getJV(std::vector<ROOT::Math::XYZTVector>& jets,
 	      const double& EtMin,
 	      const std::vector<int>* blacklist){
  
@@ -162,7 +160,6 @@ double getJV(std::vector<ROOT::Math::XYZTVector>& jets,
   
  for(unsigned int i = 0; i < jets.size(); ++i)
  {
-  if (i==q1 || i==q2) continue;
   if (jets.at(i).Et() < EtMin) continue;
   
   bool skipJet = false;
