@@ -116,6 +116,70 @@ double deltaR(const double& eta1, const double& phi1,
 
 
 
+double getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
+	      int q1,
+	      int q2,
+	      const double& EtMin,
+	      const std::vector<int>* blacklist){
+ 
+ int CJV = 0;
+ double etaMin = jets.at(q1).Eta();
+ double etaMax = jets.at(q2).Eta();
+ 
+ if (etaMax > etaMin) std::swap(etaMin,etaMax);
+ 
+ for(unsigned int i = 0; i < jets.size(); ++i)
+ {
+  if (i==q1 || i==q2) continue;
+  if (jets.at(i).Et() < EtMin) continue;
+  
+  bool skipJet = false;
+  if(blacklist)
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk) 
+    if(blacklist -> at(kk) == static_cast<int>(i)) skipJet = true;
+    
+    
+    if(jets.at(i).Eta() > etaMax || jets.at(i).Eta() < etaMin) continue;
+    
+    CJV++;
+ } 
+ 
+ return CJV;
+ 
+}
+
+
+//  ------------------------------------------------------------
+
+
+double getJV(std::vector<ROOT::Math::XYZTVector>& jets,
+	      int q1,
+	      int q2,
+	      const double& EtMin,
+	      const std::vector<int>* blacklist){
+ 
+ int JV = 0;
+  
+ for(unsigned int i = 0; i < jets.size(); ++i)
+ {
+  if (i==q1 || i==q2) continue;
+  if (jets.at(i).Et() < EtMin) continue;
+  
+  bool skipJet = false;
+  if(blacklist)
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk) 
+    if(blacklist -> at(kk) == static_cast<int>(i)) skipJet = true;
+    
+    JV++;
+    
+ } 
+ 
+ return JV;
+ 
+}
+
+
+//  ------------------------------------------------------------
 
 
 
@@ -363,5 +427,42 @@ void Print4JetCombination(const std::vector<int>& combination)
   std::cout << "(" << combination.at(2) << "," << combination.at(3) << ")";  
   std::cout << std::endl;
 }
+
+//  ------------------------------------------------------------
+
+
+
+int Build2JetCombinations(std::vector<std::vector<int> >& combinations, const int& nJets)
+{
+ combinations.clear();
+ 
+ std::vector<int> vi;
+ for(int i = 0; i < nJets; ++i)
+  vi.push_back(i);
+ 
+ std::vector<int> buffer;
+ buffer.push_back(0);
+ buffer.push_back(1);
+ 
+ combinations.push_back(buffer);
+ 
+ std::vector<int> oldCombination = buffer;
+ while( next_permutation(vi.begin(), vi.end()) )      
+ {
+  if(vi.at(0) < vi.at(1))
+  {
+   buffer.at(0) = vi.at(0);
+   buffer.at(1) = vi.at(1);
+
+   if(buffer == oldCombination) continue;
+   
+   combinations.push_back(buffer);
+   oldCombination = buffer;
+  }  
+ }
+ 
+ return combinations.size();
+}
+
 
 //  ------------------------------------------------------------

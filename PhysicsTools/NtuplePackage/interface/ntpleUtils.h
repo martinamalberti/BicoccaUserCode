@@ -146,8 +146,22 @@ int GetMatching(const std::vector<T1>& collection1, //---- RECO
 
 
 
+/** Central Jet Veto */
+double getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
+	      int q1,
+	      int q2,
+	      const double& EtMin,
+	      const std::vector<int>* blacklist = 0);
 
 
+/** Jet Veto */
+double getJV(std::vector<ROOT::Math::XYZTVector>& jets,
+	      int q1,
+	      int q2,
+	      const double& EtMin,
+	      const std::vector<int>* blacklist = 0);
+
+	      
 /** select jet pairs */
 double SelectJets(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& jets,
                   const std::string& method,
@@ -170,5 +184,8 @@ int Build4JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets
 
 /** build combinations of n jets */
 void Print4JetCombination(const std::vector<int>& combination);
+
+/** build combinations (2 jets) of n jets */
+int Build2JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets);
 
 #endif
