@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SelectionsTest")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
+process.MessageLogger.categories.append('HLTrigReport')
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -27,6 +29,20 @@ process.alCaHLTEfficiencies = cms.EDAnalyzer("AlCaHLTEfficiencies",
   HLTResultsTag        = cms.InputTag ("TriggerResults") ,
   HistOutFile          = cms.untracked.string ("AlCaHLTEfficiencies.root")
   )
+
+process.TFileService = cms.Service("TFileService", 
+                                 fileName = cms.string("myService.root"),
+                                 closeFileFast = cms.untracked.bool(True),
+                                )
+
+
+import HLTrigger.HLTanalyzers.hlTrigReport_cfi
+process.hltReport = HLTrigger.HLTanalyzers.hlTrigReport_cfi.hlTrigReport.clone()
+process.aom = cms.OutputModule("AsciiOutputModule")
+process.eca = cms.EDAnalyzer("EventContentAnalyzer")
+process.final = cms.EndPath(process.hltReport+process.aom)
+
+
 
 process.path = cms.Path(process.alCaHLTEfficiencies)
 

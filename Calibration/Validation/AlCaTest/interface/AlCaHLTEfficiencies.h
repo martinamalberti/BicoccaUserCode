@@ -46,5 +46,9 @@ class AlCaHLTEfficiencies : public edm::EDAnalyzer {
     
     const edm::ParameterSetID m_HLTPSetID ;
        
+    TTree *mytree_;
+    int HLT_wasrun[300];
+    int HLT_accept[300];
+    int HLT_error[300];
 } ;
 #endif

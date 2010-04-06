@@ -39,6 +39,10 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+
 #include <math.h>
 #include "TFile.h"
 #include <Math/VectorUtil.h>
@@ -58,6 +62,8 @@ AlCaHLTEfficiencies::AlCaHLTEfficiencies (const edm::ParameterSet& iConfig) :
                       ("HistOutFile",std::string ("AlCaHLTEfficiencies.root"))),
   m_HLTPSetID () 
 {
+ edm::Service<TFileService> fs ;
+ mytree_  = fs->make <TTree>("myTree","myTree");
 }
 
 
@@ -67,6 +73,9 @@ AlCaHLTEfficiencies::AlCaHLTEfficiencies (const edm::ParameterSet& iConfig) :
 void 
 AlCaHLTEfficiencies::beginJob ()
 {
+ mytree_->Branch("HLT_wasrun",HLT_wasrun,"HLT_wasrun[300]/I");
+ mytree_->Branch("HLT_accept",HLT_accept,"HLT_accept[300]/I");
+ mytree_->Branch("HLT_error",HLT_error,"HLT_error[300]/I");
   return ;
 }
 
@@ -101,14 +110,31 @@ AlCaHLTEfficiencies::analyze (const edm::Event& iEvent,
   std::vector<std::string> names = triggerNames.triggerNames () ;
   // decision for each HL algorithm
 //  const unsigned int HLTNum (triggerNames.triggerNames ().size ()) ;
-  const unsigned int HLTNum (10) ;
+  const unsigned int HLTNum = std::min(static_cast<int>(300),static_cast<int>(HLTHandle->size())) ;
   for (unsigned int iHLT = 0 ; iHLT < HLTNum ; ++iHLT) 
   {
-    if (HLTHandle->wasrun (iHLT)) {} // ++hlWasRun_[iHLT] ;
-    if (HLTHandle->accept (iHLT)) {} // ++hlAccept_[iHLT] ;
-    if (HLTHandle->error (iHLT) ) {} // ++hlErrors_[iHLT] ;
+    if (HLTHandle->wasrun (iHLT)) {
+    HLT_wasrun[iHLT] = 1;
+    }
+    else {
+    HLT_wasrun[iHLT] = 0;
+    } // ++hlWasRun_[iHLT] ;
+    if (HLTHandle->accept (iHLT)) {
+    HLT_accept[iHLT] = 1;
+    }
+    else {
+    HLT_accept[iHLT] = 0;
+    } // ++hlAccept_[iHLT] ;
+    if (HLTHandle->error (iHLT) ) {
+    HLT_error[iHLT] = 1;
+    }
+    else {
+    HLT_error[iHLT] = 0;
+    } // ++hlErrors_[iHLT] ;
   }
 
+
+ mytree_->Fill();
   return ; 
 }
 
