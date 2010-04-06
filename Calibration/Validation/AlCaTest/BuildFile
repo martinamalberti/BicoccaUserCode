@@ -11,6 +11,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=RecoEcal/EgammaClusterAlgos>
+<use name=CommonTools/UtilAlgos>
 <use name=DataFormats/Math>
 <use name=TrackingTools/TrackAssociator>
 <use name=Utilities/Timing>
