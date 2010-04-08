@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 SimpleNtple = cms.EDAnalyzer(
     "SimpleNtple",
-    
-     HLTTag           = cms.InputTag("TriggerResults"),
      
      MuTag           = cms.InputTag("muons"),
      Mu3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducer:Mu3DipSignificanceMap"),
@@ -37,8 +35,7 @@ SimpleNtple = cms.EDAnalyzer(
      EleRefTag = cms.InputTag("EleRef"),
      doJetRefCheck = cms.untracked.bool (False),
      JetRefTag = cms.InputTag("JetRef"),
-
-     saveHLT          = cms.untracked.bool (True),     
+     
      saveMu           = cms.untracked.bool (True),
      saveTrack        = cms.untracked.bool (True), 
      saveEle          = cms.untracked.bool (True),
