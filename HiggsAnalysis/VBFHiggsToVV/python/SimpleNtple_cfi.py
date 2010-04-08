@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 SimpleNtple = cms.EDAnalyzer(
     "SimpleNtple",
     
-     HLTTag           = cms.InputTag("TriggerResults"),
+     HLTTag           = cms.InputTag("TriggerResults","","HLT"),
      
      MuTag           = cms.InputTag("muons"),
      Mu3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducer:Mu3DipSignificanceMap"),
