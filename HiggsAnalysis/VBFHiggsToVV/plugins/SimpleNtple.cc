@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.8 2010/01/27 09:15:39 abenagli Exp $
+// $Id: SimpleNtple.cc,v 1.9 2010/03/02 15:44:15 abenagli Exp $
 //
 //
 
@@ -60,6 +60,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  edm::Service<TFileService> fs ;
  outTree_  = fs->make <TTree>("SimpleNtple","SimpleNtple"); 
  
+ HLTTag_ = iConfig.getParameter<edm::InputTag>("HLTTag");
  TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
  Ele3DipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("Ele3DipSignificanceTag");
  EleTipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("EleTipSignificanceTag");
@@ -93,6 +94,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  if(doJetRefCheck_) JetRefTag_ = iConfig.getParameter<edm::InputTag>("JetRefTag");
  
  //---- flags ----
+ saveHLT_ =iConfig.getUntrackedParameter<bool> ("saveHLT", true);
  saveMu_ =iConfig.getUntrackedParameter<bool> ("saveMu", true);
  saveTrack_ = iConfig.getUntrackedParameter<bool> ("saveTrack", true);
  saveEle_ = iConfig.getUntrackedParameter<bool> ("saveEle", true);
@@ -136,6 +138,42 @@ SimpleNtple::~SimpleNtple()
 
 
 
+
+
+
+
+
+ 
+///---- HLT ----
+void SimpleNtple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //---- HLT information ----
+ edm::Handle<edm::TriggerResults> triggerResultsHandle;
+ iEvent.getByLabel (HLTTag_,triggerResultsHandle);
+//  iEvent.getByLabel ("TriggerResults",triggerResultsHandle);
+//  std::cerr << "triggerResultsHandle->size() = " << triggerResultsHandle->size() << std::endl;
+ for (int iHLT=0; iHLT<static_cast<int>(triggerResultsHandle->size()); iHLT++) {
+//   for (int iHLT=0; iHLT<std::min(static_cast<int>(300),static_cast<int>(triggerResultsHandle->size())); iHLT++) {
+  if (triggerResultsHandle->wasrun (iHLT)) {
+   NtupleFactory_->FillFloat("HLT_WasRun",1);
+  }
+  else {
+   NtupleFactory_->FillFloat("HLT_WasRun",0);
+  }
+  if (triggerResultsHandle->accept (iHLT)) {
+   NtupleFactory_->FillFloat("HLT_Accept",1);
+  }
+  else {
+   NtupleFactory_->FillFloat("HLT_Accept",0);
+  }
+  if (triggerResultsHandle->error (iHLT)) {
+   NtupleFactory_->FillFloat("HLT_Error",1);
+  }
+  else {
+   NtupleFactory_->FillFloat("HLT_Error",0);
+  }
+ }
+}
 
 
 
@@ -765,6 +803,8 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    mcAnalysis_ = new MCDumperVBF(genParticles, eventType_, verbosity_);
  }
   
+ ///---- fill HLT ----
+ if (saveHLT_) fillHLTInfo (iEvent, iSetup);
   
  ///---- fill muons ----
  if (saveMu_) fillMuInfo (iEvent, iSetup);
@@ -813,7 +853,17 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   void 
     SimpleNtple::beginJob(const edm::EventSetup& iSetup)
 {
-  if(saveMu_)
+ if(saveHLT_)
+ {
+    NtupleFactory_->AddFloat("HLT_WasRun"); 
+    NtupleFactory_->AddFloat("HLT_Accept"); 
+    NtupleFactory_->AddFloat("HLT_Error"); 
+//     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
+//     hlNames_=triggerNames.triggerNames();
+//     const unsigned int n(hlNames_.size());
+ }
+ 
+ if(saveMu_)
   {
     NtupleFactory_->Add4V("muons");
     NtupleFactory_->AddFloat("muons_charge"); 

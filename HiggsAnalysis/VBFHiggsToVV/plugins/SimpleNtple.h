@@ -13,6 +13,8 @@
 #include <TClonesArray.h>
 #include "TParticle.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -61,6 +63,8 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
+  
+  void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -75,8 +79,7 @@ public:
   void fillMCHiggsDecayInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  
-  
+ 
   
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
@@ -84,6 +87,7 @@ public:
   
   ///---- input tag ----
 
+  edm::InputTag HLTTag_;
   edm::InputTag TracksTag_;
   edm::InputTag EleTag_;
   edm::InputTag Ele3DipSignificanceTag_;
@@ -113,6 +117,8 @@ public:
   bool doJetRefCheck_;
   edm::InputTag JetRefTag_;
 
+//   std::vector<std::string>  hlNames_;  // name of each HLT algorithm
+  bool saveHLT_ ;
   bool saveMu_ ;
   bool saveTrack_ ;
   bool saveEle_ ;
