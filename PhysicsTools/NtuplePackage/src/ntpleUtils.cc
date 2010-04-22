@@ -126,7 +126,7 @@ int getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
  double etaMin = jets.at(q1).Eta();
  double etaMax = jets.at(q2).Eta();
  
- if (etaMax > etaMin) std::swap(etaMin,etaMax);
+ if (etaMax < etaMin) std::swap(etaMin,etaMax);
  
  for(unsigned int i = 0; i < jets.size(); ++i)
  {
@@ -134,14 +134,17 @@ int getCJV(std::vector<ROOT::Math::XYZTVector>& jets,
   if (jets.at(i).Et() < EtMin) continue;
   
   bool skipJet = false;
-  if(blacklist)
-   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk) 
+  if(blacklist){
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk) {
     if(blacklist -> at(kk) == static_cast<int>(i)) skipJet = true;
-    
-    
-    if(jets.at(i).Eta() > etaMax || jets.at(i).Eta() < etaMin) continue;
-    
-    CJV++;
+   }
+  }
+  
+  if (skipJet) continue;
+   
+  if(jets.at(i).Eta() > etaMax || jets.at(i).Eta() < etaMin) continue;
+  
+  CJV++;
  } 
  
  return CJV;
@@ -163,12 +166,14 @@ int getJV(std::vector<ROOT::Math::XYZTVector>& jets,
   if (jets.at(i).Et() < EtMin) continue;
   
   bool skipJet = false;
-  if(blacklist)
-   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk) 
+  if(blacklist){
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk) {
     if(blacklist -> at(kk) == static_cast<int>(i)) skipJet = true;
-    
-    JV++;
-    
+   }
+  }
+  
+  if (skipJet) continue;
+  JV++;  
  } 
  
  return JV;
