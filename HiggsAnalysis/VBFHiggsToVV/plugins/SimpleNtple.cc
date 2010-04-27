@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.10 2010/04/08 08:39:41 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.11 2010/04/27 14:27:43 abenagli Exp $
 //
 //
 
@@ -40,6 +40,8 @@
 
 
 //--- objects ----
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -73,6 +75,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  MetTag_ = iConfig.getParameter<edm::InputTag>("MetTag");
  Type1MetTag_ = iConfig.getParameter<edm::InputTag>("Type1MetTag");
  PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
+ TcMetTag_ = iConfig.getParameter<edm::InputTag>("TcMetTag");
  JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
  genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
@@ -142,6 +145,9 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  if(saveMu_)
   {
     NtupleFactory_->Add4V("muons");
+
+    NtupleFactory_->AddFloat("muons_global");
+    NtupleFactory_->AddFloat("muons_goodMuon");
     NtupleFactory_->AddFloat("muons_charge"); 
     NtupleFactory_->AddFloat("muons_tkIsoR03"); 
     NtupleFactory_->AddFloat("muons_nTkIsoR03"); 
@@ -185,7 +191,8 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   
   if(saveJet_ || savePFJet_)
   {
-    NtupleFactory_->Add4V("jets");      
+    NtupleFactory_->Add4V("jets");
+    NtupleFactory_->AddFloat("jets_emEnergyFraction");   
     NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTags");   
     NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTagsDR");   
     NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTags");   
@@ -211,6 +218,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   {
    NtupleFactory_->Add4V("met");         
    NtupleFactory_->Add4V("type1Met");         
+   NtupleFactory_->Add4V("TcMet");         
    NtupleFactory_->Add4V("PFMet");         
   }
   
@@ -365,6 +373,9 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
   
   
   NtupleFactory_->Fill4V("muons",(*MuHandle)[i].p4());
+  NtupleFactory_->FillFloat("muons_global",((*MuHandle)[i].isGlobalMuon()));
+  NtupleFactory_->FillFloat("muons_goodMuon",muon::isGoodMuon((*MuHandle)[i], muon::GlobalMuonPromptTight));
+
   NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
   NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
   NtupleFactory_->FillFloat("muons_nTkIsoR03",((*MuHandle)[i].isolationR03()).nTracks);    
@@ -507,7 +518,8 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    
    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
-   
+   NtupleFactory_->FillFloat("jets_emEnergyFraction",(*JetHandle)[i].emEnergyFraction());
+
    if(saveJetBTagging_)
      fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());
    
@@ -547,6 +559,9 @@ void SimpleNtple::fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetu
    
    
    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
+   NtupleFactory_->FillFloat("jets_emEnergyFraction",(*JetHandle)[i].neutralHadronEnergyFraction()); 
+   /// ~ emFraction see https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Further_comments
+
    
    if(saveJetBTagging_)
      fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());
@@ -793,6 +808,9 @@ void SimpleNtple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup 
  edm::Handle<reco::CaloMETCollection> Type1MetHandle ;
  iEvent.getByLabel (Type1MetTag_,Type1MetHandle);
  
+ edm::Handle<reco::METCollection> TcMetHandle ;
+ iEvent.getByLabel (TcMetTag_,TcMetHandle);
+ 
  edm::Handle<reco::PFMETCollection> PFMetHandle ;
  iEvent.getByLabel (PFMetTag_,PFMetHandle);
  
@@ -803,6 +821,9 @@ void SimpleNtple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup 
  
  const reco::MET* type1Met = &(Type1MetHandle->front());
  NtupleFactory_->Fill4V("type1Met",type1Met->p4());
+ 
+ const reco::MET* TcMet = &(TcMetHandle->front());
+ NtupleFactory_->Fill4V("TcMet",TcMet->p4());
  
  const reco::PFMET* PFMet = &(PFMetHandle->front());
  NtupleFactory_->Fill4V("PFMet",PFMet->p4());

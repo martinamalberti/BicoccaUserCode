@@ -99,6 +99,7 @@ public:
   edm::InputTag MetTag_;
   edm::InputTag Type1MetTag_;
   edm::InputTag PFMetTag_;
+  edm::InputTag TcMetTag_;
   edm::InputTag JetTag_;
   edm::InputTag MCtruthTag_;
   edm::InputTag genJetTag_;

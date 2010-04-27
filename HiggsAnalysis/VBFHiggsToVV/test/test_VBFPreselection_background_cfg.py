@@ -14,7 +14,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V5::All"
+#process.GlobalTag.globaltag = "MC_31X_V5::All"
+process.GlobalTag.globaltag = "START3X_V26::All"
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
@@ -52,16 +53,17 @@ process.TFileService = cms.Service(
 # --- INPUT  --- --- --- --- --- --- --- --- --- --- --- 
 # --- ====== --- --- --- --- --- --- --- --- --- --- --- 
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 process.source = cms.Source(
     "PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(1),
+    #debugFlag = cms.untracked.bool(True),
+    #debugVebosity = cms.untracked.uint32(1),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring(
         #'file:/data/NTUPLES/VBF/qqHWW_lnujj/H200/CMSSWfile_10.root',
-        'file:/gwtera5/users/data/NTUPLES/VBF/CMSSWfile_3_1_X.root'
+        #'file:/gwtera5/users/data/NTUPLES/VBF/CMSSWfile_3_1_X.root'
+         'file:/tmp/amassiro/0C5ECFC1-C445-DF11-8133-E0CB4E19F99B.root'
         )
     )
 

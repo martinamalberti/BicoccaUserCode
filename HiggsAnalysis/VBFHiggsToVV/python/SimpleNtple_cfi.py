@@ -26,6 +26,7 @@ SimpleNtple = cms.EDAnalyzer(
 
      MetTag          = cms.InputTag("corMetGlobalMuons"),
      Type1MetTag     = cms.InputTag("VBFType1SisCone5CaloMet"),
+     TcMetTag        = cms.InputTag("tcMet"),         
      PFMetTag        = cms.InputTag("pfMet"),         
      genMetTag       = cms.InputTag("genMetTrue"),
 
