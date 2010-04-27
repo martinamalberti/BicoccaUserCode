@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.11 2010/04/27 14:27:43 abenagli Exp $
+// $Id: SimpleNtple.cc,v 1.12 2010/04/27 16:32:34 amassiro Exp $
 //
 //
 
@@ -447,8 +447,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   
   //ELE ID
   NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[eleRef]);
-  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[eleRef]);
-  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[eleRef]);
+  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[1]))[eleRef]);
+  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[2]))[eleRef]);
   NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[eleRef]);
       
   //Get Ele Track
