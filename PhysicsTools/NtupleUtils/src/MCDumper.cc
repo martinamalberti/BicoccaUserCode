@@ -64,14 +64,13 @@ void MCDumper::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles)
  if(verbosity_p)
   std::cerr << "*** MCDumper::Analyze ***" << std::endl;
   
- int counter = 0;
  for(reco::GenParticleCollection::const_iterator p = genParticles -> begin();
      p != genParticles -> end(); ++p)
  {
   const reco::Candidate* pCurrent = &(*p);  
   int pdgId  = p -> pdgId();
-  int status = p -> status();
-  int charge = p -> charge();
+  //int status = p -> status();
+  //int charge = p -> charge();
   if (mc_p[pdgId] != 0) {
    mc_p[pdgId]->push_back(pCurrent); 
   }
