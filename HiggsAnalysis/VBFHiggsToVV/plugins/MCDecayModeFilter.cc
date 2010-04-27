@@ -77,26 +77,6 @@ MCDecayModeFilter::~MCDecayModeFilter()
 
 
 
-void MCDecayModeFilter::beginJob(const edm::EventSetup&) 
-{}
-
-// ----------------------------------------------------------------
-
-
-
-
-
-
-void MCDecayModeFilter::endJob() 
-{}
-
-// ----------------------------------------------------------------
-
-
-
-
-
-
 //! loop over the reco particles and count leptons
 bool MCDecayModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {

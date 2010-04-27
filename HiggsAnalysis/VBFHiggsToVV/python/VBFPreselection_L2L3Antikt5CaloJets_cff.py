@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-# antikt5CaloJets
+# ak5CaloJets
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
@@ -125,9 +125,9 @@ VBFNtupleL2L3Antikt5CaloJets.saveJet         = cms.untracked.bool(True)
 VBFNtupleL2L3Antikt5CaloJets.savePFJet       = cms.untracked.bool(False)
 VBFNtupleL2L3Antikt5CaloJets.saveJetBTagging = cms.untracked.bool(True)
 VBFNtupleL2L3Antikt5CaloJets.saveMet         = cms.untracked.bool(True)
-VBFNtupleL2L3Antikt5CaloJets.saveGenJet      = cms.untracked.bool(True)
-VBFNtupleL2L3Antikt5CaloJets.saveGenMet      = cms.untracked.bool(True)
-VBFNtupleL2L3Antikt5CaloJets.saveMC          = cms.untracked.bool(True)
+VBFNtupleL2L3Antikt5CaloJets.saveGenJet      = cms.untracked.bool(False)
+VBFNtupleL2L3Antikt5CaloJets.saveGenMet      = cms.untracked.bool(False)
+VBFNtupleL2L3Antikt5CaloJets.saveMC          = cms.untracked.bool(False)
 
 
 

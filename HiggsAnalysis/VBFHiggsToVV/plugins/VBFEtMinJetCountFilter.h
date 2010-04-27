@@ -10,7 +10,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
 
@@ -34,9 +34,6 @@ class VBFEtMinJetCountFilter : public edm::EDFilter
   
   
  private:
-  
-  void beginJob(const edm::EventSetup&);
-  void endJob();
   
   //! the actual filter method 
   bool filter(edm::Event&, const edm::EventSetup&);
@@ -91,28 +88,6 @@ VBFEtMinJetCountFilter<TCollection>::VBFEtMinJetCountFilter(const edm::Parameter
 //! dtor
 template <class TCollection>
 VBFEtMinJetCountFilter<TCollection>::~VBFEtMinJetCountFilter()
-{}
-
-// ----------------------------------------------------------------
-
-
-
-
-
-
-template <class TCollection>
-void VBFEtMinJetCountFilter<TCollection>::beginJob(const edm::EventSetup&) 
-{}
-
-// ----------------------------------------------------------------
-
-
-
-
-
-
-template <class TCollection>
-void VBFEtMinJetCountFilter<TCollection>::endJob() 
 {}
 
 // ----------------------------------------------------------------

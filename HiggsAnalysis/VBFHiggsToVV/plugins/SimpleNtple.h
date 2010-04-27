@@ -59,9 +59,8 @@ public:
   ~SimpleNtple();
   
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
   
   void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -135,6 +134,7 @@ public:
  
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  
+  int eventNaiveId_;
   
   MCDumperVBF* mcAnalysis_;    
 };

@@ -12,7 +12,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
 
@@ -35,9 +35,6 @@ class VBFPtMinLeptonCountFilter : public edm::EDFilter
   
   
  private:
-  
-  void beginJob(const edm::EventSetup&);
-  void endJob();
   
   //! the actual filter method 
   bool filter(edm::Event&, const edm::EventSetup&);

@@ -29,7 +29,7 @@ VBFType1SisCone5CaloMetSequence = cms.Sequence(
 
 
 VBFType1Antikt5CaloMet = metJESCorIC5CaloJet.clone(
-    inputUncorJetsLabel = "antikt5CaloJets",
+    inputUncorJetsLabel = "ak5CaloJets",
     corrector = "L2L3JetCorrectorAK5Calo",
     inputUncorMetLabel = "corMetGlobalMuons"
     )

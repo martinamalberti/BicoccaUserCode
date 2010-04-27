@@ -39,26 +39,6 @@ VBFPtMinLeptonCountFilter::~VBFPtMinLeptonCountFilter()
 
 
 
-void VBFPtMinLeptonCountFilter::beginJob(const edm::EventSetup&) 
-{}
-
-// ----------------------------------------------------------------
-
-
-
-
-
-
-void VBFPtMinLeptonCountFilter::endJob() 
-{}
-
-// ----------------------------------------------------------------
-
-
-
-
-
-
 //! loop over the reco particles and count leptons
 bool VBFPtMinLeptonCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {

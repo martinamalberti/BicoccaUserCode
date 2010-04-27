@@ -13,7 +13,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 // #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" //---- CMSSW_2_X_Y
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" //---- CMSSW_3_X_Y
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
 
@@ -38,9 +38,6 @@ class MCDecayModeFilter : public edm::EDFilter
   
   
  private:
-  
-  void beginJob(const edm::EventSetup&);
-  void endJob();
   
   //! the actual filter method 
   bool filter(edm::Event&, const edm::EventSetup&);

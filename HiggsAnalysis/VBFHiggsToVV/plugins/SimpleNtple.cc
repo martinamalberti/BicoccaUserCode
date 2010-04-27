@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.9 2010/03/02 15:44:15 abenagli Exp $
+// $Id: SimpleNtple.cc,v 1.10 2010/04/08 08:39:41 amassiro Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 #include "HiggsAnalysis/VBFHiggsToVV/plugins/SimpleNtple.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 //--- objects ----
@@ -119,6 +119,159 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  
  
  
+  
+ 
+
+ NtupleFactory_->AddInt("runId"); 
+ NtupleFactory_->AddInt("lumiId"); 
+ NtupleFactory_->AddInt("BXId"); 
+ NtupleFactory_->AddInt("eventId"); 
+ NtupleFactory_->AddInt("eventNaiveId"); 
+ eventNaiveId_ = 0;
+ 
+ if(saveHLT_)
+ {
+    NtupleFactory_->AddFloat("HLT_WasRun"); 
+    NtupleFactory_->AddFloat("HLT_Accept"); 
+    NtupleFactory_->AddFloat("HLT_Error"); 
+//     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
+//     hlNames_=triggerNames.triggerNames();
+//     const unsigned int n(hlNames_.size());
+ }
+ 
+ if(saveMu_)
+  {
+    NtupleFactory_->Add4V("muons");
+    NtupleFactory_->AddFloat("muons_charge"); 
+    NtupleFactory_->AddFloat("muons_tkIsoR03"); 
+    NtupleFactory_->AddFloat("muons_nTkIsoR03"); 
+    NtupleFactory_->AddFloat("muons_emIsoR03"); 
+    NtupleFactory_->AddFloat("muons_hadIsoR03"); 
+    NtupleFactory_->AddFloat("muons_tkIsoR05"); 
+    NtupleFactory_->AddFloat("muons_nTkIsoR05"); 
+    NtupleFactory_->AddFloat("muons_emIsoR05"); 
+    NtupleFactory_->AddFloat("muons_hadIsoR05"); 
+    NtupleFactory_->AddFloat("muons_3DipSignificance");    
+    NtupleFactory_->AddFloat("muons_tipSignificance");    
+    NtupleFactory_->AddFloat("muons_lipSignificance");    
+  }
+  
+  if(saveEle_)
+  {
+    NtupleFactory_->Add4V("electrons");
+    NtupleFactory_->AddFloat("electrons_charge"); 
+    NtupleFactory_->AddFloat("electrons_tkIso"); 
+    NtupleFactory_->AddFloat("electrons_emIso"); 
+    NtupleFactory_->AddFloat("electrons_hadIso_1"); 
+    NtupleFactory_->AddFloat("electrons_hadIso_2"); 
+    NtupleFactory_->AddFloat("electrons_IdLoose"); 
+    NtupleFactory_->AddFloat("electrons_IdTight"); 
+    NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
+    NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
+    NtupleFactory_->AddFloat("electrons_track_d0");
+    NtupleFactory_->AddFloat("electrons_track_dz");
+    NtupleFactory_->AddFloat("electrons_track_d0err");
+    NtupleFactory_->AddFloat("electrons_track_dzerr");
+    NtupleFactory_->AddFloat("electrons_3DipSignificance");    
+    NtupleFactory_->AddFloat("electrons_tipSignificance");    
+    NtupleFactory_->AddFloat("electrons_lipSignificance");    
+  }
+  
+  if(saveTrack_)
+  {
+    NtupleFactory_->Add3V("tracks_in");
+    NtupleFactory_->Add3V("tracks_out");   
+  }
+  
+  if(saveJet_ || savePFJet_)
+  {
+    NtupleFactory_->Add4V("jets");      
+    NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTags");   
+    NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTagsDR");   
+    NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTags");   
+    NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTagsDR");   
+    NtupleFactory_->AddFloat("jets_simpleSecondaryVertexBJetTags");   
+    NtupleFactory_->AddFloat("jets_simpleSecondaryVertexBJetTagsDR");   
+    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexBJetTags");   
+    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexBJetTagsDR");   
+    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexMVABJetTags");   
+    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexMVABJetTagsDR");   
+    NtupleFactory_->AddFloat("jets_jetProbabilityBJetTags");   
+    NtupleFactory_->AddFloat("jets_jetProbabilityBJetTagsDR");   
+    NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTags");   
+    NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTagsDR");   
+  }
+  
+  if(saveGenJet_)
+  {
+    NtupleFactory_->Add4V("genJets");         
+  }    
+  
+  if(saveMet_)
+  {
+   NtupleFactory_->Add4V("met");         
+   NtupleFactory_->Add4V("type1Met");         
+   NtupleFactory_->Add4V("PFMet");         
+  }
+  
+  if(saveGenMet_)
+  {
+   NtupleFactory_->Add4V("genMet");                
+  }
+  
+  if(saveMCHiggs_)
+  {
+    NtupleFactory_->Add4V("mc_H");    
+    NtupleFactory_->AddFloat("mc_H_charge");    
+  }
+
+  if(saveMCHiggsDecay_)
+  {
+    NtupleFactory_->Add4V("mcV1");         
+    NtupleFactory_->AddFloat("mcV1_charge");    
+    NtupleFactory_->AddFloat("mcV1_pdgId");    
+    
+    NtupleFactory_->Add4V("mcV2");         
+    NtupleFactory_->AddFloat("mcV2_charge");    
+    NtupleFactory_->AddFloat("mcV2_pdgId");  
+    
+    NtupleFactory_->Add4V("mcF1_fromV1");   
+    NtupleFactory_->AddFloat("mcF1_fromV1_charge");    
+    NtupleFactory_->AddFloat("mcF1_fromV1_pdgId");  
+       
+    NtupleFactory_->Add4V("mcF2_fromV1");         
+    NtupleFactory_->AddFloat("mcF2_fromV1_charge");    
+    NtupleFactory_->AddFloat("mcF2_fromV1_pdgId");  
+ 
+    NtupleFactory_->Add4V("mcF1_fromV2");         
+    NtupleFactory_->AddFloat("mcF1_fromV2_charge");    
+    NtupleFactory_->AddFloat("mcF1_fromV2_pdgId");  
+ 
+    NtupleFactory_->Add4V("mcF2_fromV2");         
+    NtupleFactory_->AddFloat("mcF2_fromV2_charge");    
+    NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");  
+ 
+    NtupleFactory_->Add4V("mcQ1_tag");    
+    NtupleFactory_->AddFloat("mcQ1_tag_charge");    
+    NtupleFactory_->AddFloat("mcQ1_tag_pdgId");  
+      
+    NtupleFactory_->Add4V("mcQ2_tag");         
+    NtupleFactory_->AddFloat("mcQ2_tag_charge");    
+    NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
+  }
+  
+  if(saveMCEle_)
+  {
+    NtupleFactory_->Add4V("mc_ele");    
+    NtupleFactory_->AddFloat("mc_ele_charge");    
+  }
+
+  if(saveMCMu_)
+  {
+    NtupleFactory_->Add4V("mc_mu");    
+    NtupleFactory_->AddFloat("mc_mu_charge");    
+  }
+  
 
  
 }
@@ -128,6 +281,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 
 SimpleNtple::~SimpleNtple()
 {
+ NtupleFactory_->WriteNtuple();
  delete NtupleFactory_;
 }
 
@@ -794,6 +948,18 @@ void SimpleNtple::fillMCMuInfo (const edm::Event & iEvent, const edm::EventSetup
 // ------------ method called to for each event  ------------
 void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  ++eventNaiveId_;
+  
+  NtupleFactory_->FillInt("runId", iEvent.id().run());
+  NtupleFactory_->FillInt("lumiId", iEvent.luminosityBlock());
+  NtupleFactory_->FillInt("BXId", iEvent.bunchCrossing());
+  NtupleFactory_->FillInt("eventId", iEvent.id().event());
+  NtupleFactory_->FillInt("eventNaiveId", eventNaiveId_);
+
+
+
+
+
  edm::Handle<reco::GenParticleCollection> genParticles;
 
  if(saveMCHiggs_ || saveMCHiggsDecay_ || saveMCEle_ || saveMCMu_)
@@ -846,165 +1012,3 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  NtupleFactory_->FillNtuple();
 
 }
-
-    
-// ------------ method called once each job just before starting event loop  ------------
-  
-  void 
-    SimpleNtple::beginJob(const edm::EventSetup& iSetup)
-{
- if(saveHLT_)
- {
-    NtupleFactory_->AddFloat("HLT_WasRun"); 
-    NtupleFactory_->AddFloat("HLT_Accept"); 
-    NtupleFactory_->AddFloat("HLT_Error"); 
-//     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
-//     hlNames_=triggerNames.triggerNames();
-//     const unsigned int n(hlNames_.size());
- }
- 
- if(saveMu_)
-  {
-    NtupleFactory_->Add4V("muons");
-    NtupleFactory_->AddFloat("muons_charge"); 
-    NtupleFactory_->AddFloat("muons_tkIsoR03"); 
-    NtupleFactory_->AddFloat("muons_nTkIsoR03"); 
-    NtupleFactory_->AddFloat("muons_emIsoR03"); 
-    NtupleFactory_->AddFloat("muons_hadIsoR03"); 
-    NtupleFactory_->AddFloat("muons_tkIsoR05"); 
-    NtupleFactory_->AddFloat("muons_nTkIsoR05"); 
-    NtupleFactory_->AddFloat("muons_emIsoR05"); 
-    NtupleFactory_->AddFloat("muons_hadIsoR05"); 
-    NtupleFactory_->AddFloat("muons_3DipSignificance");    
-    NtupleFactory_->AddFloat("muons_tipSignificance");    
-    NtupleFactory_->AddFloat("muons_lipSignificance");    
-  }
-  
-  if(saveEle_)
-  {
-    NtupleFactory_->Add4V("electrons");
-    NtupleFactory_->AddFloat("electrons_charge"); 
-    NtupleFactory_->AddFloat("electrons_tkIso"); 
-    NtupleFactory_->AddFloat("electrons_emIso"); 
-    NtupleFactory_->AddFloat("electrons_hadIso_1"); 
-    NtupleFactory_->AddFloat("electrons_hadIso_2"); 
-    NtupleFactory_->AddFloat("electrons_IdLoose"); 
-    NtupleFactory_->AddFloat("electrons_IdTight"); 
-    NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
-    NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
-    NtupleFactory_->AddFloat("electrons_track_d0");
-    NtupleFactory_->AddFloat("electrons_track_dz");
-    NtupleFactory_->AddFloat("electrons_track_d0err");
-    NtupleFactory_->AddFloat("electrons_track_dzerr");
-    NtupleFactory_->AddFloat("electrons_3DipSignificance");    
-    NtupleFactory_->AddFloat("electrons_tipSignificance");    
-    NtupleFactory_->AddFloat("electrons_lipSignificance");    
-  }
-  
-  if(saveTrack_)
-  {
-    NtupleFactory_->Add3V("tracks_in");
-    NtupleFactory_->Add3V("tracks_out");   
-  }
-  
-  if(saveJet_ || savePFJet_)
-  {
-    NtupleFactory_->Add4V("jets");      
-    NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTags");   
-    NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTagsDR");   
-    NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTags");   
-    NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTagsDR");   
-    NtupleFactory_->AddFloat("jets_simpleSecondaryVertexBJetTags");   
-    NtupleFactory_->AddFloat("jets_simpleSecondaryVertexBJetTagsDR");   
-    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexBJetTags");   
-    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexBJetTagsDR");   
-    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexMVABJetTags");   
-    NtupleFactory_->AddFloat("jets_combinedSecondaryVertexMVABJetTagsDR");   
-    NtupleFactory_->AddFloat("jets_jetProbabilityBJetTags");   
-    NtupleFactory_->AddFloat("jets_jetProbabilityBJetTagsDR");   
-    NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTags");   
-    NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTagsDR");   
-  }
-  
-  if(saveGenJet_)
-  {
-    NtupleFactory_->Add4V("genJets");         
-  }    
-  
-  if(saveMet_)
-  {
-   NtupleFactory_->Add4V("met");         
-   NtupleFactory_->Add4V("type1Met");         
-   NtupleFactory_->Add4V("PFMet");         
-  }
-  
-  if(saveGenMet_)
-  {
-   NtupleFactory_->Add4V("genMet");                
-  }
-  
-  if(saveMCHiggs_)
-  {
-    NtupleFactory_->Add4V("mc_H");    
-    NtupleFactory_->AddFloat("mc_H_charge");    
-  }
-
-  if(saveMCHiggsDecay_)
-  {
-    NtupleFactory_->Add4V("mcV1");         
-    NtupleFactory_->AddFloat("mcV1_charge");    
-    NtupleFactory_->AddFloat("mcV1_pdgId");    
-    
-    NtupleFactory_->Add4V("mcV2");         
-    NtupleFactory_->AddFloat("mcV2_charge");    
-    NtupleFactory_->AddFloat("mcV2_pdgId");  
-    
-    NtupleFactory_->Add4V("mcF1_fromV1");   
-    NtupleFactory_->AddFloat("mcF1_fromV1_charge");    
-    NtupleFactory_->AddFloat("mcF1_fromV1_pdgId");  
-       
-    NtupleFactory_->Add4V("mcF2_fromV1");         
-    NtupleFactory_->AddFloat("mcF2_fromV1_charge");    
-    NtupleFactory_->AddFloat("mcF2_fromV1_pdgId");  
- 
-    NtupleFactory_->Add4V("mcF1_fromV2");         
-    NtupleFactory_->AddFloat("mcF1_fromV2_charge");    
-    NtupleFactory_->AddFloat("mcF1_fromV2_pdgId");  
- 
-    NtupleFactory_->Add4V("mcF2_fromV2");         
-    NtupleFactory_->AddFloat("mcF2_fromV2_charge");    
-    NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");  
- 
-    NtupleFactory_->Add4V("mcQ1_tag");    
-    NtupleFactory_->AddFloat("mcQ1_tag_charge");    
-    NtupleFactory_->AddFloat("mcQ1_tag_pdgId");  
-      
-    NtupleFactory_->Add4V("mcQ2_tag");         
-    NtupleFactory_->AddFloat("mcQ2_tag_charge");    
-    NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
-  }
-  
-  if(saveMCEle_)
-  {
-    NtupleFactory_->Add4V("mc_ele");    
-    NtupleFactory_->AddFloat("mc_ele_charge");    
-  }
-
-  if(saveMCMu_)
-  {
-    NtupleFactory_->Add4V("mc_mu");    
-    NtupleFactory_->AddFloat("mc_mu_charge");    
-  }
-  
-}
-   
-   
-// ------------ method called once each job just after ending the event loop  ------------
-     
-  void 
-    SimpleNtple::endJob() {
-   
-   NtupleFactory_->WriteNtuple();
-
-    }
-

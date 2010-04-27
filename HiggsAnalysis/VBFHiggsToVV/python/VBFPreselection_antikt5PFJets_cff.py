@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-# antikt5PFJets
+# ak5PFJets
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
@@ -33,11 +33,11 @@ from HiggsAnalysis.VBFHiggsToVV.VBFJetCleaner_cfi import *
 VBFCleanedPFJetsAntikt5PFJets = VBFCleanedPFJets.clone()
 VBFCleanedPFJetsRefAntikt5PFJets = VBFCleanedPFJetsRef.clone()
 
-VBFCleanedPFJetsAntikt5PFJets.src = cms.InputTag("antikt5PFJets")
+VBFCleanedPFJetsAntikt5PFJets.src = cms.InputTag("ak5PFJets")
 VBFCleanedPFJetsAntikt5PFJets.doElectronRefCheck = cms.bool(True)
 VBFCleanedPFJetsAntikt5PFJets.srcElectronsRef = cms.InputTag("VBFIdSelectedElectronsRefAll")
 
-VBFCleanedPFJetsRefAntikt5PFJets.src = cms.InputTag("antikt5PFJets")
+VBFCleanedPFJetsRefAntikt5PFJets.src = cms.InputTag("ak5PFJets")
 VBFCleanedPFJetsRefAntikt5PFJets.doElectronRefCheck = cms.bool(True)
 VBFCleanedPFJetsRefAntikt5PFJets.srcElectronsRef = cms.InputTag("VBFIdSelectedElectronsRefAll")
 
@@ -48,14 +48,14 @@ from HiggsAnalysis.VBFHiggsToVV.VBFJetSelector_cfi import *
 VBFSelectedPFJetsAntikt5PFJets = VBFSelectedPFJets.clone()
 VBFSelectedPFJetsRefAntikt5PFJets = VBFSelectedPFJetsRef.clone()
 
-VBFSelectedPFJetsAntikt5PFJets.src = cms.InputTag("antikt5PFJets")
+VBFSelectedPFJetsAntikt5PFJets.src = cms.InputTag("ak5PFJets")
 VBFSelectedPFJetsAntikt5PFJets.etMin = cms.double(10.)
 VBFSelectedPFJetsAntikt5PFJets.etaMin = cms.double(-5.0)
 VBFSelectedPFJetsAntikt5PFJets.etaMax = cms.double(+5.0)
 VBFSelectedPFJetsAntikt5PFJets.doRefCheck = cms.bool(True)
 VBFSelectedPFJetsAntikt5PFJets.srcJetsRef = cms.InputTag("VBFCleanedPFJetsRefAntikt5PFJets")
 
-VBFSelectedPFJetsRefAntikt5PFJets.src = cms.InputTag("antikt5PFJets")
+VBFSelectedPFJetsRefAntikt5PFJets.src = cms.InputTag("ak5PFJets")
 VBFSelectedPFJetsRefAntikt5PFJets.etMin = cms.double(10.)
 VBFSelectedPFJetsRefAntikt5PFJets.etaMin = cms.double(-5.0)
 VBFSelectedPFJetsAntikt5PFJets.etaMax = cms.double(+5.0)
@@ -110,7 +110,7 @@ VBFNtupleAntikt5PFJets.Mu3DipSignificanceTag = cms.InputTag("VBFLepton3DipProduc
 VBFNtupleAntikt5PFJets.MuTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:MuTipSignificanceMap")
 VBFNtupleAntikt5PFJets.MuLipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:MuLipSignificanceMap")
 
-VBFNtupleAntikt5PFJets.JetTag = cms.InputTag("antikt5PFJets")
+VBFNtupleAntikt5PFJets.JetTag = cms.InputTag("ak5PFJets")
 VBFNtupleAntikt5PFJets.doJetRefCheck = cms.untracked.bool(True)
 VBFNtupleAntikt5PFJets.JetRefTag = cms.InputTag("VBFSelectedPFJetsRefAntikt5PFJets")
 VBFNtupleAntikt5PFJets.genJetTag = cms.InputTag("antikt5GenJets")
@@ -124,9 +124,9 @@ VBFNtupleAntikt5PFJets.saveJet         = cms.untracked.bool(False)
 VBFNtupleAntikt5PFJets.savePFJet       = cms.untracked.bool(True)
 VBFNtupleAntikt5PFJets.saveJetBTagging = cms.untracked.bool(True)
 VBFNtupleAntikt5PFJets.saveMet         = cms.untracked.bool(True)
-VBFNtupleAntikt5PFJets.saveGenJet      = cms.untracked.bool(True)
-VBFNtupleAntikt5PFJets.saveGenMet      = cms.untracked.bool(True)
-VBFNtupleAntikt5PFJets.saveMC          = cms.untracked.bool(True)
+VBFNtupleAntikt5PFJets.saveGenJet      = cms.untracked.bool(False)
+VBFNtupleAntikt5PFJets.saveGenMet      = cms.untracked.bool(False)
+VBFNtupleAntikt5PFJets.saveMC          = cms.untracked.bool(False)
 
 
 

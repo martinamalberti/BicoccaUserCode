@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-# antikt5CaloJets
+# ak5CaloJets
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
@@ -33,11 +33,11 @@ from HiggsAnalysis.VBFHiggsToVV.VBFJetCleaner_cfi import *
 VBFCleanedCaloJetsAntikt5CaloJets = VBFCleanedCaloJets.clone()
 VBFCleanedCaloJetsRefAntikt5CaloJets = VBFCleanedCaloJetsRef.clone()
 
-VBFCleanedCaloJetsAntikt5CaloJets.src = cms.InputTag("antikt5CaloJets")
+VBFCleanedCaloJetsAntikt5CaloJets.src = cms.InputTag("ak5CaloJets")
 VBFCleanedCaloJetsAntikt5CaloJets.doElectronRefCheck = cms.bool(True)
 VBFCleanedCaloJetsAntikt5CaloJets.srcElectronsRef = cms.InputTag("VBFIdSelectedElectronsRefAll")
 
-VBFCleanedCaloJetsRefAntikt5CaloJets.src = cms.InputTag("antikt5CaloJets")
+VBFCleanedCaloJetsRefAntikt5CaloJets.src = cms.InputTag("ak5CaloJets")
 VBFCleanedCaloJetsRefAntikt5CaloJets.doElectronRefCheck = cms.bool(True)
 VBFCleanedCaloJetsRefAntikt5CaloJets.srcElectronsRef = cms.InputTag("VBFIdSelectedElectronsRefAll")
 
@@ -48,14 +48,14 @@ from HiggsAnalysis.VBFHiggsToVV.VBFJetSelector_cfi import *
 VBFSelectedCaloJetsAntikt5CaloJets = VBFSelectedCaloJets.clone()
 VBFSelectedCaloJetsRefAntikt5CaloJets = VBFSelectedCaloJetsRef.clone()
 
-VBFSelectedCaloJetsAntikt5CaloJets.src = cms.InputTag("antikt5CaloJets")
+VBFSelectedCaloJetsAntikt5CaloJets.src = cms.InputTag("ak5CaloJets")
 VBFSelectedCaloJetsAntikt5CaloJets.etMin = cms.double(10.)
 VBFSelectedCaloJetsAntikt5CaloJets.etaMin = cms.double(-5.0)
 VBFSelectedCaloJetsAntikt5CaloJets.etaMax = cms.double(+5.0)
 VBFSelectedCaloJetsAntikt5CaloJets.doRefCheck = cms.bool(True)
 VBFSelectedCaloJetsAntikt5CaloJets.srcJetsRef = cms.InputTag("VBFCleanedCaloJetsRefAntikt5CaloJets")
 
-VBFSelectedCaloJetsRefAntikt5CaloJets.src = cms.InputTag("antikt5CaloJets")
+VBFSelectedCaloJetsRefAntikt5CaloJets.src = cms.InputTag("ak5CaloJets")
 VBFSelectedCaloJetsRefAntikt5CaloJets.etMin = cms.double(10.)
 VBFSelectedCaloJetsRefAntikt5CaloJets.etaMin = cms.double(-5.0)
 VBFSelectedCaloJetsAntikt5CaloJets.etaMax = cms.double(+5.0)
@@ -110,10 +110,10 @@ VBFNtupleAntikt5CaloJets.Mu3DipSignificanceTag = cms.InputTag("VBFLepton3DipProd
 VBFNtupleAntikt5CaloJets.MuTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:MuTipSignificanceMap")
 VBFNtupleAntikt5CaloJets.MuLipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducerAll:MuLipSignificanceMap")
 
-VBFNtupleAntikt5CaloJets.JetTag = cms.InputTag("antikt5CaloJets")
+VBFNtupleAntikt5CaloJets.JetTag = cms.InputTag("ak5CaloJets")
 VBFNtupleAntikt5CaloJets.doJetRefCheck = cms.untracked.bool(True)
 VBFNtupleAntikt5CaloJets.JetRefTag = cms.InputTag("VBFSelectedCaloJetsRefAntikt5CaloJets")
-VBFNtupleAntikt5CaloJets.genJetTag = cms.InputTag("antikt5GenJets")
+VBFNtupleAntikt5CaloJets.genJetTag = cms.InputTag("ak5GenJets")
 
 VBFNtupleAntikt5CaloJets.Type1MetTag = cms.InputTag("VBFType1Antikt5CaloMet")
 
@@ -124,9 +124,9 @@ VBFNtupleAntikt5CaloJets.saveJet         = cms.untracked.bool(True)
 VBFNtupleAntikt5CaloJets.savePFJet       = cms.untracked.bool(False)
 VBFNtupleAntikt5CaloJets.saveJetBTagging = cms.untracked.bool(True)
 VBFNtupleAntikt5CaloJets.saveMet         = cms.untracked.bool(True)
-VBFNtupleAntikt5CaloJets.saveGenJet      = cms.untracked.bool(True)
-VBFNtupleAntikt5CaloJets.saveGenMet      = cms.untracked.bool(True)
-VBFNtupleAntikt5CaloJets.saveMC          = cms.untracked.bool(True)
+VBFNtupleAntikt5CaloJets.saveGenJet      = cms.untracked.bool(False)
+VBFNtupleAntikt5CaloJets.saveGenMet      = cms.untracked.bool(False)
+VBFNtupleAntikt5CaloJets.saveMC          = cms.untracked.bool(False)
 
 
 
