@@ -9,17 +9,17 @@ process = cms.Process('HLT')
 
 # import of standard configurations
 process.load('FastSimulation/Configuration/RandomServiceInitialization_cff')
-process.load('FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi')
+process.load('FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/Generator_cff')
 process.load('FastSimulation/Configuration/FamosSequences_cff')
-process.load('FastSimulation/Configuration/HLT_1E31_cff')
+process.load('FastSimulation/Configuration/HLT_8E29_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
 process.load('FastSimulation/Configuration/CommonInputs_cff')
 process.load('FastSimulation/Configuration/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('PYTHIA6_H170WWlnujj_pythiaHad_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -53,7 +53,7 @@ process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulat
 process.famosPileUp.PileUpSimulator.averageNumber = 0
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
-process.famosSimHits.ActivateDecays.comEnergy = 10000
+process.famosSimHits.ActivateDecays.comEnergy = 7000
 process.simulation = cms.Sequence(process.simulationWithFamos)
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 
@@ -68,7 +68,7 @@ process.misalignedTrackerGeometry.applyAlignment = True
 process.misalignedDTGeometry.applyAlignment = True
 process.misalignedCSCGeometry.applyAlignment = True
 
-process.GlobalTag.globaltag = 'MC_31X_V5::All'
+process.GlobalTag.globaltag = 'START3X_V25::All'
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     ExternalDecays = cms.PSet(
         Tauola = cms.untracked.PSet(
@@ -157,30 +157,9 @@ process.generation_step = cms.Path(cms.SequencePlaceholder("randomEngineStatePro
 process.reconstruction = cms.Path(process.reconstructionWithFamos)
 process.out_step = cms.EndPath(process.output)
 
-
-
-#anti-kt Jet
-from RecoJets.Configuration.GenJetParticles_cff import *
-
-from RecoJets.JetProducers.antikt5GenJets_cff import * 
-from RecoJets.JetProducers.antikt7GenJets_cff import *
-
-from RecoJets.JetProducers.antikt5CaloJets_cff import *
-from RecoJets.JetProducers.antikt7CaloJets_cff import *
-
-#from RecoJets.JetProducers.antikt5PFJets_cff import *
-#from RecoJets.JetProducers.antikt7PFJets_cff import *
-
-process.recoMyJets = cms.Path(process.genJetParticles +
-                              process.antikt5GenJets  + # process.antikt7GenJets +
-                              process.antikt5CaloJets # + process.antikt7CaloJets +
-                              #process.antikt5PFJets   # + process.antikt7PFJets
-                              )                              
-
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step)
 process.schedule.extend(process.HLTSchedule)
-process.schedule.extend([process.recoMyJets])
 process.schedule.extend([process.reconstruction,process.out_step])
 # special treatment in case of production filter sequence  
 for path in process.paths: 
