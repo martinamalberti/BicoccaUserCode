@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.13 2010/04/27 17:05:22 abenagli Exp $
+// $Id: SimpleNtple.cc,v 1.14 2010/04/28 07:35:39 amassiro Exp $
 //
 //
 
@@ -167,9 +167,12 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->Add4V("electrons");
     NtupleFactory_->AddFloat("electrons_charge"); 
     NtupleFactory_->AddFloat("electrons_tkIso"); 
-    NtupleFactory_->AddFloat("electrons_emIso"); 
-    NtupleFactory_->AddFloat("electrons_hadIso_1"); 
-    NtupleFactory_->AddFloat("electrons_hadIso_2"); 
+    NtupleFactory_->AddFloat("electrons_emIso03"); 
+    NtupleFactory_->AddFloat("electrons_emIso04"); 
+    NtupleFactory_->AddFloat("electrons_hadIso03_1"); 
+    NtupleFactory_->AddFloat("electrons_hadIso03_2"); 
+    NtupleFactory_->AddFloat("electrons_hadIso04_1"); 
+    NtupleFactory_->AddFloat("electrons_hadIso04_2"); 
     NtupleFactory_->AddFloat("electrons_IdLoose"); 
     NtupleFactory_->AddFloat("electrons_IdTight"); 
     NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
@@ -180,7 +183,17 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_track_dzerr");
     NtupleFactory_->AddFloat("electrons_3DipSignificance");    
     NtupleFactory_->AddFloat("electrons_tipSignificance");    
-    NtupleFactory_->AddFloat("electrons_lipSignificance");    
+    NtupleFactory_->AddFloat("electrons_lipSignificance");
+    NtupleFactory_->AddFloat("electrons_scTheta");
+    NtupleFactory_->AddFloat("electrons_scE");
+    NtupleFactory_->AddFloat("electrons_eOverP");
+    NtupleFactory_->AddFloat("electrons_eSeed");
+    NtupleFactory_->AddFloat("electrons_pin");
+    NtupleFactory_->AddFloat("electrons_pout");
+    NtupleFactory_->AddFloat("electrons_hOverE");
+    NtupleFactory_->AddFloat("electrons_deltaPhiIn");
+    NtupleFactory_->AddFloat("electrons_deltaEtaIn");
+    NtupleFactory_->AddInt("electrons_mishits");
   }
   
   if(saveTrack_)
@@ -435,14 +448,16 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
       isEleRefCheckOk = false;
 
   if(!isEleRefCheckOk) continue;
-  
-  
+
   NtupleFactory_->Fill4V("electrons",(*EleHandle)[i].p4());
   NtupleFactory_->FillFloat("electrons_charge",((*EleHandle)[i].charge()));
   NtupleFactory_->FillFloat("electrons_tkIso",((*EleHandle)[i].dr03TkSumPt()));
-  NtupleFactory_->FillFloat("electrons_emIso",((*EleHandle)[i].dr03EcalRecHitSumEt()));
-  NtupleFactory_->FillFloat("electrons_hadIso_1",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));
-  NtupleFactory_->FillFloat("electrons_hadIso_2",((*EleHandle)[i].dr03HcalDepth2TowerSumEt()));
+  NtupleFactory_->FillFloat("electrons_emIso03",((*EleHandle)[i].dr03EcalRecHitSumEt()));
+  NtupleFactory_->FillFloat("electrons_emIso04",((*EleHandle)[i].dr04EcalRecHitSumEt()));
+  NtupleFactory_->FillFloat("electrons_hadIso03_1",((*EleHandle)[i].dr03HcalDepth1TowerSumEt()));
+  NtupleFactory_->FillFloat("electrons_hadIso03_2",((*EleHandle)[i].dr03HcalDepth2TowerSumEt()));
+  NtupleFactory_->FillFloat("electrons_hadIso04_1",((*EleHandle)[i].dr04HcalDepth1TowerSumEt()));
+  NtupleFactory_->FillFloat("electrons_hadIso04_2",((*EleHandle)[i].dr04HcalDepth2TowerSumEt()));
   //   if ((*EleHandle)[i].classification()== GsfElectron::GOLDEN
   
   //ELE ID
@@ -451,6 +466,17 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[2]))[eleRef]);
   NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[eleRef]);
       
+  NtupleFactory_->FillFloat("electrons_scTheta",(2*atan(exp(-(*EleHandle)[i].superCluster()->eta()))));
+  NtupleFactory_->FillFloat("electrons_scE",(*EleHandle)[i].superCluster()->energy());
+  NtupleFactory_->FillFloat("electrons_eOverP",(*EleHandle)[i].eSuperClusterOverP());
+  NtupleFactory_->FillFloat("electrons_eSeed",(*EleHandle)[i].superCluster()->seed()->energy());
+  NtupleFactory_->FillFloat("electrons_pin",(*EleHandle)[i].trackMomentumAtVtx().R());
+  NtupleFactory_->FillFloat("electrons_pout",(*EleHandle)[i].trackMomentumOut().R());
+  NtupleFactory_->FillFloat("electrons_hOverE",(*EleHandle)[i].hadronicOverEm());
+  NtupleFactory_->FillFloat("electrons_deltaPhiIn",(*EleHandle)[i].deltaPhiSuperClusterTrackAtVtx());
+  NtupleFactory_->FillFloat("electrons_deltaEtaIn",(*EleHandle)[i].deltaEtaSuperClusterTrackAtVtx());
+  NtupleFactory_->FillInt("electrons_mishits",(*EleHandle)[i].gsfTrack()->trackerExpectedHitsInner().numberOfHits());
+
   //Get Ele Track
   reco::GsfTrackRef eleTrack  = (*EleHandle)[i].gsfTrack () ; 
       
