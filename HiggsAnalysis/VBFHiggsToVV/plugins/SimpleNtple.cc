@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.12 2010/04/27 16:32:34 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.13 2010/04/27 17:05:22 abenagli Exp $
 //
 //
 
@@ -146,8 +146,8 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   {
     NtupleFactory_->Add4V("muons");
 
-    NtupleFactory_->AddFloat("muons_global");
-    NtupleFactory_->AddFloat("muons_goodMuon");
+    NtupleFactory_->AddInt("muons_global");
+    NtupleFactory_->AddInt("muons_goodMuon");
     NtupleFactory_->AddFloat("muons_charge"); 
     NtupleFactory_->AddFloat("muons_tkIsoR03"); 
     NtupleFactory_->AddFloat("muons_nTkIsoR03"); 
@@ -373,8 +373,8 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
   
   
   NtupleFactory_->Fill4V("muons",(*MuHandle)[i].p4());
-  NtupleFactory_->FillFloat("muons_global",((*MuHandle)[i].isGlobalMuon()));
-  NtupleFactory_->FillFloat("muons_goodMuon",muon::isGoodMuon((*MuHandle)[i], muon::GlobalMuonPromptTight));
+  NtupleFactory_->FillInt("muons_global",((*MuHandle)[i].isGlobalMuon()));
+  NtupleFactory_->FillInt("muons_goodMuon",muon::isGoodMuon((*MuHandle)[i], muon::GlobalMuonPromptTight));
 
   NtupleFactory_->FillFloat("muons_charge",((*MuHandle)[i].charge()));
   NtupleFactory_->FillFloat("muons_tkIsoR03",((*MuHandle)[i].isolationR03()).sumPt);
