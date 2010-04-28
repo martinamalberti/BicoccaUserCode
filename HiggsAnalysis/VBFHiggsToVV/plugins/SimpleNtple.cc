@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.15 2010/04/28 08:05:43 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.16 2010/04/28 08:21:21 amassiro Exp $
 //
 //
 
@@ -189,7 +189,9 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_eOverP");
     NtupleFactory_->AddFloat("electrons_eSeed");
     NtupleFactory_->AddFloat("electrons_fbrem");
-    NtupleFactory_->AddFloat("sigmaIetaIeta");
+    NtupleFactory_->AddFloat("electrons_sigmaIetaIeta");
+    NtupleFactory_->AddFloat("electrons_pin");
+    NtupleFactory_->AddFloat("electrons_pout");
     NtupleFactory_->AddFloat("electrons_hOverE");
     NtupleFactory_->AddFloat("electrons_deltaPhiIn");
     NtupleFactory_->AddFloat("electrons_deltaEtaIn");
@@ -466,12 +468,14 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[2]))[eleRef]);
   NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[eleRef]);
 
-  NtupleFactory_->FillFloat("sigmaIetaIeta",(*EleHandle)[i].sigmaIetaIeta());
+  NtupleFactory_->FillFloat("electrons_sigmaIetaIeta",(*EleHandle)[i].sigmaIetaIeta());
   NtupleFactory_->FillFloat("electrons_scTheta",(2*atan(exp(-(*EleHandle)[i].superCluster()->eta()))));
   NtupleFactory_->FillFloat("electrons_scE",(*EleHandle)[i].superCluster()->energy());
   NtupleFactory_->FillFloat("electrons_eOverP",(*EleHandle)[i].eSuperClusterOverP());
   NtupleFactory_->FillFloat("electrons_eSeed",(*EleHandle)[i].superCluster()->seed()->energy());
   NtupleFactory_->FillFloat("electrons_fbrem",(*EleHandle)[i].fbrem());
+  NtupleFactory_->FillFloat("electrons_pin",(*EleHandle)[i].trackMomentumAtVtx().R());
+  NtupleFactory_->FillFloat("electrons_pout",(*EleHandle)[i].trackMomentumOut().R());
   NtupleFactory_->FillFloat("electrons_hOverE",(*EleHandle)[i].hadronicOverEm());
   NtupleFactory_->FillFloat("electrons_deltaPhiIn",(*EleHandle)[i].deltaPhiSuperClusterTrackAtVtx());
   NtupleFactory_->FillFloat("electrons_deltaEtaIn",(*EleHandle)[i].deltaEtaSuperClusterTrackAtVtx());
