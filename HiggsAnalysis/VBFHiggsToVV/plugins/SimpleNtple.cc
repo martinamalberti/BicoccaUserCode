@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.16 2010/04/28 08:21:21 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.17 2010/04/28 09:25:19 amassiro Exp $
 //
 //
 
@@ -86,6 +86,8 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  eleIDCut_TightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
  eleIDCut_RTightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
  
+ jetIDTag_ = iConfig.getParameter<edm::InputTag> ("jetIDTag");
+
  //---- ref check ----
  doEleRefCheck_ = iConfig.getUntrackedParameter<bool>("doEleRefCheck", false);
  if(doEleRefCheck_) EleRefTag_  = iConfig.getParameter<edm::InputTag>("EleRefTag");
@@ -203,11 +205,17 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->Add3V("tracks_in");
     NtupleFactory_->Add3V("tracks_out");   
   }
-  
+ 
   if(saveJet_ || savePFJet_)
   {
     NtupleFactory_->Add4V("jets");
+    
     NtupleFactory_->AddFloat("jets_emEnergyFraction");   
+    NtupleFactory_->AddFloat("jets_etaetaMoment");   
+    NtupleFactory_->AddFloat("jets_phiphiMoment");   
+    NtupleFactory_->AddFloat("jets_etaphiMoment");   
+    NtupleFactory_->AddFloat("jets_jetArea");   
+    
     NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTags");   
     NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTagsDR");   
     NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTags");   
@@ -222,6 +230,16 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("jets_jetProbabilityBJetTagsDR");   
     NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTags");   
     NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTagsDR");   
+    
+    if(saveJet_)
+    {
+      NtupleFactory_->AddFloat("jets_fHPD");   
+      NtupleFactory_->AddFloat("jets_fRBX");   
+      NtupleFactory_->AddFloat("jets_n90Hits");   
+      NtupleFactory_->AddFloat("jets_nHCALTowers");   
+      NtupleFactory_->AddFloat("jets_nECALTowers");   
+    }
+    
   }
   
   if(saveGenJet_)
@@ -463,7 +481,7 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   //   if ((*EleHandle)[i].classification()== GsfElectron::GOLDEN
   
   //ELE ID
-  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[eleRef]);
+  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[eleRef]) ;
   NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[1]))[eleRef]);
   NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[2]))[eleRef]);
   NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[eleRef]);
@@ -533,7 +551,11 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
  if(doJetRefCheck_)
    iEvent.getByLabel(JetRefTag_, JetRefHandle);
  
+ edm::Handle<edm::ValueMap<reco::JetID> > jetIDHandle ;
+ iEvent.getByLabel (jetIDTag_, jetIDHandle) ;
  
+ 
+  
  for(unsigned int i=0; i<JetHandle->size(); ++i) 
  { 
    reco::CaloJetRef jetRef(JetHandle, i);
@@ -548,7 +570,18 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    
    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
+   
    NtupleFactory_->FillFloat("jets_emEnergyFraction",(*JetHandle)[i].emEnergyFraction());
+   NtupleFactory_->FillFloat("jets_etaetaMoment",(*JetHandle)[i].etaetaMoment());
+   NtupleFactory_->FillFloat("jets_phiphiMoment",(*JetHandle)[i].phiphiMoment());
+   NtupleFactory_->FillFloat("jets_etaphiMoment",(*JetHandle)[i].etaphiMoment());
+   NtupleFactory_->FillFloat("jets_jetArea",(*JetHandle)[i].jetArea());
+   
+   NtupleFactory_->FillFloat("jets_fHPD",((*jetIDHandle)[jetRef]).fHPD);
+   NtupleFactory_->FillFloat("jets_fRBX",((*jetIDHandle)[jetRef]).fRBX);
+   NtupleFactory_->FillFloat("jets_n90Hits",((*jetIDHandle)[jetRef]).n90Hits);
+   NtupleFactory_->FillFloat("jets_nHCALTowers",((*jetIDHandle)[jetRef]).nHCALTowers);
+   NtupleFactory_->FillFloat("jets_nECALTowers",((*jetIDHandle)[jetRef]).nECALTowers);
 
    if(saveJetBTagging_)
      fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());
@@ -590,8 +623,7 @@ void SimpleNtple::fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetu
    
    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
    NtupleFactory_->FillFloat("jets_emEnergyFraction",(*JetHandle)[i].neutralHadronEnergyFraction()); 
-   /// ~ emFraction see https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Further_comments
-
+   
    
    if(saveJetBTagging_)
      fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());

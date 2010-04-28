@@ -24,6 +24,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetID.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
@@ -109,7 +110,9 @@ public:
   edm::InputTag eleIDCut_RLooseInputTag_ ;
   edm::InputTag eleIDCut_TightInputTag_ ;
   edm::InputTag eleIDCut_RTightInputTag_ ;
-
+  
+  edm::InputTag jetIDTag_ ;
+  
   bool doEleRefCheck_;
   edm::InputTag EleRefTag_;
   bool doMuRefCheck_;

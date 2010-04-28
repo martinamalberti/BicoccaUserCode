@@ -22,6 +22,7 @@ SimpleNtple = cms.EDAnalyzer(
      TracksTag       = cms.InputTag("generalTracks"),
 
      JetTag          = cms.InputTag("sisCone5CaloJets"),
+     JetIDTag        = cms.InputTag("ak5JetID"),
      genJetTag       = cms.InputTag("sisCone5GenJets"),
 
      MetTag          = cms.InputTag("corMetGlobalMuons"),
