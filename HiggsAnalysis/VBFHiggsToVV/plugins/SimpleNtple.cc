@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.18 2010/04/28 19:34:37 abenagli Exp $
+// $Id: SimpleNtple.cc,v 1.19 2010/04/29 07:31:03 amassiro Exp $
 //
 //
 
@@ -585,7 +585,7 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
  if(doJetRefCheck_)
    iEvent.getByLabel(JetRefTag_, JetRefHandle);
  
- edm::Handle<edm::ValueMap<reco::JetID> > jetIDHandle ;
+ edm::Handle<reco::JetIDValueMap> jetIDHandle;
  iEvent.getByLabel (jetIDTag_, jetIDHandle) ;
  
  
