@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.17 2010/04/28 09:25:19 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.18 2010/04/28 19:34:37 abenagli Exp $
 //
 //
 
@@ -86,7 +86,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  eleIDCut_TightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
  eleIDCut_RTightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
  
- jetIDTag_ = iConfig.getParameter<edm::InputTag> ("jetIDTag");
+ jetIDTag_ = iConfig.getParameter<edm::InputTag> ("JetIDTag");
 
  //---- ref check ----
  doEleRefCheck_ = iConfig.getUntrackedParameter<bool>("doEleRefCheck", false);
@@ -210,12 +210,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   {
     NtupleFactory_->Add4V("jets");
     
-    NtupleFactory_->AddFloat("jets_emEnergyFraction");   
-    NtupleFactory_->AddFloat("jets_etaetaMoment");   
-    NtupleFactory_->AddFloat("jets_phiphiMoment");   
-    NtupleFactory_->AddFloat("jets_etaphiMoment");   
-    NtupleFactory_->AddFloat("jets_jetArea");   
-    
+   
     NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTags");   
     NtupleFactory_->AddFloat("jets_trackCountingHighEffBJetTagsDR");   
     NtupleFactory_->AddFloat("jets_trackCountingHighPurBJetTags");   
@@ -230,14 +225,53 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("jets_jetProbabilityBJetTagsDR");   
     NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTags");   
     NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTagsDR");   
-    
+    NtupleFactory_->AddFloat("jets_emEnergyFraction");   
+    NtupleFactory_->AddFloat("jets_etaetaMoment");   
+    NtupleFactory_->AddFloat("jets_phiphiMoment");   
+    NtupleFactory_->AddFloat("jets_etaphiMoment");   
+    NtupleFactory_->AddFloat("jets_jetArea");   
+
     if(saveJet_)
     {
-      NtupleFactory_->AddFloat("jets_fHPD");   
-      NtupleFactory_->AddFloat("jets_fRBX");   
-      NtupleFactory_->AddFloat("jets_n90Hits");   
-      NtupleFactory_->AddFloat("jets_nHCALTowers");   
-      NtupleFactory_->AddFloat("jets_nECALTowers");   
+     NtupleFactory_->AddFloat("jets_fHPD");   
+     NtupleFactory_->AddFloat("jets_fRBX");   
+     NtupleFactory_->AddFloat("jets_n90Hits");   
+     NtupleFactory_->AddFloat("jets_nHCALTowers");   
+     NtupleFactory_->AddFloat("jets_nECALTowers");   
+    }
+    if(savePFJet_){
+     NtupleFactory_->AddFloat("jets_chargedHadronEnergy"); 
+     NtupleFactory_->AddFloat("jets_chargedHadronEnergyFraction");
+     NtupleFactory_->AddFloat("jets_neutralHadronEnergy"); 
+     NtupleFactory_->AddFloat("jets_neutralHadronEnergyFraction"); 
+     NtupleFactory_->AddFloat("jets_photonEnergy"); 
+     NtupleFactory_->AddFloat("jets_photonEnergyFraction"); 
+     NtupleFactory_->AddFloat("jets_electronEnergy"); 
+     NtupleFactory_->AddFloat("jets_electronEnergyFraction"); 
+     NtupleFactory_->AddFloat("jets_muonEnergy"); 
+     NtupleFactory_->AddFloat("jets_muonEnergyFraction"); 
+     NtupleFactory_->AddFloat("jets_HFHadronEnergy"); 
+     NtupleFactory_->AddFloat("jets_HFHadronEnergyFraction"); 
+     NtupleFactory_->AddFloat("jets_HFEMEnergy"); 
+     NtupleFactory_->AddFloat("jets_HFEMEnergyFraction"); 
+ 
+     NtupleFactory_->AddInt("jets_chargedHadronMultiplicity"); 
+     NtupleFactory_->AddInt("jets_neutralHadronMultiplicity"); 
+     NtupleFactory_->AddInt("jets_photonMultiplicity"); 
+     NtupleFactory_->AddInt("jets_electronMultiplicity"); 
+     NtupleFactory_->AddInt("jets_muonMultiplicity"); 
+     NtupleFactory_->AddInt("jets_HFHadronMultiplicity"); 
+     NtupleFactory_->AddInt("jets_HFEMMultiplicity"); 
+   
+     NtupleFactory_->AddFloat("jets_chargedEmEnergy"); 
+     NtupleFactory_->AddFloat("jets_chargedEmEnergyFraction"); 
+     NtupleFactory_->AddFloat("jets_chargedMuEnergy"); 
+     NtupleFactory_->AddFloat("jets_chargedMuEnergyFraction"); 
+     NtupleFactory_->AddFloat("jets_neutralEmEnergy"); 
+     NtupleFactory_->AddFloat("jets_neutralEmEnergyFraction"); 
+   
+     NtupleFactory_->AddInt("jets_chargedMultiplicity"); 
+     NtupleFactory_->AddInt("jets_neutralMultiplicity"); 
     }
     
   }
@@ -624,6 +658,38 @@ void SimpleNtple::fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetu
    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
    NtupleFactory_->FillFloat("jets_emEnergyFraction",(*JetHandle)[i].neutralHadronEnergyFraction()); 
    
+   NtupleFactory_->FillFloat("jets_chargedHadronEnergy",(*JetHandle)[i].chargedHadronEnergy()); 
+   NtupleFactory_->FillFloat("jets_chargedHadronEnergyFraction",(*JetHandle)[i].chargedHadronEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_neutralHadronEnergy",(*JetHandle)[i].neutralHadronEnergy()); 
+   NtupleFactory_->FillFloat("jets_neutralHadronEnergyFraction",(*JetHandle)[i].neutralHadronEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_photonEnergy",(*JetHandle)[i].photonEnergy()); 
+   NtupleFactory_->FillFloat("jets_photonEnergyFraction",(*JetHandle)[i].photonEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_electronEnergy",(*JetHandle)[i].electronEnergy()); 
+   NtupleFactory_->FillFloat("jets_electronEnergyFraction",(*JetHandle)[i].electronEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_muonEnergy",(*JetHandle)[i].muonEnergy()); 
+   NtupleFactory_->FillFloat("jets_muonEnergyFraction",(*JetHandle)[i].muonEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_HFHadronEnergy",(*JetHandle)[i].HFHadronEnergy()); 
+   NtupleFactory_->FillFloat("jets_HFHadronEnergyFraction",(*JetHandle)[i].HFHadronEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_HFEMEnergy",(*JetHandle)[i].HFEMEnergy()); 
+   NtupleFactory_->FillFloat("jets_HFEMEnergyFraction",(*JetHandle)[i].HFEMEnergyFraction()); 
+      
+   NtupleFactory_->FillInt("jets_chargedHadronMultiplicity",(*JetHandle)[i].chargedHadronMultiplicity()); 
+   NtupleFactory_->FillInt("jets_neutralHadronMultiplicity",(*JetHandle)[i].neutralHadronMultiplicity()); 
+   NtupleFactory_->FillInt("jets_photonMultiplicity",(*JetHandle)[i].photonMultiplicity()); 
+   NtupleFactory_->FillInt("jets_electronMultiplicity",(*JetHandle)[i].electronMultiplicity()); 
+   NtupleFactory_->FillInt("jets_muonMultiplicity",(*JetHandle)[i].muonMultiplicity()); 
+   NtupleFactory_->FillInt("jets_HFHadronMultiplicity",(*JetHandle)[i].HFHadronMultiplicity()); 
+   NtupleFactory_->FillInt("jets_HFEMMultiplicity",(*JetHandle)[i].HFEMMultiplicity()); 
+   
+   NtupleFactory_->FillFloat("jets_chargedEmEnergy",(*JetHandle)[i].chargedEmEnergy()); 
+   NtupleFactory_->FillFloat("jets_chargedEmEnergyFraction",(*JetHandle)[i].chargedEmEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_chargedMuEnergy",(*JetHandle)[i].chargedMuEnergy()); 
+   NtupleFactory_->FillFloat("jets_chargedMuEnergyFraction",(*JetHandle)[i].chargedMuEnergyFraction()); 
+   NtupleFactory_->FillFloat("jets_neutralEmEnergy",(*JetHandle)[i].neutralEmEnergy()); 
+   NtupleFactory_->FillFloat("jets_neutralEmEnergyFraction",(*JetHandle)[i].neutralEmEnergyFraction()); 
+   
+   NtupleFactory_->FillInt("jets_chargedMultiplicity",(*JetHandle)[i].chargedMultiplicity()); 
+   NtupleFactory_->FillInt("jets_neutralMultiplicity",(*JetHandle)[i].neutralMultiplicity()); 
    
    if(saveJetBTagging_)
      fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());
