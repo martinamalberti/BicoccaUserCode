@@ -73,12 +73,11 @@ process.source = cms.Source(
 ## --- ====== --- --- --- --- --- --- --- --- --- --- ---
 
 
-#process.load("RecoJets.Configuration.GenJetParticles_cff")
-#process.load("RecoJets.JetProducers.ak5GenJets_cfi")
+process.load("RecoJets.Configuration.GenJetParticles_cff")
+process.load("RecoJets.JetProducers.ak5GenJets_cfi")
 #-----------------------------
 
-#process.p = cms.Path(process.genParticlesForJets *
-                        #process.ak5GenJets )
+process.p0 = cms.Path(process.genParticlesForJets * process.ak5GenJets )
 
 
 
@@ -117,14 +116,14 @@ process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5CaloJets_cff")
 process.VBFNtupleAntikt5CaloJets.eventType        = cms.untracked.int32(1)
 process.VBFNtupleAntikt5CaloJets.saveMCHiggs      = cms.untracked.bool(False)
 process.VBFNtupleAntikt5CaloJets.saveMCHiggsDecay = cms.untracked.bool(False)
-process.VBFNtupleAntikt5CaloJets.saveGenJet       = cms.untracked.bool(False)
+process.VBFNtupleAntikt5CaloJets.saveGenJet       = cms.untracked.bool(True)
 process.VBFNtupleAntikt5CaloJets.saveGenMet       = cms.untracked.bool(True)
 
 process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5CaloJets_cff")
 process.VBFNtupleL2L3Antikt5CaloJets.eventType        = cms.untracked.int32(1)
 process.VBFNtupleL2L3Antikt5CaloJets.saveMCHiggs      = cms.untracked.bool(False)
 process.VBFNtupleL2L3Antikt5CaloJets.saveMCHiggsDecay = cms.untracked.bool(False)
-process.VBFNtupleL2L3Antikt5CaloJets.saveGenJet       = cms.untracked.bool(False)
+process.VBFNtupleL2L3Antikt5CaloJets.saveGenJet       = cms.untracked.bool(True)
 process.VBFNtupleL2L3Antikt5CaloJets.saveGenMet       = cms.untracked.bool(True)
 
 
@@ -136,14 +135,14 @@ process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_antikt5PFJets_cff")
 process.VBFNtupleAntikt5PFJets.eventType        = cms.untracked.int32(1)
 process.VBFNtupleAntikt5PFJets.saveMCHiggs      = cms.untracked.bool(False)
 process.VBFNtupleAntikt5PFJets.saveMCHiggsDecay = cms.untracked.bool(False)
-process.VBFNtupleAntikt5PFJets.saveGenJet       = cms.untracked.bool(False)
+process.VBFNtupleAntikt5PFJets.saveGenJet       = cms.untracked.bool(True)
 process.VBFNtupleAntikt5PFJets.saveGenMet       = cms.untracked.bool(True)
 
 process.load("HiggsAnalysis.VBFHiggsToVV.VBFPreselection_L2L3Antikt5PFJets_cff")
 process.VBFNtupleL2L3Antikt5PFJets.eventType        = cms.untracked.int32(1)
 process.VBFNtupleL2L3Antikt5PFJets.saveMCHiggs      = cms.untracked.bool(False)
 process.VBFNtupleL2L3Antikt5PFJets.saveMCHiggsDecay = cms.untracked.bool(False)
-process.VBFNtupleL2L3Antikt5PFJets.saveGenJet       = cms.untracked.bool(False)
+process.VBFNtupleL2L3Antikt5PFJets.saveGenJet       = cms.untracked.bool(True)
 process.VBFNtupleL2L3Antikt5PFJets.saveGenMet       = cms.untracked.bool(True)
 
 

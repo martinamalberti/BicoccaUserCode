@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.20 2010/04/29 09:47:17 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.21 2010/04/29 13:11:38 amassiro Exp $
 //
 //
 
@@ -226,13 +226,13 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTags");   
     NtupleFactory_->AddFloat("jets_jetBProbabilityBJetTagsDR");   
     NtupleFactory_->AddFloat("jets_emEnergyFraction");   
-    NtupleFactory_->AddFloat("jets_etaetaMoment");   
-    NtupleFactory_->AddFloat("jets_phiphiMoment");   
-    NtupleFactory_->AddFloat("jets_etaphiMoment");   
-    NtupleFactory_->AddFloat("jets_jetArea");   
 
     if(saveJet_)
     {
+     NtupleFactory_->AddFloat("jets_etaetaMoment");   
+     NtupleFactory_->AddFloat("jets_phiphiMoment");   
+     NtupleFactory_->AddFloat("jets_etaphiMoment");   
+     NtupleFactory_->AddFloat("jets_jetArea");   
      NtupleFactory_->AddFloat("jets_fHPD");   
      NtupleFactory_->AddFloat("jets_fRBX");   
      NtupleFactory_->AddFloat("jets_n90Hits");   
@@ -244,34 +244,15 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
      NtupleFactory_->AddFloat("jets_chargedHadronEnergyFraction");
      NtupleFactory_->AddFloat("jets_neutralHadronEnergy"); 
      NtupleFactory_->AddFloat("jets_neutralHadronEnergyFraction"); 
-     NtupleFactory_->AddFloat("jets_photonEnergy"); 
-     NtupleFactory_->AddFloat("jets_photonEnergyFraction"); 
-     NtupleFactory_->AddFloat("jets_electronEnergy"); 
-     NtupleFactory_->AddFloat("jets_electronEnergyFraction"); 
-     NtupleFactory_->AddFloat("jets_muonEnergy"); 
-     NtupleFactory_->AddFloat("jets_muonEnergyFraction"); 
-     NtupleFactory_->AddFloat("jets_HFHadronEnergy"); 
-     NtupleFactory_->AddFloat("jets_HFHadronEnergyFraction"); 
-     NtupleFactory_->AddFloat("jets_HFEMEnergy"); 
-     NtupleFactory_->AddFloat("jets_HFEMEnergyFraction"); 
- 
-     NtupleFactory_->AddInt("jets_chargedHadronMultiplicity"); 
-     NtupleFactory_->AddInt("jets_neutralHadronMultiplicity"); 
-     NtupleFactory_->AddInt("jets_photonMultiplicity"); 
-     NtupleFactory_->AddInt("jets_electronMultiplicity"); 
-     NtupleFactory_->AddInt("jets_muonMultiplicity"); 
-     NtupleFactory_->AddInt("jets_HFHadronMultiplicity"); 
-     NtupleFactory_->AddInt("jets_HFEMMultiplicity"); 
-   
      NtupleFactory_->AddFloat("jets_chargedEmEnergy"); 
      NtupleFactory_->AddFloat("jets_chargedEmEnergyFraction"); 
      NtupleFactory_->AddFloat("jets_chargedMuEnergy"); 
      NtupleFactory_->AddFloat("jets_chargedMuEnergyFraction"); 
      NtupleFactory_->AddFloat("jets_neutralEmEnergy"); 
      NtupleFactory_->AddFloat("jets_neutralEmEnergyFraction"); 
-   
      NtupleFactory_->AddInt("jets_chargedMultiplicity"); 
      NtupleFactory_->AddInt("jets_neutralMultiplicity"); 
+     NtupleFactory_->AddInt("jets_muonMultiplicity"); 
     }
     
   }
@@ -577,6 +558,9 @@ void SimpleNtple::fillTrackInfo (const edm::Event & iEvent, const edm::EventSetu
 void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
   //std::cout << "SimpleNtple::fillJetInfo" << std::endl;
+   edm::Handle<edm::View<reco::Jet> > JetHandle_forID;
+//  edm::Handle<reco::CaloJetCollection> JetHandle_forID ;
+ iEvent.getByLabel ("ak5CaloJets",JetHandle_forID);
  
  edm::Handle<reco::CaloJetCollection> JetHandle ;
  iEvent.getByLabel (JetTag_,JetHandle);
@@ -587,8 +571,7 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
  
  edm::Handle<reco::JetIDValueMap> jetIDHandle;
  iEvent.getByLabel (jetIDTag_, jetIDHandle) ;
- 
- 
+
   
  for(unsigned int i=0; i<JetHandle->size(); ++i) 
  { 
@@ -602,48 +585,48 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
 
    if(!isJetRefCheckOk) continue;
    
-   float DRMin = 999999;
-//    edm::ProductID jMin(-1,-1);
-   int found = 0;
-    for(edm::ValueMap<reco::JetID>::const_iterator ite = (*jetIDHandle).begin(); ite != (*jetIDHandle).end(); ++ite){
-     reco::CaloJetRef jetRef2 = (reco::CaloJetRef)(ite.id());
-     std::cout << "pt = " << jetRef2->pt() << std::endl;
-     
-//      float DRTemp = ROOT::Math::VectorUtil::DeltaR((*JetHandle)[i].p4(), jetRef2->p4());
-//       if(DRTemp < DRMin)
-//       {
-//         DRMin = DRTemp;
-//         jMin = ite.id();
-//         found = 1;
-//       }
-    }
-    
-    if(found != -1) {
-/*     reco::CaloJetRef jetRef_4ID = (reco::CaloJetRef)(jMin);
-     NtupleFactory_->FillFloat("jets_fHPD",((*jetIDHandle)[jetRef_4ID]).fHPD);
-     NtupleFactory_->FillFloat("jets_fRBX",((*jetIDHandle)[jetRef_4ID]).fRBX);
-     NtupleFactory_->FillFloat("jets_n90Hits",((*jetIDHandle)[jetRef_4ID]).n90Hits);
-     NtupleFactory_->FillFloat("jets_nHCALTowers",((*jetIDHandle)[jetRef_4ID]).nHCALTowers);
-     NtupleFactory_->FillFloat("jets_nECALTowers",((*jetIDHandle)[jetRef_4ID]).nECALTowers);*/
-    }
-    else
-    {
-     NtupleFactory_->FillFloat("jets_fHPD",-999);
-     NtupleFactory_->FillFloat("jets_fRBX",-999);
-     NtupleFactory_->FillFloat("jets_n90Hits",-999);
-     NtupleFactory_->FillFloat("jets_nHCALTowers",-999);
-     NtupleFactory_->FillFloat("jets_nECALTowers",-999);
-    }
-
    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
-   
    NtupleFactory_->FillFloat("jets_emEnergyFraction",(*JetHandle)[i].emEnergyFraction());
    NtupleFactory_->FillFloat("jets_etaetaMoment",(*JetHandle)[i].etaetaMoment());
    NtupleFactory_->FillFloat("jets_phiphiMoment",(*JetHandle)[i].phiphiMoment());
    NtupleFactory_->FillFloat("jets_etaphiMoment",(*JetHandle)[i].etaphiMoment());
    NtupleFactory_->FillFloat("jets_jetArea",(*JetHandle)[i].jetArea());
+  
    
- 
+   float DRMin = 999999;
+   int found = 0;
+   
+   edm::View<reco::Jet>::const_iterator itSelJet = JetHandle_forID->end();
+//    reco::CaloJetCollection::const_iterator itSelJet = JetHandle_forID->end();
+   
+   for (edm::View<reco::Jet>::const_iterator itJet = JetHandle_forID->begin(); itJet < JetHandle_forID->end(); itJet++){
+   
+//    for (reco::CaloJetCollection::const_iterator itJet = JetHandle_forID->begin(); itJet < JetHandle_forID->end(); itJet++){
+     float DRTemp = ROOT::Math::VectorUtil::DeltaR((*JetHandle)[i].p4(), itJet->p4());
+      if(DRTemp < DRMin){
+       itSelJet = itJet;
+       DRMin = DRTemp;
+      }
+   }
+   
+   if (itSelJet != JetHandle_forID->end()){
+    unsigned int idx = itSelJet - JetHandle_forID->begin();
+    edm::RefToBase<reco::Jet> jetRef = JetHandle_forID->refAt(idx);
+    NtupleFactory_->FillFloat("jets_fHPD",((*jetIDHandle)[jetRef]).fHPD);
+    NtupleFactory_->FillFloat("jets_fRBX",((*jetIDHandle)[jetRef]).fRBX);
+    NtupleFactory_->FillFloat("jets_n90Hits",((*jetIDHandle)[jetRef]).n90Hits);
+    NtupleFactory_->FillFloat("jets_nHCALTowers",((*jetIDHandle)[jetRef]).nHCALTowers);
+    NtupleFactory_->FillFloat("jets_nECALTowers",((*jetIDHandle)[jetRef]).nECALTowers);
+   }
+   else {
+    NtupleFactory_->FillFloat("jets_fHPD",-999);
+    NtupleFactory_->FillFloat("jets_fRBX",-999);
+    NtupleFactory_->FillFloat("jets_n90Hits",-999);
+    NtupleFactory_->FillFloat("jets_nHCALTowers",-999);
+    NtupleFactory_->FillFloat("jets_nECALTowers",-999);
+   }
+   
+   
    if(saveJetBTagging_)
      fillJetBTaggingInfo(iEvent, iESetup, (*JetHandle)[i].p4());
    
