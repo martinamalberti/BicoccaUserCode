@@ -113,7 +113,7 @@ VBFNtupleAntikt5CaloJets.MuLipSignificanceTag = cms.InputTag("VBFLeptonTipLipPro
 VBFNtupleAntikt5CaloJets.JetTag = cms.InputTag("ak5CaloJets")
 VBFNtupleAntikt5CaloJets.doJetRefCheck = cms.untracked.bool(True)
 VBFNtupleAntikt5CaloJets.JetRefTag = cms.InputTag("VBFSelectedCaloJetsRefAntikt5CaloJets")
-VBFNtupleAntikt5CaloJets.genJetTag = cms.InputTag("sisCone5GenJets")
+VBFNtupleAntikt5CaloJets.genJetTag = cms.InputTag("ak5GenJets")
 
 VBFNtupleAntikt5CaloJets.Type1MetTag = cms.InputTag("VBFType1Antikt5CaloMet")
 

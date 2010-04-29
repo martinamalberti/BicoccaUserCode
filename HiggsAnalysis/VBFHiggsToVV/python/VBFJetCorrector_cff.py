@@ -6,9 +6,9 @@ import FWCore.ParameterSet.Config as cms
 # CALO JET CORRECTOR
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-from JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff import *
-
-
+#from JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff import *
+from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
+#from JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_ReReco332_cff import *
 
 
 
