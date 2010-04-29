@@ -68,7 +68,17 @@ process.source = cms.Source(
     )
 
 
+## --- ====== --- --- --- --- --- --- --- --- --- --- ---
+## --- GenJetProduction   --- --- --- --- --- --- --- ---
+## --- ====== --- --- --- --- --- --- --- --- --- --- ---
 
+
+#process.load("RecoJets.Configuration.GenJetParticles_cff")
+#process.load("RecoJets.JetProducers.ak5GenJets_cfi")
+#-----------------------------
+
+#process.p = cms.Path(process.genParticlesForJets *
+                        #process.ak5GenJets )
 
 
 

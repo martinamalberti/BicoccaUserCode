@@ -151,7 +151,7 @@ void VBFLepton3DipProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     else
     {
       // get the 3D impact parameter
-      std::pair<bool, Measurement1D> ele3DipPair = IPTools::linearizedSignedImpactParameter3D(eleTSOS, eleTSOS.globalDirection(), PV);
+      std::pair<bool, Measurement1D> ele3DipPair = IPTools::signedImpactParameter3D(eleTSOS, eleTSOS.globalDirection(), PV);
       
       
       if(!ele3DipPair.first)
@@ -216,7 +216,7 @@ void VBFLepton3DipProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     else
     {
       // get the 3D impact parameter
-      std::pair<bool, Measurement1D> mu3DipPair = IPTools::linearizedSignedImpactParameter3D(muTSOS, muTSOS.globalDirection(), PV);
+      std::pair<bool, Measurement1D> mu3DipPair = IPTools::signedImpactParameter3D(muTSOS, muTSOS.globalDirection(), PV);
       
       
       
