@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //--- objects ----
 #include "DataFormats/JetReco/interface/CaloJet.h"

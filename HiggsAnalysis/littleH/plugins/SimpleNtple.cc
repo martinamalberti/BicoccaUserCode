@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.65 2010/03/17 09:07:57 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.66 2010/04/01 15:24:42 dimatteo Exp $
 //
 //
 
@@ -361,8 +361,8 @@ void
     NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
     
     int myWord = 0;
-    if ((*EleHandle)[i].isTrackerDriven ()) myWord += (int)pow(2.,0);
-    if ((*EleHandle)[i].isEcalDriven ())    myWord += (int)pow(2.,1);
+    if ((*EleHandle)[i].trackerDrivenSeed()) myWord += (int)pow(2.,0);
+    if ((*EleHandle)[i].ecalDrivenSeed())    myWord += (int)pow(2.,1);
 
     NtupleFactory_->FillFloat("electrons_flag_mask", myWord);
 
