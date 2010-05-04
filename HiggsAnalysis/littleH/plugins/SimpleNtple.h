@@ -20,6 +20,9 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 
@@ -96,11 +99,12 @@ class SimpleNtple : public EDAnalyzer {
     ~SimpleNtple();
   
   private:
-    virtual void beginJob(const EventSetup&) ;
+    virtual void beginJob(/*const EventSetup&*/) ;
     virtual void analyze(const Event&, const EventSetup&);
     virtual void endJob() ;
     
     void buildLepCollections (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillJetInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillVtxInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillMuInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillTrackInfo (const Event & iEvent, const EventSetup & iESetup) ;
@@ -127,6 +131,7 @@ class SimpleNtple : public EDAnalyzer {
     ParameterSet gsfPSet;
 
     InputTag TracksTag_;
+    InputTag JetTag_;
     InputTag EleTag_;
     InputTag MuTag_;
     InputTag PrimaryVertexTag_;        
@@ -148,8 +153,8 @@ class SimpleNtple : public EDAnalyzer {
     string the8e29ProcName_;
     string the1e31ProcName_;
   
-    static const int Max_HLT_size = 10;
-    static const int NHLTTRIGGERS = 10;
+    static const int Max_HLT_size = 13;
+    static const int NHLTTRIGGERS = 13;
     
     static const int Max_L1T_size = 6; 
     static const int NL1TTRIGGERS = 6;
@@ -165,6 +170,7 @@ class SimpleNtple : public EDAnalyzer {
     HLTConfigProvider hltConfig;
     ESHandle<TransientTrackBuilder> theB;
 
+    bool saveJets_ ;
     bool saveVtx_ ;
     bool saveMu_ ;
     bool saveTracks_ ;
@@ -177,6 +183,7 @@ class SimpleNtple : public EDAnalyzer {
     
     bool theStoreWSOnia; // Yes or No to store wrong-sign mu-mu combinations
     bool theBeamSpotFlag; 
+    bool theRealDataFlag; 
     
     int eventType_; //---- 0 = signal      1 = background 
     bool verbosity_; //---- true = loquacious     false = silence  
@@ -192,6 +199,12 @@ class SimpleNtple : public EDAnalyzer {
 
     int Reco_mu_glb_size;
     int Reco_mu_trk_size;  
+    
+    //Index for DATA
+    int nEvent ;
+    int nRun ;
+    int nLumi ;
+
     
     int QQ_size;
     int theOniaMaxCat;

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 SimpleNtple = cms.EDAnalyzer("SimpleNtple",
+     JetTag                  = cms.InputTag("pfJets"),
      MuTag                   = cms.InputTag("muons"),
      EleTag                  = cms.InputTag("gsfElectrons"),  # pixelMatchGsfElectrons
      TracksTag               = cms.InputTag("generalTracks"),
@@ -15,14 +16,16 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      beamSpotTag             = cms.InputTag("offlineBeamSpot"),
      triggerEventTag         = cms.string("hltTriggerSummaryAOD"),
      triggerResultsTag       = cms.string("TriggerResults"),
-     HLTprocessName8e29      = cms.string("HLT8E29"),
+     HLTprocessName8e29      = cms.string("HLT"),
+     #HLTprocessName8e29      = cms.string("HLT8E29"),
      HLTprocessName1e31      = cms.string("HLT"),
 
+     saveJets   = cms.untracked.bool (True) ,
      saveVtx    = cms.untracked.bool (True) ,
      saveMu     = cms.untracked.bool (True) ,
      saveTracks = cms.untracked.bool (True) , 
      saveEle    = cms.untracked.bool (True) ,
-     saveMC     = cms.untracked.bool (True) ,
+     saveMC     = cms.untracked.bool (False) ,
      saveSC     = cms.untracked.bool (False) ,
      saveTrigger     = cms.untracked.bool (True) ,
      saveBeamSpot    = cms.untracked.bool (True) ,
@@ -33,8 +36,8 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
      oniaMaxCat    = cms.untracked.int32(2) ,
     
      Chi2OniaVtxCut= cms.untracked.double(0.05), #0.01      
-     OniaMassCut= cms.untracked.double(3.2),
-     OniaS3DipCut= cms.untracked.double(4.),
+     OniaMassCut= cms.untracked.double(2.0), #3.2
+     OniaS3DipCut= cms.untracked.double(4.), # 4.
      
      treeName = cms.untracked.string ("SimpleTree") ,
      verbosity = cms.untracked.bool(False),

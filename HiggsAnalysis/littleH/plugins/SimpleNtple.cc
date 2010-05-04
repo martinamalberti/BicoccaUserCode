@@ -47,8 +47,9 @@ const float muMass_  = 0.105658;
 const float eleMass_ = 0.000511;
 
 SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
-    gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
+  gsfPSet                   (iConfig.getParameter<ParameterSet>("GsfParameters")),
   TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
+  JetTag_                   (iConfig.getParameter<InputTag> ("JetTag")),
   EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
   MuTag_                    (iConfig.getParameter<InputTag> ("MuTag")),
   PrimaryVertexTag_         (iConfig.getParameter<InputTag> ("PrimaryVertexTag")),
@@ -64,6 +65,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   theHLTriggerResults_      (iConfig.getParameter<string>   ("triggerResultsTag")),
   the8e29ProcName_          (iConfig.getParameter<string>   ("HLTprocessName8e29")),
   the1e31ProcName_          (iConfig.getParameter<string>   ("HLTprocessName1e31")),
+  saveJets_                 (iConfig.getUntrackedParameter<bool> ("saveJets", true)),                     
   saveVtx_                  (iConfig.getUntrackedParameter<bool> ("saveVtx", true)),
   saveMu_                   (iConfig.getUntrackedParameter<bool> ("saveMu", true)),
   saveTracks_               (iConfig.getUntrackedParameter<bool> ("saveTracks", true)),
@@ -75,6 +77,7 @@ SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
   saveOniaCand_             (iConfig.getUntrackedParameter<bool> ("saveOniaCand", true)),
   theStoreWSOnia            (iConfig.getUntrackedParameter<bool> ("storeWSOnia", true)), 
   theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
+  theRealDataFlag           (iConfig.getUntrackedParameter<bool> ("realDataFlag", false)),
   theOniaMaxCat             (iConfig.getUntrackedParameter<int> ("oniaMaxCat", 2)),
   Chi2OniaVtxCut_           (iConfig.getUntrackedParameter<double> ("Chi2OniaVtxCut", 0.05)),
   OniaMassCut_              (iConfig.getUntrackedParameter<double> ("OniaMassCut", 3.2)),
@@ -122,6 +125,24 @@ void SimpleNtple::buildLepCollections (const Event & iEvent, const EventSetup & 
   for (int iEle = 0; iEle < (int)EleHandle->size(); iEle++) theElectrons.push_back((*EleHandle)[iEle]);
   return;
 }
+
+// --------------------------------------------------------------------
+
+void 
+    SimpleNtple::fillJetInfo (const Event & iEvent, const EventSetup & iESetup) 
+{
+  edm::Handle<reco::PFJetCollection> JetHandle ;
+  iEvent.getByLabel (JetTag_,JetHandle);
+   
+  int nJets = JetHandle->size() ;
+ 
+  for(int i=0; i< nJets; i++)
+  {     
+    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
+  }      
+  return;
+}  
+
 
 // --------------------------------------------------------------------
 
@@ -348,8 +369,8 @@ void
     
       //ELE ID
     NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[electronEdmRef]);
-    NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[1]))[electronEdmRef]);
-    NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[2]))[electronEdmRef]);
+    NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[1]))[electronEdmRef]);
+    NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[2]))[electronEdmRef]);
     NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[electronEdmRef]);
       
       //Get Ele Track
@@ -361,8 +382,8 @@ void
     NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
     
     int myWord = 0;
-    if ((*EleHandle)[i].trackerDrivenSeed()) myWord += (int)pow(2.,0);
-    if ((*EleHandle)[i].ecalDrivenSeed())    myWord += (int)pow(2.,1);
+    if ((*EleHandle)[i].trackerDrivenSeed ()) myWord += (int)pow(2.,0);
+    if ((*EleHandle)[i].ecalDrivenSeed() ())    myWord += (int)pow(2.,1);
 
     NtupleFactory_->FillFloat("electrons_flag_mask", myWord);
 
@@ -480,6 +501,11 @@ void
 void 
     SimpleNtple::fillTriggerInfo(const Event & iEvent, const EventSetup & iESetup) 
 {
+
+  NtupleFactory_->FillInt ("nEvent",nEvent) ;  
+  NtupleFactory_->FillInt ("nRun",nRun) ;  
+  NtupleFactory_->FillInt ("nLumi",nLumi) ;  
+
   using namespace trigger;
   Handle<TriggerResults> HLTR;
   iEvent.getByLabel(InputTag(theHLTriggerResults_,"",the8e29ProcName_), HLTR);
@@ -973,6 +999,9 @@ void SimpleNtple::fillOnia2EleEleTracks(GsfTrackRef lep1, int l1, GsfTrackRef le
 void 
     SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
+ nEvent = iEvent.id().event() ;
+ nRun = iEvent.id().run() ;
+ nLumi = iEvent.id().luminosityBlock() ;
   HLTcounters [NHLTTRIGGERS+1] ++;
   // get TTRHBuilder 
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
@@ -982,6 +1011,7 @@ void
   
   if (QQ_size > 0)
   {
+    if (saveJets_)   fillJetInfo (iEvent, iSetup) ;
     if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
     if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
     if (saveTracks_) fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
@@ -1010,9 +1040,14 @@ void
     
 // ------------ method called once each job just before starting event loop  ------------
 void 
-    SimpleNtple::beginJob(const EventSetup& iSetup)
+    SimpleNtple::beginJob(/*const EventSetup& iSetup*/)
 {
   for ( int icount=0 ; icount < NHLTTRIGGERS+1+1; icount++ ) HLTcounters [icount] = 0;
+
+  if (saveJets_)
+  {
+   NtupleFactory_->Add4TV("jets");
+  }
 
   if (saveMu_)
   {
@@ -1105,7 +1140,7 @@ void
     NtupleFactory_->AddFloat("electrons_track_dz");
     NtupleFactory_->AddFloat("electrons_track_d0err");
     NtupleFactory_->AddFloat("electrons_track_dzerr");
-    NtupleFactory_->AddFloat("electrons_flag_mask");
+//     NtupleFactory_->AddFloat("electrons_flag_mask");
   }
 
   if (saveTracks_)
@@ -1154,8 +1189,12 @@ void
   //Trigger Info
   if (saveTrigger_)
   {
+    NtupleFactory_->AddInt ("nEvent") ;  
+    NtupleFactory_->AddInt ("nRun") ;  
+    NtupleFactory_->AddInt ("nLumi") ;  
+
    //Trigger Info
-    string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R", "HLT_DoublePhoton5_Jpsi_L1R", "HLT_DoublePhoton5_Upsilon_L1R", "HLT_DoublePhoton5_eeRes_L1R" }; //+ Fale EleHLT
+    string HLTbitNames[NHLTTRIGGERS] = {"HLT_Mu3", "HLT_Mu5", "HLT_Mu9", "HLT_DoubleMu0", "HLT_DoubleMu3",   "HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R", "HLT_DoublePhoton5_Jpsi_L1R", "HLT_DoublePhoton5_Upsilon_L1R", "HLT_DoublePhoton5_eeRes_L1R", "HLT_DoublePhoton4_eeRes_L1R ", "HLT_DoublePhoton4_Jpsi_L1R", "HLT_DoublePhoton4_Upsilon_L1R" }; //+ Fale EleHLT
     string L1TbitNames[NL1TTRIGGERS]  = {"HLT_L1MuOpen","HLT_L1Mu", "HLT_L1DoubleMuOpen", "HLT_L1SingleEG5", "HLT_L1SingleEG8", "HLT_L1DoubleEG5"};
   
     if (hltConfig.init(the8e29ProcName_)) 
