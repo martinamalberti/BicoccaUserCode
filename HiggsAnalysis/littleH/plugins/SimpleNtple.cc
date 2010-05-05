@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.66 2010/04/01 15:24:42 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.68 2010/05/04 14:34:35 dimatteo Exp $
 //
 //
 
@@ -138,7 +138,8 @@ void
  
   for(int i=0; i< nJets; i++)
   {     
-    NtupleFactory_->Fill4V("jets",(*JetHandle)[i].p4());
+    TLorentzVector myvec4 ((*JetHandle)[i].px(), (*JetHandle)[i].py(), (*JetHandle)[i].pz(), (*JetHandle)[i].energy());
+    NtupleFactory_->Fill4TV("jets",myvec4);
   }      
   return;
 }  
@@ -383,7 +384,7 @@ void
     
     int myWord = 0;
     if ((*EleHandle)[i].trackerDrivenSeed ()) myWord += (int)pow(2.,0);
-    if ((*EleHandle)[i].ecalDrivenSeed() ())    myWord += (int)pow(2.,1);
+    if ((*EleHandle)[i].ecalDrivenSeed())    myWord += (int)pow(2.,1);
 
     NtupleFactory_->FillFloat("electrons_flag_mask", myWord);
 
@@ -1140,7 +1141,7 @@ void
     NtupleFactory_->AddFloat("electrons_track_dz");
     NtupleFactory_->AddFloat("electrons_track_d0err");
     NtupleFactory_->AddFloat("electrons_track_dzerr");
-//     NtupleFactory_->AddFloat("electrons_flag_mask");
+    NtupleFactory_->AddFloat("electrons_flag_mask");
   }
 
   if (saveTracks_)

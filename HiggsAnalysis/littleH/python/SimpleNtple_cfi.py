@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 SimpleNtple = cms.EDAnalyzer("SimpleNtple",
-     JetTag                  = cms.InputTag("pfJets"),
+     JetTag                  = cms.InputTag("ak5PFJets"),
      MuTag                   = cms.InputTag("muons"),
      EleTag                  = cms.InputTag("gsfElectrons"),  # pixelMatchGsfElectrons
      TracksTag               = cms.InputTag("generalTracks"),
