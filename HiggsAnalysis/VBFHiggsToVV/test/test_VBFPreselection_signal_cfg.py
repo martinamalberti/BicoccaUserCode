@@ -57,8 +57,8 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 process.source = cms.Source(
     "PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(1),
+#    debugFlag = cms.untracked.bool(True),
+#    debugVebosity = cms.untracked.uint32(1),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring(
         #'file:/data/NTUPLES/VBF/qqHWW_lnujj/H200/CMSSWfile_10.root',
@@ -66,6 +66,19 @@ process.source = cms.Source(
         )
     )
 
+
+
+
+## --- ====== --- --- --- --- --- --- --- --- --- --- ---
+## --- GenJetProduction   --- --- --- --- --- --- --- ---
+## --- ====== --- --- --- --- --- --- --- --- --- --- ---
+
+
+process.load("RecoJets.Configuration.GenJetParticles_cff")
+process.load("RecoJets.JetProducers.ak5GenJets_cfi")
+#-----------------------------
+
+process.p0 = cms.Path(process.genParticlesForJets * process.ak5GenJets )
 
 
 
