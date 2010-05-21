@@ -180,7 +180,13 @@ double SelectResonance(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>
 		       const std::vector<int>* blacklist = 0);
  
 
-
+/** select pair of objects with a given invariant mass and opposite charge*/
+double SelectResonanceOppositeCharge(std::vector<int>& it,
+		       std::vector<ROOT::Math::XYZTVector>& objects,
+		       std::vector<float>& charge,	     
+		       const double& mass,
+		       const double& ptMin,
+		       const std::vector<int>* blacklist = 0);
 
 
 /** build combinations of n jets */
