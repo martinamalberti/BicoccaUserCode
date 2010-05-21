@@ -468,3 +468,51 @@ int Build2JetCombinations(std::vector<std::vector<int> >& combinations, const in
 
 
 //  ------------------------------------------------------------
+
+
+double SelectResonance(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& objects,
+		       const double& mass,
+		       const double& ptMin,
+		       const std::vector<int>* blacklist){
+ // initialize vector with result
+ it.clear();
+ it.push_back(-1);
+ it.push_back(-1);
+ 
+ double minDMass = 999999.;
+ double tempDMass = 0;
+ 
+ // loop over 1st object
+ for(unsigned int i = 0; i < objects.size(); ++i){
+  
+  if(objects.at(i).Pt() < ptMin) continue;
+  
+  bool skipObj1 = false;
+  if(blacklist)
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk)
+    if(blacklist -> at(kk) == static_cast<int>(i)) skipObj1 = true;
+    if(skipObj1) continue;
+    
+    // loop over 2nd object
+    for(unsigned int j = i+1; j < objects.size(); ++j)
+    {
+     if(objects.at(j).Pt() < ptMin) continue;
+     
+     bool skipObj2 = false;
+     if(blacklist)
+      for(unsigned int kk = 0; kk < blacklist -> size(); ++kk)
+       if(blacklist -> at(kk) == static_cast<int>(j)) skipObj2 = true;
+       if(skipObj2) continue;
+       
+       tempDMass = fabs((objects.at(i) + objects.at(j)).mass() - mass);
+      if(tempDMass < minDMass)
+      {
+       minDMass = tempDMass;
+       it.at(0) = i;
+       it.at(1) = j;
+      }
+    } // loop over 2nd object
+ } // loop over 1st object
+ return minDMass;
+}
+//  ------------------------------------------------------------

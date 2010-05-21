@@ -173,6 +173,12 @@ int SelectLepton(std::vector<ROOT::Math::XYZTVector>& leptons,
                  const std::vector<int>* blacklist = 0);
 
 
+/** select pair of objects with a given invariant mass*/
+double SelectResonance(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& objects,
+		       const double& mass,
+		       const double& ptMin,
+		       const std::vector<int>* blacklist = 0);
+ 
 
 
 
@@ -186,4 +192,5 @@ void Print4JetCombination(const std::vector<int>& combination);
 /** build combinations (2 jets) of n jets */
 int Build2JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets);
 
+ 
 #endif
