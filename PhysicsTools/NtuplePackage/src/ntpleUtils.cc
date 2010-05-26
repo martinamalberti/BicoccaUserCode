@@ -569,3 +569,194 @@ double SelectResonanceOppositeCharge(std::vector<int>& it,
  return minDMass;
 }
 //  ------------------------------------------------------------
+
+
+
+// -------------------------------------------------------------
+
+
+TH1D * smartProfileX (TH2F * strip, double width){
+  TProfile * stripProfile = strip->ProfileX () ;
+
+  // (from FitSlices of TH2.h)
+
+  double xmin = stripProfile->GetXaxis ()->GetXmin () ;
+  double xmax = stripProfile->GetXaxis ()->GetXmax () ;
+  int profileBins = stripProfile->GetNbinsX () ;
+
+  std::string name = strip->GetName () ;
+  name += "_smart_X" ; 
+  TH1D * prof = new TH1D(name.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+   
+  int cut = 0 ; // minimum number of entries per fitted bin
+  int nbins = strip->GetXaxis ()->GetNbins () ;
+  int binmin = 1 ;
+  int ngroup = 1 ; // bins per step
+  int binmax = nbins ;
+
+  // loop over the strip bins
+  for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
+    {
+      TH1D *hpy = strip->ProjectionY ("_temp",bin,bin+ngroup-1,"e") ;
+      if (hpy == 0) continue ;
+      int nentries = Int_t (hpy->GetEntries ()) ;
+      if (nentries == 0 || nentries < cut) {delete hpy ; continue ;} 
+ 
+      Int_t biny = bin + ngroup/2 ;
+      
+      hpy->GetXaxis ()->SetRangeUser ( hpy->GetMean () - width * hpy->GetRMS (), hpy->GetMean () + width * hpy->GetRMS ()) ;         
+      prof->Fill (strip->GetXaxis ()->GetBinCenter (biny), hpy->GetMean ()) ;       
+      prof->SetBinError (biny,hpy->GetRMS()) ;
+      
+      delete hpy ;
+    } // loop over the bins
+
+  delete stripProfile ;
+  return prof ;
+}
+
+
+// -------------------------------------------------------------
+
+TH1D * smartGausProfileX (TH2F * strip, double width){
+  TProfile * stripProfile = strip->ProfileX () ;
+
+  // (from FitSlices of TH2.h)
+
+  double xmin = stripProfile->GetXaxis ()->GetXmin () ;
+  double xmax = stripProfile->GetXaxis ()->GetXmax () ;
+  int profileBins = stripProfile->GetNbinsX () ;
+
+  std::string name = strip->GetName () ;
+  name += "_smartGaus_X" ; 
+  TH1D * prof = new TH1D(name.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+   
+  int cut = 0 ; // minimum number of entries per fitted bin
+  int nbins = strip->GetXaxis ()->GetNbins () ;
+  int binmin = 1 ;
+  int ngroup = 1 ; // bins per step
+  int binmax = nbins ;
+
+  // loop over the strip bins
+  for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
+    {
+      TH1D *hpy = strip->ProjectionY ("_temp",bin,bin+ngroup-1,"e") ;
+      if (hpy == 0) continue ;
+      int nentries = Int_t (hpy->GetEntries ()) ;
+      if (nentries == 0 || nentries < cut) {delete hpy ; continue ;} 
+ 
+      Int_t biny = bin + ngroup/2 ;
+
+      TF1 * gaussian = new TF1 ("gaussian","gaus", hpy->GetMean () - width * hpy->GetRMS (), hpy->GetMean () + width * hpy->GetRMS ()) ; 
+      gaussian->SetParameter (1,hpy->GetMean ()) ;
+      gaussian->SetParameter (2,hpy->GetRMS ()) ;
+      hpy->Fit ("gaussian","RQL") ;           
+
+//       hpy->GetXaxis ()->SetRangeUser ( hpy->GetMean () - width * hpy->GetRMS (), hpy->GetMean () + width * hpy->GetRMS ()) ;         
+      prof->Fill (strip->GetXaxis ()->GetBinCenter (biny), gaussian->GetParameter (1)) ;       
+      prof->SetBinError (biny,gaussian->GetParameter (2)) ;
+      
+      delete gaussian ;
+      delete hpy ;
+    } // loop over the bins
+
+  delete stripProfile ;
+  return prof ;
+}
+
+
+// -------------------------------------------------------------
+
+
+TH1D * smartProfileY (TH2F * strip, double width){
+ TProfile * stripProfile = strip->ProfileY () ;
+ 
+ // (from FitSlices of TH2.h)
+ 
+ double xmin = stripProfile->GetXaxis ()->GetXmin () ;
+ double xmax = stripProfile->GetXaxis ()->GetXmax () ;
+ int profileBins = stripProfile->GetNbinsX () ;
+ 
+ std::string name = strip->GetName () ;
+ name += "_smart_Y" ; 
+ TH1D * prof = new TH1D(name.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+ 
+ int cut = 0 ; // minimum number of entries per fitted bin
+ int nbins = strip->GetYaxis ()->GetNbins () ;
+ int binmin = 1 ;
+ int ngroup = 1 ; // bins per step
+ int binmax = nbins ;
+ 
+ // loop over the strip bins
+ for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
+ {
+  TH1D *hpx = strip->ProjectionX ("_temp",bin,bin+ngroup-1,"e") ;
+  if (hpx == 0) continue ;
+  int nentries = Int_t (hpx->GetEntries ()) ;
+  if (nentries == 0 || nentries < cut) {delete hpx ; continue ;} 
+  
+  Int_t biny = bin + ngroup/2 ;
+  
+  hpx->GetXaxis ()->SetRangeUser ( hpx->GetMean () - width * hpx->GetRMS (), hpx->GetMean () + width * hpx->GetRMS ()) ;         
+  prof->Fill (strip->GetYaxis ()->GetBinCenter (biny), hpx->GetMean ()) ;       
+  prof->SetBinError (biny,hpx->GetRMS()) ;
+  
+  delete hpx ;
+ } // loop over the bins
+ 
+ delete stripProfile ;
+ return prof ;
+}
+
+
+// -------------------------------------------------------------
+
+TH1D * smartGausProfileY (TH2F * strip, double width){
+ TProfile * stripProfile = strip->ProfileY () ;
+ 
+ // (from FitSlices of TH2.h)
+ 
+ double xmin = stripProfile->GetXaxis ()->GetXmin () ;
+ double xmax = stripProfile->GetXaxis ()->GetXmax () ;
+ int profileBins = stripProfile->GetNbinsX () ;
+ 
+ std::string name = strip->GetName () ;
+ name += "_smartGaus_Y" ; 
+ TH1D * prof = new TH1D(name.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+ 
+ int cut = 0 ; // minimum number of entries per fitted bin
+ int nbins = strip->GetYaxis ()->GetNbins () ;
+ int binmin = 1 ;
+ int ngroup = 1 ; // bins per step
+ int binmax = nbins ;
+ 
+ // loop over the strip bins
+ for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
+ {
+  TH1D *hpx = strip->ProjectionX ("_temp",bin,bin+ngroup-1,"e") ;
+  if (hpx == 0) continue ;
+  int nentries = Int_t (hpx->GetEntries ()) ;
+  if (nentries == 0 || nentries < cut) {delete hpx ; continue ;} 
+  
+  Int_t biny = bin + ngroup/2 ;
+  
+  TF1 * gaussian = new TF1 ("gaussian","gaus", hpx->GetMean () - width * hpx->GetRMS (), hpx->GetMean () + width * hpx->GetRMS ()) ; 
+  gaussian->SetParameter (1,hpx->GetMean ()) ;
+  gaussian->SetParameter (2,hpx->GetRMS ()) ;
+  hpx->Fit ("gaussian","RQL") ;           
+  
+  //       hpy->GetXaxis ()->SetRangeUser ( hpy->GetMean () - width * hpy->GetRMS (), hpy->GetMean () + width * hpy->GetRMS ()) ;         
+  prof->Fill (strip->GetYaxis ()->GetBinCenter (biny), gaussian->GetParameter (1)) ;       
+  prof->SetBinError (biny,gaussian->GetParameter (2)) ;
+  
+  delete gaussian ;
+  delete hpx ;
+ } // loop over the bins
+ 
+ delete stripProfile ;
+ return prof ;
+}
+
+// -------------------------------------------------------------
+
+

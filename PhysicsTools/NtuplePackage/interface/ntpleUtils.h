@@ -10,6 +10,9 @@
 
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
+#include "TF1.h"
 #include "TChain.h"
 #include "TVector3.h"
 #include "Math/Vector4D.h"
@@ -197,6 +200,21 @@ void Print4JetCombination(const std::vector<int>& combination);
 
 /** build combinations (2 jets) of n jets */
 int Build2JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets);
+
+/** smart profiling by double averaging */
+TH1D * smartProfileX (TH2F * strip, double width) ; 
+
+/** smart profiling by fixing gaussian parameters and
+range from a first averaging */
+TH1D * smartGausProfileX (TH2F * strip, double width) ; 
+
+/** smart profiling by double averaging */
+TH1D * smartProfileY (TH2F * strip, double width) ; 
+
+/** smart profiling by fixing gaussian parameters and
+range from a first averaging */
+TH1D * smartGausProfileY (TH2F * strip, double width) ; 
+
 
  
 #endif
