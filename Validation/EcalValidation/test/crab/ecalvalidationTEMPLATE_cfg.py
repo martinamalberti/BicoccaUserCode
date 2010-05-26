@@ -30,7 +30,9 @@ process.maxEvents = cms.untracked.PSet(
 
 # filter on PhysDeclared bit
 process.skimming = cms.EDFilter("PhysDecl",
-   applyfilter = cms.untracked.bool(True)
+applyfilter = cms.untracked.bool(True),
+debugOn = cms.untracked.bool(False),
+HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
 )
 
 # filter on bit 40 || 41 nad !(bit36 || bit37 || bit38 || bit39)

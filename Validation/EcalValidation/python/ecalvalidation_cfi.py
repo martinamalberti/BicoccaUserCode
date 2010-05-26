@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalvalidation = cms.EDFilter("EcalValidation",
+ecalvalidation = cms.EDAnalyzer("EcalValidation",
     superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
     superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     basicClusterCollection_EE = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),

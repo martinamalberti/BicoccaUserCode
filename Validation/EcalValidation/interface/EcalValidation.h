@@ -204,6 +204,8 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH2D *h_recHits_EEM_size_vsBX;	
 	 TH2D *h_recHits_EEM_size_vsLS;
 
+	 
+	 // for the max E rec hit
 	 TH1D *h_recHits_EB_phi;
 	 TH1D *h_recHits_EE_phi;
 	 TH1D *h_recHits_eta;
@@ -211,6 +213,15 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EE_phi_NoNoisyChannels;
 	 TH1D *h_recHits_eta_NoNoisyChannels;
 	 
+	 // for the max Et rec hit
+	 TH1D *h_recHits_EB_phi_MaxEt;
+	 TH1D *h_recHits_EE_phi_MaxEt;
+	 TH1D *h_recHits_eta_MaxEt;
+	 
+	 TH1D *h_recHits_EE_phi_MaxEt_NoNoisyChannels;
+	 TH1D *h_recHits_eta_MaxEt_NoNoisyChannels;
+
+	 TH1D *h_recHits_eta_geomNorm;
 	 
 	 // Basic Clusters ----------------------------------------------
 	 
