@@ -50,6 +50,7 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		     "ecalvalidation/h_recHits_EEP_size",
 		     "ecalvalidation/h_recHits_EEM_size",
 		     "ecalvalidation/h_recHits_ES_size",
+		     //"ecalvalidation/h_recHits_EB_energy_cleaned",
 		     "ecalvalidation/h_recHits_EB_energy",
 		     "ecalvalidation/h_recHits_EEP_energy",
 		     "ecalvalidation/h_recHits_EEM_energy",
@@ -244,7 +245,7 @@ void DrawValidationPlots(Char_t* infile1 = 0,
   int optLogY[47] = {1,1,1,1,
 		     1,1,1,1,
 		     1,1,1,1,
-		     0,0,0,0,
+		     1,0,0,0,
 		     0,0,0,
 		     1,1,1,
 		     0,
@@ -291,9 +292,11 @@ void DrawValidationPlots(Char_t* infile1 = 0,
      
       // set the log-scale and range 
       float maxy = max (h[ifile][iHisto]->GetMaximum(),h[ifile-1][iHisto]->GetMaximum() );
+      float miny = h[ifile][iHisto]->GetMinimum();
       if (optLogY[iHisto]) {
 	c[iHisto]->SetLogy();
 	h[0][iHisto]->SetMaximum(maxy*2);
+	h[0][iHisto]->SetMinimum(0.1);
       }
       else  h[0][iHisto]->SetMaximum(maxy*1.1);
       
