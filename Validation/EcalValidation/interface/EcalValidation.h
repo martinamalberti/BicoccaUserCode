@@ -77,6 +77,10 @@ class EcalValidation : public edm::EDAnalyzer {
 	 double ethrEE_;
 	 
 
+	 double scEtThrEB_;
+	 double scEtThrEE_;
+
+
 	 // for Pi0
 	 PositionCalc posCalculator_ ;
 	 bool ParameterLogWeighted_;
@@ -151,9 +155,7 @@ class EcalValidation : public edm::EDAnalyzer {
 	 // RecHits ----------------------------------------------
 	 // ... barrel 
 	 TH1D *h_recHits_EB_size; 
-	 TH1D *h_recHits_EB_size_cleaned; 
 	 TH1D *h_recHits_EB_energy;
-	 TH1D *h_recHits_EB_energy_cleaned;
 	 TH1D *h_recHits_EB_energyMax;
 	 TH1D *h_recHits_EB_time;
 	 TH1D *h_recHits_EB_Chi2;
@@ -162,16 +164,24 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EB_E1oE4; 
          TH1D *h_recHits_EB_iPhiOccupancy;
          TH1D *h_recHits_EB_iEtaOccupancy;
-
 	 TH2D *h_recHits_EB_occupancy;
 	 TH2D *h_recHits_EB_deviation;
-	 TH2D *h_recHits_EB_size_vsBX;
-	 TH2D *h_recHits_EB_size_vsLS;
+
+	 TH1D *h_recHits_EB_energy_spike;
+	
+	 //... barrel ( with spike cleaning )
+	 TH1D *h_recHits_EB_size_cleaned; 
+	 TH1D *h_recHits_EB_energy_cleaned;
+	 TH1D *h_recHits_EB_energyMax_cleaned;
+	 TH1D *h_recHits_EB_time_cleaned;
+	 TH1D *h_recHits_EB_Chi2_cleaned;
+	 TH1D *h_recHits_EB_OutOfTimeChi2_cleaned;
+
 
 	 // ... endcap
 
 	 TH1D *h_recHits_EE_size;
-	 
+
 	 TH1D *h_recHits_EEP_size;
 	 TH1D *h_recHits_EEP_energy;
 	 TH1D *h_recHits_EEP_energyMax;
@@ -182,11 +192,9 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EEP_E1oE4; 
          TH1D *h_recHits_EEP_iXoccupancy;
          TH1D *h_recHits_EEP_iYoccupancy;
-	 
 	 TH2D *h_recHits_EEP_occupancy;
 	 TH2D *h_recHits_EEP_deviation;
-	 TH2D *h_recHits_EEP_size_vsBX;
-	 TH2D *h_recHits_EEP_size_vsLS;
+
 
 	 TH1D *h_recHits_EEM_size;
 	 TH1D *h_recHits_EEM_energy;
@@ -198,30 +206,27 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EEM_E1oE4; 
          TH1D *h_recHits_EEM_iXoccupancy;
          TH1D *h_recHits_EEM_iYoccupancy;
-
 	 TH2D *h_recHits_EEM_occupancy;
 	 TH2D *h_recHits_EEM_deviation;
-	 TH2D *h_recHits_EEM_size_vsBX;	
-	 TH2D *h_recHits_EEM_size_vsLS;
 
-	 
-	 // for the max E rec hit
-	 TH1D *h_recHits_EB_phi;
-	 TH1D *h_recHits_EE_phi;
-	 TH1D *h_recHits_eta;
-	 
-	 TH1D *h_recHits_EE_phi_NoNoisyChannels;
-	 TH1D *h_recHits_eta_NoNoisyChannels;
-	 
-	 // for the max Et rec hit
-	 TH1D *h_recHits_EB_phi_MaxEt;
-	 TH1D *h_recHits_EE_phi_MaxEt;
-	 TH1D *h_recHits_eta_MaxEt;
-	 
-	 TH1D *h_recHits_EE_phi_MaxEt_NoNoisyChannels;
-	 TH1D *h_recHits_eta_MaxEt_NoNoisyChannels;
 
-	 TH1D *h_recHits_eta_geomNorm;
+         // max E eta/phi distributions
+         TH1D *h_recHits_eta;  // all
+         TH1D *h_recHits_EB_eta;
+         TH1D *h_recHits_EEP_eta;
+         TH1D *h_recHits_EEM_eta;
+
+         TH1D *h_recHits_EB_phi;
+         TH1D *h_recHits_EE_phi;
+         TH1D *h_recHits_EEP_phi;
+         TH1D *h_recHits_EEM_phi;
+
+         // max Et eta/phi distributions
+         TH1D *h_recHits_eta_MaxEt;
+         TH1D *h_recHits_EB_phi_MaxEt;
+         TH1D *h_recHits_EE_phi_MaxEt;
+
+
 	 
 	 // Basic Clusters ----------------------------------------------
 	 
@@ -230,6 +235,11 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_basicClusters_EB_nXtals;
 	 TH1D *h_basicClusters_EB_energy;
 	 
+	 // ... barrel (with spike cleaning)
+	 TH1D *h_basicClusters_EB_size_cleaned;
+	 TH1D *h_basicClusters_EB_nXtals_cleaned;
+	 TH1D *h_basicClusters_EB_energy_cleaned;
+
 	 // ... endcap
 	 TH1D *h_basicClusters_EEP_size;
 	 TH1D *h_basicClusters_EEP_nXtals;
@@ -240,6 +250,8 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_basicClusters_EEM_energy;
 	 
 	 TH1D *h_basicClusters_eta;
+	 TH1D *h_basicClusters_EB_eta;
+	 TH1D *h_basicClusters_EE_eta;
 	 TH1D *h_basicClusters_EB_phi;
 	 TH1D *h_basicClusters_EE_phi;
 	 
@@ -252,7 +264,13 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EB_energy;
 	 TH1D *h_superClusters_EB_E1oE9;
 	 TH1D *h_superClusters_EB_E1oE4;
-	 
+
+	 // ... barrel (with spike cleaning)
+	 TH1D *h_superClusters_EB_size_cleaned;
+	 TH1D *h_superClusters_EB_nXtals_cleaned;
+	 TH1D *h_superClusters_EB_nBC_cleaned;
+	 TH1D *h_superClusters_EB_energy_cleaned;
+
 	 // ... endcap
 	 TH1D *h_superClusters_EEP_size;
 	 TH1D *h_superClusters_EEP_nXtals;
@@ -269,6 +287,8 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EEM_E1oE4; 
 	 
 	 TH1D *h_superClusters_eta;
+	 TH1D *h_superClusters_EB_eta;
+	 TH1D *h_superClusters_EE_eta;
 	 TH1D *h_superClusters_EB_phi;
 	 TH1D *h_superClusters_EE_phi;
 	 

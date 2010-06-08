@@ -77,9 +77,10 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   ethrEB_                    = ps.getParameter<double>("ethrEB");
   ethrEE_                    = ps.getParameter<double>("ethrEE");
 
-  
+  scEtThrEB_                 = ps.getParameter<double>("scEtThrEB");
+  scEtThrEE_                 = ps.getParameter<double>("scEtThrEE");
  
-
+  
   ///for Pi0 barrel selection
   isMonEBpi0_ = ps.getUntrackedParameter<bool>("isMonEBpi0",false);
   
@@ -173,9 +174,7 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   // RecHits ---------------------------------------------- 
   // ... barrel
   h_recHits_EB_size          = fs->make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 1000, 0, 10000 );
-  h_recHits_EB_size_cleaned  = fs->make<TH1D>("h_recHits_EB_size_cleaned", "h_recHitsEB_size_cleaned", 1000, 0, 10000 );
   h_recHits_EB_energy        = fs->make<TH1D>("h_recHits_EB_energy","h_recHitsEB_energy",11000,-50,500);
-  h_recHits_EB_energy_cleaned= fs->make<TH1D>("h_recHits_EB_energy_cleaned","h_recHitsEB_energy_cleaned",11000,-50,500);
   h_recHits_EB_energyMax     = fs->make<TH1D>("h_recHits_EB_energyMax","h_recHitsEB_energyMax",2000,-50,500);
   h_recHits_EB_time          = fs->make<TH1D>("h_recHits_EB_time","h_recHits_EB_time",400,-100,100);
   h_recHits_EB_Chi2          = fs->make<TH1D>("h_recHits_EB_Chi2","h_recHits_EB_Chi2",1000,0,100);
@@ -186,8 +185,18 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EB_iEtaOccupancy = fs->make<TH1D>("h_recHits_EB_iEtaOccupancy","h_recHits_EB_iEtaOccupancy",172,-86.,86.);
   h_recHits_EB_occupancy     = fs->make<TH2D>("h_recHits_EB_occupancy","h_recHits_EB_occupancy",360,1.,361.,172,-86.,86. );
   h_recHits_EB_deviation     = fs->make<TH2D>("h_recHits_EB_deviation","h_recHits_EB_deviation",360,1.,361.,172,-86.,86. );
-  h_recHits_EB_size_vsBX     = fs->make<TH2D>("h_recHits_EB_size_vsBX","h_recHits_EB_size_vsBX",5000,0,5000,1000,0.,10000. );
-  h_recHits_EB_size_vsLS     = fs->make<TH2D>("h_recHits_EB_size_vsLS","h_recHits_EB_size_vsLS",5000,0,5000,1000,0.,10000. );
+  
+
+  h_recHits_EB_energy_spike  = fs->make<TH1D>("h_recHits_EB_energy_spike","h_recHitsEB_energy_spike",2000,0,500);
+
+
+  // ... barrel (with spike cleaning)
+  h_recHits_EB_size_cleaned          = fs->make<TH1D>("h_recHits_EB_size_cleaned", "h_recHitsEB_size_cleaned", 1000, 0, 10000 );
+  h_recHits_EB_energy_cleaned        = fs->make<TH1D>("h_recHits_EB_energy_cleaned","h_recHitsEB_energy_cleaned",11000,-50,500);
+  h_recHits_EB_energyMax_cleaned     = fs->make<TH1D>("h_recHits_EB_energyMax_cleaned","h_recHitsEB_energyMax_cleaned",2000,-50,500);
+  h_recHits_EB_time_cleaned          = fs->make<TH1D>("h_recHits_EB_time_cleaned","h_recHits_EB_time_cleaned",400,-100,100);
+  h_recHits_EB_Chi2_cleaned          = fs->make<TH1D>("h_recHits_EB_Chi2_cleaned","h_recHits_EB_Chi2_cleaned",1000,0,100);
+  h_recHits_EB_OutOfTimeChi2_cleaned = fs->make<TH1D>("h_recHits_EB_OutOfTimeChi2_cleaned","h_recHits_EB_OutOfTimeChi2_cleaned",1000,0,100);  
 
   // ... endcap
   h_recHits_EE_size           = fs->make<TH1D>("h_recHits_EE_size","h_recHits_EE_size",1000,0,10000);
@@ -204,8 +213,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EEP_iYoccupancy   = fs->make<TH1D>("h_recHits_EEP_iYoccupancy","h_recHits_EEP_iYoccupancy",100,0.,100.);
   h_recHits_EEP_occupancy     = fs->make<TH2D>("h_recHits_EEP_occupancy","h_recHits_EEP_occupancy",100,0.,100.,100,0.,100. );
   h_recHits_EEP_deviation     = fs->make<TH2D>("h_recHits_EEP_deviation","h_recHits_EEP_deviation",100,0.,100.,100,0.,100. );
-  h_recHits_EEP_size_vsBX     = fs->make<TH2D>("h_recHits_EEP_size_vsBX","h_recHits_EEP_size_vsBX",5000,0,5000,1000,0.,10000. );
-  h_recHits_EEP_size_vsLS     = fs->make<TH2D>("h_recHits_EEP_size_vsLS","h_recHits_EEP_size_vsLS",5000,0,5000,1000,0.,10000. );
 
   h_recHits_EEM_size          = fs->make<TH1D>("h_recHits_EEM_size","h_recHits_EEM_size",1000,0,10000);
   h_recHits_EEM_energy        = fs->make<TH1D>("h_recHits_EEM_energy","h_recHits_EEM_energy",11000,-50,500);
@@ -219,29 +226,34 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EEM_iYoccupancy   = fs->make<TH1D>("h_recHits_EEM_iYoccupancy","h_recHits_EEM_iYoccupancy",100,0.,100.);
   h_recHits_EEM_occupancy     = fs->make<TH2D>("h_recHits_EEM_occupancy","h_recHits_EEM_occupancy",100,0.,100.,100,0.,100. );
   h_recHits_EEM_deviation     = fs->make<TH2D>("h_recHits_EEM_deviation","h_recHits_EEM_deviation",100,0.,100.,100,0.,100. );
-  h_recHits_EEM_size_vsBX     = fs->make<TH2D>("h_recHits_EEM_size_vsBX","h_recHits_EEM_size_vsBX",5000,0,5000,1000,0.,10000. );
-  h_recHits_EEM_size_vsLS     = fs->make<TH2D>("h_recHits_EEM_size_vsLS","h_recHits_EEM_size_vsLS",5000,0,5000,1000,0.,10000. );
 
-  h_recHits_eta                     = fs->make<TH1D>("h_recHits_eta","h_recHits_eta",150,-3.,3.);
-  h_recHits_EB_phi                  = fs->make<TH1D>("h_recHits_EB_phi","h_recHits_EB_phi",360,-3.1415927, 3.1415927);
-  h_recHits_EE_phi                  = fs->make<TH1D>("h_recHits_EE_phi","h_recHits_EE_phi",360,-3.1415927, 3.1415927);
-  h_recHits_eta_NoNoisyChannels     = fs->make<TH1D>("h_recHits_eta_NoNoisyChannels","h_recHits_eta_NoNoisyChannels",150,-3.,3.);
-  h_recHits_EE_phi_NoNoisyChannels  = fs->make<TH1D>("h_recHits_EE_phi_NoNoisyChannels","h_recHits_EE_phi_NoNoisyChannels",360,-3.1415927, 3.1415927);
-  
-  h_recHits_eta_MaxEt                    = fs->make<TH1D>("h_recHits_eta_MaxEt","h_recHits_eta_MaxEt",150,-3.,3.);
-  h_recHits_EB_phi_MaxEt                 = fs->make<TH1D>("h_recHits_EB_phi_MaxEt","h_recHits_EB_phi_MaxEt",360,-3.1415927, 3.1415927);
-  h_recHits_EE_phi_MaxEt                 = fs->make<TH1D>("h_recHits_EE_phi_MaxEt","h_recHits_EE_phi_MaxEt",360,-3.1415927, 3.1415927);
-  h_recHits_eta_MaxEt_NoNoisyChannels    = fs->make<TH1D>("h_recHits_eta_MaxEt_NoNoisyChannels","h_recHits_eta_MaxEt_NoNoisyChannels",150,-3.,3.);
-  h_recHits_EE_phi_MaxEt_NoNoisyChannels = fs->make<TH1D>("h_recHits_EE_phi_MaxEt_NoNoisyChannels","h_recHits_EE_phi_MaxEt_NoNoisyChannels",360,-3.1415927, 3.1415927);
+  // eta/phi distributions
+  h_recHits_eta          = fs->make<TH1D>("h_recHits_eta","h_recHits_eta",300,-3.,3.);
+  h_recHits_EB_eta       = fs->make<TH1D>("h_recHits_EB_eta","h_recHits_EB_eta",170,-85*0.0175,85*0.0175);
 
-  h_recHits_eta_geomNorm     = fs->make<TH1D>("h_recHits_eta_geomNorm","h_recHits_eta_geomNorm",150,-3.,3.);
+  h_recHits_EEP_eta      = fs->make<TH1D>("h_recHits_EEP_eta","h_recHits_EEP_eta",300,-3.,3.);
+  h_recHits_EEM_eta      = fs->make<TH1D>("h_recHits_EEM_eta","h_recHits_EEM_eta",300,-3.,3.);
+
+  h_recHits_EB_phi       = fs->make<TH1D>("h_recHits_EB_phi","h_recHits_EB_phi",360,-3.1415927, 3.1415927);
+  h_recHits_EE_phi       = fs->make<TH1D>("h_recHits_EE_phi","h_recHits_EE_phi",360,-3.1415927, 3.1415927);
+  h_recHits_EEP_phi      = fs->make<TH1D>("h_recHits_EEP_phi","h_recHits_EEP_phi",360,-3.1415927, 3.1415927);
+  h_recHits_EEM_phi      = fs->make<TH1D>("h_recHits_EEM_phi","h_recHits_EEM_phi",360,-3.1415927, 3.1415927);
+
+  h_recHits_eta_MaxEt    = fs->make<TH1D>("h_recHits_eta_MaxEt","h_recHits_eta_MaxEt",150,-3.,3.);
+  h_recHits_EB_phi_MaxEt = fs->make<TH1D>("h_recHits_EB_phi_MaxEt","h_recHits_EB_phi_MaxEt",360,-3.1415927, 3.1415927);
+  h_recHits_EE_phi_MaxEt = fs->make<TH1D>("h_recHits_EE_phi_MaxEt","h_recHits_EE_phi_MaxEt",360,-3.1415927, 3.1415927);
 
   // Basic Clusters ----------------------------------------------
   // ... barrel
   h_basicClusters_EB_size    = fs->make<TH1D>("h_basicClusters_EB_size","h_basicClusters_EB_size",200,0.,200.);
   h_basicClusters_EB_nXtals  = fs->make<TH1D>("h_basicClusters_EB_nXtals","h_basicClusters_EB_nXtals",400,0.,400.);
   h_basicClusters_EB_energy  = fs->make<TH1D>("h_basicClusters_EB_energy","h_basicClusters_EB_energy",2000,0.,400.);
-
+ 
+  // ... barrel (with spike cleaning)
+  h_basicClusters_EB_size_cleaned    = fs->make<TH1D>("h_basicClusters_EB_size_cleaned","h_basicClusters_EB_size_cleaned",200,0.,200.);
+  h_basicClusters_EB_nXtals_cleaned  = fs->make<TH1D>("h_basicClusters_EB_nXtals_cleaned","h_basicClusters_EB_nXtals_cleaned",400,0.,400.);
+  h_basicClusters_EB_energy_cleaned  = fs->make<TH1D>("h_basicClusters_EB_energy_cleaned","h_basicClusters_EB_energy_cleaned",2000,0.,400.);
+  
   // ... endcap
   h_basicClusters_EEP_size   = fs->make<TH1D>("h_basicClusters_EEP_size","h_basicClusters_EEP_size",200,0.,200.);
   h_basicClusters_EEP_nXtals = fs->make<TH1D>("h_basicClusters_EEP_nXtals","h_basicClusters_EEP_nXtals",400,0.,400.);
@@ -252,6 +264,8 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EEM_energy = fs->make<TH1D>("h_basicClusters_EEM_energy","h_basicClusters_EEM_energy",2000,0.,400.);
   
   h_basicClusters_eta        = fs->make<TH1D>("h_basicClusters_eta","h_basicClusters_eta",150,-3.,3.);
+  h_basicClusters_EB_eta     = fs->make<TH1D>("h_basicClusters_EB_eta","h_basicClusters_EB_eta",150,-3.,3.);
+  h_basicClusters_EE_eta     = fs->make<TH1D>("h_basicClusters_EE_eta","h_basicClusters_EE_eta",150,-3.,3.);
   h_basicClusters_EB_phi     = fs->make<TH1D>("h_basicClusters_EB_phi","h_basicClusters_EB_phi",360,-3.1415927,3.1415927);
   h_basicClusters_EE_phi     = fs->make<TH1D>("h_basicClusters_EE_phi","h_basicClusters_EE_phi",360,-3.1415927,3.1415927);
 
@@ -263,6 +277,12 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EB_energy  = fs->make<TH1D>("h_superClusters_EB_energy","h_superClusters_EB_energy",2000,0.,400.);
   h_superClusters_EB_E1oE9   = fs->make<TH1D>("h_superClusters_EB_E1oE9","h_superClusters_EB_E1oE9",150,0,1.5);
   h_superClusters_EB_E1oE4   = fs->make<TH1D>("h_superClusters_EB_E1oE4","h_superClusters_EB_E1oE4",150,0,1.5);
+
+  // ... barrel (with spike cleaning)
+  h_superClusters_EB_size_cleaned    = fs->make<TH1D>("h_superClusters_EB_size_cleaned","h_superClusters_EB_size_cleaned",200,0.,200.);
+  h_superClusters_EB_nXtals_cleaned  = fs->make<TH1D>("h_superClusters_EB_nXtals_cleaned","h_superClusters_EB_nXtals_cleaned",400,0.,400.);
+  h_superClusters_EB_nBC_cleaned     = fs->make<TH1D>("h_superClusters_EB_nBC_cleaned","h_superClusters_EB_nBC_cleaned",100,0.,100.);
+  h_superClusters_EB_energy_cleaned  = fs->make<TH1D>("h_superClusters_EB_energy_cleaned","h_superClusters_EB_energy_cleaned",2000,0.,400.);
 
   // ... endcap
   h_superClusters_EEP_size   = fs->make<TH1D>("h_superClusters_EEP_size","h_superClusters_EEP_size",200,0.,200.);
@@ -280,6 +300,8 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EEM_E1oE4  = fs->make<TH1D>("h_superClusters_EEM_E1oE4","h_superClusters_EEM_E1oE4",150,0,1.5);  
 
   h_superClusters_eta        = fs->make<TH1D>("h_superClusters_eta","h_superClusters_eta",150,-3.,3.);
+  h_superClusters_EB_eta     = fs->make<TH1D>("h_superClusters_EB_eta","h_superClusters_EB_eta",150,-3.,3.);
+  h_superClusters_EE_eta     = fs->make<TH1D>("h_superClusters_EE_eta","h_superClusters_EE_eta",150,-3.,3.);
   h_superClusters_EB_phi     = fs->make<TH1D>("h_superClusters_EB_phi","h_superClusters_EB_phi",360,-3.1415927,3.1415927);
   h_superClusters_EE_phi     = fs->make<TH1D>("h_superClusters_EE_phi","h_superClusters_EE_phi",360,-3.1415927,3.1415927);
 
@@ -348,9 +370,9 @@ EcalValidation::~EcalValidation()
 void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 {
 
-  float bx      = ev.bunchCrossing();
-  float ls      = ev.luminosityBlock();
-  float orbitNb = ev.orbitNumber();
+//   float bx      = ev.bunchCrossing();
+//   float ls      = ev.luminosityBlock();
+//   float orbitNb = ev.orbitNumber();
 
 
   naiveId_++;
@@ -368,7 +390,9 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   iSetup.get<CaloTopologyRecord>().get(pTopology);
   const CaloTopology *topology = pTopology.product();
 
-  // RecHits
+
+  // --- REC HITS ------------------------------------------------------------------------------------- 
+  
   // ... barrel
   edm::Handle<EcalRecHitCollection> recHitsEB;
   ev.getByLabel( recHitCollection_EB_, recHitsEB );
@@ -380,14 +404,16 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   float maxRecHitEnergyEB = -999.;
   float maxRecHitEtaEB    = -999.;
   float maxRecHitPhiEB    = -999.;
+  float maxRecHitIEtaEB   = -999.;
 
+  float maxRecHitEnergyEBcleaned = -999.;
+  
   float maxEtRecHitEnergyEB = -999.;
   float maxEtRecHitEtaEB    = -999.;
   float maxEtRecHitPhiEB    = -999.;
-
+  
   EBDetId ebid_MrecHitEB;
-
-  int   nHitsEBcleaned = 0;
+  
   bool  hasSpike = false;
 
   for ( EcalRecHitCollection::const_iterator itr = theBarrelEcalRecHits->begin () ;
@@ -396,14 +422,16 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       
       EBDetId ebid( itr -> id() );
       GlobalPoint mycell = geometry -> getPosition(DetId(itr->id()));
-
       double et = itr -> energy()*mycell.perp()/mycell.mag();
 
+      h_recHits_EB_energy        -> Fill( itr -> energy() );
+      
       // max E rec hit
       if (itr -> energy() > maxRecHitEnergyEB ){
 	maxRecHitEnergyEB = itr -> energy() ;
 	maxRecHitEtaEB = mycell.eta();
 	maxRecHitPhiEB = mycell.phi();
+	maxRecHitIEtaEB = ebid.ieta();
       }       
 
       // max Et rec hit
@@ -413,12 +441,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	maxEtRecHitPhiEB    = mycell.phi();
 	ebid_MrecHitEB      = ebid;
       }       
-
-      float R9 = EcalSeverityLevelAlgo::E1OverE9( ebid, *theBarrelEcalRecHits, 0. );
-      float R4 = EcalSeverityLevelAlgo::swissCross( ebid, *theBarrelEcalRecHits, 0. );
-
-      h_recHits_EB_energy        -> Fill( itr -> energy() );
-    
+      
       if ( itr -> energy() > ethrEB_ ){
 	h_recHits_EB_time          -> Fill( itr -> time() );
 	h_recHits_EB_Chi2          -> Fill( itr -> chi2() );
@@ -429,32 +452,44 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	h_recHits_EB_iEtaOccupancy -> Fill( ebid.ieta() );
       }
 
+      
+      float R9 = EcalSeverityLevelAlgo::E1OverE9( ebid, *theBarrelEcalRecHits, 0. );
+      float R4 = EcalSeverityLevelAlgo::swissCross( ebid, *theBarrelEcalRecHits, 0. );
+      
       if ( itr -> energy() > 3. && abs(ebid.ieta())!=85 )  h_recHits_EB_E1oE9-> Fill( R9 );
       if ( itr -> energy() > 3. && abs(ebid.ieta())!=85 )  h_recHits_EB_E1oE4-> Fill( R4 );
 
+      
+      if ( R4 > 0.95 ) {
+	h_recHits_EB_energy_spike       -> Fill( itr -> energy() );
+      }
+
       // spike cleaning
-    
-      if ( R4 > 0.95 && et > 2.) hasSpike= true;
-      if ( R4 > 0.95 && et > 2.) continue;
+      if ( R4 > 0.95 && et > 3.) hasSpike= true;
+      if ( R4 > 0.95 && et > 3.) continue;
+      
       h_recHits_EB_energy_cleaned -> Fill( itr -> energy() );
+      if ( itr -> energy() > ethrEB_ ){
+	h_recHits_EB_time_cleaned          -> Fill( itr -> time() );
+	h_recHits_EB_Chi2_cleaned          -> Fill( itr -> chi2() );
+	h_recHits_EB_OutOfTimeChi2_cleaned -> Fill( itr -> outOfTimeChi2() );
+      }
+
+      // max E rec hit - cleaned
+      if (itr -> energy() > maxRecHitEnergyEBcleaned ){
+	maxRecHitEnergyEBcleaned = itr -> energy() ;
+      }       
+      
     }
   
 
   h_recHits_EB_size           -> Fill( recHitsEB->size() );
   if (!hasSpike) h_recHits_EB_size_cleaned -> Fill( recHitsEB->size() );
   
-  h_recHits_EB_size_vsBX      -> Fill( bx, recHitsEB->size());
-  h_recHits_EB_size_vsLS      -> Fill( ls, recHitsEB->size());
- 
-  h_recHits_EB_energyMax        -> Fill( maxRecHitEnergyEB  );
+  h_recHits_EB_energyMax         -> Fill( maxRecHitEnergyEB );
+  h_recHits_EB_energyMax_cleaned -> Fill( maxRecHitEnergyEBcleaned );
 
-  h_recHits_eta                 -> Fill( maxRecHitEtaEB  );
-  h_recHits_eta_NoNoisyChannels -> Fill( maxRecHitEtaEB  );
-  h_recHits_EB_phi              -> Fill( maxRecHitPhiEB  );
-  
-  h_recHits_eta_MaxEt                 -> Fill( maxEtRecHitEtaEB  );
-  h_recHits_eta_MaxEt_NoNoisyChannels -> Fill( maxEtRecHitEtaEB  );
-  h_recHits_EB_phi_MaxEt              -> Fill( maxEtRecHitPhiEB  );
+ 
 
   // ... endcap
   edm::Handle<EcalRecHitCollection> recHitsEE;
@@ -474,26 +509,12 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   float maxRecHitPhiEEP    = -999.;
   float maxRecHitPhiEEM    = -999.;
 
-  float maxRecHitEnergyEEP2 = -999.;
-  float maxRecHitEnergyEEM2 = -999.;
-  float maxRecHitEtaEEP2    = -999.;
-  float maxRecHitEtaEEM2    = -999.; 
-  float maxRecHitPhiEEP2    = -999.;
-  float maxRecHitPhiEEM2    = -999.;
-
   float maxEtRecHitEnergyEEP = -999.;
   float maxEtRecHitEnergyEEM = -999.;
   float maxEtRecHitEtaEEP    = -999.;
   float maxEtRecHitEtaEEM    = -999.; 
   float maxEtRecHitPhiEEP    = -999.;
   float maxEtRecHitPhiEEM    = -999.;
-
-  float maxEtRecHitEnergyEEP2 = -999.;
-  float maxEtRecHitEnergyEEM2 = -999.;
-  float maxEtRecHitEtaEEP2    = -999.;
-  float maxEtRecHitEtaEEM2    = -999.; 
-  float maxEtRecHitPhiEEP2    = -999.;
-  float maxEtRecHitPhiEEM2    = -999.;
 
   EEDetId eeid_MrecHitEEM;
   EEDetId eeid_MrecHitEEP;
@@ -514,34 +535,22 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	h_recHits_EEP_energy        -> Fill( itr -> energy() );
 
 	// max E rec hit
-	if (itr -> energy() > maxRecHitEnergyEEP ) {
+	if (itr -> energy() > maxRecHitEnergyEEP && 
+	    !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60) ) {
 	  maxRecHitEnergyEEP = itr -> energy() ;
 	  maxRecHitEtaEEP    = mycell.eta() ;
 	  maxRecHitPhiEEP    = mycell.phi() ;
 	}
 
-	// max E rec hit , excluding noisy channels
-	if (itr -> energy() > maxRecHitEnergyEEP2 && !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60) ) {
-	  maxRecHitEnergyEEP2 = itr -> energy() ;
-	  maxRecHitEtaEEP2    = mycell.eta() ;
-	  maxRecHitPhiEEP2    = mycell.phi() ;
-	}
-
 	// max Et rec hit
-	if (et > maxEtRecHitEnergyEEP ) {
+	if (et > maxEtRecHitEnergyEEP && 
+	    !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60) ) {
 	  maxEtRecHitEnergyEEP = et ;
 	  maxEtRecHitEtaEEP    = mycell.eta() ;
 	  maxEtRecHitPhiEEP    = mycell.phi() ;
 	  eeid_MrecHitEEP      = eeid ;
 	}
-
-	// max Et rec hit , excluding noisy channels
-	if (et > maxEtRecHitEnergyEEP2 && !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60) ) {
-	  maxEtRecHitEnergyEEP2 = et;
-	  maxEtRecHitEtaEEP2    = mycell.eta() ;
-	  maxEtRecHitPhiEEP2    = mycell.phi() ;
-	}
-
+	
 	// only channels above noise
 	if (  itr -> energy() > ethrEE_ ){
 	  h_recHits_EEP_time          -> Fill( itr -> time() );
@@ -552,45 +561,31 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	  h_recHits_EEP_iXoccupancy   -> Fill( eeid.ix() - 0.5 );
 	  h_recHits_EEP_iYoccupancy   -> Fill( eeid.iy() - 0.5 );
 	}
-
-
       }
-
+      
       // EE-
       if ( eeid.zside() < 0 ){
 	
 	nHitsEEM++;
 	h_recHits_EEM_energy        -> Fill( itr -> energy() );
-
+	
 	// max E rec hit
-	if (itr -> energy() > maxRecHitEnergyEEM ) {
+	if (itr -> energy() > maxRecHitEnergyEEM && 
+	    !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60) ) {
 	  maxRecHitEnergyEEM = itr -> energy() ;
 	  maxRecHitEtaEEM    = mycell.eta() ;
 	  maxRecHitPhiEEM    = mycell.phi() ;
 	}
 	
-	// max E rec hit, excluding noisy channels
-	if (itr -> energy() > maxRecHitEnergyEEM2 && !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60) ) {
-	  maxRecHitEnergyEEM2 = itr -> energy() ;
-	  maxRecHitEtaEEM2    = mycell.eta() ;
-	  maxRecHitPhiEEM2    = mycell.phi() ;
-	}
-
 	// max Et rec hit
-	if (et > maxEtRecHitEnergyEEM ) {
+	if (et > maxEtRecHitEnergyEEM && 
+	    !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60)) {
 	  maxEtRecHitEnergyEEM = et ;
 	  maxEtRecHitEtaEEM    = mycell.eta() ;
 	  maxEtRecHitPhiEEM    = mycell.phi() ;
 	  eeid_MrecHitEEM      = eeid ;
 	}
 	
-	// max Et rec hit , excluding noisy channels
-	if (et > maxEtRecHitEnergyEEM2 && !(eeid.ix()>=41 && eeid.ix()<=60 && eeid.iy()>=41 && eeid.iy()<=60) ) {
-	  maxEtRecHitEnergyEEM2 = et;
-	  maxEtRecHitEtaEEM2    = mycell.eta() ;
-	  maxEtRecHitPhiEEM2    = mycell.phi() ;
-	}
-
 	// only channels above noise
 	if (  itr -> energy() > ethrEE_ ) {
 	  h_recHits_EEM_time          -> Fill( itr -> time() );
@@ -605,94 +600,102 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
       }
     } // end loop over EE rec hits
-
+  
   // size
-  h_recHits_EE_size    -> Fill(recHitsEE->size());
+  h_recHits_EE_size    -> Fill( recHitsEE->size() );
   h_recHits_EEP_size   -> Fill( nHitsEEP );
   h_recHits_EEM_size   -> Fill( nHitsEEM );
-
-  h_recHits_EEP_size_vsBX->Fill(bx,nHitsEEP);
-  h_recHits_EEP_size_vsLS->Fill(ls,nHitsEEP);
-
-  h_recHits_EEM_size_vsBX->Fill(bx,nHitsEEM);
-  h_recHits_EEM_size_vsLS->Fill(ls,nHitsEEM);
 
   // energy
   h_recHits_EEP_energyMax -> Fill( maxRecHitEnergyEEP );
   h_recHits_EEM_energyMax -> Fill( maxRecHitEnergyEEM );
 
-  // histos for max E rec hit
-  h_recHits_eta                    -> Fill(maxRecHitEtaEEP);
-  h_recHits_eta                    -> Fill(maxRecHitEtaEEM);
+  
+  // eta/phi for max E rec hit
 
-  h_recHits_eta_NoNoisyChannels    -> Fill(maxRecHitEtaEEP2);
-  h_recHits_eta_NoNoisyChannels    -> Fill(maxRecHitEtaEEM2);
+  h_recHits_eta     -> Fill( maxRecHitEtaEB  );
+  h_recHits_eta     -> Fill( maxRecHitEtaEEP );
+  h_recHits_eta     -> Fill( maxRecHitEtaEEM );
 
-  h_recHits_EE_phi                 -> Fill(maxRecHitPhiEEP);
-  h_recHits_EE_phi                 -> Fill(maxRecHitPhiEEM);
+  if (maxRecHitIEtaEB>0)   h_recHits_EB_eta -> Fill((maxRecHitIEtaEB -0.5)*0.0175);
+  if (maxRecHitIEtaEB<0)   h_recHits_EB_eta -> Fill((maxRecHitIEtaEB +0.5)*0.0175);
 
-  h_recHits_EE_phi_NoNoisyChannels -> Fill(maxRecHitPhiEEP2);
-  h_recHits_EE_phi_NoNoisyChannels -> Fill(maxRecHitPhiEEM2);
+  h_recHits_EEP_eta -> Fill( maxRecHitEtaEEP );
+  h_recHits_EEM_eta -> Fill( maxRecHitEtaEEM );
 
+  h_recHits_EB_phi  -> Fill( maxRecHitPhiEB  );
+  h_recHits_EE_phi  -> Fill( maxRecHitPhiEEP );
+  h_recHits_EE_phi  -> Fill( maxRecHitPhiEEM );
+
+  h_recHits_EEP_phi -> Fill( maxRecHitPhiEEP );
+  h_recHits_EEM_phi -> Fill( maxRecHitPhiEEM );
+
+
+
+  
   // histos for max Et rec hit
-  h_recHits_eta_MaxEt                    -> Fill(maxEtRecHitEtaEEP);
-  h_recHits_eta_MaxEt                    -> Fill(maxEtRecHitEtaEEM);
-
-  h_recHits_eta_MaxEt_NoNoisyChannels    -> Fill(maxEtRecHitEtaEEP2);
-  h_recHits_eta_MaxEt_NoNoisyChannels    -> Fill(maxEtRecHitEtaEEM2);
-
-  h_recHits_EE_phi_MaxEt                 -> Fill(maxEtRecHitPhiEEP);
-  h_recHits_EE_phi_MaxEt                 -> Fill(maxEtRecHitPhiEEM);
-
-  h_recHits_EE_phi_MaxEt_NoNoisyChannels -> Fill(maxEtRecHitPhiEEP2);
-  h_recHits_EE_phi_MaxEt_NoNoisyChannels -> Fill(maxEtRecHitPhiEEM2);
-
-  // weighted with crystals acceptance
-  if ( maxEtRecHitEnergyEB > maxEtRecHitEnergyEEM && maxEtRecHitEnergyEB > maxEtRecHitEnergyEEP )
-    {
-      double dphi = geometry_EB->deltaPhi( ebid_MrecHitEB ) ;
-      double deta = geometry_EB->deltaEta( ebid_MrecHitEB ) ;
-      h_recHits_eta_geomNorm -> Fill( maxEtRecHitEtaEB, 1./dphi/deta) ; 
-    }
-  else if ( maxEtRecHitEnergyEEP > maxEtRecHitEnergyEB && maxEtRecHitEnergyEEP > maxEtRecHitEnergyEEM )
-    {
-      double dphi = geometry_EE ->deltaPhi( eeid_MrecHitEEP ) ;
-      double deta = geometry_EE ->deltaEta( eeid_MrecHitEEP ) ; 
-      h_recHits_eta_geomNorm -> Fill( maxEtRecHitEtaEEP,1./dphi/deta ) ;  
-    }
-  else if ( maxEtRecHitEnergyEEM > maxEtRecHitEnergyEB && maxEtRecHitEnergyEEM > maxEtRecHitEnergyEEP )
-    {
-      double dphi = geometry_EE ->deltaPhi( eeid_MrecHitEEM ) ;
-      double deta = geometry_EE ->deltaEta( eeid_MrecHitEEM ) ; 
-      h_recHits_eta_geomNorm  -> Fill( maxEtRecHitEtaEEM,1./dphi/deta ) ;  
-    }
-
+  float noiseThr = 1.;
   
-
-
-
-
-
-  //-----------------------------------------------------------------
-
+  if ( maxEtRecHitEnergyEB > noiseThr )  {
+    h_recHits_eta_MaxEt    -> Fill( maxEtRecHitEtaEB) ;
+    h_recHits_EB_phi_MaxEt -> Fill( maxEtRecHitPhiEB);
+  }
   
   
-  // Basic Clusters
+  if ( maxEtRecHitEnergyEEP > noiseThr )  {
+    h_recHits_eta_MaxEt    -> Fill( maxEtRecHitEtaEEP ) ;
+    h_recHits_EE_phi_MaxEt -> Fill( maxEtRecHitPhiEEP );
+  }
+  
+  if ( maxEtRecHitEnergyEEM > noiseThr )  {
+    h_recHits_eta_MaxEt     -> Fill( maxEtRecHitEtaEEM ) ;
+    h_recHits_EE_phi_MaxEt  -> Fill( maxEtRecHitPhiEEM );
+  }
+
+
+
+
+
+  //--- BASIC CLUSTERS --------------------------------------------------------------
+
   // ... barrel
   edm::Handle<reco::BasicClusterCollection> basicClusters_EB_h;
   ev.getByLabel( basicClusterCollection_EB_, basicClusters_EB_h );
+  const reco::BasicClusterCollection* theBarrelBasicClusters = basicClusters_EB_h.product () ;
   if ( ! basicClusters_EB_h.isValid() ) {
     std::cerr << "EcalValidation::analyze --> basicClusters_EB_h not found" << std::endl; 
   }
   
-  h_basicClusters_EB_size     -> Fill( basicClusters_EB_h->size() );
   
-  for (unsigned int icl = 0; icl < basicClusters_EB_h->size(); ++icl) {
-    h_basicClusters_EB_nXtals -> Fill( (*basicClusters_EB_h)[icl].hitsAndFractions().size() );
-    h_basicClusters_EB_energy -> Fill( (*basicClusters_EB_h)[icl].energy() );
-    h_basicClusters_eta       -> Fill( (*basicClusters_EB_h)[icl].eta() );
-    h_basicClusters_EB_phi    -> Fill( (*basicClusters_EB_h)[icl].phi() );
+
+  int nBCcleaned = 0;
+
+  for (reco::BasicClusterCollection::const_iterator itBC = theBarrelBasicClusters->begin(); 
+       itBC != theBarrelBasicClusters->end(); ++itBC ) {
+    
+    h_basicClusters_EB_nXtals -> Fill( (*itBC).hitsAndFractions().size() );
+    h_basicClusters_EB_energy -> Fill( itBC->energy() );
+    h_basicClusters_eta       -> Fill( itBC->eta() );
+    h_basicClusters_EB_eta    -> Fill( itBC->eta() );
+    h_basicClusters_EB_phi    -> Fill( itBC->phi() );
+    
+    float E1 = EcalClusterTools::eMax   ( *itBC, theBarrelEcalRecHits);
+    float E9 = EcalClusterTools::e3x3   ( *itBC, theBarrelEcalRecHits, topology );
+    float E4 = EcalClusterTools::eTop   ( *itBC, theBarrelEcalRecHits, topology )+
+               EcalClusterTools::eRight ( *itBC, theBarrelEcalRecHits, topology )+
+               EcalClusterTools::eBottom( *itBC, theBarrelEcalRecHits, topology )+
+               EcalClusterTools::eLeft  ( *itBC, theBarrelEcalRecHits, topology );
+    
+    if ( (1.-E4/E1) > 0.95 && E1 > 3.) continue;
+    
+    h_basicClusters_EB_nXtals_cleaned -> Fill( (*itBC).hitsAndFractions().size() );
+    h_basicClusters_EB_energy_cleaned -> Fill( itBC->energy() );
+    nBCcleaned++;
+    
   }
+
+  h_basicClusters_EB_size         -> Fill( basicClusters_EB_h->size() );
+  h_basicClusters_EB_size_cleaned -> Fill( nBCcleaned );
   
 
   // ... endcap
@@ -709,14 +712,15 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   for (unsigned int icl = 0; icl < basicClusters_EE_h->size(); ++icl) {
 
     h_basicClusters_eta       -> Fill( (*basicClusters_EE_h)[icl].eta() );
+    h_basicClusters_EE_eta    -> Fill( (*basicClusters_EE_h)[icl].eta() );
     h_basicClusters_EE_phi    -> Fill( (*basicClusters_EE_h)[icl].phi() );
-
+    
     if ((*basicClusters_EE_h)[icl].z() > 0){
       h_basicClusters_EEP_nXtals -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
       h_basicClusters_EEP_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
       nBasicClustersEEP++;
     }
-
+    
     if ((*basicClusters_EE_h)[icl].z() < 0){
       h_basicClusters_EEM_nXtals -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
       h_basicClusters_EEM_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
@@ -726,7 +730,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   
   h_basicClusters_EEP_size->Fill( nBasicClustersEEP );
   h_basicClusters_EEM_size->Fill( nBasicClustersEEM );
-
+  
 
   // Super Clusters
   // ... barrel
@@ -737,26 +741,45 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     std::cerr << "EcalValidation::analyze --> superClusters_EB_h not found" << std::endl; 
   }
 
-  h_superClusters_EB_size->Fill( superClusters_EB_h->size() );
+
+  int nSCcleaned = 0;
 
   for (reco::SuperClusterCollection::const_iterator itSC = theBarrelSuperClusters->begin(); 
        itSC != theBarrelSuperClusters->end(); ++itSC ) {
+    
+    double scEt = itSC -> energy() * sin(2.*atan( exp(- itSC->position().eta() )));
+    
+    if (scEt < scEtThrEB_ ) continue;
+
     h_superClusters_EB_nXtals -> Fill( (*itSC).hitsAndFractions().size() );
     h_superClusters_EB_nBC    -> Fill( itSC -> clustersSize());
     h_superClusters_EB_energy -> Fill( itSC -> energy() );
     h_superClusters_eta       -> Fill( itSC -> eta() );
+    h_superClusters_EB_eta    -> Fill( itSC -> eta() );
     h_superClusters_EB_phi    -> Fill( itSC -> phi() );
  
-    float E1 = EcalClusterTools::eMax( *itSC, theBarrelEcalRecHits);
-    float E9 = EcalClusterTools::e3x3( *itSC, theBarrelEcalRecHits, topology );
-    float E4 = EcalClusterTools::eTop( *itSC, theBarrelEcalRecHits, topology)+
-               EcalClusterTools::eRight( *itSC, theBarrelEcalRecHits, topology)+
-               EcalClusterTools::eBottom( *itSC, theBarrelEcalRecHits, topology)+
-               EcalClusterTools::eLeft( *itSC, theBarrelEcalRecHits, topology);
+    float E1 = EcalClusterTools::eMax   ( *itSC, theBarrelEcalRecHits);
+    float E9 = EcalClusterTools::e3x3   ( *itSC, theBarrelEcalRecHits, topology );
+    float E4 = EcalClusterTools::eTop   ( *itSC, theBarrelEcalRecHits, topology )+
+               EcalClusterTools::eRight ( *itSC, theBarrelEcalRecHits, topology )+
+               EcalClusterTools::eBottom( *itSC, theBarrelEcalRecHits, topology )+
+               EcalClusterTools::eLeft  ( *itSC, theBarrelEcalRecHits, topology );
 
     if ( E1 > 3. ) h_superClusters_EB_E1oE9  -> Fill( E1/E9 );
     if ( E1 > 3. ) h_superClusters_EB_E1oE4  -> Fill( 1.- E4/E1);
+
+
+    if ( (1.- E4/E1) > 0.95  && E1 > 3. ) continue;
+    
+    h_superClusters_EB_nXtals_cleaned -> Fill( (*itSC).hitsAndFractions().size() );
+    h_superClusters_EB_nBC_cleaned    -> Fill( itSC -> clustersSize());
+    h_superClusters_EB_energy_cleaned -> Fill( itSC -> energy() );
+    nSCcleaned++;
   }
+
+  h_superClusters_EB_size         -> Fill( superClusters_EB_h->size() );
+  h_superClusters_EB_size_cleaned -> Fill( nSCcleaned );
+
  
   
   // ... endcap
@@ -773,7 +796,11 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   for (reco::SuperClusterCollection::const_iterator itSC = theEndcapSuperClusters->begin(); 
        itSC != theEndcapSuperClusters->end(); ++itSC ) {
 
+    double scEt = itSC -> energy() * sin(2.*atan( exp(- itSC->position().eta() )));
+    if (scEt < scEtThrEE_ ) continue;
+
     h_superClusters_eta       -> Fill( itSC -> eta() );
+    h_superClusters_EE_eta    -> Fill( itSC -> eta() );
     h_superClusters_EE_phi    -> Fill( itSC -> phi() );
     
 
