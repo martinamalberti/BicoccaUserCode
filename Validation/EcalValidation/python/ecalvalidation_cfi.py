@@ -13,7 +13,10 @@ ecalvalidation = cms.EDAnalyzer("EcalValidation",
                                     
     ethrEB = cms.double(0.800),
     ethrEE = cms.double(1.200),
-                                    
+
+    scEtThrEB = cms.double(0.0),
+    scEtThrEE = cms.double(0.0),
+    
     # for pi0
 
     isMonEBpi0 = cms.untracked.bool(True),
