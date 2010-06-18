@@ -7,6 +7,10 @@
 #include <map>
 #include <cmath>
 #include <algorithm>
+#include "functional"
+#include <utility>
+
+
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -214,6 +218,103 @@ TH1D * smartProfileY (TH2F * strip, double width) ;
 /** smart profiling by fixing gaussian parameters and
 range from a first averaging */
 TH1D * smartGausProfileY (TH2F * strip, double width) ; 
+
+/** 68% and 95% bands using Neyman intervals 
+and Feldman-Cousins principle */
+std::vector<double> getSigmaBands_FeldmanCousins (const TH1 & histo) ;
+ 
+/** smart profiling Y using Neyman intervals 
+and Feldman-Cousins principle */
+std::vector<TH1D*> smartGausProfileY_FeldmanCousins (TH2F * strip, double width);
+  
+/** smart profiling X using Neyman intervals 
+and Feldman-Cousins principle */
+std::vector<TH1D*> smartGausProfileX_FeldmanCousins (TH2F * strip, double width);
+
+/**
+define a band in the histogram such that for any slice at fixed x-bin 
+from the histogram in the Y a minimal and maximal points are determined
+by the funcional getLimit
+*/
+template <class T> std::vector<std::vector<double> > //PG three vectors: x axis, lower line, upper line
+getBand_integrY (TH2F & histo2D, T getLimit)
+{
+ int cut = 0 ; // minimum number of entries per fitted bin
+ int nbins = histo2D.GetXaxis ()->GetNbins () ;
+ int binmin = 1 ;
+ int ngroup = 1 ; // bins per step
+ int binmax = nbins ;
+ 
+ std::vector<double> dummy ;
+ std::vector<std::vector<double> > out (3, dummy) ;
+ 
+ // loop over the 2D histo bins
+ for (int bin=binmin ; bin <= binmax ; bin += ngroup) 
+ {
+  out.at (0).push_back (histo2D.GetXaxis ()->GetBinCenter (bin+0.5)) ;
+  TH1D * h1_dummy = histo2D.ProjectionY ("_temp", bin, bin + ngroup - 1 , "e") ;
+  if (h1_dummy == 0) continue ;
+  int nentries = Int_t (h1_dummy->GetEntries ()) ;
+  if (nentries == 0 || nentries < cut) {delete h1_dummy ; continue ;}   
+  std::pair<double, double> limits = getLimit (*h1_dummy) ;
+  out.at (1).push_back (limits.first) ;
+  out.at (2).push_back (limits.second) ;
+  delete h1_dummy ;
+ } // loop over the bins
+ return out ;
+}
+
+
+/**
+define a band in the histogram such that for any slice at fixed y-bin 
+from the histogram in the X a minimal and maximal points are determined
+by the funcional getLimit
+*/
+template <class T> std::vector<std::vector<double> > //PG three vectors: x axis, lower line, upper line
+getBand_integrX (TH2F & histo2D, T getLimit)
+{
+ int cut = 0 ; // minimum number of entries per fitted bin
+ int nbins = histo2D.GetYaxis ()->GetNbins () ;
+ int binmin = 1 ;
+ int ngroup = 1 ; // bins per step
+ int binmax = nbins ;
+ 
+ std::vector<double> dummy ;
+ std::vector<std::vector<double> > out (3, dummy) ;
+ 
+ // loop over the 2D histo bins
+ for (int bin=binmin ; bin <= binmax ; bin += ngroup) 
+ {
+  out.at (0).push_back (histo2D.GetYaxis ()->GetBinCenter (bin+0.5)) ;
+  TH1D * h1_dummy = histo2D.ProjectionX ("_temp", bin, bin + ngroup - 1 , "e") ;
+  if (h1_dummy == 0) continue ;
+  int nentries = Int_t (h1_dummy->GetEntries ()) ;
+  if (nentries == 0 || nentries < cut) {delete h1_dummy ; continue ;}   
+  std::pair<double, double> limits = getLimit (*h1_dummy) ;
+  out.at (1).push_back (limits.first) ;
+  out.at (2).push_back (limits.second) ;
+  delete h1_dummy ;
+ } // loop over the bins
+ return out ;
+}
+
+
+
+/**
+get the points on the definition set of a TH1F such that the region contains 68% of the area
+and the tails contain the same 15.8%
+*/
+struct getLimit_sameTails : public std::unary_function <const TH1D &, std::pair<double, double> > {
+ std::pair<double, double> operator() (const TH1D & histo);
+};
+
+/**
+get the points on the definition set of a TH1F such that the region contains 68% of the area
+and the size of the region is minimal (Neyman intervals - Feldman Cousins)
+*/
+struct getLimit_FC : public std::unary_function <const TH1D &, std::pair<double, double> > {
+ std::pair<double, double> operator() (const TH1D & histo);
+};
 
 
  

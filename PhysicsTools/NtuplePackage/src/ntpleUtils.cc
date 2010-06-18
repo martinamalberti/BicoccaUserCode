@@ -760,3 +760,337 @@ TH1D * smartGausProfileY (TH2F * strip, double width){
 // -------------------------------------------------------------
 
 
+std::vector<double> getSigmaBands_FeldmanCousins (const TH1 & histo)
+{
+ ///==== AM Get Neyman Intervals, MPV, +/- 1 sigma ====
+ 
+ int StepY = 1000;
+ 
+ std::vector<double> result (5, 0.) ;
+ 
+ double maxY = histo.GetMaximum();
+ int totBins = histo.GetNbinsX();
+ int iBinCenter = histo.GetMaximumBin();
+ int iBinMin = iBinCenter;
+ int iBinMax = iBinMin;
+ int iBinMin_cycle = iBinCenter;
+ int iBinMax_cycle = iBinMin_cycle;
+ double totalEntries = histo.GetEffectiveEntries();
+ double integral = histo.GetBinContent(iBinCenter);
+ double area = integral / totalEntries;
+ double DeltaY = maxY / StepY;
+ double PositionY = maxY;
+ 
+ double ValueSx = maxY;
+ double ValueDx = maxY;
+ 
+ bool doContinue68 = true; 
+ int increasePerformance = 0;
+ 
+ if (totalEntries != 0) { ///==== if 0 entries return 0,0,0,0,0
+  while (doContinue68 && PositionY>0){ /// && PositionY>0 test for infinite-loop stop
+   PositionY = PositionY - DeltaY; 
+   ///==== look left ====
+   for (int iBinSx = (iBinCenter-iBinMin_cycle); iBinSx < iBinCenter; iBinSx++){
+    ValueSx = histo.GetBinContent(iBinCenter-iBinSx);
+    if (ValueSx <= PositionY) {
+     iBinMin = iBinCenter-iBinSx;
+     break;
+    }
+    else {
+     if (iBinSx == (iBinCenter-1)){
+      iBinMin = iBinSx;
+     }
+    }
+   }
+   ///==== look right ====
+   for (int iBinDx = (iBinMax_cycle-iBinCenter); iBinDx <= (totBins - iBinCenter); iBinDx++){
+    ValueDx = histo.GetBinContent(iBinCenter+iBinDx);
+    if (ValueDx <= PositionY) {
+     iBinMax = iBinCenter+iBinDx;
+     break;
+    }
+    else {
+     if (iBinDx == ((totBins - iBinCenter)-1)){
+      iBinMax = iBinDx;
+     }
+    }
+   }
+   
+   integral = histo.Integral(iBinMin,iBinMax);
+   area = integral / totalEntries;
+//    std::cerr << " area 68[" << iBinMin << ":" << iBinCenter << ":" << iBinMax << "] [" << PositionY << ":" << maxY << "] = " << area << " = " << integral << " / " << totalEntries << std::endl;
+   if (area > 0.68) {
+    if (increasePerformance == 0){
+     increasePerformance = 1;
+     PositionY = PositionY + DeltaY;
+     DeltaY  = DeltaY / 10.;
+    }
+    else {
+     doContinue68 = false;
+    }
+   }
+   else {
+    iBinMin_cycle = iBinMin;
+    iBinMax_cycle = iBinMax;
+   }
+  }
+  
+  ///=== 68% and mean ===
+  result.at(1) = histo.GetBinCenter(iBinMin);
+  result.at(2) = histo.GetBinCenter(iBinCenter);
+  result.at(3) = histo.GetBinCenter(iBinMax);
+  ///====================
+  
+  
+  bool doContinue95 = true; 
+  increasePerformance = 0;
+  
+  while (doContinue95){// && PositionY>0){ /// && PositionY>0 test for infinite-loop stop
+   PositionY = PositionY - DeltaY;
+   ///==== look left ====
+   for (int iBinSx = (iBinCenter-iBinMin_cycle); iBinSx < iBinCenter; iBinSx++){
+    ValueSx = histo.GetBinContent(iBinCenter-iBinSx);
+//     std::cerr << " ValueSx[" << iBinSx << "] = " << ValueSx << " " ;
+    if (ValueSx <= PositionY) {
+//      std::cerr << "found SX " << std::endl;
+     iBinMin = iBinCenter-iBinSx;
+     break;
+    }
+    else {
+     if (iBinSx == (iBinCenter-1)){
+      iBinMin = iBinSx;
+     }
+    }
+   }
+   ///==== look right ====
+   for (int iBinDx = (iBinMax_cycle-iBinCenter); iBinDx <= (totBins - iBinCenter); iBinDx++){
+    ValueDx = histo.GetBinContent(iBinCenter+iBinDx);
+//     std::cerr << " ValueDx[" << iBinDx << "] = " << ValueDx << " " ;
+    if (ValueDx <= PositionY) {
+//      std::cerr << "found DX " << std::endl;
+     iBinMax = iBinCenter+iBinDx;
+     break;
+    }
+    else {
+     if (iBinDx == ((totBins - iBinCenter)-1)){
+      iBinMax = iBinDx;
+     }
+    }
+   }
+   
+   integral = histo.Integral(iBinMin,iBinMax);
+   area = integral / totalEntries;
+//    std::cerr << " area 95[" << iBinMin << ":" << iBinCenter << ":" << iBinMax << "] [" << PositionY << ":" << maxY << "] = " << area << " = " << integral << " / " << totalEntries << "    SX : " << iBinCenter-iBinMin_cycle << " : " << iBinCenter << " DX : " << (iBinMax_cycle-iBinCenter) << " : " << (totBins - iBinCenter) << std::endl;
+   if (area > 0.95) {
+    if (increasePerformance == 0){
+     increasePerformance = 1;
+     PositionY = PositionY + DeltaY;
+     DeltaY  = DeltaY / 10.;
+    }
+    else {
+     doContinue95 = false;
+    }
+   }
+   else {
+    iBinMin_cycle = iBinMin;
+    iBinMax_cycle = iBinMax;
+   }
+  }
+  
+  ///=== 95% ===
+  result.at(0) = histo.GetBinCenter(iBinMin);
+  result.at(4) = histo.GetBinCenter(iBinMax);
+  ///===========
+ }
+ 
+ return result ;
+}
+
+
+
+// -------------------------------------------------------------
+
+
+std::vector<TH1D*> smartGausProfileY_FeldmanCousins (TH2F * strip, double width){
+ TProfile * stripProfile = strip->ProfileY () ;
+ 
+ double xmin = stripProfile->GetXaxis ()->GetXmin () ;
+ double xmax = stripProfile->GetXaxis ()->GetXmax () ;
+ int profileBins = stripProfile->GetNbinsX () ;
+ 
+ std::string nameLow = strip->GetName () ;
+ nameLow += "_smartGaus_FeldmanCousins_Low_Y" ; 
+ TH1D * prof_Low = new TH1D(nameLow.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+
+ std::string nameMean = strip->GetName () ;
+ nameMean += "_smartGaus_FeldmanCousins_Mean_Y" ; 
+ TH1D * prof_Mean = new TH1D(nameMean.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+ 
+ std::string nameHigh = strip->GetName () ;
+ nameHigh += "_smartGaus_FeldmanCousins_High_Y" ; 
+ TH1D * prof_High = new TH1D(nameHigh.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+ 
+ int cut = 0 ; // minimum number of entries per fitted bin
+ int nbins = strip->GetYaxis ()->GetNbins () ;
+ int binmin = 1 ;
+ int ngroup = 1 ; // bins per step
+ int binmax = nbins ;
+ 
+ // loop over the strip bins
+ for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
+ {
+  TH1D *hpx = strip->ProjectionX ("_temp",bin,bin+ngroup-1,"e") ;
+  if (hpx == 0) continue ;
+  int nentries = Int_t (hpx->GetEntries ()) ;
+  if (nentries == 0 || nentries < cut) {delete hpx ; continue ;} 
+  
+  Int_t biny = bin + ngroup/2 ;
+  
+  std::vector<double> band = getSigmaBands_FeldmanCousins(*hpx);
+
+  prof_Low->Fill (strip->GetYaxis ()->GetBinCenter (biny), band.at(1)) ;       
+  prof_Mean->Fill (strip->GetYaxis ()->GetBinCenter (biny), band.at(2)) ;       
+  prof_High->Fill (strip->GetYaxis ()->GetBinCenter (biny), band.at(3)) ;       
+  
+  delete hpx ;
+ } // loop over the bins
+ 
+ delete stripProfile ;
+ 
+ std::vector<TH1D*> result;
+ result.push_back(prof_Low);
+ result.push_back(prof_Mean);
+ result.push_back(prof_High);
+ 
+ return result ;
+}
+
+
+// -------------------------------------------------------------
+
+
+
+std::vector<TH1D*> smartProfileX_FeldmanCousins (TH2F * strip, double width){
+ TProfile * stripProfile = strip->ProfileX () ;
+ 
+ // (from FitSlices of TH2.h)
+ 
+ double xmin = stripProfile->GetXaxis ()->GetXmin () ;
+ double xmax = stripProfile->GetXaxis ()->GetXmax () ;
+ int profileBins = stripProfile->GetNbinsX () ;
+ 
+ std::string nameLow = strip->GetName () ;
+ nameLow += "_smartGaus_FeldmanCousins_Low_X" ; 
+ TH1D * prof_Low = new TH1D(nameLow.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+ 
+ std::string nameMean = strip->GetName () ;
+ nameMean += "_smartGaus_FeldmanCousins_Mean_X" ; 
+ TH1D * prof_Mean = new TH1D(nameMean.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+ 
+ std::string nameHigh = strip->GetName () ;
+ nameHigh += "_smartGaus_FeldmanCousins_High_X" ; 
+ TH1D * prof_High = new TH1D(nameHigh.c_str (),strip->GetTitle (),profileBins,xmin,xmax) ;
+ 
+ int cut = 0 ; // minimum number of entries per fitted bin
+ int nbins = strip->GetXaxis ()->GetNbins () ;
+ int binmin = 1 ;
+ int ngroup = 1 ; // bins per step
+ int binmax = nbins ;
+ 
+ // loop over the strip bins
+ for (int bin=binmin ; bin<=binmax ; bin += ngroup) 
+ {
+  TH1D *hpy = strip->ProjectionY ("_temp",bin,bin+ngroup-1,"e") ;
+  if (hpy == 0) continue ;
+  int nentries = Int_t (hpy->GetEntries ()) ;
+  if (nentries == 0 || nentries < cut) {delete hpy ; continue ;} 
+  
+  Int_t biny = bin + ngroup/2 ;
+  
+  std::vector<double> band = getSigmaBands_FeldmanCousins(*hpy);
+  
+  prof_Low->Fill (strip->GetXaxis ()->GetBinCenter (biny), band.at(1)) ;       
+  prof_Mean->Fill (strip->GetXaxis ()->GetBinCenter (biny), band.at(2)) ;       
+  prof_High->Fill (strip->GetXaxis ()->GetBinCenter (biny), band.at(3)) ;       
+  
+  delete hpy ;
+ } // loop over the bins
+ 
+ delete stripProfile ;
+
+ std::vector<TH1D*> result;
+ result.push_back(prof_Low);
+ result.push_back(prof_Mean);
+ result.push_back(prof_High);
+ 
+ return result ;
+}
+
+
+// -------------------------------------------------------------
+
+
+
+/**
+get the points on the definition set of a TH1F such that the region contains 68% of the area
+and the tails contain the same 15.8%
+*/
+std::pair<double, double> getLimit_sameTails::operator() (const TH1D & histo) 
+{
+ double threshold = histo.GetEntries () * 0.158655 ;
+ 
+ int entries1s_low = 0;
+ double banda1s_low = 0.;
+ 
+ // left tail
+ for (int bandaBin = 1 ; bandaBin <= histo.GetNbinsX () ; ++bandaBin)
+ {
+  entries1s_low += histo.GetBinContent (bandaBin) ;
+  if ( entries1s_low >= threshold)
+  {
+   banda1s_low = histo.GetBinCenter (bandaBin) ;
+   break ;
+  }
+ } // left tail
+ 
+ int entries1s_high = 0;
+ double banda1s_high = 0.;
+ 
+ // right tail
+ for (int bandaBin = histo.GetNbinsX () ; bandaBin > 0 ; --bandaBin)
+ {
+  entries1s_high += histo.GetBinContent (bandaBin) ;
+  if ( entries1s_high >= threshold)
+  {
+   banda1s_high = histo.GetBinCenter (bandaBin) ;
+   break ;
+  }
+ } // right tail
+ return std::pair<double, double> (banda1s_low, banda1s_high) ;  
+}
+
+
+// -------------------------------------------------------------
+
+
+/**
+get the points on the definition set of a TH1F such that the region contains 68% of the area
+and the size of the region is minimal (Neyman intervals - Feldman Cousins)
+*/
+
+std::pair<double, double> getLimit_FC::operator() (const TH1D & histo) 
+{
+ std::vector<double> band = getSigmaBands_FeldmanCousins (histo);
+ return std::pair<double, double> (band.at(1), band.at(3)) ;  
+}
+
+
+// -------------------------------------------------------------
+
+
+
+// -------------------------------------------------------------
+
+
+
