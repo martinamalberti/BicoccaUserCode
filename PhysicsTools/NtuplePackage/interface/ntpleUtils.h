@@ -251,12 +251,12 @@ getBand_integrY (TH2F & histo2D, T getLimit)
  // loop over the 2D histo bins
  for (int bin=binmin ; bin <= binmax ; bin += ngroup) 
  {
-  out.at (0).push_back (histo2D.GetXaxis ()->GetBinCenter (bin+0.5)) ;
   TH1D * h1_dummy = histo2D.ProjectionY ("_temp", bin, bin + ngroup - 1 , "e") ;
   if (h1_dummy == 0) continue ;
   int nentries = Int_t (h1_dummy->GetEntries ()) ;
   if (nentries == 0 || nentries < cut) {delete h1_dummy ; continue ;}   
   std::pair<double, double> limits = getLimit (*h1_dummy) ;
+  out.at (0).push_back (histo2D.GetXaxis ()->GetBinCenter (bin+0.5)) ;
   out.at (1).push_back (limits.first) ;
   out.at (2).push_back (limits.second) ;
   delete h1_dummy ;
@@ -285,12 +285,12 @@ getBand_integrX (TH2F & histo2D, T getLimit)
  // loop over the 2D histo bins
  for (int bin=binmin ; bin <= binmax ; bin += ngroup) 
  {
-  out.at (0).push_back (histo2D.GetYaxis ()->GetBinCenter (bin+0.5)) ;
   TH1D * h1_dummy = histo2D.ProjectionX ("_temp", bin, bin + ngroup - 1 , "e") ;
   if (h1_dummy == 0) continue ;
   int nentries = Int_t (h1_dummy->GetEntries ()) ;
   if (nentries == 0 || nentries < cut) {delete h1_dummy ; continue ;}   
   std::pair<double, double> limits = getLimit (*h1_dummy) ;
+  out.at (0).push_back (histo2D.GetYaxis ()->GetBinCenter (bin+0.5)) ;
   out.at (1).push_back (limits.first) ;
   out.at (2).push_back (limits.second) ;
   delete h1_dummy ;

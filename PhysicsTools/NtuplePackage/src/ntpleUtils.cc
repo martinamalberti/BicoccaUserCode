@@ -846,7 +846,7 @@ std::vector<double> getSigmaBands_FeldmanCousins (const TH1 & histo)
   bool doContinue95 = true; 
   increasePerformance = 0;
   
-  while (doContinue95){// && PositionY>0){ /// && PositionY>0 test for infinite-loop stop
+  while (doContinue95 && PositionY>0){ /// && PositionY>0 test for infinite-loop stop
    PositionY = PositionY - DeltaY;
    ///==== look left ====
    for (int iBinSx = (iBinCenter-iBinMin_cycle); iBinSx < iBinCenter; iBinSx++){
