@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtpleWJets.cc,v 1.4 2010/01/16 18:40:17 amassiro Exp $
+// $Id: SimpleNtpleWJets.cc,v 1.1 2010/01/18 09:41:31 amassiro Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 #include "HiggsAnalysis/TTBarAnalysis/plugins/SimpleNtpleWJets.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 //--- objects ----

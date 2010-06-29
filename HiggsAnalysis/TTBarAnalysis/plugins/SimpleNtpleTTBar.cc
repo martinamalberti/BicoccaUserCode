@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtpleTTBar.cc,v 1.6 2010/01/27 10:39:48 amassiro Exp $
+// $Id: SimpleNtpleTTBar.cc,v 1.7 2010/03/22 11:10:04 amassiro Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 #include "HiggsAnalysis/TTBarAnalysis/plugins/SimpleNtpleTTBar.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 
 //---- utilities ----

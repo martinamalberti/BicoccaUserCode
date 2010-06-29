@@ -1,8 +1,9 @@
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SortCollectionSelector.h"
+
+#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/SortCollectionSelector.h"
 
 
 
@@ -18,3 +19,6 @@ DEFINE_ANOTHER_FWK_MODULE(SimpleNtpleTTBar) ;
 
 #include "HiggsAnalysis/TTBarAnalysis/plugins/SimpleNtpleWJets.h"
 DEFINE_ANOTHER_FWK_MODULE(SimpleNtpleWJets) ;
+
+#include "HiggsAnalysis/TTBarAnalysis/plugins/NtupleMC.h"
+DEFINE_ANOTHER_FWK_MODULE(NtupleMC) ;
