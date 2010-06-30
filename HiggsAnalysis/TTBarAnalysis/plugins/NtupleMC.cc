@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: NtupleMC.cc,v 1.7 2010/03/22 11:10:04 amassiro Exp $
+// $Id: NtupleMC.cc,v 1.1 2010/06/29 08:20:51 amassiro Exp $
 //
 //
 
@@ -54,6 +54,46 @@ NtupleMC::NtupleMC(const edm::ParameterSet& iConfig)
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
 
  NtupleFactory_ = new NtupleFactory(outTree_);
+
+NtupleFactory_->Add4V("genJets");         
+  NtupleFactory_->Add4V("mcT1");    
+  NtupleFactory_->AddFloat("mcT1_charge");    
+  NtupleFactory_->Add4V("mcT2");    
+  NtupleFactory_->AddFloat("mcT2_charge");    
+
+  NtupleFactory_->Add4V("mcB1");    
+  NtupleFactory_->AddFloat("mcB1_charge");    
+  NtupleFactory_->Add4V("mcB2");    
+  NtupleFactory_->AddFloat("mcB2_charge");   
+       
+  NtupleFactory_->Add4V("mcV1");         
+  NtupleFactory_->AddFloat("mcV1_charge");    
+  NtupleFactory_->AddFloat("mcV1_pdgId");    
+ 
+  NtupleFactory_->Add4V("mcV2");         
+  NtupleFactory_->AddFloat("mcV2_charge");    
+  NtupleFactory_->AddFloat("mcV2_pdgId");  
+  
+  NtupleFactory_->Add4V("mcF1_fromV1");   
+  NtupleFactory_->AddFloat("mcF1_fromV1_charge");    
+  NtupleFactory_->AddFloat("mcF1_fromV1_pdgId");  
+       
+  NtupleFactory_->Add4V("mcF2_fromV1");         
+  NtupleFactory_->AddFloat("mcF2_fromV1_charge");    
+  NtupleFactory_->AddFloat("mcF2_fromV1_pdgId");  
+ 
+  NtupleFactory_->Add4V("mcF1_fromV2");         
+  NtupleFactory_->AddFloat("mcF1_fromV2_charge");    
+  NtupleFactory_->AddFloat("mcF1_fromV2_pdgId");  
+ 
+  NtupleFactory_->Add4V("mcF2_fromV2");         
+  NtupleFactory_->AddFloat("mcF2_fromV2_charge");    
+  NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");    
+  
+  NtupleFactory_->Add4V("mcFX_fromV1_TauJet");         
+  NtupleFactory_->AddFloat("mcFX_fromV1_TauJet_pfgId");    
+  NtupleFactory_->Add4V("mcFX_fromV2_TauJet");         
+  NtupleFactory_->AddFloat("mcFX_fromV2_TauJet_pfgId");
 }
 
 
@@ -62,6 +102,7 @@ NtupleMC::NtupleMC(const edm::ParameterSet& iConfig)
 
 NtupleMC::~NtupleMC()
 {
+ NtupleFactory_->WriteNtuple();
  delete NtupleFactory_;
 }
 
@@ -162,61 +203,5 @@ void
 
 }
 
-    
-// ------------ method called once each job just before starting event loop  ------------
-  
-  void 
-    NtupleMC::beginJob(const edm::EventSetup& iSetup)
-{
-  NtupleFactory_->Add4V("genJets");         
-  NtupleFactory_->Add4V("mcT1");    
-  NtupleFactory_->AddFloat("mcT1_charge");    
-  NtupleFactory_->Add4V("mcT2");    
-  NtupleFactory_->AddFloat("mcT2_charge");    
-
-  NtupleFactory_->Add4V("mcB1");    
-  NtupleFactory_->AddFloat("mcB1_charge");    
-  NtupleFactory_->Add4V("mcB2");    
-  NtupleFactory_->AddFloat("mcB2_charge");   
-       
-  NtupleFactory_->Add4V("mcV1");         
-  NtupleFactory_->AddFloat("mcV1_charge");    
-  NtupleFactory_->AddFloat("mcV1_pdgId");    
- 
-  NtupleFactory_->Add4V("mcV2");         
-  NtupleFactory_->AddFloat("mcV2_charge");    
-  NtupleFactory_->AddFloat("mcV2_pdgId");  
-  
-  NtupleFactory_->Add4V("mcF1_fromV1");   
-  NtupleFactory_->AddFloat("mcF1_fromV1_charge");    
-  NtupleFactory_->AddFloat("mcF1_fromV1_pdgId");  
-       
-  NtupleFactory_->Add4V("mcF2_fromV1");         
-  NtupleFactory_->AddFloat("mcF2_fromV1_charge");    
-  NtupleFactory_->AddFloat("mcF2_fromV1_pdgId");  
- 
-  NtupleFactory_->Add4V("mcF1_fromV2");         
-  NtupleFactory_->AddFloat("mcF1_fromV2_charge");    
-  NtupleFactory_->AddFloat("mcF1_fromV2_pdgId");  
- 
-  NtupleFactory_->Add4V("mcF2_fromV2");         
-  NtupleFactory_->AddFloat("mcF2_fromV2_charge");    
-  NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");    
-  
-  NtupleFactory_->Add4V("mcFX_fromV1_TauJet");         
-  NtupleFactory_->AddFloat("mcFX_fromV1_TauJet_pfgId");    
-  NtupleFactory_->Add4V("mcFX_fromV2_TauJet");         
-  NtupleFactory_->AddFloat("mcFX_fromV2_TauJet_pfgId");    
-}
    
    
-// ------------ method called once each job just after ending the event loop  ------------
-     
-  void 
-    NtupleMC::endJob() 
-{
-   
- NtupleFactory_->WriteNtuple();
-
-}
-

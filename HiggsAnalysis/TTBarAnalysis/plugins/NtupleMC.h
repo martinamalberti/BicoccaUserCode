@@ -63,9 +63,7 @@ class NtupleMC : public edm::EDAnalyzer {
   ~NtupleMC();
   
  private:
-  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
     
   void fillGenJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;

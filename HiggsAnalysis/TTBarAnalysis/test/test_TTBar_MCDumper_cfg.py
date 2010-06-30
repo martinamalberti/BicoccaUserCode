@@ -14,7 +14,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V5::All"
+process.GlobalTag.globaltag = "START3X_V26::All"
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
@@ -38,10 +38,8 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.source = cms.Source(
     "PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(1),
-    fileNames = cms.untracked.vstring(
-        'file:/tmp/amassiro/FE230B1F-E3DB-DE11-8620-002219826BD1.root'
+     fileNames = cms.untracked.vstring(
+        'file:026484C3-A070-DF11-B417-001E68862B37.root'
         )
     )
 
