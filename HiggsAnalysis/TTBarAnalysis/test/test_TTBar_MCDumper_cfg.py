@@ -39,7 +39,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source(
     "PoolSource",
      fileNames = cms.untracked.vstring(
-        'file:026484C3-A070-DF11-B417-001E68862B37.root'
+        'file:F2956683-4C79-DF11-A860-00304853B1E2.root'
         )
     )
 
@@ -54,7 +54,7 @@ process.NtupleMC = cms.EDAnalyzer(
     "NtupleMC",
      genJetTag       = cms.InputTag("sisCone5GenJets"),
      MCtruthTag      = cms.InputTag("genParticles"),
-     verbosity       = cms.untracked.bool(False),
+     verbosity       = cms.untracked.bool(True),
 )
 
 # --- ====== --- --- --- --- --- --- --- --- --- --- ---
