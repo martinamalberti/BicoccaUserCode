@@ -39,7 +39,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source(
     "PoolSource",
      fileNames = cms.untracked.vstring(
-        'file:F2956683-4C79-DF11-A860-00304853B1E2.root'
+        'file:FAC4CDCE-EB72-DF11-BAF0-003048D334C7.root'
         )
     )
 
