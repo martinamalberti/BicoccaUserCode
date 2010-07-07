@@ -31,6 +31,13 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "TSystem.h"
@@ -51,6 +58,9 @@ EcalTree::EcalTree (const edm::ParameterSet& iConfig)
   ebDigiCollection_    = iConfig.getParameter<edm::InputTag> ("ebDigiCollection");
   L1InputTag_          = iConfig.getParameter<edm::InputTag> ("L1InputTag");
   ak5CaloJets_         = iConfig.getParameter<edm::InputTag> ("ak5CaloJets");
+  MetTag_              = iConfig.getParameter<edm::InputTag>("MetTag");
+  PFMetTag_            = iConfig.getParameter<edm::InputTag>("PFMetTag");
+  TcMetTag_            = iConfig.getParameter<edm::InputTag>("TcMetTag");
 
   //radiusForIso_        = iConfig.getParameter<double> ("radiusForIso");
   energyCutForIso_     = iConfig.getUntrackedParameter<double> ("energyCutForIso",0.);
@@ -121,8 +131,40 @@ void EcalTree::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(ak5CaloJets_, ak5CaloJets);
   const CaloJetCollection* theJetCollection = ak5CaloJets.product () ;   
 
+  //MET
+  edm::Handle<reco::CaloMETCollection> MetHandle ;
+  iEvent.getByLabel (MetTag_,MetHandle);
+
+  edm::Handle<reco::METCollection> TcMetHandle ;
+  iEvent.getByLabel (TcMetTag_,TcMetHandle);
+
+  edm::Handle<reco::PFMETCollection> PFMetHandle ;
+  iEvent.getByLabel (PFMetTag_,PFMetHandle);
+
   //Fill Tree
   initializeBranches(tree_, myTreeVariables_);
+
+
+  //------MET------
+  const reco::CaloMET* CaloMet = &(MetHandle->front());
+  myTreeVariables_.CaloMet = CaloMet->et();
+  myTreeVariables_.CaloMex = CaloMet->px();
+  myTreeVariables_.CaloMey = CaloMet->py();
+  myTreeVariables_.CaloMetPhi = CaloMet->phi();
+ 
+  const reco::MET* TcMet = &(TcMetHandle->front());
+  myTreeVariables_.TcMet = TcMet->et();
+  myTreeVariables_.TcMex = TcMet->px();
+  myTreeVariables_.TcMey = TcMet->py();
+  myTreeVariables_.TcMetPhi = TcMet->phi();
+
+  const reco::PFMET* PFMet = &(PFMetHandle->front());
+  myTreeVariables_.PFMet = PFMet->et();
+  myTreeVariables_.PFMex = PFMet->px();
+  myTreeVariables_.PFMey = PFMet->py();
+  myTreeVariables_.PFMetPhi = PFMet->phi();
+  //------END MET------
+  
 
   myTreeVariables_.lumiId       = iEvent.luminosityBlock();
   myTreeVariables_.BX           = iEvent.bunchCrossing();
@@ -131,7 +173,9 @@ void EcalTree::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   myTreeVariables_.eventNaiveId = naiveId_ ;
 
   dumpL1Info(gtRecord, myTreeVariables_) ;
+
   bool saveTree = dumpBarrelInfo(topology, geometry, theEcalBarrelDigis, theBarrelEcalRecHits, myTreeVariables_) ;
+
   dumpJetInfo(topology, geometry, theJetCollection, myTreeVariables_) ;
 
   if (saveTree == true) tree_ -> Fill();
@@ -378,3 +422,6 @@ void EcalTree::dumpJetInfo (	const CaloTopology * topology,
     }    
   return;
 }
+
+
+

@@ -5,6 +5,7 @@ bool EcalTreeContent::ecalVariables       = true;
 bool EcalTreeContent::preShowerVariables  = false;
 bool EcalTreeContent::L1TriggerVariables  = true;
 bool EcalTreeContent::jetVariables  = true;
+bool EcalTreeContent::metVariables  = true;
 
 
 
@@ -107,6 +108,25 @@ void setBranchAddresses(TTree* chain, EcalTreeContent& treeVars)
       chain -> SetBranchAddress("jetCharge",     treeVars.jetCharge);
       chain -> SetBranchAddress("jetMass",     treeVars.jetMass);
     }  //JET VARIABLES
+
+  if(EcalTreeContent::metVariables)
+    {  
+      chain -> SetBranchAddress("CaloMet",                   &treeVars.CaloMet);
+      chain -> SetBranchAddress("CaloMex",                   &treeVars.CaloMex);
+      chain -> SetBranchAddress("CaloMey",                   &treeVars.CaloMey);
+      chain -> SetBranchAddress("CaloMetPhi",                &treeVars.CaloMetPhi);
+
+      chain -> SetBranchAddress("TcMet",                   &treeVars.TcMet);
+      chain -> SetBranchAddress("TcMex",                   &treeVars.TcMex);
+      chain -> SetBranchAddress("TcMey",                   &treeVars.TcMey);
+      chain -> SetBranchAddress("TcMetPhi",                &treeVars.TcMetPhi);
+
+      chain -> SetBranchAddress("PFMet",                   &treeVars.PFMet);
+      chain -> SetBranchAddress("PFMex",                   &treeVars.PFMex);
+      chain -> SetBranchAddress("PFMey",                   &treeVars.PFMey);
+      chain -> SetBranchAddress("PFMetPhi",                &treeVars.PFMetPhi);
+      
+    } // MET VARIABLES
 }
 
 
@@ -210,6 +230,26 @@ void setBranches(TTree* chain, EcalTreeContent& treeVars)
       chain -> Branch("jetCharge",     treeVars.jetCharge, "jetCharge[nJets]/F");
       chain -> Branch("jetMass",     treeVars.jetMass, "jetMass[nJets]/F");
     }  //JET VARIABLES
+
+  if(EcalTreeContent::metVariables)
+    {  
+      chain -> Branch("CaloMet",          &treeVars.CaloMet,         "CaloMet/F");
+      chain -> Branch("CaloMex",          &treeVars.CaloMex,         "CaloMex/F");
+      chain -> Branch("CaloMey",          &treeVars.CaloMey,         "CaloMey/F");
+      chain -> Branch("CaloMetPhi",       &treeVars.CaloMetPhi,      "CaloMetPhi/F");
+      
+      chain -> Branch("TcMet",          &treeVars.TcMet,         "TcMet/F");
+      chain -> Branch("TcMex",          &treeVars.TcMex,         "TcMex/F");
+      chain -> Branch("TcMey",          &treeVars.TcMey,         "TcMey/F");
+      chain -> Branch("TcMetPhi",       &treeVars.TcMetPhi,      "TcMetPhi/F");
+      
+      chain -> Branch("PFMet",          &treeVars.PFMet,         "PFMet/F");
+      chain -> Branch("PFMex",          &treeVars.PFMex,         "PFMex/F");
+      chain -> Branch("PFMey",          &treeVars.PFMey,         "PFMey/F");
+      chain -> Branch("PFMetPhi",       &treeVars.PFMetPhi,      "PFMetPhi/F");
+      
+      
+    } // MET VARIABLES
 
   
 }
@@ -341,6 +381,26 @@ void initializeBranches(TTree* chain, EcalTreeContent& treeVars)
 	}
     }  //JET VARIABLES
 
+  // MET VARIABLES  
+  if(EcalTreeContent::metVariables)
+    {  
+      treeVars.CaloMet = -9999;
+      treeVars.CaloMex = -9999;
+      treeVars.CaloMey = -9999;
+      treeVars.CaloMetPhi = -9999;
+      
+      treeVars.TcMet = -9999;
+      treeVars.TcMex = -9999;
+      treeVars.TcMey = -9999;
+      treeVars.TcMetPhi = -9999;
+      
+      treeVars.PFMet = -9999;
+      treeVars.PFMex = -9999;
+      treeVars.PFMey = -9999;
+      treeVars.PFMetPhi = -9999;
+      
+      
+    } // MET VARIABLES
   
 
 }

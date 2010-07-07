@@ -104,6 +104,9 @@ class EcalTree : public edm::EDAnalyzer
       edm::InputTag ebDigiCollection_;
       edm::InputTag L1InputTag_;
       edm::InputTag ak5CaloJets_;
+      edm::InputTag MetTag_;
+      edm::InputTag PFMetTag_;
+      edm::InputTag TcMetTag_;
 
 
       double radiusForIso_;

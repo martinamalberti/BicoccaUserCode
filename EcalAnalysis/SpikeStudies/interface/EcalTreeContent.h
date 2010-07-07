@@ -17,6 +17,7 @@ struct EcalTreeContent
   static bool preShowerVariables;
   static bool L1TriggerVariables;
   static bool jetVariables;
+  static bool metVariables;
   
   unsigned int BX;
   unsigned int lumiId;
@@ -100,7 +101,21 @@ struct EcalTreeContent
   float jetCharge[MAXJETS];
   float jetMass[MAXJETS];
 
+  // MET VARIABLES
+  float CaloMet;
+  float CaloMex;
+  float CaloMey;
+  float CaloMetPhi;
 
+  float TcMet;
+  float TcMex;
+  float TcMey;
+  float TcMetPhi;
+
+  float PFMet;
+  float PFMex;
+  float PFMey;
+  float PFMetPhi;
 };
 
 
