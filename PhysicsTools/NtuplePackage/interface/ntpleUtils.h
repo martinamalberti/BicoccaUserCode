@@ -152,6 +152,14 @@ int GetMatching(const std::vector<T1>& collection1, //---- RECO
 
 
 
+/** Zeppenfeld Jet Veto */
+int getZepp(std::vector<ROOT::Math::XYZTVector>& jets,
+	   int q1,
+	   int q2,
+	   const double& EtMin,
+	   const double& zeppMax,
+	   const std::vector<int>* blacklist = 0);
+	   
 
 /** Central Jet Veto */
 int getCJV(std::vector<ROOT::Math::XYZTVector>& jets,

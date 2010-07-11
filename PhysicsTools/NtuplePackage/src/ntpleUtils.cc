@@ -180,6 +180,48 @@ int getJV(std::vector<ROOT::Math::XYZTVector>& jets,
  
 }
 
+//  ------------------------------------------------------------
+
+int getZepp(std::vector<ROOT::Math::XYZTVector>& jets,
+	  int q1,
+	  int q2,
+	  const double& EtMin,
+	  const double& zeppMax, 
+	  const std::vector<int>* blacklist){
+ 
+ int nJet = 0;
+ 
+ double etaMin = jets.at(q1).Eta();
+ double etaMax = jets.at(q2).Eta();
+
+ if (etaMax < etaMin) std::swap(etaMin,etaMax);
+
+ double etaMean = (etaMax - etaMin) / 2.;
+ double dEta = (etaMax - etaMin);
+ 
+ 
+ for(unsigned int i = 0; i < jets.size(); ++i)
+ {
+  if (i==q1 || i==q2) continue;
+  if (jets.at(i).Et() < EtMin) continue;
+  
+  bool skipJet = false;
+  if(blacklist){
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk) {
+    if(blacklist -> at(kk) == static_cast<int>(i)) skipJet = true;
+   }
+  }
+  
+  if (((jets.at(i).Eta() - etaMean) / dEta) > zeppMax) continue;
+  
+  if (skipJet) continue;
+  nJet++;  
+ } 
+ 
+ return nJet;
+ 
+}
+
 
 //  ------------------------------------------------------------
 
