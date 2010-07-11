@@ -1130,6 +1130,25 @@ std::pair<double, double> getLimit_FC::operator() (const TH1D & histo)
 
 // -------------------------------------------------------------
 
+/**
+build a TGraphError starting from a TH1F
+*/
+TGraphErrors buildGEfromH (const TH1D & histo) 
+{
+ TVectorF xV(histo.GetNbinsX());
+ TVectorF yV(histo.GetNbinsX());
+ TVectorF errxV(histo.GetNbinsX());
+ TVectorF erryV(histo.GetNbinsX());
+ for (int iBin = 0; iBin<histo.GetNbinsX(); iBin++){
+  xV[iBin] = histo.GetBinCenter(iBin);
+  yV[iBin] = histo.GetBinContent(iBin);
+  errxV[iBin] = histo.GetBinWidth(iBin);
+  erryV[iBin] = histo.GetBinError(iBin);
+ }  
+ TGraphErrors g (xV, yV, errxV, erryV) ;
+ return g ;
+}
+
 
 
 // -------------------------------------------------------------

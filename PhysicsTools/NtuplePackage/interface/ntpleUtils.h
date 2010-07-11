@@ -14,6 +14,7 @@
 
 #include "TFile.h"
 #include "TH1F.h"
+#include "TGraphErrors.h"
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TF1.h"
@@ -21,7 +22,7 @@
 #include "TVector3.h"
 #include "Math/Vector4D.h"
 #include "ConfigParser.h"
-
+#include "TVectorF.h"
 
 
 
@@ -325,5 +326,9 @@ struct getLimit_FC : public std::unary_function <const TH1D &, std::pair<double,
 };
 
 
- 
+/**
+build a TGraphError starting from a TH1F
+*/
+TGraphErrors buildGEfromH (const TH1D & histo) ;
+
 #endif
