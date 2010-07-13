@@ -1,0 +1,11 @@
+<use name=root>
+<use name=boost>
+<bin name=WenuAnalysisForCalibration file="WenuAnalysisForCalibration.cpp">
+  <use name=WAnalysis/WenuAnalysis>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
+
+<bin name=WenuAnalysisMyTree file="WenuAnalysisMyTree.cpp">
+  <use name=WAnalysis/WenuAnalysis>
+  <flags LCGDICT_ARGS="--deep">
+</bin>
