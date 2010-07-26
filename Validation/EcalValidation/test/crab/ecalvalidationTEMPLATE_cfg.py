@@ -41,6 +41,16 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
+# filter on MinBias HLT
+process.load('HLTrigger/HLTfilters/hltHighLevel_cfi')
+process.hltHighLevel = cms.EDFilter("HLTHighLevel",
+ TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+ HLTPaths = cms.vstring('HLT_MinBiasBSC'),
+ #HLTPaths = cms.vstring('HLT_MinBias*'),
+ eventSetupPathsKey = cms.string(''),
+ andOr = cms.bool(True),
+ throw = cms.bool(True)
+) 
 
 #Good Vertex Filter (see GOODCOLL skim)
 process.primaryVertexFilter = cms.EDFilter("VertexSelector",
@@ -67,6 +77,7 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.Path(
     process.skimming*
     process.hltLevel1GTSeed*
+    process.hltHighLevel*
     process.noscraping*
     process.primaryVertexFilter*
     process.ecalvalidation
