@@ -1,0 +1,13 @@
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_Zee_4analysis.root  /tmp/amassiro/Wenu_MC_Zee_4analysis.root
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_EMEnriched_Pt80to170.root  /tmp/amassiro/Wenu_MC_QCD_EMEnriched_Pt80to170_4analysis.root
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_EMEnriched_Pt30to80.root  /tmp/amassiro/Wenu_MC_QCD_EMEnriched_Pt30to80_4analysis.root
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_EMEnriched_Pt20to30.root  /tmp/amassiro/Wenu_MC_QCD_EMEnriched_Pt20to30_4analysis.root
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_BCtoE_Pt20to30.root  /tmp/amassiro/Wenu_MC_QCD_BCtoE_Pt20to30_4analysis.root
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_BCtoE_Pt30to80.root  /tmp/amassiro/Wenu_MC_QCD_BCtoE_Pt30to80_4analysis.root
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_BCtoE_Pt80to170.root  /tmp/amassiro/Wenu_MC_QCD_BCtoE_Pt80to17_4analysis.root
+
+
+
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root  /tmp/amassiro/Wenu_EG-Run2010A-PromptReco-v4_4analysis.root
+WenuAnalysisMyTree 0
+WenuAnalysisMyTree 1
