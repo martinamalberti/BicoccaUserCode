@@ -322,6 +322,17 @@ void WenuTree::dumpElectronInfo ( View<pat::Electron> electrons,
 //       myTreeVariables_.genelePhi[ myTreeVariables_.nElectrons ] =  electron.genLepton()->phi();
 //     }
 
+    myTreeVariables_.eleSeed       [ myTreeVariables_.nElectrons ] = electron.superCluster()->seed()->energy();
+    myTreeVariables_.eleFBrem      [ myTreeVariables_.nElectrons ] = electron.fbrem();
+    myTreeVariables_.elePin        [ myTreeVariables_.nElectrons ] = electron.trackMomentumAtVtx().R();
+    myTreeVariables_.elePout       [ myTreeVariables_.nElectrons ] = electron.trackMomentumOut().R();
+    myTreeVariables_.eleHOverE     [ myTreeVariables_.nElectrons ] = electron.hadronicOverEm();
+    myTreeVariables_.eleDeltaPhiIn [ myTreeVariables_.nElectrons ] = electron.deltaPhiSuperClusterTrackAtVtx();
+    myTreeVariables_.eleDeltaEtaIn [ myTreeVariables_.nElectrons ] = electron.deltaEtaSuperClusterTrackAtVtx();
+    myTreeVariables_.eleMisHits    [ myTreeVariables_.nElectrons ] = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+
+    myTreeVariables_.eleES         [ myTreeVariables_.nElectrons ] = scRef->preshowerEnergy();
+    
     ++myTreeVariables_.nElectrons;
 
   }// end loop over electron candidates

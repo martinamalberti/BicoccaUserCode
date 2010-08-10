@@ -19,7 +19,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-   '/store/relval/CMSSW_3_5_7/RelValWE/GEN-SIM-RECO/START3X_V26-v1/0012/EC9F278B-6949-DF11-99F2-003048678B0E.root'
+   #'/store/relval/CMSSW_3_5_7/RelValWE/GEN-SIM-RECO/START3X_V26-v1/0012/EC9F278B-6949-DF11-99F2-003048678B0E.root'
+   "file:/tmp/amassiro/5812F585-A57F-DF11-8BEE-001A92971BB4.root"
                                                 )
 )
 
@@ -140,10 +141,14 @@ process.highetFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 
+from PhysicsTools.NtupleUtils.AllPassFilter_cfi import *
+process.AllPassFilterW = AllPassFilter.clone()
+
 # 
 process.p = cms.Path(
-    #process.skimming*
-    process.hltLevel1GTSeed
+    process.AllPassFilterW
+     #process.skimming*
+    *process.hltLevel1GTSeed
     #*process.noscraping
     *process.primaryVertexFilter
     *process.highetele

@@ -139,13 +139,23 @@ int main (int argc, char** argv)
  double ET;
  double MT;
  double EoP;
- 
+  
+ int HLT_Ele15_LW_L1R;
+ int HLT_Photon10_L1R;
+ int HLT_Photon15_L1R;
+ int HLT_Photon20_L1R;
+
  TTree* myTree = new TTree("myTree","myTree");
  myTree -> Branch("eta",&eta,"eta/D");
  myTree -> Branch("pT",&pT,"pT/D");
  myTree -> Branch("ET",&ET,"ET/D");
  myTree -> Branch("MT",&MT,"MT/D");
  myTree -> Branch("EoP",&EoP,"EoP/D");
+ 
+ myTree -> Branch("HLT_Ele15_LW_L1R",&HLT_Ele15_LW_L1R,"HLT_Ele15_LW_L1R/I");
+ myTree -> Branch("HLT_Photon10_L1R",&HLT_Photon10_L1R,"HLT_Photon10_L1R/I");
+ myTree -> Branch("HLT_Photon15_L1R",&HLT_Photon15_L1R,"HLT_Photon15_L1R/I");
+ myTree -> Branch("HLT_Photon20_L1R",&HLT_Photon20_L1R,"HLT_Photon20_L1R/I");
 
  int nWele = 0;
  int nWeleSel = 0;
@@ -158,7 +168,8 @@ int main (int argc, char** argv)
   if(entry%100000 == 0) std::cout << "event n. " << entry << std::endl;
        
     // HLT selection
-    //if (treeVars.HLT_Photon10_L1R==0) continue;
+  if (treeVars.HLT_Photon15_L1R==0) continue; ///==== always 1 for DATA
+  //if (treeVars.HLT_Ele15_LW_L1R==0) continue;
    
         
   int nGoodElectrons = 0;
@@ -308,6 +319,16 @@ int main (int argc, char** argv)
     hmetEE -> Fill(met,w);
     heopEE ->Fill(treeVars.eleE[chosenEle]/p ,w);
    }
+   
+   
+   
+   //if (treeVars.HLT_Photon10_L1R==0) continue;
+  //if (treeVars.HLT_Ele15_LW_L1R==0) continue;
+   
+   HLT_Ele15_LW_L1R = treeVars.HLT_Ele15_LW_L1R;
+   HLT_Photon10_L1R = treeVars.HLT_Photon10_L1R;
+   HLT_Photon15_L1R = treeVars.HLT_Photon15_L1R;
+   HLT_Photon20_L1R = treeVars.HLT_Photon20_L1R;
    
    myTree -> Fill(); ///==== only if there is only one electron than save
    nWeleSel++;

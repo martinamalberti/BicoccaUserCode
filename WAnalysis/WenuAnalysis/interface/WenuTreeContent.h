@@ -53,6 +53,17 @@ struct WenuTreeContent
   float geneleEta[MAXELECTRONS];
   float genelePhi[MAXELECTRONS];
 
+  float eleSeed[MAXELECTRONS];
+  float eleFBrem[MAXELECTRONS];
+  float elePin[MAXELECTRONS];
+  float elePout[MAXELECTRONS];
+  float eleHOverE[MAXELECTRONS];
+  float eleDeltaPhiIn[MAXELECTRONS];
+  float eleDeltaEtaIn[MAXELECTRONS];
+  unsigned int eleMisHits[MAXELECTRONS];
+
+  float eleES[MAXELECTRONS];
+
 
   // MET VARIABLES
   float caloMet;

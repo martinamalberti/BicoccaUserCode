@@ -44,7 +44,17 @@ void setBranchAddresses(TTree* chain, WenuTreeContent& treeVars)
       chain -> SetBranchAddress("geneleEta",               treeVars.geneleEta); 
       chain -> SetBranchAddress("genelePhi",               treeVars.genelePhi); 
 
+      chain -> SetBranchAddress("eleSeed",                 treeVars.eleSeed);
+      chain -> SetBranchAddress("eleFBrem",                treeVars.eleFBrem);
+      chain -> SetBranchAddress("elePin",                  treeVars.elePin);
+      chain -> SetBranchAddress("elePout",                 treeVars.elePout);
+      chain -> SetBranchAddress("eleHOverE",               treeVars.eleHOverE);
+      chain -> SetBranchAddress("eleDeltaPhiIn",           treeVars.eleDeltaPhiIn);
+      chain -> SetBranchAddress("eleDeltaEtaIn",           treeVars.eleDeltaEtaIn);
+      chain -> SetBranchAddress("eleMisHits",              treeVars.eleMisHits);
 
+      chain -> SetBranchAddress("eleES",                   treeVars.eleES);
+   
     } // ELECTRON VARIABLES
   
  
@@ -175,9 +185,19 @@ void setBranches(TTree* chain, WenuTreeContent& treeVars)
       chain -> Branch("geneleEta",          treeVars.geneleEta,       "geneleEta[nElectrons]/F");
       chain -> Branch("genelePhi",          treeVars.genelePhi,       "genelePhi[nElectrons]/F");
 
+      chain -> Branch("eleSeed",            treeVars.eleSeed,         "eleSeed/F");
+      chain -> Branch("eleFBrem",           treeVars.eleFBrem,        "eleFBrem/F");
+      chain -> Branch("elePin",             treeVars.elePin,          "elePin/F");
+      chain -> Branch("elePout",            treeVars.elePout,         "elePout/F");
+      chain -> Branch("eleHOverE",          treeVars.eleHOverE,       "eleHOverE/F");
+      chain -> Branch("eleDeltaPhiIn",      treeVars.eleDeltaPhiIn,   "eleDeltaPhiIn/F");
+      chain -> Branch("eleDeltaEtaIn",      treeVars.eleDeltaEtaIn,   "eleDeltaEtaIn/F");
+      chain -> Branch("eleMisHits",         treeVars.eleMisHits,      "eleMisHits/I");
+
+      chain -> Branch("eleES",              treeVars.eleES,           "eleES/F");
+   
     }
-  
- 
+
 
   // MET VARIABLES  
   if(WenuTreeContent::metVariables)
