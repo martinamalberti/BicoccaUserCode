@@ -67,7 +67,7 @@ addPfMET(process, 'PF')
 
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 ## uncomment this line to run on an 35X input sample
-run36xOn35xInput(process)
+#run36xOn35xInput(process)
 
 
 #Analysis
@@ -83,7 +83,9 @@ process.myanalysis = cms.EDAnalyzer('WenuTree',
    muonTag             = cms.InputTag("patMuons"),
    electronID          = cms.untracked.string("eidTight"),
    btagAlgo            = cms.untracked.string("jetBProbabilityBJetTags"),
-   HLTInputTag         = cms.InputTag("TriggerResults::HLT"),
+   HLTInputTag         = cms.InputTag("TriggerResults::RECO"),
+   #HLTInputTag         = cms.InputTag("TriggerResults::HLT"),
+
    L1InputTag          = cms.InputTag("gtDigis"),
 
    runOnMC             = cms.bool(True),                     

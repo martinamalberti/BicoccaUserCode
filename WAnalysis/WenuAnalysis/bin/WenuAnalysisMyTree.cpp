@@ -37,40 +37,76 @@ int main (int argc, char** argv)
  
  int ff = atoi(argv[1]);
   
+ 
+ 
+ char nameOutput[1000];
+ if (ff == -1){
+  sprintf(nameOutput,"%s",argv[3]);
+  std::cout << " output = " << nameOutput << std::endl;
+ }
+ 
+ TFile *fout;
+ if (ff == 0){
+  fout  = new TFile("Wenu_MC_4analysis.root","recreate");
+ }
 
+ if (ff == 1) {
+  fout  = new TFile("Wenu_DATA_4analysis.root","recreate");
+ }
+
+ if (ff == -1) {
+  fout  = new TFile(nameOutput,"recreate");
+ }
+ 
   // load the tree
+ 
+ TFile* FileIn = NULL; 
+ if ( ff == 0 ){
+  FileIn = new TFile("/tmp/amassiro/treeWenuMC.root");
+ }
+ 
  TChain *chain = new TChain ("myanalysis/WprimeAnalysisTree") ;
  WenuTreeContent treeVars ;
  setBranchAddresses (chain, treeVars) ;
   
  if ( ff == 0 ){
   chain->Add("/tmp/amassiro/treeWenuMC.root");
+//   FileIn = new TFile("/tmp/amassiro/treeWenuMC.root");
  }
 
  if (ff == 1){
   //chain->Add("/tmp/amassiro/treeWenu_Commissioning10-SD_EG-v9.root");
 //  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v1.root");
-  chain->Add("/tmp/amassiro/treeWenu_MinimumBias-Commissioning10-SD_EG-Jun14thSkim-v1.root");
-  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-Jun14thReReco-v1.root");
-  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root");
+//   chain->Add("/tmp/amassiro/treeWenu_MinimumBias-Commissioning10-SD_EG-Jun14thSkim-v1.root");
+//   chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-Jun14thReReco-v1.root");
+//   chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root");
+  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2_4analysis.root");
+  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4_4analysis.root");
  }
 
  char nameInput[1000];
- char nameOutput[1000];
  if (ff == -1){
+//   sprintf(nameOutput,"%s",argv[3]);
+//   std::cout << " output = " << nameOutput << std::endl;
   sprintf(nameInput,"%s",argv[2]);
-  chain->Add(nameInput);
-  sprintf(nameOutput,"%s",argv[3]);
   std::cout << " input  = " << nameInput << std::endl;
-  std::cout << " output = " << nameOutput << std::endl;
+  FileIn = new TFile(nameInput);
+  chain->Add(nameInput);
  }
  int nEntries = chain->GetEntries () ;
- std::cout << "FOUND " << nEntries << " ENTRIES\n" ;
   
  double w = 1.;
   
+ int initialNumber = -1;
+ if (FileIn != NULL && FileIn->Get("AllPassFilterW/totalEvents")){
+  TH1F* hTotalEvents = (TH1F*) FileIn->Get("AllPassFilterW/totalEvents");
+  initialNumber = hTotalEvents->GetEntries();
+ }
  
+ std::cout << "FOUND " << nEntries << " ENTRIES : " << initialNumber << std::endl;
 
+ fout->cd();
+ 
   //INITIALIZING HISTOGRAMS
  TH1F *hNGoodElectrons = new TH1F("hNGoodElectrons","hNGoodElectrons",5,0,5);
  
@@ -139,7 +175,11 @@ int main (int argc, char** argv)
  double ET;
  double MT;
  double EoP;
-  
+ double eleFBrem;
+ double eleES;
+ double E5x5;
+ double p;
+ 
  int HLT_Ele15_LW_L1R;
  int HLT_Photon10_L1R;
  int HLT_Photon15_L1R;
@@ -151,7 +191,12 @@ int main (int argc, char** argv)
  myTree -> Branch("ET",&ET,"ET/D");
  myTree -> Branch("MT",&MT,"MT/D");
  myTree -> Branch("EoP",&EoP,"EoP/D");
- 
+ myTree -> Branch("eleFBrem",&eleFBrem,"eleFBrem/D");
+ myTree -> Branch("eleES",&eleES,"eleES/D");
+ myTree -> Branch("E5x5",&E5x5,"E5x5/D");
+ myTree -> Branch("p",&p,"p/D");
+
+ myTree -> Branch("initialNumber",&initialNumber,"initialNumber/I");
  myTree -> Branch("HLT_Ele15_LW_L1R",&HLT_Ele15_LW_L1R,"HLT_Ele15_LW_L1R/I");
  myTree -> Branch("HLT_Photon10_L1R",&HLT_Photon10_L1R,"HLT_Photon10_L1R/I");
  myTree -> Branch("HLT_Photon15_L1R",&HLT_Photon15_L1R,"HLT_Photon15_L1R/I");
@@ -188,7 +233,7 @@ int main (int argc, char** argv)
       
    float pt = sqrt(treeVars.elePx[i]*treeVars.elePx[i]+
      treeVars.elePy[i]*treeVars.elePy[i]);
-   float p  = sqrt(treeVars.elePx[i]*treeVars.elePx[i]+
+   p  = sqrt(treeVars.elePx[i]*treeVars.elePx[i]+
      treeVars.elePy[i]*treeVars.elePy[i]+
      treeVars.elePz[i]*treeVars.elePz[i]);
       
@@ -254,7 +299,7 @@ int main (int argc, char** argv)
     
   float pt = sqrt(treeVars.elePx[chosenEle]*treeVars.elePx[chosenEle]+
     treeVars.elePy[chosenEle]*treeVars.elePy[chosenEle]);
-  float p  = sqrt(treeVars.elePx[chosenEle]*treeVars.elePx[chosenEle]+
+  p  = sqrt(treeVars.elePx[chosenEle]*treeVars.elePx[chosenEle]+
     treeVars.elePy[chosenEle]*treeVars.elePy[chosenEle]+
     treeVars.elePz[chosenEle]*treeVars.elePz[chosenEle]);
     
@@ -297,7 +342,9 @@ int main (int argc, char** argv)
    ET = et;
    MT = mt;
    EoP = treeVars.eleE[chosenEle]/p;
-
+   E5x5 = treeVars.eleE5x5[chosenEle];
+   ///==== p ====
+     
       // fill histos EB+EE
    het  ->Fill(et,w);
    hmet ->Fill(met,w);
@@ -330,7 +377,11 @@ int main (int argc, char** argv)
    HLT_Photon15_L1R = treeVars.HLT_Photon15_L1R;
    HLT_Photon20_L1R = treeVars.HLT_Photon20_L1R;
    
-   myTree -> Fill(); ///==== only if there is only one electron than save
+   
+   eleFBrem  = treeVars.eleFBrem[chosenEle];
+   eleES = treeVars.eleES[chosenEle];
+
+   myTree -> Fill(); ///==== only if there is only one electron then save
    nWeleSel++;
   }
     
@@ -367,18 +418,7 @@ int main (int argc, char** argv)
  cout << "Found " << nWeleSel << ":" << nWele << " only 1 e/W " << endl;
 
   // FILE to save histos
- TFile *fout;
- if (ff == 0){
-  fout  = new TFile("Wenu_MC_4analysis.root","recreate");
- }
 
- if (ff == 1) {
-  fout  = new TFile("Wenu_DATA_4analysis.root","recreate");
- }
-
- if (ff == -1) {
-  fout  = new TFile(nameOutput,"recreate");
- }
  
  fout->cd();
 

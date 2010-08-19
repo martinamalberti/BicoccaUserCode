@@ -11,3 +11,27 @@ WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_BCtoE_Pt80to170.root  /tmp/am
 WenuAnalysisMyTree -1 /tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root  /tmp/amassiro/Wenu_EG-Run2010A-PromptReco-v4_4analysis.root
 WenuAnalysisMyTree 0
 WenuAnalysisMyTree 1
+
+
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/New | awk '{print "mkdir /tmp/amassiro/"$9" ; rfcpCastor /castor/cern.ch/user/a/amassiro/WeCalib/MC/New/"$9" /tmp/amassiro/"$9}'
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/New | awk '{print "hadd /tmp/amassiro/treeWenuMC_"$9"_4analysis.root /tmp/amassiro/"$9"/treeWenuMC_*.root"}' | /bin/sh
+
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/New | awk '{print "WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_"$9"_4analysis.root /tmp/amassiro/Wenu_"$9"_4analysis.root"}' | /bin/sh
+
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2.root  /tmp/amassiro/Wenu_EG-Run2010A-Jul16thReReco-v2_4analysis.root
+WenuAnalysisMyTree -1 /tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root  /tmp/amassiro/Wenu_EG-Run2010A-PromptReco-v4_4analysis.root
+
+
+hadd /tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2.root /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_9Aug_New/treeWenu_*.root
+
+
+
+cvs co -r V00-03-07-08 RecoEgamma/ElectronIdentification
+cvs co -d Validation/AlCaValidation UserCode/AMassironi/Calibration/Validation/AlCaValidation
+cvs co -d PhysicsTools/NtupleUtils UserCode/Bicocca/PhysicsTools/NtupleUtils
+cmsenv
+scramv1 b
+
