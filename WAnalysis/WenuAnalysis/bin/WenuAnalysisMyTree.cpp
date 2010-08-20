@@ -292,6 +292,20 @@ int main (int argc, char** argv)
    if (fabs(eta) <= EtaCutEB && (HoE>0.030 || SigmaIEtaIEta>0.01)) continue;
    if (fabs(eta) > EtaCutEB  && (HoE>0.025 || SigmaIEtaIEta>0.03)) continue;
       
+   if (DeltaPhiIn > 0.05) continue;
+
+   // electron isolation 
+   
+   float eleTrkIso = treeVars.eleTrkIso[i];
+   float eleEcalIso = treeVars.eleEcalIso[i];
+   float eleHcalIsoD1 = treeVars.eleHcalIsoD1[i];
+   float eleHcalIsoD2 = treeVars.eleHcalIsoD2[i];
+
+   if (fabs(eta) <= EtaCutEB && (eleTrkIso/pt>0.05 || eleEcalIso/pt>0.07 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.03)) continue;
+   if (fabs(eta) > EtaCutEB  && (eleTrkIso/pt>0.05 || eleEcalIso/pt>0.05 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.02)) continue;
+
+
+
    // electron ID
 //    if ( treeVars.eleId[i] != 15 ) continue;
             
