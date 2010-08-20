@@ -213,7 +213,7 @@ int main (int argc, char** argv)
   if(entry%100000 == 0) std::cout << "event n. " << entry << std::endl;
        
     // HLT selection
-  if (treeVars.HLT_Photon15_L1R==0) continue; ///==== always 1 for DATA
+  //if (treeVars.HLT_Photon15_L1R==0) continue; ///==== always 1 for DATA
   //if (treeVars.HLT_Ele15_LW_L1R==0) continue;
    
         
@@ -251,7 +251,7 @@ int main (int argc, char** argv)
    float sumEt = 0;
    for (int j=0; j<treeVars.nJets; j++){
     float deta = treeVars.jetEta[j] -  treeVars.eleEta[i];
-    float dphi = treeVars.jetPhi[j] -  treeVars.elePhi[i];
+    float dphi = deltaPhi(treeVars.jetPhi[j],treeVars.elePhi[i]);
     float dR = sqrt(deta*deta+dphi*dphi);
     if ( dR < 0.4 && treeVars.jetPt[j]>15) continue;
     sumEt+=treeVars.jetPt[j];
@@ -283,8 +283,17 @@ int main (int argc, char** argv)
    if ( met < (6 - 10.*(met/sumEt - 2))) continue;
       
 
-      // electron ID
-   if ( treeVars.eleId[i] != 15 ) continue;
+   // electron ID homemade
+   
+   float HoE = treeVars.eleHOverE[i];
+   float SigmaIEtaIEta = treeVars.eleSigmaIEtaIEta[i];
+   float DeltaPhiIn = treeVars.eleDeltaPhiIn[i];
+   
+   if (fabs(eta) <= EtaCutEB && (HoE>0.030 || SigmaIEtaIEta>0.01)) continue;
+   if (fabs(eta) > EtaCutEB  && (HoE>0.025 || SigmaIEtaIEta>0.03)) continue;
+      
+   // electron ID
+//    if ( treeVars.eleId[i] != 15 ) continue;
             
    nGoodElectrons++;
    chosenEle = i;

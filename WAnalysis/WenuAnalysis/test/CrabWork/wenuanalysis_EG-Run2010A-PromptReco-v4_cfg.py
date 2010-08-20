@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("myprocess")
+process = cms.Process("myRECO")
 
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -19,13 +19,14 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-   '/store/relval/CMSSW_3_5_7/RelValWE/GEN-SIM-RECO/START3X_V26-v1/0012/EC9F278B-6949-DF11-99F2-003048678B0E.root'
+   #'/store/relval/CMSSW_3_5_7/RelValWE/GEN-SIM-RECO/START3X_V26-v1/0012/EC9F278B-6949-DF11-99F2-003048678B0E.root'
+    '/store/data/Run2010A/EG/RECO/v4/000/143/191/5A3DC298-26AB-DF11-93D8-0030487CD718.root'
                                                 )
 )
 
 
-
-
+#Electron Correction
+process.load("RecoEgamma.EgammaTools.correctedElectronsProducer_cfi")
 
 #Define PAT sequence
 # Standard PAT Configuration File
@@ -146,6 +147,7 @@ process.p = cms.Path(
     *process.hltLevel1GTSeed
     *process.noscraping
     *process.primaryVertexFilter
+    *process.gsfElectrons
     #*process.highetele
     #*process.highetFilter
     *process.patDefaultSequence

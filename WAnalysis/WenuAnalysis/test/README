@@ -18,6 +18,11 @@ rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/New | awk '{print "mkdir /tmp/a
 
 rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/New | awk '{print "hadd /tmp/amassiro/treeWenuMC_"$9"_4analysis.root /tmp/amassiro/"$9"/treeWenuMC_*.root"}' | /bin/sh
 
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/New | awk '{print "rfcp /tmp/amassiro/treeWenuMC_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Summed/MC/"}' | /bin/sh
+
+
+
+
 
 rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/New | awk '{print "WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_"$9"_4analysis.root /tmp/amassiro/Wenu_"$9"_4analysis.root"}' | /bin/sh
 
@@ -29,9 +34,36 @@ hadd /tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2.root /tmp/amassiro/EG-R
 
 
 
+
+mkdir /tmp/amassiro/EG-Run2010A-PromptReco-v4_19Aug ; rfcpCastor /castor/cern.ch//user/a/amassiro/WeCalib/DATA/EG-Run2010A-PromptReco-v4_19Aug /tmp/amassiro/EG-Run2010A-PromptReco-v4_19Aug
+
+mkdir /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_19Aug ; rfcpCastor /castor/cern.ch//user/a/amassiro/WeCalib/DATA/EG-Run2010A-Jul16thReReco-v2_19Aug /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_19Aug
+
+
+
+
+///==== to install ====
+
 cvs co -r V00-03-07-08 RecoEgamma/ElectronIdentification
 cvs co -d Validation/AlCaValidation UserCode/AMassironi/Calibration/Validation/AlCaValidation
 cvs co -d PhysicsTools/NtupleUtils UserCode/Bicocca/PhysicsTools/NtupleUtils
 cmsenv
 scramv1 b
 
+
+
+///==== hercules ====
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | awk '{print "WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/"$1" /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis.root"}'
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NoEleID.root"}'
+
+
+
+
+
+
+
+
+
+ 
