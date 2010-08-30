@@ -179,7 +179,8 @@ int main (int argc, char** argv)
  double eleES;
  double E5x5;
  double p;
- 
+ double E9oE25;
+
  int HLT_Ele15_LW_L1R;
  int HLT_Photon10_L1R;
  int HLT_Photon15_L1R;
@@ -195,6 +196,7 @@ int main (int argc, char** argv)
  myTree -> Branch("eleES",&eleES,"eleES/D");
  myTree -> Branch("E5x5",&E5x5,"E5x5/D");
  myTree -> Branch("p",&p,"p/D");
+ myTree -> Branch("E9oE25",&E9oE25,"E9oE25/D");
 
  myTree -> Branch("initialNumber",&initialNumber,"initialNumber/I");
  myTree -> Branch("HLT_Ele15_LW_L1R",&HLT_Ele15_LW_L1R,"HLT_Ele15_LW_L1R/I");
@@ -311,31 +313,31 @@ int main (int argc, char** argv)
    if (treeVars.eleSeedSwissCross[i] > 0.95) continue;
 
    // eleId 80% cfr https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
- // if (eleMisHits > 0) continue;
- // if (fabs(eta) <= EtaCutEB && ((eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pt > 0.07)) continue;
-//  if (fabs(eta) <= EtaCutEB && (eleTrkIso/pt>0.09 || eleEcalIso/pt>0.07 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.09)) continue;
-//  if (fabs(eta) <= EtaCutEB && (HoE>0.040 || SigmaIEtaIEta>0.01)) continue;
-//  if (fabs(eta) <= EtaCutEB && DeltaPhiIn > 0.06) continue;
-//  if (fabs(eta) <= EtaCutEB && DeltaEtaIn > 0.004) continue;
+  if (eleMisHits > 0) continue;
+  if (fabs(eta) <= EtaCutEB && ((eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pt > 0.07)) continue;
+  if (fabs(eta) <= EtaCutEB && (eleTrkIso/pt>0.09 || eleEcalIso/pt>0.07 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.09)) continue;
+  if (fabs(eta) <= EtaCutEB && (HoE>0.040 || SigmaIEtaIEta>0.01)) continue;
+  if (fabs(eta) <= EtaCutEB && DeltaPhiIn > 0.06) continue;
+  if (fabs(eta) <= EtaCutEB && DeltaEtaIn > 0.004) continue;
    
-//  if (fabs(eta) > EtaCutEB && ((eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pt > 0.06)) continue;
-//  if (fabs(eta) > EtaCutEB && (eleTrkIso/pt>0.04 || eleEcalIso/pt>0.05 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.025)) continue;
-//  if (fabs(eta) > EtaCutEB && (HoE>0.025 || SigmaIEtaIEta>0.03)) continue;
-//  if (fabs(eta) > EtaCutEB && DeltaPhiIn > 0.03) continue;
+  if (fabs(eta) > EtaCutEB && ((eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pt > 0.06)) continue;
+  if (fabs(eta) > EtaCutEB && (eleTrkIso/pt>0.04 || eleEcalIso/pt>0.05 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.025)) continue;
+  if (fabs(eta) > EtaCutEB && (HoE>0.025 || SigmaIEtaIEta>0.03)) continue;
+  if (fabs(eta) > EtaCutEB && DeltaPhiIn > 0.03) continue;
    
   // eleId 60% cfr https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-   if (eleMisHits > 0) continue;
+//   if (eleMisHits > 0) continue;
 
-   if (fabs(eta) <= EtaCutEB && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2 > 0.03)) continue;
-   if (fabs(eta) <= EtaCutEB && (eleTrkIso/pt>0.04 || eleEcalIso/pt>0.04 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.03)) continue;
-   if (fabs(eta) <= EtaCutEB && (HoE>0.025 || SigmaIEtaIEta>0.01)) continue;
-   if (fabs(eta) <= EtaCutEB && DeltaPhiIn > 0.025) continue;
-   if (fabs(eta) <= EtaCutEB && DeltaEtaIn > 0.004) continue;
+//   if (fabs(eta) <= EtaCutEB && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2 > 0.03)) continue;
+//   if (fabs(eta) <= EtaCutEB && (eleTrkIso/pt>0.04 || eleEcalIso/pt>0.04 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.03)) continue;
+//   if (fabs(eta) <= EtaCutEB && (HoE>0.025 || SigmaIEtaIEta>0.01)) continue;
+//   if (fabs(eta) <= EtaCutEB && DeltaPhiIn > 0.025) continue;
+//   if (fabs(eta) <= EtaCutEB && DeltaEtaIn > 0.004) continue;
    
-   if (fabs(eta) > EtaCutEB && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2 > 0.02)) continue;
-   if (fabs(eta) > EtaCutEB && (eleTrkIso/pt>0.025 || eleEcalIso/pt>0.02 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.02)) continue;
-   if (fabs(eta) > EtaCutEB && (HoE>0.025 || SigmaIEtaIEta>0.03)) continue;
-   if (fabs(eta) > EtaCutEB && DeltaPhiIn > 0.02) continue;
+//   if (fabs(eta) > EtaCutEB && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2 > 0.02)) continue;
+//   if (fabs(eta) > EtaCutEB && (eleTrkIso/pt>0.025 || eleEcalIso/pt>0.02 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.02)) continue;
+//   if (fabs(eta) > EtaCutEB && (HoE>0.025 || SigmaIEtaIEta>0.03)) continue;
+//   if (fabs(eta) > EtaCutEB && DeltaPhiIn > 0.02) continue;
 
 // electron ID
 //    if ( treeVars.eleId[i] != 15 ) continue;
@@ -382,14 +384,14 @@ int main (int argc, char** argv)
 
   if ( et > 18.) {
    nWele++;
-//       cout << "Run : " << treeVars.runId  
-//     << "  lumi : " << treeVars.lumiId   
-//     << "  evt  : " << treeVars.eventId 
-//     << "  eleEt : " << et 
-//     << "  eleId : " <<  treeVars.eleId[chosenEle] 
-//     << "   eta : " << treeVars.eleEta[chosenEle] 
-//     << "   phi : " << treeVars.elePhi[chosenEle] 
-//     << endl;
+//   cout << "Run : " << treeVars.runId  
+//        << "  lumi : " << treeVars.lumiId   
+//        << "  evt  : " << treeVars.eventId 
+//        << "  eleEt : " << et 
+//        << "  eleId : " <<  treeVars.eleId[chosenEle] 
+//        << "   eta : " << treeVars.eleEta[chosenEle] 
+//        << "   phi : " << treeVars.elePhi[chosenEle] 
+//        << endl;
       
    eta = treeVars.eleEta[chosenEle];
    pT = pt;
@@ -397,6 +399,7 @@ int main (int argc, char** argv)
    MT = mt;
    EoP = treeVars.eleE[chosenEle]/p;
    E5x5 = treeVars.eleE5x5[chosenEle];
+//   E9oE25 = treeVars.eleE3x3[chosenEle] / treeVars.eleE5x5[chosenEle];
    ///==== p ====
      
       // fill histos EB+EE
