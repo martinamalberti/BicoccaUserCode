@@ -9,3 +9,8 @@
   <use name=WAnalysis/WenuAnalysis>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+
+<bin name=WenuAnalysisNtple file="WenuAnalysisNtple.cpp">
+  <use name=WAnalysis/WenuAnalysis>
+  <flags LCGDICT_ARGS="--deep">
+</bin>

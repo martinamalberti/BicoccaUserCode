@@ -30,7 +30,8 @@ WenuAnalysisMyTree -1 /tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2.root  
 WenuAnalysisMyTree -1 /tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root  /tmp/amassiro/Wenu_EG-Run2010A-PromptReco-v4_4analysis.root
 
 
-hadd /tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2.root /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_9Aug_New/treeWenu_*.root
+hadd /tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2.root /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_19Aug/treeWenu_*.root
+hadd /tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/EG-Run2010A-PromptReco-v4_19Aug/treeWenu_*.root
 
 
 
@@ -41,14 +42,70 @@ mkdir /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_19Aug ; rfcpCastor /castor/cern
 
 
 
+//====================================================================== 24 Aug ====
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/24Aug | awk '{print "mkdir /tmp/amassiro/"$9" ; rfcpCastor /castor/cern.ch/user/a/amassiro/WeCalib/MC/24Aug/"$9" /tmp/amassiro/"$9}'
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/24Aug | awk '{print "hadd /tmp/amassiro/treeWenuMC_"$9"_4analysis.root /tmp/amassiro/"$9"/treeWenuMC_*.root"}' | /bin/sh
+
+
+mkdir /tmp/amassiro/EG-Run2010A-PromptReco-v4_24Aug ; rfcpCastor /castor/cern.ch//user/a/amassiro/WeCalib/DATA/EG-Run2010A-PromptReco-v4_24Aug /tmp/amassiro/EG-Run2010A-PromptReco-v4_24Aug
+
+mkdir /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_24Aug ; rfcpCastor /castor/cern.ch//user/a/amassiro/WeCalib/DATA/EG-Run2010A-Jul16thReReco-v2_24Aug /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_24Aug
+
+
+hadd /tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2.root /tmp/amassiro/EG-Run2010A-Jul16thReReco-v2_24Aug/treeWenu_*.root
+hadd /tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/EG-Run2010A-PromptReco-v4_24Aug/treeWenu_*.root
+
+
+scp amassiro@lxplus258.cern.ch:/tmp/amassiro/treeWenu*4analysis.root 
+scp amassiro@lxplus258.cern.ch:/tmp/amassiro/treeWenuMC_*4analysis.root /gwterax1/users/amassiro/EcalScale/DATA/
+
+
+
+//====================================================================== 28 Aug ====
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtuple | awk '{print "mkdir /tmp/amassiro/"$9" ; rfcpCastor /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtuple/"$9" /tmp/amassiro/"$9" ; hadd /tmp/amassiro/treeNtupleWenuMC_"$9"_4analysis.root /tmp/amassiro/"$9"/treeNtupleWenuMC_*.root"}'
+
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtuple | awk '{print "mkdir /tmp/amassiro/"$9" ; rfcpCastor /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtuple/"$9" /tmp/amassiro/"$9" ; hadd /tmp/amassiro/treeNtupleWenuMC_"$9"_4analysis.root /tmp/amassiro/"$9"/treeNtupleWenuMC_*.root ; rfcp /tmp/amassiro/treeNtupleWenuMC_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtupleSUMMED/"}'
+
+
+mkdir /tmp/amassiro/Ntuple_EG-Run2010A-PromptReco-v4_28Aug ; rfcpCastor /castor/cern.ch//user/a/amassiro/WeCalib/DATA/Ntuple_EG-Run2010A-PromptReco-v4_28Aug /tmp/amassiro/Ntuple_EG-Run2010A-PromptReco-v4_28Aug
+
+mkdir /tmp/amassiro/Ntuple_EG-Run2010A-Jul16thReReco-v2_28Aug ; rfcpCastor /castor/cern.ch//user/a/amassiro/WeCalib/DATA/Ntuple_EG-Run2010A-Jul16thReReco-v2_28Aug /tmp/amassiro/Ntuple_EG-Run2010A-Jul16thReReco-v2_28Aug
+
+hadd /tmp/amassiro/treeNtupleWenu_EG-Run2010A-Jul16thReReco-v2.root /tmp/amassiro/Ntuple_EG-Run2010A-Jul16thReReco-v2_28Aug/treeNtupleWenu_*.root
+
+hadd /tmp/amassiro/treeNtupleWenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/Ntuple_EG-Run2010A-PromptReco-v4_28Aug/treeNtupleWenu_*.root
+
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtuple | awk '{print "/tmp/amassiro/treeNtupleWenuMC_"$9"_4analysis.root"}'
+
+scp -l 5000 amassiro@lxplus216.cern.ch:"/tmp/amassiro/treeNtupleWenuMC_QCD_BCtoE_Pt20to30_4analysis.root /tmp/amassiro/treeNtupleWenuMC_QCD_BCtoE_Pt30to80_4analysis.root /tmp/amassiro/treeNtupleWenuMC_QCD_BCtoE_Pt80to170_4analysis.root /tmp/amassiro/treeNtupleWenuMC_QCD_EMEnriched_Pt20to30_4analysis.root /tmp/amassiro/treeNtupleWenuMC_QCD_EMEnriched_Pt30to80_4analysis.root /tmp/amassiro/treeNtupleWenuMC_QCD_EMEnriched_Pt80to170_4analysis.root /tmp/amassiro/treeNtupleWenuMC_WminusENu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_WminusMuNu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_WplusENu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_WplusMuNu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_Zee_4analysis.root /tmp/amassiro/treeNtupleWenuMC_Zmumu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_Ztautau_4analysis.root" /gwterax1/users/amassiro/EcalScale/DATANtuple/
+
+scp amassiro@lxplus216.cern.ch:"/tmp/amassiro/treeNtupleWenuMC_QCD_EMEnriched_Pt30to80_4analysis.root /tmp/amassiro/treeNtupleWenuMC_QCD_EMEnriched_Pt80to170_4analysis.root " /gwterax1/users/amassiro/EcalScale/DATANtuple/
+
+scp -l 10000 amassiro@lxplus254.cern.ch:"/tmp/amassiro/treeNtupleWenu_EG-Run2010A-PromptReco-v4.root treeNtupleWenu_EG-Run2010A-Jul16thReReco-v2.root" /gwterax1/users/amassiro/EcalScale/DATANtuple/
+
+scp amassiro@lxplus216.cern.ch:"/tmp/amassiro/treeNtupleWenuMC_WminusENu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_WminusMuNu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_WplusENu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_WplusMuNu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_Zee_4analysis.root /tmp/amassiro/treeNtupleWenuMC_Zmumu_4analysis.root /tmp/amassiro/treeNtupleWenuMC_Ztautau_4analysis.root" /gwterax1/users/amassiro/EcalScale/DATANtuple/
+
 
 ///==== to install ====
 
 cvs co -r V00-03-07-08 RecoEgamma/ElectronIdentification
 cvs co -d Validation/AlCaValidation UserCode/AMassironi/Calibration/Validation/AlCaValidation
 cvs co -d PhysicsTools/NtupleUtils UserCode/Bicocca/PhysicsTools/NtupleUtils
+cvs co -d WAnalysis/WenuAnalysis UserCode/Bicocca/WAnalysis/WenuAnalysis
 cmsenv
 scramv1 b
+
+
+///==== LSF ====
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtupleSUMMED | grep treeNtupleWenuMC_  | sed -e s%treeNtupleWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtupleSUMMED/treeNtupleWenuMC_"$9"_4analysis.root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenuMC_"$9"_4analysis.root Wenu_"$9"_4analysis.root \n rfcp Wenu_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/28Aug/ \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"8nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/ | grep Ntuple_ | sed -e s%Ntuple_%%g | sed -e s%_28Aug%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_"$9"_28Aug/treeNtupleWenu_"$9".root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenu_"$9".root Wenu_"$9"_4analysis.root \n rfcp Wenu_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/28Aug/ \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"8nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
 
 
 
@@ -58,6 +115,64 @@ ls /gwterax1/users/amassiro/EcalScale/DATA/ | awk '{print "WenuAnalysisMyTree -1
 
 ls /gwterax1/users/amassiro/EcalScale/DATA/ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NoEleID.root"}'
 
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenuMC_ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NewEleID.root"}'
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenu_ | sed -e s%treeWenu_%%g | sed -e s%_4analysis.root%%g | awk '{print "WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenu_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NewEleID.root"}' | /bin/sh
+
+ls -alrth /gwterax1/users/amassiro/EcalScale/Result
+
+
+#!/bin/sh
+
+#QCD_BCtoE_Pt20to30
+
+cd /gwpool/users/amassiro/WeCalib/AlCaReco/CMSSW_3_5_6/src/Validation/AlCaValidation/
+source  /gwpool/initcms/slc5-cmssw.sh
+cmsenv
+cd -
+cmsRun /gwpool/users/amassiro/WeCalib/AlCaReco/CMSSW_3_5_6/src/Validation/AlCaValidation/test/alcavalidationZee_cfg.py
+cp ValidAlCaTestZee.root /gwpool/users/amassiro/WeCalib/AlCaReco/CMSSW_3_5_6/src/Validation/AlCaValidation/test/
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenuMC_ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NewEleID.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenu_ | sed -e s%treeWenu_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenu_"$1".root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NewEleID.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+
+
+
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenuMC_ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_EleID.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenu_ | sed -e s%treeWenu_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenu_"$1".root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_EleID.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+
+
+///===== EleID 60%
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenuMC_ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_EleID60.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenu_ | sed -e s%treeWenu_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenu_"$1".root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_EleID60.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+
+///===== EleID 80%
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenuMC_ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_EleID80.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenu_ | sed -e s%treeWenu_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenu_"$1".root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_EleID80.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+
+
+///===== No Old selection sumEt Et
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenuMC_ | sed -e s%treeWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenuMC_"$1"_4analysis.root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NoOldSumEt.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+ls /gwterax1/users/amassiro/EcalScale/DATA/ | grep treeWenu_ | sed -e s%treeWenu_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/treeWenu_"$1".root /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis_NoOldSumEt.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+hadd  /gwterax1/users/amassiro/EcalScale/Result/Wenu_DATA_4analysis_NoOldSumEt.root  /gwterax1/users/amassiro/EcalScale/Result//Wenu_EG-Run2010A-Jul16thReReco-v2_4analysis_NoOldSumEt.root /gwterax1/users/amassiro/EcalScale/Result//Wenu_EG-Run2010A-PromptReco-v4_4analysis_NoOldSumEt.root
+
+
+
+
+qsub -V -d ./ -q production job.sh
 
 
 
@@ -66,4 +181,49 @@ ls /gwterax1/users/amassiro/EcalScale/DATA/ | sed -e s%treeWenuMC_%%g | sed -e s
 
 
 
- 
+
+
+
+
+
+
+
+
+
+
+
+
+HLT-Report      63       1       1       1       1 100.00000       0 HLT_L1SingleEG2
+HLT-Report      64       1       1       1       1 100.00000       0 HLT_L1SingleEG5
+HLT-Report      65       1       1       1       1 100.00000       0 HLT_L1SingleEG8
+HLT-Report      66       1       0       0       0   0.00000       0 HLT_L1DoubleEG5
+HLT-Report      67       1       1       1       1 100.00000       0 HLT_Ele10_LW_L1R
+HLT-Report      68       1       1       1       1 100.00000       0 HLT_Ele10_LW_EleId_L1R
+HLT-Report      69       1       1       1       1 100.00000       0 HLT_Ele15_LW_L1R
+HLT-Report      72       1       1       1       1 100.00000       0 HLT_Ele20_LW_L1R
+HLT-Report      73       1       0       0       0   0.00000       0 HLT_DoubleEle5_SW_L1R
+HLT-Report      74       1       1       1       1 100.00000       0 HLT_Photon10_L1R
+HLT-Report      75       1       1       1       1 100.00000       0 HLT_Photon15_L1R
+HLT-Report      76       1       1       1       1 100.00000       0 HLT_Photon15_TrackIso_L1R
+HLT-Report      77       1       1       1       1 100.00000       0 HLT_Photon15_LooseEcalIso_L1R
+HLT-Report      78       1       1       1       1 100.00000       0 HLT_Photon20_L1R
+HLT-Report      79       1       1       1       1 100.00000       0 HLT_Photon30_L1R_8E29
+HLT-Report      85       1       0       0       0   0.00000       0 HLT_DoublePhoton5_L1R
+HLT-Report      86       1       0       0       0   0.00000       0 HLT_DoublePhoton10_L1R
+HLT-Report     119       1       1       1       1 100.00000       0 AlCa_EcalPhiSym
+HLT-Report     120       1       1       1       1 100.00000       0 AlCa_EcalPi0_8E29
+HLT-Report     121       1       1       1       0   0.00000       0 AlCa_EcalEta_8E29
+HLT-Report     127       1       1       1       1 100.00000       0 HLT_EcalCalibration
+
+
+
+
+
+
+
+
+
+
+
+
+

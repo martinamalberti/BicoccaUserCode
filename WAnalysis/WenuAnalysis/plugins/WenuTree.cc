@@ -276,12 +276,17 @@ void WenuTree::dumpElectronInfo ( View<pat::Electron> electrons,
     float E1 = 0;
     float E4 = 0;
 
+    float E3x3 = 0; // see http://cmslxr.fnal.gov/lxr/source/RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h
+    float E2x2 = 0;
+    
     if ( electron.isEB() ) {
       E1 = EcalClusterTools::eMax( *scRef , theBarrelEcalRecHits);
       E4 = EcalClusterTools::eTop( *scRef, theBarrelEcalRecHits, topology)+
 	   EcalClusterTools::eRight( *scRef, theBarrelEcalRecHits, topology)+
 	   EcalClusterTools::eBottom( *scRef, theBarrelEcalRecHits, topology)+
 	   EcalClusterTools::eLeft( *scRef, theBarrelEcalRecHits, topology);
+      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
+      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
     }
 
     if ( electron.isEE() ) {
@@ -290,6 +295,8 @@ void WenuTree::dumpElectronInfo ( View<pat::Electron> electrons,
 	   EcalClusterTools::eRight( *scRef, theEndcapEcalRecHits, topology)+
 	   EcalClusterTools::eBottom( *scRef, theEndcapEcalRecHits, topology)+
 	   EcalClusterTools::eLeft( *scRef, theEndcapEcalRecHits, topology);
+      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
+      E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
     }
 
     myTreeVariables_.eleSeedSwissCross[ myTreeVariables_.nElectrons ] = (1. - E4/E1); 
@@ -308,7 +315,9 @@ void WenuTree::dumpElectronInfo ( View<pat::Electron> electrons,
     myTreeVariables_.eleE1x5[ myTreeVariables_.nElectrons ] = electron.e1x5();
     myTreeVariables_.eleE2x5[ myTreeVariables_.nElectrons ] = electron.e2x5Max();
     myTreeVariables_.eleE5x5[ myTreeVariables_.nElectrons ] = electron.e5x5();
-    
+    myTreeVariables_.eleE3x3[ myTreeVariables_.nElectrons ] = E3x3;
+    myTreeVariables_.eleE2x2[ myTreeVariables_.nElectrons ] = E2x2;
+
     myTreeVariables_.eleTrkIso   [ myTreeVariables_.nElectrons ] = electron.dr03TkSumPt();
     myTreeVariables_.eleEcalIso  [ myTreeVariables_.nElectrons ] = electron.dr03EcalRecHitSumEt();
     myTreeVariables_.eleHcalIsoD1[ myTreeVariables_.nElectrons ] = electron.dr03HcalDepth1TowerSumEt();

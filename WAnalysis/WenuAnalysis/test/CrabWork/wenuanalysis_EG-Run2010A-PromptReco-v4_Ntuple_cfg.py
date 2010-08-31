@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("myprocess")
+process = cms.Process("myRECO")
 
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -20,12 +20,13 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
    #'/store/relval/CMSSW_3_5_7/RelValWE/GEN-SIM-RECO/START3X_V26-v1/0012/EC9F278B-6949-DF11-99F2-003048678B0E.root'
-   "file:/tmp/amassiro/5812F585-A57F-DF11-8BEE-001A92971BB4.root"
+    'store/data/Run2010A/EG/RECO/v4/000/144/011/FE57CF7C-EDB1-DF11-BEA8-003048F1110E.root'
                                                 )
 )
 
 
-
+#Electron Correction
+process.load("RecoEgamma.EgammaTools.correctedElectronsProducer_cfi")
 
 #Define PAT sequence
 # Standard PAT Configuration File
@@ -34,7 +35,6 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.coreTools import *
 ## remove MC matching from the default sequence
 removeMCMatching(process, ['All'])
-
 
 # add cIc electron ID
 process.load("WAnalysis.WenuAnalysis.CiC_eIDSequence_cff")
@@ -49,8 +49,7 @@ process.patElectrons.electronIDSources = cms.PSet(
     eidMedium     = cms.InputTag("eidMedium"),
     eidTight      = cms.InputTag("eidTight"),
     eidSuperTight = cms.InputTag("eidSuperTight")
-)
-
+    )
 ##
 #process.patElectrons.addGenMatch = cms.bool(False)
 #process.patElectrons.embedGenMatch = cms.bool(False)
@@ -72,31 +71,45 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 
 
 #Analysis
-process.myanalysis = cms.EDAnalyzer('WenuTree',
+process.myanalysis = cms.EDAnalyzer('SimpleNtple',
                                     
    recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
    recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-   electronTag         = cms.InputTag("patElectrons"),
-   jetTag              = cms.InputTag("patJets"),
-   calometTag          = cms.InputTag("patMETs"),
-   tcmetTag            = cms.InputTag("patMETsTC"),
-   pfmetTag            = cms.InputTag("patMETsPF"),
-   muonTag             = cms.InputTag("patMuons"),
-   electronID          = cms.untracked.string("eidTight"),
-   btagAlgo            = cms.untracked.string("jetBProbabilityBJetTags"),
-   HLTInputTag         = cms.InputTag("TriggerResults::RECO"),
-   #HLTInputTag         = cms.InputTag("TriggerResults::HLT"),
+   EleTag              = cms.InputTag("patElectrons"),
+   JetTag              = cms.InputTag("patJets"),
+   CALOMetTag          = cms.InputTag("patMETs"),
+   TCMetTag            = cms.InputTag("patMETsTC"),
+   PFMetTag            = cms.InputTag("patMETsPF"),
+   MuTag               = cms.InputTag("patMuons"),
+   #HLTTag              = cms.InputTag("TriggerResults::RECO"),
+   #HLTTag              = cms.InputTag("TriggerResults::REDIGI36X"),
+   HLTTag              = cms.InputTag("TriggerResults::HLT"),
+   L1Tag               = cms.InputTag("gtDigis"),
 
-   L1InputTag          = cms.InputTag("gtDigis"),
+   HLTTag_names        = cms.vstring('HLT_L1SingleEG2','HLT_L1SingleEG5','HLT_L1SingleEG8','HLT_L1DoubleEG5','HLT_Ele10_LW_L1R','HLT_Ele10_LW_EleId_L1R','HLT_Ele15_LW_L1R','HLT_Ele20_LW_L1R','HLT_DoubleEle5_SW_L1R','HLT_Photon10_Cleaned_L1R','HLT_Photon15_Cleaned_L1R','HLT_Photon20_Cleaned_L1R','HLT_Photon30_Cleaned_L1R','HLT_DoublePhoton5_L1R','HLT_DoublePhoton10_L1R','HLT_EcalCalibration','HLT_Ele20_SW_L1R','HLT_DoubleEle10_SW_L1R'),
 
-   runOnMC             = cms.bool(True),                     
-   storePDFWeights     = cms.bool(False),
-   pdfWeightsTag       = cms.InputTag("pdfWeights:cteq65")                            
-)
+
+   eleId_names         = cms.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
+   runOnMC             = cms.bool(True),
+
+   saveL1        = cms.untracked.bool(True),
+   saveHLT       = cms.untracked.bool(True),
+   saveMu        = cms.untracked.bool(True),
+   saveEle       = cms.untracked.bool(True),
+   saveEleShape  = cms.untracked.bool(True), # !!!
+   saveJet       = cms.untracked.bool(True),
+   saveCALOMet   = cms.untracked.bool(True),
+   saveTCMet     = cms.untracked.bool(True),
+   savePFMet     = cms.untracked.bool(True),
+
+   verbosity_    = cms.untracked.bool(False) #---- true = loquacious     false = silence
+
+ )
+
 
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("treeWenuMC.root")
+   fileName = cms.string("treeNtupleWenu_EG-Run2010A-PromptReco-v4.root")
 )
 
 
@@ -114,7 +127,7 @@ process.skimming = cms.EDFilter("PhysDecl",
 process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
-process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
+process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
 # filter on primary vertex
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
@@ -144,18 +157,15 @@ process.highetFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 
-from PhysicsTools.NtupleUtils.AllPassFilter_cfi import *
-process.AllPassFilterW = AllPassFilter.clone()
-
 # 
 process.p = cms.Path(
-    process.AllPassFilterW
-     #process.skimming*
+    process.skimming
     *process.hltLevel1GTSeed
-    #*process.noscraping
+    *process.noscraping
     *process.primaryVertexFilter
-    *process.highetele
-    *process.highetFilter
+    *process.gsfElectrons
+    #*process.highetele
+    #*process.highetFilter
     *process.patDefaultSequence
     *process.myanalysis
     )

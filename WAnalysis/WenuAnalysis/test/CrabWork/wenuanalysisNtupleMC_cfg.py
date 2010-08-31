@@ -72,31 +72,44 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 
 
 #Analysis
-process.myanalysis = cms.EDAnalyzer('WenuTree',
+process.myanalysis = cms.EDAnalyzer('SimpleNtple',
                                     
    recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
    recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-   electronTag         = cms.InputTag("patElectrons"),
-   jetTag              = cms.InputTag("patJets"),
-   calometTag          = cms.InputTag("patMETs"),
-   tcmetTag            = cms.InputTag("patMETsTC"),
-   pfmetTag            = cms.InputTag("patMETsPF"),
-   muonTag             = cms.InputTag("patMuons"),
-   electronID          = cms.untracked.string("eidTight"),
-   btagAlgo            = cms.untracked.string("jetBProbabilityBJetTags"),
-   HLTInputTag         = cms.InputTag("TriggerResults::RECO"),
-   #HLTInputTag         = cms.InputTag("TriggerResults::HLT"),
+   EleTag              = cms.InputTag("patElectrons"),
+   JetTag              = cms.InputTag("patJets"),
+   CALOMetTag          = cms.InputTag("patMETs"),
+   TCMetTag            = cms.InputTag("patMETsTC"),
+   PFMetTag            = cms.InputTag("patMETsPF"),
+   MuTag               = cms.InputTag("patMuons"),
+   #HLTTag              = cms.InputTag("TriggerResults::RECO"),
+   HLTTag              = cms.InputTag("TriggerResults::REDIGI36X"),
+   #HLTTag              = cms.InputTag("TriggerResults::HLT"),
+   L1Tag               = cms.InputTag("gtDigis"),
 
-   L1InputTag          = cms.InputTag("gtDigis"),
+   HLTTag_names        = cms.vstring('HLT_L1SingleEG2','HLT_L1SingleEG5','HLT_L1SingleEG8','HLT_L1DoubleEG5','HLT_Ele10_LW_L1R','HLT_Ele10_LW_EleId_L1R','HLT_Ele15_LW_L1R','HLT_Ele20_LW_L1R','HLT_DoubleEle5_SW_L1R','HLT_Photon10_L1R','HLT_Photon15_L1R','HLT_Photon20_L1R','HLT_Photon30_L1R_8E29','HLT_DoublePhoton5_L1R','HLT_DoublePhoton10_L1R','HLT_EcalCalibration'),
 
-   runOnMC             = cms.bool(True),                     
-   storePDFWeights     = cms.bool(False),
-   pdfWeightsTag       = cms.InputTag("pdfWeights:cteq65")                            
-)
+
+   eleId_names         = cms.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
+   runOnMC             = cms.bool(True),
+
+   saveL1        = cms.untracked.bool(True),
+   saveHLT       = cms.untracked.bool(True),
+   saveMu        = cms.untracked.bool(True),
+   saveEle       = cms.untracked.bool(True),
+   saveEleShape  = cms.untracked.bool(False),
+   saveJet       = cms.untracked.bool(True),
+   saveCALOMet   = cms.untracked.bool(True),
+   saveTCMet     = cms.untracked.bool(True),
+   savePFMet     = cms.untracked.bool(True),
+
+   verbosity_    = cms.untracked.bool(False) #---- true = loquacious     false = silence
+
+ )
 
 
 process.TFileService = cms.Service("TFileService",
-   fileName = cms.string("treeWenuMC.root")
+   fileName = cms.string("treeNtupleWenuMC.root")
 )
 
 

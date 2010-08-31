@@ -32,6 +32,8 @@ void setBranchAddresses(TTree* chain, WenuTreeContent& treeVars)
       chain -> SetBranchAddress("eleE1x5",                 treeVars.eleE1x5);
       chain -> SetBranchAddress("eleE2x5",                 treeVars.eleE2x5);
       chain -> SetBranchAddress("eleE5x5",                 treeVars.eleE5x5);
+      chain -> SetBranchAddress("eleE3x3",                 treeVars.eleE3x3);
+      chain -> SetBranchAddress("eleE2x2",                 treeVars.eleE2x2);
       chain -> SetBranchAddress("eleSeedSwissCross",       treeVars.eleSeedSwissCross);
 
       chain -> SetBranchAddress("eleCharge",               treeVars.eleCharge);

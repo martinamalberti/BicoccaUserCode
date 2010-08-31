@@ -41,6 +41,8 @@ struct WenuTreeContent
   float eleE1x5[MAXELECTRONS];
   float eleE2x5[MAXELECTRONS];
   float eleE5x5[MAXELECTRONS];
+  float eleE3x3[MAXELECTRONS];
+  float eleE2x2[MAXELECTRONS];
   float eleSeedSwissCross[MAXELECTRONS];
   int   eleCharge[MAXELECTRONS];
 
