@@ -33,6 +33,9 @@ HLTrigResultsDumper::HLTrigResultsDumper(const edm::ParameterSet& iConfig) :
   HLTree = fs->make<TTree> ("HLTree","HLTree");
   NtupleFactory_ = new NtupleFactory (HLTree) ;
 
+  NameHLT = fs->make<TTree> ("NameHLT","NameHLT");
+  NameHLT->Branch("HLTTag_names",&HLTPaths_);
+  NameHLT->Fill();
 }
 
 HLTrigResultsDumper::~HLTrigResultsDumper()

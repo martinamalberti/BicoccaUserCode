@@ -52,7 +52,9 @@ class HLTrigResultsDumper : public edm::EDAnalyzer {
       
       //Tree containing essential HLT info
       TTree * HLTree ;  
+      TTree * NameHLT ;  
       NtupleFactory* NtupleFactory_;
+      NtupleFactory* NtupleFactory_HLTnames;
 
 };
 
