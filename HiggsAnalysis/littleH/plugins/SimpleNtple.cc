@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.56 2010/02/10 08:17:08 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.71 2010/09/07 16:30:05 dimatteo Exp $
 //
 //
 
@@ -130,8 +130,6 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
   
   Reco_mu_glb_size = 0;
   
-  cout << "primaglb" << endl;
-  
   //  const pat::Muon * muon1;
   //  const pat::Muon * muon2;
   
@@ -140,13 +138,9 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
   int theTrkMuonsSize = 0;
   for (View<pat::CompositeCandidate>::const_iterator ndimuon = Onia2MuMuHandle->begin(); ndimuon != Onia2MuMuHandle->end(); ++ndimuon) {
     
-    cout << "primafor1" << endl;
-    
     const pat::Muon & muon1 = dynamic_cast<const pat::Muon &> ( * ndimuon -> daughter(0) );
     const pat::Muon & muon2 = dynamic_cast<const pat::Muon &> ( * ndimuon -> daughter(1) );
-    
-    cout << "primafor2" << endl;
-    
+        
     int lepone_index = -1, leptwo_index = -1;
     
     int glbMuonCounter = 0;
@@ -181,7 +175,6 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
     
     }
     
-    cout << "primafor3" << endl;
     int AddGlobalMuonSize = 0;
     
     for (pat::MuonCollection::const_iterator glbmuon = theGlobalMuons.begin();
@@ -226,9 +219,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       
     }
     theGlobalMuonsSize+= AddGlobalMuonSize;
-    
-    cout << "primatrk" << endl;
-    
+        
     int trkMuonCounter = 0;
     bool istrkone = false, istrktwo = false;
     
@@ -258,7 +249,6 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
     trkMuonCounter++;   
     
     }
-    cout << "dopo-3" << theTrkMuonsSize << endl;
     int AddTrkMuonSize = 0;
     
     for (pat::MuonCollection::const_iterator trkMuon = theTrkMuons.begin();
@@ -324,12 +314,9 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
     NtupleFactory_->FillInt("QQ_type",theOniaCat);
     NtupleFactory_->FillInt("QQ_lepone",lepone_index);
     NtupleFactory_->FillInt("QQ_leptwo",leptwo_index);
-    cout << "dopo-1" << endl;
     
   }
-  
-  cout << "dopo" << endl;
-  
+    
   for (pat::MuonCollection::const_iterator glbmuon = theGlobalMuons.begin();
   glbmuon != theGlobalMuons.end() ; 
   glbmuon++) {
@@ -775,19 +762,12 @@ SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
   
   if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
-  cout << "vertici" << endl;
   if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
-    cout << "mu" << endl;
   if (saveTracks_) fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
-    cout << "tracce" << endl;
   if (saveEle_)    fillEleInfo (iEvent, iSetup) ;
-  cout << "ele" << endl;
   if (saveMC_)     fillMCInfo (iEvent, iSetup) ;
-  cout << "MC" << endl;
   if (saveBeamSpot_) fillBeamSpotInfo (iEvent, iSetup) ;
-  cout << "BS" << endl;
   if (saveOniaCand_) fillOniaInfo (iEvent, iSetup) ;
-  cout << "Onia" << endl;
   // save the entry of the tree 
   NtupleFactory_->FillNtuple();
   
