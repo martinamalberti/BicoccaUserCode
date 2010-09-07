@@ -1,3 +1,54 @@
+// -*- C++ -*-
+//
+// Package:    SimpleNtple
+// Class:      SimpleNtple
+// 
+/**\class SimpleNtple SimpleNtple.cc Analysis/SimpleNtple/src/SimpleNtple.cc
+
+Description: <one line class summary>
+
+Implementation:
+<Notes on implementation>
+*/
+//
+// Original Author:  Andrea Massironi
+//         Created:  Fri Jan  5 17:34:31 CEST 2010
+// $Id: SimpleNtple.cc,v 1.56 2010/02/10 08:17:08 dimatteo Exp $
+//
+//
+
+#include "HiggsAnalysis/littleH/plugins/SimpleNtple.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/Common/interface/AssociationMap.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+
+using namespace edm;
+using namespace std;
+
+const float muMass_  = 0.105658;
+const float eleMass_ = 0.000511;
+
+SimpleNtple::SimpleNtple(const ParameterSet& iConfig) :
+Onia2MuMuTag_             (iConfig.getParameter<InputTag> ("Onia2MuMuTag")),
 Onia2EleEleTag_           (iConfig.getParameter<InputTag> ("Onia2EleEleTag")),
 TracksTag_                (iConfig.getParameter<InputTag> ("TracksTag")),
 EleTag_                   (iConfig.getParameter<InputTag> ("EleTag")),
