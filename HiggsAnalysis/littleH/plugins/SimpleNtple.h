@@ -16,30 +16,19 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //--- objects ----
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-
+#include <DataFormats/PatCandidates/interface/Muon.h>
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
+#include <DataFormats/PatCandidates/interface/Electron.h>
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
+#include <DataFormats/PatCandidates/interface/CompositeCandidate.h>
 
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
@@ -47,15 +36,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -72,7 +52,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 //---- utilities ----
-#include "HiggsAnalysis/littleH/interface/MCDumper.h"
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 #include <TTree.h>
@@ -99,85 +78,47 @@ class SimpleNtple : public EDAnalyzer {
     ~SimpleNtple();
   
   private:
-    virtual void beginJob(/*const EventSetup&*/) ;
+    virtual void beginJob() ;
     virtual void analyze(const Event&, const EventSetup&);
     virtual void endJob() ;
     
     void buildLepCollections (const Event & iEvent, const EventSetup & iESetup) ;
-    void fillJetInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillVtxInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillMuInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillTrackInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillEleInfo (const Event & iEvent, const EventSetup & iESetup) ;
-    void fillSCInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillMCInfo (const Event & iEvent, const EventSetup & iESetup) ;
-    void fillTriggerInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillBeamSpotInfo (const Event & iEvent, const EventSetup & iESetup) ;
-    void findOniaCategories (const Event & iEvent, const EventSetup & iESetup) ;
-    void fillOnia2MuMuTracks(reco::TrackRef lep1, int l1, reco::TrackRef lep2, int l2, reco::Vertex &PV, const int oniacato);
-    void fillOnia2EleEleTracks(reco::GsfTrackRef lep1, int l1, reco::GsfTrackRef lep2, int l2, reco::Vertex &PV, TLorentzVector & lep1_4mom, TLorentzVector & lep2_4mom);
-    double PhiInRange(const double& phi) const;
+    void fillOniaInfo (const Event & iEvent, const EventSetup & iESetup) ;
 
     template <class T> TLorentzVector lorentzMomentumMu(const T & muon) const;
-    template <class T> TLorentzVector lorentzMomentumLep(const T & lep, float mass) const;
-    std::vector<unsigned int> trackHits(const reco::Track& tr);
-    template <class T, class U> double deltaR(const T & t, const U & u) const;
-    double GetTheta( TLorentzVector & a,  TLorentzVector & b) const; 
+    
+    std::vector<unsigned int> trackHits(const reco::Track & tr);
  
     TTree* outTree_;
     NtupleFactory* NtupleFactory_;
     float branch_ratio;
     
-    ParameterSet gsfPSet;
-
     InputTag TracksTag_;
-    InputTag JetTag_;
     InputTag EleTag_;
     InputTag MuTag_;
     InputTag PrimaryVertexTag_;        
+    InputTag beamSpotTag_;
+    InputTag Onia2MuMuTag_;
+    InputTag Onia2EleEleTag_;    
 
     InputTag MCtruthTag_;
   
-    InputTag m_eleIDCut_LooseInputTag ;
-    InputTag m_eleIDCut_RLooseInputTag ;
-    InputTag m_eleIDCut_TightInputTag ;
-    InputTag m_eleIDCut_RTightInputTag ;
+    string m_eleIDCut_LooseInputTag ;
+    string m_eleIDCut_RLooseInputTag ;
+    string m_eleIDCut_TightInputTag ;
+    string m_eleIDCut_RTightInputTag ;
 
-    InputTag barrelClusterCollection_;
-    InputTag endcapClusterCollection_;
-    
-    InputTag beamSpotTag_;
-  
-    string thetriggerEventTag_;
-    string theHLTriggerResults_;     // HLT trigger results
-    string the8e29ProcName_;
-    string the1e31ProcName_;
-  
-    static const int Max_HLT_size = 13;
-    static const int NHLTTRIGGERS = 13;
-    
-    static const int Max_L1T_size = 6; 
-    static const int NL1TTRIGGERS = 6;
-  
-    int hltBits[NHLTTRIGGERS];
-    int l1tBits[NL1TTRIGGERS];
-    
-    int HLTcounters [NHLTTRIGGERS+1+1] ; //Count Triggered Events. Same order defined for HLTbitNames + 1 counter for FakeEleHLT + 1 counter keeping the number of analyzed events 
-    
-    TH1F * h_HLTcounters ;
-
-  
-    HLTConfigProvider hltConfig;
-    ESHandle<TransientTrackBuilder> theB;
-
-    bool saveJets_ ;
     bool saveVtx_ ;
     bool saveMu_ ;
     bool saveTracks_ ;
     bool saveEle_ ;
     bool saveMC_ ;
-    bool saveSC_ ;
-    bool saveTrigger_ ;
     bool saveBeamSpot_ ;
     bool saveOniaCand_ ;
     
@@ -192,10 +133,9 @@ class SimpleNtple : public EDAnalyzer {
     std::vector<int> theMuonTrkIndexes_ ;
     
     //RECO Objects    
-    reco::MuonCollection theTrkMuons;
-    reco::MuonCollection theGlobalMuons;
-    
-    reco::GsfElectronCollection theElectrons;
+    pat::MuonCollection theTrkMuons;
+    pat::MuonCollection theGlobalMuons;
+    pat::ElectronCollection theElectrons;
 
     int Reco_mu_glb_size;
     int Reco_mu_trk_size;  
@@ -204,19 +144,5 @@ class SimpleNtple : public EDAnalyzer {
     int nEvent ;
     int nRun ;
     int nLumi ;
-
     
-    int QQ_size;
-    int theOniaMaxCat;
-    // Onia category:
-    // 0 = EleEle 
-    // 1 = goldenMuMu (2 global muons)
-    // 2 = silverMuMu (1 global - 1 tracker muon)
-    // 3 = bronzeMuMu (2 tracker muons)
-    
-    //CUTS
-    double Chi2OniaVtxCut_;
-    double OniaMassCut_;
-    double OniaS3DipCut_;
-
 };
