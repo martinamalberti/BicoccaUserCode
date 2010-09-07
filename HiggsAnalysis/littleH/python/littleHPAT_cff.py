@@ -144,21 +144,21 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     )
 
     #output
-    #process.out = cms.OutputModule("PoolOutputModule",
-        #fileName = cms.untracked.string('onia2LepLepPAT.root'),
-        #outputCommands = cms.untracked.vstring('drop *',
-            #'keep *_genLeptons_*_Onia2LepLepPAT',                  # generated leptons and parents
-            #'keep patMuons_patMuonsWithTrigger_*_Onia2LepLepPAT',  # All PAT muons including general tracks and matches to triggers
-            #'keep patElectrons_*_*_Onia2LepLepPAT',                # All PAT eles including general tracks and matches to triggers
-            #'keep patCompositeCandidates_*__Onia2LepLepPAT',       # PAT di-lep
-            #'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
-            #'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
-            #'keep edmTriggerResults_TriggerResults_*_*',           # HLT info, per path (cheap)
-            #'keep l1extraL1MuonParticles_l1extraParticles_*_*',    # L1 info (cheap)
-            #'keep *_generalTracks_*_RECO'                          # Track info (all RECO)
-        #),
-        #SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Onia2LepLepPAT') ) if Filter else cms.untracked.PSet()
-    #)
-    #process.e = cms.EndPath(process.out)
+    process.out = cms.OutputModule("PoolOutputModule",
+        fileName = cms.untracked.string('onia2LepLepPAT.root'),
+        outputCommands = cms.untracked.vstring('drop *',
+            'keep *_genLeptons_*_Onia2LepLepPAT',                  # generated leptons and parents
+            'keep patMuons_patMuonsWithTrigger_*_Onia2LepLepPAT',  # All PAT muons including general tracks and matches to triggers
+            'keep patElectrons_*_*_Onia2LepLepPAT',                # All PAT eles including general tracks and matches to triggers
+            'keep patCompositeCandidates_*__Onia2LepLepPAT',       # PAT di-lep
+            'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
+            'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
+            'keep edmTriggerResults_TriggerResults_*_*',           # HLT info, per path (cheap)
+            'keep l1extraL1MuonParticles_l1extraParticles_*_*',    # L1 info (cheap)
+            'keep *_generalTracks_*_RECO'                          # Track info (all RECO)
+        ),
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Onia2LepLepPAT') ) if Filter else cms.untracked.PSet()
+    )
+    process.e = cms.EndPath(process.out)
 
   
