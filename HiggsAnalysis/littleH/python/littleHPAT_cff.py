@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
+def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=True):
     # Setup the process
     process.options = cms.untracked.PSet(
         wantSummary = cms.untracked.bool(True),
@@ -159,6 +159,6 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         ),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Onia2LepLepPAT') ) if Filter else cms.untracked.PSet()
     )
-    process.e = cms.EndPath(process.out)
+    if SavePAT :
+     process.e = cms.EndPath(process.out)
 
-  

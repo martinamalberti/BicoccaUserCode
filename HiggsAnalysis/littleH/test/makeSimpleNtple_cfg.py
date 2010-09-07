@@ -6,7 +6,7 @@ from HiggsAnalysis.littleH.littleHPAT_cff import *
 
 from HiggsAnalysis.littleH.SimpleNtple_cff import *
 
-littleHPAT(process, GlobalTag="START38_V8::All", MC=True, HLT="HLT", Filter=False)
+littleHPAT(process, GlobalTag="START38_V8::All", MC=True, HLT="HLT", Filter=False, SavePAT=False)
 
 makeSimpleNtple(process, GlobalTag="START38_V8::All", MC=True, HLT='HLT', HLT_filter_ele=False, HLT_filter_mu=False)
 
