@@ -196,7 +196,7 @@ int getZepp(std::vector<ROOT::Math::XYZTVector>& jets,
 
  if (etaMax < etaMin) std::swap(etaMin,etaMax);
 
- double etaMean = (etaMax - etaMin) / 2.;
+ double etaMean = (etaMax + etaMin) / 2.;
  double dEta = (etaMax - etaMin);
  
  
@@ -212,7 +212,7 @@ int getZepp(std::vector<ROOT::Math::XYZTVector>& jets,
    }
   }
   
-  if (((jets.at(i).Eta() - etaMean) / dEta) > zeppMax) continue;
+  if (fabs((jets.at(i).Eta() - etaMean) / dEta) > zeppMax) continue;
   
   if (skipJet) continue;
   nJet++;  
