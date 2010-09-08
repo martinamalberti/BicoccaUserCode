@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.71 2010/09/07 16:30:05 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.72 2010/09/07 17:40:29 dimatteo Exp $
 //
 //
 
@@ -67,7 +67,6 @@ saveEle_                  (iConfig.getUntrackedParameter<bool> ("saveEle", true)
 saveMC_                   (iConfig.getUntrackedParameter<bool> ("saveMC", true)),
 saveBeamSpot_             (iConfig.getUntrackedParameter<bool> ("saveBeamSpot", true)),
 saveOniaCand_             (iConfig.getUntrackedParameter<bool> ("saveOniaCand", true)),
-theBeamSpotFlag           (iConfig.getUntrackedParameter<bool> ("beamSpotFlag", true)),
 eventType_                (iConfig.getUntrackedParameter<int> ("eventType",1)),
 verbosity_                (iConfig.getUntrackedParameter<bool> ("verbosity","False"))
 {
@@ -533,10 +532,6 @@ SimpleNtple::fillEleInfo (const Event & iEvent, const EventSetup & iESetup)
     }
   }
   
-  
-  int nEle = theElectronsSize;
-  
-  
   for ( pat::ElectronCollection::const_iterator theEle = theElectrons.begin(); theEle != theElectrons.end(); theEle++) 
   {     
     
@@ -627,7 +622,6 @@ SimpleNtple::fillMCInfo (const Event & iEvent, const EventSetup & iESetup)
   
   //trk muons
   
-  int counter = 0;
   for (pat::MuonCollection::const_iterator trkmuon = theTrkMuons.begin();
   trkmuon != theTrkMuons.end();
   trkmuon++){

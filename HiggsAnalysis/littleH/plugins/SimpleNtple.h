@@ -99,20 +99,18 @@ class SimpleNtple : public EDAnalyzer {
     NtupleFactory* NtupleFactory_;
     float branch_ratio;
     
+    InputTag Onia2MuMuTag_;
+    InputTag Onia2EleEleTag_;    
     InputTag TracksTag_;
     InputTag EleTag_;
     InputTag MuTag_;
     InputTag PrimaryVertexTag_;        
-    InputTag beamSpotTag_;
-    InputTag Onia2MuMuTag_;
-    InputTag Onia2EleEleTag_;    
-
     InputTag MCtruthTag_;
-  
     string m_eleIDCut_LooseInputTag ;
     string m_eleIDCut_RLooseInputTag ;
     string m_eleIDCut_TightInputTag ;
     string m_eleIDCut_RTightInputTag ;
+    InputTag beamSpotTag_;
 
     bool saveVtx_ ;
     bool saveMu_ ;
@@ -121,11 +119,7 @@ class SimpleNtple : public EDAnalyzer {
     bool saveMC_ ;
     bool saveBeamSpot_ ;
     bool saveOniaCand_ ;
-    
-    bool theStoreWSOnia; // Yes or No to store wrong-sign mu-mu combinations
-    bool theBeamSpotFlag; 
-    bool theRealDataFlag; 
-    
+        
     int eventType_; //---- 0 = signal      1 = background 
     bool verbosity_; //---- true = loquacious     false = silence  
 
