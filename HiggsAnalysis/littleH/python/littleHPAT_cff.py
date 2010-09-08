@@ -34,8 +34,6 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     process.mergedMuons.tracksCut = '(abs(eta) <= 1.3 && pt > 3.3) || (1.3 < abs(eta) <= 2.2 && p > 2.9) || (2.2 < abs(eta) <= 2.4  && pt > 0.8)'
     process.mergedMuons.caloMuonsCut = process.mergedMuons.tracksCut
     
-    #LEO::Merge electron collections?
-
     # Prune generated particles to muons, electrons and their parents
     process.genLeptons = cms.EDProducer("GenParticlePruner",
         src = cms.InputTag("genParticles"),
@@ -70,11 +68,14 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     process.muonMatchHLTTrackMu.maxDPtRel = 10.0
 
     # Make PAT Electrons
+    process.load("PhysicsTools.PatAlgos.patSequences_cff")    
+    
     process.load("PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi")
     process.electronMatch.matched = "genLeptons"
 
-    
-    process.load("PhysicsTools.PatAlgos.patSequences_cff")    
+    if not MC:
+          process.patElectrons.addGenMatch = cms.bool(False)
+          process.patElectrons.embedGenMatch = cms.bool(False)
     
     # Make PAT lepton sequence
     process.patLeptonSequence = cms.Sequence(
@@ -142,7 +143,7 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
         process.onia2LepLep *
         process.onia2LepLepFilter
     )
-
+    
     #output
     process.out = cms.OutputModule("PoolOutputModule",
         fileName = cms.untracked.string('onia2LepLepPAT.root'),
