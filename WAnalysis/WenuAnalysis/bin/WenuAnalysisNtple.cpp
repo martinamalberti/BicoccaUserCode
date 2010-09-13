@@ -171,6 +171,7 @@ int main (int argc, char** argv)
  float EtaCutEE    = 1.5;
  float EtaMax      = 3.0;
 
+ double met;
  double eta;
  double pT;
  double ET;
@@ -196,6 +197,7 @@ int main (int argc, char** argv)
  int HLT_Photon20_L1R;
 
  TTree* myTree = new TTree("myTree","myTree");
+ myTree -> Branch("met",&met,"met/D");
  myTree -> Branch("eta",&eta,"eta/D");
  myTree -> Branch("pT",&pT,"pT/D");
  myTree -> Branch("ET",&ET,"ET/D");
@@ -251,7 +253,7 @@ int main (int argc, char** argv)
    p  = reader.Get3V("electrons_p_atVtx")->at(iEle).R();
    float et = reader.GetFloat("electrons_scEt")->at(iEle);
       
-   float met  = reader.Get4V("CALOMet")->at(0).Et();
+   met  = reader.Get4V("CALOMet")->at(0).Et();
 
    float cphi = (reader.Get3V("electrons_p_atVtx")->at(iEle).x() * reader.Get4V("CALOMet")->at(0).Px() 
      + reader.Get3V("electrons_p_atVtx")->at(iEle).y() * reader.Get4V("CALOMet")->at(0).Py()) 
@@ -374,7 +376,7 @@ int main (int argc, char** argv)
     
   float et = reader.GetFloat("electrons_scEt")->at(chosenEle);
     
-  float met  = reader.Get4V("CALOMet")->at(0).Et();
+  met  = reader.Get4V("CALOMet")->at(0).Et();
   
   float cphi = (reader.Get3V("electrons_p_atVtx")->at(chosenEle).x() * reader.Get4V("CALOMet")->at(0).Px() 
     + reader.Get3V("electrons_p_atVtx")->at(chosenEle).y() * reader.Get4V("CALOMet")->at(0).Py()) 

@@ -9,7 +9,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START3X_V26A::All')
+process.GlobalTag.globaltag = cms.string('GR_R_36X_V12::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
