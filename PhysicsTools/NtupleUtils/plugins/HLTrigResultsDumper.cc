@@ -93,14 +93,12 @@ HLTrigResultsDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     //fill HLT info only for the HLT path which are in the HLT menu
-    if ( thePathIndex > -1 ){
-      if ( HLTR->wasrun((unsigned int)thePathIndex) ) NtupleFactory_->FillInt("HLTwasrun",1);
-      else NtupleFactory_->FillInt("HLTwasrun",0);
-      if ( HLTR->accept((unsigned int)thePathIndex) ) NtupleFactory_->FillInt("HLTaccept",1);
-      else NtupleFactory_->FillInt("HLTaccept",0);
-      if ( HLTR->error((unsigned int)thePathIndex) ) NtupleFactory_->FillInt("HLTerror",1);
-      else NtupleFactory_->FillInt("HLTerror",0);
-    }
+    if ( thePathIndex > -1 && HLTR->wasrun((unsigned int)thePathIndex) ) NtupleFactory_->FillInt("HLTwasrun",1);
+    else NtupleFactory_->FillInt("HLTwasrun",0);
+    if ( thePathIndex > -1 && HLTR->accept((unsigned int)thePathIndex) ) NtupleFactory_->FillInt("HLTaccept",1);
+    else NtupleFactory_->FillInt("HLTaccept",0);
+    if ( thePathIndex > -1 && HLTR->error((unsigned int)thePathIndex) ) NtupleFactory_->FillInt("HLTerror",1);
+    else NtupleFactory_->FillInt("HLTerror",0);
   }
   
   //Fill HLT tree
