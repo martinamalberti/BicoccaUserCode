@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.72 2010/09/07 17:40:29 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.73 2010/09/08 16:44:33 dimatteo Exp $
 //
 //
 
@@ -60,6 +60,7 @@ m_eleIDCut_RLooseInputTag (iConfig.getParameter<string> ("eleIDCut_RLooseInputTa
 m_eleIDCut_TightInputTag  (iConfig.getParameter<string> ("eleIDCut_TightInputTag")),
 m_eleIDCut_RTightInputTag (iConfig.getParameter<string> ("eleIDCut_RTightInputTag")),
 beamSpotTag_              (iConfig.getParameter<InputTag> ("beamSpotTag")),
+saveEvt_                  (iConfig.getUntrackedParameter<bool> ("saveEvt", true)),
 saveVtx_                  (iConfig.getUntrackedParameter<bool> ("saveVtx", true)),
 saveMu_                   (iConfig.getUntrackedParameter<bool> ("saveMu", true)),
 saveTracks_               (iConfig.getUntrackedParameter<bool> ("saveTracks", true)),
@@ -86,9 +87,23 @@ SimpleNtple::~SimpleNtple()
   delete NtupleFactory_;
 }
 
-
 // --------------------------------------------------------------------
 
+void 
+SimpleNtple::fillEvtInfo (const Event & iEvent, const EventSetup & iESetup) 
+{
+  int nEvent = iEvent.id().event() ;
+  int nRun = iEvent.id().run() ;
+  int nLumi = iEvent.id().luminosityBlock() ;
+  NtupleFactory_->FillInt ("nEvent",nEvent) ;  
+  NtupleFactory_->FillInt ("nRun",nRun) ;  
+  NtupleFactory_->FillInt ("nLumi",nLumi) ;  
+
+  return;
+}  
+
+
+// --------------------------------------------------------------------
 
 void 
 SimpleNtple::fillVtxInfo (const Event & iEvent, const EventSetup & iESetup) 
@@ -755,6 +770,7 @@ void
 SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
   
+  if (saveEvt_)    fillEvtInfo (iEvent, iSetup) ;
   if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
   if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
   if (saveTracks_) fillTrackInfo (iEvent, iSetup) ; //PG before fillTrackInfo !! 
@@ -885,6 +901,13 @@ SimpleNtple::beginJob()
     NtupleFactory_->AddFloat("priVtx_ndof");
   }
   
+  if (saveEvt_)
+  {
+    NtupleFactory_->AddInt ("nEvent") ;  
+    NtupleFactory_->AddInt ("nRun") ;  
+    NtupleFactory_->AddInt ("nLumi") ;  
+  }
+
   //PG MC truth
   if (saveMC_)
   {

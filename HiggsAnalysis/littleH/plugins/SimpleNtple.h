@@ -83,6 +83,7 @@ class SimpleNtple : public EDAnalyzer {
     virtual void endJob() ;
     
     void buildLepCollections (const Event & iEvent, const EventSetup & iESetup) ;
+    void fillEvtInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillVtxInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillMuInfo (const Event & iEvent, const EventSetup & iESetup) ;
     void fillTrackInfo (const Event & iEvent, const EventSetup & iESetup) ;
@@ -112,6 +113,7 @@ class SimpleNtple : public EDAnalyzer {
     string m_eleIDCut_RTightInputTag ;
     InputTag beamSpotTag_;
 
+    bool saveEvt_ ;
     bool saveVtx_ ;
     bool saveMu_ ;
     bool saveTracks_ ;

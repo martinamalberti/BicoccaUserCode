@@ -14,6 +14,7 @@ SimpleNtple = cms.EDAnalyzer("SimpleNtple",
          eleIDCut_TightInputTag  = cms.string("eidTight"), 
          eleIDCut_RTightInputTag = cms.string("eidRobustTight"),
     
+         saveEvt    = cms.untracked.bool (True) ,
          saveVtx    = cms.untracked.bool (True) ,
          saveMu     = cms.untracked.bool (True) ,
          saveTracks = cms.untracked.bool (True) , 

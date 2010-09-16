@@ -6,13 +6,17 @@ from HiggsAnalysis.littleH.littleHPAT_cff import *
 
 from HiggsAnalysis.littleH.SimpleNtple_cff import *
 
-littleHPAT(process, GlobalTag="START38_V8::All", MC=True, HLT="HLT", Filter=False, SavePAT=False)
+littleHPAT(process, GlobalTag="START38_V8::All", MC=False, HLT="HLT", Filter=False, SavePAT=False)
 
-makeSimpleNtple(process, GlobalTag="START38_V8::All", MC=True, HLT='HLT', HLT_filter_ele=False, HLT_filter_mu=False)
+makeSimpleNtple(process, GlobalTag="START38_V8::All", MC=False, HLT='HLT', HLT_filter_ele=False, HLT_filter_mu=False)
 
 process.source.fileNames = cms.untracked.vstring(
-  'file:/tmp/dimatteo/B841FC1F-E4A1-DF11-80CC-001A92971ACE.root'
-  #'file:/tmp/dimatteo/8ACD4E9E-2DA2-DF11-B6EA-0026189438FD.root'
+        #'/store/data/Run2010A/EG/RECO/v4/000/144/114/EEAA24FA-25B4-DF11-A5F1-000423D98950.root',
+        #'/store/data/Run2010A/EG/RECO/v4/000/144/114/C40EDB4E-1DB4-DF11-A83C-0030487C90C2.root',
+        #'/store/data/Run2010A/EG/RECO/v4/000/144/114/C2497931-2CB4-DF11-A92C-003048F1183E.root',
+        #'/store/data/Run2010A/EG/RECO/v4/000/144/114/AC68ABE0-19B4-DF11-BB93-0030487C7E18.root'
+        'file:/tmp/dimatteo/FED5D572-8DBA-DF11-B636-0030487FA609.root'
+        #'file:/tmp/dimatteo/B841FC1F-E4A1-DF11-80CC-001A92971ACE.root'
         #'/store/relval/CMSSW_3_8_1/RelValJpsiMM/GEN-SIM-RECO/START38_V8-v1/0011/B841FC1F-E4A1-DF11-80CC-001A92971ACE.root',
         #'/store/relval/CMSSW_3_8_1/RelValJpsiMM/GEN-SIM-RECO/START38_V8-v1/0011/4AE205A9-E2A1-DF11-8BB4-002618943959.root',
         #'/store/relval/CMSSW_3_8_1/RelValJpsiMM/GEN-SIM-RECO/START38_V8-v1/0011/10CE04BD-31A2-DF11-B6D2-002618943821.root',

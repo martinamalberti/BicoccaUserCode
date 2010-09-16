@@ -94,6 +94,7 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', HLT_filter_ele=Fals
          eleIDCut_TightInputTag  = cms.string("eidTight"), 
          eleIDCut_RTightInputTag = cms.string("eidRobustTight"),
     
+         saveEvt    = cms.untracked.bool (not MC) ,
          saveVtx    = cms.untracked.bool (True) ,
          saveMu     = cms.untracked.bool (True) ,
          saveTracks = cms.untracked.bool (True) , 
