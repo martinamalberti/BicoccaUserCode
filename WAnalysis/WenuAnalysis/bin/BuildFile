@@ -14,3 +14,8 @@
   <use name=WAnalysis/WenuAnalysis>
   <flags LCGDICT_ARGS="--deep">
 </bin>
+
+<bin name=WenuAnalysisNtple_AlCaReco file="WenuAnalysisNtple_AlCaReco.cpp">
+  <use name=WAnalysis/WenuAnalysis>
+  <flags LCGDICT_ARGS="--deep">
+</bin>

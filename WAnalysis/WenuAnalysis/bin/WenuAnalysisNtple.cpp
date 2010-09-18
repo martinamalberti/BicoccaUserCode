@@ -190,6 +190,7 @@ int main (int argc, char** argv)
  double pAtCalo;
  double p;
  double E9oE25;
+ double phi;
 
  int HLT_Ele15_LW_L1R;
  int HLT_Photon10_L1R;
@@ -199,6 +200,7 @@ int main (int argc, char** argv)
  TTree* myTree = new TTree("myTree","myTree");
  myTree -> Branch("met",&met,"met/D");
  myTree -> Branch("eta",&eta,"eta/D");
+ myTree -> Branch("phi",&phi,"phi/D");
  myTree -> Branch("pT",&pT,"pT/D");
  myTree -> Branch("ET",&ET,"ET/D");
  myTree -> Branch("MT",&MT,"MT/D");
@@ -406,7 +408,7 @@ int main (int argc, char** argv)
 //        << "   phi : " << treeVars.elePhi[chosenEle] 
 //        << endl;
 
-   
+   phi = reader.GetFloat("electrons_scPhi")->at(chosenEle);
    pT = pt;
    ET = et;
    MT = mt;
