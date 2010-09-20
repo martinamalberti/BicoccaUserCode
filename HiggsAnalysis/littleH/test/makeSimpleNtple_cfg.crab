@@ -42,7 +42,7 @@ return_data = 0
 #thresholdLevel = 100
 #eMail = andrea.massironi@cern.ch
 
-ui_working_dir = /afs/cern.ch/user/d/dimatteo/scratch0/PHD_MiBi/smallH/CMSSW_3_8_1/src/HiggsAnalysis/littleH/test/
+ui_working_dir = /afs/cern.ch/user/d/dimatteo/scratch0/PHD_MiBi/smallH/CMSSW_3_8_1/src/HiggsAnalysis/littleH/test
 
 [GRID]
 

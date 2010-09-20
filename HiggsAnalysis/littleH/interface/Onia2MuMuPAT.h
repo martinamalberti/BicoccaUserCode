@@ -31,20 +31,14 @@ class Onia2MuMuPAT : public edm::EDProducer {
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  bool isAbHadron(int pdgID);
-  bool isAMixedbHadron(int pdgID, int momPdgID);
-  std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi);
 
   // ----------member data ---------------------------
  private:
   edm::InputTag muons_;
-  edm::InputTag thebeamspot_;
-  edm::InputTag thePVs_;
   StringCutObjectSelector<pat::Muon> higherPuritySelection_;
   StringCutObjectSelector<pat::Muon> lowerPuritySelection_; 
   StringCutObjectSelector<reco::Candidate, true> dimuonSelection_;
-  bool addCommonVertex_, addMuonlessPrimaryVertex_;
-  bool resolveAmbiguity_;
+  bool addCommonVertex_;
   bool addMCTruth_;
   GreaterByPt<pat::CompositeCandidate> pTComparator_;
 

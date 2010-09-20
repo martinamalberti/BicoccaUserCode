@@ -30,20 +30,14 @@ class Onia2EleElePAT : public edm::EDProducer {
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  bool isAbHadron(int pdgID);
-  bool isAMixedbHadron(int pdgID, int momPdgID);
-  std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi);
-
+ 
   // ----------member data ---------------------------
  private:
   edm::InputTag electrons_;
-  edm::InputTag thebeamspot_;
-  edm::InputTag thePVs_;
   StringCutObjectSelector<pat::Electron> higherPuritySelection_;
   StringCutObjectSelector<pat::Electron> lowerPuritySelection_; 
   StringCutObjectSelector<reco::Candidate, true> dieleSelection_;
-  bool addCommonVertex_, addEleclessPrimaryVertex_;
-  bool resolveAmbiguity_;
+  bool addCommonVertex_;
   bool addMCTruth_;
   GreaterByPt<pat::CompositeCandidate> pTComparator_;
 
