@@ -17,5 +17,5 @@ process.source.fileNames = cms.untracked.vstring(
         #'/store/relval/CMSSW_3_8_1/RelValJpsiMM/GEN-SIM-RECO/START38_V8-v1/0010/06679815-DFA1-DF11-8A3D-001A9281170C.root'
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 

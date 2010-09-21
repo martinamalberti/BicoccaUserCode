@@ -130,8 +130,8 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
             'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
             'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
             'keep edmTriggerResults_TriggerResults_*_*',           # HLT info, per path (cheap)
-            'keep l1extraL1MuonParticles_l1extraParticles_*_*',    # L1 info (cheap)
-            'keep *_generalTracks_*_RECO'                          # Track info (all RECO)
+            'keep *_generalTracks_*_RECO',                          # Track info (all RECO)
+            'keep recoGsfElectronCores_*_*_*'
         ),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Onia2LepLepPAT') ) if Filter else cms.untracked.PSet()
     )
