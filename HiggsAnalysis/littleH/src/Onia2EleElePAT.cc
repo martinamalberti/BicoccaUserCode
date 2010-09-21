@@ -106,7 +106,6 @@ Onia2EleElePAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  float vChi2 = myVertex.totalChiSquared();
 	  float vNDF  = myVertex.degreesOfFreedom();
 	  float vProb(TMath::Prob(vChi2,(int)vNDF));
-          std::cout << "vProb " << vProb << std::endl;
 	  myCand.addUserFloat("vNChi2",vChi2/vNDF);
 	  myCand.addUserFloat("vProb",vProb);
 	   	  
