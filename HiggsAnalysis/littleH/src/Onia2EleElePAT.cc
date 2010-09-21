@@ -96,19 +96,17 @@ Onia2EleElePAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(!dieleSelection_(myCand)) continue;
 
       // ---- fit vertex using Tracker tracks (if they have tracks) ----
-      if (it->track().isNonnull() && it2->track().isNonnull()) {
-
-
+      if (it->gsfTrack().isNonnull() && it2->gsfTrack().isNonnull()) {
 	
 	vector<TransientTrack> t_tks;
-	t_tks.push_back(theTTBuilder->build(*it->track()));  // pass the reco::Track, not  the reco::TrackRef (which can be transient)
-	t_tks.push_back(theTTBuilder->build(*it2->track())); // otherwise the vertex will have transient refs inside.
+        t_tks.push_back(theTTBuilder->build(*it->gsfTrack()));  // pass the reco::Track, not  the reco::TrackRef (which can be transient)
+	t_tks.push_back(theTTBuilder->build(*it2->gsfTrack())); // otherwise the vertex will have transient refs inside.
 	TransientVertex myVertex = vtxFitter.vertex(t_tks);
 	if (myVertex.isValid()) {
 	  float vChi2 = myVertex.totalChiSquared();
 	  float vNDF  = myVertex.degreesOfFreedom();
 	  float vProb(TMath::Prob(vChi2,(int)vNDF));
-	  
+          std::cout << "vProb " << vProb << std::endl;
 	  myCand.addUserFloat("vNChi2",vChi2/vNDF);
 	  myCand.addUserFloat("vProb",vProb);
 	   	  
