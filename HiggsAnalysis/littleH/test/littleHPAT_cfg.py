@@ -4,10 +4,11 @@ process = cms.Process("Onia2LepLepPAT")
 
 from HiggsAnalysis.littleH.littleHPAT_cff import *
 
-littleHPAT(process, GlobalTag="START38_V8::All", MC=True, HLT="HLT", Filter=False, SavePAT=True)
+littleHPAT(process, GlobalTag="START36_V9::All", MC=False, HLT="HLT", Filter=False, SavePAT=True, HLT_filter_ele=False, HLT_filter_mu=False)
 
 process.source.fileNames = cms.untracked.vstring(
-  'file:/tmp/dimatteo/B841FC1F-E4A1-DF11-80CC-001A92971ACE.root'
+  #'file:/tmp/dimatteo/Data.root'
+  'file:/tmp/dimatteo/ZEE.root'
   #'file:/tmp/dimatteo/8ACD4E9E-2DA2-DF11-B6EA-0026189438FD.root'
         #'/store/relval/CMSSW_3_8_1/RelValJpsiMM/GEN-SIM-RECO/START38_V8-v1/0011/B841FC1F-E4A1-DF11-80CC-001A92971ACE.root',
         #'/store/relval/CMSSW_3_8_1/RelValJpsiMM/GEN-SIM-RECO/START38_V8-v1/0011/4AE205A9-E2A1-DF11-8BB4-002618943959.root',
@@ -17,5 +18,9 @@ process.source.fileNames = cms.untracked.vstring(
         #'/store/relval/CMSSW_3_8_1/RelValJpsiMM/GEN-SIM-RECO/START38_V8-v1/0010/06679815-DFA1-DF11-8A3D-001A9281170C.root'
 )
 
+process.TFileService = cms.Service("TFileService", 
+      fileName = cms.string("Counters.root"),
+      closeFileFast = cms.untracked.bool(True)
+)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 

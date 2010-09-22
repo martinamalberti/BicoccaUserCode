@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 SimpleNtple = cms.EDAnalyzer("SimpleNtple",
-         Onia2MuMuTag            = cms.InputTag("onia2MuMuPatTrkTrk"),
+         Onia2MuMuTag            = cms.InputTag("onia2MuMuPat"),
          Onia2EleEleTag          = cms.InputTag("onia2EleElePat"),
          MuTag                   = cms.InputTag("patMuons"),
          EleTag                  = cms.InputTag("patElectrons"),  # pixelMatchGsfElectrons
