@@ -6,9 +6,9 @@ from HiggsAnalysis.littleH.littleHPAT_cff import *
 
 from HiggsAnalysis.littleH.SimpleNtple_cff import *
 
-littleHPAT(process, GlobalTag="START36_V9::All", MC=True, HLT="REDIGI36X.", Filter=False, SavePAT=False, HLT_filter_ele=False, HLT_filter_mu=False)
+littleHPAT(process, GlobalTag="START36_V10::All", MC=True, HLT="REDIGI36X.", Filter=False, SavePAT=False, HLT_filter_ele=False, HLT_filter_mu=False)
 
-makeSimpleNtple(process, GlobalTag="START36_V9::All", MC=True, HLT='REDIGI36X.')
+makeSimpleNtple(process, GlobalTag="START36_V10::All", MC=True, HLT='REDIGI36X.')
 
 process.source.fileNames = cms.untracked.vstring(
         #'/store/data/Run2010A/EG/RECO/v4/000/144/114/EEAA24FA-25B4-DF11-A5F1-000423D98950.root',

@@ -4,7 +4,7 @@ process = cms.Process("Onia2LepLepPAT")
 
 from HiggsAnalysis.littleH.littleHPAT_cff import *
 
-littleHPAT(process, GlobalTag="START36_V9::All", MC=False, HLT="HLT", Filter=False, SavePAT=True, HLT_filter_ele=False, HLT_filter_mu=False)
+littleHPAT(process, GlobalTag="START36_V10::All", MC=False, HLT="HLT", Filter=False, SavePAT=True, HLT_filter_ele=False, HLT_filter_mu=False)
 
 process.source.fileNames = cms.untracked.vstring(
   #'file:/tmp/dimatteo/Data.root'
