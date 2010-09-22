@@ -9,7 +9,6 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', HLT_filter_ele=Fals
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 100
     process.load('Configuration.StandardSequences.GeometryExtended_cff')
-    process.load("Configuration.StandardSequences.Reconstruction_cff")
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
@@ -55,13 +54,13 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', HLT_filter_ele=Fals
     # Filter dimuon candidates - requirement on PV-SV compatibility (a0 does not fly)
     process.selectedOnia2MuMuPatTrkTrk = cms.EDFilter("CandViewSelector",
         src = cms.InputTag('onia2MuMuPatTrkTrk'),
-        cut = cms.string(" userFloat('vProb') > 0.05 & -4 < userFloat('ppdlPV')/userFloat('ppdlErrPV') < 4 "),
+        cut = cms.string(" userFloat('vProb') > 0.05 "),
     )
 
     # Filter diele candidates - requirement on PV-SV compatibility (upsilons do not fly)
     process.selectedOnia2EleElePat = cms.EDFilter("CandViewSelector",
         src = cms.InputTag('onia2EleElePat'),
-        cut = cms.string(" userFloat('vProb') > 0.05 & -4 < userFloat('ppdlPV')/userFloat('ppdlErrPV') < 4 "),
+        cut = cms.string(" userFloat('vProb') > 0.05 "),
     )
     
     # merge dimuons and dielectrons into leptons
@@ -85,7 +84,6 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', HLT_filter_ele=Fals
          Onia2EleEleTag          = cms.InputTag("onia2EleElePat"),
          MuTag                   = cms.InputTag("patMuons"),
          EleTag                  = cms.InputTag("patElectrons"),  # pixelMatchGsfElectrons
-         TracksTag               = cms.InputTag("generalTracks"),
          PrimaryVertexTag        = cms.InputTag("offlinePrimaryVertices"),
          beamSpotTag             = cms.InputTag("offlineBeamSpot"),
          MCtruthTag              = cms.InputTag("genLeptons"),
@@ -97,7 +95,6 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', HLT_filter_ele=Fals
          saveEvt    = cms.untracked.bool (not MC) ,
          saveVtx    = cms.untracked.bool (True) ,
          saveMu     = cms.untracked.bool (True) ,
-         saveTracks = cms.untracked.bool (True) , 
          saveEle    = cms.untracked.bool (True) ,
          saveMC     = cms.untracked.bool (MC) ,
          saveTrigger     = cms.untracked.bool (True) ,
@@ -116,7 +113,7 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', HLT_filter_ele=Fals
     # save essential HLT infos
     process.load("PhysicsTools.NtupleUtils.HLTrigResultsDumper_cfi")
     process.TriggerResults = process.HLTrigResultsDumper.clone()
-    process.TriggerResults.HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
+    process.TriggerResults.HLTriggerResults = cms.InputTag("TriggerResults","",HLT)
     process.TriggerResults.HLTPaths = cms.vstring(
       "HLT_Mu3", 
       "HLT_Mu5", 

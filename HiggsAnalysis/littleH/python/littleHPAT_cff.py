@@ -44,6 +44,7 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     # Make PAT Muons
     process.load("PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi")
     process.muonMatch.matched = "genLeptons"
+    process.patMuons.embedTrack = cms.bool(True)
 
     if not MC:
           process.patMuons.addGenMatch = cms.bool(False)
@@ -52,6 +53,8 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     # Make PAT Electrons
     process.load("PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi")
     process.electronMatch.matched = "genLeptons"
+    process.patElectrons.embedTrack = cms.bool(True)
+
 
     if not MC:
           process.patElectrons.addGenMatch = cms.bool(False)
@@ -124,12 +127,13 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
         fileName = cms.untracked.string('onia2LepLepPAT.root'),
         outputCommands = cms.untracked.vstring('drop *',
             'keep *_genLeptons_*_Onia2LepLepPAT',                  # generated leptons and parents
-            'keep patMuons_patMuons_*_Onia2LepLepPAT',  # All PAT muons including general tracks and matches to triggers
+            'keep patMuons_*_*_Onia2LepLepPAT',  # All PAT muons including general tracks and matches to triggers
             'keep patElectrons_*_*_Onia2LepLepPAT',                # All PAT eles including general tracks and matches to triggers
             'keep patCompositeCandidates_*__Onia2LepLepPAT',       # PAT di-lep
             'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
             'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
             'keep edmTriggerResults_TriggerResults_*_*',           # HLT info, per path (cheap)
+            'keep *_generalTracks_*_*',
             'keep recoGsfElectronCores_*_*_*'
         ),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('Onia2LepLepPAT') ) if Filter else cms.untracked.PSet()

@@ -102,7 +102,6 @@ class SimpleNtple : public EDAnalyzer {
     
     InputTag Onia2MuMuTag_;
     InputTag Onia2EleEleTag_;    
-    InputTag TracksTag_;
     InputTag EleTag_;
     InputTag MuTag_;
     InputTag PrimaryVertexTag_;        
@@ -116,7 +115,6 @@ class SimpleNtple : public EDAnalyzer {
     bool saveEvt_ ;
     bool saveVtx_ ;
     bool saveMu_ ;
-    bool saveTracks_ ;
     bool saveEle_ ;
     bool saveMC_ ;
     bool saveBeamSpot_ ;
@@ -124,9 +122,6 @@ class SimpleNtple : public EDAnalyzer {
         
     int eventType_; //---- 0 = signal      1 = background 
     bool verbosity_; //---- true = loquacious     false = silence  
-
-    //used to save all tracks BUT muons
-    std::vector<int> theMuonTrkIndexes_ ;
     
     //RECO Objects    
     pat::MuonCollection theTrkMuons;
