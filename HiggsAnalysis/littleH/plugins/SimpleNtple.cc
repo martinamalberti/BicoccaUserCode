@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.74 2010/09/16 16:54:48 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.75 2010/09/22 08:57:29 dimatteo Exp $
 //
 //
 
@@ -574,21 +574,21 @@ SimpleNtple::fillMCInfo (const Event & iEvent, const EventSetup & iESetup)
     if ( ndimu->genParticle()!=0 ){
       
       const reco::GenParticle & genOnia = dynamic_cast<const reco::GenParticle &> ( * ndimu -> genParticle() );
-      NtupleFactory_->FillInt ("MC_QQ_PDGID",genOnia . pdgId());    
+      NtupleFactory_->FillInt ("QQ_MC_PDGID",genOnia . pdgId());    
       TLorentzVector myvec4(genOnia . px(),genOnia . py(),genOnia . pz(),genOnia . energy());
       TVector3 myvect3 (genOnia.vertex().x(),genOnia.vertex().y(),genOnia.vertex().z());
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
-      NtupleFactory_->Fill3TV("MC_QQ_Vtx",myvect3);
+      NtupleFactory_->Fill4TV ("QQ_MC_4V", myvec4) ;
+      NtupleFactory_->Fill3TV("QQ_MC_Vtx",myvect3);
       
     }
     
     else {
       
-      NtupleFactory_->FillInt ("MC_QQ_PDGID",0);    
+      NtupleFactory_->FillInt ("QQ_MC_PDGID",0);    
       TLorentzVector myvec4(0,0,0,0);
       TVector3 myvect3 (0,0,0);
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
-      NtupleFactory_->Fill3TV("MC_QQ_Vtx",myvect3);
+      NtupleFactory_->Fill4TV ("QQ_MC_4V", myvec4) ;
+      NtupleFactory_->Fill3TV("QQ_MC_Vtx",myvect3);
       
     }
     
@@ -601,21 +601,21 @@ SimpleNtple::fillMCInfo (const Event & iEvent, const EventSetup & iESetup)
     if ( ndiele->genParticle()!=0 ){
       
       const reco::GenParticle & genOnia = dynamic_cast<const reco::GenParticle &> ( * ndiele -> genParticle() );
-      NtupleFactory_->FillInt ("MC_QQ_PDGID",genOnia . pdgId());    
+      NtupleFactory_->FillInt ("QQ_MC_PDGID",genOnia . pdgId());    
       TLorentzVector myvec4(genOnia . px(),genOnia . py(),genOnia . pz(),genOnia . energy());
       TVector3 myvect3 (genOnia.vertex().x(),genOnia.vertex().y(),genOnia.vertex().z());
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
-      NtupleFactory_->Fill3TV("MC_QQ_Vtx",myvect3);
+      NtupleFactory_->Fill4TV ("QQ_MC_4V", myvec4) ;
+      NtupleFactory_->Fill3TV("QQ_MC_Vtx",myvect3);
       
     }
     
     else {
       
-      NtupleFactory_->FillInt ("MC_QQ_PDGID",0);    
+      NtupleFactory_->FillInt ("QQ_MC_PDGID",0);    
       TLorentzVector myvec4(0,0,0,0);
       TVector3 myvect3 (0,0,0);
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
-      NtupleFactory_->Fill3TV("MC_QQ_Vtx",myvect3);
+      NtupleFactory_->Fill4TV ("QQ_MC_4V", myvec4) ;
+      NtupleFactory_->Fill3TV("QQ_MC_Vtx",myvect3);
       
     }
     
@@ -629,15 +629,15 @@ SimpleNtple::fillMCInfo (const Event & iEvent, const EventSetup & iESetup)
     if ( glbmuon->genLepton()!=0 ){
       const reco::GenParticle & genMuon = dynamic_cast<const reco::GenParticle &> ( * glbmuon -> genLepton() );
       TLorentzVector myvec4(genMuon . px(),genMuon . py(),genMuon . pz(),genMuon . energy());
-      NtupleFactory_->FillInt ("isMCmatched", 1) ;
-      NtupleFactory_->FillInt ("MC_pdgID", genMuon . pdgId()) ;
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
+      NtupleFactory_->FillInt ("muons_glb_isMCmatched", 1) ;
+      NtupleFactory_->FillInt ("muons_glb_MC_pdgID", genMuon . pdgId()) ;
+      NtupleFactory_->Fill4TV ("muons_glb_MC_4V", myvec4) ;
     }
     else {
-      NtupleFactory_->FillInt ("isMCmatched", 0) ;
-      NtupleFactory_->FillInt ("MC_pdgID", 0) ;
+      NtupleFactory_->FillInt ("muons_glb_isMCmatched", 0) ;
+      NtupleFactory_->FillInt ("muons_glb_MC_pdgID", 0) ;
       TLorentzVector myvec4(0,0,0,0);
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
+      NtupleFactory_->Fill4TV ("muons_glb_MC_4V", myvec4) ;
     }
   }
   
@@ -650,15 +650,15 @@ SimpleNtple::fillMCInfo (const Event & iEvent, const EventSetup & iESetup)
     if ( trkmuon->genLepton()!=0 ){
       const reco::GenParticle & genMuon = dynamic_cast<const reco::GenParticle &> ( * trkmuon -> genLepton() );
       TLorentzVector myvec4(genMuon . px(),genMuon . py(),genMuon . pz(),genMuon . energy());
-      NtupleFactory_->FillInt ("isMCmatched", 1) ;
-      NtupleFactory_->FillInt ("MC_pdgID", genMuon . pdgId()) ;
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
+      NtupleFactory_->FillInt ("muons_trk_isMCmatched", 1) ;
+      NtupleFactory_->FillInt ("muons_trk_MC_pdgID", genMuon . pdgId()) ;
+      NtupleFactory_->Fill4TV ("muons_trk_MC_4V", myvec4) ;
     }
     else {
-      NtupleFactory_->FillInt ("isMCmatched", 0) ;
-      NtupleFactory_->FillInt ("MC_pdgID", 0) ;
+      NtupleFactory_->FillInt ("muons_trk_isMCmatched", 0) ;
+      NtupleFactory_->FillInt ("muons_trk_MC_pdgID", 0) ;
       TLorentzVector myvec4(0,0,0,0);
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
+      NtupleFactory_->Fill4TV ("muons_trk_MC_4V", myvec4) ;
     }
     
   }
@@ -669,15 +669,15 @@ SimpleNtple::fillMCInfo (const Event & iEvent, const EventSetup & iESetup)
     if ( theEle->genLepton()!=0 ){
       const reco::GenParticle & genEle = dynamic_cast<const reco::GenParticle &> ( * theEle -> genLepton() );
       TLorentzVector myvec4(genEle . px(),genEle . py(),genEle . pz(),genEle . energy());
-      NtupleFactory_->FillInt ("isMCmatched", 1) ;
-      NtupleFactory_->FillInt ("MC_pdgID", genEle . pdgId()) ;
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
+      NtupleFactory_->FillInt ("electrons_isMCmatched", 1) ;
+      NtupleFactory_->FillInt ("electrons_MC_pdgID", genEle . pdgId()) ;
+      NtupleFactory_->Fill4TV ("electrons_MC_4V", myvec4) ;
     }
     else {
-      NtupleFactory_->FillInt ("isMCmatched", 0) ;
-      NtupleFactory_->FillInt ("MC_pdgID", 0) ;
+      NtupleFactory_->FillInt ("electrons_isMCmatched", 0) ;
+      NtupleFactory_->FillInt ("electrons_MC_pdgID", 0) ;
       TLorentzVector myvec4(0,0,0,0);
-      NtupleFactory_->Fill4TV ("MC_particles4V", myvec4) ;
+      NtupleFactory_->Fill4TV ("electrons_MC_4V", myvec4) ;
     }
     
   }
@@ -1179,13 +1179,21 @@ SimpleNtple::fillOniaInfo(const Event &iEvent, const EventSetup & iESetup)
     //PG MC truth
     if (saveMC_)
     {
-      NtupleFactory_->AddInt ("isMCmatched") ;
-      NtupleFactory_->AddInt ("MC_pdgID") ;
-      NtupleFactory_->Add4TV ("MC_particles4V") ;
+      NtupleFactory_->AddInt ("QQ_MC_PDGID") ;
+      NtupleFactory_->Add4TV ("QQ_MC_4V") ;
+      NtupleFactory_->Add3TV ("QQ_MC_Vtx") ;
+
+      NtupleFactory_->AddInt ("muons_glb_isMCmatched") ;
+      NtupleFactory_->AddInt ("muons_glb_MC_pdgID") ;
+      NtupleFactory_->Add4TV ("muons_glb_MC_4V") ;
       
-      NtupleFactory_->AddInt ("MC_QQ_PDGID") ;
-      NtupleFactory_->Add4TV ("MC_QQ_4V") ;
-      NtupleFactory_->Add3TV ("MC_QQ_Vtx") ;
+      NtupleFactory_->AddInt ("muons_trk_isMCmatched") ;
+      NtupleFactory_->AddInt ("muons_trk_MC_pdgID") ;
+      NtupleFactory_->Add4TV ("muons_trk_MC_4V") ;
+
+      NtupleFactory_->AddInt ("electrons_isMCmatched") ;
+      NtupleFactory_->AddInt ("electrons_MC_pdgID") ;
+      NtupleFactory_->Add4TV ("electrons_MC_4V") ;
       
     }
     

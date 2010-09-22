@@ -131,10 +131,15 @@ Onia2EleElePAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (genEle1.isNonnull() && genEle2.isNonnull()) {
 	  reco::GenParticleRef mom1 = genEle1->motherRef();
 	  reco::GenParticleRef mom2 = genEle2->motherRef();
+
+          //search for the real mother, i.e. avoid taking as mother the same particle 
+          //in a different status (egs. a lepton before/after bremsstrahlung)
+          while ( genEle1->pdgId() == mom1->pdgId() ) mom1 = mom1->motherRef();
+          while ( genEle2->pdgId() == mom2->pdgId() ) mom2 = mom2->motherRef();
+
 	  if (mom1.isNonnull() && (mom1 == mom2)) {
 	    myCand.setGenParticleRef(mom1); // set
 	    myCand.embedGenParticle();      // and embed
-
 	    myCand.addUserInt("momPDGId",mom1->pdgId());
 
 	  } else {

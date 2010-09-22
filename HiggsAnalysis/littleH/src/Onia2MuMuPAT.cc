@@ -126,6 +126,12 @@ void
     if (genMu1.isNonnull() && genMu2.isNonnull()) {
      reco::GenParticleRef mom1 = genMu1->motherRef();
      reco::GenParticleRef mom2 = genMu2->motherRef();
+
+     //search for the real mother, i.e. avoid taking as mother the same particle 
+     //in a different status (egs. a lepton before/after bremsstrahlung)
+     while ( genMu1->pdgId() == mom1->pdgId() ) mom1 = mom1->motherRef();
+     while ( genMu2->pdgId() == mom2->pdgId() ) mom2 = mom2->motherRef();
+
      if (mom1.isNonnull() && (mom1 == mom2)) {
       myCand.setGenParticleRef(mom1); // set
       myCand.embedGenParticle();      // and embed
