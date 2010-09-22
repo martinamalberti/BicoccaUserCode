@@ -123,10 +123,10 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     process.onia2MuMuPat = cms.EDProducer('Onia2MuMuPAT',
         muons = cms.InputTag("patMuons"),
         # At least one muon must pass this selection
-        higherPuritySelection = cms.string("(isGlobalMuon || isTrackerMuon || (innerTrack.isNonnull && genParticleRef(0).isNonnull)) && abs(innerTrack.dxy)<4 && abs(innerTrack.dz)<35"),
+        higherPuritySelection = cms.string("(isGlobalMuon || isTrackerMuon || (innerTrack.isNonnull && genParticleRef(0).isNonnull)) && abs(innerTrack.dxy)<4. && abs(innerTrack.dz)<35."),
         # BOTH muons must pass this selection
-        lowerPuritySelection  = cms.string("(isGlobalMuon || isTrackerMuon || (innerTrack.isNonnull && genParticleRef(0).isNonnull)) && abs(innerTrack.dxy)<4 && abs(innerTrack.dz)<35"),
-        dimuonSelection  = cms.string("4 < mass"), ## The dimuon must pass this selection before vertexing
+        lowerPuritySelection  = cms.string("(isGlobalMuon || isTrackerMuon || (innerTrack.isNonnull && genParticleRef(0).isNonnull)) && abs(innerTrack.dxy)<4. && abs(innerTrack.dz)<35."),
+        dimuonSelection  = cms.string("4. < mass"), ## The dimuon must pass this selection before vertexing
         addCommonVertex = cms.bool(True), ## Embed the full reco::Vertex out of the common vertex fit
         addMCTruth = cms.bool(MC),      ## Add the common MC mother of the two muons, if any
                  
@@ -135,7 +135,7 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     # Filter dimuon candidates - requirement on common vertex fit probability
     process.selectedOnia2MuMuPat = cms.EDFilter("CandViewSelector",
         src = cms.InputTag('onia2MuMuPat'),
-        cut = cms.string(" userFloat('vProb') > 0.05 "),
+        cut = cms.string(" userFloat('vProb') > 0.001 "),
     )
     
     # Make dielectron candidates
@@ -143,10 +143,10 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     process.onia2EleElePat = cms.EDProducer('Onia2EleElePAT',
         electrons = cms.InputTag("patElectrons"),
         # At least one electron must pass this selection
-        higherPuritySelection = cms.string("abs(gsfTrack.dxy)<4 && abs(gsfTrack.dz)<35"),
+        higherPuritySelection = cms.string("abs(gsfTrack.dxy)<4. && abs(gsfTrack.dz)<35."),
         # BOTH electrons must pass this selection
-        lowerPuritySelection  = cms.string("abs(gsfTrack.dxy)<4 && abs(gsfTrack.dz)<35"),
-        dieleSelection  = cms.string("4 < mass"), ## The diele must pass this selection before vertexing
+        lowerPuritySelection  = cms.string("abs(gsfTrack.dxy)<4. && abs(gsfTrack.dz)<35."),
+        dieleSelection  = cms.string("4. < mass"), ## The diele must pass this selection before vertexing
         addCommonVertex = cms.bool(True), ## Embed the full reco::Vertex out of the common vertex fit
         addMCTruth = cms.bool(MC),      ## Add the common MC mother of the two muons, if any
                  
@@ -155,7 +155,7 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     # Filter diele candidates - requirement on common vertex fit probability
     process.selectedOnia2EleElePat = cms.EDFilter("CandViewSelector",
         src = cms.InputTag('onia2EleElePat'),
-        cut = cms.string(" userFloat('vProb') > 0.05 "),
+        cut = cms.string(" userFloat('vProb') > 0.001 "),
     )
 
     # merge dimuons and dielectrons into leptons
