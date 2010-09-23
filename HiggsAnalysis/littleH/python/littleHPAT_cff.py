@@ -198,11 +198,11 @@ def littleHPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePAT=Tru
     
     #output
     process.out = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string('onia2LepLepPAT.root'),
+        fileName = cms.untracked.string('file:/tmp/dimatteo/onia2LepLepPAT.root'),
         outputCommands = cms.untracked.vstring('drop *',
             'keep *_genLeptons_*_Onia2LepLepPAT',                  # generated leptons and parents
-            'keep patMuons_*_*_Onia2LepLepPAT',  # All PAT muons including general tracks and matches to triggers
-            'keep patElectrons_*_*_Onia2LepLepPAT',                # All PAT eles including general tracks and matches to triggers
+            'keep patMuons_*_*_Onia2LepLepPAT',                    # All PAT muons including general tracks
+            'keep patElectrons_*_*_Onia2LepLepPAT',                # All PAT eles including general tracks
             'keep patCompositeCandidates_*__Onia2LepLepPAT',       # PAT di-lep
             'keep *_offlinePrimaryVertices_*_*',                   # Primary vertices: you want these to compute impact parameters
             'keep *_offlineBeamSpot_*_*',                          # Beam spot: you want this for the same reason                                   
