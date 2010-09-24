@@ -31,7 +31,6 @@ private:
   float MIN_vtxprob;
   float MAX_S3Dip;
   float MAX_muisol;
-  //  float MAX_DeltaR;
   float MIN_muP;
 
   float weight;
@@ -48,10 +47,8 @@ private:
 //   TH1F *hIsoVar03_trk_ECAL;
 
   TH1F * hQQProbChi2;
-  TH1F * hQQlxy ;
   TH1F *hQQS3Dip; 
   TH1F *hQQSTip ;
-  TH1F *hQQDeltaR;
   TH1F *hQQEta   ;
   TH1F *hQQPt    ;
   TH1F *hMuEtaTk   ;
@@ -60,8 +57,6 @@ private:
   TH1F * hMuPtGlb    ;
   TH1F * hMuPGlb    ;
   TH1F * hMuPTk    ;
-
-  TH2F *hQQDeltaRvsM;
 
 };
 #endif

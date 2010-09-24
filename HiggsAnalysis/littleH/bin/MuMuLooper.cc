@@ -30,7 +30,6 @@ MuMuLooper::MuMuLooper(TChain *tree)
   MIN_vtxprob = 0.05;
   MAX_S3Dip = 1.1;
   MAX_muisol = 0.11;
-  //  MAX_DeltaR = 3.5;
   MIN_muP = 4.4;
   bookHistos();
 }
@@ -47,10 +46,8 @@ void MuMuLooper::bookHistos()
 //   hIsoVar03_glb_ECAL = new TH1F("hIsoVar03_glb_ECAL", "isolation var03 on ecal, glb", 200, 0., 5. );
 //   hIsoVar03_trk_ECAL = new TH1F("hIsoVar03_trk_ECAL", "isolation var03 on ecal, trk", 200, 0., 5. );
   hQQProbChi2 = new TH1F("hQQProbChi2","#chi^2 prob", 50, 0., 1.);
-  hQQlxy = new TH1F("hQQlxy", "significance", 100, 0., 5.);
   hQQS3Dip = new TH1F("hQQS3Dip", "", 100, 0., 5.);
   hQQSTip = new TH1F("hQQSTip", "", 100, 0., 5.);
-  hQQDeltaR = new TH1F("hQQDeltaR","DeltaR",100,0.,6.);
   hQQEta = new TH1F("hQQEta", "Eta", 100, -5.,5.);
   hQQPt = new TH1F("hQQPt", "Pt", 100, 0., 50.);
   hMuEtaTk = new TH1F("hMuEtaTk","Muon Eta Tk", 100, -5., 5.);
@@ -60,8 +57,6 @@ void MuMuLooper::bookHistos()
 
   hMuPGlb = new TH1F("hMuPGlb","Muon P Glb", 100, 0., 50.);
   hMuPTk = new TH1F("hMuPTk","Muon P Tk", 100, 0., 50.);
-
-  hQQDeltaRvsM = new TH2F("hQQDeltaRvsM","DeltaR vs M",100,4.,12.,100,0.,6.);
 
   return;
 }
@@ -89,8 +84,6 @@ void MuMuLooper::Loop() {
     
     totalEvents++;
 
-    // TRIGGER CUTS 
-    if (!(*HLTBits_accept)[0]) continue;    // SingleMu3
 
     passedTriggers++;
 
@@ -122,21 +115,19 @@ void MuMuLooper::Loop() {
       if((*QQ_type)[iqq] == 0) continue;
 
       hQQProbChi2->Fill(QQ_probChi2 -> at(iqq));
-      hQQlxy->Fill(QQ_lxy -> at(iqq)/QQ_lxyErr -> at(iqq));
       hQQS3Dip -> Fill(QQ_S3Dip -> at(iqq));
       hQQSTip  -> Fill(QQ_STip -> at(iqq) );
-      hQQDeltaR->Fill (QQ_DeltaR->at(iqq));
       hQQEta->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Eta());
       hQQPt->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Pt());
       hQQEta->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Eta());
       hQQPt->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Pt());
-      hQQDeltaRvsM->Fill (invMass, QQ_DeltaR->at(iqq));
 
       if (onlyTheBest && iqq != myBest) continue;
 
       passedCandidates++;
       
       const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
+      
 	
       // Fill histos
       hInvMass->Fill(invMass, weight);
@@ -183,16 +174,12 @@ void MuMuLooper::saveHistos(TFile * f1)
   hQQProbChi2->Write();
   hQQSTip->Write();
   hQQS3Dip->Write();
-  hQQlxy->Write();
-
-  hQQDeltaR->Write();
   hQQEta->Write()   ;
   hQQPt->Write()    ;
   hMuEtaTk->Write()   ;
   hMuPtTk->Write()    ;
   hMuEtaGlb ->Write()  ;
   hMuPtGlb->Write()    ;
-  hQQDeltaRvsM->Write();
   hMuPGlb->Write();
   hMuPTk->Write();
 
@@ -253,15 +240,29 @@ int MuMuLooper::theBestQQ() const
   int theBest = -1;
   float thehighestPt = -1.;
   
-  //GLB-GLB case 
   for (int iqq=0; iqq<QQ_size->at(0); iqq++) {
     
-    if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 1 ) {//change here for opposite sign ==0, for same sign !=0
+    if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 1 ) {//change here for opposite sign ==0, for same sign !=0 
 
-      int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
-      int thelptMu = QQ_leplpt->at(iqq);    if (thelptMu >= muons_glb_normChi2->size()) continue;
-
-      if (QQ_probChi2->at(iqq) > MIN_vtxprob && QQ_S3Dip->at(iqq) < MAX_S3Dip && accept_glb_mu(thehptMu) && accept_glb_mu(thelptMu)) return iqq;
+      int thehptMu = QQ_lepone->at(iqq);    if (thehptMu >= muons_glb_charge->size()) continue;
+      int thelptMu = QQ_leptwo->at(iqq);    if (thelptMu >= muons_glb_charge->size()) continue;
+      
+      if( ((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(iqq))) -> Pt() < ((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(iqq))) -> Pt() )
+	{
+	  int tempiMu = thelptMu ;
+	  thelptMu = thehptMu ;
+	  thehptMu = tempiMu ;
+	}
+      if (QQ_probChi2->at(iqq) > MIN_vtxprob && QQ_S3Dip->at(iqq) < MAX_S3Dip && accept_glb_mu(thehptMu) && accept_glb_mu(thelptMu))
+	{
+	  const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
+	  TLorentzVector Dummy = *((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(iqq)))
+	    + *((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(iqq)));
+	  
+	  std::cout << "mass 1 " <<  invMass << " vs mass 2 " << Dummy.M() << std::endl;
+	  
+	  return iqq;
+	}
     }
   }
 
@@ -270,8 +271,8 @@ int MuMuLooper::theBestQQ() const
 
     if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 2 ) {//change here for opposite sign ==0, for same sign !=0
       
-      int thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
-      int thelptMu = QQ_leplpt->at(iqq);    if (thelptMu >= muons_trk_normChi2->size()) continue;
+      int thehptMu = QQ_lepone->at(iqq);    if (thehptMu >= muons_glb_charge->size()) continue;
+      int thelptMu = QQ_leptwo->at(iqq);    if (thelptMu >= muons_trk_charge->size()) continue; 
 
       if (QQ_probChi2->at(iqq) > MIN_vtxprob && QQ_S3Dip->at(iqq) < MAX_S3Dip && accept_glb_mu(thehptMu) && accept_trk_mu(thelptMu)) {
 	
@@ -284,7 +285,13 @@ int MuMuLooper::theBestQQ() const
     }
   }
   
-  if (theBest >= 0) return theBest;
-  
+  if (theBest >= 0){
+    const float invMass = ((TLorentzVector*)QQ_4mom->At(theBest))->M();
+    TLorentzVector Dummy = *((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(theBest)))
+      + *((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(theBest)));
+    
+    std::cout << "mass 1 " <<  invMass << " vs mass 2 " << Dummy.M() << std::endl;
+    return theBest;
+  }
   return theBest;
 } 			       

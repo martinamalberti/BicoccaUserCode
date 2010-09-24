@@ -12,14 +12,14 @@ int main (int argc, char ** argv)
     return 1;
   }
 
-  TChain *theChain = new TChain("SimpleTree");
+  TChain *theChain = new TChain("OniaTree");
 
   TList *treelist = new TList();
 
   for(int i=1;i<argc;i++){
 
     string filename(argv[i]);
-    filename += "/SimpleNtple";
+    filename += "/makeNtple";
 
     cout << "Adding " << filename.c_str() << endl;
 
@@ -29,7 +29,7 @@ int main (int argc, char ** argv)
   cout << "Total number of entries" << theChain->GetEntries() << endl;
   */
   
-  TChain * albero = new TChain ("SimpleNtple/SimpleTree") ;
+  TChain * albero = new TChain ("makeNtple/OniaTree") ;
   string filename(argv[1]);
   filename += "*.root" ;
   albero -> Add(filename.c_str());
