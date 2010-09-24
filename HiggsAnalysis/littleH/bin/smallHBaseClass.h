@@ -96,9 +96,9 @@ public :
    vector<float>   *priVtx_zxE;
    vector<float>   *priVtx_chi2;
    vector<float>   *priVtx_ndof;
-   vector<int>     *nEvent;
-   vector<int>     *nRun;
-   vector<int>     *nLumi;
+//    vector<int>     *nEvent;
+//    vector<int>     *nRun;
+//    vector<int>     *nLumi;
    TClonesArray    *beamSpot_3vec;
    vector<float>   *beamSpot_xxE;
    vector<float>   *beamSpot_yyE;
@@ -206,9 +206,9 @@ public :
    TBranch        *b_priVtx_zxE;   //!
    TBranch        *b_priVtx_chi2;   //!
    TBranch        *b_priVtx_ndof;   //!
-   TBranch        *b_nEvent;   //!
-   TBranch        *b_nRun;   //!
-   TBranch        *b_nLumi;   //!
+//   TBranch        *b_nEvent;   //!
+//   TBranch        *b_nRun;   //!
+//   TBranch        *b_nLumi;   //!
    TBranch        *b_beamSpot_3vec;   //!
    TBranch        *b_beamSpot_xxE;   //!
    TBranch        *b_beamSpot_yyE;   //!
@@ -382,9 +382,9 @@ void smallHBaseClass::Init(TTree *tree)
    priVtx_zxE = 0;
    priVtx_chi2 = 0;
    priVtx_ndof = 0;
-   nEvent = 0;
-   nRun = 0;
-   nLumi = 0;
+//   nEvent = 0;
+//   nRun = 0;
+//   nLumi = 0;
    beamSpot_3vec = 0;
    beamSpot_xxE = 0;
    beamSpot_yyE = 0;
@@ -496,9 +496,9 @@ void smallHBaseClass::Init(TTree *tree)
    fChain->SetBranchAddress("priVtx_zxE", &priVtx_zxE, &b_priVtx_zxE);
    fChain->SetBranchAddress("priVtx_chi2", &priVtx_chi2, &b_priVtx_chi2);
    fChain->SetBranchAddress("priVtx_ndof", &priVtx_ndof, &b_priVtx_ndof);
-   fChain->SetBranchAddress("nEvent", &nEvent, &b_nEvent);
-   fChain->SetBranchAddress("nRun", &nRun, &b_nRun);
-   fChain->SetBranchAddress("nLumi", &nLumi, &b_nLumi);
+//   fChain->SetBranchAddress("nEvent", &nEvent, &b_nEvent);
+//   fChain->SetBranchAddress("nRun", &nRun, &b_nRun);
+//   fChain->SetBranchAddress("nLumi", &nLumi, &b_nLumi);
    fChain->SetBranchAddress("beamSpot_3vec", &beamSpot_3vec, &b_beamSpot_3vec);
    fChain->SetBranchAddress("beamSpot_xxE", &beamSpot_xxE, &b_beamSpot_xxE);
    fChain->SetBranchAddress("beamSpot_yyE", &beamSpot_yyE, &b_beamSpot_yyE);
