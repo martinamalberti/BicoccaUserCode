@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.75 2010/09/22 08:57:29 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.76 2010/09/22 12:30:42 dimatteo Exp $
 //
 //
 
@@ -254,7 +254,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       theOniaCat = 1;
       if ( lepone_index < 0 ) { 
 	theGlobalMuons.push_back(*(muon1.clone()));
-	lepone_index = theGlobalMuons.end() - theGlobalMuons.begin();
+	lepone_index = theGlobalMuons.end() - theGlobalMuons.begin() -1;//-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_lepone",lepone_index);
 	theGlobalMuonsSize++;
       }
@@ -262,7 +262,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       
       if ( leptwo_index < 0 ) { 
 	theGlobalMuons.push_back(*(muon2.clone()));
-	leptwo_index = theGlobalMuons.end() - theGlobalMuons.begin();
+	leptwo_index = theGlobalMuons.end() - theGlobalMuons.begin() -1;//-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_leptwo",leptwo_index);
 	theGlobalMuonsSize++;
       }
@@ -275,7 +275,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       theOniaCat = 2;
       if ( lepone_index < 0 ) { 
 	theGlobalMuons.push_back(*(muon1.clone()));
-	lepone_index = theGlobalMuons.end() - theGlobalMuons.begin();
+	lepone_index = theGlobalMuons.end() - theGlobalMuons.begin() -1;//-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_lepone",lepone_index);
 	theGlobalMuonsSize++;
       }
@@ -283,7 +283,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       
       if ( leptwo_index < 0 ) { 
 	theTrkMuons.push_back(*(muon2.clone()));
-	leptwo_index = theTrkMuons.end() - theTrkMuons.begin();
+	leptwo_index = theTrkMuons.end() - theTrkMuons.begin() -1;//-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_leptwo",leptwo_index);
 	theTrkMuonsSize++;
       }
@@ -300,7 +300,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       
       if ( lepone_index < 0 ) { 
 	theGlobalMuons.push_back(*(muon2.clone()));
-	lepone_index = theGlobalMuons.end() - theGlobalMuons.begin();
+	lepone_index = theGlobalMuons.end() - theGlobalMuons.begin() -1;//-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_lepone",lepone_index);
 	theGlobalMuonsSize++;
       }
@@ -308,7 +308,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       
       if ( leptwo_index < 0 ) { 
 	theTrkMuons.push_back(*(muon1.clone()));
-	leptwo_index = theTrkMuons.end() - theTrkMuons.begin();
+	leptwo_index = theTrkMuons.end() - theTrkMuons.begin() -1;//-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_leptwo",leptwo_index);
 	theTrkMuonsSize++;
       }
@@ -320,7 +320,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       theOniaCat = 3;
       if ( lepone_index < 0 ) { 
 	theTrkMuons.push_back(*(muon1.clone()));
-	lepone_index = theTrkMuons.end() - theTrkMuons.begin();
+	lepone_index = theTrkMuons.end() - theTrkMuons.begin() -1;//-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_lepone",lepone_index);
 	theTrkMuonsSize++;
       }
@@ -328,7 +328,7 @@ void SimpleNtple::fillMuInfo (const Event & iEvent, const EventSetup & iESetup)
       
       if ( leptwo_index < 0 ) { 
 	theTrkMuons.push_back(*(muon2.clone()));
-	leptwo_index = theTrkMuons.end() - theTrkMuons.begin();
+	leptwo_index = theTrkMuons.end() - theTrkMuons.begin() -1;//-1 because index_max = size - 1 
 	NtupleFactory_->FillInt("QQ_leptwo",leptwo_index);
 	theTrkMuonsSize++;
       }
@@ -499,14 +499,14 @@ SimpleNtple::fillEleInfo (const Event & iEvent, const EventSetup & iESetup)
       
       if ( lepone_index < 0 ) { 
 	theElectrons.push_back(*(ele1.clone()));
-	lepone_index = theElectrons.end() - theElectrons.begin();
+	lepone_index = theElectrons.end() - theElectrons.begin() - 1; //-1 because index_max = size - 1 
 	NtupleFactory_->FillInt("QQ_lepone",lepone_index);
       }
       else NtupleFactory_->FillInt("QQ_lepone",lepone_index);
       
       if ( leptwo_index < 0 ) { 
 	theElectrons.push_back(*(ele2.clone()));
-	leptwo_index = theElectrons.end() - theElectrons.begin();
+	leptwo_index = theElectrons.end() - theElectrons.begin() - 1; //-1 because index_max = size - 1
 	NtupleFactory_->FillInt("QQ_leptwo",leptwo_index);
       }
       else NtupleFactory_->FillInt("QQ_leptwo",leptwo_index);
@@ -1050,7 +1050,7 @@ SimpleNtple::fillOniaInfo(const Event &iEvent, const EventSetup & iESetup)
   void 
   SimpleNtple::analyze(const Event& iEvent, const EventSetup& iSetup)
   {
-    
+  
     if (saveEvt_)    fillEvtInfo (iEvent, iSetup) ;
     if (saveVtx_)    fillVtxInfo (iEvent, iSetup) ;
     if (saveMu_)     fillMuInfo (iEvent, iSetup) ;    //PG fillMuInfo should be called
@@ -1076,6 +1076,25 @@ SimpleNtple::fillOniaInfo(const Event &iEvent, const EventSetup & iESetup)
   void 
   SimpleNtple::beginJob()
   {
+    //EvtInfo
+    NtupleFactory_->AddInt ("nEvent") ;  
+    NtupleFactory_->AddInt ("nRun") ;  
+    NtupleFactory_->AddInt ("nLumi") ;  
+
+    //MCInfo
+    NtupleFactory_->AddInt ("QQ_MC_PDGID") ;
+    NtupleFactory_->Add4TV ("QQ_MC_4V") ;
+    NtupleFactory_->Add3TV ("QQ_MC_Vtx") ;
+    NtupleFactory_->AddInt ("muons_glb_isMCmatched") ;
+    NtupleFactory_->AddInt ("muons_glb_MC_pdgID") ;
+    NtupleFactory_->Add4TV ("muons_glb_MC_4V") ;
+    NtupleFactory_->AddInt ("muons_trk_isMCmatched") ;
+    NtupleFactory_->AddInt ("muons_trk_MC_pdgID") ;
+    NtupleFactory_->Add4TV ("muons_trk_MC_4V") ;
+    NtupleFactory_->AddInt ("electrons_isMCmatched") ;
+    NtupleFactory_->AddInt ("electrons_MC_pdgID") ;
+    NtupleFactory_->Add4TV ("electrons_MC_4V") ;
+
     if (saveMu_)
     {
       NtupleFactory_->Add4TV("muons_glb_4mom");
@@ -1167,34 +1186,6 @@ SimpleNtple::fillOniaInfo(const Event &iEvent, const EventSetup & iESetup)
       NtupleFactory_->AddFloat("priVtx_zxE");
       NtupleFactory_->AddFloat("priVtx_chi2");
       NtupleFactory_->AddFloat("priVtx_ndof");
-    }
-    
-    if (saveEvt_)
-    {
-      NtupleFactory_->AddInt ("nEvent") ;  
-      NtupleFactory_->AddInt ("nRun") ;  
-      NtupleFactory_->AddInt ("nLumi") ;  
-    }
-    
-    //PG MC truth
-    if (saveMC_)
-    {
-      NtupleFactory_->AddInt ("QQ_MC_PDGID") ;
-      NtupleFactory_->Add4TV ("QQ_MC_4V") ;
-      NtupleFactory_->Add3TV ("QQ_MC_Vtx") ;
-
-      NtupleFactory_->AddInt ("muons_glb_isMCmatched") ;
-      NtupleFactory_->AddInt ("muons_glb_MC_pdgID") ;
-      NtupleFactory_->Add4TV ("muons_glb_MC_4V") ;
-      
-      NtupleFactory_->AddInt ("muons_trk_isMCmatched") ;
-      NtupleFactory_->AddInt ("muons_trk_MC_pdgID") ;
-      NtupleFactory_->Add4TV ("muons_trk_MC_4V") ;
-
-      NtupleFactory_->AddInt ("electrons_isMCmatched") ;
-      NtupleFactory_->AddInt ("electrons_MC_pdgID") ;
-      NtupleFactory_->Add4TV ("electrons_MC_4V") ;
-      
     }
     
     //BeamSpot Info
