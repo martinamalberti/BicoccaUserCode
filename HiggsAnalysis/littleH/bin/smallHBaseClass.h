@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Feb  3 10:16:17 2010 by ROOT version 5.22/00d
-// from TTree SimpleTree/SimpleTree
-// found on file: SimpleTree_A0_10GEV.root
+// Thu Sep 23 19:15:30 2010 by ROOT version 5.22/00d
+// from TTree OniaTree/OniaTree
+// found on file: SimpleNtple.root
 //////////////////////////////////////////////////////////
 
 #ifndef smallHBaseClass_h
@@ -20,7 +20,7 @@ using namespace std;
 
 class smallHBaseClass {
 public :
-   TChain          *fChain;   //!pointer to the analyzed TTree or TChain
+   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
@@ -82,25 +82,11 @@ public :
    vector<float>   *electrons_IdTight;
    vector<float>   *electrons_IdRobustLoose;
    vector<float>   *electrons_IdRobustTight;
-//    vector<float>   *electrons_HoE;
-//    vector<float>   *electrons_dEtaSc;
-//    vector<float>   *electrons_dPhiSc;
-//    vector<float>   *electrons_SigiEtaiEtaSc;
-//    vector<float>   *electrons_EoP;
-//    vector<float>   *electrons_Et;
-//    vector<float>   *electrons_pAtVtx;
-//    vector<float>   *electrons_ptAtVtx;
    vector<float>   *electrons_track_d0;
    vector<float>   *electrons_track_dz;
    vector<float>   *electrons_track_d0err;
    vector<float>   *electrons_track_dzerr;
    vector<float>   *electrons_flag_mask;
-   TClonesArray    *tracks_in;
-   TClonesArray    *tracks_out;
-   vector<float>   *tracks_d0;
-   vector<float>   *tracks_dz;
-   vector<float>   *tracks_d0err;
-   vector<float>   *tracks_dzerr;
    TClonesArray    *priVtx_3vec;
    vector<float>   *priVtx_xxE;
    vector<float>   *priVtx_yyE;
@@ -110,22 +96,9 @@ public :
    vector<float>   *priVtx_zxE;
    vector<float>   *priVtx_chi2;
    vector<float>   *priVtx_ndof;
-   vector<float>   *MC_pdgID;
-   TClonesArray    *MC_particles4V;
-   vector<int>     *MC_iMother;
-   vector<int>     *MC_iDau0;
-   vector<int>     *MC_iDau1;
-   vector<float>   *SC_Energy;
-   TClonesArray    *SC_position;
-   vector<int>     *HLTGlobal_wasrun;
-   vector<int>     *HLTGlobal_Decision;
-   vector<int>     *HLTGlobal_error;
-   vector<int>     *HLTBits_wasrun;
-   vector<int>     *HLTBits_accept;
-   vector<int>     *HLTBits_error;
-   vector<int>     *L1TBits_wasrun;
-   vector<int>     *L1TBits_accept;
-   vector<int>     *L1TBits_error;
+   vector<int>     *nEvent;
+   vector<int>     *nRun;
+   vector<int>     *nLumi;
    TClonesArray    *beamSpot_3vec;
    vector<float>   *beamSpot_xxE;
    vector<float>   *beamSpot_yyE;
@@ -136,28 +109,9 @@ public :
    vector<int>     *QQ_size;
    vector<int>     *QQ_sign;
    vector<int>     *QQ_type;
-   vector<float>   *QQ_DeltaR;
-   vector<float>   *QQ_s;
    TClonesArray    *QQ_4mom;
-   vector<int>     *QQ_leppl;
-   vector<int>     *QQ_lepmi;
-   vector<float>   *QQ_cosTheta;
-   vector<int>     *QQ_lephpt;
-   vector<int>     *QQ_leplpt;
-   vector<int>     *QQ_VtxIsVal;
-   TClonesArray    *QQ_Vtx;
-   vector<float>   *QQ_VxxE;
-   vector<float>   *QQ_VyyE;
-   vector<float>   *QQ_VzzE;
-   vector<float>   *QQ_VyxE;
-   vector<float>   *QQ_VzyE;
-   vector<float>   *QQ_VzxE;
-   vector<float>   *QQ_lxy;
-   vector<float>   *QQ_lxyErr;
-   vector<float>   *QQ_normChi2;
-   vector<float>   *QQ_probChi2;
-   vector<float>   *QQ_cosAlpha;
-   vector<float>   *QQ_ctau;
+   vector<int>     *QQ_lepone;
+   vector<int>     *QQ_leptwo;
    vector<float>   *QQ_Tip;
    vector<float>   *QQ_Lip;
    vector<float>   *QQ_3Dip;
@@ -167,6 +121,17 @@ public :
    vector<float>   *QQ_STip;
    vector<float>   *QQ_SLip;
    vector<float>   *QQ_S3Dip;
+   vector<float>   *QQ_Tip_BS;
+   vector<float>   *QQ_Lip_BS;
+   vector<float>   *QQ_3Dip_BS;
+   vector<float>   *QQ_errTip_BS;
+   vector<float>   *QQ_errLip_BS;
+   vector<float>   *QQ_err3Dip_BS;
+   vector<float>   *QQ_STip_BS;
+   vector<float>   *QQ_SLip_BS;
+   vector<float>   *QQ_S3Dip_BS;
+   vector<float>   *QQ_normChi2;
+   vector<float>   *QQ_probChi2;
 
    // List of branches
    TBranch        *b_muons_glb_4mom;   //!
@@ -227,25 +192,11 @@ public :
    TBranch        *b_electrons_IdTight;   //!
    TBranch        *b_electrons_IdRobustLoose;   //!
    TBranch        *b_electrons_IdRobustTight;   //!
-//   TBranch        *b_electrons_HoE; //!
-//   TBranch        *b_electrons_dEtaSc; //!
-//   TBranch        *b_electrons_dPhiSc; //!
-//   TBranch        *b_electrons_SigiEtaiEtaSc; //!
-//   TBranch        *b_electrons_EoP; //!
-//   TBranch        *b_electrons_Et; //!
-//   TBranch        *b_electrons_pAtVtx; //!
-//   TBranch        *b_electrons_ptAtVtx; //!
    TBranch        *b_electrons_track_d0;   //!
    TBranch        *b_electrons_track_dz;   //!
    TBranch        *b_electrons_track_d0err;   //!
    TBranch        *b_electrons_track_dzerr;   //!
    TBranch        *b_electrons_flag_mask;   //!
-   TBranch        *b_tracks_in;   //!
-   TBranch        *b_tracks_out;   //!
-   TBranch        *b_tracks_d0;   //!
-   TBranch        *b_tracks_dz;   //!
-   TBranch        *b_tracks_d0err;   //!
-   TBranch        *b_tracks_dzerr;   //!
    TBranch        *b_priVtx_3vec;   //!
    TBranch        *b_priVtx_xxE;   //!
    TBranch        *b_priVtx_yyE;   //!
@@ -255,22 +206,9 @@ public :
    TBranch        *b_priVtx_zxE;   //!
    TBranch        *b_priVtx_chi2;   //!
    TBranch        *b_priVtx_ndof;   //!
-   TBranch        *b_MC_pdgID;   //!
-   TBranch        *b_MC_particles4V;   //!
-   TBranch        *b_MC_iMother;   //!
-   TBranch        *b_MC_iDau0;   //!
-   TBranch        *b_MC_iDau1;   //!
-   TBranch        *b_SC_Energy;   //!
-   TBranch        *b_SC_position;   //!
-   TBranch        *b_HLTGlobal_wasrun;   //!
-   TBranch        *b_HLTGlobal_Decision;   //!
-   TBranch        *b_HLTGlobal_error;   //!
-   TBranch        *b_HLTBits_wasrun;   //!
-   TBranch        *b_HLTBits_accept;   //!
-   TBranch        *b_HLTBits_error;   //!
-   TBranch        *b_L1TBits_wasrun;   //!
-   TBranch        *b_L1TBits_accept;   //!
-   TBranch        *b_L1TBits_error;   //!
+   TBranch        *b_nEvent;   //!
+   TBranch        *b_nRun;   //!
+   TBranch        *b_nLumi;   //!
    TBranch        *b_beamSpot_3vec;   //!
    TBranch        *b_beamSpot_xxE;   //!
    TBranch        *b_beamSpot_yyE;   //!
@@ -281,28 +219,9 @@ public :
    TBranch        *b_QQ_size;   //!
    TBranch        *b_QQ_sign;   //!
    TBranch        *b_QQ_type;   //!
-   TBranch        *b_QQ_DeltaR;   //!
-   TBranch        *b_QQ_s;   //!
    TBranch        *b_QQ_4mom;   //!
-   TBranch        *b_QQ_leppl;   //!
-   TBranch        *b_QQ_lepmi;   //!
-   TBranch        *b_QQ_cosTheta;   //!
-   TBranch        *b_QQ_lephpt;   //!
-   TBranch        *b_QQ_leplpt;   //!
-   TBranch        *b_QQ_VtxIsVal;   //!
-   TBranch        *b_QQ_Vtx;   //!
-   TBranch        *b_QQ_VxxE;   //!
-   TBranch        *b_QQ_VyyE;   //!
-   TBranch        *b_QQ_VzzE;   //!
-   TBranch        *b_QQ_VyxE;   //!
-   TBranch        *b_QQ_VzyE;   //!
-   TBranch        *b_QQ_VzxE;   //!
-   TBranch        *b_QQ_lxy;   //!
-   TBranch        *b_QQ_lxyErr;   //!
-   TBranch        *b_QQ_normChi2;   //!
-   TBranch        *b_QQ_probChi2;   //!
-   TBranch        *b_QQ_cosAlpha;   //!
-   TBranch        *b_QQ_ctau;   //!
+   TBranch        *b_QQ_lepone;   //!
+   TBranch        *b_QQ_leptwo;   //!
    TBranch        *b_QQ_Tip;   //!
    TBranch        *b_QQ_Lip;   //!
    TBranch        *b_QQ_3Dip;   //!
@@ -312,13 +231,24 @@ public :
    TBranch        *b_QQ_STip;   //!
    TBranch        *b_QQ_SLip;   //!
    TBranch        *b_QQ_S3Dip;   //!
+   TBranch        *b_QQ_Tip_BS;   //!
+   TBranch        *b_QQ_Lip_BS;   //!
+   TBranch        *b_QQ_3Dip_BS;   //!
+   TBranch        *b_QQ_errTip_BS;   //!
+   TBranch        *b_QQ_errLip_BS;   //!
+   TBranch        *b_QQ_err3Dip_BS;   //!
+   TBranch        *b_QQ_STip_BS;   //!
+   TBranch        *b_QQ_SLip_BS;   //!
+   TBranch        *b_QQ_S3Dip_BS;   //!
+   TBranch        *b_QQ_normChi2;   //!
+   TBranch        *b_QQ_probChi2;   //!
 
-   smallHBaseClass(TChain *tree=0);
+   smallHBaseClass(TTree *tree=0);
    virtual ~smallHBaseClass();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
-   virtual void     Init(TChain *tree);
+   virtual void     Init(TTree *tree);
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -327,17 +257,16 @@ public :
 #endif
 
 #ifdef smallHBaseClass_cxx
-smallHBaseClass::smallHBaseClass(TChain *tree)
+smallHBaseClass::smallHBaseClass(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("SimpleTree_A0_10GEV.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("SimpleNtple.root");
       if (!f) {
-         f = new TFile("SimpleTree_A0_10GEV.root");
-         f->cd("SimpleTree_A0_10GEV.root:/SimpleNtple");
+         f = new TFile("SimpleNtple.root");
       }
-      tree = (TChain*)gDirectory->Get("SimpleTree");
+      tree = (TTree*)gDirectory->Get("OniaTree");
 
    }
    Init(tree);
@@ -370,7 +299,7 @@ Long64_t smallHBaseClass::LoadTree(Long64_t entry)
    return centry;
 }
 
-void smallHBaseClass::Init(TChain *tree)
+void smallHBaseClass::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -439,25 +368,11 @@ void smallHBaseClass::Init(TChain *tree)
    electrons_IdTight = 0;
    electrons_IdRobustLoose = 0;
    electrons_IdRobustTight = 0;
-//    electrons_HoE = 0;
-//    electrons_dEtaSc = 0;
-//    electrons_dPhiSc = 0;
-//    electrons_SigiEtaiEtaSc = 0;
-//    electrons_EoP = 0;
-//    electrons_Et = 0;
-//    electrons_pAtVtx = 0;
-//    electrons_ptAtVtx = 0;
    electrons_track_d0 = 0;
    electrons_track_dz = 0;
    electrons_track_d0err = 0;
    electrons_track_dzerr = 0;
    electrons_flag_mask = 0;
-   tracks_in = 0;
-   tracks_out = 0;
-   tracks_d0 = 0;
-   tracks_dz = 0;
-   tracks_d0err = 0;
-   tracks_dzerr = 0;
    priVtx_3vec = 0;
    priVtx_xxE = 0;
    priVtx_yyE = 0;
@@ -467,22 +382,9 @@ void smallHBaseClass::Init(TChain *tree)
    priVtx_zxE = 0;
    priVtx_chi2 = 0;
    priVtx_ndof = 0;
-   MC_pdgID = 0;
-   MC_particles4V = 0;
-   MC_iMother = 0;
-   MC_iDau0 = 0;
-   MC_iDau1 = 0;
-   SC_Energy = 0;
-   SC_position = 0;
-   HLTGlobal_wasrun = 0;
-   HLTGlobal_Decision = 0;
-   HLTGlobal_error = 0;
-   HLTBits_wasrun = 0;
-   HLTBits_accept = 0;
-   HLTBits_error = 0;
-   L1TBits_wasrun = 0;
-   L1TBits_accept = 0;
-   L1TBits_error = 0;
+   nEvent = 0;
+   nRun = 0;
+   nLumi = 0;
    beamSpot_3vec = 0;
    beamSpot_xxE = 0;
    beamSpot_yyE = 0;
@@ -493,28 +395,9 @@ void smallHBaseClass::Init(TChain *tree)
    QQ_size = 0;
    QQ_sign = 0;
    QQ_type = 0;
-   QQ_DeltaR = 0;
-   QQ_s = 0;
    QQ_4mom = 0;
-   QQ_leppl = 0;
-   QQ_lepmi = 0;
-   QQ_cosTheta = 0;
-   QQ_lephpt = 0;
-   QQ_leplpt = 0;
-   QQ_VtxIsVal = 0;
-   QQ_Vtx = 0;
-   QQ_VxxE = 0;
-   QQ_VyyE = 0;
-   QQ_VzzE = 0;
-   QQ_VyxE = 0;
-   QQ_VzyE = 0;
-   QQ_VzxE = 0;
-   QQ_lxy = 0;
-   QQ_lxyErr = 0;
-   QQ_normChi2 = 0;
-   QQ_probChi2 = 0;
-   QQ_cosAlpha = 0;
-   QQ_ctau = 0;
+   QQ_lepone = 0;
+   QQ_leptwo = 0;
    QQ_Tip = 0;
    QQ_Lip = 0;
    QQ_3Dip = 0;
@@ -524,6 +407,17 @@ void smallHBaseClass::Init(TChain *tree)
    QQ_STip = 0;
    QQ_SLip = 0;
    QQ_S3Dip = 0;
+   QQ_Tip_BS = 0;
+   QQ_Lip_BS = 0;
+   QQ_3Dip_BS = 0;
+   QQ_errTip_BS = 0;
+   QQ_errLip_BS = 0;
+   QQ_err3Dip_BS = 0;
+   QQ_STip_BS = 0;
+   QQ_SLip_BS = 0;
+   QQ_S3Dip_BS = 0;
+   QQ_normChi2 = 0;
+   QQ_probChi2 = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -588,25 +482,11 @@ void smallHBaseClass::Init(TChain *tree)
    fChain->SetBranchAddress("electrons_IdTight", &electrons_IdTight, &b_electrons_IdTight);
    fChain->SetBranchAddress("electrons_IdRobustLoose", &electrons_IdRobustLoose, &b_electrons_IdRobustLoose);
    fChain->SetBranchAddress("electrons_IdRobustTight", &electrons_IdRobustTight, &b_electrons_IdRobustTight);
-//    fChain->SetBranchAddress("electrons_HoE", &electrons_HoE, &b_electrons_HoE);
-//    fChain->SetBranchAddress("electrons_dEtaSc", &electrons_dEtaSc, &b_electrons_dEtaSc);
-//    fChain->SetBranchAddress("electrons_dPhiSc", &electrons_dPhiSc, &b_electrons_dPhiSc);
-//    fChain->SetBranchAddress("electrons_SigiEtaiEtaSc", &electrons_SigiEtaiEtaSc, &b_electrons_SigiEtaiEtaSc);
-//    fChain->SetBranchAddress("electrons_EoP", &electrons_EoP, &b_electrons_EoP);
-//    fChain->SetBranchAddress("electrons_Et", &electrons_Et, &b_electrons_Et);
-//    fChain->SetBranchAddress("electrons_pAtVtx", &electrons_pAtVtx, &b_electrons_pAtVtx);
-//    fChain->SetBranchAddress("electrons_ptAtVtx", &electrons_ptAtVtx, &b_electrons_ptAtVtx);
    fChain->SetBranchAddress("electrons_track_d0", &electrons_track_d0, &b_electrons_track_d0);
    fChain->SetBranchAddress("electrons_track_dz", &electrons_track_dz, &b_electrons_track_dz);
    fChain->SetBranchAddress("electrons_track_d0err", &electrons_track_d0err, &b_electrons_track_d0err);
    fChain->SetBranchAddress("electrons_track_dzerr", &electrons_track_dzerr, &b_electrons_track_dzerr);
    fChain->SetBranchAddress("electrons_flag_mask", &electrons_flag_mask, &b_electrons_flag_mask);
-   fChain->SetBranchAddress("tracks_in", &tracks_in, &b_tracks_in);
-   fChain->SetBranchAddress("tracks_out", &tracks_out, &b_tracks_out);
-   fChain->SetBranchAddress("tracks_d0", &tracks_d0, &b_tracks_d0);
-   fChain->SetBranchAddress("tracks_dz", &tracks_dz, &b_tracks_dz);
-   fChain->SetBranchAddress("tracks_d0err", &tracks_d0err, &b_tracks_d0err);
-   fChain->SetBranchAddress("tracks_dzerr", &tracks_dzerr, &b_tracks_dzerr);
    fChain->SetBranchAddress("priVtx_3vec", &priVtx_3vec, &b_priVtx_3vec);
    fChain->SetBranchAddress("priVtx_xxE", &priVtx_xxE, &b_priVtx_xxE);
    fChain->SetBranchAddress("priVtx_yyE", &priVtx_yyE, &b_priVtx_yyE);
@@ -616,22 +496,9 @@ void smallHBaseClass::Init(TChain *tree)
    fChain->SetBranchAddress("priVtx_zxE", &priVtx_zxE, &b_priVtx_zxE);
    fChain->SetBranchAddress("priVtx_chi2", &priVtx_chi2, &b_priVtx_chi2);
    fChain->SetBranchAddress("priVtx_ndof", &priVtx_ndof, &b_priVtx_ndof);
-   fChain->SetBranchAddress("MC_pdgID", &MC_pdgID, &b_MC_pdgID);
-   fChain->SetBranchAddress("MC_particles4V", &MC_particles4V, &b_MC_particles4V);
-   fChain->SetBranchAddress("MC_iMother", &MC_iMother, &b_MC_iMother);
-   fChain->SetBranchAddress("MC_iDau0", &MC_iDau0, &b_MC_iDau0);
-   fChain->SetBranchAddress("MC_iDau1", &MC_iDau1, &b_MC_iDau1);
-   fChain->SetBranchAddress("SC_Energy", &SC_Energy, &b_SC_Energy);
-   fChain->SetBranchAddress("SC_position", &SC_position, &b_SC_position);
-   fChain->SetBranchAddress("HLTGlobal_wasrun", &HLTGlobal_wasrun, &b_HLTGlobal_wasrun);
-   fChain->SetBranchAddress("HLTGlobal_Decision", &HLTGlobal_Decision, &b_HLTGlobal_Decision);
-   fChain->SetBranchAddress("HLTGlobal_error", &HLTGlobal_error, &b_HLTGlobal_error);
-   fChain->SetBranchAddress("HLTBits_wasrun", &HLTBits_wasrun, &b_HLTBits_wasrun);
-   fChain->SetBranchAddress("HLTBits_accept", &HLTBits_accept, &b_HLTBits_accept);
-   fChain->SetBranchAddress("HLTBits_error", &HLTBits_error, &b_HLTBits_error);
-   fChain->SetBranchAddress("L1TBits_wasrun", &L1TBits_wasrun, &b_L1TBits_wasrun);
-   fChain->SetBranchAddress("L1TBits_accept", &L1TBits_accept, &b_L1TBits_accept);
-   fChain->SetBranchAddress("L1TBits_error", &L1TBits_error, &b_L1TBits_error);
+   fChain->SetBranchAddress("nEvent", &nEvent, &b_nEvent);
+   fChain->SetBranchAddress("nRun", &nRun, &b_nRun);
+   fChain->SetBranchAddress("nLumi", &nLumi, &b_nLumi);
    fChain->SetBranchAddress("beamSpot_3vec", &beamSpot_3vec, &b_beamSpot_3vec);
    fChain->SetBranchAddress("beamSpot_xxE", &beamSpot_xxE, &b_beamSpot_xxE);
    fChain->SetBranchAddress("beamSpot_yyE", &beamSpot_yyE, &b_beamSpot_yyE);
@@ -642,28 +509,9 @@ void smallHBaseClass::Init(TChain *tree)
    fChain->SetBranchAddress("QQ_size", &QQ_size, &b_QQ_size);
    fChain->SetBranchAddress("QQ_sign", &QQ_sign, &b_QQ_sign);
    fChain->SetBranchAddress("QQ_type", &QQ_type, &b_QQ_type);
-   fChain->SetBranchAddress("QQ_DeltaR", &QQ_DeltaR, &b_QQ_DeltaR);
-   fChain->SetBranchAddress("QQ_s", &QQ_s, &b_QQ_s);
    fChain->SetBranchAddress("QQ_4mom", &QQ_4mom, &b_QQ_4mom);
-   fChain->SetBranchAddress("QQ_leppl", &QQ_leppl, &b_QQ_leppl);
-   fChain->SetBranchAddress("QQ_lepmi", &QQ_lepmi, &b_QQ_lepmi);
-   fChain->SetBranchAddress("QQ_cosTheta", &QQ_cosTheta, &b_QQ_cosTheta);
-   fChain->SetBranchAddress("QQ_lephpt", &QQ_lephpt, &b_QQ_lephpt);
-   fChain->SetBranchAddress("QQ_leplpt", &QQ_leplpt, &b_QQ_leplpt);
-   fChain->SetBranchAddress("QQ_VtxIsVal", &QQ_VtxIsVal, &b_QQ_VtxIsVal);
-   fChain->SetBranchAddress("QQ_Vtx", &QQ_Vtx, &b_QQ_Vtx);
-   fChain->SetBranchAddress("QQ_VxxE", &QQ_VxxE, &b_QQ_VxxE);
-   fChain->SetBranchAddress("QQ_VyyE", &QQ_VyyE, &b_QQ_VyyE);
-   fChain->SetBranchAddress("QQ_VzzE", &QQ_VzzE, &b_QQ_VzzE);
-   fChain->SetBranchAddress("QQ_VyxE", &QQ_VyxE, &b_QQ_VyxE);
-   fChain->SetBranchAddress("QQ_VzyE", &QQ_VzyE, &b_QQ_VzyE);
-   fChain->SetBranchAddress("QQ_VzxE", &QQ_VzxE, &b_QQ_VzxE);
-   fChain->SetBranchAddress("QQ_lxy", &QQ_lxy, &b_QQ_lxy);
-   fChain->SetBranchAddress("QQ_lxyErr", &QQ_lxyErr, &b_QQ_lxyErr);
-   fChain->SetBranchAddress("QQ_normChi2", &QQ_normChi2, &b_QQ_normChi2);
-   fChain->SetBranchAddress("QQ_probChi2", &QQ_probChi2, &b_QQ_probChi2);
-   fChain->SetBranchAddress("QQ_cosAlpha", &QQ_cosAlpha, &b_QQ_cosAlpha);
-   fChain->SetBranchAddress("QQ_ctau", &QQ_ctau, &b_QQ_ctau);
+   fChain->SetBranchAddress("QQ_lepone", &QQ_lepone, &b_QQ_lepone);
+   fChain->SetBranchAddress("QQ_leptwo", &QQ_leptwo, &b_QQ_leptwo);
    fChain->SetBranchAddress("QQ_Tip", &QQ_Tip, &b_QQ_Tip);
    fChain->SetBranchAddress("QQ_Lip", &QQ_Lip, &b_QQ_Lip);
    fChain->SetBranchAddress("QQ_3Dip", &QQ_3Dip, &b_QQ_3Dip);
@@ -673,6 +521,17 @@ void smallHBaseClass::Init(TChain *tree)
    fChain->SetBranchAddress("QQ_STip", &QQ_STip, &b_QQ_STip);
    fChain->SetBranchAddress("QQ_SLip", &QQ_SLip, &b_QQ_SLip);
    fChain->SetBranchAddress("QQ_S3Dip", &QQ_S3Dip, &b_QQ_S3Dip);
+   fChain->SetBranchAddress("QQ_Tip_BS", &QQ_Tip_BS, &b_QQ_Tip_BS);
+   fChain->SetBranchAddress("QQ_Lip_BS", &QQ_Lip_BS, &b_QQ_Lip_BS);
+   fChain->SetBranchAddress("QQ_3Dip_BS", &QQ_3Dip_BS, &b_QQ_3Dip_BS);
+   fChain->SetBranchAddress("QQ_errTip_BS", &QQ_errTip_BS, &b_QQ_errTip_BS);
+   fChain->SetBranchAddress("QQ_errLip_BS", &QQ_errLip_BS, &b_QQ_errLip_BS);
+   fChain->SetBranchAddress("QQ_err3Dip_BS", &QQ_err3Dip_BS, &b_QQ_err3Dip_BS);
+   fChain->SetBranchAddress("QQ_STip_BS", &QQ_STip_BS, &b_QQ_STip_BS);
+   fChain->SetBranchAddress("QQ_SLip_BS", &QQ_SLip_BS, &b_QQ_SLip_BS);
+   fChain->SetBranchAddress("QQ_S3Dip_BS", &QQ_S3Dip_BS, &b_QQ_S3Dip_BS);
+   fChain->SetBranchAddress("QQ_normChi2", &QQ_normChi2, &b_QQ_normChi2);
+   fChain->SetBranchAddress("QQ_probChi2", &QQ_probChi2, &b_QQ_probChi2);
    Notify();
 }
 
