@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.76 2010/09/22 12:30:42 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.77 2010/09/24 14:16:32 dimatteo Exp $
 //
 //
 
@@ -534,6 +534,20 @@ SimpleNtple::fillEleInfo (const Event & iEvent, const EventSetup & iESetup)
     NtupleFactory_->FillFloat("electrons_IdTight",((*theEle).electronID(m_eleIDCut_TightInputTag)));
     NtupleFactory_->FillFloat("electrons_IdRobustLoose",((*theEle).electronID(m_eleIDCut_RLooseInputTag)));
     NtupleFactory_->FillFloat("electrons_IdRobustTight",((*theEle).electronID(m_eleIDCut_RTightInputTag)));
+
+    // electron quality observables
+    NtupleFactory_->FillFloat("electrons_HoE",((*theEle).hadronicOverEm()));
+    NtupleFactory_->FillFloat("electrons_dEtaSc",((*theEle).deltaEtaSuperClusterTrackAtVtx()));
+    NtupleFactory_->FillFloat("electrons_dPhiSc",((*theEle).deltaPhiSuperClusterTrackAtVtx()));
+    NtupleFactory_->FillFloat("electrons_SigiEtaiEtaSc",((*theEle).scSigmaIEtaIEta()));
+    NtupleFactory_->FillFloat("electrons_EoP",((*theEle).eSuperClusterOverP()));
+    NtupleFactory_->FillFloat("electrons_Et",((*theEle).superCluster()->energy())/cosh((*theEle).superCluster()->eta()));
+    NtupleFactory_->FillFloat("electrons_pAtVtx",((*theEle).trackMomentumAtVtx().R()));
+    NtupleFactory_->FillFloat("electrons_ptAtVtx",((*theEle).trackMomentumAtVtx().Rho()));
+    NtupleFactory_->FillFloat("electrons_#LostHits",((*theEle).gsfTrack()->numberOfLostHits()));
+    NtupleFactory_->FillFloat("electrons_fbrem",((*theEle).fbrem()));
+    NtupleFactory_->FillFloat("electrons_EseedOP",((*theEle).eSeedClusterOverP()));
+    NtupleFactory_->FillInt("electrons_class",(int)((*theEle).classification()));
     
     //Get Ele Track
     reco::GsfTrackRef eleTrack  = (*theEle).gsfTrack () ; 
@@ -1167,7 +1181,21 @@ SimpleNtple::fillOniaInfo(const Event &iEvent, const EventSetup & iESetup)
       NtupleFactory_->AddFloat("electrons_IdLoose"); 
       NtupleFactory_->AddFloat("electrons_IdTight"); 
       NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
-      NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
+      NtupleFactory_->AddFloat("electrons_IdRobustTight");
+
+      NtupleFactory_->AddFloat("electrons_HoE");
+      NtupleFactory_->AddFloat("electrons_dEtaSc");
+      NtupleFactory_->AddFloat("electrons_dPhiSc");
+      NtupleFactory_->AddFloat("electrons_SigiEtaiEtaSc");
+      NtupleFactory_->AddFloat("electrons_EoP");
+      NtupleFactory_->AddFloat("electrons_Et");
+      NtupleFactory_->AddFloat("electrons_pAtVtx");
+      NtupleFactory_->AddFloat("electrons_ptAtVtx");
+      NtupleFactory_->AddFloat("electrons_#LostHits");
+      NtupleFactory_->AddFloat("electrons_fbrem");
+      NtupleFactory_->AddFloat("electrons_EseedOP");
+      NtupleFactory_->AddInt  ("electrons_class");
+ 
       NtupleFactory_->AddFloat("electrons_track_d0");
       NtupleFactory_->AddFloat("electrons_track_dz");
       NtupleFactory_->AddFloat("electrons_track_d0err");
