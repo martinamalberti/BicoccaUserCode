@@ -19,6 +19,7 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=RecoEgamma/EgammaTools>
 <use name=root>
 <use name=rootcore>
 <library file="*.cc" name=WAnalysisWenuAnalysisPlugins>

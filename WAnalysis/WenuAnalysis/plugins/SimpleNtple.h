@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include "TFile.h"
+#include "TTree.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -14,35 +16,52 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionInfo.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Flags.h"
+#include "DataFormats/PatCandidates/interface/Lepton.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-
-
-#include "TFile.h"
-#include "TTree.h"
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
@@ -50,6 +69,8 @@ using namespace cms ;
 using namespace edm ;
 using namespace std ;
 using namespace reco;
+
+
 
 class SimpleNtple : public edm::EDAnalyzer {
    
@@ -87,15 +108,13 @@ class SimpleNtple : public edm::EDAnalyzer {
   edm::InputTag TCMetTag_;
   edm::InputTag PFMetTag_;
   edm::InputTag JetTag_;
+  edm::InputTag TrackTag_;
+  edm::InputTag DCSTag_;
 
   std::vector<std::string> eleId_names_;
-//   std::vector<edm::InputTag> eleId_names_;
-  std::vector<std::string> eleId_names_sample_;
-
-  std::vector<std::string> HLTTag_names_;
   
-      ///---- flags ----
-  bool runOnMC_;
+     ///---- flags ----
+  bool dataFlag_ ;
   bool saveL1_ ;
   bool saveHLT_ ;
   bool saveMu_ ;
