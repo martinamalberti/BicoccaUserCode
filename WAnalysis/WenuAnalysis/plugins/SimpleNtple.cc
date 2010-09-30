@@ -149,8 +149,8 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     
     NtupleFactory_->AddInt("electrons_mishits");
     NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
-    NtupleFactory_->AddInt("electrons_dist");
-    NtupleFactory_->AddInt("electrons_dcot");
+    NtupleFactory_->AddFloat("electrons_dist");
+    NtupleFactory_->AddFloat("electrons_dcot");
     
     NtupleFactory_->AddInt("electrons_seedSeverityLevel");
     NtupleFactory_->AddInt("electrons_seedFlag");
@@ -477,8 +477,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
    NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
-   NtupleFactory_->FillInt("electrons_dist", convInfo.dist());
-   NtupleFactory_->FillInt("electrons_dcot", convInfo.dcot());
+   NtupleFactory_->FillFloat("electrons_dist", convInfo.dist());
+   NtupleFactory_->FillFloat("electrons_dcot", convInfo.dcot());
    
    
    // spike removal variables
