@@ -145,6 +145,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  
  if(saveL1_)
  {
+  std::cerr << " pufferbacco! " << std::endl;
   NtupleFactory_->AddFloat("L1_techL1Bit"); 
   NtupleFactory_->AddFloat("L1_algoL1Bit"); 
  }
@@ -316,6 +317,7 @@ void SimpleNtple::analyze (const edm::Event& iEvent, const edm::EventSetup& iESe
 
 //---- dump L1Info
 void SimpleNtple::fillL1Info (const edm::Event & iEvent, const edm::EventSetup & iESetup) {
+ std::cerr << " ba qua entra??? " << std::endl;
  edm::ESHandle<L1GtTriggerMenu> menuRcd;
  iESetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
 

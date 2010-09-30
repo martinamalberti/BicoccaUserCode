@@ -774,6 +774,8 @@ int main (int argc, char** argv)
  int iSM;
  int iSC;
 
+ double eleCharge;
+
 
  TTree* myTree = new TTree("myTree","myTree");
  myTree -> Branch("met",&met,"met/D");
@@ -814,6 +816,8 @@ int main (int argc, char** argv)
  myTree -> Branch("phiSC",&phiSC,"phiSC/D");
 
  myTree -> Branch("nGoodElectrons",&nGoodElectrons,"nGoodElectrons/I");
+
+ myTree -> Branch("eleCharge",&eleCharge,"eleCharge/D");
 
  int nWele = 0;
  int nWeleSel = 0;
@@ -1030,6 +1034,7 @@ int main (int argc, char** argv)
     iSC = reader.GetInt("iSC")->at(chosenEle);
     iSM = reader.GetInt("iSM")->at(chosenEle);
     
+    eleCharge = reader.GetFloat("electrons_charge")->at(chosenEle);
     myTree -> Fill(); ///==== even if more than 1 electron ====
    }
   }// end loop over ele cand

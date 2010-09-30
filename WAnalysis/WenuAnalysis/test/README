@@ -109,7 +109,118 @@ rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/ | grep Ntuple_ | sed -e s%Nt
 
 
 
+
+
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtupleSUMMED | grep treeNtupleWenuMC_  | sed -e s%treeNtupleWenuMC_%%g | sed -e s%_4analysis.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/MC/28AugNtupleSUMMED/treeNtupleWenuMC_"$9"_4analysis.root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenuMC_"$9"_4analysis.root Wenu_"$9"_4analysis.root \n rfcp Wenu_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/09Aug/ \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"8nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/ | grep Ntuple_ | sed -e s%Ntuple_%%g | sed -e s%_28Aug%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_"$9"_28Aug/treeNtupleWenu_"$9".root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenu_"$9".root Wenu_"$9"_4analysis.root \n rfcp Wenu_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/28Aug/ \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"8nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
+
+
+///==== 03 Sep ====
+
+hadd /tmp/amassiro/treeNtupleWenu_EG-Run2010A-PromptReco-v4_03Sep.root /tmp/amassiro/Ntuple_EG-Run2010A-PromptReco-v4_03Sep/treeNtupleWenu_*.root
+
+eval `scramv1 runtime -sh`
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/ | grep Ntuple_ | grep _03Sep | sed -e s%Ntuple_%%g | sed -e s%_03Sep%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_"$9"_03Sep/treeNtupleWenu_"$9"_03Sep.root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenu_"$9"_03Sep.root Wenu_"$9"_4analysis.root \n rfcp Wenu_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/09Sep/ \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"8nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
+/castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_EG-Run2010A-Jul16thReReco-v2_28Aug
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/ | grep Ntuple_EG-Run2010A-Jul16thReReco-v2_28Aug | sed -e s%Ntuple_%%g | sed -e s%_28Aug%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_"$9"_28Aug/treeNtupleWenu_"$9"_28Aug.root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenu_"$9"_28Aug.root Wenu_"$9"_4analysis.root \n rfcp Wenu_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/09Sep/ \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"8nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
+
+
+
+
+///==== sample by sample ====////
+
+eval `scramv1 runtime -sh`
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_EG-Run2010A-PromptReco-v4_03Sep | sed -e s%treeNtupleWenu_EG-Run2010A-PromptReco-v4_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_EG-Run2010A-PromptReco-v4_03Sep/treeNtupleWenu_EG-Run2010A-PromptReco-v4_"$9".root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenu_EG-Run2010A-PromptReco-v4_"$9".root Wenu_EG-Run2010A-PromptReco-v4_"$9"_4analysis.root \n rfcp Wenu_EG-Run2010A-PromptReco-v4_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/09Sep/EG-Run2010A-PromptReco-v4 \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"8nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
+
+
+
+eval `scramv1 runtime -sh`
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_EG-Run2010A-PromptReco-v4_19Sep | sed -e s%treeNtupleWenu_EG-Run2010A-PromptReco-v4_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_6_1_patch4/src/WAnalysis/WenuAnalysis \n eval `scramv1 runtime -sh` \n cd - \n rfcp /castor/cern.ch/user/a/amassiro/WeCalib/DATA/Ntuple_EG-Run2010A-PromptReco-v4_19Sep/treeNtupleWenu_EG-Run2010A-PromptReco-v4_"$9".root ./ \n ls -alrth \n WenuAnalysisNtple -1 treeNtupleWenu_EG-Run2010A-PromptReco-v4_"$9".root Wenu_EG-Run2010A-PromptReco-v4_"$9"_4analysis.root \n rfcp Wenu_EG-Run2010A-PromptReco-v4_"$9"_4analysis.root /castor/cern.ch/user/a/amassiro/WeCalib/Result/19Sep/EG-Run2010A-PromptReco-v4 \n@ &> do_"$9".sh ; chmod +x do_"$9".sh ; bsub -q \"1nh\" do_"$9".sh"}' | tr "@" "'" | /bin/sh
+
+
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_11*
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_12* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_13* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_14* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_15* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_16* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_17* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_18* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_19* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+hadd /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result/Wenu_EG-Run2010A-PromptReco-v4_2* /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+mv /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4.root /tmp/amassiro/RECO_Result_Wenu_EG-Run2010A-PromptReco-v4_tmp.root
+
+
+
+
+{
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/Result/09Sep/EG-Run2010A-PromptReco-v4 &> /tmp/amassiro/mio.txt
+
+ std::ifstream file ("/tmp/amassiro/mio.txt"); 
+ char buffer[80];
+ int num;
+ char name[1000];
+ file.is_open();
+ while(!file.eof())
+{
+  std::cout << "num =";
+  file.getline(&buffer[0],200);
+  std::stringstream line( buffer );    
+  line >> num; 
+  line >> num; 
+  line >> num; 
+  line >> num; 
+  line >> num; 
+  line >> num; 
+  line >> num; 
+  line >> num; 
+
+  line >> name; 
+  std::cout << name << std::endl;
+}
+
+
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/Result/09Sep/EG-Run2010A-PromptReco-v4 &> /tmp/amassiro/mio.txt
+}
+
+
+
+
+
 ///==== hercules ====
+voms-proxy-init -voms cms
+
+rfdir /castor/cern.ch/user/a/amassiro/WeCalib/Result/09Sep/ | awk '{print "globus-url-copy -vb gsiftp://castorgrid.cern.ch//castor/cern.ch/user/a/amassiro/WeCalib/Result/09Sep/"$9" file:///gwterax1/users/amassiro/EcalScale/Result_09Sep/"$9}'
+
+
 
 ls /gwterax1/users/amassiro/EcalScale/DATA/ | awk '{print "WenuAnalysisMyTree -1 /gwterax1/users/amassiro/EcalScale/DATA/"$1" /gwterax1/users/amassiro/EcalScale/Result/Wenu_"$1"_4analysis.root"}'
 
