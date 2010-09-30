@@ -221,8 +221,6 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePA
       "HLT_Mu9", 
       "HLT_DoubleMu0", 
       "HLT_DoubleMu3",
-      "HLT_Ele10_LW_L1R", 
-      "HLT_DoubleEle5_SW_L1R",
       "HLT_DoubleEle4_SW_eeRes_L1R"
     )   # provide list of HLT paths (or patterns) you want
 
