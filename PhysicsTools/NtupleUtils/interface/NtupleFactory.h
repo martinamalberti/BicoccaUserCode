@@ -47,6 +47,9 @@ class NtupleFactory{
 
   void AddInt(const TString &name);
   void FillInt(const TString &name,const int &vect);
+
+  void AddString(const TString &name);
+  void FillString(const TString &name,const std::string& vect);
   
   void FillNtuple();
 
@@ -67,6 +70,7 @@ class NtupleFactory{
   std::map <TString,std::vector<float>* > ArrayContentFloat_ ;
   std::map <TString,std::vector<double>* > ArrayContentDouble_ ;
   std::map <TString,std::vector<int>* > ArrayContentInt_ ;
+  std::map <TString,std::vector<std::string>* > ArrayContentString_ ;
        
   TTree* outTree_;
   bool internalTree_;

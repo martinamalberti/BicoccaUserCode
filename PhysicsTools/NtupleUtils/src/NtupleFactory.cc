@@ -133,6 +133,17 @@ void NtupleFactory::AddInt(const TString &name){
  outTree_->Branch(name,"std::vector<int>",&(ArrayContentInt_[name]));
 }
 
+void NtupleFactory::AddString(const TString &name){
+ if (ArrayContentString_.find (name) != ArrayContentString_.end ())
+ {
+  std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
+  return ;                
+ }
+ std::vector<std::string>* dummy = new std::vector<std::string> ;
+ ArrayContentString_[name] = dummy ;
+ outTree_->Branch(name,"std::vector<std::string>",&(ArrayContentString_[name]));
+}
+
 ////--------------------------
 ///----- Fill collection -----
 
@@ -210,6 +221,16 @@ void NtupleFactory::FillInt(const TString &name,const int &vect){
  }
 }
 
+void NtupleFactory::FillString(const TString &name,const std::string& vect){
+ if (ArrayContentString_.find (name) != ArrayContentString_.end ()){
+  ArrayContentString_[name]->push_back(vect);
+ }
+ else {
+  std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
+  return ;        
+ }
+}
+
 ///---- Clear Ntuple ------------
 void NtupleFactory::ClearNtuple(){
   for (std::map<TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* >::iterator it=ArrayContent_StdXYZT_.begin() ; it != ArrayContent_StdXYZT_.end(); it++ ){
@@ -233,6 +254,9 @@ void NtupleFactory::ClearNtuple(){
     ((*it).second)->clear();  
   }
   for (std::map<TString,std::vector<int>* >::iterator it=ArrayContentInt_.begin() ; it != ArrayContentInt_.end(); it++ ){
+    ((*it).second)->clear();  
+  }
+  for (std::map<TString,std::vector<std::string>* >::iterator it=ArrayContentString_.begin() ; it != ArrayContentString_.end(); it++ ){
     ((*it).second)->clear();  
   }
 }
