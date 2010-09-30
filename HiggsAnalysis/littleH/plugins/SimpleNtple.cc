@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.77 2010/09/24 14:16:32 dimatteo Exp $
+// $Id: SimpleNtple.cc,v 1.78 2010/09/27 10:36:17 dimatteo Exp $
 //
 //
 
@@ -542,6 +542,7 @@ SimpleNtple::fillEleInfo (const Event & iEvent, const EventSetup & iESetup)
     NtupleFactory_->FillFloat("electrons_SigiEtaiEtaSc",((*theEle).scSigmaIEtaIEta()));
     NtupleFactory_->FillFloat("electrons_EoP",((*theEle).eSuperClusterOverP()));
     NtupleFactory_->FillFloat("electrons_Et",((*theEle).superCluster()->energy())/cosh((*theEle).superCluster()->eta()));
+    NtupleFactory_->FillFloat("electrons_E",((*theEle).superCluster()->energy()));
     NtupleFactory_->FillFloat("electrons_pAtVtx",((*theEle).trackMomentumAtVtx().R()));
     NtupleFactory_->FillFloat("electrons_ptAtVtx",((*theEle).trackMomentumAtVtx().Rho()));
     NtupleFactory_->FillFloat("electrons_#LostHits",((*theEle).gsfTrack()->numberOfLostHits()));
@@ -1189,6 +1190,7 @@ SimpleNtple::fillOniaInfo(const Event &iEvent, const EventSetup & iESetup)
       NtupleFactory_->AddFloat("electrons_SigiEtaiEtaSc");
       NtupleFactory_->AddFloat("electrons_EoP");
       NtupleFactory_->AddFloat("electrons_Et");
+      NtupleFactory_->AddFloat("electrons_E");
       NtupleFactory_->AddFloat("electrons_pAtVtx");
       NtupleFactory_->AddFloat("electrons_ptAtVtx");
       NtupleFactory_->AddFloat("electrons_#LostHits");
