@@ -74,8 +74,21 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 
 
 #--------------------------
+# AllPassFilter
+#--------------------------
+
+process.load('PhysicsTools.NtupleUtils.AllPassFilter_cfi')
+
+process.AllPassFilterBegin = process.AllPassFilter.clone()
+process.AllPassFilterL1Filter = process.AllPassFilter.clone()
+process.AllPassFilterGoodVertexFilter = process.AllPassFilter.clone()
+process.AllPassFilterNoScrapingFilter = process.AllPassFilter.clone()
+process.AllPassFilterElectronFilter = process.AllPassFilter.clone()
+
+#--------------------------
 # Ntple
 #--------------------------
+
 process.simpleNtple = cms.EDAnalyzer(
     'SimpleNtple',
     recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
@@ -167,12 +180,17 @@ process.highetFilter = cms.EDFilter(
 #--------------------------
 
 process.p = cms.Path(
-    process.skimming
+    process.AllPassFilterBegin
+    *process.skimming
     *process.hltLevel1GTSeed
-    *process.noscraping
+    *process.AllPassFilterL1Filter
+    *process.AllPassFilterGoodVertexFilter    
     *process.primaryVertexFilter
+    *process.AllPassFilterNoScrapingFilter    
+    *process.noscraping
     *process.highetele
     *process.highetFilter
+    *process.AllPassFilterElectronFilter    
     *process.patDefaultSequence
     *process.simpleNtple
     )
