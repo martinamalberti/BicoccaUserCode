@@ -182,8 +182,8 @@ process.highetFilter = cms.EDFilter(
 process.p = cms.Path(
     process.AllPassFilterBegin
     *process.skimming
-    *process.hltLevel1GTSeed
     *process.AllPassFilterL1Filter
+    *process.hltLevel1GTSeed
     *process.AllPassFilterGoodVertexFilter    
     *process.primaryVertexFilter
     *process.AllPassFilterNoScrapingFilter    
