@@ -36,22 +36,27 @@ int main(int argc, char** argv)
   int entryMODULO = gConfigParser -> readIntOption("Options::entryMODULO");
   int dataFlag    = gConfigParser -> readIntOption("Options::dataFlag");
   
-  int nEleMIN    = gConfigParser -> readIntOption  ("Cuts::nEleMIN");
-  float scEtMIN  = gConfigParser -> readFloatOption("Cuts::scEtMIN");
-  float eleTkIsoOverPtEBMAX = gConfigParser -> readFloatOption("Cuts::eleTkIsoOverPtEBMAX");
-  float eleEmIsoOverPtEBMAX = gConfigParser -> readFloatOption("Cuts::eleEmIsoOverPtEBMAX");
-  float eleHadIsoOverPtEBMAX = gConfigParser -> readFloatOption("Cuts::eleHadIsoOverPtEBMAX");
-  float eleTkIsoOverPtEEMAX = gConfigParser -> readFloatOption("Cuts::eleTkIsoOverPtEEMAX");
-  float eleEmIsoOverPtEEMAX = gConfigParser -> readFloatOption("Cuts::eleEmIsoOverPtEEMAX");
-  float eleHadIsoOverPtEEMAX = gConfigParser -> readFloatOption("Cuts::eleHadIsoOverPtEEMAX");
-  float eleHOverEEBMAX = gConfigParser -> readFloatOption("Cuts::eleHoverEEBMAX");
-  float eleDetaInEBMAX = gConfigParser -> readFloatOption("Cuts::eleDetaInEBMAX");
-  float eleDphiInEBMAX = gConfigParser -> readFloatOption("Cuts::eleDphiInEBMAX");
+  int nEleMIN = gConfigParser -> readIntOption  ("Cuts::nEleMIN");
+  
+  float scEtMIN = gConfigParser -> readFloatOption("Cuts::scEtMIN");
+  
+  float eleCombIsoOverPtEBMAX = gConfigParser -> readFloatOption("Cuts::eleCombIsoOverPtEBMAX");
+  float eleTkIsoOverPtEBMAX   = gConfigParser -> readFloatOption("Cuts::eleTkIsoOverPtEBMAX");
+  float eleEmIsoOverPtEBMAX   = gConfigParser -> readFloatOption("Cuts::eleEmIsoOverPtEBMAX");
+  float eleHadIsoOverPtEBMAX  = gConfigParser -> readFloatOption("Cuts::eleHadIsoOverPtEBMAX");
   float eleSigmaIetaIetaEBMAX = gConfigParser -> readFloatOption("Cuts::eleSigmaIetaIetaEBMAX");
-  float eleHOverEEEMAX = gConfigParser -> readFloatOption("Cuts::eleHoverEEEMAX");
-  float eleDetaInEEMAX = gConfigParser -> readFloatOption("Cuts::eleDetaInEEMAX");
-  float eleDphiInEEMAX = gConfigParser -> readFloatOption("Cuts::eleDphiInEEMAX");
+  float eleDphiInEBMAX        = gConfigParser -> readFloatOption("Cuts::eleDphiInEBMAX");
+  float eleDetaInEBMAX        = gConfigParser -> readFloatOption("Cuts::eleDetaInEBMAX");
+  float eleHOverEEBMAX        = gConfigParser -> readFloatOption("Cuts::eleHoverEEBMAX");
+  
+  float eleCombIsoOverPtEEMAX = gConfigParser -> readFloatOption("Cuts::eleCombIsoOverPtEEMAX");
+  float eleTkIsoOverPtEEMAX   = gConfigParser -> readFloatOption("Cuts::eleTkIsoOverPtEEMAX");
+  float eleEmIsoOverPtEEMAX   = gConfigParser -> readFloatOption("Cuts::eleEmIsoOverPtEEMAX");
+  float eleHadIsoOverPtEEMAX  = gConfigParser -> readFloatOption("Cuts::eleHadIsoOverPtEEMAX");
   float eleSigmaIetaIetaEEMAX = gConfigParser -> readFloatOption("Cuts::eleSigmaIetaIetaEEMAX");  
+  float eleDphiInEEMAX        = gConfigParser -> readFloatOption("Cuts::eleDphiInEEMAX");
+  float eleDetaInEEMAX        = gConfigParser -> readFloatOption("Cuts::eleDetaInEEMAX");
+  float eleHOverEEEMAX        = gConfigParser -> readFloatOption("Cuts::eleHoverEEEMAX");
   
   float metEtMIN = gConfigParser -> readFloatOption("Cuts::metEtMIN");
   
@@ -221,29 +226,47 @@ int main(int argc, char** argv)
       // SC Et
       if( reader.GetFloat("electrons_scEt")->at(eleIt) < scEtMIN ) continue;
       
+      
+      
       // isolation + eleId
+      float pt = reader.Get4V("electrons")->at(eleIt).pt();
+      
+      float tkIso  = reader.GetFloat("electrons_tkIsoR03")->at(eleIt);
+      float emIso  = reader.GetFloat("electrons_emIsoR03")->at(eleIt);
+      float hadIso = reader.GetFloat("electrons_hadIsoR03_1")->at(eleIt) +
+                     reader.GetFloat("electrons_hadIsoR03_2")->at(eleIt);
+      
+      float sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt);
+      float dPhiIn        = reader.GetFloat("electrons_deltaPhiIn")->at(eleIt);
+      float dEtaIn        = reader.GetFloat("electrons_deltaEtaIn")->at(eleIt);
+      float hOverE        = reader.GetFloat("electrons_hOverE")->at(eleIt);
+      
       if( (reader.GetInt("electrons_isEB")->at(eleIt)) == 1 )
       {      
-        if( (reader.GetFloat("electrons_tkIsoR03")->at(eleIt)) / reader.Get4V("electrons")->at(eleIt).pt() > eleTkIsoOverPtEBMAX ) continue;
-        if( (reader.GetFloat("electrons_emIsoR03")->at(eleIt)) / reader.Get4V("electrons")->at(eleIt).pt() > eleEmIsoOverPtEBMAX ) continue;
-        if( ( (reader.GetFloat("electrons_hadIsoR03_1")->at(eleIt)) +
-              (reader.GetFloat("electrons_hadIsoR03_2")->at(eleIt)) ) / reader.Get4V("electrons")->at(eleIt).pt() > eleHadIsoOverPtEBMAX ) continue;
-        if( (reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt)) > eleSigmaIetaIetaEBMAX ) continue;
-        if( fabs((reader.GetFloat("electrons_deltaPhiIn")->at(eleIt))) > eleDphiInEBMAX ) continue;
-        if( fabs((reader.GetFloat("electrons_deltaEtaIn")->at(eleIt))) > eleDetaInEBMAX ) continue;
-        if( (reader.GetFloat("electrons_hOverE")->at(eleIt)) > eleHOverEEBMAX ) continue;
+        if( ((tkIso + std::max(0., emIso-1.) + hadIso) / pt) > eleCombIsoOverPtEBMAX ) continue;
+        
+        if( (tkIso  / pt) > eleTkIsoOverPtEBMAX ) continue;
+        if( (emIso  / pt) > eleEmIsoOverPtEBMAX ) continue;
+        if( (hadIso / pt) > eleHadIsoOverPtEBMAX ) continue;
+        
+        if( sigmaIetaIeta > eleSigmaIetaIetaEBMAX ) continue;
+        if(  fabs(dPhiIn) > eleDphiInEBMAX ) continue;
+        if(  fabs(dEtaIn) > eleDetaInEBMAX ) continue;
+        if(        hOverE > eleHOverEEBMAX ) continue;
       }
       
       else
       {      
-        if( (reader.GetFloat("electrons_tkIsoR03")->at(eleIt)) / reader.Get4V("electrons")->at(eleIt).pt() > eleTkIsoOverPtEEMAX ) continue;
-        if( (reader.GetFloat("electrons_emIsoR03")->at(eleIt)) / reader.Get4V("electrons")->at(eleIt).pt() > eleEmIsoOverPtEEMAX ) continue;
-        if( ( (reader.GetFloat("electrons_hadIsoR03_1")->at(eleIt)) +
-              (reader.GetFloat("electrons_hadIsoR03_2")->at(eleIt)) ) / reader.Get4V("electrons")->at(eleIt).pt() > eleHadIsoOverPtEEMAX ) continue;
-        if( (reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt)) > eleSigmaIetaIetaEEMAX ) continue;
-        if( fabs((reader.GetFloat("electrons_deltaPhiIn")->at(eleIt))) > eleDphiInEEMAX ) continue;
-        if( fabs((reader.GetFloat("electrons_deltaEtaIn")->at(eleIt))) > eleDetaInEEMAX ) continue;
-        if( (reader.GetFloat("electrons_hOverE")->at(eleIt)) > eleHOverEEEMAX ) continue;
+        if( ((tkIso + emIso + hadIso) / pt) > eleCombIsoOverPtEEMAX ) continue;
+        
+        if( (tkIso  / pt) > eleTkIsoOverPtEEMAX ) continue;
+        if( (emIso  / pt) > eleEmIsoOverPtEEMAX ) continue;
+        if( (hadIso / pt) > eleHadIsoOverPtEEMAX ) continue;
+        
+        if( sigmaIetaIeta > eleSigmaIetaIetaEEMAX ) continue;
+        if(  fabs(dPhiIn) > eleDphiInEEMAX ) continue;
+        if(  fabs(dEtaIn) > eleDetaInEEMAX ) continue;
+        if(        hOverE > eleHOverEEEMAX ) continue;
       }
       
       
