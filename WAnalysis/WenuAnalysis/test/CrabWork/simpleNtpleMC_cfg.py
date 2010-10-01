@@ -9,7 +9,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START3X_V26A::All')
+process.GlobalTag.globaltag = cms.string('START38_V8::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
@@ -21,7 +21,8 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
         #/EG/Run2010A-Sep17ReReco_v2/RECO
-        '/store/data/Run2010A/EG/RECO/Sep17ReReco_v2/0030/004BCF4D-40C6-DF11-8235-002481E14D72.root'
+        #'/store/data/Run2010A/EG/RECO/Sep17ReReco_v2/0030/004BCF4D-40C6-DF11-8235-002481E14D72.root'
+        'file:D69F1772-C5A4-DF11-90E8-0030487E4F00.root'
         )
     )
 
