@@ -5,7 +5,7 @@
 
 int main (int argc, char ** argv) 
 {
-  TChain * albero = new TChain ("SimpleNtple/SimpleTree") ;
+  TChain * albero = new TChain ("makeNtple/OniaTree") ;
   string filename(argv[1]);
   filename += "*.root" ;
   albero -> Add(filename.c_str());
