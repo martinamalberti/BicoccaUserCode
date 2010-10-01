@@ -47,7 +47,7 @@ int main(int argc, char** argv)
   float eleSigmaIetaIetaEBMAX = gConfigParser -> readFloatOption("Cuts::eleSigmaIetaIetaEBMAX");
   float eleDphiInEBMAX        = gConfigParser -> readFloatOption("Cuts::eleDphiInEBMAX");
   float eleDetaInEBMAX        = gConfigParser -> readFloatOption("Cuts::eleDetaInEBMAX");
-  float eleHOverEEBMAX        = gConfigParser -> readFloatOption("Cuts::eleHoverEEBMAX");
+  float eleHOverEEBMAX        = gConfigParser -> readFloatOption("Cuts::eleHOverEEBMAX");
   
   float eleCombIsoOverPtEEMAX = gConfigParser -> readFloatOption("Cuts::eleCombIsoOverPtEEMAX");
   float eleTkIsoOverPtEEMAX   = gConfigParser -> readFloatOption("Cuts::eleTkIsoOverPtEEMAX");
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
   float eleSigmaIetaIetaEEMAX = gConfigParser -> readFloatOption("Cuts::eleSigmaIetaIetaEEMAX");  
   float eleDphiInEEMAX        = gConfigParser -> readFloatOption("Cuts::eleDphiInEEMAX");
   float eleDetaInEEMAX        = gConfigParser -> readFloatOption("Cuts::eleDetaInEEMAX");
-  float eleHOverEEEMAX        = gConfigParser -> readFloatOption("Cuts::eleHoverEEEMAX");
+  float eleHOverEEEMAX        = gConfigParser -> readFloatOption("Cuts::eleHOverEEEMAX");
   
   float metEtMIN = gConfigParser -> readFloatOption("Cuts::metEtMIN");
   
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
   
   
   // Get run/LS map from JSON file
-  std::cout << ">>> SimpleNtplePreselection::Get run/LS map from JSON file" << std::endl;
+  std::cout << ">>> SimpleNtplePreselection::Get run/LS map from JSON file " << jsonFileName << std::endl;
   std::map<int, std::vector<std::pair<int, int> > > jsonMap;
   if(dataFlag == 1) jsonMap = readJSONFile(jsonFileName);
   
@@ -231,10 +231,10 @@ int main(int argc, char** argv)
       // isolation + eleId
       float pt = reader.Get4V("electrons")->at(eleIt).pt();
       
-      float tkIso  = reader.GetFloat("electrons_tkIsoR03")->at(eleIt);
-      float emIso  = reader.GetFloat("electrons_emIsoR03")->at(eleIt);
-      float hadIso = reader.GetFloat("electrons_hadIsoR03_1")->at(eleIt) +
-                     reader.GetFloat("electrons_hadIsoR03_2")->at(eleIt);
+      float tkIso  = reader.GetFloat("electrons_tkIso03")->at(eleIt);
+      float emIso  = reader.GetFloat("electrons_emIso03")->at(eleIt);
+      float hadIso = reader.GetFloat("electrons_hadIso03_1")->at(eleIt) +
+                     reader.GetFloat("electrons_hadIso03_2")->at(eleIt);
       
       float sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt);
       float dPhiIn        = reader.GetFloat("electrons_deltaPhiIn")->at(eleIt);
@@ -273,7 +273,7 @@ int main(int argc, char** argv)
       
       // conversion rejection
       if( reader.GetInt("electrons_mishits")->at(eleIt) > 0 ) continue;
-      if( reader.GetInt("electrons_nAmbiguousTracks")->at(eleIt) > 0 ) continue;
+      if( reader.GetInt("electrons_nAmbiguousGsfTracks")->at(eleIt) > 0 ) continue;
       if( ( fabs(reader.GetFloat("electrons_dist")->at(eleIt)) < 0.02 ) &&
           ( fabs(reader.GetFloat("electrons_dcot")->at(eleIt)) < 0.02 ) ) continue;
       
