@@ -5,6 +5,7 @@ process = cms.Process("Validation")
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
+process.MessageLogger.cerr = cms.untracked.PSet(threshold = cms.untracked.string("ERROR"))
 
 # Geometry
 process.load("Configuration.StandardSequences.Geometry_cff")
