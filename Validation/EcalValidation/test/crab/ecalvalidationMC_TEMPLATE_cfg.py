@@ -11,6 +11,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
+# initialize magnetic field
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),                       
     fileNames = cms.untracked.vstring(

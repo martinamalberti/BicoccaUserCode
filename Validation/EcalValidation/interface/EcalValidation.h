@@ -22,6 +22,8 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
 
 // Less than operator for sorting EcalRecHits according to energy.
@@ -72,6 +74,10 @@ class EcalValidation : public edm::EDAnalyzer {
 	 edm::InputTag esRecHitCollection_;
 	 edm::InputTag esClusterCollectionX_ ;
 	 edm::InputTag esClusterCollectionY_ ;
+
+	 edm::InputTag tracks_ ;
+	 edm::InputTag beamSpot_ ;
+         edm::InputTag jets_;
 	 
 	 double ethrEB_;
 	 double ethrEE_;
@@ -177,7 +183,6 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EB_Chi2_cleaned;
 	 TH1D *h_recHits_EB_OutOfTimeChi2_cleaned;
 
-
 	 // ... endcap
 
 	 TH1D *h_recHits_EE_size;
@@ -239,7 +244,12 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_basicClusters_EB_size_cleaned;
 	 TH1D *h_basicClusters_EB_nXtals_cleaned;
 	 TH1D *h_basicClusters_EB_energy_cleaned;
-
+         
+         // ... barrel (with spike cleaning and track matching)
+         TH1D *h_basicClusters_EB_size_cleaned_tkmatched;
+         TH1D *h_basicClusters_EB_nXtals_cleaned_tkmatched;
+         TH1D *h_basicClusters_EB_energy_cleaned_tkmatched;
+         TH1D *h_basicClusters_EB_dr_cleaned_tkmatched;
 	 // ... endcap
 	 TH1D *h_basicClusters_EEP_size;
 	 TH1D *h_basicClusters_EEP_nXtals;
@@ -249,14 +259,47 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_basicClusters_EEM_nXtals;
 	 TH1D *h_basicClusters_EEM_energy;
 	 
+         TH1D *h_basicClusters_EEP_size_tkmatched;
+         TH1D *h_basicClusters_EEP_nXtals_tkmatched;
+         TH1D *h_basicClusters_EEP_energy_tkmatched;
+         TH1D *h_basicClusters_EEP_dr_tkmatched;
+	 
+         TH1D *h_basicClusters_EEM_size_tkmatched;
+         TH1D *h_basicClusters_EEM_nXtals_tkmatched;
+         TH1D *h_basicClusters_EEM_energy_tkmatched;
+         TH1D *h_basicClusters_EEM_dr_tkmatched;
+
 	 TH1D *h_basicClusters_eta;
 	 TH1D *h_basicClusters_EB_eta;
 	 TH1D *h_basicClusters_EE_eta;
 	 TH1D *h_basicClusters_EB_phi;
 	 TH1D *h_basicClusters_EE_phi;
 	 
+         TH1D *h_basicClusters_eta_tkmatched;
+         TH1D *h_basicClusters_EB_eta_tkmatched;
+         TH1D *h_basicClusters_EE_eta_tkmatched;
+         TH1D *h_basicClusters_EB_phi_tkmatched;
+         TH1D *h_basicClusters_EE_phi_tkmatched;
+         
+         TH2D *h_basicClusters_EEP_occupancy_esmatched;
+         TH1D *h_basicClusters_EEP_eta_esmatched;
+         TH1D *h_basicClusters_EEP_phi_esmatched;
+         TH2D *h_basicClusters_EEM_occupancy_esmatched;
+         TH1D *h_basicClusters_EEM_eta_esmatched;
+         TH1D *h_basicClusters_EEM_phi_esmatched;
+         
+         TProfile2D *h_Jets_EB_emf;
+         TProfile2D *h_Jets_EEP_emf;
+         TProfile2D *h_Jets_EEM_emf;
 	 
-	 // Super Clusters ----------------------------------------------
+         TProfile *h_Jets_EB_emf_eta;
+         TProfile *h_Jets_EEP_emf_eta;
+         TProfile *h_Jets_EEM_emf_eta;
+	 
+         TProfile *h_Jets_EB_emf_phi;
+         TProfile *h_Jets_EEP_emf_phi;
+         TProfile *h_Jets_EEM_emf_phi;
+// Super Clusters ----------------------------------------------
 	 // ... barrel
 	 TH1D *h_superClusters_EB_size;
 	 TH1D *h_superClusters_EB_nXtals;

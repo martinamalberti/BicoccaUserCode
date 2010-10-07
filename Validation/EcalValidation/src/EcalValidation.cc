@@ -44,8 +44,18 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
-#include "Validation/EcalValidation/interface/EcalValidation.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
+
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
+#include "Validation/EcalValidation/interface/EcalValidation.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TVector3.h"
 
@@ -74,12 +84,15 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   esClusterCollectionX_      = ps.getParameter<edm::InputTag>("ClusterCollectionX_ES");
   esClusterCollectionY_      = ps.getParameter<edm::InputTag>("ClusterCollectionY_ES");
 
+  tracks_                    = ps.getParameter<edm::InputTag>("tracks");
+  beamSpot_                  = ps.getParameter<edm::InputTag>("beamSpot");
+  jets_                  = ps.getParameter<edm::InputTag>("jets");
+
   ethrEB_                    = ps.getParameter<double>("ethrEB");
   ethrEE_                    = ps.getParameter<double>("ethrEE");
 
   scEtThrEB_                 = ps.getParameter<double>("scEtThrEB");
   scEtThrEE_                 = ps.getParameter<double>("scEtThrEE");
- 
   
   ///for Pi0 barrel selection
   isMonEBpi0_ = ps.getUntrackedParameter<bool>("isMonEBpi0",false);
@@ -253,6 +266,13 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EB_size_cleaned    = fs->make<TH1D>("h_basicClusters_EB_size_cleaned","h_basicClusters_EB_size_cleaned",200,0.,200.);
   h_basicClusters_EB_nXtals_cleaned  = fs->make<TH1D>("h_basicClusters_EB_nXtals_cleaned","h_basicClusters_EB_nXtals_cleaned",400,0.,400.);
   h_basicClusters_EB_energy_cleaned  = fs->make<TH1D>("h_basicClusters_EB_energy_cleaned","h_basicClusters_EB_energy_cleaned",2000,0.,400.);
+
+  //barrel (with spike cleaning and track match)
+  h_basicClusters_EB_dr_cleaned_tkmatched  = fs->make<TH1D>("h_basicClusters_EB_dr_cleaned_tkmatched","h_basicClusters_EB_dr_cleaned_tkmatched",100,0.,0.1);
+  h_basicClusters_EB_size_cleaned_tkmatched    = fs->make<TH1D>("h_basicClusters_EB_size_cleaned_tkmatched","h_basicClusters_EB_size_cleaned_tkmatched",200,0.,200.);
+  h_basicClusters_EB_nXtals_cleaned_tkmatched  = fs->make<TH1D>("h_basicClusters_EB_nXtals_cleaned_tkmatched","h_basicClusters_EB_nXtals_cleaned_tkmatched",400,0.,400.);
+  h_basicClusters_EB_energy_cleaned_tkmatched  = fs->make<TH1D>("h_basicClusters_EB_energy_cleaned_tkmatched","h_basicClusters_EB_energy_cleaned_tkmatched",2000,0.,400.);
+
   
   // ... endcap
   h_basicClusters_EEP_size   = fs->make<TH1D>("h_basicClusters_EEP_size","h_basicClusters_EEP_size",200,0.,200.);
@@ -262,12 +282,41 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EEM_size   = fs->make<TH1D>("h_basicClusters_EEM_size","h_basicClusters_EEM_size",200,0.,200.);
   h_basicClusters_EEM_nXtals = fs->make<TH1D>("h_basicClusters_EEM_nXtals","h_basicClusters_EEM_nXtals",400,0.,400.);
   h_basicClusters_EEM_energy = fs->make<TH1D>("h_basicClusters_EEM_energy","h_basicClusters_EEM_energy",2000,0.,400.);
+
+  h_basicClusters_EEP_dr_tkmatched  = fs->make<TH1D>("h_basicClusters_EEP_dr_tkmatched","h_basicClusters_EEP_dr_tkmatched",100,0.,0.1);
+  h_basicClusters_EEP_size_tkmatched   = fs->make<TH1D>("h_basicClusters_EEP_size_tkmatched","h_basicClusters_EEP_size_tkmatched",200,0.,200.);
+  h_basicClusters_EEP_nXtals_tkmatched = fs->make<TH1D>("h_basicClusters_EEP_nXtals_tkmatched","h_basicClusters_EEP_nXtals_tkmatched",400,0.,400.);
+  h_basicClusters_EEP_energy_tkmatched = fs->make<TH1D>("h_basicClusters_EEP_energy_tkmatched","h_basicClusters_EEP_energy_tkmatched",2000,0.,400.);
+  h_basicClusters_EEP_occupancy_esmatched = fs->make<TH2D>
+("h_basicClusters_EEP_occupancy_esmatched","h_basicClusters_EEP_occupancy_esmatched",150,-3.,3.,360,-3.1415927,3.1415927);
+  h_basicClusters_EEP_eta_esmatched = fs->make<TH1D>
+("h_basicClusters_EEP_eta_esmatched","h_basicClusters_EEP_eta_esmatched",150,-3.,3.);
+  h_basicClusters_EEP_phi_esmatched = fs->make<TH1D>
+("h_basicClusters_EEP_phi_esmatched","h_basicClusters_EEP_phi_esmatched",360,-3.1415927,3.1415927);
+
+  h_basicClusters_EEM_dr_tkmatched  = fs->make<TH1D>("h_basicClusters_EEM_dr_tkmatched","h_basicClusters_EEM_dr_tkmatched",100,0.,0.1);
+  h_basicClusters_EEM_size_tkmatched   = fs->make<TH1D>("h_basicClusters_EEM_size_tkmatched","h_basicClusters_EEM_size_tkmatched",200,0.,200.);
+  h_basicClusters_EEM_nXtals_tkmatched = fs->make<TH1D>("h_basicClusters_EEM_nXtals_tkmatched","h_basicClusters_EEM_nXtals_tkmatched",400,0.,400.);
+  h_basicClusters_EEM_energy_tkmatched = fs->make<TH1D>("h_basicClusters_EEM_energy_tkmatched","h_basicClusters_EEM_energy_tkmatched",2000,0.,400.);
+  h_basicClusters_EEM_occupancy_esmatched = fs->make<TH2D>
+("h_basicClusters_EEM_occupancy_esmatched","h_basicClusters_EEM_occupancy_esmatched",150,-3.,3.,360,-3.1415927,3.1415927);
+  h_basicClusters_EEM_eta_esmatched = fs->make<TH1D>
+("h_basicClusters_EEM_eta_esmatched","h_basicClusters_EEM_eta_esmatched",150,-3.,3.);
+  h_basicClusters_EEM_phi_esmatched = fs->make<TH1D>
+("h_basicClusters_EEM_phi_esmatched","h_basicClusters_EEM_phi_esmatched",360,-3.1415927,3.1415927);
   
   h_basicClusters_eta        = fs->make<TH1D>("h_basicClusters_eta","h_basicClusters_eta",150,-3.,3.);
   h_basicClusters_EB_eta     = fs->make<TH1D>("h_basicClusters_EB_eta","h_basicClusters_EB_eta",150,-3.,3.);
   h_basicClusters_EE_eta     = fs->make<TH1D>("h_basicClusters_EE_eta","h_basicClusters_EE_eta",150,-3.,3.);
   h_basicClusters_EB_phi     = fs->make<TH1D>("h_basicClusters_EB_phi","h_basicClusters_EB_phi",360,-3.1415927,3.1415927);
   h_basicClusters_EE_phi     = fs->make<TH1D>("h_basicClusters_EE_phi","h_basicClusters_EE_phi",360,-3.1415927,3.1415927);
+
+  //cleaned+tkmatched
+  h_basicClusters_eta_tkmatched        = fs->make<TH1D>("h_basicClusters_eta_tkmatched","h_basicClusters_eta_tkmatched",150,-3.,3.);
+  h_basicClusters_EB_eta_tkmatched     = fs->make<TH1D>("h_basicClusters_EB_eta_tkmatched","h_basicClusters_EB_eta_tkmatched",150,-3.,3.);
+  h_basicClusters_EE_eta_tkmatched     = fs->make<TH1D>("h_basicClusters_EE_eta_tkmatched","h_basicClusters_EE_eta_tkmatched",150,-3.,3.);
+  h_basicClusters_EB_phi_tkmatched     = fs->make<TH1D>("h_basicClusters_EB_phi_tkmatched","h_basicClusters_EB_phi_tkmatched",360,-3.1415927,3.1415927);
+  h_basicClusters_EE_phi_tkmatched     = fs->make<TH1D>("h_basicClusters_EE_phi_tkmatched","h_basicClusters_EE_phi_tkmatched",360,-3.1415927,3.1415927);
 
   // Super Clusters ----------------------------------------------
   // ... barrel
@@ -351,6 +400,21 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_Pi0_EE_eta    = dirPi0.make<TH1D>("h_Pi0_EE_eta","h_Pi0_EE_eta",100,-3.1415927,3.1415927);
   h_Pi0_EE_phi    = dirPi0.make<TH1D>("h_Pi0_EE_phi","h_Pi0_EE_phi",360,-3.1415927,3.1415927);
 
+  // Jets ---------------------------------------------- 
+  // ... barrel
+  h_Jets_EB_emf        =  fs->make<TProfile2D>("h_Jets_EB_emf","h_Jets_EB_emf",150,-3.,3.,360,-3.1415927,3.1415927);
+  h_Jets_EB_emf_eta    =  fs->make<TProfile>("h_Jets_EB_emf_eta","h_Jets_EB_emf_eta",150,-3.,3.);
+  h_Jets_EB_emf_phi    =  fs->make<TProfile>("h_Jets_EB_emf_phi","h_Jets_EB_emf_phi",360,-3.1415927,3.1415927);
+
+  // ... Endcaps
+  h_Jets_EEP_emf        =  fs->make<TProfile2D>("h_Jets_EEP_emf","h_Jets_EEP_emf",150,-3.,3.,360,-3.1415927,3.1415927);
+  h_Jets_EEP_emf_eta    =  fs->make<TProfile>("h_Jets_EEP_emf_eta","h_Jets_EEP_emf_eta",150,-3.,3.);
+  h_Jets_EEP_emf_phi    =  fs->make<TProfile>("h_Jets_EEP_emf_phi","h_Jets_EEP_emf_phi",360,-3.1415927,3.1415927);
+
+  h_Jets_EEM_emf        =  fs->make<TProfile2D>("h_Jets_EEM_emf","h_Jets_EEM_emf",150,-3.,3.,360,-3.1415927,3.1415927);
+  h_Jets_EEM_emf_eta    =  fs->make<TProfile>("h_Jets_EEM_emf_eta","h_Jets_EEM_emf_eta",150,-3.,3.);
+  h_Jets_EEM_emf_phi    =  fs->make<TProfile>("h_Jets_EEM_emf_phi","h_Jets_EEM_emf_phi",360,-3.1415927,3.1415927);
+
 }
 
 
@@ -374,6 +438,17 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 //   float ls      = ev.luminosityBlock();
 //   float orbitNb = ev.orbitNumber();
 
+  //Get the BS position
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  ev.getByLabel(beamSpot_,recoBeamSpotHandle);
+  const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position(); 
+  //Get tracks
+  edm::Handle<edm::View<reco::Track> > TracksHandle ;
+  ev.getByLabel (tracks_, TracksHandle) ;
+  //Get the magnetic field
+  edm::ESHandle<MagneticField> theMagField;
+  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+
 
   naiveId_++;
 
@@ -382,8 +457,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   iSetup.get<CaloGeometryRecord>().get(pGeometry);
   const CaloGeometry *geometry = pGeometry.product();
 
-  const CaloSubdetectorGeometry *geometry_EB = geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  const CaloSubdetectorGeometry *geometry_EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+//   const CaloSubdetectorGeometry *geometry_EB = geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+//   const CaloSubdetectorGeometry *geometry_EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
   // calo topology
   edm::ESHandle<CaloTopology> pTopology;
@@ -669,6 +744,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   
 
   int nBCcleaned = 0;
+  int nBCcleanedTkmatched = 0;
 
   for (reco::BasicClusterCollection::const_iterator itBC = theBarrelBasicClusters->begin(); 
        itBC != theBarrelBasicClusters->end(); ++itBC ) {
@@ -680,7 +756,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_basicClusters_EB_phi    -> Fill( itBC->phi() );
     
     float E1 = EcalClusterTools::eMax   ( *itBC, theBarrelEcalRecHits);
-    float E9 = EcalClusterTools::e3x3   ( *itBC, theBarrelEcalRecHits, topology );
+//     float E9 = EcalClusterTools::e3x3   ( *itBC, theBarrelEcalRecHits, topology );
     float E4 = EcalClusterTools::eTop   ( *itBC, theBarrelEcalRecHits, topology )+
                EcalClusterTools::eRight ( *itBC, theBarrelEcalRecHits, topology )+
                EcalClusterTools::eBottom( *itBC, theBarrelEcalRecHits, topology )+
@@ -692,11 +768,46 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_basicClusters_EB_energy_cleaned -> Fill( itBC->energy() );
     nBCcleaned++;
     
+    ///Do the Track-cluster matching for the cleaned ones
+     
+    float theBestDr = 99999.;
+    for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
+    { 
+      ECALPositionCalculator posCalc;
+      const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),tkIt->vz());
+      const math::XYZVector trackMom =  tkIt->momentum();
+
+      float phi= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,tkIt -> charge());
+      float deltaphi=fabs( phi - itBC->phi() );
+      if(deltaphi>6.283185308) deltaphi -= 6.283185308;
+      if(deltaphi>3.141592654) deltaphi = 6.283185308-deltaphi;
+
+      float eta= posCalc.ecalEta(trackMom,vertex);
+      float deltaeta=fabs( eta - itBC->eta() );
+      if(deltaeta>6.283185308) deltaeta -= 6.283185308;
+      if(deltaeta>3.141592654) deltaeta = 6.283185308-deltaeta;
+
+      //compute dR squared
+      float thisDr = deltaeta*deltaeta + deltaphi*deltaphi;
+      if ( thisDr < theBestDr ) theBestDr = thisDr;
+    }
+
+    h_basicClusters_EB_dr_cleaned_tkmatched -> Fill ( theBestDr );
+    //Matching CL-Tk if the dr < 0.2
+    if ( theBestDr > 0.04 ) continue;
+
+    h_basicClusters_EB_nXtals_cleaned_tkmatched -> Fill( (*itBC).hitsAndFractions().size() );
+    h_basicClusters_EB_energy_cleaned_tkmatched -> Fill( itBC->energy() );
+    nBCcleanedTkmatched++;
+
+    h_basicClusters_EB_eta_tkmatched    -> Fill( itBC->eta() );
+    h_basicClusters_EB_phi_tkmatched    -> Fill( itBC->phi() );
+
   }
 
   h_basicClusters_EB_size         -> Fill( basicClusters_EB_h->size() );
   h_basicClusters_EB_size_cleaned -> Fill( nBCcleaned );
-  
+  h_basicClusters_EB_size_cleaned_tkmatched -> Fill( nBCcleanedTkmatched ); 
 
   // ... endcap
   edm::Handle<reco::BasicClusterCollection> basicClusters_EE_h;
@@ -708,6 +819,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
   int nBasicClustersEEP = 0;
   int nBasicClustersEEM = 0;
+  int nBasicClustersEEPTkmatched = 0;
+  int nBasicClustersEEMTkmatched = 0;
 
   for (unsigned int icl = 0; icl < basicClusters_EE_h->size(); ++icl) {
 
@@ -719,18 +832,87 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_basicClusters_EEP_nXtals -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
       h_basicClusters_EEP_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
       nBasicClustersEEP++;
+
+      float theBestDr = 99999.;
+      for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
+      { 
+        ECALPositionCalculator posCalc;
+        const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),tkIt->vz());
+        const math::XYZVector trackMom =  tkIt->momentum();
+  
+        float phi= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,tkIt -> charge());
+        float deltaphi=fabs( phi - (*basicClusters_EE_h)[icl].phi() );
+        if(deltaphi>6.283185308) deltaphi -= 6.283185308;
+        if(deltaphi>3.141592654) deltaphi = 6.283185308-deltaphi;
+  
+        float eta= posCalc.ecalEta(trackMom,vertex);
+        float deltaeta=fabs( eta - (*basicClusters_EE_h)[icl].eta() );
+        if(deltaeta>6.283185308) deltaeta -= 6.283185308;
+        if(deltaeta>3.141592654) deltaeta = 6.283185308-deltaeta;
+  
+        //compute dR squared
+        float thisDr = deltaeta*deltaeta + deltaphi*deltaphi;
+        if ( thisDr < theBestDr ) theBestDr = thisDr;
+      }
+      h_basicClusters_EEP_dr_tkmatched     -> Fill( theBestDr );
+      //Matching CL-Tk if the dr < 0.2
+      if ( theBestDr > 0.04 ) continue;
+    
+      h_basicClusters_EEP_nXtals_tkmatched -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
+      h_basicClusters_EEP_energy_tkmatched -> Fill( (*basicClusters_EE_h)[icl].energy() );
+      nBasicClustersEEPTkmatched++;
+    
+      h_basicClusters_eta_tkmatched       -> Fill(  (*basicClusters_EE_h)[icl].eta() );
+      h_basicClusters_EE_eta_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].eta() );
+      h_basicClusters_EE_phi_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].phi() );
+
     }
     
     if ((*basicClusters_EE_h)[icl].z() < 0){
       h_basicClusters_EEM_nXtals -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
       h_basicClusters_EEM_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
       nBasicClustersEEM++;
+
+      float theBestDr = 99999.;
+      for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
+      { 
+        ECALPositionCalculator posCalc;
+        const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),tkIt->vz());
+        const math::XYZVector trackMom =  tkIt->momentum();
+  
+        float phi= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,tkIt -> charge());
+        float deltaphi=fabs( phi - (*basicClusters_EE_h)[icl].phi() );
+        if(deltaphi>6.283185308) deltaphi -= 6.283185308;
+        if(deltaphi>3.141592654) deltaphi = 6.283185308-deltaphi;
+  
+        float eta= posCalc.ecalEta(trackMom,vertex);
+        float deltaeta=fabs( eta - (*basicClusters_EE_h)[icl].eta() );
+        if(deltaeta>6.283185308) deltaeta -= 6.283185308;
+        if(deltaeta>3.141592654) deltaeta = 6.283185308-deltaeta;
+  
+        //compute dR squared
+        float thisDr = deltaeta*deltaeta + deltaphi*deltaphi;
+        if ( thisDr < theBestDr ) theBestDr = thisDr;
+      }
+      h_basicClusters_EEM_dr_tkmatched     -> Fill( theBestDr );
+      //Matching CL-Tk if the dr < 0.2
+      if ( theBestDr > 0.04 ) continue;
+    
+      h_basicClusters_EEM_nXtals_tkmatched -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
+      h_basicClusters_EEM_energy_tkmatched -> Fill( (*basicClusters_EE_h)[icl].energy() );
+      nBasicClustersEEMTkmatched++;
+    
+      h_basicClusters_eta_tkmatched       -> Fill(  (*basicClusters_EE_h)[icl].eta() );
+      h_basicClusters_EE_eta_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].eta() );
+      h_basicClusters_EE_phi_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].phi() );
+
     }
   }
   
   h_basicClusters_EEP_size->Fill( nBasicClustersEEP );
   h_basicClusters_EEM_size->Fill( nBasicClustersEEM );
-  
+  h_basicClusters_EEP_size_tkmatched->Fill( nBasicClustersEEPTkmatched );
+  h_basicClusters_EEM_size_tkmatched->Fill( nBasicClustersEEMTkmatched );
 
   // Super Clusters
   // ... barrel
@@ -899,6 +1081,48 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   Handle<PreshowerClusterCollection> esClustersY;
   ev.getByLabel( esClusterCollectionY_, esClustersY);
   const PreshowerClusterCollection *ESclustersY = esClustersY.product(); 
+
+  // Do the ES-BasicCluster matching 
+  for (unsigned int icl = 0; icl < basicClusters_EE_h->size(); ++icl) {
+
+    const CaloCluster ecalBasicCluster = (*basicClusters_EE_h)[icl];
+
+    bool isMatchedESx = false;
+    bool isMatchedESy = false;
+    for (PreshowerClusterCollection::const_iterator iESClus = ESclustersX->begin(); iESClus != ESclustersX->end(); 
+	   ++iESClus) {
+      const CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
+      if (*preshBasicCluster == ecalBasicCluster) isMatchedESx = true;
+    }
+
+    for (PreshowerClusterCollection::const_iterator iESClus = ESclustersY->begin(); iESClus != ESclustersY->end(); 
+	   ++iESClus) {
+      const CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
+      if (*preshBasicCluster == ecalBasicCluster) isMatchedESy = true;
+    }
+
+    //Fot the matching require at least a matching with 1 ES plane
+    if ( !isMatchedESx && !isMatchedESy ) continue;
+
+    if ((*basicClusters_EE_h)[icl].z() > 0){
+
+      h_basicClusters_EEP_occupancy_esmatched -> Fill (  ecalBasicCluster.eta(),ecalBasicCluster.phi() );
+      h_basicClusters_EEP_eta_esmatched -> Fill (  ecalBasicCluster.eta() );
+      h_basicClusters_EEP_phi_esmatched -> Fill (  ecalBasicCluster.phi() );
+
+    }
+
+    if ((*basicClusters_EE_h)[icl].z() < 0){
+
+      h_basicClusters_EEM_occupancy_esmatched -> Fill (  ecalBasicCluster.eta(),ecalBasicCluster.phi() );
+      h_basicClusters_EEM_eta_esmatched -> Fill (  ecalBasicCluster.eta() );
+      h_basicClusters_EEM_phi_esmatched -> Fill (  ecalBasicCluster.phi() );
+
+    }
+
+
+  }
+
   
   // loop over all super clusters
   for (reco::SuperClusterCollection::const_iterator itSC = theEndcapSuperClusters->begin(); 
@@ -946,6 +1170,42 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
   doPi0Barrel(geometry, topology, recHitsEB);
   doPi0Endcap(geometry, topology, recHitsEE);
+
+  /// Get Jets and draw EMF maps
+  edm::Handle<reco::CaloJetCollection> JetHandle ;
+  ev.getByLabel (jets_,JetHandle);
+
+  for(unsigned int i=0; i<JetHandle->size(); ++i) 
+  { 
+    
+    
+    // ... Barrel
+    if ( (*JetHandle)[i].p4().eta() < 1.4442 ){
+
+      h_Jets_EB_emf        -> Fill ( (*JetHandle)[i].p4().eta(), (*JetHandle)[i].p4().phi(), (*JetHandle)[i].emEnergyFraction() );  
+      h_Jets_EB_emf_eta    -> Fill ( (*JetHandle)[i].p4().eta(), (*JetHandle)[i].emEnergyFraction() );
+      h_Jets_EB_emf_phi    -> Fill ( (*JetHandle)[i].p4().phi(), (*JetHandle)[i].emEnergyFraction() );
+
+    }
+  
+    // ... Endcaps
+    if ( (*JetHandle)[i].p4().eta() > 1.566 ){
+
+      h_Jets_EEP_emf        -> Fill ( (*JetHandle)[i].p4().eta(), (*JetHandle)[i].p4().phi(), (*JetHandle)[i].emEnergyFraction() );        
+      h_Jets_EEP_emf_eta    -> Fill ( (*JetHandle)[i].p4().eta(), (*JetHandle)[i].emEnergyFraction() );
+      h_Jets_EEP_emf_phi    -> Fill ( (*JetHandle)[i].p4().phi(), (*JetHandle)[i].emEnergyFraction() );
+
+    }
+
+    if ( (*JetHandle)[i].p4().eta() < -1.566 ){
+
+      h_Jets_EEM_emf        -> Fill ( (*JetHandle)[i].p4().eta(), (*JetHandle)[i].p4().phi(), (*JetHandle)[i].emEnergyFraction() );        
+      h_Jets_EEM_emf_eta    -> Fill ( (*JetHandle)[i].p4().eta(), (*JetHandle)[i].emEnergyFraction() );
+      h_Jets_EEM_emf_phi    -> Fill ( (*JetHandle)[i].p4().phi(), (*JetHandle)[i].emEnergyFraction() );
+
+    }
+    
+  }// loop on jets
 
 }
 
@@ -1097,7 +1357,6 @@ EcalValidation::endJob() {
     );
    
    }
-
 
 }
 
@@ -1810,8 +2069,6 @@ void EcalValidation::doPi0Endcap ( const CaloGeometry *geometry,
 	}//------------------ End of pi0 in EE --------------------------//
       
     }//End isMonEEpi0_
-
-  
   
 }
 
