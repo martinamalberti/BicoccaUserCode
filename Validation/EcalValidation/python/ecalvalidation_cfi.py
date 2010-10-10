@@ -10,6 +10,11 @@ ecalvalidation = cms.EDAnalyzer("EcalValidation",
     recHitCollection_ES       = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     ClusterCollectionX_ES     = cms.InputTag("multi5x5SuperClustersWithPreshower","preshowerXClusters"),
     ClusterCollectionY_ES     = cms.InputTag("multi5x5SuperClustersWithPreshower","preshowerYClusters"),
+      
+    tracks                    = cms.InputTag("generalTracks"),
+    beamSpot                  = cms.InputTag("offlineBeamSpot"),
+    jets                      = cms.InputTag("ak5CaloJets"),
+
                                     
     ethrEB = cms.double(0.800),
     ethrEE = cms.double(1.200),
