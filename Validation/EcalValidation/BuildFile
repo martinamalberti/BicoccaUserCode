@@ -5,7 +5,10 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
+<use name=RecoEgamma/EgammaTools>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
 <use name=CommonTools/UtilAlgos>
 <flags EDM_PLUGIN=1>
 <export>
@@ -18,5 +21,8 @@
    <use name=DataFormats/EcalDetId>
    <use name=DataFormats/EcalRecHit>	
    <use name=DataFormats/EgammaReco>
+   <use name=RecoEgamma/EgammaTools>
    <use name=RecoEcal/EgammaCoreTools>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
 </export>
