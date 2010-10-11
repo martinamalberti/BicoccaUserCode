@@ -101,7 +101,7 @@ process.simpleNtple = cms.EDAnalyzer(
     TCMetTag            = cms.InputTag("patMETsTC"),
     PFMetTag            = cms.InputTag("patMETsPF"),
     MuTag               = cms.InputTag("patMuons"),
-    HLTTag              = cms.InputTag("TriggerResults::HLT"),
+    HLTTag              = cms.InputTag("TriggerResults::RECO"),
     L1Tag               = cms.InputTag("gtDigis"),
     eleId_names         = cms.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
     saveL1        = cms.untracked.bool(True),
@@ -134,7 +134,7 @@ process.skimming = cms.EDFilter(
     "PhysDecl",
     applyfilter = cms.untracked.bool(True),
     debugOn = cms.untracked.bool(False),
-    HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
+    HLTriggerResults = cms.InputTag("TriggerResults","","RECO")
     )
 
 # filter on bit = and (40 || 41) and !(bit36 || bit37 || bit38 || bit39)

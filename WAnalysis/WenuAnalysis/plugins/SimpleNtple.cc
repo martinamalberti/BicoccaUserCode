@@ -106,7 +106,10 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->Add4V("electrons");
     NtupleFactory_->AddFloat("electrons_charge"); 
     NtupleFactory_->AddInt("electrons_isEB"); 
-    
+
+    NtupleFactory_->AddInt("iSM"); 
+    NtupleFactory_->AddInt("iSC");
+
     NtupleFactory_->AddFloat("electrons_track_d0");
     NtupleFactory_->AddFloat("electrons_track_dz");
     NtupleFactory_->AddFloat("electrons_track_d0err");
@@ -141,6 +144,8 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_hadIso04_1"); 
     NtupleFactory_->AddFloat("electrons_hadIso04_2"); 
     
+    NtupleFactory_->Add3V("electrons_p_atVtx");
+    NtupleFactory_->Add3V("electrons_p_atCalo");
     NtupleFactory_->AddFloat("electrons_e1x5");
     NtupleFactory_->AddFloat("electrons_e2x5Max");
     NtupleFactory_->AddFloat("electrons_e5x5");
@@ -420,7 +425,9 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    NtupleFactory_->FillFloat("electrons_SC_phiWidth",scRef->phiWidth());
    NtupleFactory_->FillFloat("electrons_SC_etaWidth",scRef->etaWidth());
    
-   
+   NtupleFactory_->Fill3V("electrons_p_atVtx",electron.trackMomentumAtVtx());
+   NtupleFactory_->Fill3V("electrons_p_atCalo",electron.trackMomentumAtCalo());
+
    // eleid variables
    NtupleFactory_->FillFloat("electrons_eOverP",electron.eSuperClusterOverP());
    NtupleFactory_->FillFloat("electrons_eSeed",electron.superCluster()->seed()->energy());
@@ -492,6 +499,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
      // severity level - SwissCross 
      sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theBarrelEcalRecHits, *(theChannelStatus.product()));
      
+     NtupleFactory_->FillFloat("electrons_SwissCross",EcalSeverityLevelAlgo::swissCross(id.first, *theBarrelEcalRecHits));   
+
      // flag - OutOfTime
      EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
      
@@ -509,6 +518,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
      // severity level - SwissCross 
      sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theEndcapEcalRecHits, *(theChannelStatus.product()));
      
+     NtupleFactory_->FillFloat("electrons_SwissCross",EcalSeverityLevelAlgo::swissCross(id.first, *theEndcapEcalRecHits));   
+
      // flag - OutOfTime
      EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
      
@@ -521,8 +532,7 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
 
    NtupleFactory_->FillInt("electrons_seedSeverityLevel", sev);
    NtupleFactory_->FillInt("electrons_seedFlag", flag);
-   
-   
+  
    // preshower variables 
    NtupleFactory_->FillFloat("electrons_ES",scRef->preshowerEnergy());
    
@@ -530,6 +540,9 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    // rechit variables
   if (saveEleShape_)
   {
+    double seed_energy_temp = -1;
+    int iSC;
+    int iSM;
     int numRecHit = 0;
     const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
     for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
@@ -543,6 +556,11 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
       NtupleFactory_->FillInt("ix_xtal",-1000);
       NtupleFactory_->FillInt("iy_xtal",-1000);
       numRecHit++;
+      if (itrechit->energy() > seed_energy_temp) {
+       seed_energy_temp = itrechit->energy();
+       iSC = -1000;
+       iSM = barrelId.ism();
+      }
      }
      if ((*rh).first.subdetId()== EcalEndcap){
       EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
@@ -554,9 +572,16 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
       NtupleFactory_->FillInt("ieta_xtal",-1000);
       NtupleFactory_->FillInt("iphi_xtal",-1000);
       numRecHit++;
+      if (itrechit->energy() > seed_energy_temp) {
+       seed_energy_temp = itrechit->energy();
+       iSC = endcapId.isc();
+       iSM = -1000;
+      }   
      }
     }
     NtupleFactory_->FillInt("numRecHit",numRecHit);
+    NtupleFactory_->FillInt("iSM",iSM);
+    NtupleFactory_->FillInt("iSC",iSC);
   }
   
   } // end loop over electron candidates

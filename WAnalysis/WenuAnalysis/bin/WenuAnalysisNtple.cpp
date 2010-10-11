@@ -66,7 +66,7 @@ int main (int argc, char** argv)
   FileIn = new TFile("/tmp/amassiro/treeWenuMC.root");
  }
  
- TChain *chain = new TChain ("myanalysis/SimpleNtple") ;
+ TChain *chain = new TChain ("simpleNtple/SimpleNtple") ;
   
  if ( ff == 0 ){
   chain->Add("/tmp/amassiro/treeWenuMC.root");
@@ -251,17 +251,17 @@ int main (int argc, char** argv)
    if ( fabs(eta)> EtaCutEB && fabs(eta)< EtaCutEE ) continue;
    if ( fabs(eta)> EtaMax ) continue;
       
-   float pt = reader.Get3V("electrons_p_atVtx")->at(iEle).Rho();
-   p  = reader.Get3V("electrons_p_atVtx")->at(iEle).R();
+   float pt = (reader.GetFloat("electrons_pin")->at(iEle))*(reader.Get4V("electrons")->at(iEle).Pt())/(reader.Get4V("electrons")->at(iEle).P());
+   p  = reader.GetFloat("electrons_pin")->at(iEle);
    float et = reader.GetFloat("electrons_scEt")->at(iEle);
       
    met  = reader.Get4V("CALOMet")->at(0).Et();
 
-   float cphi = (reader.Get3V("electrons_p_atVtx")->at(iEle).x() * reader.Get4V("CALOMet")->at(0).Px() 
-     + reader.Get3V("electrons_p_atVtx")->at(iEle).y() * reader.Get4V("CALOMet")->at(0).Py()) 
+   float cphi = (reader.Get4V("electrons")->at(iEle).x() * reader.Get4V("CALOMet")->at(0).Px() 
+     + reader.Get4V("electrons")->at(iEle).y() * reader.Get4V("CALOMet")->at(0).Py()) 
      / (met*pt);
 
-   
+
    float mt   = sqrt(2*et*met*(1-cphi));
 
    float dphi = deltaPhi(reader.Get4V("CALOMet")->at(0).Phi(),reader.GetFloat("electrons_scPhi")->at(iEle));
@@ -303,7 +303,6 @@ int main (int argc, char** argv)
 
    // electron ID homemade
    
-   
    float HoE = reader.GetFloat("electrons_hOverE")->at(iEle);
    float SigmaIEtaIEta = reader.GetFloat("electrons_sigmaIetaIeta")->at(iEle);
    float DeltaPhiIn = reader.GetFloat("electrons_deltaPhiIn")->at(iEle);
@@ -317,7 +316,7 @@ int main (int argc, char** argv)
 
    // electron isolation 
    
-   float eleTrkIso = reader.GetFloat("electrons_tkIso")->at(iEle);
+   float eleTrkIso = reader.GetFloat("electrons_tkIso03")->at(iEle);
    float eleEcalIso = reader.GetFloat("electrons_emIso03")->at(iEle);
    float eleHcalIsoD1 = reader.GetFloat("electrons_hadIso03_1")->at(iEle);
    float eleHcalIsoD2 = reader.GetFloat("electrons_hadIso03_2")->at(iEle);
@@ -329,7 +328,11 @@ int main (int argc, char** argv)
  //  if (fabs(eta) > EtaCutEB  && (eleTrkIso/pt>0.05 || eleEcalIso/pt>0.05 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.02)) continue;
 
    // Spike cleaning - swiss cross
-   if (reader.GetFloat("electrons_SwissCross")->at(iEle) > 0.95) continue;
+//   if (reader.GetFloat("electrons_SwissCross")->at(iEle) > 0.95) continue;
+
+
+   if (reader.GetInt("electrons_seedSeverityLevel")->at(iEle) != 0) continue;
+
 
    // eleId 80% cfr https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
    if (eleMisHits > 0) continue;
@@ -373,15 +376,15 @@ int main (int argc, char** argv)
     
   eta = reader.GetFloat("electrons_scEta")->at(chosenEle);
   
-  float pt = reader.Get3V("electrons_p_atVtx")->at(chosenEle).Rho();
-  p  = reader.Get3V("electrons_p_atVtx")->at(chosenEle).R();
+  float pt = (reader.GetFloat("electrons_pin")->at(chosenEle))*(reader.Get4V("electrons")->at(chosenEle).Pt())/(reader.Get4V("electrons")->at(chosenEle).P());
+   p  = reader.GetFloat("electrons_pin")->at(chosenEle);
     
   float et = reader.GetFloat("electrons_scEt")->at(chosenEle);
     
   met  = reader.Get4V("CALOMet")->at(0).Et();
   
-  float cphi = (reader.Get3V("electrons_p_atVtx")->at(chosenEle).x() * reader.Get4V("CALOMet")->at(0).Px() 
-    + reader.Get3V("electrons_p_atVtx")->at(chosenEle).y() * reader.Get4V("CALOMet")->at(0).Py()) 
+  float cphi = (reader.Get4V("electrons")->at(chosenEle).x() * reader.Get4V("CALOMet")->at(0).Px() 
+     + reader.Get4V("electrons")->at(chosenEle).y() * reader.Get4V("CALOMet")->at(0).Py()) 
      / (met*pt);
 
   float mt   = sqrt(2*et*met*(1-cphi));
@@ -423,7 +426,7 @@ int main (int argc, char** argv)
    Sigma_Eta = reader.GetFloat("electrons_SC_etaWidth")->at(chosenEle);
    pIn = reader.GetFloat("electrons_pin")->at(chosenEle);
    pOut = reader.GetFloat("electrons_pout")->at(chosenEle);
-   pAtCalo = reader.Get3V("electrons_p_atCalo")->at(chosenEle).R();
+ //  pAtCalo = reader.Get3V("electrons_p_atCalo")->at(chosenEle).R();
    
    
    ///==== p ====

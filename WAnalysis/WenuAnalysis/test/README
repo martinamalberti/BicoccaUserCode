@@ -1,3 +1,18 @@
+
+
+#### Validation ####
+
+ls /gwtera/cms/users/amassiro/ECALalignment/10Oct/ | grep simpleNtple_ |  sed -e s%simpleNtple_%%g | sed -e s%.root%%g | awk '{print "echo -e @#!/bin/sh \n cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_8_3/src/ \n source /gwpool/initcms/slc5-cmssw.sh \n cmsenv \n cd - \n WenuAnalysisNtple_Alignment -1 /gwtera/cms/users/amassiro/ECALalignment/10Oct/simpleNtple_"$1".root /gwterax1/users/amassiro/ECALalignment/10Oct/Wenu_"$1"_4analysis_AlignValidation.root \n@ &> do_"$1".sh ; chmod +x do_"$1".sh ; qsub -V -d ./ -q production do_"$1".sh"}' | tr "@" "'" | /bin/sh
+
+
+hadd  /gwterax1/users/amassiro/ECALalignment/10Oct/Wenu_DATA_4analysis_AlignValidation.root  /gwterax1/users/amassiro/ECALalignment/10Oct/Wenu_*.root
+
+
+
+#############
+#### OLD ####
+
+
 WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_Zee_4analysis.root  /tmp/amassiro/Wenu_MC_Zee_4analysis.root
 WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_EMEnriched_Pt80to170.root  /tmp/amassiro/Wenu_MC_QCD_EMEnriched_Pt80to170_4analysis.root
 WenuAnalysisMyTree -1 /tmp/amassiro/treeWenuMC_QCD_EMEnriched_Pt30to80.root  /tmp/amassiro/Wenu_MC_QCD_EMEnriched_Pt30to80_4analysis.root
