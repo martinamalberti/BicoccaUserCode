@@ -8,6 +8,8 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=TrackingTools/IPTools>
+<use name=PhysicsTools/PatUtils>
+<use name=DataFormats/PatCandidates>
 <use name=root>
 
 <library file="*.cc" name=HiggsAnalysisVBFHiggsToVVPlugins>

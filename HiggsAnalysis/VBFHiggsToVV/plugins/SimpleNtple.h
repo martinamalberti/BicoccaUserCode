@@ -60,6 +60,13 @@
 #include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperTTBar.h"
 #include "HiggsAnalysis/VBFHiggsToVV/interface/MCDumperVBF.h"
 
+///==== PAT ====
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+///==== end PAT ====
+
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"
 #include "Math/LorentzVector.h"
@@ -85,29 +92,21 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
-  
   void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPVInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
+  
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  
+  void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillJetBTaggingInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup,
-                           const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >& v1);
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
-  void fillPFEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
-  void fillPFMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-
-  void fillGenJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillGenMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillMCHiggsDecayInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillMCEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillMCMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   void fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+ 
+  void fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
+
 
   
   TTree* outTree_;
@@ -146,11 +145,7 @@ public:
   edm::InputTag eleIDCut_TightInputTag_ ;
   edm::InputTag eleIDCut_RTightInputTag_ ;
   
-  edm::InputTag JetIDTag_ ;
-  edm::InputTag TrackCountingHighEffBJetTagsTag_;
-  edm::InputTag TrackCountingHighPurBJetTagsTag_;
-  edm::InputTag JetProbabilityBJetTagsTag_;
-  edm::InputTag JetBProbabilityBJetTagsTag_;
+  std::vector<std::string> BTag_names_;
   edm::InputTag JetChargeTag_;
   
   bool dataTag_;
