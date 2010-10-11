@@ -470,3 +470,10 @@ void VBFLeptonTipLipProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   delete muPropagator;
   
 }
+
+
+
+///===================================
+//DEFINE_FWK_MODULE(VBFLeptonTipLipProducer) ;
+
+

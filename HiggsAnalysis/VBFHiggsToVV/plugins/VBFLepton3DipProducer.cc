@@ -151,7 +151,7 @@ void VBFLepton3DipProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     else
     {
       // get the 3D impact parameter
-      std::pair<bool, Measurement1D> ele3DipPair = IPTools::signedImpactParameter3D(eleTSOS, eleTSOS.globalDirection(), PV);
+      std::pair<bool, Measurement1D> ele3DipPair = IPTools::signedImpactParameter3D(eleTransTrack, eleTSOS.globalDirection(), PV);
       
       
       if(!ele3DipPair.first)
@@ -216,7 +216,7 @@ void VBFLepton3DipProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     else
     {
       // get the 3D impact parameter
-      std::pair<bool, Measurement1D> mu3DipPair = IPTools::signedImpactParameter3D(muTSOS, muTSOS.globalDirection(), PV);
+      std::pair<bool, Measurement1D> mu3DipPair = IPTools::signedImpactParameter3D(muTransTrack, muTSOS.globalDirection(), PV);
       
       
       
@@ -255,3 +255,13 @@ void VBFLepton3DipProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(Mu3DipSignificanceMap, name + "Mu3DipSignificanceMap");
   
 }
+
+
+
+
+
+
+
+///===================================
+//DEFINE_FWK_MODULE(VBFLepton3DipProducer);
+

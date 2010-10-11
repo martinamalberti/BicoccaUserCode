@@ -5,11 +5,15 @@ SimpleNtple = cms.EDAnalyzer(
     
      HLTTag           = cms.InputTag("TriggerResults","","HLT"),
      
+     PVTag           = cms.InputTag("offlinePrimaryVertices"),
+
+#### muons ####
      MuTag           = cms.InputTag("muons"),
      Mu3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducer:Mu3DipSignificanceMap"),
      MuTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducer:MuTipSignificanceMap"),
      MuLipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducer:MuLipSignificanceMap"),
      
+#### electrons ####
      EleTag          = cms.InputTag("gsfElectrons"),
      Ele3DipSignificanceTag = cms.InputTag("VBFLepton3DipProducer:Ele3DipSignificanceMap"),
      EleTipSignificanceTag = cms.InputTag("VBFLeptonTipLipProducer:EleTipSignificanceMap"),
@@ -18,11 +22,17 @@ SimpleNtple = cms.EDAnalyzer(
      eleIDCut_RLooseInputTag = cms.InputTag("eidRobustLoose"),
      eleIDCut_TightInputTag  = cms.InputTag("eidTight"), 
      eleIDCut_RTightInputTag = cms.InputTag("eidRobustTight"),
-     
+     recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+     recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+ 
      TracksTag       = cms.InputTag("generalTracks"),
 
+#### jets ####
      JetTag          = cms.InputTag("sisCone5CaloJets"),
+     JetTag_forID    = cms.InputTag("ak5CaloJets"),
      JetIDTag        = cms.InputTag("ak5JetID"),
+     JetChargeTag    = cms.InputTag("VBFCaloJetsCharge"),
+
      genJetTag       = cms.InputTag("sisCone5GenJets"),
 
      MetTag          = cms.InputTag("corMetGlobalMuons"),
@@ -33,14 +43,10 @@ SimpleNtple = cms.EDAnalyzer(
 
      MCtruthTag      = cms.InputTag("genParticles"),
 
-     doMuRefCheck = cms.untracked.bool (False),
-     MuRefTag = cms.InputTag("MuRef"),
-     doEleRefCheck = cms.untracked.bool (False),
-     EleRefTag = cms.InputTag("EleRef"),
-     doJetRefCheck = cms.untracked.bool (False),
-     JetRefTag = cms.InputTag("JetRef"),
 
+#### flags ####
      saveHLT          = cms.untracked.bool (True),     
+     savePV           = cms.untracked.bool (True),     
      saveMu           = cms.untracked.bool (True),
      saveTrack        = cms.untracked.bool (True), 
      saveEle          = cms.untracked.bool (True),
@@ -50,11 +56,12 @@ SimpleNtple = cms.EDAnalyzer(
      saveMet          = cms.untracked.bool (True),
      saveGenJet       = cms.untracked.bool (True),
      saveGenMet       = cms.untracked.bool (True),                        
+     saveMCPtHat      = cms.untracked.bool (True),
      saveMCHiggs      = cms.untracked.bool (True),
      saveMCHiggsDecay = cms.untracked.bool (True),    
      saveMCEle        = cms.untracked.bool (True),
      saveMCMu         = cms.untracked.bool (True),    
-     
+     saveTTBar        = cms.untracked.bool (False),    
         
      verbosity = cms.untracked.bool(False),
      eventType = cms.untracked.int32(0) 

@@ -4,6 +4,8 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=CommonTools/UtilAlgos>
+<use name=RecoEgamma/EgammaTools>
+<use name=RecoEcal/EgammaCoreTools>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=TrackingTools/IPTools>
 <use name=root>

@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
