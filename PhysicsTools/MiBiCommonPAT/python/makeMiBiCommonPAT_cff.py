@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.metTools import *
-
-
+from PhysicsTools.PatAlgos.tools.jetTools import *
 
 def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, SavePAT=True):
     # Setup the process
@@ -53,7 +52,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     process.load("PhysicsTools.PatAlgos.tools.metTools")
     process.load("PhysicsTools.PatAlgos.tools.jetTools")
     
-    
     #Bufix related to btagging
     #process.patJets.addTagInfos = cms.bool(False)
 
@@ -61,7 +59,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     addTcMET(process, 'TC')
     addPfMET(process, 'PF')
     #process.patMETsAK5Calo = process.patMETs
-    
+ 
     addJetCollection(
         process,
         cms.InputTag('ak5CaloJets'),
@@ -91,7 +89,8 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
         genJetCollection=cms.InputTag("ak5GenJets"),
         doJetID      = True
         )
-    
+
+   
     if not MC:
         removeMCMatching(process, ['All'])
     
