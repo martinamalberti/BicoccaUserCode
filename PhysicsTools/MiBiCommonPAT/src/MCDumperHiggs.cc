@@ -10,8 +10,8 @@
 // -----------------------------------------------------------------
 
 MCDumperHiggs::MCDumperHiggs(edm::Handle<reco::GenParticleCollection>& genParticles,
-                         const int& eventType,
-                         const bool& verbosity):
+                             const int& eventType,
+                             const bool& verbosity):
  verbosity_p(verbosity),
  eventType_p(eventType),
  isValid_p(true),
