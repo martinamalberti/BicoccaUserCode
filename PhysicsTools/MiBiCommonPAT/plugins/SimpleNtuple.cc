@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.25 2010/10/12 08:46:26 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.2 2010/10/12 10:48:08 abenagli Exp $
 //
 //
 
@@ -63,52 +63,44 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  
  
  //---- Input tags ---- 
- dataTag_   = iConfig.getUntrackedParameter<bool> ("dataTag_", false);
-
  HLTTag_    = iConfig.getParameter<edm::InputTag>("HLTTag");
+  
  PVTag_     = iConfig.getParameter<edm::InputTag>("PVTag");
-
- TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
-
+ 
  EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
- recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
- recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
-
+ TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
+ EBRecHitCollectionTag_ = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionTag");
+ EERecHitCollectionTag_ = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionTag");
+ EleID_names_ = iConfig.getUntrackedParameter< std::vector<std::string> >("EleID_names");
+ 
  MuTag_  = iConfig.getParameter<edm::InputTag>("MuTag");
  
- MetTag_ = iConfig.getParameter<edm::InputTag>("MetTag");
- Type1MetTag_ = iConfig.getParameter<edm::InputTag>("Type1MetTag");
- PFMetTag_    = iConfig.getParameter<edm::InputTag>("PFMetTag");
- TcMetTag_    = iConfig.getParameter<edm::InputTag>("TcMetTag");
-
- JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
+ MetTag_   = iConfig.getParameter<edm::InputTag>("MetTag");
+ TCMetTag_ = iConfig.getParameter<edm::InputTag>("TCMetTag");
+ PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
  
+ JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
  BTag_names_ = iConfig.getUntrackedParameter< std::vector<std::string> >("BTag_names");
- eleID_names_ = iConfig.getUntrackedParameter< std::vector<std::string> >("eleID_names");
  
  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
  
  
  //---- flags ----
+ dataFlag_ = iConfig.getUntrackedParameter<bool> ("dataFlag", true);
  saveHLT_ =iConfig.getUntrackedParameter<bool> ("saveHLT", true);
  savePV_ =iConfig.getUntrackedParameter<bool> ("savePV", true);
-
  saveEle_ = iConfig.getUntrackedParameter<bool> ("saveEle", true);
-
  saveMu_ =iConfig.getUntrackedParameter<bool> ("saveMu", true);
-
  saveMet_ = iConfig.getUntrackedParameter<bool> ("saveMet", true);
-  
  saveJet_ = iConfig.getUntrackedParameter<bool> ("saveJet", true);
-  
  saveMCTTBar_ = iConfig.getUntrackedParameter<bool> ("saveMCTTBar", false);
  saveMCHiggs_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
  saveMCHiggsWW_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsWW", false);
  saveMCHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsGammaGamma", false);
  saveMCPtHat_ = iConfig.getUntrackedParameter<bool> ("saveMCPtHat", false);
   
- verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity",false);
- eventType_ = iConfig.getUntrackedParameter<int>("eventType",1);
+ verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
+ eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
  
  
  
@@ -175,7 +167,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_deltaEtaIn");
    NtupleFactory_ -> AddFloat("electrons_sigmaIetaIeta");
    
-   for( std::vector<std::string>::const_iterator iEleID = eleID_names_.begin(); iEleID != eleID_names_.end(); iEleID++ ) {
+   for( std::vector<std::string>::const_iterator iEleID = EleID_names_.begin(); iEleID != EleID_names_.end(); iEleID++ ) {
     NtupleFactory_->AddFloat(*iEleID);
    }
    
@@ -221,9 +213,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  
  if(saveMet_)
  {
-   NtupleFactory_->Add4V("CALOMet");         
-   NtupleFactory_->Add4V("type1Met");         
-   NtupleFactory_->Add4V("TcMet");         
+   NtupleFactory_->Add4V("Met");         
+   NtupleFactory_->Add4V("TCMet");         
    NtupleFactory_->Add4V("PFMet");         
  }
  
@@ -480,7 +471,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 
   //*********** EB REC HITS
   edm::Handle<EcalRecHitCollection> recHitsEB;
-  iEvent.getByLabel( recHitCollection_EB_, recHitsEB );
+  iEvent.getByLabel( EBRecHitCollectionTag_, recHitsEB );
   const EcalRecHitCollection* theBarrelEcalRecHits = recHitsEB.product () ;
   if ( ! recHitsEB.isValid() ) {
    std::cerr << "SimpleNtuple::analyze --> recHitsEB not found" << std::endl; 
@@ -488,7 +479,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   
  //*********** EE REC HITS
   edm::Handle<EcalRecHitCollection> recHitsEE;
-  iEvent.getByLabel( recHitCollection_EE_, recHitsEE );
+  iEvent.getByLabel( EERecHitCollectionTag_, recHitsEE );
   const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
   if ( ! recHitsEE.isValid() ) {
    std::cerr << "SimpleNtuple::analyze --> recHitsEE not found" << std::endl; 
@@ -503,7 +494,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   iEvent.getByLabel(DCSTag_, dcsHandle);
   double bField;
  
-  if (dataTag_)
+  if(dataFlag_)
   {
     // scale factor = 3.801/18166.0 which are
     // average values taken over a stable two
@@ -557,7 +548,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   else                             NtupleFactory_ -> FillInt("electrons_trackerDrivenSeed", 0);
   
   //ELE ID
-  for( std::vector<std::string>::const_iterator iEleID = eleID_names_.begin(); iEleID != eleID_names_.end(); iEleID++ ) {
+  for( std::vector<std::string>::const_iterator iEleID = EleID_names_.begin(); iEleID != EleID_names_.end(); iEleID++ ) {
     NtupleFactory_ -> FillFloat(*iEleID,electron.electronID(*iEleID));
   }
 
@@ -711,27 +702,19 @@ void SimpleNtuple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup
  
   edm::Handle<edm::View<pat::MET> > MetHandle;
   iEvent.getByLabel(MetTag_,MetHandle);
-  edm::View<pat::MET> mets = *MetHandle;
+  edm::View<pat::MET> Met = *MetHandle;
   
-  edm::Handle<edm::View<pat::MET> > Type1MetHandle ;
-  iEvent.getByLabel (Type1MetTag_,Type1MetHandle);
-  edm::View<pat::MET> type1Met = *Type1MetHandle;
-
-  edm::Handle<edm::View<pat::MET> > TcMetHandle;
-  iEvent.getByLabel(TcMetTag_,TcMetHandle);
-  edm::View<pat::MET> TcMet = *TcMetHandle;
+  edm::Handle<edm::View<pat::MET> > TCMetHandle;
+  iEvent.getByLabel(TCMetTag_,TCMetHandle);
+  edm::View<pat::MET> TCMet = *TCMetHandle;
 
   edm::Handle<edm::View<pat::MET> > PFMetHandle;
   iEvent.getByLabel(PFMetTag_,PFMetHandle);
   edm::View<pat::MET> PFMet = *PFMetHandle;
  
-  NtupleFactory_->Fill4V("CALOMet",mets.at(0).p4());
- 
-  NtupleFactory_->Fill4V("type1Met",type1Met.at(0).p4());
- 
-  NtupleFactory_->Fill4V("TcMet",TcMet.at(0).p4());
- 
-  NtupleFactory_->Fill4V("PFMet",PFMet.at(0).p4());
+  NtupleFactory_->Fill4V("Met", Met.at(0).p4());
+  NtupleFactory_->Fill4V("TCMet", TCMet.at(0).p4());
+  NtupleFactory_->Fill4V("PFMet", PFMet.at(0).p4());
 }
 
 

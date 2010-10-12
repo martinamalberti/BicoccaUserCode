@@ -79,14 +79,16 @@
 //---------------------------
 
 class SimpleNtuple : public edm::EDAnalyzer {
-
-public:
- typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::GsfElectron>, float> > eleMap;
- typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, float> > muMap;
-
+ 
  public:
+  
+  //! ctor
   explicit SimpleNtuple(const edm::ParameterSet&);
+  
+  //! dtor
   ~SimpleNtuple();
+  
+  
   
  private:
 
@@ -106,37 +108,41 @@ public:
   void fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
  
   void fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
-
-
+  
   
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
 
   math::XYZPoint PVPoint_;    
   
+  
   ///---- input tag ----
   edm::InputTag DCSTag_;
-  edm::InputTag HLTTag_;
-  edm::InputTag PVTag_;
-  edm::InputTag TracksTag_;
-  edm::InputTag EleTag_;
-  edm::InputTag recHitCollection_EB_;
-  edm::InputTag recHitCollection_EE_;
-
-  edm::InputTag MuTag_;
-  edm::InputTag MetTag_;
-  edm::InputTag Type1MetTag_;
-  edm::InputTag PFMetTag_;
-  edm::InputTag TcMetTag_;
-  edm::InputTag JetTag_;
-  edm::InputTag JetTag_forID_;
   
-  edm::InputTag MCtruthTag_;
-
-  std::vector<std::string> eleID_names_;
+  edm::InputTag HLTTag_;
+  
+  edm::InputTag PVTag_;
+  
+  edm::InputTag EleTag_;
+  edm::InputTag TracksTag_;
+  edm::InputTag EBRecHitCollectionTag_;
+  edm::InputTag EERecHitCollectionTag_;
+  std::vector<std::string> EleID_names_;
+  
+  edm::InputTag MuTag_;
+  
+  edm::InputTag MetTag_;
+  edm::InputTag TCMetTag_;
+  edm::InputTag PFMetTag_;
+  
+  edm::InputTag JetTag_;
   std::vector<std::string> BTag_names_;
   
-  bool dataTag_;
+  edm::InputTag MCtruthTag_;
+  
+  
+  ///---- save flags ----
+  bool dataFlag_;
   bool saveHLT_ ;
   bool savePV_ ;
   bool saveMu_ ;
@@ -157,10 +163,6 @@ public:
   MCDumperTTBar* mcAnalysisTTBar_;
 
 };
-
-
-
-
 
 #endif
 
