@@ -41,6 +41,7 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -95,32 +96,33 @@ class SimpleNtuple : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
   void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  
+  void fillBSInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   void fillPVInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
-  void fillTrackInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
+  void fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   void fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
- 
-  void fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
+  
   
   
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
 
-  math::XYZPoint PVPoint_;    
-  
+  math::XYZPoint BSPoint_;
+  math::XYZPoint PVPoint_;
+    
   
   ///---- input tag ----
-  edm::InputTag DCSTag_;
-  
   edm::InputTag HLTTag_;
   
+  edm::InputTag BSTag_;
   edm::InputTag PVTag_;
   
   edm::InputTag EleTag_;
@@ -144,6 +146,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   ///---- save flags ----
   bool dataFlag_;
   bool saveHLT_ ;
+  bool saveBS_ ;
   bool savePV_ ;
   bool saveMu_ ;
   bool saveEle_ ;

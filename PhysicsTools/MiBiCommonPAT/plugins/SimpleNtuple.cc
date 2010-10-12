@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.2 2010/10/12 10:48:08 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.3 2010/10/12 11:26:07 abenagli Exp $
 //
 //
 
@@ -36,13 +36,13 @@
 
 
 //--- objects ----
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+//#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+//#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+//#include "DataFormats/TrackReco/interface/Track.h"
+//#include "DataFormats/TrackReco/interface/TrackFwd.h"
+//#include "DataFormats/JetReco/interface/GenJet.h"
+//#include "DataFormats/JetReco/interface/GenJetCollection.h"
+//#include "DataFormats/Common/interface/ValueMap.h"
 
 
 
@@ -55,49 +55,51 @@
 SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
 {
  //---- Out file ----
- mcAnalysisHiggs_ = NULL;
- mcAnalysisTTBar_ = NULL;
- edm::Service<TFileService> fs ;
- outTree_  = fs->make <TTree>("SimpleNtuple","SimpleNtuple"); 
+ edm::Service<TFileService> fs;
+ outTree_ = fs -> make<TTree>("SimpleNtuple","SimpleNtuple"); 
  NtupleFactory_ = new NtupleFactory(outTree_);  
  
  
+ //---- MC dumpers ----
+ mcAnalysisHiggs_ = NULL;
+ mcAnalysisTTBar_ = NULL;
+ 
+ 
  //---- Input tags ---- 
- HLTTag_    = iConfig.getParameter<edm::InputTag>("HLTTag");
+ HLTTag_ = iConfig.getParameter<edm::InputTag>("HLTTag");
   
- PVTag_     = iConfig.getParameter<edm::InputTag>("PVTag");
+ BSTag_ = iConfig.getParameter<edm::InputTag>("BSTag");
+ PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
  
- EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
- TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
- EBRecHitCollectionTag_ = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionTag");
- EERecHitCollectionTag_ = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionTag");
- EleID_names_ = iConfig.getUntrackedParameter< std::vector<std::string> >("EleID_names");
+ EleTag_      = iConfig.getParameter<edm::InputTag>("EleTag");
+ EleID_names_ = iConfig.getParameter< std::vector<std::string> >("EleID_names");
  
- MuTag_  = iConfig.getParameter<edm::InputTag>("MuTag");
+ MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
  
  MetTag_   = iConfig.getParameter<edm::InputTag>("MetTag");
  TCMetTag_ = iConfig.getParameter<edm::InputTag>("TCMetTag");
  PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
  
- JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
- BTag_names_ = iConfig.getUntrackedParameter< std::vector<std::string> >("BTag_names");
+ JetTag_     = iConfig.getParameter<edm::InputTag>("JetTag");
+ BTag_names_ = iConfig.getParameter< std::vector<std::string> >("BTag_names");
  
  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
  
  
  //---- flags ----
  dataFlag_ = iConfig.getUntrackedParameter<bool> ("dataFlag", true);
- saveHLT_ =iConfig.getUntrackedParameter<bool> ("saveHLT", true);
- savePV_ =iConfig.getUntrackedParameter<bool> ("savePV", true);
- saveEle_ = iConfig.getUntrackedParameter<bool> ("saveEle", true);
- saveMu_ =iConfig.getUntrackedParameter<bool> ("saveMu", true);
- saveMet_ = iConfig.getUntrackedParameter<bool> ("saveMet", true);
- saveJet_ = iConfig.getUntrackedParameter<bool> ("saveJet", true);
- saveMCTTBar_ = iConfig.getUntrackedParameter<bool> ("saveMCTTBar", false);
- saveMCHiggs_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
- saveMCHiggsWW_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsWW", false);
+ saveHLT_  = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
+ saveBS_   = iConfig.getUntrackedParameter<bool> ("saveBS", true);
+ savePV_   = iConfig.getUntrackedParameter<bool> ("savePV", true);
+ saveEle_  = iConfig.getUntrackedParameter<bool> ("saveEle", true);
+ saveMu_   = iConfig.getUntrackedParameter<bool> ("saveMu", true);
+ saveMet_  = iConfig.getUntrackedParameter<bool> ("saveMet", true);
+ saveJet_  = iConfig.getUntrackedParameter<bool> ("saveJet", true);
+ saveMCPtHat_           = iConfig.getUntrackedParameter<bool> ("saveMCPtHat", false);
+ saveMCTTBar_           = iConfig.getUntrackedParameter<bool> ("saveMCTTBar", false);
+ saveMCHiggs_           = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
+ saveMCHiggsWW_         = iConfig.getUntrackedParameter<bool> ("saveMCHiggsWW", false);
  saveMCHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsGammaGamma", false);
- saveMCPtHat_ = iConfig.getUntrackedParameter<bool> ("saveMCPtHat", false);
   
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -121,6 +123,18 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddString("HLT_Names"); 
  }
  
+ if(saveBS_)
+ {
+   NtupleFactory_ -> AddFloat("BS_x0"); 
+   NtupleFactory_ -> AddFloat("BS_y0"); 
+   NtupleFactory_ -> AddFloat("BS_z0"); 
+   NtupleFactory_ -> AddFloat("BS_sigmaZ"); 
+   NtupleFactory_ -> AddFloat("BS_dxdz"); 
+   NtupleFactory_ -> AddFloat("BS_dydz"); 
+   NtupleFactory_ -> AddFloat("BS_BeamWidthX"); 
+   NtupleFactory_ -> AddFloat("BS_BeamWidthY"); 
+ }
+
  if(savePV_)
  {
    NtupleFactory_ -> AddFloat("PV_normalizedChi2"); 
@@ -132,8 +146,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  
  if(saveEle_)
  {
-   NtupleFactory_->Add4V("electrons");
-   NtupleFactory_->AddFloat("electrons_charge"); 
+   NtupleFactory_ -> Add4V   ("electrons");
+   NtupleFactory_ -> AddFloat("electrons_charge"); 
    NtupleFactory_ -> AddFloat("electrons_dB");
    NtupleFactory_ -> AddFloat("electrons_edB");
    NtupleFactory_ -> AddFloat("electrons_dxy");
@@ -155,7 +169,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("electrons_isEB");
    NtupleFactory_ -> AddInt  ("electrons_ecalDrivenSeed");
    NtupleFactory_ -> AddInt  ("electrons_trackerDrivenSeed");
-   NtupleFactory_ -> AddFloat("electrons_scE");
+   NtupleFactory_ -> AddFloat("electrons_eSC");
    NtupleFactory_ -> AddFloat("electrons_eSeed");
    NtupleFactory_ -> AddFloat("electrons_pin");
    NtupleFactory_ -> AddFloat("electrons_pout");
@@ -166,6 +180,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_deltaPhiIn");
    NtupleFactory_ -> AddFloat("electrons_deltaEtaIn");
    NtupleFactory_ -> AddFloat("electrons_sigmaIetaIeta");
+   NtupleFactory_ -> AddFloat("electrons_e1x5");
+   NtupleFactory_ -> AddFloat("electrons_e2x5Max");
+   NtupleFactory_ -> AddFloat("electrons_e5x5");
    
    for( std::vector<std::string>::const_iterator iEleID = EleID_names_.begin(); iEleID != EleID_names_.end(); iEleID++ ) {
     NtupleFactory_->AddFloat(*iEleID);
@@ -174,15 +191,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddInt("electrons_mishits");
    NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
    
-   NtupleFactory_->AddInt("electrons_seedSeverityLevel");
-   NtupleFactory_->AddInt("electrons_seedFlag");
-   
-   NtupleFactory_->AddFloat("electrons_ES");
+   NtupleFactory_->AddFloat("electrons_eES");
   }
  
  if(saveMu_)
  {
-   NtupleFactory_ -> Add4V("muons");
+   NtupleFactory_ -> Add4V   ("muons");
    NtupleFactory_ -> AddFloat("muons_charge"); 
    NtupleFactory_ -> AddFloat("muons_dB");
    NtupleFactory_ -> AddFloat("muons_edB"); 
@@ -404,6 +418,97 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
 
 
 
+///-------------------
+///---- Beam Spot ----
+
+void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //std::cout << "SimpleNtuple::fillBSInfo::begin" << std::endl;
+  
+  edm::Handle<reco::BeamSpot> BSHandle;
+  iEvent.getByLabel(BSTag_, BSHandle);
+  
+  
+  // select the BS
+  const reco::BeamSpot BS = *BSHandle;
+  math::XYZPoint BSPoint(BS.position().x(), BS.position().y(), BS.position().z());
+  BSPoint_ = BSPoint;
+  
+  
+  NtupleFactory_ -> FillFloat("BS_x0", BS.x0());
+  NtupleFactory_ -> FillFloat("BS_y0", BS.y0());
+  NtupleFactory_ -> FillFloat("BS_z0", BS.z0());
+  NtupleFactory_ -> FillFloat("BS_sigmaZ", BS.sigmaZ());
+  NtupleFactory_ -> FillFloat("BS_dxdz", BS.dxdz());
+  NtupleFactory_ -> FillFloat("BS_dydz", BS.dydz());
+  NtupleFactory_ -> FillFloat("BS_BeamWidthX", BS.BeamWidthX());
+  NtupleFactory_ -> FillFloat("BS_BeamWidthY", BS.BeamWidthY());
+  
+  //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
+}
+
+
+
+
+
+
+///------------------------
+///---- Primary Vertex ----
+
+void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //std::cout << "SimpleNtuple::fillPVInfo::begin" << std::endl;
+  
+  edm::Handle<reco::VertexCollection> vertexes;
+  iEvent.getByLabel(PVTag_, vertexes);
+  
+  
+  // select the primary vertex    
+  reco::Vertex PV;
+  bool PVfound = (vertexes -> size() != 0);
+  
+  if(PVfound)
+  {
+    // select the primary vertex as the one with higest sum of (pt)^2 of tracks    
+    PrimaryVertexSorter PVSorter;
+    std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
+    PV = sortedVertices.front();
+    
+    NtupleFactory_ -> FillFloat("PV_normalizedChi2", PV.normalizedChi2());
+    NtupleFactory_ -> FillInt("PV_ndof", PV.ndof());
+    NtupleFactory_ -> FillInt("PV_nTracks", PV.tracksSize());
+    NtupleFactory_ -> FillFloat("PV_z", PV.z());
+    NtupleFactory_ -> FillFloat("PV_d0", PV.position().Rho());
+  }
+  
+  else
+  {
+    //creating a dummy PV
+    reco::Vertex::Point p(BSPoint_.x(),BSPoint_.y(),BSPoint_.z());
+    reco::Vertex::Error e;
+    e(0,0) = 0.0015*0.0015;
+    e(1,1) = 0.0015*0.0015;
+    e(2,2) = 15.*15.;
+    PV = reco::Vertex(p, e, 1, 1, 1);
+    
+    NtupleFactory_ -> FillFloat("PV_normalizedChi2", -1.);
+    NtupleFactory_ -> FillInt("PV_ndof", -1);
+    NtupleFactory_ -> FillInt("PV_nTracks", -1);
+    NtupleFactory_ -> FillFloat("PV_z", -9999.);
+    NtupleFactory_ -> FillFloat("PV_d0", -9999.);
+  }
+  
+  math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
+  PVPoint_ = PVPoint;
+  
+  //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
+}
+
+
+
+
+
+
 ///---------------
 ///---- Muons ----
 
@@ -461,55 +566,9 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 {
  //std::cout << "SimpleNtuple::fillEleInfo" << std::endl;
  
-  edm::Handle<edm::View<pat::Electron> > eleHandle;
-  iEvent.getByLabel(EleTag_,eleHandle);
-  edm::View<pat::Electron> electrons = *eleHandle;
-
-  //*********** CHANNEL STATUS
-  edm::ESHandle<EcalChannelStatus> theChannelStatus;
-  iESetup.get<EcalChannelStatusRcd>().get(theChannelStatus);
-
-  //*********** EB REC HITS
-  edm::Handle<EcalRecHitCollection> recHitsEB;
-  iEvent.getByLabel( EBRecHitCollectionTag_, recHitsEB );
-  const EcalRecHitCollection* theBarrelEcalRecHits = recHitsEB.product () ;
-  if ( ! recHitsEB.isValid() ) {
-   std::cerr << "SimpleNtuple::analyze --> recHitsEB not found" << std::endl; 
-  }
-  
- //*********** EE REC HITS
-  edm::Handle<EcalRecHitCollection> recHitsEE;
-  iEvent.getByLabel( EERecHitCollectionTag_, recHitsEE );
-  const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
-  if ( ! recHitsEE.isValid() ) {
-   std::cerr << "SimpleNtuple::analyze --> recHitsEE not found" << std::endl; 
-  }
-
- //************* TRACKS
-  edm::Handle<reco::TrackCollection> trackHandle;
-  iEvent.getByLabel(TracksTag_, trackHandle);
-  
- //************* BFIELD
-  edm::Handle<DcsStatusCollection> dcsHandle;
-  iEvent.getByLabel(DCSTag_, dcsHandle);
-  double bField;
- 
-  if(dataFlag_)
-  {
-    // scale factor = 3.801/18166.0 which are
-    // average values taken over a stable two
-    // week period
-    float currentToBFieldScaleFactor = 2.09237036221512717e-04;
-    float current = (*dcsHandle)[0].magnetCurrent();
-    bField = current*currentToBFieldScaleFactor;
-  }
-  else
-  {
-    edm::ESHandle<MagneticField> magneticField;
-    iESetup.get<IdealMagneticFieldRecord>().get(magneticField);
-    bField = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
-  }
- 
+ edm::Handle<edm::View<pat::Electron> > eleHandle;
+ iEvent.getByLabel(EleTag_,eleHandle);
+ edm::View<pat::Electron> electrons = *eleHandle;
  
  
  for ( unsigned int i=0; i<electrons.size(); ++i )
@@ -517,7 +576,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   pat::Electron electron = electrons.at(i);
   reco::SuperClusterRef scRef = electron.superCluster();
   reco::GsfTrackRef tkRef = electron.gsfTrack (); 
-  const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
   
   
   NtupleFactory_ -> Fill4V   ("electrons", electron.p4());
@@ -552,7 +610,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
     NtupleFactory_ -> FillFloat(*iEleID,electron.electronID(*iEleID));
   }
 
-  NtupleFactory_ -> FillFloat("electrons_scE",scRef->energy());
+  NtupleFactory_ -> FillFloat("electrons_eSC",scRef->energy());
   NtupleFactory_ -> FillFloat("electrons_eSeed",scRef->seed()->energy());
   NtupleFactory_ -> FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
   NtupleFactory_ -> FillFloat("electrons_pout",electron.trackMomentumOut().R());
@@ -563,66 +621,18 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_deltaPhiIn",electron.deltaPhiSuperClusterTrackAtVtx());
   NtupleFactory_ -> FillFloat("electrons_deltaEtaIn",electron.deltaEtaSuperClusterTrackAtVtx());
   NtupleFactory_ -> FillFloat("electrons_sigmaIetaIeta",electron.sigmaIetaIeta());
+  NtupleFactory_ -> FillFloat("electrons_e1x5",electron.e1x5());
+  NtupleFactory_ -> FillFloat("electrons_e2x5Max",electron.e2x5Max());
+  NtupleFactory_ -> FillFloat("electrons_e5x5",electron.e5x5());
   
   // conversion rejection variables
   NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
   NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
 
   // preshower variables 
-  NtupleFactory_->FillFloat("electrons_ES",scRef->preshowerEnergy());
+  NtupleFactory_->FillFloat("electrons_eES",scRef->preshowerEnergy());
   
  }
-}
-
-
-
-
-
-
-///------------------------
-///---- Primary Vertex ----
-
-void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
-{
-  //std::cout << "SimpleNtuple::fillPVInfo::begin" << std::endl;
-  
-  edm::Handle<reco::VertexCollection> vertexes;
-  iEvent.getByLabel(PVTag_, vertexes);
-  
-  
-  // select the primary vertex    
-  reco::Vertex PV;
-  bool PVfound = (vertexes -> size() != 0);
-  
-  if(PVfound)
-  {
-    // select the primary vertex as the one with higest sum of (pt)^2 of tracks    
-    PrimaryVertexSorter PVSorter;
-    std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
-    PV = sortedVertices.front();
-    
-    NtupleFactory_->FillFloat("PV_normalizedChi2", PV.normalizedChi2());
-    NtupleFactory_->FillInt("PV_ndof", PV.ndof());
-    NtupleFactory_->FillInt("PV_nTracks", PV.tracksSize());
-    NtupleFactory_->FillFloat("PV_z", PV.z());
-    NtupleFactory_->FillFloat("PV_d0", PV.position().Rho());
-  }
-  
-  else
-  {
-    //creating a dummy PV
-    reco::Vertex::Point p(0,0,0);
-    reco::Vertex::Error e;
-    e(0,0) = 0.0015*0.0015;
-    e(1,1) = 0.0015*0.0015;
-    e(2,2) = 15.*15.;
-    PV = reco::Vertex(p, e, 1, 1, 1);
-  }
-  
-  math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
-  PVPoint_ = PVPoint;
-  
-  //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
 }
 
 
