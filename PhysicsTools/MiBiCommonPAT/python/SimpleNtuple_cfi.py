@@ -15,7 +15,7 @@ SimpleNtuple = cms.EDAnalyzer(
      
     #### electrons ####
     EleTag                = cms.InputTag("patElectrons"),
-    EleID_names           = cms.vstring('simpleEleId80relIso','simpleEleId85relIso','eidLoose','eidRobustLoose','eidTight','eidRobustTight'),
+    EleID_names           = cms.vstring('eidLoose','eidRobustLoose','eidTight','eidRobustTight'),
     
     #### jets ####
     JetTag     = cms.InputTag("patJets"),
@@ -35,10 +35,11 @@ SimpleNtuple = cms.EDAnalyzer(
     
     dataFlag              = cms.untracked.bool (True),
     saveHLT               = cms.untracked.bool (True),     
+    saveBS                = cms.untracked.bool (True),
     savePV                = cms.untracked.bool (True),     
     saveMu                = cms.untracked.bool (True),
     saveEle               = cms.untracked.bool (True),
-    saveJet               = cms.untracked.bool (True),
+    saveJet               = cms.untracked.bool (False),
     saveMet               = cms.untracked.bool (True),
 
     #---------------------

@@ -69,15 +69,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveMu_   = iConfig.getUntrackedParameter<bool> ("saveMu", true);
  saveMet_  = iConfig.getUntrackedParameter<bool> ("saveMet", true);
  saveJet_  = iConfig.getUntrackedParameter<bool> ("saveJet", true);
- 
- //---- save MC info ----
  saveMCPtHat_           = iConfig.getUntrackedParameter<bool> ("saveMCPtHat", false);
  saveMCTTBar_           = iConfig.getUntrackedParameter<bool> ("saveMCTTBar", false);
  saveMCHiggs_           = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
  saveMCHiggsWW_         = iConfig.getUntrackedParameter<bool> ("saveMCHiggsWW", false);
  saveMCHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsGammaGamma", false);
- saveGenJet_            = iConfig.getUntrackedParameter<bool> ("saveGenJet", false);
-
+  
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
  
@@ -146,11 +143,13 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("electrons_isEB");
    NtupleFactory_ -> AddInt  ("electrons_ecalDrivenSeed");
    NtupleFactory_ -> AddInt  ("electrons_trackerDrivenSeed");
+   NtupleFactory_ -> AddFloat("electrons_mva");
    NtupleFactory_ -> AddFloat("electrons_eSC");
-   NtupleFactory_ -> AddFloat("electrons_eSeed");
    NtupleFactory_ -> AddFloat("electrons_pin");
    NtupleFactory_ -> AddFloat("electrons_pout");
-   NtupleFactory_ -> AddFloat("electrons_eOverP");
+   NtupleFactory_ -> AddFloat("electrons_pcalo");
+   NtupleFactory_ -> AddFloat("electrons_eSCOverP");
+   NtupleFactory_ -> AddFloat("electrons_eSeedOverP");
    NtupleFactory_ -> AddInt  ("electrons_classification");
    NtupleFactory_ -> AddFloat("electrons_fbrem");
    NtupleFactory_ -> AddFloat("electrons_hOverE");
@@ -243,8 +242,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddInt  ("jets_chargedMultiplicity"); 
    NtupleFactory_->AddInt  ("jets_neutralMultiplicity"); 
    NtupleFactory_->AddInt  ("jets_muonMultiplicity"); 
-
-  if (saveGenJet_) NtupleFactory_->Add4V("genJets");
  }
   
  
@@ -500,18 +497,28 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
  edm::View<pat::Muon> muons = *muHandle;
   
  for ( unsigned int i=0; i<muons.size(); i++ ) {
-    pat::Muon muon = muons.at(i);
-      
+  pat::Muon muon = muons.at(i);
+  reco::TrackRef tkRef; 
+  
+  if(muon.isGlobalMuon())
+    tkRef = muon.globalTrack();
+  else if(!muon.isGlobalMuon() && muon.isTrackerMuon())
+    tkRef = muon.innerTrack();
+  else if(!muon.isGlobalMuon() && muon.isStandAloneMuon())
+    tkRef = muon.outerTrack();
+  else
+    continue;  
+  
   NtupleFactory_ -> Fill4V   ("muons",muon.p4());
   NtupleFactory_ -> FillFloat("muons_charge",(muon.charge()));
   NtupleFactory_ -> FillFloat("muons_dB",muon.dB());
   NtupleFactory_ -> FillFloat("muons_edB",muon.edB());
-  NtupleFactory_ -> FillFloat("muons_dxy",(muon.globalTrack())->dxy());
-  NtupleFactory_ -> FillFloat("muons_edxy",(muon.globalTrack())->dxyError());
-  NtupleFactory_ -> FillFloat("muons_dz",(muon.globalTrack())->dz());
-  NtupleFactory_ -> FillFloat("muons_edz",(muon.globalTrack())->dzError());
-  NtupleFactory_ -> FillFloat("muons_dxy_PV",(muon.globalTrack())->dxy(PVPoint_));
-  NtupleFactory_ -> FillFloat("muons_dz_PV",(muon.globalTrack())->dz(PVPoint_));
+  NtupleFactory_ -> FillFloat("muons_dxy",tkRef->dxy());
+  NtupleFactory_ -> FillFloat("muons_edxy",tkRef->dxyError());
+  NtupleFactory_ -> FillFloat("muons_dz",tkRef->dz());
+  NtupleFactory_ -> FillFloat("muons_edz",tkRef->dzError());
+  NtupleFactory_ -> FillFloat("muons_dxy_PV",tkRef->dxy(PVPoint_));
+  NtupleFactory_ -> FillFloat("muons_dz_PV",tkRef->dz(PVPoint_));
 
   NtupleFactory_ -> FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
   NtupleFactory_ -> FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);    
@@ -527,10 +534,11 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillInt  ("muons_standalone",muon.isStandAloneMuon());
   NtupleFactory_ -> FillInt  ("muons_global",muon.isGlobalMuon());
   NtupleFactory_ -> FillInt  ("muons_goodMuon",muon::isGoodMuon(muon, muon::GlobalMuonPromptTight));
-  NtupleFactory_ -> FillFloat("muons_normalizedChi2",(muon.globalTrack())->normalizedChi2());
-  NtupleFactory_ -> FillInt  ("muons_numberOfValidTrackerHits",(muon.globalTrack()->hitPattern()).numberOfValidTrackerHits());
-  NtupleFactory_ -> FillInt  ("muons_numberOfValidMuonHits",(muon.globalTrack()->hitPattern()).numberOfValidMuonHits());
+  NtupleFactory_ -> FillFloat("muons_normalizedChi2",tkRef->normalizedChi2());
+  NtupleFactory_ -> FillInt  ("muons_numberOfValidTrackerHits",tkRef->hitPattern().numberOfValidTrackerHits());
+  NtupleFactory_ -> FillInt  ("muons_numberOfValidMuonHits",tkRef->hitPattern().numberOfValidMuonHits());
  }
+ 
 }
 
 
@@ -581,8 +589,16 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   else                NtupleFactory_ -> FillInt("electrons_isEB", 0);
   if(electron.ecalDrivenSeed()) NtupleFactory_ -> FillInt("electrons_ecalDrivenSeed", 1);
   else                          NtupleFactory_ -> FillInt("electrons_ecalDrivenSeed", 0);
-  if(electron.trackerDrivenSeed()) NtupleFactory_ -> FillInt("electrons_trackerDrivenSeed", 1);
-  else                             NtupleFactory_ -> FillInt("electrons_trackerDrivenSeed", 0);
+  if(electron.trackerDrivenSeed())
+  { 
+    NtupleFactory_ -> FillInt("electrons_trackerDrivenSeed", 1);
+    NtupleFactory_ -> FillFloat("electrons_mva",electron.mva());
+  }
+  else
+  {
+    NtupleFactory_ -> FillInt("electrons_trackerDrivenSeed", 0);
+    NtupleFactory_ -> FillFloat("electrons_mva",-9999.);
+  }
   
   //ELE ID
   for( std::vector<std::string>::const_iterator iEleID = EleID_names_.begin(); iEleID != EleID_names_.end(); iEleID++ ) {
@@ -590,10 +606,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   }
   
   NtupleFactory_ -> FillFloat("electrons_eSC",scRef->energy());
-  NtupleFactory_ -> FillFloat("electrons_eSeed",scRef->seed()->energy());
   NtupleFactory_ -> FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
   NtupleFactory_ -> FillFloat("electrons_pout",electron.trackMomentumOut().R());
-  NtupleFactory_ -> FillFloat("electrons_eOverP",electron.eSuperClusterOverP());
+  NtupleFactory_ -> FillFloat("electrons_pcalo",electron.trackMomentumAtCalo().R());
+  NtupleFactory_ -> FillFloat("electrons_eSCOverP",electron.eSuperClusterOverP());
+  NtupleFactory_ -> FillFloat("electrons_eSeedOverP",electron.eSeedClusterOverP());
   NtupleFactory_ -> FillInt  ("electrons_classification",electron.classification());
   NtupleFactory_ -> FillFloat("electrons_fbrem",electron.fbrem());
   NtupleFactory_ -> FillFloat("electrons_hOverE",electron.hadronicOverEm());
@@ -610,8 +627,8 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 
   // preshower variables 
   NtupleFactory_->FillFloat("electrons_eES",scRef->preshowerEnergy());
-  
  }
+ 
 }
 
 
@@ -666,9 +683,6 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillInt  ("jets_chargedMultiplicity",jet.chargedMultiplicity()); 
   NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
   NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
-
-  if (saveGenJet_) NtupleFactory_->Fill4V("genJets",jet.genJet()->p4());
-
  } // loop on jets
   
   //std::cout << "SimpleNtuple::fillJetInfo::end" << std::endl;
@@ -880,8 +894,11 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  if (saveHLT_) fillHLTInfo (iEvent, iSetup);
   
  ///---- fill PV ----
+ if(saveBS_) fillBSInfo (iEvent, iSetup);
+ 
+ ///---- fill PV ----
  if(savePV_) fillPVInfo (iEvent, iSetup);
-
+ 
  ///---- fill muons ----
  if (saveMu_) fillMuInfo (iEvent, iSetup);
 
