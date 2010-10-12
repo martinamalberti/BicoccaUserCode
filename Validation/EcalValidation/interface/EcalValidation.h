@@ -67,7 +67,9 @@ class EcalValidation : public edm::EDAnalyzer {
 	 // ----------member data ---------------------------
 	 edm::InputTag recHitCollection_EB_;
 	 edm::InputTag recHitCollection_EE_;
-	 edm::InputTag basicClusterCollection_EB_;
+         edm::InputTag redRecHitCollection_EB_;
+         edm::InputTag redRecHitCollection_EE_;
+         edm::InputTag basicClusterCollection_EB_;
 	 edm::InputTag basicClusterCollection_EE_;
 	 edm::InputTag superClusterCollection_EB_;
 	 edm::InputTag superClusterCollection_EE_;
@@ -157,12 +159,21 @@ class EcalValidation : public edm::EDAnalyzer {
 	 int naiveId_;
 	 
 	 TH1D *h_numberOfEvents;
+         
+	 // ReducedRecHits ----------------------------------------------
+	 // ... barrel 
+         TH1D *h_redRecHits_EB_recoFlag;
+	 // ... endcap 
+         TH1D *h_redRecHits_EE_recoFlag;
+	 // ... all 
+         TH1D *h_redRecHits_recoFlag;
 	 
 	 // RecHits ----------------------------------------------
 	 // ... barrel 
 	 TH1D *h_recHits_EB_size; 
 	 TH1D *h_recHits_EB_energy;
-	 TH1D *h_recHits_EB_energyMax;
+         TH1D *h_recHits_EB_recoFlag;
+         TH1D *h_recHits_EB_energyMax;
 	 TH1D *h_recHits_EB_time;
 	 TH1D *h_recHits_EB_Chi2;
 	 TH1D *h_recHits_EB_OutOfTimeChi2;
@@ -186,6 +197,7 @@ class EcalValidation : public edm::EDAnalyzer {
 	 // ... endcap
 
 	 TH1D *h_recHits_EE_size;
+         TH1D *h_recHits_EE_recoFlag;
 
 	 TH1D *h_recHits_EEP_size;
 	 TH1D *h_recHits_EEP_energy;
@@ -214,6 +226,8 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH2D *h_recHits_EEM_occupancy;
 	 TH2D *h_recHits_EEM_deviation;
 
+	 // ... All
+         TH1D *h_recHits_recoFlag;
 
          // max E eta/phi distributions
          TH1D *h_recHits_eta;  // all
@@ -231,8 +245,6 @@ class EcalValidation : public edm::EDAnalyzer {
          TH1D *h_recHits_EB_phi_MaxEt;
          TH1D *h_recHits_EE_phi_MaxEt;
 
-
-	 
 	 // Basic Clusters ----------------------------------------------
 	 
 	 // ... barrel
@@ -250,6 +262,9 @@ class EcalValidation : public edm::EDAnalyzer {
          TH1D *h_basicClusters_EB_nXtals_cleaned_tkmatched;
          TH1D *h_basicClusters_EB_energy_cleaned_tkmatched;
          TH1D *h_basicClusters_EB_dr_cleaned_tkmatched;
+         // ... associated barrel rec hits
+         TH1D *h_basicClusters_recHits_EB_recoFlag;
+
 	 // ... endcap
 	 TH1D *h_basicClusters_EEP_size;
 	 TH1D *h_basicClusters_EEP_nXtals;
@@ -288,6 +303,12 @@ class EcalValidation : public edm::EDAnalyzer {
          TH1D *h_basicClusters_EEM_eta_esmatched;
          TH1D *h_basicClusters_EEM_phi_esmatched;
          
+         // ... associated endcap rec hits
+         TH1D *h_basicClusters_recHits_EE_recoFlag;
+
+         // ... associated all rec hits
+         TH1D *h_basicClusters_recHits_recoFlag;
+
          TProfile2D *h_Jets_EB_emf;
          TProfile2D *h_Jets_EEP_emf;
          TProfile2D *h_Jets_EEM_emf;

@@ -76,6 +76,8 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   //now do what ever initialization is needed
   recHitCollection_EB_       = ps.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_       = ps.getParameter<edm::InputTag>("recHitCollection_EE");
+  redRecHitCollection_EB_    = ps.getParameter<edm::InputTag>("redRecHitCollection_EB");
+  redRecHitCollection_EE_    = ps.getParameter<edm::InputTag>("redRecHitCollection_EE");
   basicClusterCollection_EB_ = ps.getParameter<edm::InputTag>("basicClusterCollection_EB");
   basicClusterCollection_EE_ = ps.getParameter<edm::InputTag>("basicClusterCollection_EE");
   superClusterCollection_EB_ = ps.getParameter<edm::InputTag>("superClusterCollection_EB");
@@ -86,7 +88,7 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
 
   tracks_                    = ps.getParameter<edm::InputTag>("tracks");
   beamSpot_                  = ps.getParameter<edm::InputTag>("beamSpot");
-  jets_                  = ps.getParameter<edm::InputTag>("jets");
+  jets_                      = ps.getParameter<edm::InputTag>("jets");
 
   ethrEB_                    = ps.getParameter<double>("ethrEB");
   ethrEE_                    = ps.getParameter<double>("ethrEE");
@@ -184,6 +186,15 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
 
   h_numberOfEvents = fs->make<TH1D>("h_numberOfEvents","h_numberOfEvents",10,0,10);
   
+  // ReducedRecHits ----------------------------------------------
+  // ... barrel 
+  h_redRecHits_EB_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",32,0.5,32.5);  
+  // ... endcap 
+  h_redRecHits_EE_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",32,0.5,32.5);  
+  // ... all 
+  h_redRecHits_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",32,0.5,32.5);  
+
+  
   // RecHits ---------------------------------------------- 
   // ... barrel
   h_recHits_EB_size          = fs->make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 1000, 0, 10000 );
@@ -210,9 +221,11 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EB_time_cleaned          = fs->make<TH1D>("h_recHits_EB_time_cleaned","h_recHits_EB_time_cleaned",400,-100,100);
   h_recHits_EB_Chi2_cleaned          = fs->make<TH1D>("h_recHits_EB_Chi2_cleaned","h_recHits_EB_Chi2_cleaned",1000,0,100);
   h_recHits_EB_OutOfTimeChi2_cleaned = fs->make<TH1D>("h_recHits_EB_OutOfTimeChi2_cleaned","h_recHits_EB_OutOfTimeChi2_cleaned",1000,0,100);  
+  h_recHits_EB_recoFlag = fs->make<TH1D>("h_recHits_EB_recoFlag","h_recHits_EB_recoFlag",32,0.5,32.5);  
 
   // ... endcap
   h_recHits_EE_size           = fs->make<TH1D>("h_recHits_EE_size","h_recHits_EE_size",1000,0,10000);
+  h_recHits_EE_recoFlag = fs->make<TH1D>("h_recHits_EE_recoFlag","h_recHits_EE_recoFlag",32,0.5,32.5);  
 
   h_recHits_EEP_size          = fs->make<TH1D>("h_recHits_EEP_size","h_recHits_EEP_size",1000,0,10000);
   h_recHits_EEP_energy        = fs->make<TH1D>("h_recHits_EEP_energy","h_recHits_EEP_energy",11000,-50,500);
@@ -256,7 +269,11 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EB_phi_MaxEt = fs->make<TH1D>("h_recHits_EB_phi_MaxEt","h_recHits_EB_phi_MaxEt",360,-3.1415927, 3.1415927);
   h_recHits_EE_phi_MaxEt = fs->make<TH1D>("h_recHits_EE_phi_MaxEt","h_recHits_EE_phi_MaxEt",360,-3.1415927, 3.1415927);
 
-  // Basic Clusters ----------------------------------------------
+  // ... all
+  h_recHits_recoFlag = fs->make<TH1D>("h_recHits_recoFlag","h_recHits_recoFlag",32,0.5,32.5);  
+
+  // Basic Clusters ----------------------------------------------    
+  
   // ... barrel
   h_basicClusters_EB_size    = fs->make<TH1D>("h_basicClusters_EB_size","h_basicClusters_EB_size",200,0.,200.);
   h_basicClusters_EB_nXtals  = fs->make<TH1D>("h_basicClusters_EB_nXtals","h_basicClusters_EB_nXtals",400,0.,400.);
@@ -272,6 +289,9 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EB_size_cleaned_tkmatched    = fs->make<TH1D>("h_basicClusters_EB_size_cleaned_tkmatched","h_basicClusters_EB_size_cleaned_tkmatched",200,0.,200.);
   h_basicClusters_EB_nXtals_cleaned_tkmatched  = fs->make<TH1D>("h_basicClusters_EB_nXtals_cleaned_tkmatched","h_basicClusters_EB_nXtals_cleaned_tkmatched",400,0.,400.);
   h_basicClusters_EB_energy_cleaned_tkmatched  = fs->make<TH1D>("h_basicClusters_EB_energy_cleaned_tkmatched","h_basicClusters_EB_energy_cleaned_tkmatched",2000,0.,400.);
+
+  // ... associated barrel rec hits
+  h_basicClusters_recHits_EB_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_EB_recoFlag","h_basicClusters_recHits_EB_recoFlag",32,0.5,32.5);  
 
   
   // ... endcap
@@ -311,12 +331,19 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EB_phi     = fs->make<TH1D>("h_basicClusters_EB_phi","h_basicClusters_EB_phi",360,-3.1415927,3.1415927);
   h_basicClusters_EE_phi     = fs->make<TH1D>("h_basicClusters_EE_phi","h_basicClusters_EE_phi",360,-3.1415927,3.1415927);
 
+  // ... associated endcap rec hits
+  h_basicClusters_recHits_EE_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_EE_recoFlag","h_basicClusters_recHits_EE_recoFlag",32,0.5,32.5);  
+
   //cleaned+tkmatched
   h_basicClusters_eta_tkmatched        = fs->make<TH1D>("h_basicClusters_eta_tkmatched","h_basicClusters_eta_tkmatched",150,-3.,3.);
   h_basicClusters_EB_eta_tkmatched     = fs->make<TH1D>("h_basicClusters_EB_eta_tkmatched","h_basicClusters_EB_eta_tkmatched",150,-3.,3.);
   h_basicClusters_EE_eta_tkmatched     = fs->make<TH1D>("h_basicClusters_EE_eta_tkmatched","h_basicClusters_EE_eta_tkmatched",150,-3.,3.);
   h_basicClusters_EB_phi_tkmatched     = fs->make<TH1D>("h_basicClusters_EB_phi_tkmatched","h_basicClusters_EB_phi_tkmatched",360,-3.1415927,3.1415927);
   h_basicClusters_EE_phi_tkmatched     = fs->make<TH1D>("h_basicClusters_EE_phi_tkmatched","h_basicClusters_EE_phi_tkmatched",360,-3.1415927,3.1415927);
+  
+  // ... associated all rec hits
+  h_basicClusters_recHits_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_recoFlag","h_basicClusters_recHits_recoFlag",32,0.5,32.5);  
+
 
   // Super Clusters ----------------------------------------------
   // ... barrel
@@ -465,6 +492,44 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   iSetup.get<CaloTopologyRecord>().get(pTopology);
   const CaloTopology *topology = pTopology.product();
 
+  // --- REDUCED REC HITS ------------------------------------------------------------------------------------- 
+  edm::Handle<EcalRecHitCollection> redRecHitsEB;
+  ev.getByLabel( redRecHitCollection_EB_, redRecHitsEB );
+  const EcalRecHitCollection* theBarrelEcalredRecHits = redRecHitsEB.product () ;
+  if ( ! redRecHitsEB.isValid() ) {
+    std::cerr << "EcalValidation::analyze --> redRecHitsEB not found" << std::endl; 
+  }
+  
+  for ( EcalRecHitCollection::const_iterator itr = theBarrelEcalredRecHits->begin () ;
+        itr != theBarrelEcalredRecHits->end () ;++itr)
+  {
+      
+    h_redRecHits_EB_recoFlag      -> Fill( itr -> recoFlag() );
+    h_redRecHits_recoFlag         -> Fill( itr -> recoFlag() );
+  
+  }
+  
+  // ... endcap
+  edm::Handle<EcalRecHitCollection> redRecHitsEE;
+  ev.getByLabel( redRecHitCollection_EE_, redRecHitsEE );
+  const EcalRecHitCollection* theEndcapEcalredRecHits = redRecHitsEE.product () ;
+  if ( ! redRecHitsEE.isValid() ) {
+    std::cerr << "EcalValidation::analyze --> redRecHitsEE not found" << std::endl; 
+  }
+  
+  for ( EcalRecHitCollection::const_iterator itr = theEndcapEcalredRecHits->begin () ;
+        itr != theEndcapEcalredRecHits->end () ; ++itr)
+  {
+      
+    EEDetId eeid( itr -> id() );
+    GlobalPoint mycell = geometry->getPosition(itr->detid());
+
+    double et = itr -> energy()*mycell.perp()/mycell.mag();
+
+      h_redRecHits_EE_recoFlag       -> Fill( itr -> recoFlag() );
+      h_redRecHits_recoFlag          -> Fill( itr -> recoFlag() );
+
+  }
 
   // --- REC HITS ------------------------------------------------------------------------------------- 
   
@@ -500,6 +565,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       double et = itr -> energy()*mycell.perp()/mycell.mag();
 
       h_recHits_EB_energy        -> Fill( itr -> energy() );
+      h_recHits_EB_recoFlag      -> Fill( itr -> recoFlag() );
+      h_recHits_recoFlag         -> Fill( itr -> recoFlag() );
       
       // max E rec hit
       if (itr -> energy() > maxRecHitEnergyEB ){
@@ -608,6 +675,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
 	nHitsEEP++;
 	h_recHits_EEP_energy        -> Fill( itr -> energy() );
+        h_recHits_EE_recoFlag       -> Fill( itr -> recoFlag() );
+        h_recHits_recoFlag          -> Fill( itr -> recoFlag() );
 
 	// max E rec hit
 	if (itr -> energy() > maxRecHitEnergyEEP && 
@@ -643,6 +712,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	
 	nHitsEEM++;
 	h_recHits_EEM_energy        -> Fill( itr -> energy() );
+        h_recHits_EE_recoFlag       -> Fill( itr -> recoFlag() );
+        h_recHits_recoFlag          -> Fill( itr -> recoFlag() );
 	
 	// max E rec hit
 	if (itr -> energy() > maxRecHitEnergyEEM && 
@@ -748,6 +819,18 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
   for (reco::BasicClusterCollection::const_iterator itBC = theBarrelBasicClusters->begin(); 
        itBC != theBarrelBasicClusters->end(); ++itBC ) {
+         
+    //Get the associated RecHits
+    const std::vector<std::pair<DetId,float> > & hits= itBC->hitsAndFractions();
+    for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
+      
+      EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
+      if (itrechit==theBarrelEcalRecHits->end()) continue;
+      h_basicClusters_recHits_EB_recoFlag -> Fill ( itrechit -> recoFlag() );
+      h_basicClusters_recHits_recoFlag    -> Fill ( itrechit -> recoFlag() );
+    
+    }
+
     
     h_basicClusters_EB_nXtals -> Fill( (*itBC).hitsAndFractions().size() );
     h_basicClusters_EB_energy -> Fill( itBC->energy() );
@@ -808,7 +891,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   h_basicClusters_EB_size         -> Fill( basicClusters_EB_h->size() );
   h_basicClusters_EB_size_cleaned -> Fill( nBCcleaned );
   h_basicClusters_EB_size_cleaned_tkmatched -> Fill( nBCcleanedTkmatched ); 
-
+  
   // ... endcap
   edm::Handle<reco::BasicClusterCollection> basicClusters_EE_h;
   ev.getByLabel( basicClusterCollection_EE_, basicClusters_EE_h );
@@ -823,6 +906,17 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   int nBasicClustersEEMTkmatched = 0;
 
   for (unsigned int icl = 0; icl < basicClusters_EE_h->size(); ++icl) {
+    
+    //Get the associated RecHits
+    const std::vector<std::pair<DetId,float> > & hits= (*basicClusters_EE_h)[icl].hitsAndFractions();
+    for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
+      
+      EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
+      if (itrechit==theBarrelEcalRecHits->end()) continue;
+      h_basicClusters_recHits_EE_recoFlag -> Fill ( itrechit -> recoFlag() );
+      h_basicClusters_recHits_recoFlag    -> Fill ( itrechit -> recoFlag() );
+    }
+
 
     h_basicClusters_eta       -> Fill( (*basicClusters_EE_h)[icl].eta() );
     h_basicClusters_EE_eta    -> Fill( (*basicClusters_EE_h)[icl].eta() );
