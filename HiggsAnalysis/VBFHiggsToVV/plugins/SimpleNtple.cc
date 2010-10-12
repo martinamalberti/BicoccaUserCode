@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtple.cc,v 1.23 2010/10/10 12:56:15 amassiro Exp $
+// $Id: SimpleNtple.cc,v 1.24 2010/10/11 18:01:35 amassiro Exp $
 //
 //
 
@@ -68,17 +68,11 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  TracksTag_ = iConfig.getParameter<edm::InputTag>("TracksTag");
 
  EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
- Ele3DipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("Ele3DipSignificanceTag");
- EleTipSignificanceTag_  = iConfig.getParameter<edm::InputTag>("EleTipSignificanceTag");
- EleLipSignificanceTag_  = iConfig.getParameter<edm::InputTag>("EleLipSignificanceTag");
  recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
  recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
 
  MuTag_  = iConfig.getParameter<edm::InputTag>("MuTag");
- Mu3DipSignificanceTag_ = iConfig.getParameter<edm::InputTag>("Mu3DipSignificanceTag");
- MuTipSignificanceTag_  = iConfig.getParameter<edm::InputTag>("MuTipSignificanceTag");
- MuLipSignificanceTag_  = iConfig.getParameter<edm::InputTag>("MuLipSignificanceTag");
-
+ 
  MetTag_ = iConfig.getParameter<edm::InputTag>("MetTag");
  Type1MetTag_ = iConfig.getParameter<edm::InputTag>("Type1MetTag");
  PFMetTag_    = iConfig.getParameter<edm::InputTag>("PFMetTag");
@@ -87,42 +81,25 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
  JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
  
  BTag_names_ = iConfig.getUntrackedParameter< std::vector<std::string> >("BTag_names");
-
- JetChargeTag_ = iConfig.getParameter<edm::InputTag> ("JetChargeTag");
-
- eleIDCut_LooseInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_LooseInputTag");
- eleIDCut_RLooseInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RLooseInputTag");
- eleIDCut_TightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
- eleIDCut_RTightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
-
-
+ eleID_names_ = iConfig.getUntrackedParameter< std::vector<std::string> >("eleID_names");
+ 
  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
- genJetTag_ = iConfig.getParameter<edm::InputTag>("genJetTag");
- genMetTag_ = iConfig.getParameter<edm::InputTag>("genMetTag");
 
  //---- flags ----
  saveHLT_ =iConfig.getUntrackedParameter<bool> ("saveHLT", true);
  savePV_ =iConfig.getUntrackedParameter<bool> ("savePV", true);
- saveTrack_ = iConfig.getUntrackedParameter<bool> ("saveTrack", true);
+
  saveEle_ = iConfig.getUntrackedParameter<bool> ("saveEle", true);
+
  saveMu_ =iConfig.getUntrackedParameter<bool> ("saveMu", true);
 
  saveMet_ = iConfig.getUntrackedParameter<bool> ("saveMet", true);
   
  saveJet_ = iConfig.getUntrackedParameter<bool> ("saveJet", true);
- savePFJet_ = iConfig.getUntrackedParameter<bool> ("savePFJet", false);
- if(saveJet_ && savePFJet_) savePFJet_ = false;
- saveJetBTagging_ = iConfig.getUntrackedParameter<bool> ("saveJetBTagging", true);
   
  saveTTBar_ = iConfig.getUntrackedParameter<bool> ("saveTTBar", false);
+ saveHiggs_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
  saveMCPtHat_ = iConfig.getUntrackedParameter<bool> ("saveMCPtHat", false);
- saveMCHiggs_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
- saveMCHiggsDecay_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsDecay", false);
- saveMCEle_ = iConfig.getUntrackedParameter<bool> ("saveMCEle", false);
- saveMCMu_ = iConfig.getUntrackedParameter<bool> ("saveMCMu", false);
-
- saveGenJet_ = iConfig.getUntrackedParameter<bool> ("saveGenJet", false);
- saveGenMet_ = iConfig.getUntrackedParameter<bool> ("saveGenMet", false);
   
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity",false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType",1);
@@ -155,21 +132,14 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("PV_d0"); 
  }
  
- if(saveTrack_)
- {
-   NtupleFactory_ -> Add3V("tracks_in");
-   NtupleFactory_ -> Add3V("tracks_out");   
- }
-
  if(saveEle_)
   {
     NtupleFactory_->Add4V("electrons");
     NtupleFactory_->AddFloat("electrons_charge"); 
-    NtupleFactory_ -> AddFloat("electrons_dxy");
-    NtupleFactory_ -> AddFloat("electrons_dz");
-    NtupleFactory_ -> AddFloat("electrons_3DipSignificance");    
-    NtupleFactory_ -> AddFloat("electrons_tipSignificance");    
-    NtupleFactory_ -> AddFloat("electrons_lipSignificance");
+    NtupleFactory_ -> AddFloat("electrons_dxy_PV");
+    NtupleFactory_ -> AddFloat("electrons_dz_PV");
+    NtupleFactory_ -> AddFloat("electrons_dB");
+    NtupleFactory_ -> AddFloat("electrons_edB");
 
     NtupleFactory_ -> AddFloat("electrons_tkIsoR03"); 
     NtupleFactory_ -> AddFloat("electrons_tkIsoR04"); 
@@ -195,10 +165,9 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_ -> AddFloat("electrons_deltaEtaIn");
     NtupleFactory_ -> AddFloat("electrons_sigmaIetaIeta");
 
-    NtupleFactory_->AddFloat("electrons_IdLoose"); 
-    NtupleFactory_->AddFloat("electrons_IdTight"); 
-    NtupleFactory_->AddFloat("electrons_IdRobustLoose"); 
-    NtupleFactory_->AddFloat("electrons_IdRobustTight"); 
+    for( std::vector<std::string>::const_iterator iEleID = eleID_names_.begin(); iEleID != eleID_names_.end(); iEleID++ ) {
+     NtupleFactory_->AddFloat(*iEleID);
+    }
 
     NtupleFactory_->AddFloat("electrons_track_d0");
     NtupleFactory_->AddFloat("electrons_track_dz");
@@ -207,8 +176,6 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 
     NtupleFactory_->AddInt("electrons_mishits");
     NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
-    NtupleFactory_->AddFloat("electrons_dist");
-    NtupleFactory_->AddFloat("electrons_dcot");
     
     NtupleFactory_->AddInt("electrons_seedSeverityLevel");
     NtupleFactory_->AddInt("electrons_seedFlag");
@@ -223,10 +190,10 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_ -> AddFloat("muons_charge"); 
     NtupleFactory_ -> AddFloat("muons_dxy");
     NtupleFactory_ -> AddFloat("muons_dz");
-    NtupleFactory_ -> AddFloat("muons_3DipSignificance");    
-    NtupleFactory_ -> AddFloat("muons_tipSignificance");    
-    NtupleFactory_ -> AddFloat("muons_lipSignificance");    
-    
+
+    NtupleFactory_ -> AddFloat("muons_dB");
+    NtupleFactory_ -> AddFloat("muons_edB");
+
     NtupleFactory_ -> AddFloat("muons_nTkIsoR03"); 
     NtupleFactory_ -> AddFloat("muons_nTkIsoR05"); 
     NtupleFactory_ -> AddFloat("muons_tkIsoR03"); 
@@ -246,14 +213,14 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 
  if(saveMet_)
   {
-   NtupleFactory_->Add4V("met");         
+   NtupleFactory_->Add4V("CALOMet");         
    NtupleFactory_->Add4V("type1Met");         
    NtupleFactory_->Add4V("TcMet");         
    NtupleFactory_->Add4V("PFMet");         
   }
 
 
- if(saveJet_ || savePFJet_)
+ if(saveJet_)
   {
     NtupleFactory_->Add4V("jets");
     
@@ -267,21 +234,13 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("jets_phiphiMoment");   
     NtupleFactory_->AddFloat("jets_etaphiMoment");   
     NtupleFactory_->AddFloat("jets_jetArea");   
-    
-    
-    if(saveJet_)
-    {
+  
       NtupleFactory_->AddFloat("jets_emEnergyFraction");   
       NtupleFactory_->AddFloat("jets_fHPD");   
       NtupleFactory_->AddFloat("jets_fRBX");   
       NtupleFactory_->AddFloat("jets_n90Hits");   
       NtupleFactory_->AddFloat("jets_nHCALTowers");   
       NtupleFactory_->AddFloat("jets_nECALTowers");   
-    }
-    
-    
-    if(savePFJet_)
-    {
       NtupleFactory_->AddFloat("jets_chargedHadronEnergy"); 
       NtupleFactory_->AddFloat("jets_chargedHadronEnergyFraction");
       NtupleFactory_->AddFloat("jets_neutralHadronEnergy"); 
@@ -295,20 +254,10 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
       NtupleFactory_->AddInt("jets_chargedMultiplicity"); 
       NtupleFactory_->AddInt("jets_neutralMultiplicity"); 
       NtupleFactory_->AddInt("jets_muonMultiplicity"); 
-    }
   }
   
 
   ///==== Gen level ====  
-  if(saveGenJet_)
-  {
-    NtupleFactory_->Add4V("genJets");         
-  }    
-   
-  if(saveGenMet_)
-  {
-   NtupleFactory_->Add4V("genMet");                
-  }
   
   if(saveTTBar_)
   {
@@ -358,14 +307,11 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("mc_ptHat");    
   }
 
-  if(saveMCHiggs_)
+  if(saveHiggs_)
   {
     NtupleFactory_->Add4V("mc_H");    
     NtupleFactory_->AddFloat("mc_H_charge");    
-  }
-
-  if(saveMCHiggsDecay_)
-  {
+ 
     NtupleFactory_->Add4V("mcV1");         
     NtupleFactory_->AddFloat("mcV1_charge");    
     NtupleFactory_->AddFloat("mcV1_pdgId");    
@@ -399,20 +345,6 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
   }
   
-  if(saveMCEle_)
-  {
-    NtupleFactory_->Add4V("mc_ele");    
-    NtupleFactory_->AddFloat("mc_ele_charge");    
-  }
-
-  if(saveMCMu_)
-  {
-    NtupleFactory_->Add4V("mc_mu");    
-    NtupleFactory_->AddFloat("mc_mu_charge");    
-  }
-  
-
- 
 }
 
 // --------------------------------------------------------------------
@@ -468,14 +400,7 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
  edm::Handle<edm::View<pat::Muon> > muHandle;
  iEvent.getByLabel(MuTag_,muHandle);
  edm::View<pat::Muon> muons = *muHandle;
- 
- edm::Handle<muMap> Mu3DipSignificanceHandle ;
- iEvent.getByLabel (Mu3DipSignificanceTag_,Mu3DipSignificanceHandle);
- edm::Handle<muMap> MuTipSignificanceHandle ;
- iEvent.getByLabel (MuTipSignificanceTag_,MuTipSignificanceHandle);
- edm::Handle<muMap> MuLipSignificanceHandle ;
- iEvent.getByLabel (MuLipSignificanceTag_,MuLipSignificanceHandle);
- 
+  
  for ( unsigned int i=0; i<muons.size(); i++ ) {
     pat::Muon muon = muons.at(i);
       
@@ -487,6 +412,9 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
   NtupleFactory_ -> FillFloat("muons_dxy",(muon.globalTrack())->dxy(PVPoint_));
   NtupleFactory_ -> FillFloat("muons_dz",(muon.globalTrack())->dz(PVPoint_));
  
+  NtupleFactory_ -> FillFloat("muons_dB",muon.dB());
+  NtupleFactory_ -> FillFloat("muons_edB",muon.edB());
+
   NtupleFactory_->FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
   NtupleFactory_->FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);    
   NtupleFactory_->FillFloat("muons_emIsoR03",(muon.isolationR03()).emEt);
@@ -497,11 +425,6 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
   NtupleFactory_->FillFloat("muons_emIsoR05",(muon.isolationR05()).emEt);
   NtupleFactory_->FillFloat("muons_hadIsoR05",(muon.isolationR05()).hadEt);
 
-//  NtupleFactory_->FillFloat("muons_3DipSignificance",((*Mu3DipSignificanceHandle)[muRef]));
-//  NtupleFactory_->FillFloat("muons_tipSignificance",((*MuTipSignificanceHandle)[muRef]));
-//  NtupleFactory_->FillFloat("muons_lipSignificance",((*MuLipSignificanceHandle)[muRef]));
-
-  
   NtupleFactory_ -> FillInt  ("muons_tracker",muon.isTrackerMuon());
   NtupleFactory_ -> FillInt  ("muons_standalone",muon.isStandAloneMuon());
   NtupleFactory_ -> FillInt  ("muons_global",muon.isGlobalMuon());
@@ -572,21 +495,6 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
     iESetup.get<IdealMagneticFieldRecord>().get(magneticField);
     bField = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
   }
-
-
- edm::Handle<eleMap> Ele3DipSignificanceHandle ;
- iEvent.getByLabel (Ele3DipSignificanceTag_,Ele3DipSignificanceHandle);
- edm::Handle<eleMap> EleTipSignificanceHandle ;
- iEvent.getByLabel (EleTipSignificanceTag_,EleTipSignificanceHandle);
- edm::Handle<eleMap> EleLipSignificanceHandle ;
- iEvent.getByLabel (EleLipSignificanceTag_,EleLipSignificanceHandle);
-  
- std::vector<edm::Handle<edm::ValueMap<float> > > eleIdCutHandles(4) ;
- iEvent.getByLabel (eleIDCut_LooseInputTag_, eleIdCutHandles[0]) ;
- iEvent.getByLabel (eleIDCut_RLooseInputTag_, eleIdCutHandles[1]) ;
- iEvent.getByLabel (eleIDCut_TightInputTag_, eleIdCutHandles[2]) ;
- iEvent.getByLabel (eleIDCut_RTightInputTag_, eleIdCutHandles[3]) ;
-
  
  for ( unsigned int i=0; i<electrons.size(); ++i ) {
   pat::Electron electron = electrons.at(i);
@@ -596,9 +504,12 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
 
   NtupleFactory_ -> Fill4V   ("electrons",electron.p4());
   NtupleFactory_ -> FillFloat("electrons_charge",electron.charge());
-  NtupleFactory_ -> FillFloat("electrons_dxy",(electron.gsfTrack())->dxy(PVPoint_));
-  NtupleFactory_ -> FillFloat("electrons_dz",(electron.gsfTrack())->dz(PVPoint_));
- 
+  NtupleFactory_ -> FillFloat("electrons_dxy_PV",(electron.gsfTrack())->dxy(PVPoint_));
+  NtupleFactory_ -> FillFloat("electrons_dz_PV",(electron.gsfTrack())->dz(PVPoint_));
+
+  NtupleFactory_ -> FillFloat("electrons_dB",electron.dB());
+  NtupleFactory_ -> FillFloat("electrons_edB",electron.edB());
+
   NtupleFactory_ -> FillFloat("electrons_tkIsoR03",electron.dr03TkSumPt());
   NtupleFactory_ -> FillFloat("electrons_tkIsoR04",electron.dr04TkSumPt());
   NtupleFactory_ -> FillFloat("electrons_emIsoR03",electron.dr03EcalRecHitSumEt());
@@ -616,10 +527,9 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   else                            NtupleFactory_ -> FillInt("electrons_trackerDrivenSeed", 0);
   
   //ELE ID
-//  NtupleFactory_->FillFloat("electrons_IdLoose",(*(eleIdCutHandles[0]))[eleRef]) ;
-//  NtupleFactory_->FillFloat("electrons_IdRobustLoose",(*(eleIdCutHandles[1]))[eleRef]);
-//  NtupleFactory_->FillFloat("electrons_IdTight",(*(eleIdCutHandles[2]))[eleRef]);
-//  NtupleFactory_->FillFloat("electrons_IdRobustTight",(*(eleIdCutHandles[3]))[eleRef]);
+  for( std::vector<std::string>::const_iterator iEleID = eleID_names_.begin(); iEleID != eleID_names_.end(); iEleID++ ) {
+    NtupleFactory_ -> FillFloat(*iEleID,electron.electronID(*iEleID));
+  }
 
   NtupleFactory_ -> FillFloat("electrons_scE",scRef->energy());
   NtupleFactory_ -> FillFloat("electrons_eSeed",scRef->seed()->energy());
@@ -637,50 +547,7 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
 
 
   // conversion rejection variables
-//  ConversionFinder convFinder;
-//  ConversionInfo convInfo = convFinder.getConversionInfo((*EleHandle)[i], trackHandle, bField);
-   
   NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
-//  NtupleFactory_->FillFloat("electrons_dist", convInfo.dist());
-//  NtupleFactory_->FillFloat("electrons_dcot", convInfo.dcot());
-   
-   
-   // spike removal variables
-/*
-   int sev = -1;
-   int flag = -1;
-   
-   if(eleRef->isEB())
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theBarrelEcalRecHits, *(theChannelStatus.product()));
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
-     if( it != theBarrelEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
-     }
-   }
- 
-   else
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theEndcapEcalRecHits, *(theChannelStatus.product()));
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-     if( it != theEndcapEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
-     }
-   }
-
-  NtupleFactory_->FillInt("electrons_seedSeverityLevel", sev);
-  NtupleFactory_->FillInt("electrons_seedFlag", flag);
-   */
 
   // preshower variables 
   NtupleFactory_->FillFloat("electrons_ES",scRef->preshowerEnergy());
@@ -693,9 +560,6 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_->FillFloat("electrons_track_d0err", eleTrack->d0Error ());
   NtupleFactory_->FillFloat("electrons_track_dzerr", eleTrack->dzError ());
   
-//  NtupleFactory_->FillFloat("electrons_3DipSignificance",((*Ele3DipSignificanceHandle)[eleRef]));
-//  NtupleFactory_->FillFloat("electrons_tipSignificance",((*EleTipSignificanceHandle)[eleRef]));
-//  NtupleFactory_->FillFloat("electrons_lipSignificance",((*EleLipSignificanceHandle)[eleRef]));
  }
 }
 
@@ -821,6 +685,7 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
   for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ ) {
     NtupleFactory_ -> FillFloat(*iBTag,jet.bDiscriminator(*iBTag));
    }
+
   } // loop on jets
   
   //std::cout << "SimpleNtple::fillJetInfo::end" << std::endl;
@@ -838,25 +703,25 @@ void SimpleNtple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup 
   iEvent.getByLabel(MetTag_,MetHandle);
   edm::View<pat::MET> mets = *MetHandle;
   
- edm::Handle<reco::CaloMETCollection> Type1MetHandle ;
- iEvent.getByLabel (Type1MetTag_,Type1MetHandle);
+  edm::Handle<edm::View<pat::MET> > Type1MetHandle ;
+  iEvent.getByLabel (Type1MetTag_,Type1MetHandle);
+  edm::View<pat::MET> type1Met = *Type1MetHandle;
+
+  edm::Handle<edm::View<pat::MET> > TcMetHandle;
+  iEvent.getByLabel(TcMetTag_,TcMetHandle);
+  edm::View<pat::MET> TcMet = *TcMetHandle;
+
+  edm::Handle<edm::View<pat::MET> > PFMetHandle;
+  iEvent.getByLabel(PFMetTag_,PFMetHandle);
+  edm::View<pat::MET> PFMet = *PFMetHandle;
  
- edm::Handle<reco::METCollection> TcMetHandle ;
- iEvent.getByLabel (TcMetTag_,TcMetHandle);
+  NtupleFactory_->Fill4V("CALOMet",mets.at(0).p4());
  
- edm::Handle<reco::PFMETCollection> PFMetHandle ;
- iEvent.getByLabel (PFMetTag_,PFMetHandle);
+  NtupleFactory_->Fill4V("type1Met",type1Met.at(0).p4());
  
- NtupleFactory_->Fill4V("met",mets.at(0).p4());
+  NtupleFactory_->Fill4V("TcMet",TcMet.at(0).p4());
  
- const reco::MET* type1Met = &(Type1MetHandle->front());
- NtupleFactory_->Fill4V("type1Met",type1Met->p4());
- 
- const reco::MET* TcMet = &(TcMetHandle->front());
- NtupleFactory_->Fill4V("TcMet",TcMet->p4());
- 
- const reco::PFMET* PFMet = &(PFMetHandle->front());
- NtupleFactory_->Fill4V("PFMet",PFMet->p4());
+  NtupleFactory_->Fill4V("PFMet",PFMet.at(0).p4());
 }
 
 
@@ -889,6 +754,9 @@ void SimpleNtple::fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSe
   
  if( (eventType_ == 0) && (isValid == true) )
  {
+  NtupleFactory_->Fill4V("mc_H",mcAnalysisVBF_ -> mcH()->p4());
+  NtupleFactory_->FillFloat("mc_H_charge",mcAnalysisVBF_ -> mcH()->charge());
+
   NtupleFactory_->Fill4V("mcV1",mcAnalysisVBF_ -> mcV1()->p4());
   NtupleFactory_->FillFloat("mcV1_charge",mcAnalysisVBF_ -> mcV1()->charge());
   NtupleFactory_->FillFloat("mcV1_pdgId",mcAnalysisVBF_ -> mcV1()->pdgId());
@@ -1007,20 +875,17 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   NtupleFactory_->FillInt("eventNaiveId", eventNaiveId_);
 
 
-
-
-
  edm::Handle<reco::GenParticleCollection> genParticles;
 
- if(saveMCHiggs_ || saveMCHiggsDecay_ || saveMCEle_ || saveMCMu_)
+ if(saveHiggs_)
  {
    iEvent.getByLabel(MCtruthTag_, genParticles);
-  
    mcAnalysisVBF_ = new MCDumperVBF(genParticles, eventType_, verbosity_);
  }
   
  if(saveTTBar_)
  {
+  iEvent.getByLabel(MCtruthTag_, genParticles);
   mcAnalysisTTBar_ = new MCDumperTTBar(genParticles, eventType_, verbosity_);
  }
 
@@ -1035,9 +900,6 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
  ///---- fill electrons ----
  if (saveEle_)  fillEleInfo (iEvent, iSetup);
-
- ///---- fill tracks ----
- if (saveTrack_) fillTrackInfo (iEvent, iSetup);
  
  ///---- fill jets ---- 
  if (saveJet_) fillJetInfo (iEvent, iSetup);
@@ -1046,7 +908,7 @@ void SimpleNtple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  if (saveMet_) fillMetInfo (iEvent, iSetup);
  
  ///---- fill MCParticle ---- 
- if (saveMCHiggs_) fillMCHiggsInfo (iEvent, iSetup);
+ if (saveHiggs_) fillMCHiggsInfo (iEvent, iSetup);
  if (saveTTBar_) fillMCTTBarInfo (iEvent, iSetup);
 
  ///---- fill MCPtHat ---- 
