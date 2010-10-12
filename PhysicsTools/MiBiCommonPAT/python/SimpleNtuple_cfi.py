@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 SimpleNtuple = cms.EDAnalyzer(
     "SimpleNtuple",
     
+    #-------------------
+    #### Input Tags ####
+    
     HLTTag = cms.InputTag("TriggerResults","","HLT"),
     
     PVTag = cms.InputTag("offlinePrimaryVerticesWithBS"),
@@ -12,9 +15,6 @@ SimpleNtuple = cms.EDAnalyzer(
      
     #### electrons ####
     EleTag                = cms.InputTag("patElectrons"),
-    TracksTag             = cms.InputTag("generalTracks"),
-    EBRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    EERecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     EleID_names           = cms.vstring('simpleEleId80relIso','simpleEleId85relIso','eidLoose','eidRobustLoose','eidTight','eidRobustTight'),
     
     #### jets ####
@@ -29,7 +29,10 @@ SimpleNtuple = cms.EDAnalyzer(
     MCtruthTag = cms.InputTag("genParticles"),
     
     
+    
+    #--------------
     #### flags ####
+    
     dataFlag              = cms.untracked.bool (True),
     saveHLT               = cms.untracked.bool (True),     
     savePV                = cms.untracked.bool (True),     
