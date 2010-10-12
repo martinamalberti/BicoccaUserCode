@@ -114,12 +114,15 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveEle_ ;
   bool saveJet_ ;
   bool saveMet_ ;
+
+  ///---- save MC Info ----
   bool saveMCPtHat_ ;
   bool saveMCTTBar_; 
   bool saveMCHiggs_ ;
   bool saveMCHiggsWW_ ;
   bool saveMCHiggsGammaGamma_ ;
-  
+  bool saveGenJet_;  
+
   int eventType_; //---- 0 = signal    1 = background 
   bool verbosity_; //---- true = loquacious    false = silence  
   int eventNaiveId_;

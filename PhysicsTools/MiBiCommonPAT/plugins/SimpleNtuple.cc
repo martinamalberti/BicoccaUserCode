@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.4 2010/10/12 12:51:07 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.5 2010/10/12 13:17:39 abenagli Exp $
 //
 //
 
@@ -69,12 +69,15 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveMu_   = iConfig.getUntrackedParameter<bool> ("saveMu", true);
  saveMet_  = iConfig.getUntrackedParameter<bool> ("saveMet", true);
  saveJet_  = iConfig.getUntrackedParameter<bool> ("saveJet", true);
+ 
+ //---- save MC info ----
  saveMCPtHat_           = iConfig.getUntrackedParameter<bool> ("saveMCPtHat", false);
  saveMCTTBar_           = iConfig.getUntrackedParameter<bool> ("saveMCTTBar", false);
  saveMCHiggs_           = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
  saveMCHiggsWW_         = iConfig.getUntrackedParameter<bool> ("saveMCHiggsWW", false);
  saveMCHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsGammaGamma", false);
-  
+ saveGenJet_            = iConfig.getUntrackedParameter<bool> ("saveGenJet", false);
+
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
  
@@ -240,6 +243,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddInt  ("jets_chargedMultiplicity"); 
    NtupleFactory_->AddInt  ("jets_neutralMultiplicity"); 
    NtupleFactory_->AddInt  ("jets_muonMultiplicity"); 
+
+  if (saveGenJet_) NtupleFactory_->Add4V("genJets");
  }
   
  
@@ -661,6 +666,9 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillInt  ("jets_chargedMultiplicity",jet.chargedMultiplicity()); 
   NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
   NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
+
+  if (saveGenJet_) NtupleFactory_->Fill4V("genJets",jet.genJet()->p4());
+
  } // loop on jets
   
   //std::cout << "SimpleNtuple::fillJetInfo::end" << std::endl;
