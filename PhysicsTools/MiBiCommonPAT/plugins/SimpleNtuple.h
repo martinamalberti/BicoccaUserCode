@@ -81,8 +81,8 @@
 class SimpleNtuple : public edm::EDAnalyzer {
 
 public:
-  //typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::GsfElectron>, float> > eleMap;
- //typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, float> > muMap;
+ typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::GsfElectron>, float> > eleMap;
+ typedef edm::AssociationMap<edm::OneToValue<std::vector<reco::Muon>, float> > muMap;
 
  public:
   explicit SimpleNtuple(const edm::ParameterSet&);
@@ -120,54 +120,35 @@ public:
   edm::InputTag PVTag_;
   edm::InputTag TracksTag_;
   edm::InputTag EleTag_;
-  edm::InputTag Ele3DipSignificanceTag_;
-  edm::InputTag EleTipSignificanceTag_;
-  edm::InputTag EleLipSignificanceTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
 
   edm::InputTag MuTag_;
-  edm::InputTag Mu3DipSignificanceTag_;
-  edm::InputTag MuTipSignificanceTag_;
-  edm::InputTag MuLipSignificanceTag_;
   edm::InputTag MetTag_;
   edm::InputTag Type1MetTag_;
   edm::InputTag PFMetTag_;
   edm::InputTag TcMetTag_;
   edm::InputTag JetTag_;
   edm::InputTag JetTag_forID_;
+  
   edm::InputTag MCtruthTag_;
-  edm::InputTag genJetTag_;
-  edm::InputTag genMetTag_;
-  
-  edm::InputTag eleIDCut_LooseInputTag_ ;
-  edm::InputTag eleIDCut_RLooseInputTag_ ;
-  edm::InputTag eleIDCut_TightInputTag_ ;
-  edm::InputTag eleIDCut_RTightInputTag_ ;
-  
+
+  std::vector<std::string> eleID_names_;
   std::vector<std::string> BTag_names_;
-  edm::InputTag JetChargeTag_;
   
   bool dataTag_;
   bool saveHLT_ ;
   bool savePV_ ;
   bool saveMu_ ;
-  bool saveTrack_ ;
   bool saveEle_ ;
   bool saveJet_ ;
-  bool savePFJet_ ;
-  bool saveJetBTagging_ ;
   bool saveMet_ ;
-  bool saveGenJet_ ;
-  bool saveGenMet_ ;
   bool saveMCPtHat_ ;
-  bool saveTTBar_; 
+  bool saveMCTTBar_; 
   bool saveMCHiggs_ ;
   bool saveMCHiggsWW_ ;
   bool saveMCHiggsGammaGamma_ ;
-  bool saveMCEle_ ;
-  bool saveMCMu_ ;
-
+  
   int eventType_; //---- 0 = signal      1 = background 
   bool verbosity_; //---- true = loquacious     false = silence  
   int eventNaiveId_;
