@@ -190,9 +190,9 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   // ... barrel 
   h_redRecHits_EB_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",32,0.5,32.5);  
   // ... endcap 
-  h_redRecHits_EE_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",32,0.5,32.5);  
+  h_redRecHits_EE_recoFlag = fs->make<TH1D>("h_redRecHits_EE_recoFlag","h_redRecHits_EE_recoFlag",32,0.5,32.5);  
   // ... all 
-  h_redRecHits_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",32,0.5,32.5);  
+  h_redRecHits_recoFlag = fs->make<TH1D>("h_redRecHits_recoFlag","h_redRecHits_recoFlag",32,0.5,32.5);  
 
   
   // RecHits ---------------------------------------------- 
@@ -911,8 +911,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     const std::vector<std::pair<DetId,float> > & hits= (*basicClusters_EE_h)[icl].hitsAndFractions();
     for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
       
-      EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
-      if (itrechit==theBarrelEcalRecHits->end()) continue;
+      EBRecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
+      if (itrechit==theEndcapEcalRecHits->end()) continue;
       h_basicClusters_recHits_EE_recoFlag -> Fill ( itrechit -> recoFlag() );
       h_basicClusters_recHits_recoFlag    -> Fill ( itrechit -> recoFlag() );
     }
