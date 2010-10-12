@@ -13,36 +13,11 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.3 2010/10/12 11:26:07 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.4 2010/10/12 12:51:07 abenagli Exp $
 //
 //
 
-
-// system include files
-#include <memory>
-
-// user include files
 #include "PhysicsTools/MiBiCommonPAT/plugins/SimpleNtuple.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-
-//--- objects ----
-//#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-//#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-//#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/TrackReco/interface/TrackFwd.h"
-//#include "DataFormats/JetReco/interface/GenJet.h"
-//#include "DataFormats/JetReco/interface/GenJetCollection.h"
-//#include "DataFormats/Common/interface/ValueMap.h"
 
 
 
@@ -68,7 +43,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  //---- Input tags ---- 
  HLTTag_ = iConfig.getParameter<edm::InputTag>("HLTTag");
   
- BSTag_ = iConfig.getParameter<edm::InputTag>("BSTag");
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
  
  EleTag_      = iConfig.getParameter<edm::InputTag>("EleTag");
@@ -235,12 +209,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  if(saveJet_)
  {
    NtupleFactory_->Add4V("jets");
+   NtupleFactory_->AddFloat("jets_charge");   
    
    for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ ) {
     NtupleFactory_->AddFloat(*iBTag);
    }
-   
-   NtupleFactory_->AddFloat("jets_charge");   
    
    NtupleFactory_->AddFloat("jets_etaetaMoment");
    NtupleFactory_->AddFloat("jets_phiphiMoment");   
@@ -253,6 +226,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddFloat("jets_n90Hits");   
    NtupleFactory_->AddFloat("jets_nHCALTowers");   
    NtupleFactory_->AddFloat("jets_nECALTowers");   
+   
    NtupleFactory_->AddFloat("jets_chargedHadronEnergy"); 
    NtupleFactory_->AddFloat("jets_chargedHadronEnergyFraction");
    NtupleFactory_->AddFloat("jets_neutralHadronEnergy"); 
@@ -263,9 +237,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddFloat("jets_chargedMuEnergyFraction"); 
    NtupleFactory_->AddFloat("jets_neutralEmEnergy"); 
    NtupleFactory_->AddFloat("jets_neutralEmEnergyFraction"); 
-   NtupleFactory_->AddInt("jets_chargedMultiplicity"); 
-   NtupleFactory_->AddInt("jets_neutralMultiplicity"); 
-   NtupleFactory_->AddInt("jets_muonMultiplicity"); 
+   NtupleFactory_->AddInt  ("jets_chargedMultiplicity"); 
+   NtupleFactory_->AddInt  ("jets_neutralMultiplicity"); 
+   NtupleFactory_->AddInt  ("jets_muonMultiplicity"); 
  }
   
  
@@ -426,7 +400,7 @@ void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup &
   //std::cout << "SimpleNtuple::fillBSInfo::begin" << std::endl;
   
   edm::Handle<reco::BeamSpot> BSHandle;
-  iEvent.getByLabel(BSTag_, BSHandle);
+  iEvent.getByType(BSHandle);
   
   
   // select the BS
@@ -475,8 +449,8 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
     PV = sortedVertices.front();
     
     NtupleFactory_ -> FillFloat("PV_normalizedChi2", PV.normalizedChi2());
-    NtupleFactory_ -> FillInt("PV_ndof", PV.ndof());
-    NtupleFactory_ -> FillInt("PV_nTracks", PV.tracksSize());
+    NtupleFactory_ -> FillInt  ("PV_ndof", PV.ndof());
+    NtupleFactory_ -> FillInt  ("PV_nTracks", PV.tracksSize());
     NtupleFactory_ -> FillFloat("PV_z", PV.z());
     NtupleFactory_ -> FillFloat("PV_d0", PV.position().Rho());
   }
@@ -492,8 +466,8 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
     PV = reco::Vertex(p, e, 1, 1, 1);
     
     NtupleFactory_ -> FillFloat("PV_normalizedChi2", -1.);
-    NtupleFactory_ -> FillInt("PV_ndof", -1);
-    NtupleFactory_ -> FillInt("PV_nTracks", -1);
+    NtupleFactory_ -> FillInt  ("PV_ndof", -1);
+    NtupleFactory_ -> FillInt  ("PV_nTracks", -1);
     NtupleFactory_ -> FillFloat("PV_z", -9999.);
     NtupleFactory_ -> FillFloat("PV_d0", -9999.);
   }
@@ -523,8 +497,8 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
  for ( unsigned int i=0; i<muons.size(); i++ ) {
     pat::Muon muon = muons.at(i);
       
-  NtupleFactory_->Fill4V("muons",muon.p4());
-  NtupleFactory_->FillFloat("muons_charge",(muon.charge()));
+  NtupleFactory_ -> Fill4V   ("muons",muon.p4());
+  NtupleFactory_ -> FillFloat("muons_charge",(muon.charge()));
   NtupleFactory_ -> FillFloat("muons_dB",muon.dB());
   NtupleFactory_ -> FillFloat("muons_edB",muon.edB());
   NtupleFactory_ -> FillFloat("muons_dxy",(muon.globalTrack())->dxy());
@@ -534,16 +508,16 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillFloat("muons_dxy_PV",(muon.globalTrack())->dxy(PVPoint_));
   NtupleFactory_ -> FillFloat("muons_dz_PV",(muon.globalTrack())->dz(PVPoint_));
 
-  NtupleFactory_->FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
-  NtupleFactory_->FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);    
-  NtupleFactory_->FillFloat("muons_emIsoR03",(muon.isolationR03()).emEt);
-  NtupleFactory_->FillFloat("muons_hadIsoR03",(muon.isolationR03()).hadEt);
-    
-  NtupleFactory_->FillFloat("muons_tkIsoR05",(muon.isolationR05()).sumPt);
-  NtupleFactory_->FillFloat("muons_nTkIsoR05",(muon.isolationR05()).nTracks);    
-  NtupleFactory_->FillFloat("muons_emIsoR05",(muon.isolationR05()).emEt);
-  NtupleFactory_->FillFloat("muons_hadIsoR05",(muon.isolationR05()).hadEt);
-
+  NtupleFactory_ -> FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
+  NtupleFactory_ -> FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);    
+  NtupleFactory_ -> FillFloat("muons_emIsoR03",(muon.isolationR03()).emEt);
+  NtupleFactory_ -> FillFloat("muons_hadIsoR03",(muon.isolationR03()).hadEt);
+  
+  NtupleFactory_ -> FillFloat("muons_tkIsoR05",(muon.isolationR05()).sumPt);
+  NtupleFactory_ -> FillFloat("muons_nTkIsoR05",(muon.isolationR05()).nTracks);    
+  NtupleFactory_ -> FillFloat("muons_emIsoR05",(muon.isolationR05()).emEt);
+  NtupleFactory_ -> FillFloat("muons_hadIsoR05",(muon.isolationR05()).hadEt);
+  
   NtupleFactory_ -> FillInt  ("muons_tracker",muon.isTrackerMuon());
   NtupleFactory_ -> FillInt  ("muons_standalone",muon.isStandAloneMuon());
   NtupleFactory_ -> FillInt  ("muons_global",muon.isGlobalMuon());
@@ -597,7 +571,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_hadIsoR03_depth2",electron.dr03HcalDepth2TowerSumEt());
   NtupleFactory_ -> FillFloat("electrons_hadIsoR04_depth1",electron.dr04HcalDepth1TowerSumEt());
   NtupleFactory_ -> FillFloat("electrons_hadIsoR04_depth2",electron.dr04HcalDepth2TowerSumEt());
-
+  
   if(electron.isEB()) NtupleFactory_ -> FillInt("electrons_isEB", 1);
   else                NtupleFactory_ -> FillInt("electrons_isEB", 0);
   if(electron.ecalDrivenSeed()) NtupleFactory_ -> FillInt("electrons_ecalDrivenSeed", 1);
@@ -609,7 +583,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   for( std::vector<std::string>::const_iterator iEleID = EleID_names_.begin(); iEleID != EleID_names_.end(); iEleID++ ) {
     NtupleFactory_ -> FillFloat(*iEleID,electron.electronID(*iEleID));
   }
-
+  
   NtupleFactory_ -> FillFloat("electrons_eSC",scRef->energy());
   NtupleFactory_ -> FillFloat("electrons_eSeed",scRef->seed()->energy());
   NtupleFactory_ -> FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
@@ -626,8 +600,8 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_e5x5",electron.e5x5());
   
   // conversion rejection variables
-  NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
-  NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
+  NtupleFactory_ -> FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
+  NtupleFactory_ -> FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
 
   // preshower variables 
   NtupleFactory_->FillFloat("electrons_eES",scRef->preshowerEnergy());
@@ -656,22 +630,24 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   pat::Jet jet = jets.at(i);
 
   NtupleFactory_ -> Fill4V   ("jets",jet.p4());
-  NtupleFactory_ -> FillFloat("jets_emEnergyFraction",jet.emEnergyFraction());
+  NtupleFactory_ -> FillFloat("jets_charge",jet.charge());
+  
+  //==== jet b tagging
+  for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ )
+    NtupleFactory_ -> FillFloat(*iBTag,jet.bDiscriminator(*iBTag));
+  
   NtupleFactory_ -> FillFloat("jets_etaetaMoment",jet.etaetaMoment());
   NtupleFactory_ -> FillFloat("jets_phiphiMoment",jet.phiphiMoment());
   NtupleFactory_ -> FillFloat("jets_etaphiMoment",jet.etaphiMoment());
   NtupleFactory_ -> FillFloat("jets_jetArea",jet.jetArea());
-    
-    
+
+  NtupleFactory_ -> FillFloat("jets_emEnergyFraction",jet.emEnergyFraction());
   NtupleFactory_->FillFloat("jets_fHPD",jet.jetID().fHPD);
   NtupleFactory_->FillFloat("jets_fRBX",jet.jetID().fRBX);
   NtupleFactory_->FillFloat("jets_n90Hits",jet.jetID().n90Hits);
   NtupleFactory_->FillFloat("jets_nHCALTowers",jet.jetID().nHCALTowers);
   NtupleFactory_->FillFloat("jets_nECALTowers",jet.jetID().nECALTowers);
- 
-  NtupleFactory_ -> FillFloat("jets_charge",jet.charge());
- 
-
+  
   NtupleFactory_ -> FillFloat("jets_chargedHadronEnergy",jet.chargedHadronEnergy()); 
   NtupleFactory_ -> FillFloat("jets_chargedHadronEnergyFraction",jet.chargedHadronEnergyFraction()); 
   NtupleFactory_ -> FillFloat("jets_neutralHadronEnergy",jet.neutralHadronEnergy()); 
@@ -685,14 +661,7 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillInt  ("jets_chargedMultiplicity",jet.chargedMultiplicity()); 
   NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
   NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
-   
-    
- //==== jet b tagging
-  for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ ) {
-    NtupleFactory_ -> FillFloat(*iBTag,jet.bDiscriminator(*iBTag));
-   }
-
-  } // loop on jets
+ } // loop on jets
   
   //std::cout << "SimpleNtuple::fillJetInfo::end" << std::endl;
  

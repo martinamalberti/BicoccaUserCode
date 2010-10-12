@@ -1,78 +1,41 @@
 #ifndef SimpleNtuple_h
 #define SimpleNtuple_h
 
-// system include files
-#include <memory>
-
-// user include files
+// cmssw include files
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"                                                                                                                            
+#include "CommonTools/UtilAlgos/interface/TFileService.h" 
 
-#include "TTree.h"
-#include <TLorentzVector.h>
-#include <TClonesArray.h>
-#include "TParticle.h"
-
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
-#include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/JetID.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionInfo.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-
-#include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
-
-#include "PhysicsTools/MiBiCommonPAT/interface/MCDumperTTBar.h"
-#include "PhysicsTools/MiBiCommonPAT/interface/MCDumperHiggs.h"
-
-///==== PAT ====
+// pat include files
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-///==== end PAT ====
 
-#include "Math/PtEtaPhiE4D.h"
-#include "Math/PtEtaPhiM4D.h"
-#include "Math/LorentzVector.h"
-#include "Math/Vector3D.h"
-#include "Math/GenVector/VectorUtil.h"
+// user include files
+#include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
+#include "PhysicsTools/MiBiCommonPAT/interface/MCDumperTTBar.h"
+#include "PhysicsTools/MiBiCommonPAT/interface/MCDumperHiggs.h"
+
+// root/c++ include files
+#include "TTree.h"
+#include <iostream>
+#include <vector>
+
+
+
+
 
 
 //---------------------------
@@ -122,7 +85,6 @@ class SimpleNtuple : public edm::EDAnalyzer {
   ///---- input tag ----
   edm::InputTag HLTTag_;
   
-  edm::InputTag BSTag_;
   edm::InputTag PVTag_;
   
   edm::InputTag EleTag_;
@@ -158,8 +120,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveMCHiggsWW_ ;
   bool saveMCHiggsGammaGamma_ ;
   
-  int eventType_; //---- 0 = signal      1 = background 
-  bool verbosity_; //---- true = loquacious     false = silence  
+  int eventType_; //---- 0 = signal    1 = background 
+  bool verbosity_; //---- true = loquacious    false = silence  
   int eventNaiveId_;
   
   MCDumperHiggs* mcAnalysisHiggs_;
