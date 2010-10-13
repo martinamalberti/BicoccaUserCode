@@ -59,46 +59,75 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     addTcMET(process, 'TC')
     addPfMET(process, 'PF')
  
-    #addJetCollection(
-    #    process,
-    #    cms.InputTag('ak5CaloJets'),
-    #    'AK5',
-    #    'Calo',
-    #    doJTA        = True,
-    #    doBTagging   = True,
-    #    jetCorrLabel = ('AK5', 'Calo'),
-    #    doType1MET   = True,
-    #    doL1Cleaning = True,
-    #    doL1Counters = False,
-    #    genJetCollection=cms.InputTag("ak5GenJets"),
-    #    doJetID      = True
-    #    )
+    addJetCollection(
+        process,
+        cms.InputTag('ak5CaloJets'),
+        'AK5','Calo',
+        doJTA        = False,
+        doBTagging   = True,
+        jetCorrLabel = ('AK5', 'Calo'),
+        doType1MET   = True,
+        doL1Cleaning = True,
+        doL1Counters = False,
+        genJetCollection=cms.InputTag("ak5GenJets"),
+        doJetID      = True
+        )
+
+
+#    process.load("PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff")
+#    process.patJetFlavourId
     
-    #addJetCollection(
-    #    process,
-    #    cms.InputTag('ak5PFJets'),
-    #    'AK5',
-    #    'PF',
-    #    doJTA        = True,
-    #    doBTagging   = True,
-    #    jetCorrLabel = ('AK5', 'PF'),
-    #    doType1MET   = False,
-    #    doL1Cleaning = True,
-    #    doL1Counters = False,
-    #    genJetCollection=cms.InputTag("ak5GenJets"),
-    #    doJetID      = True
-    #    )
-    
-    
-    #if not MC:
-    removeMCMatching(process, ['All'])
-    removeMCMatching(process, ['PFAll'])
+    addJetCollection(
+        process,
+        cms.InputTag('ak5PFJets'),
+        'AK5','PF',
+        doJTA        = True,
+        doBTagging   = True,
+        jetCorrLabel = ('AK5', 'PF'),
+        doType1MET   = False,
+        doL1Cleaning = True,
+        doL1Counters = False,
+        genJetCollection=cms.InputTag("ak5GenJets"),
+        doJetID      = True
+        )
+        
+    #  Electron ID 
+    #  cfr https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID#Electron_ID_Implementation_in_Re
+#    process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
+
+ #   process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
+ #   process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
+ #   process.patElectrons.addElectronID = cms.bool(True)
+ #   process.patElectrons.electronIDSources = cms.PSet(
+ #     simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
+ #     simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
+ #     simpleEleId85relIso= cms.InputTag("simpleEleId85relIso"),
+ #     simpleEleId80relIso= cms.InputTag("simpleEleId80relIso"),
+ #     simpleEleId70relIso= cms.InputTag("simpleEleId70relIso"),
+ #     simpleEleId60relIso= cms.InputTag("simpleEleId60relIso"),
+ #     simpleEleId95cIso= cms.InputTag("simpleEleId95cIso"),
+ #     simpleEleId90cIso= cms.InputTag("simpleEleId90cIso"),
+ #     simpleEleId85cIso= cms.InputTag("simpleEleId85cIso"),
+ #     simpleEleId80cIso= cms.InputTag("simpleEleId80cIso"),
+ #     simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
+ #     simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
+ #   )
+
+
+
+ ## switched from cleanPatCandidates to selectedPatCandidates
+ #from PhysicsTools.PatAlgos.tools.coreTools import removeCleaning
+ #removeCleaning(process)
+
+    if not MC:
+     removeMCMatching(process, ['All'])
+     removeMCMatching(process, ['PFAll'])
     
 
     # the MiBiNTUPLE
-    process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
-    process.MiBiCommonNTUPLE = process.SimpleNtuple.clone()
-    process.MiBiCommonNTUPLE.HLTTag = cms.InputTag("TriggerResults","",HLT)
+#    process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
+#    process.MiBiCommonNTUPLE = process.SimpleNtuple.clone()
+#    process.MiBiCommonNTUPLE.HLTTag = cms.InputTag("TriggerResults","",HLT)
     
     
     # the MiBiPAT path
@@ -108,8 +137,8 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
         process.NonScrapedEvents * # -> Counter
         process.primaryVertexFilter *
         process.GoodVtxEvents * # -> Counter
-        process.patDefaultSequence *
-        process.MiBiCommonNTUPLE
+        process.patDefaultSequence
+#        process.MiBiCommonNTUPLE
     )
     
     #output

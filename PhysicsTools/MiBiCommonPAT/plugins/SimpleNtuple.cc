@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.5 2010/10/12 13:17:39 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.7 2010/10/12 22:54:51 abenagli Exp $
 //
 //
 
@@ -490,12 +490,14 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
 
 void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillMuInfo" << std::endl;
+ std::cout << "SimpleNtuple::fillMuInfo" << std::endl;
  
  edm::Handle<edm::View<pat::Muon> > muHandle;
  iEvent.getByLabel(MuTag_,muHandle);
  edm::View<pat::Muon> muons = *muHandle;
-  
+ 
+ std::cout << "SimpleNtuple::start loop muon" << std::endl;
+ 
  for ( unsigned int i=0; i<muons.size(); i++ ) {
   pat::Muon muon = muons.at(i);
   reco::TrackRef tkRef; 
@@ -563,7 +565,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   pat::Electron electron = electrons.at(i);
   reco::SuperClusterRef scRef = electron.superCluster();
   reco::GsfTrackRef tkRef = electron.gsfTrack (); 
-  
   
   NtupleFactory_ -> Fill4V   ("electrons", electron.p4());
   NtupleFactory_ -> FillFloat("electrons_charge", electron.charge());
@@ -663,27 +664,32 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("jets_etaphiMoment",jet.etaphiMoment());
   NtupleFactory_ -> FillFloat("jets_jetArea",jet.jetArea());
 
-  NtupleFactory_ -> FillFloat("jets_emEnergyFraction",jet.emEnergyFraction());
+  if (jet.isCaloJet()){
+   NtupleFactory_ -> FillFloat("jets_emEnergyFraction",jet.emEnergyFraction());
+  }
+
   NtupleFactory_->FillFloat("jets_fHPD",jet.jetID().fHPD);
   NtupleFactory_->FillFloat("jets_fRBX",jet.jetID().fRBX);
   NtupleFactory_->FillFloat("jets_n90Hits",jet.jetID().n90Hits);
   NtupleFactory_->FillFloat("jets_nHCALTowers",jet.jetID().nHCALTowers);
   NtupleFactory_->FillFloat("jets_nECALTowers",jet.jetID().nECALTowers);
   
-  NtupleFactory_ -> FillFloat("jets_chargedHadronEnergy",jet.chargedHadronEnergy()); 
-  NtupleFactory_ -> FillFloat("jets_chargedHadronEnergyFraction",jet.chargedHadronEnergyFraction()); 
-  NtupleFactory_ -> FillFloat("jets_neutralHadronEnergy",jet.neutralHadronEnergy()); 
-  NtupleFactory_ -> FillFloat("jets_neutralHadronEnergyFraction",jet.neutralHadronEnergyFraction()); 
-  NtupleFactory_ -> FillFloat("jets_chargedEmEnergy",jet.chargedEmEnergy()); 
-  NtupleFactory_ -> FillFloat("jets_chargedEmEnergyFraction",jet.chargedEmEnergyFraction()); 
-  NtupleFactory_ -> FillFloat("jets_chargedMuEnergy",jet.chargedMuEnergy()); 
-  NtupleFactory_ -> FillFloat("jets_chargedMuEnergyFraction",jet.chargedMuEnergyFraction()); 
-  NtupleFactory_ -> FillFloat("jets_neutralEmEnergy",jet.neutralEmEnergy()); 
-  NtupleFactory_ -> FillFloat("jets_neutralEmEnergyFraction",jet.neutralEmEnergyFraction()); 
-  NtupleFactory_ -> FillInt  ("jets_chargedMultiplicity",jet.chargedMultiplicity()); 
-  NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
-  NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
- } // loop on jets
+  if (jet.isJPTJet()){
+   NtupleFactory_ -> FillFloat("jets_chargedHadronEnergy",jet.chargedHadronEnergy()); 
+   NtupleFactory_ -> FillFloat("jets_chargedHadronEnergyFraction",jet.chargedHadronEnergyFraction()); 
+   NtupleFactory_ -> FillFloat("jets_neutralHadronEnergy",jet.neutralHadronEnergy()); 
+   NtupleFactory_ -> FillFloat("jets_neutralHadronEnergyFraction",jet.neutralHadronEnergyFraction()); 
+   NtupleFactory_ -> FillFloat("jets_chargedEmEnergy",jet.chargedEmEnergy()); 
+   NtupleFactory_ -> FillFloat("jets_chargedEmEnergyFraction",jet.chargedEmEnergyFraction()); 
+   NtupleFactory_ -> FillFloat("jets_chargedMuEnergy",jet.chargedMuEnergy()); 
+   NtupleFactory_ -> FillFloat("jets_chargedMuEnergyFraction",jet.chargedMuEnergyFraction()); 
+   NtupleFactory_ -> FillFloat("jets_neutralEmEnergy",jet.neutralEmEnergy()); 
+   NtupleFactory_ -> FillFloat("jets_neutralEmEnergyFraction",jet.neutralEmEnergyFraction()); 
+   NtupleFactory_ -> FillInt  ("jets_chargedMultiplicity",jet.chargedMultiplicity()); 
+   NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
+   NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
+   } 
+  } // loop on jets
   
   //std::cout << "SimpleNtuple::fillJetInfo::end" << std::endl;
  
