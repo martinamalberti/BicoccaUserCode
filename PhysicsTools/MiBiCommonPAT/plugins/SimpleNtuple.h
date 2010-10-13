@@ -66,9 +66,11 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
-  void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-
+  void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  
+  void fillHCALNoiseInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  
   void fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   void fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -112,8 +114,9 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool savePV_ ;
   bool saveMu_ ;
   bool saveEle_ ;
-  bool saveJet_ ;
   bool saveMet_ ;
+  bool saveJet_ ;
+  bool saveHCALNoise_ ;
 
   ///---- save MC Info ----
   bool saveMCPtHat_ ;

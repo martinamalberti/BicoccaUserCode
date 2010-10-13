@@ -32,18 +32,17 @@ SimpleNtuple = cms.EDAnalyzer(
     
     #--------------
     #### flags ####
-    
-    dataFlag              = cms.untracked.bool (True),
-    saveHLT               = cms.untracked.bool (True),     
-    saveBS                = cms.untracked.bool (True),
-    savePV                = cms.untracked.bool (True),     
-    saveMu                = cms.untracked.bool (True),
-    saveEle               = cms.untracked.bool (True),
-    saveJet               = cms.untracked.bool (False),
-    saveMet               = cms.untracked.bool (True),
 
-    #---------------------
-    #### save MC info ####
+    dataFlag      = cms.untracked.bool (True),
+    saveHLT       = cms.untracked.bool (True),     
+    saveBS        = cms.untracked.bool (True),
+    savePV        = cms.untracked.bool (True),     
+    saveMu        = cms.untracked.bool (True),
+    saveEle       = cms.untracked.bool (True),
+    saveMet       = cms.untracked.bool (True),
+    saveJet       = cms.untracked.bool (True),
+    saveHCALNoise = cms.untracked.bool (False),
+    
     saveMCPtHat           = cms.untracked.bool (False),
     saveMCTTBar           = cms.untracked.bool (False),    
     saveMCHiggs           = cms.untracked.bool (False),

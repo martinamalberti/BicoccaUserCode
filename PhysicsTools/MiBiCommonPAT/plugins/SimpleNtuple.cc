@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.7 2010/10/12 22:54:51 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.8 2010/10/13 04:48:05 amassiro Exp $
 //
 //
 
@@ -61,14 +61,15 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  
  
  //---- flags ----
- dataFlag_ = iConfig.getUntrackedParameter<bool> ("dataFlag", true);
- saveHLT_  = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
- saveBS_   = iConfig.getUntrackedParameter<bool> ("saveBS", true);
- savePV_   = iConfig.getUntrackedParameter<bool> ("savePV", true);
- saveEle_  = iConfig.getUntrackedParameter<bool> ("saveEle", true);
- saveMu_   = iConfig.getUntrackedParameter<bool> ("saveMu", true);
- saveMet_  = iConfig.getUntrackedParameter<bool> ("saveMet", true);
- saveJet_  = iConfig.getUntrackedParameter<bool> ("saveJet", true);
+ dataFlag_      = iConfig.getUntrackedParameter<bool> ("dataFlag", true);
+ saveHLT_       = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
+ saveBS_        = iConfig.getUntrackedParameter<bool> ("saveBS", true);
+ savePV_        = iConfig.getUntrackedParameter<bool> ("savePV", true);
+ saveEle_       = iConfig.getUntrackedParameter<bool> ("saveEle", true);
+ saveMu_        = iConfig.getUntrackedParameter<bool> ("saveMu", true);
+ saveMet_       = iConfig.getUntrackedParameter<bool> ("saveMet", true);
+ saveJet_       = iConfig.getUntrackedParameter<bool> ("saveJet", true);
+ saveHCALNoise_ = iConfig.getUntrackedParameter<bool> ("saveHCALNoise", true);
  saveMCPtHat_           = iConfig.getUntrackedParameter<bool> ("saveMCPtHat", false);
  saveMCTTBar_           = iConfig.getUntrackedParameter<bool> ("saveMCTTBar", false);
  saveMCHiggs_           = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
@@ -213,6 +214,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->Add4V("jets");
    NtupleFactory_->AddFloat("jets_charge");   
    
+   NtupleFactory_->AddFloat("jets_corrFactor_raw");   
+   NtupleFactory_->AddFloat("jets_corrFactor_off");   
+   NtupleFactory_->AddFloat("jets_corrFactor_rel");   
+   NtupleFactory_->AddFloat("jets_corrFactor_abs");   
+   
    for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ ) {
     NtupleFactory_->AddFloat(*iBTag);
    }
@@ -220,30 +226,31 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddFloat("jets_etaetaMoment");
    NtupleFactory_->AddFloat("jets_phiphiMoment");   
    NtupleFactory_->AddFloat("jets_etaphiMoment");   
-   NtupleFactory_->AddFloat("jets_jetArea");   
    
-   NtupleFactory_->AddFloat("jets_emEnergyFraction");   
    NtupleFactory_->AddFloat("jets_fHPD");   
    NtupleFactory_->AddFloat("jets_fRBX");   
    NtupleFactory_->AddFloat("jets_n90Hits");   
    NtupleFactory_->AddFloat("jets_nHCALTowers");   
    NtupleFactory_->AddFloat("jets_nECALTowers");   
    
-   NtupleFactory_->AddFloat("jets_chargedHadronEnergy"); 
+   NtupleFactory_->AddFloat("jets_towersArea");   
+   NtupleFactory_->AddFloat("jets_emEnergyFraction");   
+   
    NtupleFactory_->AddFloat("jets_chargedHadronEnergyFraction");
-   NtupleFactory_->AddFloat("jets_neutralHadronEnergy"); 
    NtupleFactory_->AddFloat("jets_neutralHadronEnergyFraction"); 
-   NtupleFactory_->AddFloat("jets_chargedEmEnergy"); 
    NtupleFactory_->AddFloat("jets_chargedEmEnergyFraction"); 
-   NtupleFactory_->AddFloat("jets_chargedMuEnergy"); 
-   NtupleFactory_->AddFloat("jets_chargedMuEnergyFraction"); 
-   NtupleFactory_->AddFloat("jets_neutralEmEnergy"); 
    NtupleFactory_->AddFloat("jets_neutralEmEnergyFraction"); 
+   NtupleFactory_->AddFloat("jets_photonEnergyFraction"); 
+   NtupleFactory_->AddFloat("jets_muonEnergyFraction"); 
    NtupleFactory_->AddInt  ("jets_chargedMultiplicity"); 
    NtupleFactory_->AddInt  ("jets_neutralMultiplicity"); 
    NtupleFactory_->AddInt  ("jets_muonMultiplicity"); 
  }
-  
+ 
+ if(saveHCALNoise_)
+ {
+   NtupleFactory_ -> AddInt("HCAL_noise");
+ }  
  
  ///==== Gen level ====  
  if(saveMCPtHat_)
@@ -490,13 +497,11 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
 
 void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- std::cout << "SimpleNtuple::fillMuInfo" << std::endl;
+ //std::cout << "SimpleNtuple::fillMuInfo" << std::endl;
  
  edm::Handle<edm::View<pat::Muon> > muHandle;
  iEvent.getByLabel(MuTag_,muHandle);
  edm::View<pat::Muon> muons = *muHandle;
- 
- std::cout << "SimpleNtuple::start loop muon" << std::endl;
  
  for ( unsigned int i=0; i<muons.size(); i++ ) {
   pat::Muon muon = muons.at(i);
@@ -655,6 +660,11 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> Fill4V   ("jets",jet.p4());
   NtupleFactory_ -> FillFloat("jets_charge",jet.charge());
   
+  NtupleFactory_ -> FillFloat("jets_corrFactor_raw",jet.corrFactor("raw"));
+  NtupleFactory_ -> FillFloat("jets_corrFactor_off",jet.corrFactor("off"));
+  NtupleFactory_ -> FillFloat("jets_corrFactor_rel",jet.corrFactor("rel"));
+  NtupleFactory_ -> FillFloat("jets_corrFactor_abs",jet.corrFactor("abs"));
+  
   //==== jet b tagging
   for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ )
     NtupleFactory_ -> FillFloat(*iBTag,jet.bDiscriminator(*iBTag));
@@ -662,37 +672,52 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("jets_etaetaMoment",jet.etaetaMoment());
   NtupleFactory_ -> FillFloat("jets_phiphiMoment",jet.phiphiMoment());
   NtupleFactory_ -> FillFloat("jets_etaphiMoment",jet.etaphiMoment());
-  NtupleFactory_ -> FillFloat("jets_jetArea",jet.jetArea());
-
-  if (jet.isCaloJet()){
-   NtupleFactory_ -> FillFloat("jets_emEnergyFraction",jet.emEnergyFraction());
-  }
-
+  
   NtupleFactory_->FillFloat("jets_fHPD",jet.jetID().fHPD);
   NtupleFactory_->FillFloat("jets_fRBX",jet.jetID().fRBX);
   NtupleFactory_->FillFloat("jets_n90Hits",jet.jetID().n90Hits);
   NtupleFactory_->FillFloat("jets_nHCALTowers",jet.jetID().nHCALTowers);
   NtupleFactory_->FillFloat("jets_nECALTowers",jet.jetID().nECALTowers);
   
-  if (jet.isJPTJet()){
-   NtupleFactory_ -> FillFloat("jets_chargedHadronEnergy",jet.chargedHadronEnergy()); 
+  if (jet.isCaloJet()){
+   NtupleFactory_ -> FillFloat("jets_emEnergyFraction",jet.emEnergyFraction());
+   NtupleFactory_ -> FillFloat("jets_towersArea",jet.towersArea());
+  }
+
+  if (jet.isPFJet()){
    NtupleFactory_ -> FillFloat("jets_chargedHadronEnergyFraction",jet.chargedHadronEnergyFraction()); 
-   NtupleFactory_ -> FillFloat("jets_neutralHadronEnergy",jet.neutralHadronEnergy()); 
    NtupleFactory_ -> FillFloat("jets_neutralHadronEnergyFraction",jet.neutralHadronEnergyFraction()); 
-   NtupleFactory_ -> FillFloat("jets_chargedEmEnergy",jet.chargedEmEnergy()); 
    NtupleFactory_ -> FillFloat("jets_chargedEmEnergyFraction",jet.chargedEmEnergyFraction()); 
-   NtupleFactory_ -> FillFloat("jets_chargedMuEnergy",jet.chargedMuEnergy()); 
-   NtupleFactory_ -> FillFloat("jets_chargedMuEnergyFraction",jet.chargedMuEnergyFraction()); 
-   NtupleFactory_ -> FillFloat("jets_neutralEmEnergy",jet.neutralEmEnergy()); 
    NtupleFactory_ -> FillFloat("jets_neutralEmEnergyFraction",jet.neutralEmEnergyFraction()); 
+   NtupleFactory_ -> FillFloat("jets_photonEnergyFraction",jet.photonEnergyFraction()); 
+   NtupleFactory_ -> FillFloat("jets_muonEnergyFraction",jet.muonEnergyFraction()); 
    NtupleFactory_ -> FillInt  ("jets_chargedMultiplicity",jet.chargedMultiplicity()); 
    NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
    NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
    } 
+   
   } // loop on jets
   
   //std::cout << "SimpleNtuple::fillJetInfo::end" << std::endl;
- 
+}
+
+
+
+
+
+
+///--------------------
+///---- HCAL Noise ----
+void SimpleNtuple::fillHCALNoiseInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup)
+{
+  //std::cout << "SimpleNtuple::fillHCALNoiseInfo::begin" << std::endl;
+  
+  edm::Handle<bool> HBHENoiseFilterResultHandle;
+  iEvent.getByLabel("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult", HBHENoiseFilterResultHandle);
+
+  NtupleFactory_ -> FillInt("HCAL_noise", *(HBHENoiseFilterResultHandle.product()));
+
+  //std::cout << "SimpleNtuple::fillHCALNoiseInfo::end" << std::endl;
 }
 
 
@@ -911,12 +936,15 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  ///---- fill electrons ----
  if (saveEle_)  fillEleInfo (iEvent, iSetup);
  
- ///---- fill jets ---- 
- if (saveJet_) fillJetInfo (iEvent, iSetup);
- 
  ///---- fill met ---- 
  if (saveMet_) fillMetInfo (iEvent, iSetup);
  
+ ///---- fill jets ---- 
+ if (saveJet_) fillJetInfo (iEvent, iSetup);
+ 
+ ///---- fill HCAL noise ---- 
+ if(saveHCALNoise_) fillHCALNoiseInfo (iEvent, iSetup);
+  
  ///---- fill MCPtHat ---- 
  if(saveMCPtHat_) fillMCPtHatInfo (iEvent, iSetup);
 
