@@ -160,6 +160,9 @@ cat > ${plots_dir}/index.html <<EOF
  <li><A href="#RecHitsTime"> Rec Hits Time </A><BR>
  <li><A href="#RecHitsChi2"> Rec Hits Chi<sup>2</sup></A><BR>
  <li><A href="#RecHitsE4"> Rec Hits 1-E4/E1</A><BR>
+ <li><A href="#RecHitsRecoFlag"> Rec Hits Reco Flag</A><BR>
+ <li><A href="#RedRecHitsRecoFlag"> Reduced Rec Hits Reco Flag</A><BR>
+ <li><A href="#ClusRecHitsRecoFlag"> Cluster Rec Hits Reco Flag</A><BR>
 </ul>
  <li> Clusters
  <ul>
@@ -265,6 +268,39 @@ cat > ${plots_dir}/index.html <<EOF
 <h3><A name="RecHitsE4"> Rec Hits 1-E4/E1 </h3>
 
 <A HREF=${httpdir}/${out_dir}/h_recHits_EB_E1oE4.png> <img height="300" src="${httpdir}/${out_dir}/h_recHits_EB_E1oE4.png"> </A>
+
+<hr>
+
+
+
+<h3><A name="RecHitsRecoFlag"> Rec Hits Reco Flag </h3>
+
+<A HREF=${httpdir}/${out_dir}/h_recHits_EB_recoFlag.png> <img height="300" src="${httpdir}/${out_dir}/h_recHits_EB_recoFlag.png"> </A>
+
+<A HREF=${httpdir}/${out_dir}/h_recHits_EE_recoFlag.png> <img height="300" src="${httpdir}/${out_dir}/h_recHits_EE_recoFlag.png"> </A>
+</A>
+
+<hr>
+
+
+
+<h3><A name="RedRecHitsRecoFlag"> Reduced Rec Hits Reco Flag </h3>
+
+<A HREF=${httpdir}/${out_dir}/h_redRecHits_EB_recoFlag.png> <img height="300" src="${httpdir}/${out_dir}/h_redRecHits_EB_recoFlag.png"> </A>
+
+<A HREF=${httpdir}/${out_dir}/h_redRecHits_EE_recoFlag.png> <img height="300" src="${httpdir}/${out_dir}/h_redRecHits_EE_recoFlag.png"> </A>
+</A>
+
+<hr>
+
+
+
+<h3><A name="ClusRecHitsRecoFlag"> Cluster Rec Hits Reco Flag </h3>
+
+<A HREF=${httpdir}/${out_dir}/h_basicClusters_recHits_EB_recoFlag.png> <img height="300" src="${httpdir}/${out_dir}/h_basicClusters_recHits_EB_recoFlag.png"> </A>
+
+<A HREF=${httpdir}/${out_dir}/h_basicClusters_recHits_EE_recoFlag.png> <img height="300" src="${httpdir}/${out_dir}/h_basicClusters_recHits_EE_recoFlag.png"> </A>
+</A>
 
 <hr>
 

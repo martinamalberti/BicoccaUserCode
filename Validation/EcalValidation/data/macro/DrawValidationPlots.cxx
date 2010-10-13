@@ -45,8 +45,8 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 
 
   // Define list of object names
-  int nObj=47;
-  char *objName[47]={"ecalvalidation/h_recHits_EB_size",
+  const int nObj=53;
+  char *objName[nObj]={"ecalvalidation/h_recHits_EB_size",
 		     "ecalvalidation/h_recHits_EEP_size",
 		     "ecalvalidation/h_recHits_EEM_size",
 		     "ecalvalidation/h_recHits_ES_size",
@@ -70,6 +70,14 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		     "ecalvalidation/h_recHits_EEP_Chi2",
 		     "ecalvalidation/h_recHits_EEM_Chi2",
 		     "ecalvalidation/h_recHits_EB_E1oE4",
+                     //Leo
+                     "ecalvalidation/h_recHits_EB_recoFlag",
+                     "ecalvalidation/h_recHits_EE_recoFlag",
+                     "ecalvalidation/h_redRecHits_EB_recoFlag",
+                     "ecalvalidation/h_redRecHits_EE_recoFlag",
+                     "ecalvalidation/h_basicClusters_recHits_EB_recoFlag",
+                     "ecalvalidation/h_basicClusters_recHits_EE_recoFlag",
+                     //Leo
 		     "ecalvalidation/h_basicClusters_EB_size",
 		     "ecalvalidation/h_basicClusters_EEP_size",
 		     "ecalvalidation/h_basicClusters_EEM_size",
@@ -95,7 +103,7 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		     "ecalvalidation/h_esClusters_energy_plane2",
 		     "ecalvalidation/h_esClusters_energy_ratio"  };
 
- char *objTitle[47]={"Number of RecHits (EB)",
+ char *objTitle[nObj]={"Number of RecHits (EB)",
 		     "Number of RecHits (EE+)",
 		     "Number of RecHits (EE-)",
 		     "Number of RecHits (ES)",
@@ -118,7 +126,15 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		     "RecHits \ #chi^{2} (EE+)",
 		     "RecHits \ #chi^{2} (EE-)",
 		     "RecHits 1-E4/E1 (EB)",
-		     "Number of Basic Clusters (EB)",
+                     //Leo
+                     "Number of RecHits (EB)",
+                     "Number of RecHits (EE)",
+                     "Number of RedRecHits (EB)",
+                     "Number of RedRecHits (EE)",
+                     "Number of ClusRecHits (EB)",
+                     "Number of ClusRecHits (EE)",
+                     //Leo
+                     "Number of Basic Clusters (EB)",
 		     "Number of Basic Clusters (EE+)",
 		     "Number of Basic Clusters (EE-)",
 		     "Number of Superclusters (EB)",
@@ -143,7 +159,7 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		     "ES Clusters Energy - Plane 2",
 		     "ES Clusters Energy - Ratio"};
 
-  char *labelX[47]={"Number of RecHits/Event",
+  char *labelX[nObj]={"Number of RecHits/Event",
 		    "Number of RecHits/Event",
 		    "Number of RecHits/Event",
 		    "Number of RecHits/Event",
@@ -166,7 +182,13 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		    "#chi^{2}",
 		    "#chi^{2}",
 		    "1-E4/E1",
-		    "BasicClusters/Event",
+                    "recoFlag",
+                    "recoFlag",
+                    "recoFlag",
+                    "recoFlag",
+                    "recoFlag",
+                    "recoFlag",
+                    "BasicClusters/Event",
 		    "BasicClusters/Event",
 		    "BasicClusters/Event",
 		    "Superclusters/Event",
@@ -190,17 +212,37 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		    "Energy (GeV)",
 		    "Energy (GeV)",
 		    "EnergyPlane1/EnergyPlane1"};
+                    
+  char *recoFlagLabels[16]={"kGood",
+                    "kPoorReco",
+                    "kOutOfTime",
+                    "kFaultyHardware",
+                    "kNoisy",
+                    "kPoorCalib",
+                    "kSaturated",
+                    "kLeadingEdgeRecovered",
+                    "kNeighboursRecovered",
+                    "kTowerRecovered",
+                    "kFake",
+                    "kFakeNeighbours",
+                    "kDead",
+                    "kKilled",
+                    "kTPSaturated",
+                    "kL1SpikeFlag"};
 
   char *labelY[1]={"Counts"};
 
-  double xMin[47]={0.,0.,0.,0., 
+  double xMin[nObj]={0.,0.,0.,0., 
 		   0.,0.,0.,0., 
 		   1.,1.,1.,1.,
 		   -50.,-50.,-50.,-50.,
 		   -3.,-3.2,-3.2,
 		   0,0,0,
 		   0,
-		   0,0,0,
+                   0,0,
+                   0,0,
+                   0,0,
+                   0,0,0,
 		   0,0,0,
 		   0,0,0,
 		   0,0,0,
@@ -209,14 +251,17 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		   0,0,0,
 		   0,0,0};
   
-  double xMax[47]={3000.,1700.,1700.,2200.,  
+  double xMax[nObj]={3000.,1700.,1700.,2200.,  
 		   20.,20.,20.,0.5, 
 		   40,40,40,1.,
 		   50.,50.,50.,50.,
 		   3.,3.2,3.2,
 		   65,65,65,
 		   1.2,
-		   20,20,20,
+                   32,32,
+                   32,32,
+                   32,32,
+                   20,20,20,
 		   20,20,20,
 		   50,50,50,
 		   10,10,10,
@@ -225,14 +270,17 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		   1.2,1.2,1.2,
 		   0.01,0.01,10};
 
-  int reBin[47]  = {2,2,2,2, 
+  int reBin[nObj]  = {2,2,2,2, 
 		    8,8,8,8, 
 		    4,4,4,4, 
 		    1,1,1,1, 
 		    5,5,5, 
 		    5,5,5,
 		    1,
-		    1,1,1,
+                    1,1,
+                    1,1,
+                    1,1,
+                    1,1,1,
 		    1,1,1,
 		    1,1,1,
 		    1,1,1,
@@ -242,14 +290,17 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		    10,10,1};
 
 
-  int optLogY[47] = {1,1,1,1,
+  int optLogY[nObj] = {1,1,1,1,
 		     1,1,1,1,
 		     1,1,1,1,
 		     1,0,0,0,
 		     0,0,0,
 		     1,1,1,
 		     0,
-		     1,1,1,
+                     1,1,
+                     1,1,
+                     1,1,
+                     1,1,1,
 		     1,1,1,
 		     1,1,1,
 		     1,1,1,
@@ -274,7 +325,13 @@ void DrawValidationPlots(Char_t* infile1 = 0,
       c[iHisto]->cd();
       // customize and plot
       h[ifile][iHisto]->GetYaxis()->SetTitle(labelY[0]);
-      h[ifile][iHisto]->GetXaxis()->SetTitle(labelX[iHisto]);
+      if ( iHisto > 22 && iHisto < 29 ) //Set reasonable labels for recoFlag plots
+      {
+        int nBin = h[ifile][iHisto] ->GetXaxis()-> GetNbins ();
+        for ( int ibin = 1; ibin <= nBin; ibin++ ) 
+          h[ifile][iHisto]->GetXaxis()->SetBinLabel( ibin, recoFlagLabels[ibin-1]);
+      }
+      else h[ifile][iHisto]->GetXaxis()->SetTitle(labelX[iHisto]);
       h[ifile][iHisto]->SetFillColor(kBlack+10);
       h[ifile][iHisto]->SetFillStyle(3002);
       h[ifile][iHisto]->SetTitle(objTitle[iHisto]);
