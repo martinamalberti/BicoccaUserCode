@@ -97,11 +97,8 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
 #        doJetID      = True
 #        )
     
-    
     if not MC:
      removeMCMatching(process, ['All'])
-    
-    
 
     # the HCAL Noise Filter
 #    process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
@@ -121,10 +118,33 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(
             'drop *',
-            'keep *_selected*_*_*',                        # All PAT objects
+             'keep recoTracks_generalTracks__HLT',
+             #'keep recoTracks_globalMuons__HLT',
+             #'keep recoTracks_hltBLifetimeRegionalCtfWithMaterialTracksStartupU__HLT',
+             #'keep recoTracks_hltCtfL1IsoWithMaterialTracks__HLT',
+             #'keep recoTracks_hltCtfL1NonIsoWithMaterialTracks__HLT',
+             #'keep recoTracks_hltL25TauCtfWithMaterialTracks__HLT',
+             #'keep recoTracks_hltL2Muons__HLT',
+             #'keep recoTracks_hltL3Muons__HLT',
+             #'keep recoTracks_hltL3TauCtfWithMaterialTracks__HLT',
+             #'keep recoTracks_hltL3TkTracksFromL2__HLT',
+             #'keep recoTracks_hltL3TrackCandidateFromL2__HLT',
+             #'keep recoTracks_hltPixelTracks__HLT',
+             #'keep recoTracks_pixelTracks__HLT',
+             #'keep recoTracks_standAloneMuons__HLT',
+             #'keep recoTracks_hltL3Muons_L2Seeded_HLT',
+             #'keep recoTracks_hltL2Muons_UpdatedAtVtx_HLT',
+             #'keep recoTracks_standAloneMuons_UpdatedAtVtx_HLT',
+             #'keep recoTracks_tevMuons_default_HLT',
+             #'keep recoTracks_tevMuons_dyt_HLT',
+             #'keep recoTracks_tevMuons_firstHit_HLT',
+             #'keep recoTracks_impactParameterTagInfos_ghostTracks_HLT',
+             #'keep recoTracks_tevMuons_picky_HLT',
+            'keep *_selected*_*_*',                        # selected PAT objects
+            'keep *TrackExtra*_*_*_*',                       # track extra objects
+#            'keep *Track*_*_*_*',                       # track  objects
             'keep *_patMETs*_*_*',                         # All PAT objects
-            'keep *_offlinePrimaryVertices_*_*',           # Primary vertices: you want these to compute impact parameters
-            'keep *_offlinePrimaryVerticesWithBS_*_*',     # Primary vertices: you want these to compute impact parameters
+            'keep *_offlinePrimaryVertices*_*_*',          # Primary vertices: you want these to compute impact parameters
             'keep *_offlineBeamSpot_*_*',                  # Beam spot: you want this for the same reason
             'keep edmTriggerResults_TriggerResults_*_*',   # HLT info, per path (cheap)
             'keep *_genParticles_*_*',                     # HLT info, per path (cheap)
@@ -134,4 +154,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     )
     if SavePAT :
      process.e = cms.EndPath(process.out)
+
+
 
