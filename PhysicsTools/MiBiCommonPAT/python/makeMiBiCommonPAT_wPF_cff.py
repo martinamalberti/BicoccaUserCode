@@ -142,7 +142,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
 
 
 
-    #PG PF2PAT sequence
+    #PG PF2PAT sequence from /CMSSW/PhysicsTools/PatAlgos/test/patTuple_PATandPF2PAT_cfg.py
     #PG NB selected objects will be saevd automatically,
     #PG for cleaned objects it would be necessaty to add some "keep" in the output module
     
