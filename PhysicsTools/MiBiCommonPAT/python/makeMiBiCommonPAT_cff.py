@@ -51,19 +51,19 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     #Load PAT sequences
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-#    process.selectedPatMuons.cut = cms.string("pt() > 5")
-#    process.selectedPatElectrons.cut = cms.string("pt() > 10")
-#    process.selectedPatTaus.cut = cms.string("pt() > 10")
-#    process.selectedPatPhotons.cut = cms.string("pt() > 10")
-#    process.selectedPatJets.cut = cms.string("pt() > 10")
+    #process.selectedPatMuons.cut = cms.string("pt() > 5")
+    #process.selectedPatElectrons.cut = cms.string("pt() > 10")
+    #process.selectedPatTaus.cut = cms.string("pt() > 10")
+    #process.selectedPatPhotons.cut = cms.string("pt() > 10")
+    process.selectedPatJets.cut = cms.string("pt() > 10")
 
 
     #Bufix related to btagging
     process.patJets.addTagInfos = cms.bool(False)
 
     # Add tcMET and pfMET
-#    addTcMET(process, 'TC')
-#    addPfMET(process, 'PF')
+    addTcMET(process, 'TC')
+    addPfMET(process, 'PF')
     
 # see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTools#Jet_Tools
 
@@ -121,11 +121,14 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(
             'drop *',
-            'keep *_*_*_MiBiCommonPAT',                    # All PAT muons including general tracks
+            'keep *_selected*_*_*',                        # All PAT objects
+            'keep *_patMETs*_*_*',                         # All PAT objects
             'keep *_offlinePrimaryVertices_*_*',           # Primary vertices: you want these to compute impact parameters
-            'keep *_offlineBeamSpot_*_*',                  # Beam spot: you want this for the same reason                                   
+            'keep *_offlinePrimaryVerticesWithBS_*_*',     # Primary vertices: you want these to compute impact parameters
+            'keep *_offlineBeamSpot_*_*',                  # Beam spot: you want this for the same reason
             'keep edmTriggerResults_TriggerResults_*_*',   # HLT info, per path (cheap)
-            'keep recoGsfElectronCores_*_*_*'
+            'keep *_genParticles_*_*',                     # HLT info, per path (cheap)
+            'keep recoGsfElectronCores_*_*_*'              #
         ),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiCommonPAT') ) if Filter else cms.untracked.PSet()
     )
