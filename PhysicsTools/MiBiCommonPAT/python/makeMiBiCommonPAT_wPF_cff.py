@@ -155,7 +155,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
     # collections have standard names + postfix (e.g. patElectronPFlow)  
     postfix = "PFlow"
-    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix) 
+    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=MC, postfix=postfix) 
 
     # turn to false when running on data
     getattr(process, "patElectrons"+postfix).embedGenMatch = True
