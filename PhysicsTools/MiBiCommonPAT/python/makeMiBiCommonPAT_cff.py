@@ -56,7 +56,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
 #    process.selectedPatElectrons.cut = cms.string("pt > 10")
 #    process.selectedPatTaus = cms.string("pt > 10")
 #    process.selectedPatPhotons = cms.string("pt > 10")
-#    process.selectedPatJets = cms.string("pt > 10")
+    process.selectedPatJets = cms.string("pt > 10")
 
 
     #Bufix related to btagging
@@ -122,12 +122,11 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(
             'drop *',
-            #'keep *_Particles_*_Onia2LepLepPAT',           # generated leptons and parents
             'keep *_*_*_MiBiCommonPAT',                    # All PAT muons including general tracks
-            #'keep *_offlinePrimaryVertices_*_*',           # Primary vertices: you want these to compute impact parameters
-            #'keep *_offlineBeamSpot_*_*',                  # Beam spot: you want this for the same reason                                   
-            #'keep edmTriggerResults_TriggerResults_*_*',   # HLT info, per path (cheap)
-            #'keep recoGsfElectronCores_*_*_*'
+            'keep *_offlinePrimaryVertices_*_*',           # Primary vertices: you want these to compute impact parameters
+            'keep *_offlineBeamSpot_*_*',                  # Beam spot: you want this for the same reason                                   
+            'keep edmTriggerResults_TriggerResults_*_*',   # HLT info, per path (cheap)
+            'keep recoGsfElectronCores_*_*_*'
         ),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiCommonPAT') ) if Filter else cms.untracked.PSet()
     )
