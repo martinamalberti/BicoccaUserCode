@@ -11,14 +11,14 @@ SimpleNtuple = cms.EDAnalyzer(
     PVTag = cms.InputTag("offlinePrimaryVerticesWithBS"),
     
     #### muons ####
-    MuTag = cms.InputTag("patMuons"),
+    MuTag = cms.InputTag("selectedPatMuons"),
      
     #### electrons ####
-    EleTag                = cms.InputTag("patElectrons"),
+    EleTag                = cms.InputTag("selectedPatElectrons"),
     EleID_names           = cms.vstring('eidLoose','eidRobustLoose','eidTight','eidRobustTight'),
     
     #### jets ####
-    JetTag     = cms.InputTag("patJets"),
+    JetTag     = cms.InputTag("selectedPatJets"),
     BTag_names = cms.vstring('trackCountingHighEffBJetTags','trackCountingHighPurBJetTags','simpleSecondaryVertexHighPurBJetTags','simpleSecondaryVertexHighEffBJetTags'),
     
     MetTag   = cms.InputTag("patMETs"),
