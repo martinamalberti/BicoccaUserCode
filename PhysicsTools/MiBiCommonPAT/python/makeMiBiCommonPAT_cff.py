@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-#from PhysicsTools.PatAlgos.tools.metTools import *
-#from PhysicsTools.PatAlgos.tools.jetTools import *
-#from PhysicsTools.PatAlgos.tools.coreTools import *
+from PhysicsTools.PatAlgos.tools.metTools import *
+from PhysicsTools.PatAlgos.tools.jetTools import *
+from PhysicsTools.PatAlgos.tools.coreTools import *
+from PhysicsTools.PatAlgos.tools.pfTools import *
 
 
 def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
@@ -77,6 +78,9 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     #------------------
     #Load PAT sequences
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
+    process.load("PhysicsTools.PatAlgos.tools.pfTools")
+    postfix = "PFlow"
+    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=MC, postfix=postfix)  
     
     if not MC:
      removeMCMatching(process, ['All'])
@@ -84,7 +88,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     process.patJets.addTagInfos = cms.bool(False)    #bugfix related to btagging
     
     
-
+    
     # ---------------
     # add collections
     addTcMET(process, 'TC')
@@ -105,57 +109,60 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         doJetID      = True
         )
     
-    #addJetCollection(
-    #    process,
-    #    cms.InputTag('ak5PFJets'),
-    #    'AK5',
-    #    'PF',
-    #    doJTA        = True,
-    #    doBTagging   = True,
-    #    jetCorrLabel = ('AK5', 'PF'),
-    #    doType1MET   = False,
-    #    doL1Cleaning = True,
-    #    doL1Counters = False,
-    #    genJetCollection=cms.InputTag("ak5GenJets"),
-    #    doJetID      = True
-    #    )
+    addJetCollection(
+        process,
+        cms.InputTag('ak5PFJets'),
+        'AK5',
+        'PF',
+        doJTA        = True,
+        doBTagging   = True,
+        jetCorrLabel = ('AK5', 'PF'),
+        doType1MET   = False,
+        doL1Cleaning = True,
+        doL1Counters = False,
+        genJetCollection=cms.InputTag("ak5GenJets"),
+        doJetID      = True
+        )
     
     
 
     #---------
     #PG PF2PAT sequence from /CMSSW/PhysicsTools/PatAlgos/test/patTuple_PATandPF2PAT_cfg.py
-    #PG NB selected objects will be saevd automatically,
-    #PG for cleaned objects it would be necessaty to add some "keep" in the output module
-    
-    # Configure PAT to use PF2PAT instead of AOD sources
-    # this function will modify the PAT sequences. It is currently 
-    # not possible to run PF2PAT+PAT and standart PAT at the same time
-    from PhysicsTools.PatAlgos.tools.pfTools import *
-
     # An empty postfix means that only PF2PAT is run,
     # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
     # collections have standard names + postfix (e.g. patElectronPFlow)  
-    postfix = "PFlow"
-    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=MC, postfix=postfix) 
     
-
+    
     
     # -------------------
     # pat selection layer
     process.selectedPatElectrons.cut = cms.string("pt() > 15.")
     process.selectedPatMuons.cut     = cms.string("pt() > 15.")
     process.selectedPatJets.cut      = cms.string("pt() > 15.")
-    #process.selectedPatTaus.cut = cms.string("pt() > 10")
-    #process.selectedPatPhotons.cut = cms.string("pt() > 10")
+    process.selectedPatPhotons.cut   = cms.string("pt() > 10.")
+    #process.selectedPatTaus.cut     = cms.string("pt() > 10.")
     
     
     
     
-    
+
     
     # the HCAL Noise Filter
     #process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
     
+    # the MiBiPAT path
+    process.MiBiCommonPAT = cms.Path(
+        process.AllEvents * # -> Counter
+        process.scrapingFilter *
+        process.NonScrapedEvents * # -> Counter
+        process.primaryVertexFilter *
+        process.GoodVtxEvents * # -> Counter
+        getattr(process,"patPF2PATSequence"+postfix) *
+        process.patDefaultSequence
+    )
+
+
+
     process.out.outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_*_*_*PAT',                             # All PAT objects
@@ -167,13 +174,3 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         'keep recoGsfElectronCores_*_*_*'              # gsfElectrons
     )
     
-    # the MiBiPAT path
-    process.MiBiCommonPAT = cms.Path(
-        process.AllEvents * # -> Counter
-        process.scrapingFilter *
-        process.NonScrapedEvents * # -> Counter
-        process.primaryVertexFilter *
-        process.GoodVtxEvents * # -> Counter
-        process.patDefaultSequence *
-        getattr(process,"patPF2PATSequence"+postfix)
-    )
