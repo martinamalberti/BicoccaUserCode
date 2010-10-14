@@ -52,11 +52,11 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     #Load PAT sequences
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-#    process.selectedPatMuons.cut = cms.string("pt > 5")
-#    process.selectedPatElectrons.cut = cms.string("pt > 10")
-#    process.selectedPatTaus = cms.string("pt > 10")
-#    process.selectedPatPhotons = cms.string("pt > 10")
-    process.selectedPatJets = cms.string("pt > 10")
+#    process.selectedPatMuons.cut = cms.string("pt() > 5")
+#    process.selectedPatElectrons.cut = cms.string("pt() > 10")
+#    process.selectedPatTaus = cms.string("pt() > 10")
+#    process.selectedPatPhotons = cms.string("pt() > 10")
+    process.selectedPatJets = cms.string("pt() > 10")
 
 
     #Bufix related to btagging
