@@ -5,7 +5,6 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
 
-
 def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, SavePAT=True):
     # Setup the process
     process.options = cms.untracked.PSet(
@@ -54,9 +53,9 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
 
 #    process.selectedPatMuons.cut = cms.string("pt() > 5")
 #    process.selectedPatElectrons.cut = cms.string("pt() > 10")
-#    process.selectedPatTaus = cms.string("pt() > 10")
-#    process.selectedPatPhotons = cms.string("pt() > 10")
-    process.selectedPatJets = cms.string("pt() > 10")
+#    process.selectedPatTaus.cut = cms.string("pt() > 10")
+#    process.selectedPatPhotons.cut = cms.string("pt() > 10")
+#    process.selectedPatJets.cut = cms.string("pt() > 10")
 
 
     #Bufix related to btagging
@@ -105,7 +104,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     
 
     # the HCAL Noise Filter
-    process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+#    process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
     
     # the MiBiPAT path
     process.MiBiCommonPAT = cms.Path(
