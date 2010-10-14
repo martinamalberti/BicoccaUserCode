@@ -56,56 +56,49 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
     process.patJets.addTagInfos = cms.bool(False)
 
     # Add tcMET and pfMET
-    addTcMET(process, 'TC')
-    addPfMET(process, 'PF')
+#    addTcMET(process, 'TC')
+#    addPfMET(process, 'PF')
     
-    addJetCollection(
-        process,
-        cms.InputTag('ak5CaloJets'),
-        'AK5',
-        'Calo',
-        doJTA        = True,
-        doBTagging   = True,
-        jetCorrLabel = ('AK5', 'Calo'),
-        doType1MET   = True,
-        doL1Cleaning = True,
-        doL1Counters = False,
-        genJetCollection=cms.InputTag("ak5GenJets"),
-        doJetID      = True
-        )
+# see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTools#Jet_Tools
+
+#    addJetCollection(
+#        process,
+#        cms.InputTag('ak5CaloJets'),
+#        'AK5',
+#        'Calo',
+#        doJTA        = True,
+#        doBTagging   = True,
+#        jetCorrLabel = ('AK5', 'Calo'),
+#        doType1MET   = True,
+#        doL1Cleaning = True,
+#        doL1Counters = False,
+#        genJetCollection=cms.InputTag("ak5GenJets"),
+#        doJetID      = True
+#        )
     
-    addJetCollection(
-        process,
-        cms.InputTag('ak5PFJets'),
-        'AK5',
-        'PF',
-        doJTA        = True,
-        doBTagging   = True,
-        jetCorrLabel = ('AK5', 'PF'),
-        doType1MET   = False,
-        doL1Cleaning = True,
-        doL1Counters = False,
-        genJetCollection=cms.InputTag("ak5GenJets"),
-        doJetID      = True
-        )
+#    addJetCollection(
+#        process,
+#        cms.InputTag('ak5PFJets'),
+#        'AK5',
+#        'PF',
+#        doJTA        = True,
+#        doBTagging   = True,
+#        jetCorrLabel = ('AK5', 'PF'),
+#        doType1MET   = False,
+#        doL1Cleaning = True,
+#        doL1Counters = False,
+#        genJetCollection=cms.InputTag("ak5GenJets"),
+#        doJetID      = True
+#        )
     
     
-    #if not MC:
-    #removeMCMatching(process, ['All'])
+    if not MC:
+     removeMCMatching(process, ['All'])
     
     
 
     # the HCAL Noise Filter
     process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
-    
-    
-    
-    # the MiBiNTUPLE
-    process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
-    process.MiBiCommonNTUPLE = process.SimpleNtuple.clone()
-    process.MiBiCommonNTUPLE.HLTTag = cms.InputTag("TriggerResults","",HLT)
-    
-
     
     # the MiBiPAT path
     process.MiBiCommonPAT = cms.Path(
@@ -114,8 +107,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, HLT='HLT', Filter=False, Sav
         process.NonScrapedEvents * # -> Counter
         process.primaryVertexFilter *
         process.GoodVtxEvents * # -> Counter
-        process.patDefaultSequence * 
-        process.MiBiCommonNTUPLE
+        process.patDefaultSequence 
     )
     
     #output

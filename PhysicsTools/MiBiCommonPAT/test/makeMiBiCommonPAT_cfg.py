@@ -7,7 +7,7 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonPAT_cff import *
 process = cms.Process("MiBiCommonPAT")
 
 
-makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=True, HLT="REDIGI38X", Filter=True, SavePAT=True)
+makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=False, HLT="REDIGI38X", Filter=True, SavePAT=True)
 
 
 process.TFileService = cms.Service(
