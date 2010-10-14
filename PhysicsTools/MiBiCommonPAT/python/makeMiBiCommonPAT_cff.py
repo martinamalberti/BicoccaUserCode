@@ -29,7 +29,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiCommonPAT') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TwoPhotonsPath','OneLeptonTwoJetsPath') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -136,16 +136,67 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     # -------------------
     # pat selection layer
-    process.selectedPatElectrons.cut = cms.string("pt() > 15.")
-    process.selectedPatMuons.cut     = cms.string("pt() > 15.")
-    process.selectedPatJets.cut      = cms.string("pt() > 15.")
-    process.selectedPatPhotons.cut   = cms.string("pt() > 10.")
-    #process.selectedPatTaus.cut     = cms.string("pt() > 10.")
+    process.selectedPatElectrons.cut      = cms.string("pt() > 15.")
+    process.selectedPatElectronsPFlow.cut = cms.string("pt() > 15.")    
+
+    process.selectedPatMuons.cut      = cms.string("pt() > 15.")
+    process.selectedPatMuonsPFlow.cut = cms.string("pt() > 15.")
+
+    process.selectedPatJets.cut        = cms.string("pt() > 15.")
+    process.selectedPatJetsPFlow.cut   = cms.string("pt() > 15.")    
+    process.selectedPatJetsAK5Calo.cut = cms.string("pt() > 15.")
+    process.selectedPatJetsAK5PF.cut   = cms.string("pt() > 15.")
+
+    process.selectedPatPhotons.cut      = cms.string("pt() > 10.")
+    process.selectedPatPhotonsPFlow.cut = cms.string("pt() > 10.")    
+
+    #process.selectedPatTaus.cut      = cms.string("pt() > 10.")
+    #process.selectedPatTausPFlow.cut = cms.string("pt() > 10.")    
+    
     
     
     
     
 
+    #--------
+    # Filters
+    #process.PhotonFilter = cms.EDFilter(
+    #    "CandViewCountFilter",
+    #     src = cms.InputTag("selectedPatElectrons"),
+    #     minNumber = cms.uint32(2)
+    #     )
+
+    #process.ElectronFilter = cms.EDFilter(
+    #    "CandViewCountFilter",
+    #     src = cms.InputTag("selectedPatElectrons"),
+    #     minNumber = cms.uint32(1)
+    #     )
+
+    #process.MuonFilter = cms.EDFilter(
+    #    "CandViewCountFilter",
+    #     src = cms.InputTag("selectedPatMuons"),
+    #     minNumber = cms.uint32(1)
+    #     )
+    
+    #process.JetFilter = cms.EDFilter(
+    #    "CandViewCountFilter",
+    #     src = cms.InputTag("selectedPatJets"),
+    #     minNumber = cms.uint32(2)
+    #     )    
+
+
+    
+    #process.OneLeptonTwoJetsPath = cms.Path(
+    #    process.ElectronFilter*
+    #    process.JetFilter 
+    #    )
+
+    #process.TwoPhotonsPath = cms.Path(
+    #    process.PhotonFilter
+    #    )
+    
+    
+    
     
     # the HCAL Noise Filter
     #process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
@@ -163,6 +214,10 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 
 
 
+    #process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT,process.OneLeptonTwoJetsPath,process.TwoPhotonsPath])
+
+    
+    
     process.out.outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_*_*_*PAT',                             # All PAT objects

@@ -20,7 +20,7 @@ process.TFileService = cms.Service(
     closeFileFast = cms.untracked.bool(True)
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 
 
