@@ -168,7 +168,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     #process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
     
     # the MiBiPAT path
-    process.MiBiCommonPAT = cms.Sequence(
+    process.MiBiCommonPAT = cms.Path(
         process.AllEvents * # -> Counter
         process.scrapingFilter *
         process.NonScrapedEvents * # -> Counter
@@ -196,7 +196,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       minNumber      = cms.uint32(2)
     )
 
-    process.OneLeptonTwoJetsPath = cms.Sequence(
+    process.OneLeptonTwoJetsPath = cms.Path(
         process.LeptonsFilter*
         process.JetFilter 
         )
@@ -209,7 +209,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       minNumber      = cms.uint32(2)
     )
  
-    process.OneLeptonTwoJetsAK5CaloPath = cms.Sequence(
+    process.OneLeptonTwoJetsAK5CaloPath = cms.Path(
         process.LeptonsFilter*
         process.JetFilterAK5Calo
         )
@@ -219,7 +219,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       minNumber      = cms.uint32(2)
     )
      
-    process.OneLeptonTwoJetsAK5PFPath = cms.Sequence(
+    process.OneLeptonTwoJetsAK5PFPath = cms.Path(
         process.LeptonsFilter*
         process.JetFilterAK5PF
         )
@@ -231,7 +231,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 #         +process.OneLeptonTwoJetsPath
 #        )
 
-    process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloPath*process.OneLeptonTwoJetsAK5PFPath*process.OneLeptonTwoJetsPath])
+    process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath,process.OneLeptonTwoJetsAK5PFPath,process.OneLeptonTwoJetsPath])
 
 # the following works!
 #   process.MiBiSchedule = cms.Path(process.MiBiCommonPAT*(process.OneLeptonTwoJetsPath+process.TwoPhotonsPath))
