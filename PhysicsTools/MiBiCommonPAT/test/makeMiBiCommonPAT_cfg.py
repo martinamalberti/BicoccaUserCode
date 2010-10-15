@@ -8,7 +8,7 @@ process = cms.Process("MiBiCommonPAT")
 
 
 
-makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=True, Filter=False, SavePAT=True)
+makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=True, Filter=True, SavePAT=True)
 #makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=False, Filter=False, SavePAT=True)
 
 process.source.fileNames = cms.untracked.vstring(
