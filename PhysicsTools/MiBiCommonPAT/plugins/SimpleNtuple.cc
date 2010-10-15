@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.8 2010/10/13 04:48:05 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.9 2010/10/13 23:20:05 abenagli Exp $
 //
 //
 
@@ -49,7 +49,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  EleID_names_ = iConfig.getParameter< std::vector<std::string> >("EleID_names");
  
  MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
- 
+
+ PhotonTag_      = iConfig.getParameter<edm::InputTag>("PhotonTag");
+
  MetTag_   = iConfig.getParameter<edm::InputTag>("MetTag");
  TCMetTag_ = iConfig.getParameter<edm::InputTag>("TCMetTag");
  PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
@@ -67,6 +69,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  savePV_        = iConfig.getUntrackedParameter<bool> ("savePV", true);
  saveEle_       = iConfig.getUntrackedParameter<bool> ("saveEle", true);
  saveMu_        = iConfig.getUntrackedParameter<bool> ("saveMu", true);
+ savePhoton_    = iConfig.getUntrackedParameter<bool> ("savePhoton", true);
  saveMet_       = iConfig.getUntrackedParameter<bool> ("saveMet", true);
  saveJet_       = iConfig.getUntrackedParameter<bool> ("saveJet", true);
  saveHCALNoise_ = iConfig.getUntrackedParameter<bool> ("saveHCALNoise", true);
@@ -202,6 +205,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("muons_numberOfValidMuonHits");
  }
  
+ if(savePhoton_)
+ {
+   NtupleFactory_ -> Add4V ("photons");
+   NtupleFactory_ -> Add4V ("photons_hcalIso");
+ }
+
  if(saveMet_)
  {
    NtupleFactory_->Add4V("Met");         
@@ -641,6 +650,29 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 
 
 
+///-----------------
+///---- Photons ----
+
+void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtuple::fillPhotonInfo" << std::endl;
+ 
+ edm::Handle<edm::View<pat::Photon> > photonHandle;
+ iEvent.getByLabel(PhotonTag_,photonHandle);
+ edm::View<pat::Photon> photons = *photonHandle;
+ 
+ 
+ for ( unsigned int i=0; i<photons.size(); ++i )
+ {
+  pat::Photon photon = photons.at(i);
+  
+  NtupleFactory_ -> Fill4V   ("photons", photon.p4());
+  NtupleFactory_ -> FillFloat("photons_hcalIso", photon.hcalIso());
+ }
+ 
+}
+
+
 
 ///--------------
 ///---- Jets ----
@@ -935,6 +967,9 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
  ///---- fill electrons ----
  if (saveEle_)  fillEleInfo (iEvent, iSetup);
+ 
+ ///---- fill photons ----
+ if(savePhoton_)  fillPhotonInfo (iEvent, iSetup);
  
  ///---- fill met ---- 
  if (saveMet_) fillMetInfo (iEvent, iSetup);

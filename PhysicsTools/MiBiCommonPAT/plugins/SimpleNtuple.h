@@ -18,6 +18,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 // pat include files
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -65,6 +66,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -95,6 +97,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag EERecHitCollectionTag_;
   std::vector<std::string> EleID_names_;
   
+  edm::InputTag PhotonTag_;
+
   edm::InputTag MuTag_;
   
   edm::InputTag MetTag_;
@@ -114,6 +118,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool savePV_ ;
   bool saveMu_ ;
   bool saveEle_ ;
+  bool savePhoton_ ;
   bool saveMet_ ;
   bool saveJet_ ;
   bool saveHCALNoise_ ;

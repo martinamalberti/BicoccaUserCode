@@ -29,7 +29,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TwoPhotonsPath','OneLeptonTwoJetsPath') ) if Filter else cms.untracked.PSet()
+#        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('TwoPhotonsPath','OneLeptonTwoJetsPath') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -158,51 +158,14 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     
 
-    #--------
-    # Filters
-    #process.PhotonFilter = cms.EDFilter(
-    #    "CandViewCountFilter",
-    #     src = cms.InputTag("selectedPatElectrons"),
-    #     minNumber = cms.uint32(2)
-    #     )
-
-    #process.ElectronFilter = cms.EDFilter(
-    #    "CandViewCountFilter",
-    #     src = cms.InputTag("selectedPatElectrons"),
-    #     minNumber = cms.uint32(1)
-    #     )
-
-    #process.MuonFilter = cms.EDFilter(
-    #    "CandViewCountFilter",
-    #     src = cms.InputTag("selectedPatMuons"),
-    #     minNumber = cms.uint32(1)
-    #     )
-    
-    #process.JetFilter = cms.EDFilter(
-    #    "CandViewCountFilter",
-    #     src = cms.InputTag("selectedPatJets"),
-    #     minNumber = cms.uint32(2)
-    #     )    
-
-
-    
-    #process.OneLeptonTwoJetsPath = cms.Path(
-    #    process.ElectronFilter*
-    #    process.JetFilter 
-    #    )
-
-    #process.TwoPhotonsPath = cms.Path(
-    #    process.PhotonFilter
-    #    )
-    
-    
+  
     
     
     # the HCAL Noise Filter
     #process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
     
     # the MiBiPAT path
-    process.MiBiCommonPAT = cms.Path(
+    process.MiBiCommonPAT = cms.Sequence(
         process.AllEvents * # -> Counter
         process.scrapingFilter *
         process.NonScrapedEvents * # -> Counter
@@ -213,9 +176,98 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     )
 
 
+    #--------
+    # Filters
+    process.PhotonFilter = cms.EDFilter(
+        "CandViewCountFilter",
+         src = cms.InputTag("selectedPatElectrons"),
+         minNumber = cms.uint32(2)
+         )
 
-    #process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT,process.OneLeptonTwoJetsPath,process.TwoPhotonsPath])
+    process.ElectronFilter = cms.EDFilter(
+        "CandViewCountFilter",
+         src = cms.InputTag("selectedPatElectrons"),
+         minNumber = cms.uint32(1)
+         )
 
+    process.MuonFilter = cms.EDFilter(
+        "CandViewCountFilter",
+         src = cms.InputTag("selectedPatMuons"),
+         minNumber = cms.uint32(1)
+         )
+    
+    process.JetFilter = cms.EDFilter(
+        "CandViewCountFilter",
+         src = cms.InputTag("selectedPatJets"),
+         minNumber = cms.uint32(2)
+         )    
+
+
+    
+    process.OneLeptonTwoJetsPath = cms.Sequence(
+        process.ElectronFilter*
+        process.JetFilter 
+        )
+
+    process.TwoPhotonsPath = cms.Sequence(
+        process.PhotonFilter
+        )
+       
+
+
+
+
+
+    #### JEt filters ####
+    process.JetFilterAK5Calo = cms.EDFilter(
+        "CandViewCountFilter",
+         src = cms.InputTag("selectedPatJetsAK5Calo"),
+         minNumber = cms.uint32(2)
+         )    
+    process.OneLeptonTwoJetsAK5CaloPath = cms.Sequence(
+        process.ElectronFilter*
+        process.JetFilterAK5Calo
+        )
+
+    process.JetFilterAK5PF = cms.EDFilter(
+        "CandViewCountFilter",
+         src = cms.InputTag("selectedPatJetsAK5PF"),
+         minNumber = cms.uint32(2)
+         )    
+    process.OneLeptonTwoJetsAK5PFPath = cms.Sequence(
+        process.ElectronFilter*
+        process.JetFilterAK5PF
+        )
+
+
+
+
+    process.MiBiSchedule = cms.Path(
+         process.MiBiCommonPAT*(
+          process.TwoPhotonsPath +
+          (
+           process.OneLeptonTwoJetsAK5CaloPath + 
+           process.OneLeptonTwoJetsAK5PFPath +          
+           process.OneLeptonTwoJetsPath
+          )
+         )
+    )
+
+#    process.MiBiSchedule = cms.Path(
+#         process.MiBiCommonPAT*(
+#          process.TwoPhotonsPath +
+#          (
+#           process.OneLeptonTwoJetsPath
+#          )
+#         )
+#    )
+
+# the following works!
+#    process.MiBiSchedule = cms.Path(process.MiBiCommonPAT*(process.OneLeptonTwoJetsPath+process.TwoPhotonsPath))
+
+# the following do NOT work!
+#    process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT*process.OneLeptonTwoJetsPath*process.TwoPhotonsPath])
+#    process.MiBiSchedule = cms.Path(process.MiBiCommonPAT*(process.ElectronFilter*process.JetFilter)*(process.PhotonFilter))
     
     
     process.out.outputCommands = cms.untracked.vstring(
