@@ -231,7 +231,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 #         +process.OneLeptonTwoJetsPath
 #        )
 
-    process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath,process.OneLeptonTwoJetsAK5PFPath,process.OneLeptonTwoJetsPath])
+#    process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath,process.OneLeptonTwoJetsAK5PFPath,process.OneLeptonTwoJetsPath])
 
 # the following works!
 #   process.MiBiSchedule = cms.Path(process.MiBiCommonPAT*(process.OneLeptonTwoJetsPath+process.TwoPhotonsPath))
