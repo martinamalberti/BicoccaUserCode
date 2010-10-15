@@ -32,7 +32,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-#        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('OneLeptonTwoJetsAK5CaloPath','OneLeptonTwoJetsAK5PFPath','OneLeptonTwoJetsPath') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPath','MiBiPathAK5PF','MiBiPathAK5Calo') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -196,34 +196,32 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       minNumber      = cms.uint32(2)
     )
 
-    process.OneLeptonTwoJetsPath = cms.Sequence(
+    process.OneLeptonTwoJetsSeq = cms.Sequence(
         process.LeptonsFilter*
         process.JetFilter 
         )
       
-    process.MiBiSchedule = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPath)
-
-
+   
     #### JEt filters ####
-#    process.JetFilterAK5Calo = countPatJets.clone(
-#      src = cms.InputTag("selectedPatJetsAK5Calo"),
-#      minNumber      = cms.uint32(2)
-#    )
+    process.JetFilterAK5Calo = countPatJets.clone(
+      src = cms.InputTag("selectedPatJetsAK5Calo"),
+      minNumber      = cms.uint32(2)
+    )
  
-#    process.OneLeptonTwoJetsAK5CaloPath = cms.Path(
-#        process.LeptonsFilter*
-#        process.JetFilterAK5Calo
-#       )
+    process.OneLeptonTwoJetsAK5CaloSeq = cms.Sequence(
+        process.LeptonsFilter*
+        process.JetFilterAK5Calo
+       )
 
-#    process.JetFilterAK5PF = countPatJets.clone(
-#      src = cms.InputTag("selectedPatJetsAK5PF"),
-#      minNumber      = cms.uint32(2)
-#    )
+    process.JetFilterAK5PF = countPatJets.clone(
+      src = cms.InputTag("selectedPatJetsAK5PF"),
+      minNumber      = cms.uint32(2)
+    )
      
-#    process.OneLeptonTwoJetsAK5PFPath = cms.Path(
-#        process.LeptonsFilter*
-#        process.JetFilterAK5PF
-#        )
+    process.OneLeptonTwoJetsAK5PFSeq = cms.Sequence(
+        process.LeptonsFilter*
+        process.JetFilterAK5PF
+        )
 
 #    process.MiBiSchedule = cms.Path(
 #         process.MiBiCommonPAT
@@ -231,6 +229,10 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 #         +process.OneLeptonTwoJetsAK5PFPath
 #         +process.OneLeptonTwoJetsPath
 #        )
+
+    process.MiBiPath = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsSeq)
+    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq)
+    process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
 
 #    process.MiBiScheduleJetsAK5Calo = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath)
 #    process.MiBiScheduleJetsAK5PF = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5PFPath)

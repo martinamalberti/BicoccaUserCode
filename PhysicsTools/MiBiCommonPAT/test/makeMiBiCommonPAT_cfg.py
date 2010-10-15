@@ -24,6 +24,6 @@ process.TFileService = cms.Service(
     )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
-
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 
