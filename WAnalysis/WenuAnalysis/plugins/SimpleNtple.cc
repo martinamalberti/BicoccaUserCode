@@ -40,7 +40,8 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
   
-  eleId_names_  = iConfig.getParameter< std::vector<std::string> >("eleId_names");
+  std::vector<std::string> empty;
+  eleId_names_  = iConfig.getUntrackedParameter< std::vector<std::string> >("eleId_names",empty);
   outTreeNameEleId->Fill();
   
   
@@ -159,7 +160,9 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     
     NtupleFactory_->AddInt("electrons_seedSeverityLevel");
     NtupleFactory_->AddInt("electrons_seedFlag");
-    
+
+    NtupleFactory_->AddFloat("electrons_SwissCross");
+
     NtupleFactory_->AddFloat("electrons_ES");
     
     if (saveEleShape_)
@@ -365,8 +368,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
  View<pat::Electron> electrons = *electronHandle;
  
   //************* TRACKS
- edm::Handle<reco::TrackCollection> trackHandle;
- iEvent.getByLabel(TrackTag_, trackHandle);
+// edm::Handle<reco::TrackCollection> trackHandle;
+// iEvent.getByLabel(TrackTag_, trackHandle);
  
   //************* BFIELD
  edm::Handle<DcsStatusCollection> dcsHandle;
@@ -413,7 +416,7 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    // SC variables
    reco::SuperClusterRef scRef = electron.superCluster();
-   const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
+//   const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
    
    double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
    double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
@@ -430,7 +433,7 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
 
    // eleid variables
    NtupleFactory_->FillFloat("electrons_eOverP",electron.eSuperClusterOverP());
-   NtupleFactory_->FillFloat("electrons_eSeed",electron.superCluster()->seed()->energy());
+  // NtupleFactory_->FillFloat("electrons_eSeed",electron.superCluster()->seed()->energy());
    NtupleFactory_->FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
    NtupleFactory_->FillFloat("electrons_pout",electron.trackMomentumOut().R());
    NtupleFactory_->FillFloat("electrons_pcalo",electron.trackMomentumAtCalo().R());
@@ -479,13 +482,13 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    
    // conversion rejection variables
-   ConversionFinder convFinder;
-   ConversionInfo convInfo = convFinder.getConversionInfo(electron, trackHandle, bField);
+//   ConversionFinder convFinder;
+//   ConversionInfo convInfo = convFinder.getConversionInfo(electron, trackHandle, bField);
    
    NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
    NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
-   NtupleFactory_->FillFloat("electrons_dist", convInfo.dist());
-   NtupleFactory_->FillFloat("electrons_dcot", convInfo.dcot());
+//   NtupleFactory_->FillFloat("electrons_dist", convInfo.dist());
+//   NtupleFactory_->FillFloat("electrons_dcot", convInfo.dcot());
    
    
    // spike removal variables
@@ -494,7 +497,7 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    if(electron.isEB())
    {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
      
      // severity level - SwissCross 
      sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theBarrelEcalRecHits, *(theChannelStatus.product()));
@@ -513,7 +516,7 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
  
    else
    {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
      
      // severity level - SwissCross 
      sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theEndcapEcalRecHits, *(theChannelStatus.product()));
