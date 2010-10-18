@@ -34,7 +34,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons', 'MiBiPathPhotonsPFlow') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -206,11 +206,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       minNumber = cms.uint32(2)
      )
 
-    process.PhotonsFilterPFlow = countPatPhotons.clone(
-      src       = cms.InputTag("selectedPatPhotonsPFlow"),
-      minNumber = cms.uint32(2)
-     )
-    
     
     
     #------------
@@ -258,12 +253,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         process.PhotonsFilter
         )
 
-    
-    process.TwoPhotonsPFlowSeq = cms.Sequence(
-        process.PhotonssFilterPFlow
-        )
-
-
 
 
 
@@ -280,7 +269,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq)
     process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq)
-    process.MiBiPathPhotonsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsPFlowSeq)    
+
 
 #    process.MiBiScheduleJetsAK5Calo = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath)
 #    process.MiBiScheduleJetsAK5PF = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5PFPath)
