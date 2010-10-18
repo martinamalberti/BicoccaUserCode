@@ -199,7 +199,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   // ... barrel
   h_recHits_EB_size          = fs->make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 1000, 0, 10000 );
   h_recHits_EB_energy        = fs->make<TH1D>("h_recHits_EB_energy","h_recHitsEB_energy",11000,-50,500);
-  h_recHits_EB_energy_kTowerRecovered = fs->make<TH1D>("h_recHits_EB_energy_kTowerRecovered","h_recHits_EB_energy_kTowerRecovered",11000,-50,500);
   h_recHits_EB_energyMax     = fs->make<TH1D>("h_recHits_EB_energyMax","h_recHitsEB_energyMax",2000,-50,500);
   h_recHits_EB_time          = fs->make<TH1D>("h_recHits_EB_time","h_recHits_EB_time",400,-100,100);
   h_recHits_EB_Chi2          = fs->make<TH1D>("h_recHits_EB_Chi2","h_recHits_EB_Chi2",1000,0,100);
@@ -829,7 +828,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       if (itrechit==theBarrelEcalRecHits->end()) continue;
       h_basicClusters_recHits_EB_recoFlag -> Fill ( itrechit -> recoFlag() );
       h_basicClusters_recHits_recoFlag    -> Fill ( itrechit -> recoFlag() );
-      if ( itrechit -> recoFlag() == 9 ) h_recHits_EB_energy_kTowerRecovered -> Fill( itrechit -> energy() ); 
     
     }
 
