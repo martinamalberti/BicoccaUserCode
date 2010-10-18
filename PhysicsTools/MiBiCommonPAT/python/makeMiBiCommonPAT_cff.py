@@ -6,6 +6,7 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 from PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
 
