@@ -188,17 +188,18 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   
   // ReducedRecHits ----------------------------------------------
   // ... barrel 
-  h_redRecHits_EB_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",32,0.5,32.5);  
+  h_redRecHits_EB_recoFlag = fs->make<TH1D>("h_redRecHits_EB_recoFlag","h_redRecHits_EB_recoFlag",16,-0.5,15.5);  
   // ... endcap 
-  h_redRecHits_EE_recoFlag = fs->make<TH1D>("h_redRecHits_EE_recoFlag","h_redRecHits_EE_recoFlag",32,0.5,32.5);  
+  h_redRecHits_EE_recoFlag = fs->make<TH1D>("h_redRecHits_EE_recoFlag","h_redRecHits_EE_recoFlag",16,-0.5,15.5);  
   // ... all 
-  h_redRecHits_recoFlag = fs->make<TH1D>("h_redRecHits_recoFlag","h_redRecHits_recoFlag",32,0.5,32.5);  
+  h_redRecHits_recoFlag = fs->make<TH1D>("h_redRecHits_recoFlag","h_redRecHits_recoFlag",16,-0.5,15.5);  
 
   
   // RecHits ---------------------------------------------- 
   // ... barrel
   h_recHits_EB_size          = fs->make<TH1D>("h_recHits_EB_size", "h_recHitsEB_size", 1000, 0, 10000 );
   h_recHits_EB_energy        = fs->make<TH1D>("h_recHits_EB_energy","h_recHitsEB_energy",11000,-50,500);
+  h_recHits_EB_energy_kTowerRecovered = fs->make<TH1D>("h_recHits_EB_energy_kTowerRecovered","h_recHits_EB_energy_kTowerRecovered",11000,-50,500);
   h_recHits_EB_energyMax     = fs->make<TH1D>("h_recHits_EB_energyMax","h_recHitsEB_energyMax",2000,-50,500);
   h_recHits_EB_time          = fs->make<TH1D>("h_recHits_EB_time","h_recHits_EB_time",400,-100,100);
   h_recHits_EB_Chi2          = fs->make<TH1D>("h_recHits_EB_Chi2","h_recHits_EB_Chi2",1000,0,100);
@@ -221,11 +222,11 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EB_time_cleaned          = fs->make<TH1D>("h_recHits_EB_time_cleaned","h_recHits_EB_time_cleaned",400,-100,100);
   h_recHits_EB_Chi2_cleaned          = fs->make<TH1D>("h_recHits_EB_Chi2_cleaned","h_recHits_EB_Chi2_cleaned",1000,0,100);
   h_recHits_EB_OutOfTimeChi2_cleaned = fs->make<TH1D>("h_recHits_EB_OutOfTimeChi2_cleaned","h_recHits_EB_OutOfTimeChi2_cleaned",1000,0,100);  
-  h_recHits_EB_recoFlag = fs->make<TH1D>("h_recHits_EB_recoFlag","h_recHits_EB_recoFlag",32,0.5,32.5);  
+  h_recHits_EB_recoFlag = fs->make<TH1D>("h_recHits_EB_recoFlag","h_recHits_EB_recoFlag",16,-0.5,15.5);  
 
   // ... endcap
   h_recHits_EE_size           = fs->make<TH1D>("h_recHits_EE_size","h_recHits_EE_size",1000,0,10000);
-  h_recHits_EE_recoFlag = fs->make<TH1D>("h_recHits_EE_recoFlag","h_recHits_EE_recoFlag",32,0.5,32.5);  
+  h_recHits_EE_recoFlag = fs->make<TH1D>("h_recHits_EE_recoFlag","h_recHits_EE_recoFlag",16,-0.5,15.5);  
 
   h_recHits_EEP_size          = fs->make<TH1D>("h_recHits_EEP_size","h_recHits_EEP_size",1000,0,10000);
   h_recHits_EEP_energy        = fs->make<TH1D>("h_recHits_EEP_energy","h_recHits_EEP_energy",11000,-50,500);
@@ -270,7 +271,7 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EE_phi_MaxEt = fs->make<TH1D>("h_recHits_EE_phi_MaxEt","h_recHits_EE_phi_MaxEt",360,-3.1415927, 3.1415927);
 
   // ... all
-  h_recHits_recoFlag = fs->make<TH1D>("h_recHits_recoFlag","h_recHits_recoFlag",32,0.5,32.5);  
+  h_recHits_recoFlag = fs->make<TH1D>("h_recHits_recoFlag","h_recHits_recoFlag",16,-0.5,15.5);  
 
   // Basic Clusters ----------------------------------------------    
   
@@ -291,7 +292,7 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EB_energy_cleaned_tkmatched  = fs->make<TH1D>("h_basicClusters_EB_energy_cleaned_tkmatched","h_basicClusters_EB_energy_cleaned_tkmatched",2000,0.,400.);
 
   // ... associated barrel rec hits
-  h_basicClusters_recHits_EB_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_EB_recoFlag","h_basicClusters_recHits_EB_recoFlag",32,0.5,32.5);  
+  h_basicClusters_recHits_EB_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_EB_recoFlag","h_basicClusters_recHits_EB_recoFlag",16,-0.5,15.5);  
 
   
   // ... endcap
@@ -332,7 +333,7 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EE_phi     = fs->make<TH1D>("h_basicClusters_EE_phi","h_basicClusters_EE_phi",360,-3.1415927,3.1415927);
 
   // ... associated endcap rec hits
-  h_basicClusters_recHits_EE_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_EE_recoFlag","h_basicClusters_recHits_EE_recoFlag",32,0.5,32.5);  
+  h_basicClusters_recHits_EE_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_EE_recoFlag","h_basicClusters_recHits_EE_recoFlag",16,-0.5,15.5);  
 
   //cleaned+tkmatched
   h_basicClusters_eta_tkmatched        = fs->make<TH1D>("h_basicClusters_eta_tkmatched","h_basicClusters_eta_tkmatched",150,-3.,3.);
@@ -342,7 +343,7 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_basicClusters_EE_phi_tkmatched     = fs->make<TH1D>("h_basicClusters_EE_phi_tkmatched","h_basicClusters_EE_phi_tkmatched",360,-3.1415927,3.1415927);
   
   // ... associated all rec hits
-  h_basicClusters_recHits_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_recoFlag","h_basicClusters_recHits_recoFlag",32,0.5,32.5);  
+  h_basicClusters_recHits_recoFlag = fs->make<TH1D>("h_basicClusters_recHits_recoFlag","h_basicClusters_recHits_recoFlag",16,-0.5,15.5);  
 
 
   // Super Clusters ----------------------------------------------
@@ -828,6 +829,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       if (itrechit==theBarrelEcalRecHits->end()) continue;
       h_basicClusters_recHits_EB_recoFlag -> Fill ( itrechit -> recoFlag() );
       h_basicClusters_recHits_recoFlag    -> Fill ( itrechit -> recoFlag() );
+      if ( itrechit -> recoFlag() == 9 ) h_recHits_EB_energy_kTowerRecovered -> Fill( itrechit -> energy() ); 
     
     }
 
