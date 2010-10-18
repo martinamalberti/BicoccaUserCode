@@ -32,7 +32,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPath','MiBiPathAK5PF','MiBiPathAK5Calo') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons', 'MiBiPathPhotonsPFlow') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -177,11 +177,11 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         getattr(process,"patPF2PATSequence"+postfix) *
         process.patDefaultSequence
     )
+    
 
-
-    #--------
-    # Filters
-#    from PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi import *
+    
+    #----------------------
+    # Lepton/Photon Filters
     process.load('PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi')
     process.LeptonsFilter = countPatLeptons.clone(
       electronSource = cms.InputTag("selectedPatElectrons"),
@@ -189,39 +189,83 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       minNumber      = cms.uint32(1)
      )
 
-#    from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
-    process.load('PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi')
-    process.JetFilter = countPatJets.clone(
-      src = cms.InputTag("selectedPatJets"),
-      minNumber      = cms.uint32(2)
-    )
+    
+    process.LeptonsFilterPFlow = countPatLeptons.clone(
+      electronSource = cms.InputTag("selectedPatElectronsPFlow"),
+      muonSource     = cms.InputTag("selectedPatMuonsPFlow"),
+      minNumber      = cms.uint32(1)
+     )
+    
+    
+    
+    process.load('PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi')
+    process.PhotonsFilter = countPatPhotons.clone(
+      src       = cms.InputTag("selectedPatPhotons"),
+      minNumber = cms.uint32(2)
+     )
 
-    process.OneLeptonTwoJetsSeq = cms.Sequence(
-        process.LeptonsFilter*
-        process.JetFilter 
-        )
-      
-   
-    #### JEt filters ####
+    process.PhotonsFilterPFlow = countPatPhotons.clone(
+      src       = cms.InputTag("selectedPatPhotonsPFlow"),
+      minNumber = cms.uint32(2)
+     )
+    
+    
+    
+    #------------
+    # Jet Filters
+    process.load('PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi')
     process.JetFilterAK5Calo = countPatJets.clone(
       src = cms.InputTag("selectedPatJetsAK5Calo"),
       minNumber      = cms.uint32(2)
     )
- 
+    
+    
+    process.JetFilterAK5PF = countPatJets.clone(
+      src = cms.InputTag("selectedPatJetsAK5PF"),
+      minNumber      = cms.uint32(2)
+    )
+    
+     
+    process.JetFilterPFlow = countPatJets.clone(
+      src = cms.InputTag("selectedPatJetsPFlow"),
+      minNumber      = cms.uint32(2)
+    )
+    
+    
+    
+    #-----------
+    # Sequences
     process.OneLeptonTwoJetsAK5CaloSeq = cms.Sequence(
         process.LeptonsFilter*
         process.JetFilterAK5Calo
        )
 
-    process.JetFilterAK5PF = countPatJets.clone(
-      src = cms.InputTag("selectedPatJetsAK5PF"),
-      minNumber      = cms.uint32(2)
-    )
-     
+    
     process.OneLeptonTwoJetsAK5PFSeq = cms.Sequence(
         process.LeptonsFilter*
         process.JetFilterAK5PF
         )
+    
+    
+    process.OneLeptonTwoJetsPFlowSeq = cms.Sequence(
+        process.LeptonsFilterPFlow*
+        process.JetFilterPFlow
+        )
+
+    process.TwoPhotonsSeq = cms.Sequence(
+        process.PhotonsFilter
+        )
+
+    
+    process.TwoPhotonsPFlowSeq = cms.Sequence(
+        process.PhotonssFilterPFlow
+        )
+
+
+
+
+
+
 
 #    process.MiBiSchedule = cms.Path(
 #         process.MiBiCommonPAT
@@ -230,9 +274,11 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 #         +process.OneLeptonTwoJetsPath
 #        )
 
-    process.MiBiPath = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsSeq)
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq)
     process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
+    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq)
+    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq)
+    process.MiBiPathPhotonsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsPFlowSeq)    
 
 #    process.MiBiScheduleJetsAK5Calo = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath)
 #    process.MiBiScheduleJetsAK5PF = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5PFPath)
