@@ -12,8 +12,9 @@ makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=True, Filter=True, S
 #makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=False, Filter=False, SavePAT=True)
 
 process.source.fileNames = cms.untracked.vstring(
-  'file:/gwtera5/users/data/NTUPLES/VBF/WENu_38X.root'
-# 'file:/gwpool/users/amassiro/VBF/Releases/CMSSW_3_8_3/src/PhysicsTools/MiBiCommonPAT/669A4128-43D0-DF11-AE93-001A92810ACE.root'
+  #'file:/gwtera5/users/data/NTUPLES/VBF/WENu_38X.root'
+  'file:/media/amassiro/deguio/Datasets/Fall10_WToENu_TuneZ2_7TeV-pythia6_AODSIM_START38_V12-v1.root'
+  #'file:/gwpool/users/amassiro/VBF/Releases/CMSSW_3_8_3/src/PhysicsTools/MiBiCommonPAT/669A4128-43D0-DF11-AE93-001A92810ACE.root'  
 
 )
 
