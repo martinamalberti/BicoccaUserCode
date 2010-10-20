@@ -47,7 +47,8 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 
     #--------------------------
     # Counter1: All read events
-    process.AllEvents = process.AllPassFilter.clone()
+    #process.AllEvents = process.AllPassFilter.clone()
+    process.AllEvents = cms.EDProducer("EventCountProducer")
     
 
 
@@ -60,7 +61,8 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         thresh = cms.untracked.double(0.25)
     )
     
-    process.NonScrapedEvents = process.AllPassFilter.clone()
+    #process.NonScrapedEvents = process.AllPassFilter.clone()
+    process.NonScrapedEvents = cms.EDProducer("EventCountProducer")
     
     
     
@@ -73,7 +75,8 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         maxd0 = cms.double(2)
     )
     
-    process.GoodVtxEvents = process.AllPassFilter.clone()
+    #process.GoodVtxEvents = process.AllPassFilter.clone()
+    process.GoodVtxEvents = cms.EDProducer("EventCountProducer")
     
     
 
@@ -231,26 +234,39 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     
     #-----------
-    # Sequences
+    # Sequences & Other counters
+    process.LeptonsFilterEvents = cms.EDProducer("EventCountProducer")
+    process.LeptonsFilterPFlowEvents = cms.EDProducer("EventCountProducer")
+    process.JetFilterAK5CaloEvents = cms.EDProducer("EventCountProducer")
+    process.JetFilterAK5PFEvents = cms.EDProducer("EventCountProducer")
+    process.JetFilterPFlowEvents = cms.EDProducer("EventCountProducer")
+    process.PhotonsFilterEvents = cms.EDProducer("EventCountProducer")
+    
     process.OneLeptonTwoJetsAK5CaloSeq = cms.Sequence(
         process.LeptonsFilter*
-        process.JetFilterAK5Calo
+        process.LeptonsFilterEvents*
+        process.JetFilterAK5Calo*
+        process.JetFilterAK5CaloEvents
        )
 
     
     process.OneLeptonTwoJetsAK5PFSeq = cms.Sequence(
         process.LeptonsFilter*
-        process.JetFilterAK5PF
+        process.JetFilterAK5PF*
+        process.JetFilterAK5PFEvents
         )
     
     
     process.OneLeptonTwoJetsPFlowSeq = cms.Sequence(
         process.LeptonsFilterPFlow*
-        process.JetFilterPFlow
+        process.LeptonsFilterPFlowEvents*
+        process.JetFilterPFlow*
+        process.JetFilterPFlowEvents
         )
 
     process.TwoPhotonsSeq = cms.Sequence(
-        process.PhotonsFilter
+        process.PhotonsFilter*
+        process.PhotonsFilterEvents
         )
 
 
@@ -292,6 +308,8 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         'keep edmTriggerResults_TriggerResults_*_*',   # HLT info, per path (cheap)
         'keep *_genParticles_*_*',                     # GenParticles
         'keep *_generalTracks_*_*',                    # tracks
-        'keep recoGsfElectronCores_*_*_*'              # gsfElectrons
+        'keep recoGsfElectronCores_*_*_*',             # gsfElectrons
+        'keep *_reducedEcalRecHitsEB_*_*',             # reduced recHits Barrel
+        'keep *_reducedEcalRecHitsEE_*_*'              # reduced recHits Endcap
     )
     
