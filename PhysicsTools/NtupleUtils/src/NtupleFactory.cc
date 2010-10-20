@@ -36,6 +36,10 @@ NtupleFactory::~NtupleFactory(){
   for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_3TV_.begin() ; it != ArrayContent_3TV_.end(); it++ ){
    delete ((*it).second); 
   }
+  for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_TMatrix_.begin() ; it != ArrayContent_TMatrix_.end(); it++ ){
+   delete ((*it).second); 
+  }
+
   for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
    delete ((*it).second);
   }
@@ -144,8 +148,24 @@ void NtupleFactory::AddString(const TString &name){
  outTree_->Branch(name,"std::vector<std::string>",&(ArrayContentString_[name]));
 }
 
+
+
+void NtupleFactory::AddTMatrix(const TString &name){
+ if (ArrayContent_TMatrix_.find (name) != ArrayContent_TMatrix_.end ())
+ {
+  std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
+  return ;                
+ }
+ TClonesArray* dummy = new TClonesArray ("TMatrix");
+ ArrayContent_TMatrix_[name] = dummy ;
+ outTree_->Branch (name, "TClonesArray", &(ArrayContent_TMatrix_[name]), 256000,0);
+ ArrayContent_TMatrix_num_[name] = 0;
+ return ;
+}
+
 ////--------------------------
 ///----- Fill collection -----
+
 
 void NtupleFactory::Fill4V(const TString &name,const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > &vect){
  if (ArrayContent_StdXYZT_.find (name) != ArrayContent_StdXYZT_.end ()){
@@ -231,6 +251,19 @@ void NtupleFactory::FillString(const TString &name,const std::string& vect){
  }
 }
 
+void NtupleFactory::FillTMatrix(const TString &name,const TMatrix &vect){
+ if (ArrayContent_TMatrix_.find (name) != ArrayContent_TMatrix_.end ()){
+  int counter = ArrayContent_TMatrix_num_[name];
+  new ((*(ArrayContent_TMatrix_[name]))[counter]) TMatrix (vect);
+  ArrayContent_TMatrix_num_[name] += 1;
+ }
+ else {
+  std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
+  return ;        
+ }
+}
+
+
 ///---- Clear Ntuple ------------
 void NtupleFactory::ClearNtuple(){
   for (std::map<TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* >::iterator it=ArrayContent_StdXYZT_.begin() ; it != ArrayContent_StdXYZT_.end(); it++ ){
@@ -247,6 +280,11 @@ void NtupleFactory::ClearNtuple(){
     ((*it).second)->Clear(); 
     ArrayContent_3TV_num_[(*it).first] = 0;
   }
+ for (std::map<TString,TClonesArray*>::iterator it=ArrayContent_TMatrix_.begin() ; it != ArrayContent_TMatrix_.end(); it++ ){
+    ((*it).second)->Clear(); 
+    ArrayContent_TMatrix_num_[(*it).first] = 0;
+  }
+  
   for (std::map<TString,std::vector<float>* >::iterator it=ArrayContentFloat_.begin() ; it != ArrayContentFloat_.end(); it++ ){
     ((*it).second)->clear();  
   }

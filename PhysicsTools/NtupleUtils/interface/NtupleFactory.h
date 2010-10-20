@@ -11,6 +11,7 @@
 #include "TLorentzVector.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TMatrix.h"
 // #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"
@@ -50,6 +51,10 @@ class NtupleFactory{
 
   void AddString(const TString &name);
   void FillString(const TString &name,const std::string& vect);
+
+  void AddTMatrix(const TString &name);
+  void FillTMatrix(const TString &name, const TMatrix &vect);
+  
   
   void FillNtuple();
 
@@ -61,6 +66,7 @@ class NtupleFactory{
   
  private:
   TLorentzVector myvector ;
+  TMatrix mymatrix;
   std::map <TString,std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* > ArrayContent_StdXYZT_ ;
   std::map <TString,TClonesArray*> ArrayContent_4TV_ ;
   std::map <TString,int> ArrayContent_4TV_num_ ;
@@ -71,7 +77,9 @@ class NtupleFactory{
   std::map <TString,std::vector<double>* > ArrayContentDouble_ ;
   std::map <TString,std::vector<int>* > ArrayContentInt_ ;
   std::map <TString,std::vector<std::string>* > ArrayContentString_ ;
-       
+  std::map <TString,TClonesArray*> ArrayContent_TMatrix_ ;
+  std::map <TString,int> ArrayContent_TMatrix_num_;
+
   TTree* outTree_;
   bool internalTree_;
   
