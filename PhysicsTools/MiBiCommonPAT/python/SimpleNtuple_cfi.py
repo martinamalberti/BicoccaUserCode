@@ -19,7 +19,10 @@ SimpleNtuple = cms.EDAnalyzer(
     
     #### photons ####
     PhotonTag             = cms.InputTag("selectedPatPhotons"),
-
+    EBRechitTag  = cms.InputTag("reducedEcalRecHitsEB","","RECO"),
+    EERechitTag  = cms.InputTag("reducedEcalRecHitsEE","","RECO"),
+    
+    
     #### jets ####
     JetTag     = cms.InputTag("selectedPatJets"),
     BTag_names = cms.vstring('trackCountingHighEffBJetTags','trackCountingHighPurBJetTags','simpleSecondaryVertexHighPurBJetTags','simpleSecondaryVertexHighEffBJetTags'),

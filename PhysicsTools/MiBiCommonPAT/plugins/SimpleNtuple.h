@@ -87,6 +87,9 @@ class SimpleNtuple : public edm::EDAnalyzer {
     
   
   ///---- input tag ----
+  edm::InputTag EBRechitTag_;
+  edm::InputTag EERechitTag_;
+
   edm::InputTag HLTTag_;
   
   edm::InputTag PVTag_;
