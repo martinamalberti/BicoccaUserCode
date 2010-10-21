@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.StandardSequences.GeometryExtended_cff import *
+#from Configuration.StandardSequences.MagneticField_cff import *
+#from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+
 SimpleNtuple = cms.EDAnalyzer(
     "SimpleNtuple",
     
@@ -11,20 +15,20 @@ SimpleNtuple = cms.EDAnalyzer(
     PVTag = cms.InputTag("offlinePrimaryVerticesWithBS"),
     
     #### muons ####
-    MuTag = cms.InputTag("selectedPatMuons"),
+    MuTag = cms.InputTag("patMuons"),
      
     #### electrons ####
-    EleTag                = cms.InputTag("selectedPatElectrons"),
+    EleTag                = cms.InputTag("patElectrons"),
     EleID_names           = cms.vstring('eidLoose','eidRobustLoose','eidTight','eidRobustTight'),
     
     #### photons ####
-    PhotonTag             = cms.InputTag("selectedPatPhotons"),
+    PhotonTag             = cms.InputTag("patPhotons"),
     EBRechitTag  = cms.InputTag("reducedEcalRecHitsEB","","RECO"),
     EERechitTag  = cms.InputTag("reducedEcalRecHitsEE","","RECO"),
     
     
     #### jets ####
-    JetTag     = cms.InputTag("selectedPatJets"),
+    JetTag     = cms.InputTag("patJets"),
     BTag_names = cms.vstring('trackCountingHighEffBJetTags','trackCountingHighPurBJetTags','simpleSecondaryVertexHighPurBJetTags','simpleSecondaryVertexHighEffBJetTags'),
     
     MetTag   = cms.InputTag("patMETs"),
@@ -47,6 +51,7 @@ SimpleNtuple = cms.EDAnalyzer(
     saveEle       = cms.untracked.bool (True),
     saveMet       = cms.untracked.bool (True),
     saveJet       = cms.untracked.bool (True),
+    savePhoton    = cms.untracked.bool (True),
     saveHCALNoise = cms.untracked.bool (False),
     
     saveMCPtHat           = cms.untracked.bool (False),
