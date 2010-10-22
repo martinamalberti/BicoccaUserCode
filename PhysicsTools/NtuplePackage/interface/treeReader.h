@@ -9,6 +9,7 @@
 #include "TBranch.h"
 #include "TBranchElement.h"
 
+#include "TClonesArray.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -29,7 +30,7 @@ class treeReader
     std::vector<int>*                    GetInt   (const std::string &name);
     std::vector<ROOT::Math::XYZVector>*  Get3V    (const std::string &name);
     std::vector<ROOT::Math::XYZTVector>* Get4V    (const std::string &name);
-    
+    TClonesArray* GetTClonesArray(const std::string &name);
     
   private:
 
@@ -38,6 +39,7 @@ class treeReader
     std::map <std::string, std::vector<int> * >                    m_Ivectors ;
     std::map <std::string, std::vector<ROOT::Math::XYZVector> * >  m_3Vvectors ;
     std::map <std::string, std::vector<ROOT::Math::XYZTVector> * > m_4Vvectors ;
+    std::map <std::string,  TClonesArray* >                        m_TClonesArray ;
     
     TTree * m_tree ;
     bool m_verbosity ;

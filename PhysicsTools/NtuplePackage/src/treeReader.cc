@@ -61,9 +61,18 @@ m_verbosity (verbosity)
    m_tree->SetBranchAddress (bre->GetName (), &m_Dvectors[bre->GetName ()]) ;
   }
   
+  if (bname.find ("TClonesArray") != std::string::npos)
+  {
+   if (m_verbosity)
+      std::cout << "DV | setting " << bre->GetName () << " for type : " << bre->GetClassName () << "\n" ;
+   TClonesArray * dummy = new TClonesArray;
+   m_TClonesArray[bre->GetName ()] = dummy ;
+   m_tree->SetBranchAddress (bre->GetName (), &m_TClonesArray[bre->GetName ()]) ;
+  }
+
  } //PG loop over branches
  
- std::cout << " --> " << (m_3Vvectors.size () + m_4Vvectors.size () + m_Fvectors.size () + m_Dvectors.size () + m_Ivectors.size ()) << " branches read\n" ;
+ std::cout << " --> " << (m_3Vvectors.size () + m_4Vvectors.size () + m_Fvectors.size () + m_Dvectors.size () + m_Ivectors.size () + m_TClonesArray.size() ) << " branches read\n" ;
  
 }
 
@@ -97,6 +106,10 @@ treeReader::~treeReader ()
  {
   delete iMap->second ;
  } 
+ for( std::map<std::string, TClonesArray* >::const_iterator   iMap  = m_TClonesArray.begin () ; iMap  != m_TClonesArray.end() ; ++iMap)
+   {
+     delete iMap->second ;
+   }
 } 
 
 
@@ -125,4 +138,8 @@ std::vector<ROOT::Math::XYZTVector>* treeReader::Get4V(const std::string &name){
  if (it_4V  != m_4Vvectors.end()  ) return m_4Vvectors[name];
  else return new std::vector<ROOT::Math::XYZTVector>;
 }
-
+TClonesArray* treeReader::GetTClonesArray(const std::string &name){
+ std::map<std::string, TClonesArray* >::const_iterator   it_Tca  = m_TClonesArray.find(name);
+ if (it_Tca  != m_TClonesArray.end()  ) return m_TClonesArray[name];
+ else return new TClonesArray;
+}
