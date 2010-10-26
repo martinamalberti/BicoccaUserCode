@@ -92,6 +92,6 @@ process.inputTree = cms.PSet(
 
 
 process.outputTree = cms.PSet(
- outputFile = cms.string("myEBAlignment_2010.txt"),
-# outputFile = cms.string("myEEAlignment_2010.txt"),
+ #outputFile = cms.string("myEBAlignment_2010.txt"),
+ outputFile = cms.string("myEEAlignment_2010.txt"),
 )

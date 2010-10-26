@@ -95,19 +95,22 @@ double Chi2Func(const double *xx ){
  myTree->SetEntryList(myList); 
  
  myTree->Draw("DeltaEtaIn:DeltaPhiIn:etaSC:phiSC","","para goff");
-  Double_t *vDEta = myTree->GetV1();
-  Double_t *vDPhi = myTree->GetV2();
-  Double_t *vEta = myTree->GetV3();
-  Double_t *vPhi = myTree->GetV4();
+ int nEntries = myList->GetN();
+ Double_t *vTemp = myTree->GetV1();
+ Double_t *vDEta = new Double_t[nEntries];
+ for (int iEntry = 0; iEntry<nEntries; iEntry++){
+  vDEta[iEntry] = vTemp[iEntry];
+ }
+ Double_t *vDPhi = myTree->GetV2();
+ Double_t *vEta = myTree->GetV3();
+ Double_t *vPhi = myTree->GetV4();
  myTree->Draw("E5x5","","para goff");
-  Double_t *vEnergy = myTree->GetV1();
+ Double_t *vEnergy = myTree->GetV1();
   
   Double_t vErrDEta;
   Double_t vErrDPhi;
   Double_t vErrEta;
   Double_t vErrPhi;
-  
-  int nEntries = myList->GetN();
   
   double Chi2 = 0;
   
@@ -302,7 +305,7 @@ int main(int argc, char** argv)
  
  ofstream outFile;
  outFile.open (nameFileOut.c_str());
- outFile << "#SC  dx   errdx   dy   errdy   dz   errdz  " << std::endl;
+//  outFile << "#SC  dx   errdx   dy   errdy   dz   errdz  " << std::endl;
   
  for (int iSC = 0; iSC<4; iSC++){
   outFile << " " 
