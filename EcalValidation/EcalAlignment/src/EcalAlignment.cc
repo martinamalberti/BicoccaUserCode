@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id$
+// $Id: EcalAlignment.cc,v 1.1 2010/10/26 07:33:16 amassiro Exp $
 //
 //
 
@@ -328,28 +328,27 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    float EtaCutEE    = 1.5;
    float EtaMax      = 3.0;
   
-   
-//   if ( met_ < 20. ) continue;
-//   if ( ETSC_ < 20. ) continue;
-//   if ( dphi_ < 0.75) continue;   
+   if ( met_ < 20. ) continue;
+   if ( ETSC_ < 20. ) continue;
+   if ( dphi_ < 0.75) continue;   
    
    if ( fabs(eta_)> EtaCutEB && fabs(eta_)< EtaCutEE ) continue;
    if ( fabs(eta_)> EtaMax ) continue;
 
-//   if (seedSeverityLevel_ != 0) continue;
-//   if (eleSwissCross_ > 0.95) continue;
+   if (seedSeverityLevel_ != 0) continue;
+   if (eleSwissCross_ > 0.95) continue;
    
    
-//   if (eleMisHits_ > 0) continue;
-//   if (fabs(eta_) <= EtaCutEB && ((eleTrkIso_ + eleEcalIso_ + eleHcalIsoD1_ + eleHcalIsoD2_)/pT_ > 0.07)) continue;
-//   if (fabs(eta_) <= EtaCutEB && (eleTrkIso_/pT_>0.09 || eleEcalIso_/pT_>0.07 || (eleHcalIsoD1_+eleHcalIsoD2_)/pT_>0.09)) continue;
-//   if (fabs(eta_) <= EtaCutEB && (HoE_>0.040 || SigmaIEtaIEta_>0.01)) continue;
+   if (eleMisHits_ > 0) continue;
+   if (fabs(eta_) <= EtaCutEB && ((eleTrkIso_ + eleEcalIso_ + eleHcalIsoD1_ + eleHcalIsoD2_)/pT_ > 0.07)) continue;
+   if (fabs(eta_) <= EtaCutEB && (eleTrkIso_/pT_>0.09 || eleEcalIso_/pT_>0.07 || (eleHcalIsoD1_+eleHcalIsoD2_)/pT_>0.09)) continue;
+   if (fabs(eta_) <= EtaCutEB && (HoE_>0.040 || SigmaIEtaIEta_>0.01)) continue;
 //    if (fabs(eta_) <= EtaCutEB && DeltaPhiIn_ > 0.06) continue;
 //    if (fabs(eta_) <= EtaCutEB && DeltaEtaIn_ > 0.004) continue;
    
-//   if (fabs(eta_) > EtaCutEB && ((eleTrkIso_ + eleEcalIso_ + eleHcalIsoD1_ + eleHcalIsoD2_)/pT_ > 0.06)) continue;
-//   if (fabs(eta_) > EtaCutEB && (eleTrkIso_/pT_>0.04 || eleEcalIso_/pT_>0.05 || (eleHcalIsoD1_+eleHcalIsoD2_)/pT_>0.025)) continue;
-//   if (fabs(eta_) > EtaCutEB && (HoE_>0.025 || SigmaIEtaIEta_>0.03)) continue;
+   if (fabs(eta_) > EtaCutEB && ((eleTrkIso_ + eleEcalIso_ + eleHcalIsoD1_ + eleHcalIsoD2_)/pT_ > 0.06)) continue;
+   if (fabs(eta_) > EtaCutEB && (eleTrkIso_/pT_>0.04 || eleEcalIso_/pT_>0.05 || (eleHcalIsoD1_+eleHcalIsoD2_)/pT_>0.025)) continue;
+   if (fabs(eta_) > EtaCutEB && (HoE_>0.025 || SigmaIEtaIEta_>0.03)) continue;
 
   ///==== save ELECTRON variables ====   
   myTree_->Fill();
