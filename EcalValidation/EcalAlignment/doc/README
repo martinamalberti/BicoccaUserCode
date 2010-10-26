@@ -1,0 +1,77 @@
+### Instructions ###
+
+to install
+cvs co CalibCalorimetry/EcalTrivialCondModules
+cvs co CondTools/Ecal
+cvs co -d EcalValidation/EcalAlignment/ UserCode/Bicocca/EcalValidation/EcalAlignment/
+cmsenv
+scramv1 b
+
+
+
+
+####################
+
+1) create reconstruction with 0 alignment
+
+    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_NoAlign.cfg
+    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_NoAlign.cfg
+
+That will store data (ROOT trees with electrons) on Castor
+
+2) get the list of the trees to be used for alignment:
+   
+   rfdir /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign | awk '{print "@rfio:/castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign/"$9"@,"}' | tr "@" "'" &> text.txt
+
+   rfdir /castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_NoAlign | awk '{print "@rfio:/castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_NoAlign/"$9"@,"}' | tr "@" "'" &> text.txt
+   
+and copy in the file "Align_cfg.py"
+
+Or copy the ROOT files in local and hadd them
+   rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign /tmp/amassiro/EcalAlignment/
+   rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_NoAlign /tmp/amassiro/EcalAlignment/
+   
+   hadd /tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root /tmp/amassiro/EcalAlignment/EcalAlignment_*
+
+
+3) Do Alignment:
+     EE_Alignment_RotoTraslation AlignEE_cfg.py
+     EB_Alignment_RotoTraslation AlignEB_cfg.py
+  NB: remember to modify output "txt" file in "Align_cfg.py" to deal with EE and EB 
+      (or to use "AlignEE_cfg.py" and "AlignEB_cfg.py"
+  Time ~ 3 minutes (it depends on the number of electrons)
+
+  In "Align_cfg.py" enable/disable rotations and traslations
+ 
+4) create new local DB with new alignment constants
+  check the consistence of output name in "Align_cfg.py" and input name in "EcalTrivialAlignment_cfi.py"
+  (remember absolute path for "EBAlignmentFile", "EEAlignmentFile", "ESAlignmentFile" as in the example)
+    cmsRun copyFileAlignEB_cfg.py 
+    cmsRun copyFileAlignEE_cfg.py 
+   
+  to inspect DB do
+    sqlite3 EBAlign_2010.db
+    .tables
+    select *from ALIGNME_M_ALIGN;
+    .q
+
+5) run Re-Reco with new DB
+    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_MyAlign.cfg
+    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_MyAlign.cfg
+
+6) sanity check
+   copy in local
+
+       rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_MyAlign /tmp/amassiro/EcalAlignmentMyAlign/
+       rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_MyAlign /tmp/amassiro/EcalAlignmentMyAlign/
+       hadd /tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root /tmp/amassiro/EcalAlignmentMyAlign/EcalAlignment_*
+
+   and test EB and EE
+
+       r00t Alignment_Validation_EB.cxx\(\"/tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root\",\"/tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root\"\)
+
+       r00t Alignment_Validation_EE.cxx\(\"/tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root\",\"/tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root\"\)
+
+
+
+
