@@ -330,7 +330,7 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
    if ( met_ < 20. ) continue;
    if ( ETSC_ < 20. ) continue;
-   if ( dphi_ < 0.75) continue;   
+   if ( dphiMETEle_ < 0.75) continue;   
    
    if ( fabs(eta_)> EtaCutEB && fabs(eta_)< EtaCutEE ) continue;
    if ( fabs(eta_)> EtaMax ) continue;
