@@ -22,11 +22,11 @@ void Alignment_Validation_EB(TString nameFileBefore, TString nameFileAfter){
  ///===========================================================================
 
  TFile* FileBefore = new TFile(nameFileBefore,"READ");
- TTree* myTreeBefore = (TTree*) FileBefore->Get("myTree");
+ TTree* myTreeBefore = (TTree*) FileBefore->Get("ntupleEcalAlignment/myTree");
  myTreeBefore->SetName("myTreeBefore");
  
  TFile* FileAfter = new TFile(nameFileAfter,"READ");
- TTree* myTreeAfter = (TTree*) FileAfter->Get("myTree");
+ TTree* myTreeAfter = (TTree*) FileAfter->Get("ntupleEcalAlignment/myTree");
  myTreeAfter->SetName("myTreeAfter");
  
  
