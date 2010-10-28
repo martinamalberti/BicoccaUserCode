@@ -34,7 +34,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -144,30 +144,19 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     # -------------------
     # pat selection layer
-    process.selectedPatElectrons.cut      = cms.string("pt() > 15.")
-    process.selectedPatElectronsPFlow.cut = cms.string("pt() > 15.")    
+    process.selectedPatElectrons.cut      = cms.string("pt > 20. & abs(eta) < 2.5")
+    process.selectedPatElectronsPFlow.cut = cms.string("pt > 20. & abs(eta) < 2.5")    
 
-    process.selectedPatMuons.cut      = cms.string("pt() > 15.")
-    process.selectedPatMuonsPFlow.cut = cms.string("pt() > 15.")
+    process.selectedPatMuons.cut      = cms.string("pt > 20. & abs(eta) < 2.5")
+    process.selectedPatMuonsPFlow.cut = cms.string("pt > 20. & abs(eta) < 2.5")
 
-    process.selectedPatJets.cut        = cms.string("pt() > 15.")
-    process.selectedPatJetsPFlow.cut   = cms.string("pt() > 15.")    
-    process.selectedPatJetsAK5Calo.cut = cms.string("pt() > 15.")
-    process.selectedPatJetsAK5PF.cut   = cms.string("pt() > 15.")
+    process.selectedPatJets.cut        = cms.string("pt > 15. & abs(eta) < 5")
+    process.selectedPatJetsPFlow.cut   = cms.string("pt > 15. & abs(eta) < 5")    
+    process.selectedPatJetsAK5Calo.cut = cms.string("pt > 15. & abs(eta) < 5")
+    process.selectedPatJetsAK5PF.cut   = cms.string("pt > 15. & abs(eta) < 5")
 
-    process.selectedPatPhotons.cut      = cms.string("pt() > 10.")
-    process.selectedPatPhotonsPFlow.cut = cms.string("pt() > 10.")    
-
-    #process.selectedPatTaus.cut      = cms.string("pt() > 10.")
-    #process.selectedPatTausPFlow.cut = cms.string("pt() > 10.")    
-    
-    
-    
-    
-    
-
-  
-    
+    process.selectedPatPhotons.cut      = cms.string("pt > 10. & abs(eta) < 5")
+    process.selectedPatPhotonsPFlow.cut = cms.string("pt > 10. & abs(eta) < 5")    
     
     # the HCAL Noise Filter
     #process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
@@ -252,6 +241,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     process.OneLeptonTwoJetsAK5PFSeq = cms.Sequence(
         process.LeptonsFilter*
+        #process.LeptonsFilterEvents*
         process.JetFilterAK5PF*
         process.JetFilterAK5PFEvents
         )
@@ -302,14 +292,16 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     process.out.outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep *_*_*_*PAT',                             # All PAT objects
+        'keep recoTracks_generalTracks__HLT',
+        'keep *_selected*_*_*',                        # selected PAT objects
+        'keep *TrackExtra*_*_*_*',                      # track extra objects
+        'keep *_patMETs*_*_*',                         # All PAT objects
         'keep *_offlinePrimaryVertices*_*_*',          # Primary vertices: you want these to compute impact parameters
         'keep *_offlineBeamSpot_*_*',                  # Beam spot: you want this for the same reason
         'keep edmTriggerResults_TriggerResults_*_*',   # HLT info, per path (cheap)
-        'keep *_genParticles_*_*',                     # GenParticles
-        'keep *_generalTracks_*_*',                    # tracks
-        'keep recoGsfElectronCores_*_*_*',             # gsfElectrons
+        'keep *_genParticles_*_*',                     # HLT info, per path (cheap)
+        'keep recoGsfElectronCores_*_*_*',             #
         'keep *_reducedEcalRecHitsEB_*_*',             # reduced recHits Barrel
-        'keep *_reducedEcalRecHitsEE_*_*'              # reduced recHits Endcap
+        'keep *_reducedEcalRecHitsEE_*_*'             # reduced recHits Barrel
     )
     
