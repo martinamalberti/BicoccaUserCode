@@ -34,7 +34,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -292,16 +292,17 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     process.out.outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep recoTracks_generalTracks__RECO',
+        'keep recoTracks_generalTracks__RECO',         # tracks
+        'keep edmMergeableCounter_*_*_*',              # counters
         'keep *_selected*_*_*',                        # selected PAT objects
-        'keep *TrackExtra*_*_*_*',                      # track extra objects
+        'keep *TrackExtra*_*_*_*',                     # track extra objects
         'keep *_patMETs*_*_*',                         # All PAT objects
         'keep *_offlinePrimaryVertices*_*_*',          # Primary vertices: you want these to compute impact parameters
         'keep *_offlineBeamSpot_*_*',                  # Beam spot: you want this for the same reason
         'keep edmTriggerResults_TriggerResults_*_*',   # HLT info, per path (cheap)
         'keep *_genParticles_*_*',                     # HLT info, per path (cheap)
-        'keep recoGsfElectronCores_*_*_*',             #
+        'keep recoGsfElectronCores_*_*_*',             # refs for electrons
         'keep *_reducedEcalRecHitsEB_*_*',             # reduced recHits Barrel
-        'keep *_reducedEcalRecHitsEE_*_*'             # reduced recHits Barrel
+        'keep *_reducedEcalRecHitsEE_*_*'              # reduced recHits Barrel
     )
     
