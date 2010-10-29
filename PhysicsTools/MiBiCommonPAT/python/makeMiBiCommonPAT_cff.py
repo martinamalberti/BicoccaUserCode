@@ -292,7 +292,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     process.out.outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep recoTracks_generalTracks__HLT',
+        'keep recoTracks_generalTracks__RECO',
         'keep *_selected*_*_*',                        # selected PAT objects
         'keep *TrackExtra*_*_*_*',                      # track extra objects
         'keep *_patMETs*_*_*',                         # All PAT objects
