@@ -16,8 +16,6 @@ using namespace TMath;
 EleEleLooper::EleEleLooper(TChain *tree) 
   : smallHBaseClass(tree) {
 
-  onlyTheBest = true;
-
   /// SELECTION CUTS ///
   n_steps = 14 ;
  
@@ -52,6 +50,18 @@ EleEleLooper::EleEleLooper(TChain *tree)
 //   MAX_fbrem  = 0.3 ;
 //   MAX_HoE = 0.05 ; 
 
+//   //Opt3: Opt2 + EB only - ECal drivennes : works for data
+//   MAX_tkIso   = 0.05 ;
+//   MAX_emIso = 0.2 ;
+//   MAX_hadIso  = 0.01 ;
+//   
+//   WIN_EoP     = 0.20 ;
+//   WIN_EseedOP = 0.25 ;
+//   WIN_dEtaSc = 0.01 ;
+//   WIN_dPhiSc = 0.06 ; //0.25
+//   MAX_fbrem  = 0.3 ;
+//   MAX_HoE = 0.05 ; 
+
   //Opt3: Opt2 + EB only - ECal drivennes : works for data
   MAX_tkIso   = 0.05 ;
   MAX_emIso = 0.2 ;
@@ -59,7 +69,7 @@ EleEleLooper::EleEleLooper(TChain *tree)
   
   WIN_EoP     = 0.20 ;
   WIN_EseedOP = 0.25 ;
-  WIN_dEtaSc = 0.01 ;
+  WIN_dEtaSc = 0.02 ;
   WIN_dPhiSc = 0.06 ; //0.25
   MAX_fbrem  = 0.3 ;
   MAX_HoE = 0.05 ; 
@@ -84,6 +94,8 @@ void EleEleLooper::bookHistos()
   hC_InvMass_OS = new hChain ("InvMass_OS", "ele-ele invariant Mass_OS", 200,4,12., n_steps+1);
   hC_InvMass_SS = new hChain ("InvMass_SS", "ele-ele invariant Mass_SS", 200,4,12., n_steps+1);
   hC_InvMass_DF = new hChain ("InvMass_DF", "ele-ele invariant Mass_DF", 200,4,12., n_steps+1);
+  hC_InvMassSC_OS = new hChain ("InvMassSC_OS", "ele-ele SC invariant Mass_OS", 200,4,12., n_steps+1);
+  hC_InvMassSC_SS = new hChain ("InvMassSC_SS", "ele-ele SC invariant Mass_SS", 200,4,12., n_steps+1);
   
   h_StepSummary = new TH1F   ("h_StepSummary", "h_StepSummary", n_steps+1, -0.5, n_steps + 1 - 0.5);
 
@@ -91,28 +103,44 @@ void EleEleLooper::bookHistos()
 }
 
 
-void EleEleLooper::Loop() {
+void EleEleLooper::Loop(string filename) {
 
   if (fChain == 0) return;  
   int nentries =  (int)fChain->GetEntries(); 
 
+  int totalEvents = 0;
+  
+  //===========================
+  // === load the HLT tree ====
+  //===========================
+  std::vector<int> *HLTwasrun=0;
+  std::vector<int> *HLTaccept=0;
+  std::vector<int> *HLTerror=0;
+
+  TChain *chainHLT = new TChain ("TriggerResults/HLTree") ;
+
+  chainHLT -> SetBranchAddress("HLTwasrun", &HLTwasrun);
+  chainHLT -> SetBranchAddress("HLTaccept", &HLTaccept);
+  chainHLT -> SetBranchAddress("HLTerror" , &HLTerror);
+  chainHLT -> Add(filename.c_str());
+
   // loop over events
   cout << "Number of entries = " << nentries << endl;
-
-  // counters
-  int totalEvents = 0;
-
+  
   for (int jentry=0; jentry< /*300000*/nentries; jentry++) {
     
+
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     fChain->GetEntry(jentry);
-
+    chainHLT->GetEntry(jentry);
+    
+    cout << "accept " << HLTaccept->at(0) << std::endl;
+        
     if (jentry%100000 == 0) cout << ">>> Processing event # " << jentry << endl;
     
     totalEvents++;
-    
-    
+        
     //Trigger eeRes 2->15
     bool HLT=false;
     for (int iqq=0; iqq<(*QQ_size)[0]; iqq++) {
@@ -133,6 +161,7 @@ void EleEleLooper::Loop() {
     int myBest = 0;
     float QQ_EoP_Best = 100000000.;
     bool hasSelected = false;
+    float invMassBestSC;
          
     for (int iqq=0; iqq<(*QQ_size)[0]; iqq++) {
       
@@ -187,6 +216,16 @@ void EleEleLooper::Loop() {
       int index_ele2 = QQ_leptwo -> at(iqq);
       TLorentzVector *ele1_4mom = (TLorentzVector*)electrons->At(index_ele1);
       TLorentzVector *ele2_4mom = (TLorentzVector*)electrons->At(index_ele2);
+      //Build the ele 4 vectors assuming mass 0 and using just SC energy
+      TLorentzVector *ele1_SC4mom = (TLorentzVector*)electrons->At(index_ele1);
+      TLorentzVector *ele2_SC4mom = (TLorentzVector*)electrons->At(index_ele2);
+      ele1_SC4mom -> SetE(electrons_E->at(index_ele1)) ; 
+      ele2_SC4mom -> SetE(electrons_E->at(index_ele2)) ;
+      //Now rescale the momentum to the energy value 
+      ele1_SC4mom -> SetRho(electrons_E->at(index_ele1)) ; 
+      ele2_SC4mom -> SetRho(electrons_E->at(index_ele2)) ; 
+      float invMassSC = (*ele1_SC4mom + *ele2_SC4mom).M();
+      
 
       //Step 3: Cuts on Ele Acceptance
       i_step++;
@@ -350,6 +389,7 @@ void EleEleLooper::Loop() {
       if ( fabs(electrons_EoP ->at(index_ele1) - 1) + fabs(electrons_EoP ->at(index_ele2) - 1) < QQ_EoP_Best ) {
         QQ_EoP_Best = fabs(electrons_EoP ->at(index_ele1) - 1) + fabs(electrons_EoP ->at(index_ele2) - 1);        
         myBest = iqq;
+        invMassBestSC = invMassSC;
       }
       
       hasSelected = true;
@@ -364,10 +404,12 @@ void EleEleLooper::Loop() {
     if ((*QQ_sign)[myBest] == 0) {
       hC_InvMass_OS -> Fill(n_steps,invMassBest);
       hC_InvMass_DF -> Fill(n_steps,invMassBest,1);
+      hC_InvMassSC_OS -> Fill(n_steps,invMassBestSC);
     }
     if ((*QQ_sign)[myBest] != 0) {
       hC_InvMass_SS -> Fill(n_steps,invMassBest);
       hC_InvMass_DF -> Fill(n_steps,invMassBest,-1);
+      hC_InvMassSC_SS -> Fill(n_steps,invMassBestSC);
     }
 
      
@@ -392,6 +434,9 @@ void EleEleLooper::saveHistos(TFile * f1)
   hC_InvMass_SS -> Write(*f1);
   hC_InvMass_DF -> Write(*f1);
   
+  hC_InvMassSC_OS -> Write(*f1);
+  hC_InvMassSC_SS -> Write(*f1);
+
   h_StepSummary -> Write();
 
   f1->Close();

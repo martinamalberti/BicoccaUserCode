@@ -17,10 +17,10 @@ public:
   virtual ~EleEleLooper() {};
   void bookHistos();
   void saveHistos(TFile *f1);
-  void Loop();
-//  int theBestQQ(const bool select_ele) const;
+  void Loop(string filename);
   bool accept_ele(const int ele_index) const;
-
+  bool accept_QQ(const int QQ_index) const;
+  
   
 private:
   
@@ -42,13 +42,17 @@ private:
   
   float MAX_fbrem;
   float WIN_EseedOP;
-  float MIN_LowPtEle;
-  float MIN_HighPtEle;
- 
-  bool onlyTheBest;
+  float MIN_PtEle;
+  float WIN_SigiEtaiEtaSc;
 
+
+  float MAX_nLostHits;
+  float MIN_flag_mask;
+ 
   hChain *hC_InvMass_OS;            
+  hChain *hC_InvMassSC_OS;            
   hChain *hC_InvMass_SS;            
+  hChain *hC_InvMassSC_SS;            
   hChain *hC_InvMass_DF;            
 
   TH1F *h_StepSummary;
