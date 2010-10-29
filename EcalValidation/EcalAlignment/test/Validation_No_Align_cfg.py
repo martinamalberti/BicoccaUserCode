@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.222.2.6 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -97,7 +97,7 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
 process.endjob_step = cms.Path(process.endOfProcess)
-process.RECOoutput_step = cms.EndPath(process.RECOoutput)
+#process.RECOoutput_step = cms.EndPath(process.RECOoutput)
 
 # Schedule definition
 #process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.RECOoutput_step)
@@ -128,21 +128,34 @@ removeMCMatching(process, ['All'])
 
 
 # add cIc electron ID
-process.load("EcalValidation.EcalAlignment.CiC_eIDSequence_cff")
-
-process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
-process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
+#process.load("EcalValidation.EcalAlignment.CiC_eIDSequence_cff")
+#process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
+#process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
 
 process.patElectrons.electronSource = cms.InputTag("gsfElectrons::EcalAlignment")
 
-process.patElectrons.addElectronID = cms.bool(True)
-process.patElectrons.electronIDSources = cms.PSet(
-    eidVeryLoose  = cms.InputTag("eidVeryLoose"),
-    eidLoose      = cms.InputTag("eidLoose"),
-    eidMedium     = cms.InputTag("eidMedium"),
-    eidTight      = cms.InputTag("eidTight"),
-    eidSuperTight = cms.InputTag("eidSuperTight")
-    )
+process.patElectrons.addElectronID = cms.bool(False)
+  
+### AM ### With promt reco eidRobustLoose, eidRobustTight, eidRobustHighEnergy shold be used
+### AM ### but has to be defined from scratch. In 
+### AM ### EcalValidation.EcalAlignment.CiC_eIDSequence_cff
+### AM ### ElectronIdentification.cutsInCategoriesElectronIdentification_cfi
+### AM ### they are not defined.
+### AM ### Since eleId is not used (in this way) for this analysis
+### AM ### but selection are applied "by hand"
+### AM ### no eleID is run here.
+
+#process.patElectrons.addElectronID = cms.bool(True)
+#process.patElectrons.electronIDSources = cms.PSet(
+    #eidRobustLoose      = cms.InputTag("eidRobustLoose"),
+    #eidRobustTight      = cms.InputTag("eidRobustTight"),
+    #eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
+    #eidVeryLoose  = cms.InputTag("eidVeryLoose"),
+    #eidLoose      = cms.InputTag("eidLoose"),
+    #eidMedium     = cms.InputTag("eidMedium"),
+    #eidTight      = cms.InputTag("eidTight"),
+    #eidSuperTight = cms.InputTag("eidSuperTight")
+    #)
 ##
 #process.patElectrons.addGenMatch = cms.bool(False)
 #process.patElectrons.embedGenMatch = cms.bool(False)
@@ -188,7 +201,8 @@ process.ntupleEcalAlignment = cms.EDAnalyzer(
     EleTag              = cms.InputTag("patElectrons"),
     TrackTag            = cms.InputTag("generalTracks"),
     CALOMetTag          = cms.InputTag("patMETs"),
-    #eleId_names         = cms.untracked.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
+    #eleId_names         = cms.untracked.vstring('eidRobustLoose','eidRobustTight','eidRobustHighEnergy') 
+      #eleId_names         = cms.untracked.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
     )
 
 
@@ -294,7 +308,7 @@ process.schedule = cms.Schedule(
    process.L1Reco_step,          # | -> reconstruction
    process.reconstruction_step,  # | -> reconstruction
    process.endjob_step,          # | -> reconstruction
-   process.RECOoutput_step,      # | -> reconstruction
+   #process.RECOoutput_step,      # | -> reconstruction
    process.pEcalAlignment        # | -> selections and ntuple
 )
 

@@ -4,6 +4,9 @@ from RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentification_cf
 
 
 CiC_eIDSequence = cms.Sequence(
+    #eidRobustLoose+
+    #eidRobustTight+
+    #eidRobustHighEnergy 
     eidVeryLoose+
     eidLoose+
     eidMedium+

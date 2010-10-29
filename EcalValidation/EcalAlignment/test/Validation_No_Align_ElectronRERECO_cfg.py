@@ -80,7 +80,7 @@ removeMCMatching(process, ['All'])
 
 
 # add cIc electron ID
-process.load("WAnalysis.WenuAnalysis.CiC_eIDSequence_cff")
+process.load("EcalValidation.EcalAlignment.CiC_eIDSequence_cff")
 
 process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
 process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)

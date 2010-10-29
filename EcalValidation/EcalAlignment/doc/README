@@ -17,6 +17,9 @@ scramv1 b
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_NoAlign.cfg
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_NoAlign.cfg
 
+    crab -submit -c Run2010B-WZEG-v2_RAWRECO_NoAlign
+    crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+
 That will store data (ROOT trees with electrons) on Castor
 
 2) get the list of the trees to be used for alignment:
@@ -28,6 +31,7 @@ That will store data (ROOT trees with electrons) on Castor
 and copy in the file "Align_cfg.py"
 
 Or copy the ROOT files in local and hadd them
+   mkdir /tmp/amassiro/EcalAlignment/
    rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign /tmp/amassiro/EcalAlignment/
    rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_NoAlign /tmp/amassiro/EcalAlignment/
    
@@ -42,7 +46,7 @@ Or copy the ROOT files in local and hadd them
   Time ~ 3 minutes (it depends on the number of electrons)
 
   In "Align_cfg.py" enable/disable rotations and traslations
- 
+
 4) create new local DB with new alignment constants
   check the consistence of output name in "Align_cfg.py" and input name in "EcalTrivialAlignment_cfi.py"
   (remember absolute path for "EBAlignmentFile", "EEAlignmentFile", "ESAlignmentFile" as in the example)
@@ -59,6 +63,9 @@ Or copy the ROOT files in local and hadd them
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_MyAlign.cfg
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_MyAlign.cfg
 
+    crab -submit -c Run2010B-WZEG-v2_RAWRECO_MyAlign
+    crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlig
+
 6) sanity check
    copy in local
 
@@ -71,6 +78,58 @@ Or copy the ROOT files in local and hadd them
        r00t Alignment_Validation_EB.cxx\(\"/tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root\",\"/tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root\"\)
 
        r00t Alignment_Validation_EE.cxx\(\"/tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root\",\"/tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root\"\)
+
+
+
+
+##################################
+#### new steps without Castor ####
+
+2.1) remember to do crab -status and check that the GRID status is "done"
+
+    crab -status -c Run2010B-WZEG-v2_RAWRECO_NoAlign
+    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+
+    crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_NoAlign
+    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+
+
+and join output tree
+
+    hadd EcalAlignmentJoin_Temp.root Run2010B-WZEG-v2_RAWRECO_NoAlign/res/EcalAlignment_*
+    hadd EcalAlignmentJoin.root EcalAlignmentJoin_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign/res/EcalAlignment_*
+    rm EcalAlignmentJoin_Temp.root
+
+
+
+
+6.1) remember to do crab -status and check that the GRID status is "done"
+
+    crab -status -c Run2010B-WZEG-v2_RAWRECO_MyAlign
+    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlig
+
+    crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_MyAlign
+    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlig
+
+and join output tree
+
+    hadd EcalAlignmentJoinMyAlign_Temp.root Run2010B-WZEG-v2_RAWRECO_MyAlign/res/EcalAlignment_*
+    hadd EcalAlignmentJoinMyAlign.root EcalAlignmentJoinMyAlign_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign/res/EcalAlignment_*
+    rm EcalAlignmentJoinMyAlign_Temp.root
+
+
+
+    r00t Alignment_Validation_EB.cxx\(\"EcalAlignmentJoin.root\",\"EcalAlignmentJoinMyAlign.root\"\)
+
+    r00t Alignment_Validation_EE.cxx\(\"EcalAlignmentJoin.root\",\"EcalAlignmentJoinMyAlign.root\"\)
+
+
+
+
+
+
+
+
 
 
 

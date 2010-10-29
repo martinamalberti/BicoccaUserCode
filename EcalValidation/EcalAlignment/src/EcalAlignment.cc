@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.4 2010/10/27 07:05:07 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.5 2010/10/27 07:07:45 amassiro Exp $
 //
 //
 
@@ -328,8 +328,8 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    float EtaCutEE    = 1.5;
    float EtaMax      = 3.0;
   
-   if ( met_ < 10. ) continue;
-   if ( ETSC_ < 15. ) continue;
+//    if ( met_ < 10. ) continue;
+   if ( ETSC_ < 20. ) continue;
    if ( fabs(dphiMETEle_) < 0.75) continue;   
    
    if ( fabs(eta_)> EtaCutEB && fabs(eta_)< EtaCutEE ) continue;
