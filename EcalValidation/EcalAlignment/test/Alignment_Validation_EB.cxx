@@ -1,6 +1,5 @@
 
-void Alignment_Validation_EB(TString nameFileBefore, TString nameFileAfter){
- 
+void Alignment_Validation_EB(TString nameFileBefore, TString nameFileAfter){ 
  ///===========================================================================
  
  gROOT->Reset();

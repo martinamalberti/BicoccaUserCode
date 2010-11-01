@@ -43,11 +43,11 @@ void Alignment_Validation_EE(TString nameFileBefore, TString nameFileAfter){
  int NBIN_DETA = 100;
  int NBIN_DPHI = 100;
  
- double MINDETA = -0.01;
- double MAXDETA = +0.01;
+ double MINDETA = -0.02;
+ double MAXDETA = +0.02;
  
- double MINDPHI = -0.05;
- double MAXDPHI = +0.05;
+ double MINDPHI = -0.10;
+ double MAXDPHI = +0.10;
  
  TString draw;
  

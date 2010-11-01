@@ -15,7 +15,7 @@ process.inputTree = cms.PSet(
   rotationTheta = cms.bool(False),
   rotationPsi   = cms.bool(False),
   inputFiles    = cms.vstring(
-         '/tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root'
+         'EcalAlignmentJoin.root'
     )
 )
 
