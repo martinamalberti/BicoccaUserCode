@@ -249,7 +249,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False):
     process.MiBiCommonNT = process.SimpleNtuple.clone()
     process.MiBiCommonNT.HLTTag = cms.InputTag("TriggerResults","",HLT)
     process.MiBiCommonNT.saveMCPtHat           = cms.untracked.bool (MC)
-    process.MiBiCommonNT.saveMCTTBar           = cms.untracked.bool (MC)    
+    process.MiBiCommonNT.saveMCTTBar           = cms.untracked.bool (False)    
     process.MiBiCommonNT.saveMCHiggs           = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCHiggsWW         = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCHiggsGammaGamma = cms.untracked.bool (MC)
