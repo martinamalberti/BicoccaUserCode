@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.10 2010/10/15 04:53:36 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.11 2010/10/20 14:54:56 ghezzi Exp $
 //
 //
 
@@ -884,9 +884,9 @@ void SimpleNtuple::fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventS
 {
   //std::cout << "SimpleNtuple::fillPtHatInfo::begin" << std::endl; 
   
-  edm::Handle<edm::HepMCProduct> HepMCEvt;
-  iEvent.getByLabel("generator", HepMCEvt);
-  float ptHat = HepMCEvt -> GetEvent() -> event_scale();
+  edm::Handle< GenEventInfoProduct > GenInfoHandle;
+  iEvent.getByLabel( "generator", GenInfoHandle );
+  float ptHat = ( GenInfoHandle->hasBinningValues() ? (GenInfoHandle->binningValues())[0] : 0.0);
   
   NtupleFactory_->FillFloat("mc_ptHat", ptHat);
   
