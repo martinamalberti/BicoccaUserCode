@@ -1,5 +1,8 @@
-### Instructions ###
+######################################################################
+############################ Instructions ############################
 
+
+############################ Prepare environment ############################
 to install
 cvs co CalibCalorimetry/EcalTrivialCondModules
 cvs co CondTools/Ecal
@@ -10,7 +13,7 @@ scramv1 b
 
 
 
-####################
+############################ Default alignment 0 ############################
 
 1) create reconstruction with 0 alignment
 
@@ -20,28 +23,18 @@ scramv1 b
     crab -submit -c Run2010B-WZEG-v2_RAWRECO_NoAlign
     crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
-    That will store data (ROOT trees with electrons) on Castor (see [2.1] for Castor usage; default "getoutput" usage)
+    That will store data (ROOT trees with electrons) (see [1.1] for Castor usage; default "getoutput" usage)
 
-
-
-2) remember to do crab -status and check that the GRID status is "done"
-
-    crab -status -c Run2010B-WZEG-v2_RAWRECO_NoAlign
-    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
-
-    crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_NoAlign
-    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
-
-
-and join output tree
+ and join output tree
 
     hadd EcalAlignmentJoin_Temp.root Run2010B-WZEG-v2_RAWRECO_NoAlign/res/EcalAlignment_*
     hadd EcalAlignmentJoin.root EcalAlignmentJoin_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign/res/EcalAlignment_*
     rm EcalAlignmentJoin_Temp.root
 
 
+############################ Calculate alignment coefficients and create DB ############################
 
-3) Do Alignment:
+2) Do Alignment:
      EE_Alignment_RotoTraslation AlignEE_cfg.py
      EB_Alignment_RotoTraslation AlignEB_cfg.py
   NB: remember to modify output "txt" file in "Align_cfg.py" to deal with EE and EB 
@@ -50,7 +43,7 @@ and join output tree
 
   In "Align_cfg.py" enable/disable rotations and traslations
 
-4) create new local DB with new alignment constants
+3) create new local DB with new alignment constants
   check the consistence of output name in "Align_cfg.py" and input name in "EcalTrivialAlignment_cfi.py"
   (remember absolute path for "EBAlignmentFile", "EEAlignmentFile", "ESAlignmentFile" as in the example)
     cmsRun copyFileAlignEB_cfg.py 
@@ -62,7 +55,7 @@ and join output tree
     select *from ALIGNME_M_ALIGN;
     .q
 
-5) run Re-Reco with new DB
+4) run Re-Reco with new DB
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_MyAlign.cfg
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_MyAlign.cfg
 
@@ -71,7 +64,7 @@ and join output tree
 
 
 
-6) remember to do crab -status and check that the GRID status is "done" (for Castor usage see [6.1])
+5) remember to do crab -status and check that the GRID status is "done" (for Castor usage see [5.1])
 
     crab -status -c Run2010B-WZEG-v2_RAWRECO_MyAlign
     crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlig
@@ -86,6 +79,9 @@ and join output tree
     rm EcalAlignmentJoinMyAlign_Temp.root
 
 
+############################ Sanity check and validation ############################
+
+6) Sanity check
 
     r00t Alignment_Validation_EB.cxx\(\"EcalAlignmentJoin.root\",\"EcalAlignmentJoinMyAlign.root\"\)
 
@@ -105,10 +101,12 @@ and join output tree
 
 
 
-###############################
-#### new steps with Castor ####
+#####################################################################################
+#####################################################################################
+#####################################################################################
+################################# steps with Castor #################################
 
-2.1) get the list of the trees to be used for alignment:
+1.1) get the list of the trees to be used for alignment:
    
    rfdir /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign | awk '{print "@rfio:/castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign/"$9"@,"}' | tr "@" "'" &> text.txt
 
@@ -126,7 +124,7 @@ Or copy the ROOT files in local and hadd them
 
 
 
-6.1) sanity check
+5.1) sanity check
    copy in local
 
        rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_MyAlign /tmp/amassiro/EcalAlignmentMyAlign/
