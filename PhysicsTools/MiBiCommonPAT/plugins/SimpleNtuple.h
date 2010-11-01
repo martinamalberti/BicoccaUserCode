@@ -16,6 +16,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 // pat include files
 #include "DataFormats/PatCandidates/interface/Photon.h"
