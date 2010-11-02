@@ -4,9 +4,10 @@
 
 ############################ Prepare environment ############################
 to install
-cvs co -d EcalValidation/EcalAlignment/ UserCode/Bicocca/EcalValidation/EcalCalibrationWenu/
-cmsenv
-scramv1 b
+
+   cvs co -d EcalValidation/EcalCalibrationWenu/ UserCode/Bicocca/EcalValidation/EcalCalibrationWenu/
+   cmsenv
+   scramv1 b
 
 ############################ WZ Reconstruction ############################
 

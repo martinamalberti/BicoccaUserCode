@@ -18,6 +18,10 @@
 #include <fstream>
 
 
+//---- boost ----
+#include <boost/lexical_cast.hpp>
+
+
 std::string selection(
  const std::vector<std::string>& ScanVariables,
  const std::vector<double>& minValueTemp,
@@ -28,12 +32,13 @@ std::string selection(
   result += "(";
   result += ScanVariables.at(iVar);
   result += " > ";
-  result += minValueTemp.at(iVar);
+  result +=  boost::lexical_cast<std::string>(minValueTemp.at(iVar));
   result += " && ";
   result += ScanVariables.at(iVar);
   result += " < ";
-  result += maxValueTemp.at(iVar);
- }
+  result +=  boost::lexical_cast<std::string>(maxValueTemp.at(iVar));
+  result += ")";
+   }
  return result;
 }
 
@@ -113,7 +118,6 @@ int main(int argc, char** argv){
  int numBINS = subPSetOptions.getParameter<int>    ("numBINS") ;
 
 
- 
  double minET = subPSetOptions.getParameter<double> ("minET") ;
  
  std::string temp_cut = subPSetOptions.getParameter<std::string> ("cut") ;
@@ -125,16 +129,18 @@ int main(int argc, char** argv){
 
  
  edm::ParameterSet subPSetScanOptions = parameterSet->getParameter<edm::ParameterSet> ("ScanOptions") ;
- std::vector<std::string> ScanVariables = subPSetScanOptions.getParameter<std::vector<std::string> >("ScanVariables") ;
+ std::vector<std::string> variablesName = subPSetScanOptions.getParameter<std::vector<std::string> > ("variablesName") ;
+ std::vector<std::string> variablesNameId = subPSetScanOptions.getParameter<std::vector<std::string> > ("variablesNameId") ;
  
+ std::vector<std::string> ScanVariables = subPSetScanOptions.getParameter<std::vector<std::string> >("ScanVariables") ;
+ std::vector<std::string> ScanVariablesId = subPSetScanOptions.getParameter<std::vector<std::string> >("ScanVariablesId") ;
+  
  std::vector< std::vector<double> > minValue;
  std::vector< std::vector<double> > maxValue;
-
- std::vector<std::string> variablesName = subPSetScanOptions.getParameter<std::vector<std::string> > ("variablesName") ;
  
  for (unsigned int iVar = 0; iVar<ScanVariables.size(); iVar++ ) {
-  std::string nameMin = "minValue_" + variablesName.at(iVar);
-  std::string nameMax = "maxValue_" + variablesName.at(iVar);
+  std::string nameMin = "minValue" + ScanVariablesId.at(iVar);
+  std::string nameMax = "maxValue" + ScanVariablesId.at(iVar);
   minValue.push_back(subPSetScanOptions.getParameter<std::vector<double> > (nameMin));
   maxValue.push_back(subPSetScanOptions.getParameter<std::vector<double> > (nameMin));
  }
@@ -156,11 +162,11 @@ int main(int argc, char** argv){
    );
    for (unsigned int iCut = 0; iCut < cut.size(); iCut++){
     std::string nameFile = "WenuEnScale_";
-    nameFile += variablesName.at(ivariablesName);
+    nameFile += variablesNameId.at(ivariablesName);
     nameFile += "_";
-    nameFile += ScanVariables.at(ivariablesName);
+    nameFile += ScanVariablesId.at(iVar);
     nameFile += "_";
-    nameFile += iCut;
+    nameFile +=  boost::lexical_cast<std::string>(iCut);
     nameFile += ".cfg";
     
     std::ofstream Instruction;
@@ -191,7 +197,7 @@ int main(int argc, char** argv){
     Instruction << "  MinScanRange = cms.double(" << MinScanRange << ")," << std::endl;
     Instruction << "  MaxScanRange = cms.double(" << MaxScanRange << ")," << std::endl;
 
-    Instruction << "  cut = cms.string(\"" << cut.at(iCut) <<"\")," << std::endl;
+    Instruction << "  cut = cms.string(\"(" << cut.at(iCut) <<") && " << temp_cut << "\")," << std::endl;
 
     Instruction << "  minET = cms.double(" << minET << ")," << std::endl;
 
@@ -207,36 +213,35 @@ int main(int argc, char** argv){
    
     ///==== file .sh ====
     std::string nameJob = "nameJob_WenuEnScale_";
-    nameJob += variablesName.at(ivariablesName);
+    nameJob += variablesNameId.at(ivariablesName);
     nameJob += "_";
-    nameJob += variablesName.at(ivariablesName);
+    nameJob += ScanVariablesId.at(iVar);
     nameJob += "_";
-    nameJob += iCut;
+    nameJob += boost::lexical_cast<std::string>(iCut);
     nameJob += ".sh";
-   
+
    
     std::cout << " nameJob = " << nameJob << std::endl;
     std::ofstream job;
     job.open (nameJob.c_str());
     job << "echo -e #!/bin/sh" << std::endl;
     job << "cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/" << std::endl;
-    job << "source /gwpool/initcms/slc5-cmssw.sh " << std::endl;
     job << "eval `scramv1 runtime -sh`" << std::endl;
     job << "cd - " << std::endl;
-    job << "cd /gwpool/users/amassiro/WeCalib/Analysis/AnalysisPackage_AlCaReco " << std::endl;
-    job << "source scripts/setup.sh " << std::endl;
-    job << "cd - " << std::endl;
+    job << "rfcp /.../EcalCalibration.root ./" << std::endl;
+    job << "rfcp /.../EcalCalibration.root ./" << std::endl;
+    job << "WenuCreateJob " << nameFile.c_str() << std::endl;
+    
+    ///=============================================================
+   
+    std::string CommandToExec = "chmod 777 " + nameJob;
+    system(CommandToExec.c_str());  
    
     ///=============================================================
    
-//    TString CommandToExec = Form("chmod 777 %s",nameJob);
-//    gSystem->Exec(CommandToExec);  
-   
-    ///=============================================================
-   
-//    CommandToExec = Form("qsub -V -d ./ -q production %s",nameJob);
-//    gSystem->Exec(CommandToExec);  
-   
+    CommandToExec = "qsub -V -d ./ -q production " + nameJob; 
+//    system(CommandToExec.c_str());  
+       
     ///=============================================================
     
    }
