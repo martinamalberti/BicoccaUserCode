@@ -161,6 +161,15 @@ int main(int argc, char** argv){
     maxValueTemp
    );
    for (unsigned int iCut = 0; iCut < cut.size(); iCut++){
+    std::string nameFileOutput = "outputTree_";
+    nameFileOutput += variablesNameId.at(ivariablesName);
+    nameFileOutput += "_";
+    nameFileOutput += ScanVariablesId.at(iVar);
+    nameFileOutput += "_";
+    nameFileOutput +=  boost::lexical_cast<std::string>(iCut);
+    nameFileOutput += ".root";
+
+
     std::string nameFile = "WenuEnScale_";
     nameFile += variablesNameId.at(ivariablesName);
     nameFile += "_";
@@ -183,7 +192,7 @@ int main(int argc, char** argv){
     Instruction << ")" << std::endl;
 
     Instruction << "process.outputTree = cms.PSet(" << std::endl;
-    Instruction << "   outputTree = cms.string(\"outputTree_" << variablesName.at(ivariablesName) << "_" << ScanVariables.at(ivariablesName) << "_" << iCut << ".root"	 << "\")" << std::endl;
+    Instruction << "   outputTree = cms.string(\"" << nameFileOutput << "\")" << std::endl;
     Instruction << ")" << std::endl;
 
     Instruction << "process.options = cms.PSet(" << std::endl;
@@ -207,8 +216,6 @@ int main(int argc, char** argv){
     Instruction << "  numBINS      = cms.int32(" << numBINS << ")" << std::endl; 
     Instruction << ")" << std::endl;
 
-
-
     Instruction.close();
    
     ///==== file .sh ====
@@ -228,10 +235,11 @@ int main(int argc, char** argv){
     job << "cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/" << std::endl;
     job << "eval `scramv1 runtime -sh`" << std::endl;
     job << "cd - " << std::endl;
-    job << "rfcp /.../EcalCalibration.root ./" << std::endl;
-    job << "rfcp /.../EcalCalibration.root ./" << std::endl;
+    job << "rfcp /castor/cern.ch/user/a/amassiro/EcalCalibrationWenu/" << inputFileMC   << " ./ " << std::endl;
+    job << "rfcp /castor/cern.ch/user/a/amassiro/EcalCalibrationWenu/" << inputFileDATA << " ./ " << std::endl;
     job << "WenuCreateJob " << nameFile.c_str() << std::endl;
-    
+    job << "rfcp " << nameFileOutput << " /castor/cern.ch/user/a/amassiro/EcalCalibrationWenu/Result/ " << std::endl;
+        
     ///=============================================================
    
     std::string CommandToExec = "chmod 777 " + nameJob;

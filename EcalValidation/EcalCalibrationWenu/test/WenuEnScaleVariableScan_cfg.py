@@ -4,9 +4,9 @@ process = cms.Process("TEST")
 
 process.inputTree = cms.PSet(
   treeNameDATA = cms.string("ntupleEcalCalibration/myTree"),
-  inputFileDATA = cms.string("test/EcalCalibration.root"),
+  inputFileDATA = cms.string("EcalCalibration.root"),
   treeNameMC = cms.string("myTree"),
-  inputFileMC = cms.string("test/Wenu_WSUMMED_4analysis.root")
+  inputFileMC = cms.string("Wenu_WSUMMED_4analysis.root")
 )
 
 process.outputTree = cms.PSet(
