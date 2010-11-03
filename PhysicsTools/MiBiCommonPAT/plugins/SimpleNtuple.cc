@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.11 2010/10/20 14:54:56 ghezzi Exp $
+// $Id: SimpleNtuple.cc,v 1.12 2010/11/01 16:52:04 dimatteo Exp $
 //
 //
 
@@ -494,6 +494,7 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
       NtupleFactory_ -> FillFloat("PV_z", PV.z());
       NtupleFactory_ -> FillFloat("PV_d0", PV.position().Rho());
     }
+    PV = sortedVertices[0];
   }
   
   else
