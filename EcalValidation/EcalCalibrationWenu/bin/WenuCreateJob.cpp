@@ -276,7 +276,7 @@ int main(int argc, char** argv){
     std::ofstream job;
     job.open (nameJob.c_str());
     job << "echo -e #!/bin/sh" << std::endl;
-    job << "cd /gwpool/users/amassiro/WeCalib/ECALScale/Releases/CMSSW_3_6_1_patch3/src/" << std::endl;
+    job << "cd /afs/cern.ch/user/a/amassiro/scratch0/WeCalib/CMSSW_3_8_4_patch3/src/EcalValidation/EcalCalibrationWenu/" << std::endl;
     job << "eval `scramv1 runtime -sh`" << std::endl;
     job << "cd - " << std::endl;
     job << "rfcp /castor/cern.ch/user/a/amassiro/EcalCalibrationWenu/" << inputFileMC   << " ./ " << std::endl;
