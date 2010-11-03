@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -82,11 +82,11 @@ process.GlobalTag.toGet = cms.VPSet(
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
              ),
     cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-             tag = cms.string("TrackerAlignment_GR10_v1_offline"),
+             tag = cms.string("TrackerAlignment_GR10_v2_offline"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
              ),
     cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-             tag = cms.string("TrackerAlignmentErrors_GR10_v1_offline"),
+             tag = cms.string("TrackerAlignmentErrors_GR10_v2_offline"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
              ),
     )

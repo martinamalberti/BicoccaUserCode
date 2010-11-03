@@ -60,17 +60,17 @@ scramv1 b
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_MyAlign.cfg
 
     crab -submit -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-    crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlig
+    crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
 
 
 
 5) remember to do crab -status and check that the GRID status is "done" (for Castor usage see [5.1])
 
     crab -status -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlig
+    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
 
     crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlig
+    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
 
 and join output tree
 
