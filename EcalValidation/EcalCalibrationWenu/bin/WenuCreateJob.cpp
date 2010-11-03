@@ -188,6 +188,8 @@ int main(int argc, char** argv){
  ///==== create job files ====
 
  system("mkdir cfg/");  
+ system("cd cfg")
+
  for (unsigned int ivariablesName = 0; ivariablesName < variablesName.size(); ivariablesName++){
   std::cout << " variablesName[" << ivariablesName << "] = " << variablesName.at(ivariablesName) << std::endl;
   std::vector<std::string> cut;
@@ -218,7 +220,7 @@ int main(int argc, char** argv){
 
   
 
-    std::string nameFile = "cfg/WenuEnScale";
+    std::string nameFile = "WenuEnScale";
     nameFile += "_";
     nameFile += variablesNameId.at(ivariablesName);
     nameFile += nameFileOut.at(iCut);
@@ -265,7 +267,7 @@ int main(int argc, char** argv){
     Instruction.close();
    
     ///==== file .sh ====
-    std::string nameJob = "cfg/nameJob_WenuEnScale";
+    std::string nameJob = "nameJob_WenuEnScale";
     nameJob += "_";
     nameJob += variablesNameId.at(ivariablesName);
     nameJob += nameFileOut.at(iCut);
@@ -291,7 +293,7 @@ int main(int argc, char** argv){
    
     ///=============================================================
    
-    CommandToExec = "bsub -q \"1nh\" " + nameJob; 
+    CommandToExec = "bsub -q \"1nh\" " + nameJob;     
     std::cout << " CommandToExec = " << CommandToExec << std::endl;
 //    system(CommandToExec.c_str());  
        
@@ -299,7 +301,11 @@ int main(int argc, char** argv){
     
    }
    
-  } 
+  }
+  
+ system("cd -");
+ 
+ return 1;  
 }
 
 
