@@ -38,10 +38,12 @@ process.options = cms.PSet(
 
 
 process.ScanOptions = cms.PSet(
-   ScanVariables = cms.vstring("abs(eleFBrem)"),
-   ScanVariablesId = cms.vstring("abseleFBrem"),
+   ScanVariables = cms.vstring("abs(eleFBrem)","abs(eta)"),
+   ScanVariablesId = cms.vstring("abseleFBrem","eta"),
    minValueabseleFBrem = cms.vdouble(0.0,0.5),
    maxValueabseleFBrem = cms.vdouble(0.5,1.0),
+   minValueeta = cms.vdouble(0.000,0.435,0.783,1.131),
+   maxValueeta = cms.vdouble(0.435,0.783,1.131,1.479),
    variablesName = cms.vstring("ESC/p"),
    variablesNameId = cms.vstring("ESCp")
 )

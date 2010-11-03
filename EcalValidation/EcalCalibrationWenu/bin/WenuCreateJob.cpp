@@ -22,14 +22,16 @@
 #include <boost/lexical_cast.hpp>
 
 
+//==== function to create selection ====
 std::string selection(
  const std::vector<std::string>& ScanVariables,
  const std::vector<double>& minValueTemp,
  const std::vector<double>& maxValueTemp)
 {
  std::string result;
+ result += "(1";
  for (unsigned int iVar = 0; iVar<ScanVariables.size(); iVar++ ) {
-  result += "(";
+  result += "&& (";
   result += ScanVariables.at(iVar);
   result += " > ";
   result +=  boost::lexical_cast<std::string>(minValueTemp.at(iVar));
@@ -39,15 +41,39 @@ std::string selection(
   result +=  boost::lexical_cast<std::string>(maxValueTemp.at(iVar));
   result += ")";
    }
+ result += ")";
  return result;
 }
 
+
+//==== function to create name of output ====
+std::string nameSelection(
+ const std::vector<std::string>& ScanVariablesId,
+ const std::vector<double>& minValueTemp,
+ const std::vector<double>& maxValueTemp)
+{
+ std::cerr << " nameSelection " << std::endl;
+ std::string result;
+ for (unsigned int iVar = 0; iVar<ScanVariablesId.size(); iVar++ ) {
+  result += "_";
+  result += ScanVariablesId.at(iVar);
+  result += "_";
+  result +=  boost::lexical_cast<std::string>(minValueTemp.at(iVar));
+  result += "_";
+  result +=  boost::lexical_cast<std::string>(maxValueTemp.at(iVar));
+  std::cout << " minValueTemp==)))))).at(" << iVar << ":" << ScanVariablesId.size() << ") = " << minValueTemp.at(iVar) ;
+  std::cout << " maxValueTemp==)))))).at(" << iVar << ":" << ScanVariablesId.size() << ") = " << maxValueTemp.at(iVar) << std::endl;
+ }
+ return result;
+}
 
 
 ///==== Recursive function ====
 
 void runFor(
  int iVar,
+ std::vector<std::string> & nameFileOut,
+ const std::vector<std::string>& ScanVariablesId,
  std::vector<std::string> & cut,
  const std::vector<std::string>& ScanVariables, 
  const std::vector< std::vector<double> >& minValue,
@@ -59,12 +85,18 @@ void runFor(
  int nVar = ScanVariables.size();
  if (iVar == nVar){
   cut.push_back(selection(ScanVariables,minValueTemp,maxValueTemp));
+  nameFileOut.push_back(nameSelection(ScanVariablesId,minValueTemp,maxValueTemp));
+  iVar--;
  }
  else {
   for (unsigned int iBin = 0; iBin < minValue.at(iVar).size(); iBin ++){
+   std::cerr << " minValue.at(" << iVar<< ").at(" << iBin << ") = " << minValue.at(iVar).at(iBin) << std::endl;
+   std::cerr << " maxValue.at(" << iVar<< ").at(" << iBin << ") = " << maxValue.at(iVar).at(iBin) << std::endl;
    minValueTemp.push_back(minValue.at(iVar).at(iBin)) ;
-   maxValueTemp.push_back(minValue.at(iVar).at(iBin)) ;
+   maxValueTemp.push_back(maxValue.at(iVar).at(iBin)) ;
    runFor(iVar+1,
+     nameFileOut,
+     ScanVariablesId,
      cut,
      ScanVariables, 
      minValue,
@@ -72,6 +104,8 @@ void runFor(
      minValueTemp,
      maxValueTemp  
    );
+   minValueTemp.pop_back();
+   maxValueTemp.pop_back();
   }
  }
 }
@@ -138,45 +172,56 @@ int main(int argc, char** argv){
  std::vector< std::vector<double> > minValue;
  std::vector< std::vector<double> > maxValue;
  
- for (unsigned int iVar = 0; iVar<ScanVariables.size(); iVar++ ) {
+ for (unsigned int iVar = 0; iVar<ScanVariablesId.size(); iVar++ ) {
   std::string nameMin = "minValue" + ScanVariablesId.at(iVar);
   std::string nameMax = "maxValue" + ScanVariablesId.at(iVar);
   minValue.push_back(subPSetScanOptions.getParameter<std::vector<double> > (nameMin));
-  maxValue.push_back(subPSetScanOptions.getParameter<std::vector<double> > (nameMin));
+  maxValue.push_back(subPSetScanOptions.getParameter<std::vector<double> > (nameMax));
+  std::cout << " iVar = " << iVar << " minValue.at(" << iVar  << ").size() = " << minValue.at(iVar).size() << std::endl;
+  std::cout <<              "          maxValue.at(" << iVar  << ").size() = " << maxValue.at(iVar).size() << std::endl;
+  for (unsigned int iSel = 0; iSel<minValue.at(iVar).size() ; iSel++ ) {
+   std::cout << "      " << "minValue.at(" << iVar  << ").at(" << iSel << ") = " << minValue.at(iVar).at(iSel) << std::endl;   
+   std::cout << "      " << "maxValue.at(" << iVar  << ").at(" << iSel << ") = " << maxValue.at(iVar).at(iSel) << std::endl;   
+  }
  }
  
  ///==== create job files ====
 
  system("mkdir cfg/");  
  for (unsigned int ivariablesName = 0; ivariablesName < variablesName.size(); ivariablesName++){
-  for (unsigned int iVar = 0; iVar<ScanVariables.size(); iVar++ ) {
-   std::vector<std::string> cut;
-   std::vector<double> minValueTemp;
-   std::vector<double> maxValueTemp;
-   runFor(0,
-    cut,
-    ScanVariables, 
-    minValue,
-    maxValue,
-    minValueTemp,
-    maxValueTemp
-   );
-   for (unsigned int iCut = 0; iCut < cut.size(); iCut++){
-    std::string nameFileOutput = "outputTree_";
+  std::cout << " variablesName[" << ivariablesName << "] = " << variablesName.at(ivariablesName) << std::endl;
+  std::vector<std::string> cut;
+  std::vector<std::string> nameFileOut;
+  std::vector<double> minValueTemp;
+  std::vector<double> maxValueTemp;
+  runFor(0,
+   nameFileOut,
+   ScanVariablesId,
+   cut,
+   ScanVariables, 
+   minValue,
+   maxValue,
+   minValueTemp,
+   maxValueTemp
+  );
+  for (unsigned int iCut = 0; iCut < cut.size(); iCut++){
+    std::cerr << "   nameFileOut[" << iCut << "] = " << nameFileOut.at(iCut) << std::endl;
+    std::cerr << "   cut[" << iCut << "] = " << cut.at(iCut) << std::endl;
+
+
+
+    std::string nameFileOutput = "outputTree";
+    nameFileOutput += "_";
     nameFileOutput += variablesNameId.at(ivariablesName);
-    nameFileOutput += "_";
-    nameFileOutput += ScanVariablesId.at(iVar);
-    nameFileOutput += "_";
-    nameFileOutput +=  boost::lexical_cast<std::string>(iCut);
+    nameFileOutput += nameFileOut.at(iCut);
     nameFileOutput += ".root";
 
+  
 
-    std::string nameFile = "WenuEnScale_";
+    std::string nameFile = "cfg/WenuEnScale";
+    nameFile += "_";
     nameFile += variablesNameId.at(ivariablesName);
-    nameFile += "_";
-    nameFile += ScanVariablesId.at(iVar);
-    nameFile += "_";
-    nameFile +=  boost::lexical_cast<std::string>(iCut);
+    nameFile += nameFileOut.at(iCut);
     nameFile += ".cfg";
     
     std::ofstream Instruction;
@@ -197,7 +242,7 @@ int main(int argc, char** argv){
     Instruction << ")" << std::endl;
 
     Instruction << "process.options = cms.PSet(" << std::endl;
-    Instruction << "  EEorEB = cms.int32(0)," << std::endl;
+    Instruction << "  EEorEB = cms.int32(" << EEEB << ")," << std::endl;
     Instruction << "  numToyMC = cms.int32(" << maxIter << ")," << std::endl;
   
     Instruction << "  MinScan = cms.double(" << MinScan << ")," << std::endl;
@@ -211,7 +256,7 @@ int main(int argc, char** argv){
 
     Instruction << "  minET = cms.double(" << minET << ")," << std::endl;
 
-    Instruction << "  variableName = cms.string(\"" << variablesName.at(iVar) << "\")," << std::endl;
+    Instruction << "  variableName = cms.string(\"" << variablesName.at(ivariablesName) << "\")," << std::endl;
     Instruction << "  minBINS      = cms.double(" << minBINS << ")," << std::endl;
     Instruction << "  maxBINS      = cms.double(" << maxBINS << ")," << std::endl;
     Instruction << "  numBINS      = cms.int32(" << numBINS << ")" << std::endl; 
@@ -220,12 +265,10 @@ int main(int argc, char** argv){
     Instruction.close();
    
     ///==== file .sh ====
-    std::string nameJob = "cfg/nameJob_WenuEnScale_";
+    std::string nameJob = "cfg/nameJob_WenuEnScale";
+    nameJob += "_";
     nameJob += variablesNameId.at(ivariablesName);
-    nameJob += "_";
-    nameJob += ScanVariablesId.at(iVar);
-    nameJob += "_";
-    nameJob += boost::lexical_cast<std::string>(iCut);
+    nameJob += nameFileOut.at(iCut);
     nameJob += ".sh";
 
    
@@ -256,9 +299,7 @@ int main(int argc, char** argv){
     
    }
    
-  }
- }
- 
+  } 
 }
 
 
