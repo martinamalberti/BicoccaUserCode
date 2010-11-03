@@ -147,6 +147,7 @@ int main(int argc, char** argv){
  
  ///==== create job files ====
 
+ system("mkdir cfg/");  
  for (unsigned int ivariablesName = 0; ivariablesName < variablesName.size(); ivariablesName++){
   for (unsigned int iVar = 0; iVar<ScanVariables.size(); iVar++ ) {
    std::vector<std::string> cut;
@@ -219,7 +220,7 @@ int main(int argc, char** argv){
     Instruction.close();
    
     ///==== file .sh ====
-    std::string nameJob = "nameJob_WenuEnScale_";
+    std::string nameJob = "cfg/nameJob_WenuEnScale_";
     nameJob += variablesNameId.at(ivariablesName);
     nameJob += "_";
     nameJob += ScanVariablesId.at(iVar);
@@ -247,7 +248,8 @@ int main(int argc, char** argv){
    
     ///=============================================================
    
-    CommandToExec = "qsub -V -d ./ -q production " + nameJob; 
+    CommandToExec = "bsub -q \"1nh\" " + nameJob; 
+    std::cout << " CommandToExec = " << CommandToExec << std::endl;
 //    system(CommandToExec.c_str());  
        
     ///=============================================================

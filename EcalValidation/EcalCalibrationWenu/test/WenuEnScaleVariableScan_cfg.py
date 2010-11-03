@@ -4,7 +4,7 @@ process = cms.Process("TEST")
 
 process.inputTree = cms.PSet(
   treeNameDATA = cms.string("ntupleEcalCalibration/myTree"),
-  inputFileDATA = cms.string("EcalCalibration.root"),
+  inputFileDATA = cms.string("EcalCalibrationJoin.root"),
   treeNameMC = cms.string("myTree"),
   inputFileMC = cms.string("Wenu_WSUMMED_4analysis.root")
 )
@@ -17,7 +17,7 @@ process.outputTree = cms.PSet(
 process.options = cms.PSet(
   EEorEB = cms.int32(5),
     
-  numToyMC = cms.int32(10),
+  numToyMC = cms.int32(100),
   MinScan = cms.double(-0.1),
   MaxScan = cms.double(0.05),
   iNoSteps = cms.int32(200),
