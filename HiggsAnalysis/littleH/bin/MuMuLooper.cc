@@ -21,13 +21,13 @@ MuMuLooper::MuMuLooper(TChain *tree)
 
   /// SELECTION CUTS ///
  
-  MIN_nhits_trk = 12;
+  MIN_nhits_trk = 11;
   MAX_normchi2_trk = 5.0;
   MAX_normchi2_glb = 20.0;
-  MIN_nhits_pixel = 2;
+  MIN_nhits_pixel = 0;
   MAX_d0_trk = 0.2;
   MAX_dz_trk = 25.0;
-  MIN_vtxprob = 0.05;
+  MIN_vtxprob = 0.001;
   MAX_S3Dip = 1.1;
   MAX_muisol = 0.11;
   MIN_muP = 4.4;
@@ -36,7 +36,7 @@ MuMuLooper::MuMuLooper(TChain *tree)
 
 void MuMuLooper::bookHistos()
 {
-  hInvMass = new TH1F("hInvMass","#mu-#mu invariant mass",450,3.,12.);
+  hInvMass = new TH1F("hInvMass","#mu-#mu invariant mass",400,4.,12.);
   hIsoVar03_glb_TKECAL1 = new TH1F("hIsoVar03_glb_TKECAL1", "isolation var03 on tk+ecal, glb", 500, 0., 5. );
   hIsoVar03_glb_TKECAL2 = new TH1F("hIsoVar03_glb_TKECAL2", "isolation var03 on tk+ecal, glb", 500, 0., 5. );
   hIsoVar03_trk_TKECAL1 = new TH1F("hIsoVar03_trk_TKECAL1", "isolation var03 on tk+ecal, trk", 500, 0., 5. );
@@ -101,9 +101,9 @@ void MuMuLooper::Loop(string filename) {
     if (jentry%100000 == 0) cout << ">>> Processing event # " << jentry << endl;
     
     totalEvents++;
-    //    accept = HLTaccept->at(5);
+    accept = HLTaccept->at(5);
     //    for(int i=0;i<HLTaccept->size();i++)    cout << i << " " << HLTaccept->at(i) << endl;
-    //    if(accept == 0) continue;
+    if(accept == 0) continue;
 
     passedTriggers++;
 
