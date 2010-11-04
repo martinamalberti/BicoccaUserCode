@@ -15,6 +15,7 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePA
     
     # Read Input
     process.source = cms.Source("PoolSource",
+        duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
         inputCommands = cms.untracked.vstring("keep *"),
         fileNames = cms.untracked.vstring()
     )
@@ -216,12 +217,16 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePA
     process.TriggerResults = process.HLTrigResultsDumper.clone()
     process.TriggerResults.HLTriggerResults = cms.InputTag("TriggerResults","",HLT)
     process.TriggerResults.HLTPaths = cms.vstring(
-      "HLT_Mu3", 
-      "HLT_Mu5", 
-      "HLT_Mu9", 
-      "HLT_DoubleMu0", 
-      "HLT_DoubleMu3",
-      "HLT_DoubleEle4_SW_eeRes_L1R"
+
+        "HLT_DoubleMu0_Quarkonium_v1",
+        "HLT_Mu0_TkMu0_OST_Jpsi_Tight_v2",
+        "HLT_Mu3_TkMu0_OST_Jpsi_Tight_v2",
+        "HLT_Mu3_Track3_Jpsi_v2",
+        "HLT_Mu3_Track5_Jpsi_v2",
+        "HLT_Mu5_L2Mu0",
+        "HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1",
+        "HLT_Mu5_Track0_Jpsi"
+                                
     )   # provide list of HLT paths (or patterns) you want
 
     # the onia2LepLep path
