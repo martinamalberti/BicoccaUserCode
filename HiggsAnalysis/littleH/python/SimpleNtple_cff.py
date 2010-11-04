@@ -22,6 +22,7 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePA
     
         # Drop the DQM stuff on input
     process.source = cms.Source("PoolSource",
+        duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
         inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*"),
         fileNames = cms.untracked.vstring()
     )
