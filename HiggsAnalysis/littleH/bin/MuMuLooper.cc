@@ -25,7 +25,7 @@ MuMuLooper::MuMuLooper(TChain *tree)
   MAX_normchi2_trk = 5.0;
   MAX_normchi2_glb = 20.0;
   MIN_nhits_pixel = 2;
-  MAX_d0_trk = 2.0;
+  MAX_d0_trk = 0.2;
   MAX_dz_trk = 25.0;
   MIN_vtxprob = 0.05;
   MAX_S3Dip = 1.1;
@@ -36,16 +36,17 @@ MuMuLooper::MuMuLooper(TChain *tree)
 
 void MuMuLooper::bookHistos()
 {
-  hInvMass = new TH1F("hInvMass","#mu-#mu invariant mass",200,4.,12.);
-//   hIsoVar03_glb_TKECAL1 = new TH1F("hIsoVar03_glb_TKECAL1", "isolation var03 on tk+ecal, glb", 200, 0., 5. );
-//   hIsoVar03_glb_TKECAL2 = new TH1F("hIsoVar03_glb_TKECAL2", "isolation var03 on tk+ecal, glb", 200, 0., 5. );
-//   hIsoVar03_trk_TKECAL1 = new TH1F("hIsoVar03_trk_TKECAL1", "isolation var03 on tk+ecal, trk", 200, 0., 5. );
-//   hIsoVar03_trk_TKECAL2 = new TH1F("hIsoVar03_trk_TKECAL2", "isolation var03 on tk+ecal, trk", 200, 0., 5. );
-//   hIsoVar03_glb_TK = new TH1F("hIsoVar03_glb_TK", "isolation var03 on tk, glb", 200, 0., 5. );
-//   hIsoVar03_trk_TK = new TH1F("hIsoVar03_trk_TK", "isolation var03 on tk, trk", 200, 0., 5. );
-//   hIsoVar03_glb_ECAL = new TH1F("hIsoVar03_glb_ECAL", "isolation var03 on ecal, glb", 200, 0., 5. );
-//   hIsoVar03_trk_ECAL = new TH1F("hIsoVar03_trk_ECAL", "isolation var03 on ecal, trk", 200, 0., 5. );
-  hQQProbChi2 = new TH1F("hQQProbChi2","#chi^2 prob", 50, 0., 1.);
+  hInvMass = new TH1F("hInvMass","#mu-#mu invariant mass",450,3.,12.);
+  hIsoVar03_glb_TKECAL1 = new TH1F("hIsoVar03_glb_TKECAL1", "isolation var03 on tk+ecal, glb", 500, 0., 5. );
+  hIsoVar03_glb_TKECAL2 = new TH1F("hIsoVar03_glb_TKECAL2", "isolation var03 on tk+ecal, glb", 500, 0., 5. );
+  hIsoVar03_trk_TKECAL1 = new TH1F("hIsoVar03_trk_TKECAL1", "isolation var03 on tk+ecal, trk", 500, 0., 5. );
+  hIsoVar03_trk_TKECAL2 = new TH1F("hIsoVar03_trk_TKECAL2", "isolation var03 on tk+ecal, trk", 500, 0., 5. );
+  hIsoVar03_glb_TK = new TH1F("hIsoVar03_glb_TK", "isolation var03 on tk, glb", 500, 0., 5. );
+  hIsoVar03_trk_TK = new TH1F("hIsoVar03_trk_TK", "isolation var03 on tk, trk", 500, 0., 5. );
+  hIsoVar03_glb_ECAL = new TH1F("hIsoVar03_glb_ECAL", "isolation var03 on ecal, glb", 500, 0., 5. );
+  hIsoVar03_trk_ECAL = new TH1F("hIsoVar03_trk_ECAL", "isolation var03 on ecal, trk", 500, 0., 5. );
+
+  hQQProbChi2 = new TH1F("hQQProbChi2","#chi^2 prob", 1000, 0., 1.);
   hQQS3Dip = new TH1F("hQQS3Dip", "", 100, 0., 5.);
   hQQSTip = new TH1F("hQQSTip", "", 100, 0., 5.);
   hQQEta = new TH1F("hQQEta", "Eta", 100, -5.,5.);
@@ -61,29 +62,48 @@ void MuMuLooper::bookHistos()
   return;
 }
 
-void MuMuLooper::Loop() {
+void MuMuLooper::Loop(string filename) {
 
   if (fChain == 0) return;  
   int nentries = (int)fChain->GetEntries(); 
 
-  // loop over events
+  //  loop over events
   cout << "Number of entries = " << nentries << endl;
 
-  // counters
+  //  counters
   int totalEvents = 0;
   int passedCandidates = 0;
   int passedTriggers = 0;
 
-  for (int jentry=0; jentry< nentries; jentry++) {
+  bool accept;
+
+  //===========================
+  // === load the HLT tree ====
+  //===========================
+  std::vector<int> *HLTwasrun=0;
+  std::vector<int> *HLTaccept=0;
+  std::vector<int> *HLTerror=0;
+
+  TChain *chainHLT = new TChain ("TriggerResults/HLTree") ;
+
+  chainHLT -> SetBranchAddress("HLTwasrun", &HLTwasrun);
+  chainHLT -> SetBranchAddress("HLTaccept", &HLTaccept);
+  chainHLT -> SetBranchAddress("HLTerror" , &HLTerror);
+  chainHLT -> Add(filename.c_str());
+
+   for (int jentry=0; jentry< nentries; jentry++) {
     
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     fChain->GetEntry(jentry);
+    chainHLT->GetEntry(jentry);
 
     if (jentry%100000 == 0) cout << ">>> Processing event # " << jentry << endl;
     
     totalEvents++;
-
+    //    accept = HLTaccept->at(5);
+    //    for(int i=0;i<HLTaccept->size();i++)    cout << i << " " << HLTaccept->at(i) << endl;
+    //    if(accept == 0) continue;
 
     passedTriggers++;
 
@@ -132,16 +152,6 @@ void MuMuLooper::Loop() {
       // Fill histos
       hInvMass->Fill(invMass, weight);
 
-     //hIsoVar03_glb_TKECAL1->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_glb_emIsoR03->at(mu_index));
-     //hIsoVar03_glb_TKECAL2->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt());
-     //hIsoVar03_glb_TK->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt());
-     //hIsoVar03_glb_ECAL->Fill(muons_glb_emIsoR03->at(mu_index));
-
-     //hIsoVar03_trk_TKECAL1->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_trk_emIsoR03->at(mu_index));
-     //hIsoVar03_glb_TKECAL2->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt());
-     //hIsoVar03_trk_TK->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt());
-     //hIsoVar03_trk_ECAL->Fill(muons_trk_emIsoR03->at(mu_index));
-
     
     }
 
@@ -163,14 +173,14 @@ void MuMuLooper::saveHistos(TFile * f1)
   f1->cd();
 
   hInvMass->Write();
-//   hIsoVar03_glb_TKECAL1->Write();
-//   hIsoVar03_glb_TKECAL2->Write();
-//   hIsoVar03_trk_TKECAL1->Write();
-//   hIsoVar03_trk_TKECAL2->Write();
-//   hIsoVar03_glb_TK->Write();
-//   hIsoVar03_glb_ECAL->Write();
-//   hIsoVar03_trk_TK->Write();
-//   hIsoVar03_trk_ECAL->Write();
+  hIsoVar03_glb_TKECAL1->Write();
+  hIsoVar03_glb_TKECAL2->Write();
+  hIsoVar03_trk_TKECAL1->Write();
+  hIsoVar03_trk_TKECAL2->Write();
+  hIsoVar03_glb_TK->Write();
+  hIsoVar03_glb_ECAL->Write();
+  hIsoVar03_trk_TK->Write();
+  hIsoVar03_trk_ECAL->Write();
   hQQProbChi2->Write();
   hQQSTip->Write();
   hQQS3Dip->Write();
@@ -192,6 +202,12 @@ void MuMuLooper::saveHistos(TFile * f1)
 bool MuMuLooper::accept_glb_mu(const int mu_index) const
 {
   TLorentzVector *mu_4mom = (TLorentzVector*)muons_glb_4mom->At(mu_index);
+ 
+      hIsoVar03_glb_TKECAL1->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_glb_emIsoR03->at(mu_index));
+      hIsoVar03_glb_TKECAL2->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt());
+      hIsoVar03_glb_TK->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt());
+      hIsoVar03_glb_ECAL->Fill(muons_glb_emIsoR03->at(mu_index));
+    
   if(muons_glb_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
      muons_glb_normChi2->at(mu_index)   < MAX_normchi2_glb  &&
      fabs(muons_glb_d0->at(mu_index))   < MAX_d0_trk        &&
@@ -214,6 +230,12 @@ bool MuMuLooper::accept_glb_mu(const int mu_index) const
 bool MuMuLooper::accept_trk_mu(const int mu_index) const
 {
   TLorentzVector *mu_4mom = (TLorentzVector*)muons_trk_4mom->At(mu_index);
+
+  hIsoVar03_trk_TKECAL1->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt()+muons_trk_emIsoR03->at(mu_index));
+  hIsoVar03_trk_TKECAL2->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt());
+  hIsoVar03_trk_TK->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt());
+  hIsoVar03_trk_ECAL->Fill(muons_trk_emIsoR03->at(mu_index));
+  
   if(mu_4mom->Eta() > 1.1 && mu_4mom->Rho() < MIN_muP) return false;
 
   if(muons_trk_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
@@ -255,11 +277,11 @@ int MuMuLooper::theBestQQ() const
 	}
       if (QQ_probChi2->at(iqq) > MIN_vtxprob && QQ_S3Dip->at(iqq) < MAX_S3Dip && accept_glb_mu(thehptMu) && accept_glb_mu(thelptMu))
 	{
-	  const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
-	  TLorentzVector Dummy = *((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(iqq)))
-	    + *((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(iqq)));
+// 	  const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
+// 	  TLorentzVector Dummy = *((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(iqq)))
+// 	    + *((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(iqq)));
 	  
-	  std::cout << "mass 1 " <<  invMass << " vs mass 2 " << Dummy.M() << std::endl;
+// 	  std::cout << "mass 1 " <<  invMass << " vs mass 2 " << Dummy.M() << std::endl;
 	  
 	  return iqq;
 	}
@@ -286,11 +308,11 @@ int MuMuLooper::theBestQQ() const
   }
   
   if (theBest >= 0){
-    const float invMass = ((TLorentzVector*)QQ_4mom->At(theBest))->M();
-    TLorentzVector Dummy = *((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(theBest)))
-      + *((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(theBest)));
+//     const float invMass = ((TLorentzVector*)QQ_4mom->At(theBest))->M();
+//     TLorentzVector Dummy = *((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(theBest)))
+//       + *((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(theBest)));
     
-    std::cout << "mass 1 " <<  invMass << " vs mass 2 " << Dummy.M() << std::endl;
+//     std::cout << "mass 1 " <<  invMass << " vs mass 2 " << Dummy.M() << std::endl;
     return theBest;
   }
   return theBest;

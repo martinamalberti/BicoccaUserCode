@@ -40,7 +40,7 @@ int main (int argc, char ** argv)
   TFile *f1 = new TFile(outputfile.c_str(),"RECREATE");  
 
   MuMuLooper analyzer(albero);
-  analyzer.Loop();
+  analyzer.Loop(filename);
   analyzer.saveHistos(f1);
   delete albero;
 
