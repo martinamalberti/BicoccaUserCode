@@ -12,23 +12,23 @@ SimpleNtuple = cms.EDAnalyzer(
     
     HLTTag = cms.InputTag("TriggerResults","","HLT"),
     
-    PVTag = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    PVTag = cms.InputTag("offlinePrimaryVertices"),
     
     #### muons ####
-    MuTag = cms.InputTag("selectedPatMuons"),
+    MuTag = cms.InputTag("patMuons"),
      
     #### electrons ####
-    EleTag                = cms.InputTag("selectedPatElectrons"),
+    EleTag                = cms.InputTag("patElectrons"),
     EleID_names           = cms.vstring('eidLoose','eidRobustLoose','eidTight','eidRobustTight'),
     
     #### photons ####
-    PhotonTag             = cms.InputTag("selectedPatPhotons"),
+    PhotonTag             = cms.InputTag("patPhotons"),
     EBRechitTag  = cms.InputTag("reducedEcalRecHitsEB","","RECO"),
     EERechitTag  = cms.InputTag("reducedEcalRecHitsEE","","RECO"),
     
     
     #### jets ####
-    JetTag     = cms.InputTag("selectedPatJets"),
+    JetTag     = cms.InputTag("patJets"),
     BTag_names = cms.vstring('trackCountingHighEffBJetTags','trackCountingHighPurBJetTags','simpleSecondaryVertexHighPurBJetTags','simpleSecondaryVertexHighEffBJetTags'),
     
     MetTag   = cms.InputTag("patMETs"),
