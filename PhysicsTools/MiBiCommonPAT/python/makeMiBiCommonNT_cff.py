@@ -265,9 +265,26 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     if MCType == 'HiggsGammaGamma':
         process.MiBiCommonNT.saveMCHiggs           = cms.untracked.bool (True)
         process.MiBiCommonNT.saveMCHiggsGammaGamma = cms.untracked.bool (True)                
+
+
+    process.MiBiCommonNTOneLeptonTwoJetsAK5PF = process.MiBiCommonNT.clone()
+    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.JetTag    = cms.InputTag("patJetsAK5PF")
     
-    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNT)
-    process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNT)
-    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNT)
-    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNT)
+    process.MiBiCommonNTOneLeptonTwoJetsAK5Calo = process.MiBiCommonNT.clone()
+    process.MiBiCommonNTOneLeptonTwoJetsAK5Calo.JetTag    = cms.InputTag("patJetsAK5Calo")
+    process.MiBiCommonNTOneLeptonTwoJetsAK5Calo.MetTag    = cms.InputTag("patMETsAK5Calo")
+    
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow = process.MiBiCommonNT.clone()
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.MuTag     = cms.InputTag("patMuonsPFlow")
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.EleTag    = cms.InputTag("patElectronsPFlow")
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag    = cms.InputTag("patJetsPFlow")
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.MetTag    = cms.InputTag("patMETsPFlow")
+    
+    process.MiBiCommonNTTwoPhotons = process.MiBiCommonNT.clone()
+    process.MiBiCommonNTTwoPhotons.JetTag = cms.InputTag("patJetsAK5PF")
+    
+    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
+    process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5Calo)
+    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
+    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
 
