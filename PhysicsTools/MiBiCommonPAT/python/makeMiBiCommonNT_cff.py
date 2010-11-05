@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
 
 
-def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False):
+def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
 
     # Setup the process
     process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -248,14 +248,24 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False):
     process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
     process.MiBiCommonNT = process.SimpleNtuple.clone()
     process.MiBiCommonNT.HLTTag = cms.InputTag("TriggerResults","",HLT)
+    process.MiBiCommonNT.saveGenJet            = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCPtHat           = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCTTBar           = cms.untracked.bool (False)    
-    process.MiBiCommonNT.saveMCHiggs           = cms.untracked.bool (MC)
-    process.MiBiCommonNT.saveMCHiggsWW         = cms.untracked.bool (MC)
-    process.MiBiCommonNT.saveMCHiggsGammaGamma = cms.untracked.bool (MC)
-    process.MiBiCommonNT.saveGenJet            = cms.untracked.bool (MC)
-
-
+    process.MiBiCommonNT.saveMCHiggs           = cms.untracked.bool (False)
+    process.MiBiCommonNT.saveMCHiggsWW         = cms.untracked.bool (False)
+    process.MiBiCommonNT.saveMCHiggsGammaGamma = cms.untracked.bool (False)
+    
+    if MCType == 'TTBar':
+        process.MiBiCommonNT.saveMCTTBar = cms.untracked.bool (True)
+    if MCType == 'Higgs':
+        process.MiBiCommonNT.saveMCHiggs = cms.untracked.bool (True)
+    if MCType == 'HiggsWW':
+        process.MiBiCommonNT.saveMCHiggs   = cms.untracked.bool (True)
+        process.MiBiCommonNT.saveMCHiggsWW = cms.untracked.bool (True)
+    if MCType == 'HiggsGammaGamma':
+        process.MiBiCommonNT.saveMCHiggs           = cms.untracked.bool (True)
+        process.MiBiCommonNT.saveMCHiggsGammaGamma = cms.untracked.bool (True)                
+    
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNT)
     process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNT)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNT)
