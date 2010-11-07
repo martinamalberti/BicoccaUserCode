@@ -421,8 +421,30 @@ cat > ${plots_dir}/index.html <<EOF
 
 EOF
 
+echo "==============================================="
+echo "==========Template for validation mail========="
+echo "===============================================
 
+"
 
+echo "Dear all,
+
+ECAL DATA validation results are available here:
+
+http://test-ecal-cosmics.web.cern.ch/test-ecal-cosmics/ValidationPlots/${whichdir}/${file1}_vs_${file2}/
+
+* samples used:
+
+new -> ${data_set_1}
+ref -> ${data_set_2} 
+
+* status: SUCCESS
+
+* comment: ---
+
+Best regards,
+
+Leonardo and Martina" 
 
 
 
