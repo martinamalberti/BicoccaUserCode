@@ -1,7 +1,0 @@
-/*
-StatisticalPackage
-*/
-
-#include "StatisticalPackage.h"
-
-
