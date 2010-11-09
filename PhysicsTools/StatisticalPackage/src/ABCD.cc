@@ -90,9 +90,8 @@ ABCD::~ABCD()
  
  if(tree_in_p!=NULL)
  {
-  tree_in_p=NULL;
   delete tree_in_p;
-  
+  tree_in_p = NULL; 
  }
  
  if(outFile_p!=NULL)
@@ -126,8 +125,30 @@ void ABCD::CreateHisto(const int& nbinX,const double& X_MIN,const double& X_MAX,
  nbinX_p = nbinX;
  nbinY_p = nbinY;
  
- BinCorrectionX(nbinX_p,X_MIN_,X_MAX_);
- BinCorrectionY(nbinY_p,Y_MIN_,Y_MAX_);
+
+ TBranch* BX = (TBranch*) tree_in_p->GetBranch(varX_p.c_str()) ;
+ std::string s_BX_type = BX->GetTitle() ;
+ TBranch* BY = (TBranch*) tree_in_p->GetBranch(varY_p.c_str()) ;
+ std::string s_BY_type = BY->GetTitle() ;
+ 
+//  std::cout << " s_BX_type = " << s_BX_type << std::endl;
+//  std::cout << " s_BY_type = " << s_BY_type << std::endl;
+
+ int pos;
+ pos = s_BX_type.find("/I") ;  
+ if (pos==std::string::npos) BinCorrectionX(nbinX_p,X_MIN_,X_MAX_);
+ else {
+  X_MIN_ = X_MIN_ - 0.5;
+  X_MAX_ = X_MAX_ + 0.5;
+  nbinX_p = (X_MAX_ - X_MIN_);
+ }
+ pos = s_BY_type.find("/I") ;  
+ if (pos==std::string::npos) BinCorrectionY(nbinY_p,Y_MIN_,Y_MAX_);
+ else {
+  Y_MIN_ = Y_MIN_ - 0.5;
+  Y_MAX_ = Y_MAX_ + 0.5;
+  nbinY_p = (Y_MAX_ - Y_MIN_);
+ }
  
  TH2D* HA = new TH2D ("HA","HA",nbinX_p,X_MIN_,X_MAX_,nbinY_p,Y_MIN_,Y_MAX_);
  TH2D* HB = new TH2D ("HB","HB",nbinX_p,X_MIN_,X_MAX_,nbinY_p,Y_MIN_,Y_MAX_);
@@ -687,11 +708,11 @@ double ABCD::KolmogorovTest(std::string& Var)
  TString Variable;
  TString Cut;
  
- double MAX_varX = Htot_p->GetXaxis()->GetXmax(); 
- double MIN_varX = Htot_p->GetXaxis()->GetXmin();
+ double MAX_varX = X_MAX_; //Htot_p->GetXaxis()->GetXmax(); 
+ double MIN_varX = X_MIN_; //Htot_p->GetXaxis()->GetXmin();
  
- double MAX_varY = Htot_p->GetYaxis()->GetXmax(); 
- double MIN_varY = Htot_p->GetYaxis()->GetXmin();
+ double MAX_varY = Y_MAX_; //Htot_p->GetYaxis()->GetXmax(); 
+ double MIN_varY = Y_MIN_; //Htot_p->GetYaxis()->GetXmin();
  
  if(Kolmogorov_p1!=NULL)
   delete Kolmogorov_p1;
@@ -711,7 +732,7 @@ double ABCD::KolmogorovTest(std::string& Var)
  if(Kolmogorov_pD!=NULL)
   delete Kolmogorov_pD;
  
- if( Var==varX_p )
+ if( Var == varX_p )
  { 
   Kolmogorov_pA = new TH1D("Kolmogorov_pA","Test Kolgomorov_A",nbinX_p,MIN_varX,MAX_varX);
   Kolmogorov_pB = new TH1D("Kolmogorov_pB","Test Kolgomorov_B",nbinX_p,MIN_varX,MAX_varX);
@@ -734,20 +755,20 @@ double ABCD::KolmogorovTest(std::string& Var)
     AreaD = AreaD + VetHisto_p.at(3)->GetBinContent(i+1,j+1);
    }
    
-   Kolmogorov_pA->SetBinContent(i,AreaA);
-   Kolmogorov_pB->SetBinContent(i,AreaB);
-   Kolmogorov_pC->SetBinContent(i,AreaC);
-   Kolmogorov_pD->SetBinContent(i,AreaD);
+   Kolmogorov_pA->SetBinContent(i+1,AreaA);
+   Kolmogorov_pB->SetBinContent(i+1,AreaB);
+   Kolmogorov_pC->SetBinContent(i+1,AreaC);
+   Kolmogorov_pD->SetBinContent(i+1,AreaD);
    AreaA = 0;
    AreaB = 0;
    AreaC = 0;
    AreaD = 0;
   }  
   
-  double A=Kolmogorov_pA->GetEffectiveEntries();
-  double B=Kolmogorov_pB->GetEffectiveEntries();
-  double C=Kolmogorov_pC->GetEffectiveEntries();
-  double D=Kolmogorov_pD->GetEffectiveEntries();
+  double A = Kolmogorov_pA->GetEffectiveEntries();
+  double B = Kolmogorov_pB->GetEffectiveEntries();
+  double C = Kolmogorov_pC->GetEffectiveEntries();
+  double D = Kolmogorov_pD->GetEffectiveEntries();
   
   //Kolmogorov_pA->Scale(1/(Kolmogorov_pA->GetEffectiveEntries()+Kolmogorov_pC->GetEffectiveEntries()));
   //Kolmogorov_pB->Scale(1/(Kolmogorov_pB->GetEffectiveEntries()+Kolmogorov_pD->GetEffectiveEntries()));
@@ -780,18 +801,18 @@ double ABCD::KolmogorovTest(std::string& Var)
   
  }
  
- if(Var==varY_p)
+ if( Var == varY_p )
  {
   
-  Kolmogorov_pA=new TH1D("Kolmogorov_pA","Test Kolgomorov_A",nbinY_p,MIN_varY,MAX_varY);
-  Kolmogorov_pB=new TH1D("Kolmogorov_pB","Test Kolgomorov_B",nbinY_p,MIN_varY,MAX_varY);
-  Kolmogorov_pC=new TH1D("Kolmogorov_pC","Test Kolgomorov_C",nbinY_p,MIN_varY,MAX_varY);
-  Kolmogorov_pD=new TH1D("Kolmogorov_pD","Test Kolgomorov_D",nbinY_p,MIN_varY,MAX_varY);
+  Kolmogorov_pA = new TH1D("Kolmogorov_pA","Test Kolgomorov_A",nbinY_p,MIN_varY,MAX_varY);
+  Kolmogorov_pB = new TH1D("Kolmogorov_pB","Test Kolgomorov_B",nbinY_p,MIN_varY,MAX_varY);
+  Kolmogorov_pC = new TH1D("Kolmogorov_pC","Test Kolgomorov_C",nbinY_p,MIN_varY,MAX_varY);
+  Kolmogorov_pD = new TH1D("Kolmogorov_pD","Test Kolgomorov_D",nbinY_p,MIN_varY,MAX_varY);
   
-  double AreaA=0;
-  double AreaB=0;
-  double AreaC=0;
-  double AreaD=0;
+  double AreaA = 0;
+  double AreaB = 0;
+  double AreaC = 0;
+  double AreaD = 0;
   
   for(int i=0; i<nbinY_p;i++)
   {
@@ -802,21 +823,21 @@ double ABCD::KolmogorovTest(std::string& Var)
     AreaC = AreaC + VetHisto_p.at(2)->GetBinContent(j+1,i+1);
     AreaD = AreaD + VetHisto_p.at(3)->GetBinContent(j+1,i+1);
    }
-   Kolmogorov_pA->SetBinContent(i,AreaA);
-   Kolmogorov_pB->SetBinContent(i,AreaB);
-   Kolmogorov_pC->SetBinContent(i,AreaC);
-   Kolmogorov_pD->SetBinContent(i,AreaD);
+   Kolmogorov_pA->SetBinContent(i+1,AreaA);
+   Kolmogorov_pB->SetBinContent(i+1,AreaB);
+   Kolmogorov_pC->SetBinContent(i+1,AreaC);
+   Kolmogorov_pD->SetBinContent(i+1,AreaD);
    
-   AreaA=0;
-   AreaB=0;
-   AreaC=0;
-   AreaD=0;
+   AreaA = 0;
+   AreaB = 0;
+   AreaC = 0;
+   AreaD = 0;
   }  
   
-  double A=Kolmogorov_pA->GetEffectiveEntries();
-  double B=Kolmogorov_pB->GetEffectiveEntries();
-  double C=Kolmogorov_pC->GetEffectiveEntries();
-  double D=Kolmogorov_pD->GetEffectiveEntries();
+  double A = Kolmogorov_pA->GetEffectiveEntries();
+  double B = Kolmogorov_pB->GetEffectiveEntries();
+  double C = Kolmogorov_pC->GetEffectiveEntries();
+  double D = Kolmogorov_pD->GetEffectiveEntries();
   
   // Kolmogorov_pA->Scale(1/(Kolmogorov_pA->GetEffectiveEntries()+Kolmogorov_pB->GetEffectiveEntries()));
   // Kolmogorov_pB->Scale(1/(Kolmogorov_pB->GetEffectiveEntries()+Kolmogorov_pA->GetEffectiveEntries()));
@@ -881,13 +902,13 @@ void ABCD::ResetHisto()
   if(VetHisto_p[i]!=NULL)
   {
    delete VetHisto_p[i];
-   VetHisto_p[i]!=NULL;
+   VetHisto_p[i] = NULL;
   }
  }
  if(Htot_p!=NULL)
  {
   delete Htot_p;
-  Htot_p=NULL; 
+  Htot_p = NULL; 
  }
  if(Kolmogorov_p1!=NULL)
  {delete Kolmogorov_p1;

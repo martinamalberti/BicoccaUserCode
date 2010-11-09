@@ -54,8 +54,10 @@
     In General:    
         root test/Print_Histo_Cut.cxx\(\"Var1\",\"Var2\"\)
     Example:
-        root test/Print_Histo_Cut.cxx\(\"pT_RECO_q1\",\"Mjj\"\)
-        root test/Print_Histo_Cut.cxx\(\"CJV_30\",\"Mll\"\)
+        r00t test/Print_Histo_Cut.cxx\(\"pT_RECO_q1\",\"Mjj\"\)
+        r00t test/Print_Histo_Cut.cxx\(\"CJV_30\",\"Mll\"\)
+        r00t test/Print_Histo_Cut.cxx\(\"CJV_30\",\"Dphi_RECO_l12\"\)
+        
         
  4)  Print_Variable.cxx
 
@@ -83,7 +85,8 @@
    Print results of test (6) 
    e.g. 
        r00t test/Print_BackgroundContamination.cxx\(\"CJV_30\",\"Dphi_RECO_l12\",\"output/background/HistoABCD_TTbarJets_\"\)
-
+       r00t test/Print_BackgroundContamination.cxx\(\"CJV_30\",\"Mll\",\"output/background/HistoABCD_TTbarJets_\"\)
+       
 7) ToyMC3.cpp and TotMC3.cfg
 
    This program takes as input the dataset for the background chosen, then it applies on its the ABCD analysis.

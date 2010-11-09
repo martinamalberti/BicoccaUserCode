@@ -21,6 +21,7 @@ class ABCD
   ABCD();
   ABCD(TTree* tree_in,std::string& output,std::string& varY,double cutY,std::string&  varX,double cutX,std::string&  gen_cut);
   ABCD(TTree* tree_in);
+  
   /** Destructor*/
   ~ABCD();
   

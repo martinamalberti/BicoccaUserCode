@@ -17,7 +17,6 @@ for a given background */
 #include "TRandom3.h"
 #include <time.h>
 #include <sstream>
-#include "StatisticalPackage.h"
 #include "TColor.h"
 #include "TStyle.h"
 #include <vector>

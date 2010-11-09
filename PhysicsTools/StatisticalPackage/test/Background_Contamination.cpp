@@ -20,7 +20,6 @@ in order to establish the right pair for a correct application of the ABCD metho
 #include "TRandom3.h"
 #include <time.h>
 #include <sstream>
-#include "StatisticalPackage.h"
 #include "TColor.h"
 #include "TStyle.h"
 #include <vector>
