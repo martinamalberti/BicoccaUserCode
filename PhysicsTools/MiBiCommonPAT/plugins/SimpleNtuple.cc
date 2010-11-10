@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.12 2010/11/01 16:52:04 dimatteo Exp $
+// $Id: SimpleNtuple.cc,v 1.13 2010/11/03 09:56:56 ghezzi Exp $
 //
 //
 
@@ -46,7 +46,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  
  
  //---- Input tags ---- 
- HLTTag_ = iConfig.getParameter<edm::InputTag>("HLTTag");
+ TriggerEventTag_ = iConfig.getParameter<edm::InputTag>("TriggerEventTag");
+ TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
   
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
  
@@ -243,6 +244,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_->Add4V("jets");
    NtupleFactory_->AddFloat("jets_charge");   
+   NtupleFactory_->AddFloat("jets_dzAvg");   
+   NtupleFactory_->AddFloat("jets_dzAvgCut");   
    
    NtupleFactory_->AddFloat("jets_corrFactor_raw");   
    NtupleFactory_->AddFloat("jets_corrFactor_off");   
@@ -400,13 +403,19 @@ SimpleNtuple::~SimpleNtuple()
 
 void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //---- HLT information ----
+  //---- HLT information ----
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  iEvent.getByLabel(TriggerEventTag_, triggerEventHandle);
+  const edm::Provenance* provenance = triggerEventHandle.provenance();
+  //std::cout << "Trigger process name = " << provenance->processName() << std::endl;
+  
   edm::Handle<edm::TriggerResults> triggerResultsHandle;
-  iEvent.getByLabel(HLTTag_, triggerResultsHandle);
+  iEvent.getByLabel(edm::InputTag(TriggerResultsTag_.label(), TriggerResultsTag_.instance(), provenance->processName()), triggerResultsHandle);
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResultsHandle);
   for(unsigned int iHLT = 0; iHLT < triggerResultsHandle->size(); ++iHLT)
   {
     //std::cout << "bit: " << std::fixed << setw(3)<< iHLT << "   name: " << triggerNames.triggerName(iHLT) << std::endl;
+    
     if( triggerResultsHandle -> wasrun(iHLT) )
       NtupleFactory_ -> FillFloat("HLT_WasRun", 1);
     else
@@ -818,6 +827,48 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_ -> FillInt  ("jets_chargedMultiplicity",jet.chargedMultiplicity()); 
    NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
    NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
+   
+   // loop on charged constituents to get avg z
+   std::vector<reco::PFCandidatePtr> jetConstituents =  jet.getPFConstituents();
+   float dzAvg = 0.;
+   int nChargedConstituents = 0;
+   for(unsigned int jj = 0; jj < jetConstituents.size(); ++jj)
+   {
+     if( jetConstituents.at(jj)->trackRef().isNonnull() )
+     {
+       dzAvg += jetConstituents.at(jj)->trackRef()->dz();
+       ++nChargedConstituents;
+     }
+   }
+   
+   if(nChargedConstituents > 0) dzAvg /= nChargedConstituents;
+   else dzAvg = -9999.;
+   
+   NtupleFactory_ -> FillFloat("jets_dzAvg", dzAvg);
+   
+   
+   if( dzAvg > -9999.)
+   {
+     float dzAvgCut = 0.;
+     int nChargedConstituentsCut = 0;
+     for(unsigned int jj = 0; jj < jetConstituents.size(); ++jj)
+     {
+       if( jetConstituents.at(jj)->trackRef().isNonnull() )
+       {
+         if( fabs(jetConstituents.at(jj)->trackRef()->dz() - dzAvg) > 0.5 ) continue;
+         
+         dzAvgCut += jetConstituents.at(jj)->trackRef()->dz();
+         ++nChargedConstituentsCut;
+       }
+     }
+     
+     if(nChargedConstituentsCut > 0) dzAvgCut /= nChargedConstituentsCut;
+     else dzAvgCut = -9999.;
+     
+     NtupleFactory_ -> FillFloat("jets_dzAvgCut", dzAvgCut);
+   }
+
+
    } 
    
   } // loop on jets

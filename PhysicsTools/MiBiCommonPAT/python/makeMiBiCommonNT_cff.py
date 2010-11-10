@@ -247,7 +247,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # the MiBiNTUPLE
     process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
     process.MiBiCommonNT = process.SimpleNtuple.clone()
-    process.MiBiCommonNT.HLTTag = cms.InputTag("TriggerResults","",HLT)
+    process.MiBiCommonNT.TriggerResultTag      = cms.InputTag("TriggerResults","",HLT)
     process.MiBiCommonNT.saveGenJet            = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCPtHat           = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCTTBar           = cms.untracked.bool (False)    

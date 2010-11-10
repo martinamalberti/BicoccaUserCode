@@ -10,7 +10,8 @@ SimpleNtuple = cms.EDAnalyzer(
     #-------------------
     #### Input Tags ####
     
-    HLTTag = cms.InputTag("TriggerResults","","HLT"),
+    TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
+    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
     
     PVTag = cms.InputTag("offlinePrimaryVertices"),
     

@@ -12,6 +12,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
@@ -91,7 +92,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag EBRechitTag_;
   edm::InputTag EERechitTag_;
 
-  edm::InputTag HLTTag_;
+  edm::InputTag TriggerEventTag_;
+  edm::InputTag TriggerResultsTag_;
   
   edm::InputTag PVTag_;
   

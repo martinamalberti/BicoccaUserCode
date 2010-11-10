@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 # the MiBiNTUPLE
 process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
 process.MiBiNTUPLE = process.SimpleNtuple.clone()
-process.MiBiNTUPLE.HLTTag = cms.InputTag("TriggerResults","","HLT")
+process.MiBiNTUPLE.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 
 
 # the MiBiNTUPLE path

@@ -4,7 +4,7 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonNT_cff import *
 
 process = cms.Process("MiBiCommonNT")
 
-# the MiBiPAT
+# the MiBiNT
 makeMiBiCommonNT(process, GlobalTag="GR10_P_V11::All", HLT='HLT', MC=False)
   
 process.source.fileNames = cms.untracked.vstring(
