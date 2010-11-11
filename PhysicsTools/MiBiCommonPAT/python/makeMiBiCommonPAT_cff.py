@@ -35,7 +35,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
         SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons') ) if Filter else cms.untracked.PSet()
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -86,7 +85,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     #------------------
     #Load PAT sequences
-        
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     process.load("PhysicsTools.PatAlgos.tools.pfTools")
     postfix = "PFlow"
@@ -97,7 +95,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     process.patJets.addTagInfos = cms.bool(False)    #bugfix related to btagging
     
-    #Prepare everything for electron ID: (check https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID#How_to_Calculate_the_Electron_ID)
+        #Prepare everything for electron ID: (check https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID#How_to_Calculate_the_Electron_ID)
     
     process.load("PhysicsTools.MiBiCommonPAT.simpleEleIdSequence_cff")
     process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
@@ -304,9 +302,9 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 #        )
 
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq)
-    #process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
-    #process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq)
-    #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq)
+    process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
+    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq)
+    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq)
 
 
 #    process.MiBiScheduleJetsAK5Calo = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath)
@@ -337,4 +335,5 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         'keep *_reducedEcalRecHitsEB_*_*',             # reduced recHits Barrel
         'keep *_reducedEcalRecHitsEE_*_*'              # reduced recHits Barrel
     )
-    
+
+
