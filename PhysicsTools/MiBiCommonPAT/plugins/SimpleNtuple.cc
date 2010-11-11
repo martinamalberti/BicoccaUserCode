@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.13 2010/11/03 09:56:56 ghezzi Exp $
+// $Id: SimpleNtuple.cc,v 1.14 2010/11/10 19:00:27 abenagli Exp $
 //
 //
 
@@ -28,7 +28,8 @@
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
- 
+
+#include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 ///--------------
 ///---- ctor ----
 
@@ -128,6 +129,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("PV_nTracks"); 
    NtupleFactory_ -> AddFloat("PV_z"); 
    NtupleFactory_ -> AddFloat("PV_d0"); 
+   NtupleFactory_ -> AddFloat("PV_SumPt"); 
  }
  
  if(saveEle_)
@@ -488,9 +490,10 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
   // select the primary vertex    
   reco::Vertex PV;
   bool PVfound = (vertexes -> size() != 0);
-  
+
   if(PVfound)
   {
+    VertexHigherPtSquared vertexTool;
     // sort the primary vertices according to sum of (pt)^2 of tracks (first one -> highest  sum of (pt)^2 )        
     PrimaryVertexSorter PVSorter;
     std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
@@ -502,6 +505,7 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
       NtupleFactory_ -> FillInt  ("PV_nTracks", PV.tracksSize());
       NtupleFactory_ -> FillFloat("PV_z", PV.z());
       NtupleFactory_ -> FillFloat("PV_d0", PV.position().Rho());
+      NtupleFactory_ -> FillFloat("PV_SumPt",vertexTool.sumPtSquared(PV));
     }
     PV = sortedVertices[0];
   }
@@ -521,6 +525,7 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
     NtupleFactory_ -> FillInt  ("PV_nTracks", -1);
     NtupleFactory_ -> FillFloat("PV_z", -9999.);
     NtupleFactory_ -> FillFloat("PV_d0", -9999.);
+    NtupleFactory_ -> FillFloat("PV_SumPt",-9999.);
   }
   
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
