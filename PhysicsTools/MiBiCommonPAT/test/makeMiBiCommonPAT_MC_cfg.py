@@ -11,7 +11,7 @@ process = cms.Process("MiBiCommonPAT")
 makeMiBiCommonPAT(process, GlobalTag="START38_V12::All", MC=True, Filter=True, SavePAT=True)
 
 process.source.fileNames = cms.untracked.vstring(
-  'file:/tmp/dimatteo/Fall10_WToENu_TuneZ2_7TeV-pythia6_AODSIM_START38_V12-v1.root'
+  'file:/tmp/dimatteo/963B8D02-12E7-DF11-A8E0-003048D3E452.root'
   #'file:/gwpool/users/amassiro/VBF/Releases/CMSSW_3_8_3/src/PhysicsTools/MiBiCommonPAT/669A4128-43D0-DF11-AE93-001A92810ACE.root'  
 
 )

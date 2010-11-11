@@ -8,8 +8,8 @@ process = cms.Process("MiBiCommonNT")
 makeMiBiCommonNT(process, GlobalTag="START38_V12::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
-  'file:/gwtera5/users/data/NTUPLES/VBF/WENu_38X_AOD.root'
-  #'file:/tmp/dimatteo/Fall10_WToENu_TuneZ2_7TeV-pythia6_AODSIM_START38_V12-v1.root'
+  #'file:/gwtera5/users/data/NTUPLES/VBF/WENu_38X_AOD.root'
+  'file:/tmp/amassiro/963B8D02-12E7-DF11-A8E0-003048D3E452.root'
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/FA4BFB16-7AD3-DF11-AD7C-0019B9F72BFF.root',
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/F023A43C-83D3-DF11-9EC7-001D09F24047.root',
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/E6DEB3D2-81D3-DF11-82A4-001D09F297EF.root',
@@ -18,8 +18,8 @@ process.source.fileNames = cms.untracked.vstring(
 
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.TFileService = cms.Service(
     "TFileService", 
