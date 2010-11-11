@@ -33,7 +33,7 @@ SimpleNtuple = cms.EDAnalyzer(
         'simpleEleId80cIso',
         'simpleEleId70cIso',
         'simpleEleId60cIso'
-            ),
+        ),
     
     #### photons ####
     PhotonTag             = cms.InputTag("patPhotons"),

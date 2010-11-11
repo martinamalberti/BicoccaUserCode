@@ -80,6 +80,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.patJets.addTagInfos = cms.bool(False)    #bugfix related to btagging
     
     process.load("PhysicsTools.MiBiCommonPAT.simpleEleIdSequence_cff")
+    
     process.patElectrons.addElectronID = cms.bool(True)
     process.patElectrons.electronIDSources = cms.PSet(
       simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
@@ -95,6 +96,23 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
       simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
       simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
     )
+
+    process.patElectronsPFlow.addElectronID = cms.bool(True)
+    process.patElectronsPFlow.electronIDSources = cms.PSet(
+      simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
+      simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
+      simpleEleId85relIso= cms.InputTag("simpleEleId85relIso"),
+      simpleEleId80relIso= cms.InputTag("simpleEleId80relIso"),
+      simpleEleId70relIso= cms.InputTag("simpleEleId70relIso"),
+      simpleEleId60relIso= cms.InputTag("simpleEleId60relIso"),
+      simpleEleId95cIso= cms.InputTag("simpleEleId95cIso"),
+      simpleEleId90cIso= cms.InputTag("simpleEleId90cIso"),
+      simpleEleId85cIso= cms.InputTag("simpleEleId85cIso"),
+      simpleEleId80cIso= cms.InputTag("simpleEleId80cIso"),
+      simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
+      simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
+    )
+    
     process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
     process.makePatElectrons = cms.Sequence(
       process.patElectronIDs*
@@ -102,6 +120,15 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
       process.electronMatch*
       process.patElectrons
     )
+    
+    process.patElectronIDsPFlow = cms.Sequence(process.simpleEleIdSequence)
+    process.makePatElectronsPFlow = cms.Sequence(
+      process.patElectronIDsPFlow*
+      process.patElectronIsolation*
+      process.electronMatchPFlow*
+      process.patElectronsPFlow
+    )
+     
     if not MC:
         process.makePatElectrons.remove(process.electronMatch)
 
@@ -305,14 +332,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.EleTag    = cms.InputTag("patElectronsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag    = cms.InputTag("patJetsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.MetTag    = cms.InputTag("patMETsPFlow")
-    process.MiBiCommonNTOneLeptonTwoJetsPFlow.EleID_names = cms.vstring(
-    #'eidLoose',
-    #'eidRobustHighEnergy', 
-    #'eidRobustLoose',
-    #'eidRobustTight',
-    #'eidTight',
-    'pf_evspi',
-    'pf_evsmu')
     
     process.MiBiCommonNTTwoPhotons = process.MiBiCommonNT.clone()
     process.MiBiCommonNTTwoPhotons.JetTag = cms.InputTag("patJetsAK5PF")
