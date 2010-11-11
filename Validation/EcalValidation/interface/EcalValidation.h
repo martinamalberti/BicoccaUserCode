@@ -355,6 +355,9 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EE_eta;
 	 TH1D *h_superClusters_EB_phi;
 	 TH1D *h_superClusters_EE_phi;
+         
+         TH2D *h2_superClusters_EB_seedTimeVsEnergy;
+         TH2D *h2_superClusters_EE_seedTimeVsEnergy;
 	 
 	 
 	 // PRESHOWER ----------------------------------------------

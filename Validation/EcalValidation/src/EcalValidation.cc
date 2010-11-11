@@ -380,7 +380,10 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EE_eta     = fs->make<TH1D>("h_superClusters_EE_eta","h_superClusters_EE_eta",150,-3.,3.);
   h_superClusters_EB_phi     = fs->make<TH1D>("h_superClusters_EB_phi","h_superClusters_EB_phi",360,-3.1415927,3.1415927);
   h_superClusters_EE_phi     = fs->make<TH1D>("h_superClusters_EE_phi","h_superClusters_EE_phi",360,-3.1415927,3.1415927);
-
+  
+  h2_superClusters_EB_seedTimeVsEnergy = fs->make<TH2D>("h2_superClusters_EB_seedTimeVsEnergy","h2_superClusters_EB_seedTimeVsEnergy",2000,0.,400.,400,-100.,100.);
+  h2_superClusters_EE_seedTimeVsEnergy = fs->make<TH2D>("h2_superClusters_EE_seedTimeVsEnergy","h2_superClusters_EE_seedTimeVsEnergy",2000,0.,400.,400,-100.,100.);
+  
   // preshower
   h_recHits_ES_size           = fs->make<TH1D>("h_recHits_ES_size","h_recHits_ES_size",1000,0.,10000);
   h_recHits_ES_size_F[0]      = fs->make<TH1D>("h_recHits_ES_size_F+","h_recHits_ES_size_F+",1000,0.,10000);
@@ -1044,6 +1047,12 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     if ( E1 > 3. ) h_superClusters_EB_E1oE9  -> Fill( E1/E9 );
     if ( E1 > 3. ) h_superClusters_EB_E1oE4  -> Fill( 1.- E4/E1);
 
+    //Now get the seed:
+    DetId theSeedIdEB = EcalClusterTools::getMaximum( (*itSC).hitsAndFractions(), theBarrelEcalRecHits ).first;
+    EcalRecHitCollection::const_iterator theSeedEB = theBarrelEcalRecHits->find (theSeedIdEB) ;
+    
+    //Fill plots for SCL seed
+    h2_superClusters_EB_seedTimeVsEnergy -> Fill ( theSeedEB->energy(), theSeedEB->time() );
 
     if ( (1.- E4/E1) > 0.95  && E1 > 3. ) continue;
     
@@ -1086,6 +1095,14 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
                EcalClusterTools::eRight( *itSC, theEndcapEcalRecHits, topology)+
                EcalClusterTools::eBottom( *itSC, theEndcapEcalRecHits, topology)+
                EcalClusterTools::eLeft( *itSC, theEndcapEcalRecHits, topology);
+    
+    //Now get the seed:
+    DetId theSeedIdEE = EcalClusterTools::getMaximum( (*itSC).hitsAndFractions(), theEndcapEcalRecHits ).first;
+    EcalRecHitCollection::const_iterator theSeedEE = theEndcapEcalRecHits->find (theSeedIdEE) ;
+    
+    //Fill plots for SCL seed
+    h2_superClusters_EE_seedTimeVsEnergy -> Fill ( theSeedEE->energy(), theSeedEE->time() );
+
 
     if  ( itSC -> z() > 0 ){
       h_superClusters_EEP_nXtals -> Fill( (*itSC).hitsAndFractions().size() );
