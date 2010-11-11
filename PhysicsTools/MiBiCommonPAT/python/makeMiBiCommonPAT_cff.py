@@ -34,8 +34,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
         outputCommands = cms.untracked.vstring(),
-        #SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons') ) if Filter else cms.untracked.PSet()
-        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF') ) if Filter else cms.untracked.PSet()
+        SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('MiBiPathAK5PF','MiBiPathAK5Calo', 'MiBiPathPFlow', 'MiBiPathPhotons') ) if Filter else cms.untracked.PSet()
         )
 
     if SavePAT :
@@ -86,7 +85,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     #------------------
     #Load PAT sequences
-        
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     process.load("PhysicsTools.PatAlgos.tools.pfTools")
     postfix = "PFlow"
@@ -97,36 +95,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     process.patJets.addTagInfos = cms.bool(False)    #bugfix related to btagging
     
-    #Prepare everything for electron ID: (check https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID#How_to_Calculate_the_Electron_ID)
     
-    process.load("PhysicsTools.MiBiCommonPAT.simpleEleIdSequence_cff")
-    process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
-
-    process.patElectrons.addElectronID = cms.bool(True)
-    process.patElectrons.electronIDSources = cms.PSet(
-      simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
-      simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
-      simpleEleId85relIso= cms.InputTag("simpleEleId85relIso"),
-      simpleEleId80relIso= cms.InputTag("simpleEleId80relIso"),
-      simpleEleId70relIso= cms.InputTag("simpleEleId70relIso"),
-      simpleEleId60relIso= cms.InputTag("simpleEleId60relIso"),
-      simpleEleId95cIso= cms.InputTag("simpleEleId95cIso"),
-      simpleEleId90cIso= cms.InputTag("simpleEleId90cIso"),
-      simpleEleId85cIso= cms.InputTag("simpleEleId85cIso"),
-      simpleEleId80cIso= cms.InputTag("simpleEleId80cIso"),
-      simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
-      simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
-    )
-    process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
-    process.makePatElectrons = cms.Sequence(
-      process.patElectronIDs*
-      process.patElectronIsolation*
-      process.electronMatch*
-      process.patElectrons
-    )
-    if not MC:
-        process.makePatElectrons.remove(process.electronMatch)
-
     
     # ---------------
     # add collections
@@ -200,7 +169,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         process.primaryVertexFilter *
         process.GoodVtxEvents * # -> Counter
         getattr(process,"patPF2PATSequence"+postfix) *
-        #process.makePatElectrons* # -> EleID + EleIso + PatEle
         process.patDefaultSequence
     )
     
@@ -304,9 +272,9 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
 #        )
 
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq)
-    #process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
-    #process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq)
-    #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq)
+    process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
+    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq)
+    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq)
 
 
 #    process.MiBiScheduleJetsAK5Calo = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath)
@@ -337,4 +305,3 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         'keep *_reducedEcalRecHitsEB_*_*',             # reduced recHits Barrel
         'keep *_reducedEcalRecHitsEE_*_*'              # reduced recHits Barrel
     )
-    
