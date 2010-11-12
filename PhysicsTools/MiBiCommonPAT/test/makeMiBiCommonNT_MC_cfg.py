@@ -4,12 +4,13 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonNT_cff import *
 
 process = cms.Process("MiBiCommonNT")
 
-# the MiBiNT
+# the MiBiNT: Choose the MC type!!!
+# Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, Other
 makeMiBiCommonNT(process, GlobalTag="START38_V12::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
   #'file:/gwtera5/users/data/NTUPLES/VBF/WENu_38X_AOD.root'
-  'file:/tmp/amassiro/963B8D02-12E7-DF11-A8E0-003048D3E452.root'
+  'file:/tmp/dimatteo/963B8D02-12E7-DF11-A8E0-003048D3E452.root'
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/FA4BFB16-7AD3-DF11-AD7C-0019B9F72BFF.root',
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/F023A43C-83D3-DF11-9EC7-001D09F24047.root',
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/E6DEB3D2-81D3-DF11-82A4-001D09F297EF.root',
