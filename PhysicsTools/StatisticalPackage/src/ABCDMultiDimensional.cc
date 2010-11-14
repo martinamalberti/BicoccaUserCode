@@ -67,6 +67,8 @@ std::vector<std::string> ABCDMultiDimensional::OppositeSign(const std::vector<st
   if ((*it) == ">") newVect.push_back("<=");
   if ((*it) == "<=") newVect.push_back(">");
   if ((*it) == ">=") newVect.push_back("<");
+  if ((*it) == "==") newVect.push_back("!=");
+  if ((*it) == "!=") newVect.push_back("==");
  }
  return newVect;
 }
@@ -119,13 +121,9 @@ void ABCDMultiDimensional::CreateHisto()
   tree_in_->SetEntryList(0); 
   tree_in_->Draw(">> myList",General_Cut.Data(),"entrylist");
   TEntryList *myList = (TEntryList*) gDirectory->Get("myList");
-//   std::cout << " myList = " << myList << std::endl;
   int num = myList->GetN();
 //   tree_in_->SetEntryList(myList); 
-  
-//   int num = tree_in_->GetEntries();
-  
-  std::cerr << " num[" << vRegionName.at(itRegion) << "] = " << num << std::endl;
+//   std::cerr << " num[" << vRegionName.at(itRegion) << "] = " << num << std::endl;
   
   if (itRegion == 0) for (int ntr = 0; ntr < num; ntr++) Htemp->Fill(0.5,0.5);
   if (itRegion == 1) for (int ntr = 0; ntr < num; ntr++) Htemp->Fill(0.5,1.5);

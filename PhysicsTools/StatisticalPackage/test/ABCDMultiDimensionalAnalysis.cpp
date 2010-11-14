@@ -118,12 +118,14 @@ int main(int argc, char** argv)
    }
    if (buffer!="" && (flagX == 1 && flagY == 1) && buffer!="[General_Cut]" && flagGC == 0)
    {
-    line >> stringA;
-    line >> MinMaj;
-    line >> doubleA;
-    VarY.push_back(stringA);
-    CutY.push_back(doubleA);
-    vMinMajY.push_back(MinMaj);
+    if (buffer.at(0) != '#'){
+     line >> stringA;
+     line >> MinMaj;
+     line >> doubleA;
+     VarY.push_back(stringA);
+     CutY.push_back(doubleA);
+     vMinMajY.push_back(MinMaj);
+    }
    }
    if (buffer != "" && flagGC == 1)
    { 
@@ -229,6 +231,9 @@ int main(int argc, char** argv)
  std::string C = "C";
  std::string D = "D";
 
+ 
+ std::map <std::string , std::vector < double > > resultsABCD_allBackground;
+ 
  for(int i=0;i<Signal_Background.size();i++)
  { 
    outFileTemp->cd();
@@ -260,6 +265,14 @@ int main(int argc, char** argv)
    double True_EventsB = lum * XSection * preselection_efficiency * (EndB/numEntriesBefore);
    double True_EventsC = lum * XSection * preselection_efficiency * (EndC/numEntriesBefore);
    double True_EventsD = lum * XSection * preselection_efficiency * (EndD/numEntriesBefore);
+   
+   std::vector < double > resultsABCD;
+//    resultsABCD.push_back(True_EventsA - True_EventsB * True_EventsC / True_EventsD);
+   resultsABCD.push_back(True_EventsA);
+   resultsABCD.push_back(True_EventsB);
+   resultsABCD.push_back(True_EventsC);
+   resultsABCD.push_back(True_EventsD);
+   resultsABCD_allBackground [ NameObject[i] ] = resultsABCD;
    
    TString NameHisto = Form("%s",NameObject[i].c_str());
    
@@ -307,7 +320,19 @@ int main(int argc, char** argv)
    Kolmogorov_pBD->SetFillColor(Color[i]);
    Kolmogorov_pBD->SetLineColor(Color[i]);
    
-//    std::cout << " bin = " << Kolmogorov_pAB->GetNbinsX() << " " << Kolmogorov_pCD->GetNbinsX() << " " << Kolmogorov_pAC->GetNbinsX() << " " << Kolmogorov_pBD->GetNbinsX() << std::endl;
+   //    std::cout << " bin = " << Kolmogorov_pAB->GetNbinsX() << " " << Kolmogorov_pCD->GetNbinsX() << " " << Kolmogorov_pAC->GetNbinsX() << " " << Kolmogorov_pBD->GetNbinsX() << std::endl;
+   Kolmogorov_pAB->GetXaxis()->SetBinLabel(1,"A");
+   Kolmogorov_pAB->GetXaxis()->SetBinLabel(2,"B");
+   
+   Kolmogorov_pCD->GetXaxis()->SetBinLabel(1,"C");
+   Kolmogorov_pCD->GetXaxis()->SetBinLabel(2,"D");
+   
+   Kolmogorov_pAC->GetXaxis()->SetBinLabel(1,"A");
+   Kolmogorov_pAC->GetXaxis()->SetBinLabel(2,"C");
+   
+   Kolmogorov_pBD->GetXaxis()->SetBinLabel(1,"B");
+   Kolmogorov_pBD->GetXaxis()->SetBinLabel(2,"D");
+   
    hsKolmogorov_pAB->Add(Kolmogorov_pAB);
    hsKolmogorov_pCD->Add(Kolmogorov_pCD);
    hsKolmogorov_pAC->Add(Kolmogorov_pAC);
@@ -355,6 +380,7 @@ int main(int argc, char** argv)
  gStyle->SetOptStat(0); 
  gPad->SetGrid();
  c_AB->Write();
+ hsKolmogorov_pAB->Write(); 
  
  TCanvas* c_CD = new TCanvas("c_CD","c_CD",1);
  hsKolmogorov_pCD->Draw();
@@ -363,6 +389,7 @@ int main(int argc, char** argv)
  gStyle->SetOptStat(0); 
  gPad->SetGrid();
  c_CD->Write();
+ hsKolmogorov_pCD->Write();
  
  TCanvas* c_AC = new TCanvas("c_AC","c_AC",1);
  hsKolmogorov_pAC->Draw();
@@ -371,6 +398,7 @@ int main(int argc, char** argv)
  gStyle->SetOptStat(0); 
  gPad->SetGrid();
  c_AC->Write();
+ hsKolmogorov_pAC->Write();
  
  TCanvas* c_BD = new TCanvas("c_BD","c_BD",1);
  hsKolmogorov_pBD->Draw();
@@ -379,7 +407,8 @@ int main(int argc, char** argv)
  gStyle->SetOptStat(0); 
  gPad->SetGrid();
  c_BD->Write();
-  
+ hsKolmogorov_pBD->Write();
+ 
  
  /** Distribution of the relative frequency of the chosen background in the ABCD regions*/
  
@@ -410,6 +439,37 @@ int main(int argc, char** argv)
  leg->Draw();
  cHstack->Write();
 
+ 
+ ///* Results ABCD for each background */
+ int counter = 0;
+ TH1F* hABCD = new TH1F("hABCD","hABCD",resultsABCD_allBackground.size(),0,resultsABCD_allBackground.size());
+ TH1F* hABCD_A = new TH1F("hABCD_A","hABCD_A",resultsABCD_allBackground.size(),0,resultsABCD_allBackground.size());
+ TH1F* hABCD_B = new TH1F("hABCD_B","hABCD_B",resultsABCD_allBackground.size(),0,resultsABCD_allBackground.size());
+ TH1F* hABCD_C = new TH1F("hABCD_C","hABCD_C",resultsABCD_allBackground.size(),0,resultsABCD_allBackground.size());
+ TH1F* hABCD_D = new TH1F("hABCD_D","hABCD_D",resultsABCD_allBackground.size(),0,resultsABCD_allBackground.size());
+ for (std::map <std::string , std::vector < double > >::const_iterator it = resultsABCD_allBackground.begin(); it != resultsABCD_allBackground.end(); ++it)
+ {
+  counter++;
+  hABCD_A->SetBinContent(counter, it->second[0]);
+  hABCD_B->SetBinContent(counter, it->second[1]);
+  hABCD_C->SetBinContent(counter, it->second[2]);
+  hABCD_D->SetBinContent(counter, it->second[3]);
+  if (it->second[0] != 0 &&  it->second[1] != 0 &&  it->second[2] != 0 &&  it->second[3] != 0) hABCD->SetBinContent(counter, ( it->second[0] - it->second[1] * it->second[2] / it->second[3]) / it->second[0]);
+  hABCD->GetXaxis()->SetBinLabel(counter ,it->first.c_str());
+  hABCD_A->GetXaxis()->SetBinLabel(counter ,it->first.c_str());
+  hABCD_B->GetXaxis()->SetBinLabel(counter ,it->first.c_str());
+  hABCD_C->GetXaxis()->SetBinLabel(counter ,it->first.c_str());
+  hABCD_D->GetXaxis()->SetBinLabel(counter ,it->first.c_str());
+  std::cout << " [" << counter << "] = " << it->first.c_str() << std::endl;
+ }
+ hABCD->Write();
+ hABCD_A->Write();
+ hABCD_B->Write();
+ hABCD_C->Write();
+ hABCD_D->Write();
+ 
+ 
+ 
  output.Write();
  
  end = clock();
