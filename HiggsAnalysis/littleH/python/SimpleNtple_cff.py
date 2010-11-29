@@ -218,7 +218,7 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePA
     process.TriggerResults = process.HLTrigResultsDumper.clone()
     process.TriggerResults.HLTriggerResults = cms.InputTag("TriggerResults","",HLT)
     process.TriggerResults.HLTPaths = cms.vstring(
-
+        #DiMuon Analysis HLTs
         "HLT_DoubleMu0_Quarkonium_v1",
         "HLT_Mu0_TkMu0_OST_Jpsi_Tight_v2",
         "HLT_Mu3_TkMu0_OST_Jpsi_Tight_v2",
@@ -226,7 +226,11 @@ def makeSimpleNtple(process, GlobalTag, MC=False, HLT='HLT', Filter=True, SavePA
         "HLT_Mu3_Track5_Jpsi_v2",
         "HLT_Mu5_L2Mu0",
         "HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1",
-        "HLT_Mu5_Track0_Jpsi"
+        "HLT_Mu5_Track0_Jpsi",
+        #DiEle Analysis HLTs
+        'HLT_DoublePhoton4_eeRes_L1R',
+        'HLT_DoubleEle4_SW_eeRes_L1R',
+        'HLT_DoubleEle5_SW_Upsilon_L1R_v1'
                                 
     )   # provide list of HLT paths (or patterns) you want
 
