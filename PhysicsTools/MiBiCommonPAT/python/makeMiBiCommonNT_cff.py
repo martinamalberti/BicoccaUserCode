@@ -131,6 +131,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
      
     if not MC:
         process.makePatElectrons.remove(process.electronMatch)
+        process.makePatElectronsPFlow.remove(process.electronMatchPFlow)
 
 
     
@@ -269,24 +270,24 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.PhotonsFilterEvents = process.AllPassFilter.clone()
     
     process.OneLeptonTwoJetsAK5CaloSeq = cms.Sequence(
-        process.LeptonsFilter*
-        process.LeptonsFilterEvents*
+        #process.LeptonsFilter*
+        #process.LeptonsFilterEvents*
         process.JetFilterAK5Calo*
         process.JetFilterAK5CaloEvents
        )
 
     
     process.OneLeptonTwoJetsAK5PFSeq = cms.Sequence(
-        process.LeptonsFilter*
-        process.LeptonsFilterEvents*
+        #process.LeptonsFilter*
+        #process.LeptonsFilterEvents*
         process.JetFilterAK5PF*
         process.JetFilterAK5PFEvents
         )
     
     
     process.OneLeptonTwoJetsPFlowSeq = cms.Sequence(
-        process.LeptonsFilterPFlow*
-        process.LeptonsFilterPFlowEvents*
+        #process.LeptonsFilterPFlow*
+        #process.LeptonsFilterPFlowEvents*
         process.JetFilterPFlow*
         process.JetFilterPFlowEvents
         )
@@ -339,5 +340,5 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
     process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5Calo)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
-    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
+    #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
 
