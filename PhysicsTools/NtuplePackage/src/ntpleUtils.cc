@@ -180,6 +180,39 @@ int getJV(std::vector<ROOT::Math::XYZTVector>& jets,
  
 }
 
+
+//  ------------------------------------------------------------
+
+/** Electron isolation */
+
+bool IsEleIsolated( treeReader& reader,const std::vector<double>& BarrelSelections, const std::vector<double>& EndCapSelections, int iEle){
+ 
+ bool skipEle;
+ 
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_tkIsoR03")->at(iEle) > BarrelSelections.at(0)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_emIsoR03")->at(iEle) > BarrelSelections.at(1)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && (reader.GetFloat("electrons_hadIsoR03_depth1")->at(iEle) + reader.GetFloat("electrons_hadIsoR03_depth2")->at(iEle))/reader.Get4V("electrons")->at(iEle).pt() > BarrelSelections.at(2)) skipEle = true;      
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && (reader.GetFloat("electrons_tkIsoR03")->at(iEle) + reader.GetFloat("electrons_emIsoR03")->at(iEle) + reader.GetFloat("electrons_hadIsoR03_depth1")->at(iEle) + reader.GetFloat("electrons_hadIsoR03_depth2")->at(iEle))/reader.Get4V("electrons")->at(iEle).pt() > BarrelSelections.at(3)) skipEle = true;
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_hOverE")->at(iEle) > BarrelSelections.at(4)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_sigmaIetaIeta")->at(iEle) > BarrelSelections.at(5)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_deltaPhiIn")->at(iEle) > BarrelSelections.at(6)) skipEle = true;
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_deltaEtaIn")->at(iEle) > BarrelSelections.at(7)) skipEle = true;
+ 
+ 
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_tkIsoR03")->at(iEle) > EndCapSelections.at(0)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_emIsoR03")->at(iEle) > EndCapSelections.at(1)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && (reader.GetFloat("electrons_hadIsoR03_depth1")->at(iEle) + reader.GetFloat("electrons_hadIsoR03_depth2")->at(iEle))/reader.Get4V("electrons")->at(iEle).pt() > EndCapSelections.at(2)) skipEle = true;      
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && (reader.GetFloat("electrons_tkIsoR03")->at(iEle) + reader.GetFloat("electrons_emIsoR03")->at(iEle) + reader.GetFloat("electrons_hadIsoR03_depth1")->at(iEle) + reader.GetFloat("electrons_hadIsoR03_depth2")->at(iEle))/reader.Get4V("electrons")->at(iEle).pt() > EndCapSelections.at(3)) skipEle = true;
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_hOverE")->at(iEle) > EndCapSelections.at(4)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_sigmaIetaIeta")->at(iEle) > EndCapSelections.at(5)) skipEle = true;    
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_deltaPhiIn")->at(iEle) > EndCapSelections.at(6)) skipEle = true;
+ if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_deltaEtaIn")->at(iEle) > EndCapSelections.at(7)) skipEle = true;
+ 
+ return skipEle;
+ 
+}
+
+
 //  ------------------------------------------------------------
 
 int getZepp(std::vector<ROOT::Math::XYZTVector>& jets,

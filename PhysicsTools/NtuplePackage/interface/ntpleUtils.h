@@ -11,6 +11,8 @@
 #include <utility>
 
 
+#include "treeReader.h"
+
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -151,6 +153,11 @@ int GetMatching(const std::vector<T1>& collection1, //---- RECO
   return nMatching;
 }
 
+
+
+/** Electron isolation */
+
+bool IsEleIsolated( treeReader& reader,const std::vector<double>& BarrelSelections, const std::vector<double>& EndCapSelections, int iEle);
 
 
 /** Zeppenfeld Jet Veto */
