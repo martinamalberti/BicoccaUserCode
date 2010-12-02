@@ -5,6 +5,7 @@ process = cms.Process("TEST")
 process.inputTree = cms.PSet(
   nameTree = cms.string("ntupleEcalAlignment/myTree"),
   selection = cms.string("(eleFBrem<0.8)"),
+#  selection = cms.string("(eleFBrem<0.3)"),
 #  selection = cms.string("(eleFBrem<0.8&&eleCharge>0)"),
 #  selection = cms.string("(eleFBrem<0.8&&eleCharge<0)"),
  # selection = cms.string("1"),
@@ -22,6 +23,7 @@ process.inputTree = cms.PSet(
 
 process.outputTree = cms.PSet(
   outputFile = cms.string("myEBAlignment_2010.txt")
+#  outputFile = cms.string("myEBAlignment_2010_TightFbrem.txt")
 #  outputFile = cms.string("myEBAlignment_2010_Plus.txt")
   #outputFile = cms.string("myEBAlignment_2010_Minus.txt")
 )

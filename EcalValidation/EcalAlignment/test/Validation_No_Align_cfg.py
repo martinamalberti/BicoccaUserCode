@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -54,10 +54,10 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'GR10_P_V11::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
 
 process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("EcalIntercalibConstantsRcd"),
+      cms.PSet(record = cms.string("EcalIntercalibConstantsRcd"),
              tag = cms.string("EcalIntercalibConstants_Bon_V20100803"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
              ),
@@ -73,9 +73,17 @@ process.GlobalTag.toGet = cms.VPSet(
              tag = cms.string("EEAlignment_measured_v04_offline"),
              connect = cms.untracked.string("sqlite_file:EEAlign_2010_NoAlign.db")  #### New ####
              ),
-    cms.PSet(record = cms.string("ESAlignmentRcd"),
+   cms.PSet(record = cms.string("ESAlignmentRcd"),
              tag = cms.string("ESAlignment_measured_v01_offline"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
+             ),
+    cms.PSet(record = cms.string("EcalLaserAlphasRcd"),
+             tag = cms.string("EcalLaserAlphas_test_prompt"),
+             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
+             ),
+    cms.PSet(record = cms.string("EcalLaserAPDPNRatiosRcd"),
+             tag = cms.string("EcalLaserAPDPNRatios_v0_online"),
+             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
              ),
     cms.PSet(record = cms.string("GlobalPositionRcd"),
              tag = cms.string("GlobalAlignment_v2_offline"),
@@ -88,9 +96,35 @@ process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
              tag = cms.string("TrackerAlignmentErrors_GR10_v2_offline"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
-             ),
+             )
     )
 
+process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(2),
+        authenticationPath = cms.untracked.string('/path/to/authentication') ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('frontier://PromptProd/CMS_COND_31X_STRIP'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('SiStripConfObjectRcd'),
+        tag = cms.string('SiStripShiftAndCrosstalk_GR10_v2_offline') )))
+process.es_prefer_BP = cms.ESPrefer('PoolDBESSource','poolDBESSource2')
+
+  
+process.poolDBESSource1 = cms.ESSource("PoolDBESSource",
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(2),
+        authenticationPath = cms.untracked.string('/path/to/authentication') ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('frontier://PromptProd/CMS_COND_31X_STRIP'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('SiStripLorentzAngleRcd'),
+        tag = cms.string('SiStripLorentzAngle_GR10_v2_offline') )))
+process.es_prefer_LA = cms.ESPrefer('PoolDBESSource','poolDBESSource1')
+    
+    
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
