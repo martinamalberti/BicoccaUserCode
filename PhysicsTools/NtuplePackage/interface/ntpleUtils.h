@@ -155,9 +155,12 @@ int GetMatching(const std::vector<T1>& collection1, //---- RECO
 
 
 
-/** Electron isolation */
+/** Electron isolation / ID */
+bool IsEleIsolatedID( treeReader& reader,const std::vector<double>& BarrelSelections, const std::vector<double>& EndCapSelections, int iEle);
 
-bool IsEleIsolated( treeReader& reader,const std::vector<double>& BarrelSelections, const std::vector<double>& EndCapSelections, int iEle);
+/** Muon isolation  / ID */
+bool IsMuIsolatedID( treeReader& reader,const std::vector<double>& Selections, int iMu);
+
 
 
 /** Zeppenfeld Jet Veto */

@@ -183,11 +183,11 @@ int getJV(std::vector<ROOT::Math::XYZTVector>& jets,
 
 //  ------------------------------------------------------------
 
-/** Electron isolation */
+/** Electron isolation / ID */
 
-bool IsEleIsolated( treeReader& reader,const std::vector<double>& BarrelSelections, const std::vector<double>& EndCapSelections, int iEle){
+bool IsEleIsolatedID( treeReader& reader,const std::vector<double>& BarrelSelections, const std::vector<double>& EndCapSelections, int iEle){
  
- bool skipEle;
+ bool skipEle = false;
  
  if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_tkIsoR03")->at(iEle) > BarrelSelections.at(0)) skipEle = true;    
  if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) < 1.5) && reader.GetFloat("electrons_emIsoR03")->at(iEle) > BarrelSelections.at(1)) skipEle = true;    
@@ -208,10 +208,32 @@ bool IsEleIsolated( treeReader& reader,const std::vector<double>& BarrelSelectio
  if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_deltaPhiIn")->at(iEle) > EndCapSelections.at(6)) skipEle = true;
  if ((fabs(reader.Get4V("electrons")->at(iEle).Eta()) > 1.5) && reader.GetFloat("electrons_deltaEtaIn")->at(iEle) > EndCapSelections.at(7)) skipEle = true;
  
- return skipEle;
+ return (!skipEle);
  
 }
 
+
+//  ------------------------------------------------------------
+
+/** Muon isolation / ID */
+
+bool IsMuIsolatedID( treeReader& reader,const std::vector<double>& Selections, int iMu){
+ 
+ bool skipMu;
+ 
+ if ( (reader.GetFloat("muons_tkIsoR03")->at(iMu) + reader.GetFloat("muons_emIsoR03")->at(iMu) + reader.GetFloat("muons_hadIsoR03")->at(iMu)) / reader.Get4V("muons")->at(iMu).pt() > Selections.at(0) ) skipMu = true;
+ 
+ if (reader.GetFloat("muons_normalizedChi2")->at(iMu) >= Selections.at(1) )           skipMu = true;
+ if (reader.GetInt("muons_numberOfValidTrackerHits")->at(iMu) <= Selections.at(2) )  skipMu = true;
+ if (reader.GetInt("muons_numberOfValidMuonHits")->at(iMu) == Selections.at(3)  )     skipMu = true;
+ 
+ if (reader.GetInt("muons_tracker")->at(iMu) == Selections.at(4)  )     skipMu = true;
+ if (reader.GetInt("muons_standalone")->at(iMu) == Selections.at(5)  )     skipMu = true;
+ if (reader.GetInt("muons_global")->at(iMu) == Selections.at(6)  )     skipMu = true;
+ if (reader.GetInt("muons_goodMuon")->at(iMu) == Selections.at(7)  )     skipMu = true;
+  
+ return (!skipMu);
+}
 
 //  ------------------------------------------------------------
 
