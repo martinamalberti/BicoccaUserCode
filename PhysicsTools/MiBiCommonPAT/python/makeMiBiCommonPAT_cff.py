@@ -146,7 +146,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5Calo",
+            jetIdLabel   = "ak5"
             )
         
         addJetCollection(
@@ -162,7 +162,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5PF",
+            jetIdLabel   = "ak5"
             )
             
                 
@@ -180,7 +180,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5Calo",
+            jetIdLabel   = "ak5"
             )
         
         addJetCollection(
@@ -196,7 +196,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5PF",
+            jetIdLabel   = "ak5"
             )
     
         

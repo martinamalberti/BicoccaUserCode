@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.14 2010/11/10 19:00:27 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.15 2010/11/11 13:40:53 ghezzi Exp $
 //
 //
 
@@ -253,6 +253,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddFloat("jets_corrFactor_off");   
    NtupleFactory_->AddFloat("jets_corrFactor_rel");   
    NtupleFactory_->AddFloat("jets_corrFactor_abs");   
+   NtupleFactory_->AddFloat("jets_corrFactor_res");   
    
    for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ ) {
     NtupleFactory_->AddFloat(*iBTag);
@@ -798,10 +799,55 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> Fill4V   ("jets",jet.p4());
   NtupleFactory_ -> FillFloat("jets_charge",jet.charge());
   
-  NtupleFactory_ -> FillFloat("jets_corrFactor_raw",jet.corrFactor("raw"));
-  NtupleFactory_ -> FillFloat("jets_corrFactor_off",jet.corrFactor("off"));
-  NtupleFactory_ -> FillFloat("jets_corrFactor_rel",jet.corrFactor("rel"));
-  NtupleFactory_ -> FillFloat("jets_corrFactor_abs",jet.corrFactor("abs"));
+  
+  // jet energy corrections
+  bool isUncorrectedLevelFound = false;
+  bool isL1OffsetLevelFound = false;
+  bool isL2RelativeLevelFound = false;
+  bool isL3AbsoluteLevelFound = false;
+  bool isL2L3ResidualLevelFound = false;
+  
+  std::vector<std::string> jecLevels = jet.availableJECLevels();
+  for(unsigned int kk = 0; kk < jecLevels.size(); ++kk)
+  {
+    if(jecLevels.at(kk) == "Uncorrected")
+    {
+      NtupleFactory_ -> FillFloat("jets_corrFactor_raw",jet.jecFactor("Uncorrected"));
+      isUncorrectedLevelFound = true;
+    }
+    
+    if(jecLevels.at(kk) == "L1Offset")
+    {
+      NtupleFactory_ -> FillFloat("jets_corrFactor_off",jet.jecFactor("L1Offset"));
+      isL1OffsetLevelFound = true;
+    }
+    
+    if(jecLevels.at(kk) == "L2Relative")
+    {
+      NtupleFactory_ -> FillFloat("jets_corrFactor_rel",jet.jecFactor("L2Relative"));
+      isL2RelativeLevelFound = true;
+    }
+    
+    if(jecLevels.at(kk) == "L3Absolute")
+    {
+      NtupleFactory_ -> FillFloat("jets_corrFactor_abs",jet.jecFactor("L3Absolute"));
+      isL3AbsoluteLevelFound = true;
+    }
+    
+    if(jecLevels.at(kk) == "L2L3Residual")
+    {
+      NtupleFactory_ -> FillFloat("jets_corrFactor_res",jet.jecFactor("L2L3Residual"));
+      isL2L3ResidualLevelFound = true;
+    }
+  }
+  
+  if(isUncorrectedLevelFound == false)  NtupleFactory_ -> FillFloat("jets_corrFactor_raw", -1.);
+  if(isL1OffsetLevelFound == false)     NtupleFactory_ -> FillFloat("jets_corrFactor_off", -1.);
+  if(isL2RelativeLevelFound == false)   NtupleFactory_ -> FillFloat("jets_corrFactor_rel", -1.);
+  if(isL3AbsoluteLevelFound == false)   NtupleFactory_ -> FillFloat("jets_corrFactor_abs", -1.);
+  if(isL2L3ResidualLevelFound == false) NtupleFactory_ -> FillFloat("jets_corrFactor_res", -1.);
+  
+  
   
   //==== jet b tagging
   for( std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); iBTag++ )

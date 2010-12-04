@@ -154,7 +154,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5Calo",
+            jetIdLabel   = "ak5"
             )
             
         addJetCollection(
@@ -170,7 +170,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5PF",
+            jetIdLabel   = "ak5"
             )
 
     
@@ -188,7 +188,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5Calo",
+            jetIdLabel   = "ak5"
             )
             
         addJetCollection(
@@ -204,7 +204,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             doL1Counters = False,
             genJetCollection=cms.InputTag("ak5GenJets"),
             doJetID      = True,
-            jetIdLabel   = "ak5PF",
+            jetIdLabel   = "ak5"
             )        
             
 
