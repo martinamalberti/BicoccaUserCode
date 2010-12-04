@@ -131,39 +131,75 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     addTcMET(process, 'TC')
     addPfMET(process, 'PF')
     
-    addJetCollection(
-        process,
-        cms.InputTag('ak5CaloJets'),
-        'AK5',
-        'Calo',
-        doJTA        = True,
-        doBTagging   = True,
-        jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
-        doType1MET   = True,
-        doL1Cleaning = True,
-        doL1Counters = False,
-        genJetCollection=cms.InputTag("ak5GenJets"),
-        doJetID      = True,
-        jetIdLabel   = "ak5Calo",
-        )
     
-    addJetCollection(
-        process,
-        cms.InputTag('ak5PFJets'),
-        'AK5',
-        'PF',
-        doJTA        = True,
-        doBTagging   = True,
-        jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
-        doType1MET   = True,
-        doL1Cleaning = True,
-        doL1Counters = False,
-        genJetCollection=cms.InputTag("ak5GenJets"),
-        doJetID      = True,
-        jetIdLabel   = "ak5PF",
-        )
+    if not MC:    
+        addJetCollection(
+            process,
+            cms.InputTag('ak5CaloJets'),
+            'AK5',
+            'Calo',
+            doJTA        = True,
+            doBTagging   = True,
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            doType1MET   = True,
+            doL1Cleaning = True,
+            doL1Counters = False,
+            genJetCollection=cms.InputTag("ak5GenJets"),
+            doJetID      = True,
+            jetIdLabel   = "ak5Calo",
+            )
+        
+        addJetCollection(
+            process,
+            cms.InputTag('ak5PFJets'),
+            'AK5',
+            'PF',
+            doJTA        = True,
+            doBTagging   = True,
+            jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            doType1MET   = True,
+            doL1Cleaning = True,
+            doL1Counters = False,
+            genJetCollection=cms.InputTag("ak5GenJets"),
+            doJetID      = True,
+            jetIdLabel   = "ak5PF",
+            )
+            
+                
+    if MC:    
+        addJetCollection(
+            process,
+            cms.InputTag('ak5CaloJets'),
+            'AK5',
+            'Calo',
+            doJTA        = True,
+            doBTagging   = True,
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
+            doType1MET   = True,
+            doL1Cleaning = True,
+            doL1Counters = False,
+            genJetCollection=cms.InputTag("ak5GenJets"),
+            doJetID      = True,
+            jetIdLabel   = "ak5Calo",
+            )
+        
+        addJetCollection(
+            process,
+            cms.InputTag('ak5PFJets'),
+            'AK5',
+            'PF',
+            doJTA        = True,
+            doBTagging   = True,
+            jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute'])),
+            doType1MET   = True,
+            doL1Cleaning = True,
+            doL1Counters = False,
+            genJetCollection=cms.InputTag("ak5GenJets"),
+            doJetID      = True,
+            jetIdLabel   = "ak5PF",
+            )
     
-    
+        
     
     #---------
     #PG PF2PAT sequence from /CMSSW/PhysicsTools/PatAlgos/test/patTuple_PATandPF2PAT_cfg.py
