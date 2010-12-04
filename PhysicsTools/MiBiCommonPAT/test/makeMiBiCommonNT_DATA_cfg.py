@@ -5,7 +5,7 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonNT_cff import *
 process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT
-makeMiBiCommonNT(process, GlobalTag="FT_R_38X_V14A::All", HLT='', MC=False, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="GR_R_38X_V15::All", HLT='', MC=False, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
   'file:/tmp/dimatteo/D8700674-35CB-DF11-8C60-0024E85A3ED8.root'

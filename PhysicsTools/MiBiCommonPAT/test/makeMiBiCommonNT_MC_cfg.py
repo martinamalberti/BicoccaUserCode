@@ -6,7 +6,7 @@ process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT: Choose the MC type!!!
 # Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, Other
-makeMiBiCommonNT(process, GlobalTag="START38_V12::All", HLT='', MC=True, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="START38_V14::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
   #'file:/gwtera5/users/data/NTUPLES/VBF/WENu_38X_AOD.root'
