@@ -230,7 +230,7 @@ bool IsMuIsolatedID( treeReader& reader,const std::vector<double>& Selections, i
  if (reader.GetInt("muons_tracker")->at(iMu) == Selections.at(4)  )     skipMu = true;
  if (reader.GetInt("muons_standalone")->at(iMu) == Selections.at(5)  )     skipMu = true;
  if (reader.GetInt("muons_global")->at(iMu) == Selections.at(6)  )     skipMu = true;
- if (reader.GetInt("muons_goodMuon")->at(iMu) == Selections.at(7)  )     skipMu = true;
+//  if (reader.GetInt("muons_goodMuon")->at(iMu) == Selections.at(7)  )     skipMu = true;
   
  return (!skipMu);
 }
@@ -476,8 +476,46 @@ int SelectLepton(std::vector<ROOT::Math::XYZTVector>& leptons,
 //  ------------------------------------------------------------
 
 
+/** select single object */
+int SelectObject(const std::vector<ROOT::Math::XYZTVector>& objects, const std::string& method,  const double& ptMin,  const std::vector<int>* blacklist ){
+ // initialize variable with result
+ int it = -1;
+ // initialize the selection variable
+ double maxPt = -999999.;
+ double tempPt = 0.;
+ 
+ // loop over objects
+ for(unsigned int i = 0; i < objects.size(); ++i)
+ {
+  if( objects.at(i).Pt() < ptMin ) continue;
+  
+  //~~~~ check blacklist ~~~~
+  bool skipObj = false;
+  if(blacklist)
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk){
+    if(blacklist -> at(kk) == static_cast<int>(i)) skipObj = true;
+   }
+   if(skipObj) continue;
 
-
+  //~~~~ use method ~~~~
+    if(method == "maxPt"){
+     tempPt = objects.at(i).Pt();
+     if(tempPt > maxPt) {
+      maxPt = tempPt;
+      it = i;
+     }
+    }
+ // -------------------------------------
+ } // loop over objects
+ 
+ if(method == "maxPt"){
+  return it;
+ }
+ else {
+  return -1;
+ }
+}
+//  ------------------------------------------------------------
 
 
 int Build4JetCombinations(std::vector<std::vector<int> >& combinations, const int& nJets)

@@ -198,6 +198,12 @@ int SelectLepton(std::vector<ROOT::Math::XYZTVector>& leptons,
                  const double& ptMin,
                  const std::vector<int>* blacklist = 0);
 
+/** select single object */
+int SelectObject(const std::vector<ROOT::Math::XYZTVector>& objects,
+                 const std::string& method,
+                 const double& ptMin,
+                 const std::vector<int>* blacklist = 0);
+
 
 /** select pair of objects with a given invariant mass*/
 double SelectResonance(std::vector<int>& it, std::vector<ROOT::Math::XYZTVector>& objects,
