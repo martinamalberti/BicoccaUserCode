@@ -230,6 +230,12 @@ void Print4JetCombination(const std::vector<int>& combination);
 /** build combinations (2 jets) of n jets */
 int Build2JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets);
 
+/** 4 objects combinations builder */
+int Build4ObjectsCombinations(
+                              std::vector<std::vector<int> >& combinations, 
+			      const int& nObj,
+			      const std::vector<int>* whiteList = 0);
+
 /** smart profiling by double averaging */
 TH1D * smartProfileX (TH2F * strip, double width) ; 
 

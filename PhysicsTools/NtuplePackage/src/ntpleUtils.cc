@@ -602,6 +602,56 @@ int Build2JetCombinations(std::vector<std::vector<int> >& combinations, const in
 }
 
 
+
+//  ------------------------------------------------------------
+
+///==== 4 objects combinations builder ====
+int Build4ObjectsCombinations(std::vector<std::vector<int> >& combinations, const int& nObj, const std::vector<int>* whiteList)
+{
+ combinations.clear();
+ 
+ std::vector<int> vi;
+ 
+ if(whiteList != NULL) {
+  for(int i = 0; i < nObj; ++i) {
+   if (whiteList -> at(i) != 1){
+    vi.push_back(i);
+   }
+  }
+ }
+ 
+ if (vi.size() < 4) {
+  return -1;
+ }
+ 
+ std::vector<int> buffer;
+ buffer.push_back(vi.at(0));
+ buffer.push_back(vi.at(1));
+ buffer.push_back(vi.at(2));
+ buffer.push_back(vi.at(3));
+ 
+ combinations.push_back(buffer);
+ 
+ std::vector<int> oldCombination = buffer;
+ while( next_permutation(vi.begin(), vi.end()) )      
+ {
+  if( (vi.at(0) < vi.at(1)) && (vi.at(2) < vi.at(3)) )
+  {
+   buffer.at(0) = vi.at(0);
+   buffer.at(1) = vi.at(1);
+   buffer.at(2) = vi.at(2);
+   buffer.at(3) = vi.at(3);                  
+   
+   if(buffer == oldCombination) continue;
+   
+   combinations.push_back(buffer);
+   oldCombination = buffer;
+  }  
+ }
+ 
+ return combinations.size();
+}
+
 //  ------------------------------------------------------------
 
 
