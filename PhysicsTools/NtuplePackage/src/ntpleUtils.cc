@@ -614,7 +614,7 @@ int Build4ObjectsCombinations(std::vector<std::vector<int> >& combinations, cons
  
  if(whiteList != NULL) {
   for(int i = 0; i < nObj; ++i) {
-   if (whiteList -> at(i) != 1){
+   if (whiteList -> at(i) == 1){
     vi.push_back(i);
    }
   }
