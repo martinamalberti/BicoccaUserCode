@@ -60,7 +60,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # Counter3: Filter on primary vertex
     process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
         vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-        minimumNDOF = cms.uint32(4) ,
+        minimumNDOF = cms.uint32(4),
         maxAbsZ = cms.double(24),
         maxd0 = cms.double(2)
     )
@@ -218,17 +218,17 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # -------------------
     # pat selection layer
-    process.selectedPatElectrons.cut      = cms.string("pt > 20. & abs(eta) < 2.5")
-    process.selectedPatElectronsPFlow.cut = cms.string("pt > 20. & abs(eta) < 2.5")    
-
-    process.selectedPatMuons.cut      = cms.string("pt > 20. & abs(eta) < 2.5")
-    process.selectedPatMuonsPFlow.cut = cms.string("pt > 20. & abs(eta) < 2.5")
-
+    process.selectedPatElectrons.cut      = cms.string("pt > 15. & abs(eta) < 2.5")
+    process.selectedPatElectronsPFlow.cut = cms.string("pt > 15. & abs(eta) < 2.5")
+    
+    process.selectedPatMuons.cut      = cms.string("pt > 15. & abs(eta) < 2.5")
+    process.selectedPatMuonsPFlow.cut = cms.string("pt > 15. & abs(eta) < 2.5")
+    
     process.selectedPatJets.cut        = cms.string("pt > 15. & abs(eta) < 5")
     process.selectedPatJetsPFlow.cut   = cms.string("pt > 15. & abs(eta) < 5")    
     process.selectedPatJetsAK5Calo.cut = cms.string("pt > 15. & abs(eta) < 5")
     process.selectedPatJetsAK5PF.cut   = cms.string("pt > 15. & abs(eta) < 5")
-
+    
     process.selectedPatPhotons.cut      = cms.string("pt > 10. & abs(eta) < 5")
     process.selectedPatPhotonsPFlow.cut = cms.string("pt > 10. & abs(eta) < 5")    
     
@@ -306,24 +306,24 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.PhotonsFilterEvents = process.AllPassFilter.clone()
     
     process.OneLeptonTwoJetsAK5CaloSeq = cms.Sequence(
-        #process.LeptonsFilter*
-        #process.LeptonsFilterEvents*
+        process.LeptonsFilter*
+        process.LeptonsFilterEvents*
         process.JetFilterAK5Calo*
         process.JetFilterAK5CaloEvents
        )
-
+    
     
     process.OneLeptonTwoJetsAK5PFSeq = cms.Sequence(
-        #process.LeptonsFilter*
-        #process.LeptonsFilterEvents*
+        process.LeptonsFilter*
+        process.LeptonsFilterEvents*
         process.JetFilterAK5PF*
         process.JetFilterAK5PFEvents
         )
     
     
     process.OneLeptonTwoJetsPFlowSeq = cms.Sequence(
-        #process.LeptonsFilterPFlow*
-        #process.LeptonsFilterPFlowEvents*
+        process.LeptonsFilterPFlow*
+        process.LeptonsFilterPFlowEvents*
         process.JetFilterPFlow*
         process.JetFilterPFlowEvents
         )
@@ -332,8 +332,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.PhotonsFilter*
         process.PhotonsFilterEvents
         )
-        
-        
+    
+    
     # the MiBiNTUPLE
     process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
     process.MiBiCommonNT = process.SimpleNtuple.clone()
@@ -377,4 +377,3 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5Calo)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
     process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
-
