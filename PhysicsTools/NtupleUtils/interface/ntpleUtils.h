@@ -30,9 +30,11 @@ bool maggiore(double i, double j);
 
 /** get the number of events from a list of files */
 std::map<int, int> GetTotalEvents(const std::string& histoName, const std::string& inputFileList);
+std::map<int, int> GetTotalEvents(const std::string& histoName, const std::vector<std::string> & inputFileList);
 
 /** fill a chain from a list of files */
 bool FillChain(TChain& chain, const std::string& inputFileList);
+bool FillChain(TChain& chain, const std::vector<std::string> & inputFileList);
 
 /** get the parameters from a congiguration file */
 int parseConfigFile (const TString& config) ;
