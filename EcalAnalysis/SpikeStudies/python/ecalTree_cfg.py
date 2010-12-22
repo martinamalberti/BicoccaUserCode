@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ECALANALYSIS")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1) #10000
 
 
 # Geometry
@@ -14,33 +14,25 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
-#process.GlobalTag.globaltag = 'GR_R_35X_V7A::All'
-process.GlobalTag.globaltag = 'GR_R_36X_V12::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V15::All'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
 
-    #/EG/Run2010A-PromptReco-v4/RECO
-    '/store/data/Run2010A/EG/RECO/v4/000/139/529/2E54C0AB-1589-DF11-8B63-001D09F23A20.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/466/54D5B3CF-B688-DF11-A0FF-000423D94E70.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/459/ECA0E034-D088-DF11-B34E-0030487A18A4.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/459/CA9AF9F7-CB88-DF11-BACD-001D09F29524.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/459/8C531733-D088-DF11-B6D2-0030487C6090.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/458/F22FB620-BB88-DF11-94A5-001617C3B79A.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/458/DEC78624-C288-DF11-8CA9-003048F118DE.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/458/DC447D23-BB88-DF11-9EBB-001617C3B70E.root',
-    '/store/data/Run2010A/EG/RECO/v4/000/139/458/B891155D-C588-DF11-B89C-003048F024FE.root'
-    
-
-    #/MinimumBias/Commissioning10-ECALRECHIT-May27thSkim_v5/RAW-RECO
-    #'/store/data/Commissioning10/MinimumBias/RAW-RECO/ECALRECHIT-May27thSkim_v5/0023/5C35650D-C672-DF11-A649-0018F3D0960A.root',
-    #'/store/data/Commissioning10/MinimumBias/RAW-RECO/ECALRECHIT-May27thSkim_v5/0023/F4B02E12-C672-DF11-B457-001A928116C2.root',
-    #'/store/data/Commissioning10/MinimumBias/RAW-RECO/ECALRECHIT-May27thSkim_v5/0023/FE382A98-C672-DF11-971F-00261894392B.root'
-
-            
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F8EAC093-42EF-DF11-95E5-001A92971BB4.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F4A18D82-42EF-DF11-BE24-001A92810AE6.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F43A3376-42EF-DF11-9A6E-00261894393D.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F4324792-42EF-DF11-86A6-001A92810AD8.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F2A11CA0-42EF-DF11-8B77-0018F3D096DE.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F0D1AF84-42EF-DF11-AB70-001A92811736.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F0C94C8B-42EF-DF11-980F-001A928116BE.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F02C4D78-42EF-DF11-A868-003048678FA6.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EE5BC18B-42EF-DF11-AB9F-00248C55CC9D.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EE10208C-42EF-DF11-BC6C-0018F3D09710.root',
+        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EABB5979-42EF-DF11-A4DC-001A92971B7E.root'            
     )
 )
 
@@ -77,12 +69,13 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
-#Good Vertex Filter (see GOODCOLL skim)
-process.primaryVertexFilter = cms.EDFilter("VertexSelector",
-                                           src = cms.InputTag("offlinePrimaryVertices"),
-                                           cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
-                                           filter = cms.bool(True)
-                                           )
+# filter on primary vertex
+process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
+   vertexCollection = cms.InputTag('offlinePrimaryVertices'),
+   minimumNDOF = cms.uint32(4) ,
+   maxAbsZ = cms.double(24),
+   maxd0 = cms.double(2)
+)
 
 # FilterOutScraping
 process.noscraping = cms.EDFilter("FilterOutScraping",
@@ -104,8 +97,8 @@ process.TFileService = cms.Service("TFileService",
 
 process.p = cms.Path(
 
-    process.skimming*
-    process.goodcollisions*
+    process.noscraping*
+    process.primaryVertexFilter*
         
     process.ecalDigis*
     process.myanalysis
