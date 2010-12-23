@@ -57,12 +57,16 @@ Implementation:
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
-
-
 #include "EcalAnalysis/SpikeStudies/interface/EcalTreeContent.h"
+
+using namespace reco;
 
 class EcalTree : public edm::EDAnalyzer 
 {
@@ -91,12 +95,14 @@ class EcalTree : public edm::EDAnalyzer
 			   const CaloGeometry* theCaloGeometry,
 			   const EBDigiCollection* theEcalBarrelDigis,
 			   const EcalRecHitCollection* theBarrelEcalRecHits,
+			   const GsfElectronCollection* electrons,
 			   EcalTreeContent & myTreeVariables_) ;
 
       bool dumpEndcapInfo( const CaloTopology* theCaloTopology,
 			   const CaloGeometry* theCaloGeometry,
 			   const EEDigiCollection* theEcalEndcapDigis,
 			   const EcalRecHitCollection* theEndcapEcalRecHits,
+			   const GsfElectronCollection* electrons,
 			   EcalTreeContent & myTreeVariables_) ;
 
       void dumpJetInfo(const CaloTopology* theCaloTopology,
@@ -111,6 +117,7 @@ class EcalTree : public edm::EDAnalyzer
       edm::InputTag eeRecHitCollection_ ;
       //edm::InputTag eeClusterCollection_ ;
       edm::InputTag eeDigiCollection_;
+      edm::InputTag GsfEleTag_;
       edm::InputTag L1InputTag_;
       edm::InputTag ak5CaloJets_;
       edm::InputTag MetTag_;

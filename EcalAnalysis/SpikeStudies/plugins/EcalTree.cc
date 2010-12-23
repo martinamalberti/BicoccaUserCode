@@ -38,6 +38,10 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "TSystem.h"
@@ -59,6 +63,7 @@ EcalTree::EcalTree (const edm::ParameterSet& iConfig)
   eeRecHitCollection_  = iConfig.getParameter<edm::InputTag> ("eeRecHitCollection");
   //eeClusterCollection_ = iConfig.getParameter<edm::InputTag> ("eeClusterCollection");
   eeDigiCollection_    = iConfig.getParameter<edm::InputTag> ("eeDigiCollection");
+  GsfEleTag_           = iConfig.getParameter<edm::InputTag>("GsfEleTag");
   L1InputTag_          = iConfig.getParameter<edm::InputTag> ("L1InputTag");
   ak5CaloJets_         = iConfig.getParameter<edm::InputTag> ("ak5CaloJets");
   MetTag_              = iConfig.getParameter<edm::InputTag>("MetTag");
@@ -146,6 +151,12 @@ void EcalTree::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
       return ;
     }
 
+
+  edm::Handle<reco::GsfElectronCollection> eleHandle;
+  iEvent.getByLabel(GsfEleTag_,eleHandle);
+  const reco::GsfElectronCollection * electrons =  eleHandle.product();
+  
+
   // //ak5CaloJets
   // edm::Handle<CaloJetCollection> ak5CaloJets;
   // iEvent.getByLabel(ak5CaloJets_, ak5CaloJets);
@@ -193,8 +204,8 @@ void EcalTree::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   myTreeVariables_.eventNaiveId = naiveId_ ;
 
   //dumpL1Info(gtRecord, myTreeVariables_) ;
-  bool saveEBTree = dumpBarrelInfo(topology, geometry, theEcalBarrelDigis, theBarrelEcalRecHits, myTreeVariables_) ;
-  bool saveEETree = dumpEndcapInfo(topology, geometry, theEcalEndcapDigis, theEndcapEcalRecHits, myTreeVariables_) ;
+  bool saveEBTree = dumpBarrelInfo(topology, geometry, theEcalBarrelDigis, theBarrelEcalRecHits, electrons, myTreeVariables_) ;
+  bool saveEETree = dumpEndcapInfo(topology, geometry, theEcalEndcapDigis, theEndcapEcalRecHits, electrons, myTreeVariables_) ;
   //dumpJetInfo(topology, geometry, theJetCollection, myTreeVariables_) ;
 
   if (saveEBTree == true || saveEETree == true) tree_ -> Fill();
@@ -235,6 +246,7 @@ bool EcalTree::dumpBarrelInfo (	const CaloTopology * topology,
 				const CaloGeometry * geometry,
 				const EBDigiCollection* theEcalBarrelDigis,
 				const EcalRecHitCollection* theBarrelEcalRecHits,
+				const GsfElectronCollection* electrons,
 				EcalTreeContent & myTreeVariables_)
 {
   
@@ -254,6 +266,20 @@ bool EcalTree::dumpBarrelInfo (	const CaloTopology * topology,
       myTreeVariables_.ecalRecHitMatrixFlag[ myTreeVariables_.nEcalRecHits ][2][2] = it -> recoFlag();
   
       EBDetId ebid = it -> id();
+
+      //matching with electron seed
+      for (reco::GsfElectronCollection::const_iterator eleit = electrons->begin(); eleit != electrons->end(); ++eleit )
+	{
+	  reco::SuperClusterRef scRef = eleit->superCluster();
+	  DetId idEB = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;
+	  if(ebid.rawId() == idEB.rawId()) 
+	    myTreeVariables_.ecalRecHitIsEleSeed [ myTreeVariables_.nEcalRecHits ] = 1;
+	  else
+	    myTreeVariables_.ecalRecHitIsEleSeed [ myTreeVariables_.nEcalRecHits ] = 0;
+	}
+	
+	
+
       for(int xx = 0; xx < 5; ++xx)
 	for(int yy = 0; yy < 5; ++yy)
 	    {
@@ -314,6 +340,7 @@ bool EcalTree::dumpEndcapInfo (	const CaloTopology * topology,
 				const CaloGeometry * geometry,
 				const EEDigiCollection* theEcalEndcapDigis,
 				const EcalRecHitCollection* theEndcapEcalRecHits,
+				const GsfElectronCollection* electrons,
 				EcalTreeContent & myTreeVariables_)
 {
   
@@ -333,6 +360,18 @@ bool EcalTree::dumpEndcapInfo (	const CaloTopology * topology,
       myTreeVariables_.ecalRecHitMatrixFlag[ myTreeVariables_.nEcalRecHits ][2][2] = it -> recoFlag();
   
       EEDetId eeid = it -> id();
+
+      //matching with electron seed
+      for (reco::GsfElectronCollection::const_iterator eleit = electrons->begin(); eleit != electrons->end(); ++eleit )
+	{
+	  reco::SuperClusterRef scRef = eleit->superCluster();
+	  DetId idEE = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theEndcapEcalRecHits ).first;
+	  if(eeid.rawId() == idEE.rawId()) 
+	    myTreeVariables_.ecalRecHitIsEleSeed [ myTreeVariables_.nEcalRecHits ] = 1;
+	  else
+	    myTreeVariables_.ecalRecHitIsEleSeed [ myTreeVariables_.nEcalRecHits ] = 0;	    
+	}
+
       for(int xx = 0; xx < 5; ++xx)
 	for(int yy = 0; yy < 5; ++yy)
 	    {

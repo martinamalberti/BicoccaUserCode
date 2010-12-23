@@ -26,6 +26,7 @@ void setBranchAddresses(TTree* chain, EcalTreeContent& treeVars)
       //recHits variables
       chain -> SetBranchAddress("nEcalRecHits",             &treeVars.nEcalRecHits);
       chain -> SetBranchAddress("ecalRecHitType",            treeVars.ecalRecHitType);
+      chain -> SetBranchAddress("ecalRecHitIsEleSeed",       treeVars.ecalRecHitIsEleSeed);
       chain -> SetBranchAddress("ecalRecHitEnergy",          treeVars.ecalRecHitEnergy);
       chain -> SetBranchAddress("ecalRecHitOutOfTimeEnergy", treeVars.ecalRecHitOutOfTimeEnergy);
       chain -> SetBranchAddress("ecalRecHitIEta",            treeVars.ecalRecHitIEta);
@@ -148,6 +149,7 @@ void setBranches(TTree* chain, EcalTreeContent& treeVars)
   {    
     //recHits variables
     chain -> Branch("nEcalRecHits",             &treeVars.nEcalRecHits,         "nEcalRecHits/I");
+    chain -> Branch("ecalRecHitIsEleSeed",       treeVars.ecalRecHitIsEleSeed,  "ecalRecHitIsEleSeed[nEcalRecHits]/F");
     chain -> Branch("ecalRecHitType",            treeVars.ecalRecHitType,       "ecalRecHitType[nEcalRecHits]/F");
     chain -> Branch("ecalRecHitEnergy",          treeVars.ecalRecHitEnergy,     "ecalRecHitEnergy[nEcalRecHits]/F");
     chain -> Branch("ecalRecHitOutOfTimeEnergy",          treeVars.ecalRecHitOutOfTimeEnergy,     "ecalRecHitOutOfTimeEnergy[nEcalRecHits]/F");
@@ -273,6 +275,7 @@ void initializeBranches(TTree* chain, EcalTreeContent& treeVars)
       for(int i = 0; i < 75850; ++i)
 	{
 	  treeVars.ecalRecHitType    [i] = -9999;
+	  treeVars.ecalRecHitIsEleSeed    [i] = -1;
 	  treeVars.ecalRecHitEnergy  [i] = -9999.;
 	  treeVars.ecalRecHitOutOfTimeEnergy  [i] = -9999.;
 	  treeVars.ecalRecHitIEta    [i] = -9999.;

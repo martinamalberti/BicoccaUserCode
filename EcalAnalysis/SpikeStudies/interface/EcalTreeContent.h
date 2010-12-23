@@ -30,6 +30,7 @@ struct EcalTreeContent
 
   int nEcalRecHits;
   float ecalRecHitType[MAXECALRECHITS];
+  float ecalRecHitIsEleSeed[MAXECALRECHITS];
   float ecalRecHitEnergy[MAXECALRECHITS];
   float ecalRecHitOutOfTimeEnergy[MAXECALRECHITS];
   float ecalRecHitIEta[MAXECALRECHITS];

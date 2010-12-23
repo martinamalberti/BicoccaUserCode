@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ECALANALYSIS")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1) #10000
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000) #10000
 
 
 # Geometry
@@ -16,7 +16,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 process.GlobalTag.globaltag = 'GR_R_38X_V15::All'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
@@ -49,6 +49,7 @@ process.myanalysis = cms.EDAnalyzer('EcalTree',
                                     #eeClusterCollection = cms.InputTag("hybridSuperClusters","hybridEndcapBasicClusters","RECO"),
                                     #eeClusterCollection = cms.InputTag("multi5x5BasicClusters","multi5x5BarrelBasicClusters","EGammaCommissioning"),
 
+                                    GsfEleTag = cms.InputTag("gsfElectrons"),
                                     L1InputTag =  cms.InputTag("gtDigis"),
                                     ak5CaloJets =  cms.InputTag("ak5CaloJets"),
                                     
@@ -57,7 +58,7 @@ process.myanalysis = cms.EDAnalyzer('EcalTree',
                                     TcMetTag        = cms.InputTag("tcMet"),
                                     PFMetTag        = cms.InputTag("pfMet"),         
 
-                                    minRecHitEnergy = cms.untracked.double(5.)
+                                    minRecHitEnergy = cms.untracked.double(5.)  #5GeV
                                    
 )
 
