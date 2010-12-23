@@ -16,7 +16,7 @@ Implementation:
 //
 // Original Authors:  Federico DE GUIO Martina MALBERTI
 //         Created:  Mo Jul 14 5:46:22 CEST 2008
-// $Id: ESCosmicsTree.h,v 1.11 2009/08/31 16:35:59 abenagli Exp $
+// $Id: EcalTree.h,v 1.2 2010/07/07 14:57:16 deguio Exp $
 //
 //
 
@@ -93,6 +93,12 @@ class EcalTree : public edm::EDAnalyzer
 			   const EcalRecHitCollection* theBarrelEcalRecHits,
 			   EcalTreeContent & myTreeVariables_) ;
 
+      bool dumpEndcapInfo( const CaloTopology* theCaloTopology,
+			   const CaloGeometry* theCaloGeometry,
+			   const EEDigiCollection* theEcalEndcapDigis,
+			   const EcalRecHitCollection* theEndcapEcalRecHits,
+			   EcalTreeContent & myTreeVariables_) ;
+
       void dumpJetInfo(const CaloTopology* theCaloTopology,
 		       const CaloGeometry* theCaloGeometry,
 		       const reco::CaloJetCollection* theJetCollection,
@@ -100,8 +106,11 @@ class EcalTree : public edm::EDAnalyzer
 
 
       edm::InputTag ebRecHitCollection_ ;
-      edm::InputTag ebClusterCollection_ ;
+      //edm::InputTag ebClusterCollection_ ;
       edm::InputTag ebDigiCollection_;
+      edm::InputTag eeRecHitCollection_ ;
+      //edm::InputTag eeClusterCollection_ ;
+      edm::InputTag eeDigiCollection_;
       edm::InputTag L1InputTag_;
       edm::InputTag ak5CaloJets_;
       edm::InputTag MetTag_;

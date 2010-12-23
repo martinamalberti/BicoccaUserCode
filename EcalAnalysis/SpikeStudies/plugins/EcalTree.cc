@@ -54,8 +54,11 @@ using namespace reco;
 EcalTree::EcalTree (const edm::ParameterSet& iConfig)
 {
   ebRecHitCollection_  = iConfig.getParameter<edm::InputTag> ("ebRecHitCollection");
-  ebClusterCollection_ = iConfig.getParameter<edm::InputTag> ("ebClusterCollection");
+  //ebClusterCollection_ = iConfig.getParameter<edm::InputTag> ("ebClusterCollection");
   ebDigiCollection_    = iConfig.getParameter<edm::InputTag> ("ebDigiCollection");
+  eeRecHitCollection_  = iConfig.getParameter<edm::InputTag> ("eeRecHitCollection");
+  //eeClusterCollection_ = iConfig.getParameter<edm::InputTag> ("eeClusterCollection");
+  eeDigiCollection_    = iConfig.getParameter<edm::InputTag> ("eeDigiCollection");
   L1InputTag_          = iConfig.getParameter<edm::InputTag> ("L1InputTag");
   ak5CaloJets_         = iConfig.getParameter<edm::InputTag> ("ak5CaloJets");
   MetTag_              = iConfig.getParameter<edm::InputTag>("MetTag");
@@ -96,11 +99,6 @@ void EcalTree::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<CaloGeometryRecord>().get(pGeometry);
   const CaloGeometry *geometry = pGeometry.product();
 
-  // Algo and Technical L1 bits
-  //   edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  //   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
-  //   const L1GtTriggerMenu* L1Menu = menuRcd.product();
-  
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
   iEvent.getByLabel(L1InputTag_, gtRecord);
   
@@ -126,10 +124,32 @@ void EcalTree::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
       return ;
     }
 
-  //ak5CaloJets
-  edm::Handle<CaloJetCollection> ak5CaloJets;
-  iEvent.getByLabel(ak5CaloJets_, ak5CaloJets);
-  const CaloJetCollection* theJetCollection = ak5CaloJets.product () ;   
+  // Ecal endcap RecHits 
+  edm::Handle<EcalRecHitCollection> pEndcapEcalRecHits ;
+  iEvent.getByLabel (eeRecHitCollection_, pEndcapEcalRecHits) ;
+  const EcalRecHitCollection* theEndcapEcalRecHits = pEndcapEcalRecHits.product () ;   
+  if (! (pEndcapEcalRecHits.isValid ()) )
+    {
+      LogWarning ("AnomalousChannelsAnalyzer") << eeRecHitCollection_ 
+					       << " not available" ;
+      return ;
+    }
+  
+  //ECAL DIGIS
+  edm::Handle<EEDigiCollection> eeDigis;
+  iEvent.getByLabel (eeDigiCollection_, eeDigis) ;
+  const EEDigiCollection* theEcalEndcapDigis = eeDigis.product () ;  
+  if (! (eeDigis.isValid ()) )
+    {
+      LogWarning ("EcalTree") << eeDigiCollection_
+			      << " not available" ;
+      return ;
+    }
+
+  // //ak5CaloJets
+  // edm::Handle<CaloJetCollection> ak5CaloJets;
+  // iEvent.getByLabel(ak5CaloJets_, ak5CaloJets);
+  // const CaloJetCollection* theJetCollection = ak5CaloJets.product () ;   
 
   //MET
   edm::Handle<reco::CaloMETCollection> MetHandle ;
@@ -172,13 +192,12 @@ void EcalTree::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup)
   myTreeVariables_.eventId      = iEvent.id ().event () ;
   myTreeVariables_.eventNaiveId = naiveId_ ;
 
-  dumpL1Info(gtRecord, myTreeVariables_) ;
+  //dumpL1Info(gtRecord, myTreeVariables_) ;
+  bool saveEBTree = dumpBarrelInfo(topology, geometry, theEcalBarrelDigis, theBarrelEcalRecHits, myTreeVariables_) ;
+  bool saveEETree = dumpEndcapInfo(topology, geometry, theEcalEndcapDigis, theEndcapEcalRecHits, myTreeVariables_) ;
+  //dumpJetInfo(topology, geometry, theJetCollection, myTreeVariables_) ;
 
-  bool saveTree = dumpBarrelInfo(topology, geometry, theEcalBarrelDigis, theBarrelEcalRecHits, myTreeVariables_) ;
-
-  dumpJetInfo(topology, geometry, theJetCollection, myTreeVariables_) ;
-
-  if (saveTree == true) tree_ -> Fill();
+  if (saveEBTree == true || saveEETree == true) tree_ -> Fill();
 
   return;
 }
@@ -266,76 +285,6 @@ bool EcalTree::dumpBarrelInfo (	const CaloTopology * topology,
       myTreeVariables_.ecalRecHitS4oS1    [ myTreeVariables_.nEcalRecHits ] = S4oS1;
       
       
-      // ecal activity in R = 0.3
-      CaloConeSelector *sel03 = new CaloConeSelector(0.3, geometry , DetId::Ecal, EcalBarrel);
-      
-      std::auto_ptr<CaloRecHitMetaCollectionV> chosen1r03 = sel03->select(ebid.ieta(), ebid.iphi(), mhits);
-      std::auto_ptr<CaloRecHitMetaCollectionV> chosen2r03 = sel03->select(-ebid.ieta(), -ebid.iphi(), mhits);
-      
-      float myIso03 = 0;
-      for (CaloRecHitMetaCollectionV::const_iterator recIt = chosen1r03->begin(); 
-	   recIt!= chosen1r03->end () ; ++recIt) {
-	if ( recIt->energy() < energyCutForIso_) continue;  //dont fill if below E noise value
-	if ( EBDetId(recIt->detid()).ieta() ==  ebid.ieta() && 
-	     EBDetId(recIt->detid()).iphi() ==  ebid.iphi() ) continue;
-	GlobalPoint mycell = geometry->getPosition(recIt->detid());
-	myIso03 +=  recIt->energy()*sin(2*atan(exp(mycell.eta())));
-      }
-      
-      myTreeVariables_.ecalRecHitIso03 [ myTreeVariables_.nEcalRecHits ][0] = myIso03  ;
-      
-  
-      myIso03 = 0;
-      for (CaloRecHitMetaCollectionV::const_iterator recIt = chosen2r03->begin(); 
-	   recIt!= chosen2r03->end () ; ++recIt) {
-	if ( recIt->energy() < energyCutForIso_) continue;  //dont fill if below E noise value	  
-	if ( EBDetId(recIt->detid()).ieta() == -ebid.ieta() && 
-	     EBDetId(recIt->detid()).iphi() == -ebid.iphi() ) continue;
-	GlobalPoint mycell = geometry->getPosition(recIt->detid());
-	myIso03 +=  recIt->energy()*sin(2*atan(exp(mycell.eta())));
-      }
-      
-      myTreeVariables_.ecalRecHitIso03 [ myTreeVariables_.nEcalRecHits ][1] = myIso03 ;
-  
-      
-      delete  sel03;
-      
-      
-      
-      // ecal activity in R = 0.4
-      CaloConeSelector *sel04 = new CaloConeSelector(0.4, geometry , DetId::Ecal, EcalBarrel);
-      
-      std::auto_ptr<CaloRecHitMetaCollectionV> chosen1r04 = sel04->select(ebid.ieta(), ebid.iphi(), mhits);
-      std::auto_ptr<CaloRecHitMetaCollectionV> chosen2r04 = sel04->select(-ebid.ieta(), -ebid.iphi(), mhits);
-      
-      float myIso04 = 0;
-      for (CaloRecHitMetaCollectionV::const_iterator recIt = chosen1r04->begin(); 
-	   recIt!= chosen1r04->end () ; ++recIt) {
-	if ( recIt->energy() < energyCutForIso_) continue;  //dont fill if below E noise value
-	if ( EBDetId(recIt->detid()).ieta() ==  ebid.ieta() && 
-	     EBDetId(recIt->detid()).iphi() ==  ebid.iphi() ) continue;
-	GlobalPoint mycell = geometry->getPosition(recIt->detid());
-	myIso04 +=  recIt->energy()*sin(2*atan(exp(mycell.eta())));
-      }
-      
-      myTreeVariables_.ecalRecHitIso04 [ myTreeVariables_.nEcalRecHits ][0] = myIso04  ;
-      
-      
-      myIso04 = 0;
-      for (CaloRecHitMetaCollectionV::const_iterator recIt = chosen2r04->begin(); 
-	   recIt!= chosen2r04->end () ; ++recIt) {
-	if ( recIt->energy() < energyCutForIso_) continue;  //dont fill if below E noise value	  
-	if ( EBDetId(recIt->detid()).ieta() == -ebid.ieta() && 
-	     EBDetId(recIt->detid()).iphi() == -ebid.iphi() ) continue;
-	GlobalPoint mycell = geometry->getPosition(recIt->detid());
-	myIso04 +=  recIt->energy()*sin(2*atan(exp(mycell.eta())));
-      }
-      
-      myTreeVariables_.ecalRecHitIso04 [ myTreeVariables_.nEcalRecHits ][1] = myIso04  ;
-      
-      delete  sel04;
-      
-      
       // DIGIS
       EBDigiCollection::const_iterator digiItr = theEcalBarrelDigis->begin();
       while(digiItr != theEcalBarrelDigis->end() && ((*digiItr).id() != ebid))
@@ -357,6 +306,85 @@ bool EcalTree::dumpBarrelInfo (	const CaloTopology * topology,
   else return false;
   
 }//dumpBarrelInfo
+// -----------------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------------------
+
+bool EcalTree::dumpEndcapInfo (	const CaloTopology * topology,
+				const CaloGeometry * geometry,
+				const EEDigiCollection* theEcalEndcapDigis,
+				const EcalRecHitCollection* theEndcapEcalRecHits,
+				EcalTreeContent & myTreeVariables_)
+{
+  
+  EcalRecHitMetaCollection mhits(*theEndcapEcalRecHits);
+
+  // cerco il BC corrispondente e trovo R9 = E1/E9
+  float S1oS9=-9999.;
+  float S4oS1=-9999.;
+
+  for (EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->begin(); it != theEndcapEcalRecHits->end(); ++it ) 
+    {
+
+      //only barrel: Emin recHit 
+      if (it -> energy() < minRecHitEnergy_) continue;
+
+      myTreeVariables_.ecalRecHitMatrix[ myTreeVariables_.nEcalRecHits ][2][2] = it -> energy();
+      myTreeVariables_.ecalRecHitMatrixFlag[ myTreeVariables_.nEcalRecHits ][2][2] = it -> recoFlag();
+  
+      EEDetId eeid = it -> id();
+      for(int xx = 0; xx < 5; ++xx)
+	for(int yy = 0; yy < 5; ++yy)
+	    {
+	      if(xx == 2 && yy == 2) continue;
+	      std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, eeid, xx-2, xx-2, yy-2, yy-2);
+	      if(vector.size() == 0) continue;
+	      EcalRecHitCollection::const_iterator iterator = theEndcapEcalRecHits->find (vector.at(0)) ;
+	      if(iterator == theEndcapEcalRecHits->end()) continue;
+	      myTreeVariables_.ecalRecHitMatrix[ myTreeVariables_.nEcalRecHits ][xx][yy] = iterator -> energy();
+	      myTreeVariables_.ecalRecHitMatrixFlag[ myTreeVariables_.nEcalRecHits ][xx][yy] = iterator -> recoFlag();
+	    }
+      
+
+      S1oS9 = EcalSeverityLevelAlgo::E1OverE9( eeid, *theEndcapEcalRecHits, 0. );
+      S4oS1 = EcalSeverityLevelAlgo::swissCross( eeid, *theEndcapEcalRecHits, 0. );
+      
+      
+      myTreeVariables_.ecalRecHitType     [ myTreeVariables_.nEcalRecHits ] = eeid.zside();
+      myTreeVariables_.ecalRecHitEnergy   [ myTreeVariables_.nEcalRecHits ] = it -> energy();
+      myTreeVariables_.ecalRecHitOutOfTimeEnergy   [ myTreeVariables_.nEcalRecHits ] = it -> outOfTimeEnergy();
+      myTreeVariables_.ecalRecHitIEta     [ myTreeVariables_.nEcalRecHits ] = eeid.ix();
+      myTreeVariables_.ecalRecHitIPhi     [ myTreeVariables_.nEcalRecHits ] = eeid.iy();
+      myTreeVariables_.ecalRecHitTime     [ myTreeVariables_.nEcalRecHits ] = it -> time();
+      myTreeVariables_.ecalRecHitChi2     [ myTreeVariables_.nEcalRecHits ] = it -> chi2() ;
+      myTreeVariables_.ecalRecHitOutOfTimeChi2 [ myTreeVariables_.nEcalRecHits ] = it -> outOfTimeChi2();
+      myTreeVariables_.ecalRecHitRawId    [ myTreeVariables_.nEcalRecHits ] = eeid.rawId();
+      myTreeVariables_.ecalRecHitRecoFlag [ myTreeVariables_.nEcalRecHits ] = it -> recoFlag();
+      myTreeVariables_.ecalRecHitR9       [ myTreeVariables_.nEcalRecHits ] = S1oS9;
+      myTreeVariables_.ecalRecHitS4oS1    [ myTreeVariables_.nEcalRecHits ] = S4oS1;
+      
+      
+      // DIGIS
+      EBDigiCollection::const_iterator digiItr = theEcalEndcapDigis->begin();
+      while(digiItr != theEcalEndcapDigis->end() && ((*digiItr).id() != eeid))
+	{
+	  ++digiItr;
+	}
+      EcalDataFrame df = *digiItr;
+      for (int i=0; i < df.size(); i++ ) {
+	myTreeVariables_.ecalDigis       [ myTreeVariables_.nEcalRecHits ][i] = df.sample(i).adc();
+	myTreeVariables_.ecalGainId      [ myTreeVariables_.nEcalRecHits ][i] = df.sample(i).gainId();
+      }
+      
+      ++myTreeVariables_.nEcalRecHits;
+      
+    }
+  
+  //save only if something interesting is in the event
+  if(myTreeVariables_.nEcalRecHits > 0) return true;
+  else return false;
+  
+}//dumpEndcapInfo
 // -----------------------------------------------------------------------------------------
 
 

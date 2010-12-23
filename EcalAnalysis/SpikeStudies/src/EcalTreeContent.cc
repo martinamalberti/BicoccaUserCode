@@ -3,8 +3,8 @@
 
 bool EcalTreeContent::ecalVariables       = true;
 bool EcalTreeContent::preShowerVariables  = false;
-bool EcalTreeContent::L1TriggerVariables  = true;
-bool EcalTreeContent::jetVariables  = true;
+bool EcalTreeContent::L1TriggerVariables  = false;
+bool EcalTreeContent::jetVariables  = false;
 bool EcalTreeContent::metVariables  = true;
 
 

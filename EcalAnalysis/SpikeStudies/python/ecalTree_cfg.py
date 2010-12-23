@@ -22,25 +22,33 @@ process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
 
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F8EAC093-42EF-DF11-95E5-001A92971BB4.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F4A18D82-42EF-DF11-BE24-001A92810AE6.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F43A3376-42EF-DF11-9A6E-00261894393D.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F4324792-42EF-DF11-86A6-001A92810AD8.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F2A11CA0-42EF-DF11-8B77-0018F3D096DE.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F0D1AF84-42EF-DF11-AB70-001A92811736.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F0C94C8B-42EF-DF11-980F-001A928116BE.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F02C4D78-42EF-DF11-A868-003048678FA6.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EE5BC18B-42EF-DF11-AB9F-00248C55CC9D.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EE10208C-42EF-DF11-BC6C-0018F3D09710.root',
-        '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EABB5979-42EF-DF11-A4DC-001A92971B7E.root'            
+           'file:/media/amassiro/deguio/Datasets/Electron_Run2010B-WZEG-Nov4Skim_v1_RAW-RECO.root'
+
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F8EAC093-42EF-DF11-95E5-001A92971BB4.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F4A18D82-42EF-DF11-BE24-001A92810AE6.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F43A3376-42EF-DF11-9A6E-00261894393D.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F4324792-42EF-DF11-86A6-001A92810AD8.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F2A11CA0-42EF-DF11-8B77-0018F3D096DE.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F0D1AF84-42EF-DF11-AB70-001A92811736.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F0C94C8B-42EF-DF11-980F-001A928116BE.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F02C4D78-42EF-DF11-A868-003048678FA6.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EE5BC18B-42EF-DF11-AB9F-00248C55CC9D.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EE10208C-42EF-DF11-BC6C-0018F3D09710.root',
+        ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/EABB5979-42EF-DF11-A4DC-001A92971B7E.root'            
     )
 )
 
 process.myanalysis = cms.EDAnalyzer('EcalTree',
                                     ebRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-                                    ebClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters","RECO"),
-                                    #ebClusterCollection = cms.InputTag("multi5x5BasicClusters","multi5x5BarrelBasicClusters","EGammaCommissioning"),
                                     ebDigiCollection = cms.InputTag("ecalDigis","ebDigis"),
+                                    #ebClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters","RECO"),
+                                    #ebClusterCollection = cms.InputTag("multi5x5BasicClusters","multi5x5BarrelBasicClusters","EGammaCommissioning"),
+
+                                    eeRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+                                    eeDigiCollection = cms.InputTag("ecalDigis","eeDigis"),
+                                    #eeClusterCollection = cms.InputTag("hybridSuperClusters","hybridEndcapBasicClusters","RECO"),
+                                    #eeClusterCollection = cms.InputTag("multi5x5BasicClusters","multi5x5BarrelBasicClusters","EGammaCommissioning"),
+
                                     L1InputTag =  cms.InputTag("gtDigis"),
                                     ak5CaloJets =  cms.InputTag("ak5CaloJets"),
                                     
@@ -49,7 +57,7 @@ process.myanalysis = cms.EDAnalyzer('EcalTree',
                                     TcMetTag        = cms.InputTag("tcMet"),
                                     PFMetTag        = cms.InputTag("pfMet"),         
 
-                                    minRecHitEnergy = cms.untracked.double(3.)
+                                    minRecHitEnergy = cms.untracked.double(5.)
                                    
 )
 
@@ -92,7 +100,7 @@ process.goodcollisions=cms.Sequence(process.hltLevel1GTSeed*process.goodvertex)
 
 ##OUTPUT
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("SpikesCommissioning_May27thReReco_Run2010A-ECALRECHIT.root")
+    fileName = cms.string("EcalTree.root")
 )
 
 process.p = cms.Path(
