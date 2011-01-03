@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
       //Seleziono eventi con gain switch
       if (gainSwitch != true) continue;
       
-      if (ecalGainId[ihit][imax]!=3 ) continue;
+      //if (ecalGainId[ihit][imax]!=3 ) continue;
 
       cout << "MAX sample = "<< imax << "   MAX amplitude = "<< A[ihit][imax] << "   MAX gain Id =" << ecalGainId[ihit][imax]<< endl;
       cout << "MAX-1 sample = "<< imax-1 << "   MAX-1 amplitude = "<< A[ihit][imax-1] << "   MAX-1 gain Id =" << ecalGainId[ihit][imax-1] << endl;
