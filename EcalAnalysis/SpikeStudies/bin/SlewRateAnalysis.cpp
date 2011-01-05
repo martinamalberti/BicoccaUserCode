@@ -62,13 +62,10 @@ int main(int argc, char** argv) {
   float ecalRecHitIEta[3300];
   float ecalRecHitIPhi[3300];
   float ecalRecHitTime[3300];
-  int ecalRecHitRawId[3300];
   float ecalRecHitChi2[3300];
-  float ecalRecHitOutOfTimeChi2[3300];
   int ecalRecHitRecoFlag[3300];
   float ecalRecHitMatrixFlag[3300][5][5];
   float ecalRecHitMatrix[3300][5][5];
-  float ecalRecHitR9[3300];
   float ecalRecHitS4oS1[3300];
   int ecalDigis[3300][10];
   int ecalGainId[3300][10];
@@ -87,7 +84,6 @@ int main(int argc, char** argv) {
   chain -> SetBranchAddress("ecalRecHitRecoFlag",        ecalRecHitRecoFlag);
   chain -> SetBranchAddress("ecalRecHitMatrixFlag",      ecalRecHitMatrixFlag);
   chain -> SetBranchAddress("ecalRecHitMatrix",          ecalRecHitMatrix);
-  chain -> SetBranchAddress("ecalRecHitR9",              ecalRecHitR9);
   chain -> SetBranchAddress("ecalRecHitS4oS1",           ecalRecHitS4oS1);
   chain -> SetBranchAddress("ecalDigis",                 ecalDigis);
   chain -> SetBranchAddress("ecalGainId",                ecalGainId);
@@ -102,21 +98,69 @@ int main(int argc, char** argv) {
   
 
   // histos 
+  TH1F *hGainSwitch = new TH1F("hGainSwitch","hGainSwitch",10,-5,5);
+  hGainSwitch->GetXaxis()->SetTitle("Gain(max) - Gain(max-1)");
+
   TH1F *hSlewRate = new TH1F("hSlewRate","hSlewRate", 5000, 0, 5000); 
   hSlewRate ->SetFillStyle(1);
   hSlewRate ->SetFillColor(kRed);
   hSlewRate ->GetXaxis()->SetTitle("Slew Rate (ADC/ns)");
 
-  TH2F *hAmplitude = new TH2F("hAmplitude","hAmplitude", 10000, 0, 10000, 5000, 0, 5000); 
+  TH2F *hAmplitude = new TH2F("hAmplitude","hAmplitude", 1000, 0, 10000, 500, 0, 5000); 
   hAmplitude -> SetMarkerColor(kRed);
   hAmplitude -> SetMarkerStyle(20);
-  hAmplitude -> SetMarkerSize(0.3);
+  hAmplitude -> SetMarkerSize(0.35);
   hAmplitude -> GetXaxis() -> SetTitle("Expected Amplitude (ADC)");
   hAmplitude -> GetYaxis() -> SetTitle("Observed Amplitude (ADC)");
 
+  TH2F *hAmplitude2 = new TH2F("hAmplitude2","hAmplitude2", 1000, 0, 10000, 500, 0, 5000); 
+  hAmplitude2 -> SetMarkerColor(kBlue);
+  hAmplitude2 -> SetMarkerStyle(20);
+  hAmplitude2 -> SetMarkerSize(0.35);
+  hAmplitude2 -> GetXaxis() -> SetTitle("Expected Amplitude (ADC)");
+  hAmplitude2 -> GetYaxis() -> SetTitle("Observed Amplitude (ADC)");
+
+
+  TH2F *hAmpl_vs_Time = new TH2F("hAmpl_vs_Time","hAmpl_vs_Time", 800, -100, 100, 1000, 0, 10000); 
+  hAmpl_vs_Time -> SetMarkerColor(kRed);
+  hAmpl_vs_Time -> SetMarkerStyle(20);
+  hAmpl_vs_Time -> SetMarkerSize(0.3);
+  hAmpl_vs_Time -> GetXaxis() -> SetTitle("Time (ns)");
+  hAmpl_vs_Time -> GetYaxis() -> SetTitle("Expected Amplitude (ADC)");
+
+  TH2F *hRatio_vs_Time = new TH2F("hRatio_vs_Time","hRatio_vs_Time", 800, -100, 100, 200, 0, 2); 
+  hRatio_vs_Time -> SetMarkerColor(kRed);
+  hRatio_vs_Time -> SetMarkerStyle(20);
+  hRatio_vs_Time -> SetMarkerSize(0.3);
+  hRatio_vs_Time -> GetXaxis() -> SetTitle("Time (ns)");
+  hRatio_vs_Time -> GetYaxis() -> SetTitle("Ratio");
+
+  TH1F *hr1 = new TH1F("hr1","hr1",200,0,2);
+  TH1F *hr2 = new TH1F("hr2","hr2",200,0,2);
+
+  TH1F *hTfit1 = new TH1F("hTfit1","hTfit1 (expected Amplitude < 3000 ADC)",400,-50,50);
+  hTfit1 -> SetFillStyle(3001);
+  hTfit1 -> SetFillColor(kRed+2);
+  hTfit1 -> GetXaxis() -> SetTitle("T_{fit} (ns)");
+
+  TH1F *hTfit2 = new TH1F("hTfit2","hTfit2 (expected Amplitude > 3000 ADC)",400,-50,50);
+  hTfit2 -> SetFillStyle(3001);
+  hTfit2 -> SetFillColor(kBlue+2);
+  hTfit2 -> GetXaxis() -> SetTitle("T_{fit} (ns)");
+
+  TH1F *hAmax1 = new TH1F("hAmax1","hTAmax1 (expected Amplitude < 3000 ADC)",1000,0,10000);
+  hAmax1 -> SetFillStyle(3001);
+  hAmax1 -> SetFillColor(kRed+2);
+  hAmax1 -> GetXaxis() -> SetTitle("A_{max} (ADC counts)");
+
+  TH1F *hAmax2 = new TH1F("hAmax2","hTAmax2 (expected Amplitude > 3000 ADC)",1000,0,10000);
+  hAmax2 -> SetFillStyle(3001);
+  hAmax2 -> SetFillColor(kBlue+2);
+  hAmax2 -> GetXaxis() -> SetTitle("A_{max} (ADC counts)");
+
+
   TGraphErrors* gsample;
   char gname[100];
-  char gnameCanvas[100];
   char gtitle[100];
   int ievt=0;  
 
@@ -156,18 +200,19 @@ int main(int argc, char** argv) {
 	    }
 	} // end loop over 10 samples
       
+
+
       // check gain switch
       bool gainSwitch = false;
       if (ecalGainId[ihit][imax-1]==1 && ecalGainId[ihit][imax] != ecalGainId[ihit][imax-1])   gainSwitch = true;
       
       //Seleziono eventi con gain switch
-      if (gainSwitch != true) continue;
-      
-      //if (ecalGainId[ihit][imax]!=3 ) continue;
+      if (!gainSwitch) continue;
+      hGainSwitch -> Fill( ecalGainId[ihit][imax]-ecalGainId[ihit][imax-1]);
 
-      cout << "MAX sample = "<< imax << "   MAX amplitude = "<< A[ihit][imax] << "   MAX gain Id =" << ecalGainId[ihit][imax]<< endl;
-      cout << "MAX-1 sample = "<< imax-1 << "   MAX-1 amplitude = "<< A[ihit][imax-1] << "   MAX-1 gain Id =" << ecalGainId[ihit][imax-1] << endl;
-      cout << endl;   
+      //cout << "MAX sample = "<< imax << "   MAX amplitude = "<< A[ihit][imax] << "   MAX gain Id =" << ecalGainId[ihit][imax]<< endl;
+      //cout << "MAX-1 sample = "<< imax-1 << "   MAX-1 amplitude = "<< A[ihit][imax-1] << "   MAX-1 gain Id =" << ecalGainId[ihit][imax-1] << endl;
+      //cout << endl;   
       
      
       float slewRate = A[ihit][imax-1];
@@ -179,6 +224,8 @@ int main(int argc, char** argv) {
       sprintf(gname,"shape_%d",ievt);
       gsample->SetName(gname);
       gsample->SetTitle(gtitle);
+      gsample->GetXaxis()->SetTitle("Time (ns)");
+      gsample->GetYaxis()->SetTitle("ADC counts");
       
       for (int isample = 0; isample < 10 ; isample++)
       	{
@@ -187,39 +234,56 @@ int main(int argc, char** argv) {
       	}
 
 
-      // fit functions            
-      //Ecal Shape with FLOATING phase TB shape
+
+      
+      // fit function            
       TF1 *fpulseShape = new TF1("fpulseShape", pulseShape,0.,240.,3);
-      fpulseShape->SetLineColor(4);
+      fpulseShape->SetLineColor(kBlue);
       fpulseShape->SetParName(0,"Ped");
       fpulseShape->SetParName(1,"A");
       fpulseShape->SetParName(2,"T0");
-      fpulseShape->SetParameter(0,0); // ped
+      fpulseShape->FixParameter(0,0); // ped
       fpulseShape->SetParameter(1,A[ihit][imax]); // ampl
       fpulseShape->SetParameter(2,imax*25.); // T0
       gsample->RemovePoint(imax-1);
       gsample->Fit("fpulseShape","QSR+") ;
-      gsample->SetPoint(imax-1,(imax-1)*25.,A[ihit][imax-1]);
-      gsample->SetPoint(imax,(imax)*25.,A[ihit][imax]);
+      //re-set dei punti, altrimenti root non li plotta!
+      for (int isample = 0; isample < 10 ; isample++)
+      	{
+      	  gsample->SetPoint(isample, double(isample)*25., A[ihit][isample]);      
+      	  gsample->SetPointError(isample,0.,0.9);      
+      	}
       ievt++;
       
-      if (ievt < 100) {
-	gsample->Write();
-      }
 
       float measuredAmpl = A[ihit][imax-1] ;
       float expectedAmpl = A[ihit][imax] * fpulseShape->Eval((imax-1)*25.)/fpulseShape->Eval(imax*25.);
-      //cout << fpulseShape->Eval(imax*25.) << "   " << fpulseShape->Eval(imax*25.-25.) << endl;
-      //cout  << "Measured amplitude = " << measuredAmpl << "     Expected amplitude = " << expectedAmpl << endl ;
-      //cout << endl;
-      hAmplitude ->Fill(expectedAmpl,measuredAmpl);
+                  
+      hAmplitude  -> Fill(expectedAmpl,measuredAmpl);
+      hAmplitude2 -> Fill( A[ihit][imax] * 0.774,measuredAmpl);
+ 
+
+      float t0 = fpulseShape->GetParameter(2);
       
-        
+      hAmpl_vs_Time -> Fill(t0-125.,expectedAmpl);
+      hRatio_vs_Time -> Fill(t0-125., fpulseShape->Eval((imax-1)*25.)/fpulseShape->Eval(imax*25.));
+      
+      if (expectedAmpl > 3000) {
+	hr2->Fill( fpulseShape->Eval((imax-1)*25.)/fpulseShape->Eval(imax*25.));
+	hTfit2->Fill(t0-125.);
+	hAmax2->Fill(A[ihit][imax]);
+      }
+      else {
+	hr1->Fill( fpulseShape->Eval((imax-1)*25.)/fpulseShape->Eval(imax*25.));
+	hTfit1->Fill(t0-125.);
+	hAmax1->Fill(A[ihit][imax]);
+      }
 
+      if ( expectedAmpl < 3000 )
+	//if (ievt<10)
+	gsample->Write();
 
-    }// end loop over recHits
-    
-
+    } // end loop over recHits
     
   }//end loop over events
  
@@ -228,8 +292,19 @@ int main(int argc, char** argv) {
 
   saving.cd () ;
 
-  hSlewRate  -> Write();
-  hAmplitude ->Write();
+  hGainSwitch ->Write();
+  hSlewRate   -> Write();
+  hAmplitude  ->Write();
+  hAmplitude2 ->Write();
+  hAmpl_vs_Time ->Write();
+  hRatio_vs_Time ->Write();
+  hTfit1->Write();
+  hTfit2->Write();
+  hAmax1->Write();
+  hAmax2->Write();
+
+  hr1->Write();
+  hr2->Write();
 
   saving.Close () ;
   
