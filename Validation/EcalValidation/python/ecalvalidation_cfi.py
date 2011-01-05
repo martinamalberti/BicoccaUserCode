@@ -74,13 +74,15 @@ ecalvalidation = cms.EDAnalyzer("EcalValidation",
     maskEEFile = cms.untracked.string('maskEE.txt'),
 
     useRecoFlag = cms.untracked.bool(False),
-
-    ParameterLogWeighted = cms.bool( True ),
-    ParameterX0 = cms.double( 0.89 ),
-    ParameterT0_barl = cms.double( 5.7 ),
-    ParameterT0_endc = cms.double( 3.1 ),
-    ParameterT0_endcPresh = cms.double( 1.2 ),
-    ParameterW0 = cms.double( 4.2 )
+      
+    posCalcParameters = cms.PSet( 
+      LogWeighted = cms.bool( True ),
+      T0_barl = cms.double( 7.4 ),
+      T0_endc = cms.double( 3.1 ),
+      T0_endcPresh = cms.double( 1.2 ),
+      W0 = cms.double( 4.2 ),
+      X0 = cms.double( 0.89 )
+    )
                                  
 )
 
