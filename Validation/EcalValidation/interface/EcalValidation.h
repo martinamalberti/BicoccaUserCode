@@ -91,13 +91,6 @@ class EcalValidation : public edm::EDAnalyzer {
 
 	 // for Pi0
 	 PositionCalc posCalculator_ ;
-	 bool ParameterLogWeighted_;
-	 double ParameterX0_;
-	 double ParameterT0_barl_;
-	 double ParameterT0_endc_;
-	 double ParameterT0_endcPresh_;
-	 double ParameterW0_;
-	 
 	 
 	 double clusSeedThr_;
 	 double clusSeedThr_EE_;
