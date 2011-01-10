@@ -353,4 +353,17 @@ build a TGraphError starting from a TH1F
 */
 TGraphErrors buildGEfromH (const TH1D & histo) ;
 
+
+/** Read JSON File 
+*/
+
+std::map<int, std::vector<std::pair<int, int> > >
+ readJSONFile(const std::string& inFileName);
+
+bool AcceptEventByRunAndLumiSection(const int& runId, const int& lumiId,
+                                    std::map<int, std::vector<std::pair<int, int> > >& jsonMap);
+
+
+
+
 #endif
