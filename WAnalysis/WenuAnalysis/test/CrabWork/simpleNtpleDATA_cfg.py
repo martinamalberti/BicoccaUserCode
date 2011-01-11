@@ -9,22 +9,28 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('GR_R_38X_V13A::All')
+process.GlobalTag.globaltag = cms.string('GR_R_38X_V15::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(100000)
+   input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
         #/EG/Run2010A-Sep17ReReco_v2/RECO
-        '/store/data/Run2010A/EG/RECO/Sep17ReReco_v2/0030/004BCF4D-40C6-DF11-8235-002481E14D72.root'
+        #'/store/data/Run2010A/EG/RECO/Sep17ReReco_v2/0030/004BCF4D-40C6-DF11-8235-002481E14D72.root'
+        'file:/tmp/amassiro/B8541296-42EF-DF11-BC6A-001A928116DE.root'
         )
     )
 
+process.out = cms.OutputModule(
+      "PoolOutputModule",
+      fileName = cms.untracked.string('file:PAT.root'),
+      outputCommands = cms.untracked.vstring()
+  )
 
 #--------------------------
 #Define PAT sequence
@@ -37,21 +43,6 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 ## remove MC matching from the default sequence
 removeMCMatching(process, ['All'])
 
-
-# add cIc electron ID
-process.load("WAnalysis.WenuAnalysis.CiC_eIDSequence_cff")
-
-process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
-process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
-
-process.patElectrons.addElectronID = cms.bool(True)
-process.patElectrons.electronIDSources = cms.PSet(
-    eidVeryLoose  = cms.InputTag("eidVeryLoose"),
-    eidLoose      = cms.InputTag("eidLoose"),
-    eidMedium     = cms.InputTag("eidMedium"),
-    eidTight      = cms.InputTag("eidTight"),
-    eidSuperTight = cms.InputTag("eidSuperTight")
-    )
 ##
 #process.patElectrons.addGenMatch = cms.bool(False)
 #process.patElectrons.embedGenMatch = cms.bool(False)
@@ -102,7 +93,7 @@ process.simpleNtple = cms.EDAnalyzer(
     MuTag               = cms.InputTag("patMuons"),
     HLTTag              = cms.InputTag("TriggerResults::HLT"),
     L1Tag               = cms.InputTag("gtDigis"),
-    eleId_names         = cms.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
+    #eleId_names         = cms.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
     saveL1        = cms.untracked.bool(True),
     saveHLT       = cms.untracked.bool(True),
     saveMu        = cms.untracked.bool(True),
@@ -181,13 +172,13 @@ process.highetFilter = cms.EDFilter(
 
 process.p = cms.Path(
     process.AllPassFilterBegin
-    *process.skimming
+    #*process.skimming
     *process.AllPassFilterL1Filter
-    *process.hltLevel1GTSeed
-    *process.AllPassFilterGoodVertexFilter    
-    *process.primaryVertexFilter
-    *process.AllPassFilterNoScrapingFilter    
-    *process.noscraping
+    #*process.hltLevel1GTSeed
+    #*process.AllPassFilterGoodVertexFilter    
+    #*process.primaryVertexFilter
+    #*process.AllPassFilterNoScrapingFilter    
+    #*process.noscraping
     *process.highetele
     *process.highetFilter
     *process.AllPassFilterElectronFilter    

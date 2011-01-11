@@ -110,19 +110,25 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 
     NtupleFactory_->AddInt("iSM"); 
     NtupleFactory_->AddInt("iSC");
+    NtupleFactory_->AddInt("electrons_iDetEB");
+    NtupleFactory_->AddInt("electrons_iDetEE");
+
+    NtupleFactory_->Add3V("electrons_superClusterPosition");
+    NtupleFactory_->AddInt("electrons_classification");
+    NtupleFactory_->AddInt("electrons_basicClustersSize");
 
     NtupleFactory_->AddFloat("electrons_track_d0");
     NtupleFactory_->AddFloat("electrons_track_dz");
     NtupleFactory_->AddFloat("electrons_track_d0err");
     NtupleFactory_->AddFloat("electrons_track_dzerr");
-    
+
     NtupleFactory_->AddFloat("electrons_scE");
     NtupleFactory_->AddFloat("electrons_scEt");
     NtupleFactory_->AddFloat("electrons_scEta");
     NtupleFactory_->AddFloat("electrons_scPhi");
     NtupleFactory_->AddFloat("electrons_SC_phiWidth");
     NtupleFactory_->AddFloat("electrons_SC_etaWidth");
-    
+
     NtupleFactory_->AddFloat("electrons_eOverP");
     NtupleFactory_->AddFloat("electrons_eSeed");
     NtupleFactory_->AddFloat("electrons_pin");
@@ -133,6 +139,16 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_hOverE");
     NtupleFactory_->AddFloat("electrons_deltaPhiIn");
     NtupleFactory_->AddFloat("electrons_deltaEtaIn");
+
+    NtupleFactory_->AddFloat("electrons_deltaEtaSuperClusterAtVtx");
+    NtupleFactory_->AddFloat("electrons_deltaEtaSeedClusterAtCalo");
+    NtupleFactory_->AddFloat("electrons_deltaEtaEleClusterAtCalo");
+    NtupleFactory_->AddFloat("electrons_deltaPhiEleClusterAtCalo");
+    NtupleFactory_->AddFloat("electrons_deltaPhiSuperClusterAtVtx");
+    NtupleFactory_->AddFloat("electrons_deltaPhiSeedClusterAtCalo");
+
+    //~~~~ see http://cmslxr.fnal.gov/lxr/source/DataFormats/EgammaCandidates/interface/GsfElectron.h#184
+    
     for( std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++ )
       NtupleFactory_->AddFloat(*iEleId);
     
@@ -165,6 +181,7 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 
     NtupleFactory_->AddFloat("electrons_ES");
     
+     
     if (saveEleShape_)
     {
       NtupleFactory_->AddFloat("E_xtal"); 
@@ -208,9 +225,9 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 
 SimpleNtple::~SimpleNtple ()
 {
-  cout<< "Analyzed " <<  eventNaiveId_ << " events" <<endl;
-  NtupleFactory_->WriteNtuple();
-  delete NtupleFactory_;
+ std::cout << "Analyzed " <<  eventNaiveId_ << " events" << std::endl;
+ NtupleFactory_->WriteNtuple();
+ delete NtupleFactory_;
 }
 
 // -----------------------------------------------------------------------------------------
@@ -363,9 +380,9 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
  }
 
   //************* ELECTRONS
- Handle<View<pat::Electron> > electronHandle;
+ edm::Handle<edm::View<pat::Electron> > electronHandle;
  iEvent.getByLabel(EleTag_,electronHandle);
- View<pat::Electron> electrons = *electronHandle;
+ edm::View<pat::Electron> electrons = *electronHandle;
  
   //************* TRACKS
 // edm::Handle<reco::TrackCollection> trackHandle;
@@ -443,6 +460,15 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    NtupleFactory_->FillFloat("electrons_deltaPhiIn",electron.deltaPhiSuperClusterTrackAtVtx());
    NtupleFactory_->FillFloat("electrons_deltaEtaIn",electron.deltaEtaSuperClusterTrackAtVtx());
    
+   
+   NtupleFactory_->FillFloat("electrons_deltaEtaSuperClusterAtVtx",electron.deltaEtaSuperClusterTrackAtVtx());
+   NtupleFactory_->FillFloat("electrons_deltaEtaSeedClusterAtCalo",electron.deltaEtaSeedClusterTrackAtCalo());
+   NtupleFactory_->FillFloat("electrons_deltaEtaEleClusterAtCalo",electron.deltaEtaEleClusterTrackAtCalo());
+   NtupleFactory_->FillFloat("electrons_deltaPhiEleClusterAtCalo",electron.deltaPhiEleClusterTrackAtCalo());
+   NtupleFactory_->FillFloat("electrons_deltaPhiSuperClusterAtVtx",electron.deltaPhiSuperClusterTrackAtVtx());
+   NtupleFactory_->FillFloat("electrons_deltaPhiSeedClusterAtCalo",electron.deltaPhiSeedClusterTrackAtCalo());
+
+
    for(std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++)
      NtupleFactory_->FillFloat(*iEleId, electron.electronID(*iEleId));
    
@@ -539,6 +565,13 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    // preshower variables 
    NtupleFactory_->FillFloat("electrons_ES",scRef->preshowerEnergy());
    
+   NtupleFactory_->FillInt("electrons_basicClustersSize",electron.basicClustersSize());
+//   NtupleFactory_->Fill3V("electrons_superClusterPosition",ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>(electron.superClusterPosition()));
+   
+   NtupleFactory_->FillInt("electrons_classification",electron.classification());
+
+   
+   
    
    // rechit variables
   if (saveEleShape_)
@@ -546,6 +579,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
     double seed_energy_temp = -1;
     int iSC;
     int iSM;
+    int iDetEB;
+    int iDetEE;
     int numRecHit = 0;
     const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
     for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
@@ -563,6 +598,8 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
        seed_energy_temp = itrechit->energy();
        iSC = -1000;
        iSM = barrelId.ism();
+       iDetEE  = -1000;
+       iDetEB  = EcalBarrelGeometry::alignmentTransformIndexLocal(barrelId);
       }
      }
      if ((*rh).first.subdetId()== EcalEndcap){
@@ -579,12 +616,16 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
        seed_energy_temp = itrechit->energy();
        iSC = endcapId.isc();
        iSM = -1000;
+       iDetEE  = EcalEndcapGeometry::alignmentTransformIndexLocal(endcapId);
+       iDetEB  = -1000;
       }   
      }
     }
     NtupleFactory_->FillInt("numRecHit",numRecHit);
     NtupleFactory_->FillInt("iSM",iSM);
     NtupleFactory_->FillInt("iSC",iSC);
+    NtupleFactory_->FillInt("electrons_iDetEB",iDetEB);
+    NtupleFactory_->FillInt("electrons_iDetEE",iDetEE);
   }
   
   } // end loop over electron candidates
@@ -602,7 +643,7 @@ void SimpleNtple::fillCALOMetInfo (const edm::Event & iEvent, const edm::EventSe
  
  edm::Handle<edm::View<pat::MET> > calometHandle;
  iEvent.getByLabel(CALOMetTag_,calometHandle);
- View<pat::MET>  mets = *calometHandle;
+ edm::View<pat::MET>  mets = *calometHandle;
  //pat::MET met = mets.at(mets.size()-1);
  //std::cout << " mets.size()-1 = " << mets.size()-1 << std::endl;
  pat::MET met = mets.at(0);
@@ -616,7 +657,7 @@ void SimpleNtple::fillTCMetInfo (const edm::Event & iEvent, const edm::EventSetu
  
  edm::Handle<edm::View<pat::MET> > tcmetHandle;
  iEvent.getByLabel(TCMetTag_,tcmetHandle);
- View<pat::MET>  mets = *tcmetHandle;
+ edm::View<pat::MET>  mets = *tcmetHandle;
  //pat::MET met = mets.at(mets.size()-1);
  //std::cout << " mets.size()-1 = " << mets.size()-1 << std::endl;
  pat::MET met = mets.at(0);
@@ -630,7 +671,7 @@ void SimpleNtple::fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetu
  
  edm::Handle<edm::View<pat::MET> > PFmetHandle;
  iEvent.getByLabel(PFMetTag_,PFmetHandle);
- View<pat::MET>  mets = *PFmetHandle;
+ edm::View<pat::MET>  mets = *PFmetHandle;
  //pat::MET met = mets.at(mets.size()-1);
  //std::cout << " mets.size()-1 = " << mets.size()-1 << std::endl;
  pat::MET met = mets.at(0);
@@ -646,9 +687,9 @@ void SimpleNtple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup 
 {
  //std::cout << "SimpleNtple::fillJetInfo" << std::endl;
  //************* JETS
- Handle<View<pat::Jet> > jetHandle;
+ edm::Handle<edm::View<pat::Jet> > jetHandle;
  iEvent.getByLabel(JetTag_,jetHandle);
- View<pat::Jet> jets = *jetHandle;
+ edm::View<pat::Jet> jets = *jetHandle;
  
  for ( unsigned int i=0; i<jets.size(); ++i ) {
     pat::Jet jet = jets.at(i);
@@ -667,9 +708,9 @@ void SimpleNtple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup &
  //std::cout << "SimpleNtple::fillMuInfo" << std::endl;
  //************* MUONS
  
- Handle<View<pat::Muon> > muonHandle;
+ edm::Handle<edm::View<pat::Muon> > muonHandle;
  iEvent.getByLabel(MuTag_,muonHandle);
- View<pat::Muon> muons = *muonHandle;
+ edm::View<pat::Muon> muons = *muonHandle;
 
  for ( unsigned int i=0; i<muons.size(); ++i ) {
     pat::Muon muon = muons.at(i);

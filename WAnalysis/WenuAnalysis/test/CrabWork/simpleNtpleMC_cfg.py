@@ -9,7 +9,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START38_V8::All')
+process.GlobalTag.globaltag = cms.string('START38_V14::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
@@ -22,9 +22,16 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(
         #/EG/Run2010A-Sep17ReReco_v2/RECO
         #'/store/data/Run2010A/EG/RECO/Sep17ReReco_v2/0030/004BCF4D-40C6-DF11-8235-002481E14D72.root'
-        'file:D69F1772-C5A4-DF11-90E8-0030487E4F00.root'
+        'file:/tmp/amassiro/D056A87C-66D0-DF11-AAE1-0018FE286DB2.root'
         )
     )
+
+process.out = cms.OutputModule(
+      "PoolOutputModule",
+      fileName = cms.untracked.string('file:PAT.root'),
+      outputCommands = cms.untracked.vstring()
+  )
+
 
 
 #--------------------------
@@ -39,24 +46,9 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 removeMCMatching(process, ['All'])
 
 
-# add cIc electron ID
-process.load("WAnalysis.WenuAnalysis.CiC_eIDSequence_cff")
-
-process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
-process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
-
-process.patElectrons.addElectronID = cms.bool(True)
-process.patElectrons.electronIDSources = cms.PSet(
-    eidVeryLoose  = cms.InputTag("eidVeryLoose"),
-    eidLoose      = cms.InputTag("eidLoose"),
-    eidMedium     = cms.InputTag("eidMedium"),
-    eidTight      = cms.InputTag("eidTight"),
-    eidSuperTight = cms.InputTag("eidSuperTight")
-    )
 ##
 #process.patElectrons.addGenMatch = cms.bool(False)
 #process.patElectrons.embedGenMatch = cms.bool(False)
-
 
 # Add tcMET and pfMET
 from PhysicsTools.PatAlgos.tools.metTools import *
@@ -68,7 +60,7 @@ addPfMET(process, 'PF')
 ##from PhysicsTools.PatAlgos.tools.jetTools import *
 ##switchJECSet( process, "Summer09_7TeV_ReReco332")
 
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
+#from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
 ## uncomment this line to run on an 35X input sample
 #run36xOn35xInput(process)
 
@@ -103,7 +95,7 @@ process.simpleNtple = cms.EDAnalyzer(
     MuTag               = cms.InputTag("patMuons"),
     HLTTag              = cms.InputTag("TriggerResults::RECO"),
     L1Tag               = cms.InputTag("gtDigis"),
-    eleId_names         = cms.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
+    #eleId_names         = cms.untracked.vstring('eidLoose','eidMedium','eidSuperTight','eidTight','eidVeryLoose'),
     saveL1        = cms.untracked.bool(True),
     saveHLT       = cms.untracked.bool(True),
     saveMu        = cms.untracked.bool(True),
@@ -185,9 +177,9 @@ process.p = cms.Path(
 #    *process.skimming
     *process.AllPassFilterL1Filter
 #    *process.hltLevel1GTSeed
-    *process.AllPassFilterGoodVertexFilter    
-    *process.primaryVertexFilter
-    *process.AllPassFilterNoScrapingFilter    
+#    *process.AllPassFilterGoodVertexFilter    
+#    *process.primaryVertexFilter
+#    *process.AllPassFilterNoScrapingFilter    
 #    *process.noscraping
     *process.highetele
     *process.highetFilter

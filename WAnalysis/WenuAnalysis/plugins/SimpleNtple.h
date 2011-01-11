@@ -63,13 +63,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
-
-using namespace cms ;
-using namespace edm ;
-using namespace std ;
-using namespace reco;
-
 
 
 class SimpleNtple : public edm::EDAnalyzer {

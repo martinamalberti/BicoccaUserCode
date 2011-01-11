@@ -10,6 +10,8 @@
 //---- CMSSW includes
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "PhysicsTools/NtupleUtils/interface/treeReader.h"
+#include "PhysicsTools/NtupleUtils/interface/ntpleUtils.h"
+
 
 //---- root includes
 #include "TH1.h"
@@ -18,6 +20,13 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+
+//==== parameter include ====
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 #define PI 3.14159265
 #define TWOPI 6.28318530
@@ -34,464 +43,272 @@ float deltaPhi(float phi1,float phi2) {
 //! main program
 int main (int argc, char** argv)
 {
- 
- int ff = atoi(argv[1]);
-  
- 
- 
- char nameOutput[1000];
- if (ff == -1){
-  sprintf(nameOutput,"%s",argv[3]);
-  std::cout << " output = " << nameOutput << std::endl;
+ if (argc != 2){
+  std::cerr << ">>>>> Program::usage: " << argv[0] << " configFileName" << std::endl ;
+  return 1 ;
  }
+ // Parse the config file
+ std::string fileName (argv[1]) ;
+ boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile(fileName) ;
+ boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
+
+ edm::ParameterSet subPSetInput = parameterSet->getParameter<edm::ParameterSet> ("Input") ;
+ std::vector<std::string> inputFileList = subPSetInput.getParameter<std::vector<std::string> > ("inputFileList") ;
+ std::string outputRootFileName = subPSetInput.getParameter<std::string > ("outputRootFileName") ;
+
+ int WP = subPSetInput.getUntrackedParameter<int> ("WP",95) ;
+
+ std::cout << "get totalEvents " << std::endl;
+ std::map<int,int> totalEvents = GetTotalEvents ("AllPassFilterBegin/totalEvents", inputFileList) ;
+
+ std::cout << "get Ntple " << std::endl;
+ std::string treeName = "simpleNtple/SimpleNtple";
+ TChain* chain = new TChain (treeName.c_str ()) ;
+ if (!FillChain (*chain, inputFileList)) return 1 ;
+ treeReader reader ( (TTree*) (chain));
+
+ std::cout << "Prepare output " << std::endl;
+ TFile outputRootFile (outputRootFileName.c_str(), "RECREATE") ;
+ outputRootFile.cd () ;
+
+ TTree* myTree_;
+
+ int initialNumber_ = totalEvents[1];
+
+ int electrons_classification_;
+ int electrons_basicClustersSize_;
+
+ double deltaEtaSuperClusterAtVtx_;
+ double deltaEtaSeedClusterAtCalo_;
+ double deltaEtaEleClusterAtCalo_;
+ double deltaPhiEleClusterAtCalo_;
+ double deltaPhiSuperClusterAtVtx_;
+ double deltaPhiSeedClusterAtCalo_;
+ int mishits_;
+ int nAmbiguousGsfTracks_;
+ double dist_;
+ double dcot_;
+
+ double HoE_;
+ double SigmaIEtaIEta_;
+ double eleTrkIso_;
+ double eleEcalIso_;
+ double eleHcalIsoD1_;
+ double eleHcalIsoD2_;
+ unsigned int eleMisHits_;
+ double met_;
+ double sumEt_;
+ double eta_;
+ double phi_;
+ double pT_;
+ double ET_;
+ double MT_;
+ double EoP_;
+ double eleFBrem_;
+ double eleES_;
+ double E2x2_;
+ double E3x3_;
+ double E5x5_;
+ double ESC_;
+ double ETSC_;
+ double Sigma_Phi_;
+ double Sigma_Eta_;
+ double pIn_;
+ double pOut_;
+ double pAtCalo_;
+ double p_;
+ double E9oE25_;
+ double DeltaEtaIn_;
+ double DeltaPhiIn_;
+ double etaSC_;
+ double phiSC_;
+ int nGoodElectrons_;
+ int iSM_;
+ int iSC_;
+ double dphiMETEle_;
+ double eleCharge_;
+ double eleSwissCross_;
+ int seedSeverityLevel_;
+ int* eleId_;
+ int iDetEB_;
+ int iDetEE_;
+
+
+ myTree_  = new TTree("myTree","myTree");
+
+ myTree_ -> Branch("electrons_classification",&electrons_classification_,"electrons_classification/I");
+ myTree_ -> Branch("electrons_basicClustersSize",&electrons_basicClustersSize_,"electrons_basicClustersSize/I");
+
+ myTree_ -> Branch("initialNumber",&initialNumber_,"initialNumber/I");
+ myTree_ -> Branch("sumEt",&sumEt_,"sumEt/D");
+ myTree_ -> Branch("met",&met_,"met/D");
+ myTree_ -> Branch("eta",&eta_,"eta/D");
+ myTree_ -> Branch("phi",&phi_,"phi/D");
+ myTree_ -> Branch("pT",&pT_,"pT/D");
+ myTree_ -> Branch("ET",&ET_,"ET/D");
+ myTree_ -> Branch("MT",&MT_,"MT/D");
+ myTree_ -> Branch("EoP",&EoP_,"EoP/D");
+ myTree_ -> Branch("eleFBrem",&eleFBrem_,"eleFBrem/D");
+ myTree_ -> Branch("eleES",&eleES_,"eleES/D");
+ myTree_ -> Branch("E2x2",&E2x2_,"E2x2/D");
+ myTree_ -> Branch("E3x3",&E3x3_,"E3x3/D");
+ myTree_ -> Branch("E5x5",&E5x5_,"E5x5/D");
+ myTree_ -> Branch("ESC",&ESC_,"ESC/D");
+ myTree_ -> Branch("ETSC",&ETSC_,"ETSC/D");
+ myTree_ -> Branch("Sigma_Phi",&Sigma_Phi_,"Sigma_Phi/D");
+ myTree_ -> Branch("Sigma_Eta",&Sigma_Eta_,"Sigma_Eta/D");
+ myTree_ -> Branch("pIn",&pIn_,"pIn/D");
+ myTree_ -> Branch("pOut",&pOut_,"pOut/D");
+ myTree_ -> Branch("pAtCalo",&pAtCalo_,"pAtCalo/D");
+ myTree_ -> Branch("p",&p_,"p/D");
+ myTree_ -> Branch("E9oE25",&E9oE25_,"E9oE25/D");
+ myTree_ -> Branch("iSM",&iSM_,"iSM/I");
+ myTree_ -> Branch("iSC",&iSC_,"iSC/I");
+
+ myTree_ -> Branch("deltaEtaSuperClusterAtVtx",&deltaEtaSuperClusterAtVtx_,"deltaEtaSuperClusterAtVtx/D");
+ myTree_ -> Branch("deltaEtaSeedClusterAtCalo",&deltaEtaSeedClusterAtCalo_,"deltaEtaSeedClusterAtCalo/D");
+ myTree_ -> Branch("deltaEtaEleClusterAtCalo",&deltaEtaEleClusterAtCalo_,"deltaEtaEleClusterAtCalo/D");
+ myTree_ -> Branch("deltaPhiEleClusterAtCalo",&deltaPhiEleClusterAtCalo_,"deltaPhiEleClusterAtCalo/D");
+ myTree_ -> Branch("deltaPhiSuperClusterAtVtx",&deltaPhiSuperClusterAtVtx_,"deltaPhiSuperClusterAtVtx/D");
+ myTree_ -> Branch("deltaPhiSeedClusterAtCalo",&deltaPhiSeedClusterAtCalo_,"deltaPhiSeedClusterAtCalo/D");
+
+ myTree_ -> Branch("mishits",&mishits_,"mishits/I");
+ myTree_ -> Branch("nAmbiguousGsfTracks",&nAmbiguousGsfTracks_,"nAmbiguousGsfTracks/I");
+ myTree_ -> Branch("dist",&dist_,"dist/D");
+ myTree_ -> Branch("dcot",&dcot_,"dcot/D");
+
+ myTree_ -> Branch("SigmaIEtaIEta",&SigmaIEtaIEta_,"SigmaIEtaIEta/D");
+ myTree_ -> Branch("HoE",&HoE_,"HoE/D");
+ myTree_ -> Branch("eleTrkIso",&eleTrkIso_,"eleTrkIso/D");
+ myTree_ -> Branch("eleEcalIso",&eleEcalIso_,"eleEcalIso/D");
+ myTree_ -> Branch("eleHcalIsoD1",&eleHcalIsoD1_,"eleHcalIsoD1/D");
+ myTree_ -> Branch("eleHcalIsoD2",&eleHcalIsoD2_,"eleHcalIsoD2/D");
+
+ myTree_ -> Branch("DeltaEtaIn",&DeltaEtaIn_,"DeltaEtaIn/D");
+ myTree_ -> Branch("DeltaPhiIn",&DeltaPhiIn_,"DeltaPhiIn/D");
+ myTree_ -> Branch("etaSC",&etaSC_,"etaSC/D");
+ myTree_ -> Branch("phiSC",&phiSC_,"phiSC/D");
+ myTree_ -> Branch("nGoodElectrons",&nGoodElectrons_,"nGoodElectrons/I");
+ myTree_ -> Branch("dphiMETEle",&dphiMETEle_,"dphiMETEle/D");    
+ myTree_ -> Branch("eleCharge",&eleCharge_,"eleCharge/D");  
+ myTree_ -> Branch("eleSwissCross",&eleSwissCross_,"eleSwissCross/D");  
+ myTree_ -> Branch("seedSeverityLevel",&seedSeverityLevel_,"seedSeverityLevel/I");
+
+ myTree_ -> Branch("iDetEB",&iDetEB_,"iDetEB/I");
+ myTree_ -> Branch("iDetEE",&iDetEE_,"iDetEE/I");
  
- TFile *fout;
- if (ff == 0){
-  fout  = new TFile("Wenu_MC_4analysis.root","recreate");
- }
-
- if (ff == 1) {
-  fout  = new TFile("Wenu_DATA_4analysis.root","recreate");
- }
-
- if (ff == -1) {
-  fout  = new TFile(nameOutput,"recreate");
- }
  
-  // load the tree
  
- TFile* FileIn = NULL; 
- if ( ff == 0 ){
-  FileIn = new TFile("/tmp/amassiro/treeWenuMC.root");
- }
  
- TChain *chain = new TChain ("simpleNtple/SimpleNtple") ;
-  
- if ( ff == 0 ){
-  chain->Add("/tmp/amassiro/treeWenuMC.root");
-//   FileIn = new TFile("/tmp/amassiro/treeWenuMC.root");
- }
-
- if (ff == 1){
-  //chain->Add("/tmp/amassiro/treeWenu_Commissioning10-SD_EG-v9.root");
-//  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v1.root");
-//   chain->Add("/tmp/amassiro/treeWenu_MinimumBias-Commissioning10-SD_EG-Jun14thSkim-v1.root");
-//   chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-Jun14thReReco-v1.root");
-//   chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4.root");
-  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-Jul16thReReco-v2_4analysis.root");
-  chain->Add("/tmp/amassiro/treeWenu_EG-Run2010A-PromptReco-v4_4analysis.root");
- }
-
- char nameInput[1000];
- if (ff == -1){
-//   sprintf(nameOutput,"%s",argv[3]);
-//   std::cout << " output = " << nameOutput << std::endl;
-  sprintf(nameInput,"%s",argv[2]);
-  std::cout << " input  = " << nameInput << std::endl;
-  FileIn = new TFile(nameInput);
-  chain->Add(nameInput);
- }
-
- treeReader reader((TTree*)(chain));
- int nEntries = reader.GetEntries() ;
-
- double w = 1.;
-  
- int initialNumber = -1;
- if (FileIn != NULL && FileIn->Get("AllPassFilterW/totalEvents")){
-  TH1F* hTotalEvents = (TH1F*) FileIn->Get("AllPassFilterW/totalEvents");
-  initialNumber = hTotalEvents->GetEntries();
- }
  
- std::cout << "FOUND " << nEntries << " ENTRIES : " << initialNumber << std::endl;
-
- fout->cd();
  
-  //INITIALIZING HISTOGRAMS
- TH1F *hNGoodElectrons = new TH1F("hNGoodElectrons","hNGoodElectrons",5,0,5);
- 
- TH1F *hSumEt = new TH1F("hSumEt","hSumEt",500,0,500);
- TH1F *hmet_o_SumEt = new TH1F("hmet_o_SumEt","hmet_o_SumEt",100,0,10);
- TH2F *hmet_vs_metOverSumEt = new TH2F("hmet_vs_metOverSumEt","hmet_vs_metOverSumEt",100,0,10,100,0,100);
+ std::cout << ">>>>> Program::Read " << chain -> GetEntries () << " entries" << std::endl ;  
+ for (int entry = 0 ; entry < chain -> GetEntries () ; ++entry)
+ {
+  reader.GetEntry (entry) ;
+  if ( (entry%10000) == 0) std::cout << ">>>>> Program::GetEntry " << entry << std::endl ;   
 
- TH1F *het    = new TH1F("het","het",25,2,102);
- TH1F *hetEB  = new TH1F("hetEB","hetEB",25,2,102);
- TH1F *hetEE  = new TH1F("hetEE","hetEE",25,2,102);
+  ///==== DATA ====
+//   if( dataFlag == 1 )
+//   {
+//    std::pair<int,int> eventLSandID(reader.GetInt("lumiId")->at(0), reader.GetInt("eventId")->at(0));
+//    std::pair<int,std::pair<int,int> > eventRUNandLSandID(reader.GetInt("runId")->at(0), eventLSandID);
+//    
+//    if( eventsMap[eventRUNandLSandID] == 1 ) continue;
+//    else eventsMap[eventRUNandLSandID] = 1;
+//   }
+  ///==== DATA ====
 
- TH1F *hmet   = new TH1F("hmet","hmet",25,2,102);
- TH1F *hmetEB = new TH1F("hmetEB","hmetEB",25,2,102);
- TH1F *hmetEE = new TH1F("hmetEE","hmetEE",25,2,102);
- 
- TH1F *hmt    = new TH1F("hmt","hmt",50,0,200);
- TH1F *hmtEB  = new TH1F("hmtEB","hmtEB",50,0,200);
- TH1F *hmtEE  = new TH1F("hmtEE","hmtEE",50,0,200);
+  //start loop over electron candidates
+  nGoodElectrons_ = reader.Get4V("electrons")->size();
+  for (int iEle = 0; iEle < nGoodElectrons_; iEle++){
 
- TH1F *heop   = new TH1F("heop","heop",50,0,2);
- TH1F *heopEB = new TH1F("heopEB","heopEB",50,0,2);
- TH1F *heopEE = new TH1F("heopEE","heopEE",50,0,2);
+   electrons_classification_ = reader.GetInt("electrons_classification")->at(iEle);
+   electrons_basicClustersSize_ = reader.GetInt("electrons_basicClustersSize")->at(iEle);
 
- TH1F *hetscaled[200];
- TH1F *hetEBscaled[200];
- TH1F *hetEEscaled[200];
- TH1F *hmtEBscaled[200];
- TH1F *hmtEEscaled[200];
- TH1F *heopEBscaled[200];
- TH1F *heopEEscaled[200];
+   deltaEtaSuperClusterAtVtx_ = reader.GetFloat("electrons_deltaEtaSuperClusterAtVtx")->at(iEle);
+   deltaEtaSeedClusterAtCalo_ = reader.GetFloat("electrons_deltaEtaSeedClusterAtCalo")->at(iEle);
+   deltaEtaEleClusterAtCalo_ = reader.GetFloat("electrons_deltaEtaEleClusterAtCalo")->at(iEle);
+   deltaPhiEleClusterAtCalo_ = reader.GetFloat("electrons_deltaPhiEleClusterAtCalo")->at(iEle);
+   deltaPhiSuperClusterAtVtx_ = reader.GetFloat("electrons_deltaPhiSuperClusterAtVtx")->at(iEle);
+   deltaPhiSeedClusterAtCalo_ = reader.GetFloat("electrons_deltaPhiSeedClusterAtCalo")->at(iEle);
 
- char hname[100];
- for (int i = 0; i < 200 ; i++){
-  
-  sprintf(hname,"hetscaled_%d",i);
-  hetscaled[i] = new TH1F(hname,hname,25,2,102);
+   mishits_ = reader.GetInt("electrons_mishits")->at(iEle);
 
-  sprintf(hname,"hetEBscaled_%d",i);
-  hetEBscaled[i] = new TH1F(hname,hname,25,2,102);
+   nAmbiguousGsfTracks_ = reader.GetInt("electrons_nAmbiguousGsfTracks")->at(iEle);
+   dist_ = 0;
+   dcot_ = 0;
+//    dist_ = reader.GetFloat("electrons_dist")->at(iEle);
+//    dcot_ = reader.GetFloat("electrons_dcot")->at(iEle);
 
-  sprintf(hname,"hetEEscaled_%d",i);
-  hetEEscaled[i] = new TH1F(hname,hname,25,2,102);
+   HoE_ = reader.GetFloat("electrons_hOverE")->at(iEle);
+   SigmaIEtaIEta_ = reader.GetFloat("electrons_sigmaIetaIeta")->at(iEle);
+   eleTrkIso_ = reader.GetFloat("electrons_tkIso03")->at(iEle);
+   eleEcalIso_ = reader.GetFloat("electrons_emIso03")->at(iEle);
+   eleHcalIsoD1_ = reader.GetFloat("electrons_hadIso03_1")->at(iEle);
+   eleHcalIsoD2_ = reader.GetFloat("electrons_hadIso03_2")->at(iEle);
+   met_ = reader.Get4V("PFMet")->at(0).Et(); ///==== PF MET
+   sumEt_ = reader.GetFloat("CALOSumEt")->at(0); ///==== PF SumET
+   eta_ = reader.Get4V("electrons")->at(iEle).eta();
+   phi_ = reader.Get4V("electrons")->at(iEle).phi();
+   pT_ = reader.Get4V("electrons")->at(iEle).Pt();
+   ET_ = reader.Get4V("electrons")->at(iEle).Et();
+   EoP_ = reader.GetFloat("electrons_eOverP")->at(iEle);
+   eleFBrem_ = reader.GetFloat("electrons_fbrem")->at(iEle);
+   eleES_ = reader.GetFloat("electrons_ES")->at(iEle);
+   E2x2_ = reader.GetFloat("electrons_e2x2")->at(iEle);
+   E3x3_ = reader.GetFloat("electrons_e3x3")->at(iEle);
+   E5x5_ = reader.GetFloat("electrons_e5x5")->at(iEle);
+   ESC_ = reader.GetFloat("electrons_scE")->at(iEle);
+   ETSC_ = reader.GetFloat("electrons_scEt")->at(iEle);
+   Sigma_Phi_ = reader.GetFloat("electrons_SC_phiWidth")->at(iEle);
+   Sigma_Eta_ = reader.GetFloat("electrons_SC_etaWidth")->at(iEle);
+   pIn_ = reader.GetFloat("electrons_pin")->at(iEle);
+   pOut_ = reader.GetFloat("electrons_pout")->at(iEle);
+   pAtCalo_ = reader.GetFloat("electrons_pcalo")->at(iEle);
+   p_ = reader.GetFloat("electrons_pin")->at(iEle);
+   E9oE25_ = reader.GetFloat("electrons_e3x3")->at(iEle) / reader.GetFloat("electrons_e5x5")->at(iEle);
+   DeltaEtaIn_ = reader.GetFloat("electrons_deltaEtaIn")->at(iEle);
+   DeltaPhiIn_ = reader.GetFloat("electrons_deltaPhiIn")->at(iEle);
+   etaSC_ = reader.GetFloat("electrons_scEta")->at(iEle);
+   phiSC_ = reader.GetFloat("electrons_scPhi")->at(iEle);
+   iSM_ = reader.GetInt("iSM")->at(iEle);
+   iSC_ = reader.GetInt("iSC")->at(iEle);
 
-  sprintf(hname,"hmtEBscaled_%d",i);
-  hmtEBscaled[i] = new TH1F(hname,hname,50,0,200);
+   iDetEB_ = reader.GetInt("electrons_iDetEB")->at(iEle);
+   iDetEE_ = reader.GetInt("electrons_iDetEE")->at(iEle);
 
-  sprintf(hname,"hmtEEscaled_%d",i);
-  hmtEEscaled[i] = new TH1F(hname,hname,50,0,200);
+   dphiMETEle_ = deltaPhi(reader.Get4V("PFMet")->at(0).Phi(),reader.Get4V("electrons")->at(iEle).phi());
+   eleCharge_ = reader.GetFloat("electrons_charge")->at(iEle);
+   eleSwissCross_ = reader.GetFloat("electrons_SwissCross")->at(iEle);
+   seedSeverityLevel_ = reader.GetInt("electrons_seedSeverityLevel")->at(iEle);
 
-  sprintf(hname,"heopEBscaled_%d",i);
-  heopEBscaled[i] = new TH1F(hname,hname,50,0,2);
+   float cphi = (reader.Get4V("electrons")->at(iEle).x() * reader.Get4V("PFMet")->at(0).Px() 
+     + reader.Get4V("electrons")->at(iEle).y() * reader.Get4V("PFMet")->at(0).Py()) 
+     / (met_*pT_);
 
-  sprintf(hname,"heopEEscaled_%d",i);
-  heopEEscaled[i] = new TH1F(hname,hname,50,0,2);
-  
- }
+   MT_ = sqrt(2*ET_*met_*(1-cphi));
 
-//   float EtaCutEB    = 1.4442;
-//   float EtaCutEE    = 1.560;
- float EtaCutEB    = 1.5;
- float EtaCutEE    = 1.5;
- float EtaMax      = 3.0;
-
-
- double HoE;
- double SigmaIEtaIEta;
- double eleTrkIso;
- double eleEcalIso;
- double eleHcalIsoD1;
- double eleHcalIsoD2;
- unsigned int eleMisHits;
-
- double met;
- double eta;
- double phi;
- double pT;
- double ET;
- double MT;
- double EoP;
- double eleFBrem;
- double eleES;
- double E2x2;
- double E3x3;
- double E5x5;
- double ESC;
- double Sigma_Phi;
- double Sigma_Eta;
- double pIn;
- double pOut;
- double pAtCalo;
- double p;
- double E9oE25;
- double DeltaEtaIn;
- double DeltaPhiIn;
-
- double etaSC;
- double phiSC;
-
- int HLT_Ele15_LW_L1R;
- int HLT_Photon10_L1R;
- int HLT_Photon15_L1R;
- int HLT_Photon20_L1R;
-
- int nGoodElectrons;
- int iSM;
- int iSC;
-
- double eleCharge;
-
-
- TTree* myTree = new TTree("myTree","myTree");
- myTree -> Branch("met",&met,"met/D");
- myTree -> Branch("eta",&eta,"eta/D");
- myTree -> Branch("phi",&phi,"phi/D");
- myTree -> Branch("pT",&pT,"pT/D");
- myTree -> Branch("ET",&ET,"ET/D");
- myTree -> Branch("MT",&MT,"MT/D");
- myTree -> Branch("EoP",&EoP,"EoP/D");
- myTree -> Branch("eleFBrem",&eleFBrem,"eleFBrem/D");
- myTree -> Branch("eleES",&eleES,"eleES/D");
- myTree -> Branch("E2x2",&E2x2,"E2x2/D");
- myTree -> Branch("E3x3",&E3x3,"E3x3/D");
- myTree -> Branch("E5x5",&E5x5,"E5x5/D");
- myTree -> Branch("ESC",&ESC,"ESC/D");
- myTree -> Branch("Sigma_Phi",&Sigma_Phi,"Sigma_Phi/D");
- myTree -> Branch("Sigma_Eta",&Sigma_Eta,"Sigma_Eta/D");
- myTree -> Branch("pIn",&pIn,"pIn/D");
- myTree -> Branch("pOut",&pOut,"pOut/D");
- myTree -> Branch("pAtCalo",&pAtCalo,"pAtCalo/D");
-
- myTree -> Branch("p",&p,"p/D");
- myTree -> Branch("E9oE25",&E9oE25,"E9oE25/D");
-
- myTree -> Branch("iSM",&iSM,"iSM/I");
- myTree -> Branch("iSC",&iSC,"iSC/I");
-
- myTree -> Branch("initialNumber",&initialNumber,"initialNumber/I");
- myTree -> Branch("HLT_Ele15_LW_L1R",&HLT_Ele15_LW_L1R,"HLT_Ele15_LW_L1R/I");
- myTree -> Branch("HLT_Photon10_L1R",&HLT_Photon10_L1R,"HLT_Photon10_L1R/I");
- myTree -> Branch("HLT_Photon15_L1R",&HLT_Photon15_L1R,"HLT_Photon15_L1R/I");
- myTree -> Branch("HLT_Photon20_L1R",&HLT_Photon20_L1R,"HLT_Photon20_L1R/I");
-
- myTree -> Branch("DeltaEtaIn",&DeltaEtaIn,"DeltaEtaIn/D");
- myTree -> Branch("DeltaPhiIn",&DeltaPhiIn,"DeltaPhiIn/D");
-
- myTree -> Branch("etaSC",&etaSC,"etaSC/D");
- myTree -> Branch("phiSC",&phiSC,"phiSC/D");
-
- myTree -> Branch("nGoodElectrons",&nGoodElectrons,"nGoodElectrons/I");
-
- myTree -> Branch("eleCharge",&eleCharge,"eleCharge/D");
-
- int nWele = 0;
- int nWeleSel = 0;
-
-
-  // loop over entries
- for (int entry = 0; entry < nEntries; ++entry) {
-  reader.GetEntry(entry);
-
-  if(entry%100000 == 0) std::cout << "event n. " << entry << " : " << nEntries << std::endl;
-
-  // HLT selection
-  //if (treeVars.HLT_Photon15_L1R==0) continue; ///==== always 1 for DATA
-  //if (treeVars.HLT_Ele15_LW_L1R==0) continue;
-        
-  nGoodElectrons = 0;
-  int chosenEle = 0;
-
-    //start loop over electron candidates
-  int nEles = reader.Get4V("electrons")->size();
-  for (int iEle = 0; iEle < nEles; iEle++){
-   float eta = reader.Get4V("electrons")->at(iEle).eta();
-      // select electrons in ECAL fiducial volume
-   if ( fabs(eta)> EtaCutEB && fabs(eta)< EtaCutEE ) continue;
-   if ( fabs(eta)> EtaMax ) continue;
-      
-   float pt = (reader.GetFloat("electrons_pin")->at(iEle))*(reader.Get4V("electrons")->at(iEle).Pt())/(reader.Get4V("electrons")->at(iEle).P());
-   p  = reader.GetFloat("electrons_pin")->at(iEle);
-   float et = reader.Get4V("electrons")->at(iEle).Et();
-      
-   met  = reader.Get4V("CALOMet")->at(0).Et();
-
-   float cphi = (reader.Get4V("electrons")->at(iEle).x() * reader.Get4V("CALOMet")->at(0).Px() 
-     + reader.Get4V("electrons")->at(iEle).y() * reader.Get4V("CALOMet")->at(0).Py()) 
-     / (met*pt);
-   
-   float mt   = sqrt(2*et*met*(1-cphi));
-
-   float dphi = deltaPhi(reader.Get4V("CALOMet")->at(0).Phi(),reader.Get4V("electrons")->at(iEle).phi());
-
-   float sumEt = 0;
-//    for (unsigned int iJet=0; iJet<reader.Get4V("jets")->size(); iJet++){
-//     float deta = reader.Get4V("jets")->at(iJet).Eta() -  eta;
-//     float dphi = deltaPhi(reader.Get4V("jets")->at(iJet).Phi(),reader.Get4V("electrons")->at(iEle).phi());
-//     float dR = sqrt(deta*deta+dphi*dphi);
-//     if ( dR < 0.4 && reader.Get4V("jets")->at(iJet).Pt()>15.) continue;
-//     sumEt += reader.Get4V("jets")->at(iJet).Pt();
-//    }
-
-   sumEt = reader.GetFloat("CALOSumEt")->at(0);
-   
-   hmet_vs_metOverSumEt ->Fill(met/sumEt,met);
-   hSumEt->Fill(sumEt,w);
-   hmet_o_SumEt->Fill(met/sumEt,w);
-
-//       cout << "Run : " << treeVars.runId  
-//     << "  lumi : " << treeVars.lumiId   
-//     << "  evt  : " << treeVars.eventId 
-//     << "  eleEt : " << et 
-//     << "  met : " <<  treeVars.caloMet
-//     << "  sumEt : " <<  sumEt
-//     << "  met/sumEt : " << (met/sumEt) 
-//     << "  dphi : " << dphi 
-     
-//     << endl;
-
-      // apply selections : Jim
-      //if ( et < 18.)              continue ;
-   if ( met < 18. )           continue;
-   if ( dphi < 0.75)          continue;    
-//    if ( sumEt!=0 && (met/sumEt) < 0.5 )   continue;
-//    if ( met < (6 - 10.*(met/sumEt - 2))) continue;
-      
-
-   // electron ID homemade
-   
-   
-   HoE = reader.GetFloat("electrons_hOverE")->at(iEle);
-   SigmaIEtaIEta = reader.GetFloat("electrons_sigmaIetaIeta")->at(iEle);
-   DeltaPhiIn = reader.GetFloat("electrons_deltaPhiIn")->at(iEle);
-   DeltaEtaIn = reader.GetFloat("electrons_deltaEtaIn")->at(iEle);
-   
-   
-   // electron isolation 
-   
-   eleTrkIso = reader.GetFloat("electrons_tkIso03")->at(iEle);
-   eleEcalIso = reader.GetFloat("electrons_emIso03")->at(iEle);
-   eleHcalIsoD1 = reader.GetFloat("electrons_hadIso03_1")->at(iEle);
-   eleHcalIsoD2 = reader.GetFloat("electrons_hadIso03_2")->at(iEle);
-
-   eleMisHits = reader.GetInt("electrons_mishits")->at(iEle);
-
-   // Spike cleaning - swiss cross
-   //    (1. - E4/E1)
-   if (reader.GetInt("electrons_seedSeverityLevel")->at(iEle) != 0) continue;
-
-   // eleId 80% cfr https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-   if (eleMisHits > 0) continue;
-   if (fabs(eta) <= EtaCutEB && ((eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pt > 0.07)) continue;
-   if (fabs(eta) <= EtaCutEB && (eleTrkIso/pt>0.09 || eleEcalIso/pt>0.07 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.09)) continue;
-   if (fabs(eta) <= EtaCutEB && (HoE>0.040 || SigmaIEtaIEta>0.01)) continue;
-//    if (fabs(eta) <= EtaCutEB && DeltaPhiIn > 0.06) continue;
-//    if (fabs(eta) <= EtaCutEB && DeltaEtaIn > 0.004) continue;
-   
-   if (fabs(eta) > EtaCutEB && ((eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pt > 0.06)) continue;
-   if (fabs(eta) > EtaCutEB && (eleTrkIso/pt>0.04 || eleEcalIso/pt>0.05 || (eleHcalIsoD1+eleHcalIsoD2)/pt>0.025)) continue;
-   if (fabs(eta) > EtaCutEB && (HoE>0.025 || SigmaIEtaIEta>0.03)) continue;
-            
-   nGoodElectrons++;
-   chosenEle = iEle;
-
-   eta = reader.Get4V("electrons")->at(chosenEle).eta();
-   p  = reader.GetFloat("electrons_pin")->at(chosenEle);
-   met  = reader.Get4V("CALOMet")->at(0).Et();
-   sumEt = reader.GetFloat("CALOSumEt")->at(0);
-
-   if ( et > 18.) {
-    nWele++;
-//   cout << "Run : " << treeVars.runId  
-//        << "  lumi : " << treeVars.lumiId   
-//        << "  evt  : " << treeVars.eventId 
-//        << "  eleEt : " << et 
-//        << "  eleId : " <<  treeVars.eleId[chosenEle] 
-//        << "   eta : " << treeVars.eleEta[chosenEle] 
-//        << "   phi : " << treeVars.elePhi[chosenEle] 
-//        << endl;
-
-    DeltaEtaIn = reader.GetFloat("electrons_deltaEtaIn")->at(chosenEle);
-    DeltaPhiIn = reader.GetFloat("electrons_deltaPhiIn")->at(chosenEle);
-    phi = reader.Get4V("electrons")->at(chosenEle).phi();
-    pT = pt;
-    ET = et;
-    MT = mt;
-    EoP = reader.GetFloat("electrons_scE")->at(chosenEle) /p;
-//    E9oE25 = reader.GetFloat("electrons_e3x3")->at(chosenEle) / reader.GetFloat("electrons_e5x5")->at(chosenEle);
-
-    E2x2 = reader.GetFloat("electrons_e2x2")->at(chosenEle);
-    E3x3 = reader.GetFloat("electrons_e3x3")->at(chosenEle);
-    E5x5 = reader.GetFloat("electrons_e5x5")->at(chosenEle);
-    ESC = reader.GetFloat("electrons_scE")->at(chosenEle);
-    Sigma_Phi = reader.GetFloat("electrons_SC_phiWidth")->at(chosenEle);
-    Sigma_Eta = reader.GetFloat("electrons_SC_etaWidth")->at(chosenEle);
-    pIn = reader.GetFloat("electrons_pin")->at(chosenEle);
-    pOut = reader.GetFloat("electrons_pout")->at(chosenEle);
-//    pAtCalo = reader.Get3V("electrons_p_atCalo")->at(chosenEle).R();
-   
-    etaSC = reader.GetFloat("electrons_scEta")->at(chosenEle);
-    phiSC = reader.GetFloat("electrons_scPhi")->at(chosenEle);
-
-   ///==== p ====
-
-   // fill histos EB+EE
-    het  ->Fill(et,w);
-    hmet ->Fill(met,w);
-    hmt  ->Fill(mt,w);
-    heop ->Fill(EoP ,w);
-
-      // fill histos EB
-    if (fabs(eta) < EtaCutEB){
-     hetEB  -> Fill(et,w);
-     hmtEB  -> Fill(mt,w);
-     hmetEB -> Fill(met,w);
-     heopEB ->Fill(EoP ,w);
-    }
-
-      // fill histos EE
-    if (fabs(eta) > EtaCutEE && fabs(eta) < EtaMax ){
-     hetEE  -> Fill(et,w);
-     hmtEE  -> Fill(mt,w);
-     hmetEE -> Fill(met,w);
-     heopEE ->Fill(EoP ,w);
-    }
-
-   
-    HLT_Ele15_LW_L1R = -2;
-    HLT_Photon10_L1R = -2;
-    HLT_Photon15_L1R = -2;
-    HLT_Photon20_L1R = -2;
-    
-    eleFBrem  = reader.GetFloat("electrons_fbrem")->at(chosenEle);
-    eleES = reader.GetFloat("electrons_ES")->at(chosenEle);
-
-    iSC = reader.GetInt("iSC")->at(chosenEle);
-    iSM = reader.GetInt("iSM")->at(chosenEle);
-    
-    eleCharge = reader.GetFloat("electrons_charge")->at(chosenEle);
-    myTree -> Fill(); ///==== even if more than 1 electron ====
+   ///==== WP 70% ====
+   if (WP==70 && (( fabs(etaSC_)<1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.04 && (eleTrkIso_)/pT_ < 0.05&& (eleEcalIso_)/pT_ < 0.06&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.03&& HoE_ < 0.025&& SigmaIEtaIEta_ < 0.01)||( fabs(etaSC_)>1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.03&& (eleTrkIso_)/pT_ < 0.025&& (eleEcalIso_)/pT_ < 0.025&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.02&& HoE_ < 0.025&& SigmaIEtaIEta_ < 0.03))){
+    myTree_ -> Fill(); ///==== for every electron!
    }
+   ///==== WP 80% ====
+   if (WP==80 && (( fabs(etaSC_)<1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.07&& (eleTrkIso_)/pT_ < 0.09&& (eleEcalIso_)/pT_ < 0.07&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.10&& HoE_ < 0.04&& SigmaIEtaIEta_ < 0.01)||( fabs(etaSC_)>1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.06&& (eleTrkIso_)/pT_ < 0.04&& (eleEcalIso_)/pT_ < 0.05&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.025&& HoE_ < 0.025&& SigmaIEtaIEta_ < 0.03))){
+    myTree_ -> Fill(); ///==== for every electron!
+   }
+   ///==== WP 95% ====
+   if (WP==95 && (( fabs(etaSC_)<1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.15&& (eleTrkIso_)/pT_ < 0.15&& (eleEcalIso_)/pT_ < 2.00&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.12&& HoE_ < 0.15&& SigmaIEtaIEta_ < 0.01)||( fabs(etaSC_)>1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.1&& (eleTrkIso_)/pT_ < 0.08&& (eleEcalIso_)/pT_ < 0.06&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.05&& HoE_ < 0.07&& SigmaIEtaIEta_ < 0.03))){
+    myTree_ -> Fill(); ///==== for every electron!
+   }
+   
+   
   }// end loop over ele cand
  } // end loop over entries
-  
- cout << "Found " << nWele << " electrons from W" << endl;
- cout << "Found " << nWeleSel << ":" << nWele << " only 1 e/W " << endl;
-
-  // FILE to save histos
-
  
- fout->cd();
+ outputRootFile.cd();
+ myTree_ -> Write();
 
- myTree -> Write();
-
- hNGoodElectrons->Write();
- het    -> Write();
- hmet   -> Write();
- hmt    -> Write();
- hetEB  -> Write();
- hmetEB -> Write();
- hmtEB  -> Write();
- hetEE  -> Write();
- hmetEE -> Write();
- hmtEE  -> Write();
-  
- heop   -> Write();
- heopEB -> Write();
- heopEE -> Write();
-
-  
- hSumEt-> Write();
- hmet_o_SumEt->Write();
- hmet_vs_metOverSumEt ->Write();
-
-  // if MC , save also scale d histograms
- if ( ff == 0 ){
-  for (int i = 0; i < 200 ; i++){ 
-   hetscaled[i]  ->Write();
-   hetEBscaled[i]->Write();
-   hetEEscaled[i]->Write();
-   hmtEBscaled[i]->Write();
-   hmtEEscaled[i]->Write();
-   heopEBscaled[i]->Write();
-   heopEEscaled[i]->Write();
-  }
- }
- 
 }
 
 
