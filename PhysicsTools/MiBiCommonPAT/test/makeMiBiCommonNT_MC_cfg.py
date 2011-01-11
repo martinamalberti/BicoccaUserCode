@@ -6,7 +6,7 @@ process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT: Choose the MC type!!!
 # Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, Other
-makeMiBiCommonNT(process, GlobalTag="START38_V14::All", HLT='', MC=True, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="START39_V8::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
   'file:/grid_mnt/data__DATA/data.polcms/cms/abenagli/WENu_38X_AOD.root'
