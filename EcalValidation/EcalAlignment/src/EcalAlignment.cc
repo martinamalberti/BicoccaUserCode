@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.5 2010/10/27 07:07:45 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.6 2010/10/29 14:43:13 amassiro Exp $
 //
 //
 
@@ -83,6 +83,26 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
   myTree_ -> Branch("E9oE25",&E9oE25_,"E9oE25/D");
   myTree_ -> Branch("iSM",&iSM_,"iSM/I");
   myTree_ -> Branch("iSC",&iSC_,"iSC/I");
+
+  myTree_ -> Branch("deltaEtaSuperClusterAtVtx",&deltaEtaSuperClusterAtVtx_,"deltaEtaSuperClusterAtVtx/D");
+  myTree_ -> Branch("deltaEtaSeedClusterAtCalo",&deltaEtaSeedClusterAtCalo_,"deltaEtaSeedClusterAtCalo/D");
+  myTree_ -> Branch("deltaEtaEleClusterAtCalo",&deltaEtaEleClusterAtCalo_,"deltaEtaEleClusterAtCalo/D");
+  myTree_ -> Branch("deltaPhiEleClusterAtCalo",&deltaPhiEleClusterAtCalo_,"deltaPhiEleClusterAtCalo/D");
+  myTree_ -> Branch("deltaPhiSuperClusterAtVtx",&deltaPhiSuperClusterAtVtx_,"deltaPhiSuperClusterAtVtx/D");
+  myTree_ -> Branch("deltaPhiSeedClusterAtCalo",&deltaPhiSeedClusterAtCalo_,"deltaPhiSeedClusterAtCalo/D");
+
+  myTree_ -> Branch("mishits",&mishits_,"mishits/I");
+  myTree_ -> Branch("nAmbiguousGsfTracks",&nAmbiguousGsfTracks_,"nAmbiguousGsfTracks/I");
+  myTree_ -> Branch("dist",&dist_,"dist/D");
+  myTree_ -> Branch("dcot",&dcot_,"dcot/D");
+
+  myTree_ -> Branch("SigmaIEtaIEta",&SigmaIEtaIEta_,"SigmaIEtaIEta/D");
+  myTree_ -> Branch("HoE",&HoE_,"HoE/D");
+  myTree_ -> Branch("eleTrkIso",&eleTrkIso_,"eleTrkIso/D");
+  myTree_ -> Branch("eleEcalIso",&eleEcalIso_,"eleEcalIso/D");
+  myTree_ -> Branch("eleHcalIsoD1",&eleHcalIsoD1_,"eleHcalIsoD1/D");
+  myTree_ -> Branch("eleHcalIsoD2",&eleHcalIsoD2_,"eleHcalIsoD2/D");
+
   myTree_ -> Branch("DeltaEtaIn",&DeltaEtaIn_,"DeltaEtaIn/D");
   myTree_ -> Branch("DeltaPhiIn",&DeltaPhiIn_,"DeltaPhiIn/D");
   myTree_ -> Branch("etaSC",&etaSC_,"etaSC/D");
@@ -92,11 +112,6 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
   myTree_ -> Branch("eleCharge",&eleCharge_,"eleCharge/D");  
   myTree_ -> Branch("eleSwissCross",&eleSwissCross_,"eleSwissCross/D");  
   myTree_ -> Branch("seedSeverityLevel",&seedSeverityLevel_,"seedSeverityLevel/I");
-
-  myTree_ -> Branch("eleTrkIso",&eleTrkIso_,"eleTrkIso/D");  
-  myTree_ -> Branch("eleEcalIso",&eleEcalIso_,"eleEcalIso/D");      
-  myTree_ -> Branch("eleHcalIsoD1",&eleHcalIsoD1_,"eleHcalIsoD1/D");
-  myTree_ -> Branch("eleHcalIsoD2",&eleHcalIsoD2_,"eleHcalIsoD2/D");
 
   myTree_ -> Branch("iDetEB",&iDetEB_,"iDetEB/I");
   myTree_ -> Branch("iDetEE",&iDetEE_,"iDetEE/I");
@@ -206,6 +221,16 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    DeltaEtaIn_ = electron.deltaEtaSuperClusterTrackAtVtx();
    DeltaPhiIn_ = electron.deltaPhiSuperClusterTrackAtVtx();   
 
+   deltaEtaSuperClusterAtVtx_ = electron.deltaEtaSuperClusterTrackAtVtx();
+   deltaEtaSeedClusterAtCalo_ = electron.deltaEtaSeedClusterTrackAtCalo();
+   deltaEtaEleClusterAtCalo_ = electron.deltaEtaEleClusterTrackAtCalo();
+   deltaPhiEleClusterAtCalo_ = electron.deltaPhiEleClusterTrackAtCalo();
+   deltaPhiSuperClusterAtVtx_ = electron.deltaPhiSuperClusterTrackAtVtx();
+   deltaPhiSeedClusterAtCalo_ = electron.deltaPhiSeedClusterTrackAtCalo();
+   mishits_ = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+   nAmbiguousGsfTracks_ = electron.ambiguousGsfTracksSize();
+   dist_ = 0;
+   dcot_ = 0;
 
    float cphi = (electron.p4().x() * metP.p4().Px() 
      + electron.p4().y() * metP.p4().Py()) 

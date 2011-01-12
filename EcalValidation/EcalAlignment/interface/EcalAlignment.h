@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id$
+// $Id: EcalAlignment.h,v 1.1 2010/10/26 07:33:35 amassiro Exp $
 //
 //
 
@@ -86,7 +86,18 @@ class EcalAlignment : public edm::EDAnalyzer {
        edm::InputTag TrackTag_;
 
        TTree* myTree_;
-       
+
+       double deltaEtaSuperClusterAtVtx_;
+       double deltaEtaSeedClusterAtCalo_;
+       double deltaEtaEleClusterAtCalo_;
+       double deltaPhiEleClusterAtCalo_;
+       double deltaPhiSuperClusterAtVtx_;
+       double deltaPhiSeedClusterAtCalo_;
+       int mishits_;
+       int nAmbiguousGsfTracks_;
+       double dist_;
+       double dcot_;
+
        double HoE_;
        double SigmaIEtaIEta_;
        double eleTrkIso_;
