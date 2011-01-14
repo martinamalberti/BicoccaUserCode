@@ -52,6 +52,10 @@ TChain* myTree;
 TString globalCut;
 double R = 1.290;
 
+bool even = true;
+bool odd = true;
+
+
 ///====================================================
 ///================== FUNCTIONS =======================
 
@@ -130,7 +134,12 @@ double Chi2Func(const double *xx ){
   
  double Chi2 = 0;
   
- for (int iEntry = 0; iEntry<nEntries; iEntry++){
+ int counter = 0;
+ for (int iEntry = 0; iEntry < nEntries; iEntry++){
+  if ((even && !(iEntry%2)) || (odd && (iEntry%2))) {
+   counter++;
+
+//   for (int iEntry = 0; iEntry<nEntries/2; iEntry++){
 //     if (!(iEntry/100)) std::cout << " iEntry = " << iEntry << " : " << nEntries << std::endl;
 //     std::cerr << " " << vDEta[iEntry] << std::endl;
 //     std::cerr << " " << vDPhi[iEntry] << std::endl;
@@ -163,9 +172,9 @@ double Chi2Func(const double *xx ){
     Chi2 += (ddeta / vErrDEta * ddeta / vErrDEta + ddphi / vErrDPhi * ddphi / vErrDPhi);
     
    }
-  
-  std::cout << " Chi2 = " << Chi2 << " / " << nEntries << " = " << Chi2/nEntries << " - " << DX*1000 << " : " << DY*1000 << " : " << DZ*1000 << " : "  <<  DPHIEuler << " : "  <<  DTHETAEuler << " : "  <<  DPSIEuler << std::endl;
- return Chi2;
+  }
+  std::cout << " Chi2 = " << Chi2 << " / " << counter << " = " << Chi2/counter << " - " << DX*1000 << " : " << DY*1000 << " : " << DZ*1000 << " : "  <<  DPHIEuler << " : "  <<  DTHETAEuler << " : "  <<  DPSIEuler << std::endl;
+  return Chi2;
 }
 
 
@@ -206,6 +215,14 @@ int main(int argc, char** argv)
  rotationTheta = subPSetInput.getParameter<bool> ("rotationTheta") ;
  rotationPsi   = subPSetInput.getParameter<bool> ("rotationPsi") ;
      
+ double setRotationPhi     = subPSetInput.getUntrackedParameter<double> ("setRotationPhi",0) ;
+ double setRotationTheta   = subPSetInput.getUntrackedParameter<double> ("setRotationTheta",0) ;
+ double setRotationPsi     = subPSetInput.getUntrackedParameter<double> ("setRotationPsi",0) ;
+
+ 
+ even = subPSetInput.getUntrackedParameter<bool> ("even",true) ;
+ odd = subPSetInput.getUntrackedParameter<bool> ("odd",true) ;
+   
  edm::ParameterSet subPSetOutput = parameterSet->getParameter<edm::ParameterSet> ("outputTree") ;
  std::string nameFileOut = subPSetOutput.getParameter<std::string> ("outputFile") ;
 
@@ -273,27 +290,27 @@ int main(int argc, char** argv)
   else  minuit->SetFixedVariable(2,"DZ",0);
 
 
-  if (rotationPhi)  minuit->SetLimitedVariable(3,"DPHIe",0, 0.01,-0.1,0.1);
-  else  minuit->SetFixedVariable(3,"DPHIe",0);
+  if (rotationPhi)  minuit->SetLimitedVariable(3,"DPHIe",setRotationPhi, 0.001,-0.1,0.1);
+  else  minuit->SetFixedVariable(3,"DPHIe",setRotationPhi);
 
-  if (rotationTheta)  minuit->SetLimitedVariable(4,"DTHETAe",0, 0.01,-0.1,0.1);
-  else  minuit->SetFixedVariable(4,"DTHETAe",0);
+  if (rotationTheta)  minuit->SetLimitedVariable(4,"DTHETAe",setRotationTheta, 0.001,-0.1,0.1);
+  else  minuit->SetFixedVariable(4,"DTHETAe",setRotationTheta);
 
-  if (rotationPsi)  minuit->SetLimitedVariable(5,"DPSIe",0, 0.01,-0.1,0.1);
-  else  minuit->SetFixedVariable(5,"DPSIe",0);
- 
- 
+  if (rotationPsi)  minuit->SetLimitedVariable(5,"DPSIe",setRotationPsi, 0.001,-0.1,0.1);
+  else  minuit->SetFixedVariable(5,"DPSIe",setRotationPsi);
+
+
   minuit->Minimize();
   minuit->PrintResults();
-  
+
   DX_SM_Mean[iSM] = (minuit->X()[0]);
   DY_SM_Mean[iSM] = (minuit->X()[1]);
   DZ_SM_Mean[iSM] = (minuit->X()[2]);
-  
+
   DX_SM_RMS[iSM] = (minuit->Errors()[0]);
   DY_SM_RMS[iSM] = (minuit->Errors()[1]);
   DZ_SM_RMS[iSM] = (minuit->Errors()[2]);
-  
+
   DPHIe_SM_Mean[iSM] = (minuit->X()[3]);
   DTHETAe_SM_Mean[iSM] = (minuit->X()[4]);
   DPSIe_SM_Mean[iSM] = (minuit->X()[5]);
@@ -304,12 +321,12 @@ int main(int argc, char** argv)
   
   ///==== end Chi2 minimization ====
   
-  std::cout << " iSM = " << iSM << " DX = " << DX_SM_Mean[iSM]      << " +/- " << DX_SM_RMS[iSM]      << std::endl;
-  std::cout << " iSM = " << iSM << " DY = " << DY_SM_Mean[iSM]      << " +/- " << DY_SM_RMS[iSM]      << std::endl;
-  std::cout << " iSM = " << iSM << " DZ = " << DZ_SM_Mean[iSM]      << " +/- " << DZ_SM_RMS[iSM]      << std::endl;
-  std::cout << " iSM = " << iSM << " DZ = " << DPHIe_SM_Mean[iSM]   << " +/- " << DPHIe_SM_RMS[iSM]   << std::endl;
-  std::cout << " iSM = " << iSM << " DZ = " << DTHETAe_SM_Mean[iSM] << " +/- " << DTHETAe_SM_RMS[iSM] << std::endl;
-  std::cout << " iSM = " << iSM << " DZ = " << DPSIe_SM_Mean[iSM]   << " +/- " << DPSIe_SM_RMS[iSM]   << std::endl;
+  std::cout << " iSM = " << iSM << " DX =     " << DX_SM_Mean[iSM]      << " +/- " << DX_SM_RMS[iSM]      << std::endl;
+  std::cout << " iSM = " << iSM << " DY =     " << DY_SM_Mean[iSM]      << " +/- " << DY_SM_RMS[iSM]      << std::endl;
+  std::cout << " iSM = " << iSM << " DZ =     " << DZ_SM_Mean[iSM]      << " +/- " << DZ_SM_RMS[iSM]      << std::endl;
+  std::cout << " iSM = " << iSM << " DPhi   = " << DPHIe_SM_Mean[iSM]   << " +/- " << DPHIe_SM_RMS[iSM]   << std::endl;
+  std::cout << " iSM = " << iSM << " DTheta = " << DTHETAe_SM_Mean[iSM] << " +/- " << DTHETAe_SM_RMS[iSM] << std::endl;
+  std::cout << " iSM = " << iSM << " DPsi   = " << DPSIe_SM_Mean[iSM]   << " +/- " << DPSIe_SM_RMS[iSM]   << std::endl;
   std::cout << "============================================================================" << std::endl;
   std::cout << "============================================================================" << std::endl;
   std::cout << "============================================================================" << std::endl;

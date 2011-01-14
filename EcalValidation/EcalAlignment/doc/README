@@ -13,6 +13,25 @@ scramv1 b
 
 
 
+############################ Old alignment TAG ############################
+   crab -create -cfg crab_validation_simpleNtpleDATA_WZ_OldAlign.cfg
+   crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_OldAlign.cfg
+
+   crab -submit -c Run2010B-WZEG-v2_RAWRECO_OldAlign
+   crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
+
+   crab -status -c Run2010B-WZEG-v2_RAWRECO_OldAlign
+   crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
+
+   crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_OldAlign
+   crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
+
+
+   hadd EcalAlignmentOldJoin_Temp.root Run2010B-WZEG-v2_RAWRECO_OldAlign/res/EcalAlignment_*
+   hadd EcalAlignmentOldJoin.root EcalAlignmentOldJoin_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign/res/EcalAlignment_*
+   rm EcalAlignmentOldJoin_Temp.root
+
+
 ############################ Default alignment 0 ############################
 
 1) create reconstruction with 0 alignment
@@ -24,6 +43,12 @@ scramv1 b
     crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
     That will store data (ROOT trees with electrons) (see [1.1] for Castor usage; default "getoutput" usage)
+
+    crab -status -c Run2010B-WZEG-v2_RAWRECO_NoAlign
+    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+
+    crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_NoAlign
+    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
  and join output tree
 
@@ -39,9 +64,23 @@ scramv1 b
      EB_Alignment_RotoTraslation AlignEB_cfg.py
   NB: remember to modify output "txt" file in "Align_cfg.py" to deal with EE and EB 
       (or to use "AlignEE_cfg.py" and "AlignEB_cfg.py"
-  Time ~ 3 minutes (it depends on the number of electrons)
+  Time ~ 1 minute (it depends on the number of electrons)
 
   In "Align_cfg.py" enable/disable rotations and traslations
+
+  To test on the even and odd events in the dataset (estimation of statistic error on results)
+   EE_Alignment_RotoTraslation AlignEE_Even_cfg.py
+   EE_Alignment_RotoTraslation AlignEE_Odd_cfg.py
+   EB_Alignment_RotoTraslation AlignEB_Even_cfg.py
+   EB_Alignment_RotoTraslation AlignEB_Odd_cfg.py
+  The whole procedure takes about 3 minutes.
+
+  To test on the eletron and positrons (estimation of systematic error on results)
+   EB_Alignment_RotoTraslation AlignEB_EPlus_cfg.py
+   EB_Alignment_RotoTraslation AlignEB_EMinus_cfg.py
+   EE_Alignment_RotoTraslation AlignEE_EPlus_cfg.py
+   EE_Alignment_RotoTraslation AlignEE_EMinus_cfg.py
+
 
 3) create new local DB with new alignment constants
   check the consistence of output name in "Align_cfg.py" and input name in "EcalTrivialAlignment_cfi.py"
@@ -78,6 +117,15 @@ and join output tree
     hadd EcalAlignmentJoinMyAlign.root EcalAlignmentJoinMyAlign_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign/res/EcalAlignment_*
     rm EcalAlignmentJoinMyAlign_Temp.root
 
+
+and get luminosity information:
+    crab -report -c Run2010B-WZEG-v2_RAWRECO_MyAlign
+    crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
+
+    crab -report -c Run2010B-WZEG-v2_RAWRECO_NoAlign
+    crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+
+    lumiCalc.py -c frontier://LumiProd/CMS_LUMI_PROD -i test/collision10.json recorded
 
 ############################ Sanity check and validation ############################
 

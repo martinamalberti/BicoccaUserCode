@@ -11,9 +11,14 @@ process.inputTree = cms.PSet(
   traslationX = cms.bool(True),
   traslationY = cms.bool(True),
   traslationZ = cms.bool(True),
-  rotationPhi   = cms.bool(False),
+  rotationPhi   = cms.bool(True),
   rotationTheta = cms.bool(False),
   rotationPsi   = cms.bool(False),
+
+  setRotationPhi   = cms.untracked.double(0),
+  setRotationTheta = cms.untracked.double(0),
+  setRotationPsi   = cms.untracked.double(0),
+
   inputFiles    = cms.vstring(
          'EcalAlignmentJoin.root'
     )
