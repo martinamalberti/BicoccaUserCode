@@ -200,7 +200,7 @@ int main(int argc, char** argv)
  bool rotationPsi ;
  
  std::string fileName (argv[1]) ;
- boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile(fileName) ;
+ boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfig(fileName) ;
  boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
 
  edm::ParameterSet subPSetInput = parameterSet->getParameter<edm::ParameterSet> ("inputTree") ;
