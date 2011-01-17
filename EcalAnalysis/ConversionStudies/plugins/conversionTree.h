@@ -50,6 +50,11 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexFitter.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/AdaptiveGsfVertexFitter.h"
 
+//trigger
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
 using namespace edm;
 
 class conversionTree : public edm::EDAnalyzer 
@@ -67,6 +72,7 @@ class conversionTree : public edm::EDAnalyzer
   virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
   virtual void endJob () ;
   
+  void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillConversionInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFClusterInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -81,6 +87,9 @@ class conversionTree : public edm::EDAnalyzer
 
     
   ///---- input tag ----
+  edm::InputTag TriggerEventTag_;
+  edm::InputTag TriggerResultsTag_;
+  bool saveHLT_;
   bool saveConversion_;
   bool savePFPhoton_;
   bool savePFCluster_;

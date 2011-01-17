@@ -11,7 +11,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.GlobalTag.globaltag = 'GR_R_36X_V12::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V15::All'
 
 
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -21,35 +21,17 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 
 ##SOURCE
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(9028) )
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+    
 process.source = cms.Source("PoolSource",
         skipEvents = cms.untracked.uint32(0),
         fileNames = cms.untracked.vstring(
 
-    #run 132440 trgBit 40||41 on Skim2
-    #'rfio:'
-
-    #/MinimumBias/Commissioning10-PromptReco-v7/RECO
-    #'/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/F4C92A98-163C-DF11-9788-0030487C7392.root'
-
-    #/MinimumBias/Commissioning10-GOODCOLL-v7/RAW-RECO 132440
-    #'/store/data/Commissioning10/MinimumBias/RAW-RECO/v7/000/132/440/FCCA95EA-4A3C-DF11-B108-00E0817918BF.root'
-
-    #/store/mc/Summer09/MinBias/GEN-SIM-RECO/MC_31X_V3-v1/
-    #'file:/tmp/deguio/C6F7D0C1-E881-DE11-BA55-00E08133CDA0.root'
-
-    #'rfio:/castor/cern.ch/user/d/deguio/Dalitz/Beam09/900GeV/conversionsFiltered_1.root',
-    #'rfio:/castor/cern.ch/user/d/deguio/Dalitz/Beam09/900GeV/conversionsFiltered_2.root'
-
-    #/MinBias/Spring10-START3X_V26A_356ReReco-v1/GEN-SIM-RECO
-    #'/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEFC70B6-F53D-DF11-B57E-003048679150.root'
-
-    #27may reprocessing goodcoll
-    #'file:/gwpool/users/deguio/DATASETS/Commissioning10_MinimumBias_RAW-RECO_GOODCOLL-May27thSkim_v5/F2BFED72-9E72-DF11-A02B-0018F3D096E8.root'
-
     #Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2
-    'file:/gwpool/users/deguio/DATASETS/Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2/FEFD6F35-BF68-DF11-A7E7-003048F0E81E.root'
+    #'file:/gwpool/users/deguio/DATASETS/Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2/FEFD6F35-BF68-DF11-A7E7-003048F0E81E.root'
+
+    '/store/data/Run2010B/Jet/RECO/PromptReco-v2/000/149/442/E46CB2D6-49E6-DF11-AAF1-0030487CD7EE.root'
     )
 )
 
@@ -70,18 +52,19 @@ process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
 #Good Vertex Filter (see GOODCOLL skim)
-process.primaryVertexFilter = cms.EDFilter("VertexSelector",
-                                           src = cms.InputTag("offlinePrimaryVertices"),
-                                           cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
-                                           filter = cms.bool(True)
+process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
+                                           vertexCollection = cms.InputTag('offlinePrimaryVertices'),
+                                           minimumNDOF = cms.uint32(4) ,
+                                           maxAbsZ = cms.double(24),
+                                           maxd0 = cms.double(2)
                                            )
 
 # FilterOutScraping
 process.noscraping = cms.EDFilter("FilterOutScraping",
-                                     applyfilter = cms.untracked.bool(True),
-                                     debugOn = cms.untracked.bool(False),
-                                     numtrack = cms.untracked.uint32(10),
-                                     thresh = cms.untracked.double(0.25)
+                                  applyfilter = cms.untracked.bool(True),
+                                  debugOn = cms.untracked.bool(False),
+                                  numtrack = cms.untracked.uint32(10),
+                                  thresh = cms.untracked.double(0.25)
                                   )
 
 
@@ -90,27 +73,41 @@ process.goodcollisions=cms.Sequence(process.hltLevel1GTSeed*process.goodvertex)
 
 
 # Filter on conversions number per event
-process.conversionsFilter = cms.EDFilter('conversionsFilter')
+process.conversionFilter = cms.EDFilter('conversionFilter')
 
 
-process.conversionTree = cms.EDAnalyzer('conversionTree')
+process.conversionTree = cms.EDAnalyzer('conversionTree',
+                                        TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
+                                        TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                        )
 
 
 
 ##OUTPUT
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("conversionTreeFiltered_GOODCOLL_27May_7TeV.root"),
+    fileName = cms.string("conversionTreeFiltered.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 
+process.load("PhysicsTools.NtupleUtils.AllPassFilter_cfi")
 
+# Counter1: All read events
+process.AllEvents = process.AllPassFilter.clone()
+# Counter2: Good Vertex
+process.ConvFilter = process.AllPassFilter.clone()
+# Counter3: Conversion Filter
+process.GoodVertex = process.AllPassFilter.clone()
 
 process.p = cms.Path(
-    process.skimming*
-    process.goodcollisions*
+    process.AllEvents * # -> Counter
     
-    process.conversionsFilter*
-    process.trackerOnlyConversionSequence*
+    process.goodvertex*
+    process.GoodVertex* # -> Counter
+    
+    process.conversionFilter*
+    process.ConvFilter* # -> Counter
+    
+    #process.trackerOnlyConversionSequence*  #ancora necessario in 38X?
     process.conversionTree
     )
 

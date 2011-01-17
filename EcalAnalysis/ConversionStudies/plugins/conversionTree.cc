@@ -82,6 +82,9 @@ using namespace edm;
 
 conversionTree::conversionTree (const edm::ParameterSet& iConfig):
   //---- flags ----
+  TriggerEventTag_ (iConfig.getParameter<edm::InputTag>("TriggerEventTag")),
+  TriggerResultsTag_ (iConfig.getParameter<edm::InputTag>("TriggerResultsTag")),
+  saveHLT_ (iConfig.getUntrackedParameter<bool> ("saveHLT", true)),
   saveConversion_ (iConfig.getUntrackedParameter<bool> ("saveConversion", true)),
   savePFPhoton_ (iConfig.getUntrackedParameter<bool> ("savePFPhoton", true)),
   savePFCluster_ (iConfig.getUntrackedParameter<bool> ("savePFCluster", true)),
@@ -98,6 +101,45 @@ conversionTree::conversionTree (const edm::ParameterSet& iConfig):
 conversionTree::~conversionTree ()
 {
   delete NtupleFactory_;
+}
+
+
+
+///-------------
+///---- HLT ----
+
+void conversionTree::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //---- HLT information ----
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  iEvent.getByLabel(TriggerEventTag_, triggerEventHandle);
+  const edm::Provenance* provenance = triggerEventHandle.provenance();
+  //std::cout << "Trigger process name = " << provenance->processName() << std::endl;
+  
+  edm::Handle<edm::TriggerResults> triggerResultsHandle;
+  iEvent.getByLabel(edm::InputTag(TriggerResultsTag_.label(), TriggerResultsTag_.instance(), provenance->processName()), triggerResultsHandle);
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResultsHandle);
+  for(unsigned int iHLT = 0; iHLT < triggerResultsHandle->size(); ++iHLT)
+  {
+    //std::cout << "bit: " << std::fixed << setw(3)<< iHLT << "   name: " << triggerNames.triggerName(iHLT) << std::endl;
+    
+    if( triggerResultsHandle -> wasrun(iHLT) )
+      NtupleFactory_ -> FillFloat("HLT_WasRun", 1);
+    else
+      NtupleFactory_ -> FillFloat("HLT_WasRun", 0);
+    
+    if( triggerResultsHandle -> accept(iHLT) )
+      NtupleFactory_ -> FillFloat("HLT_Accept", 1);
+    else
+      NtupleFactory_ -> FillFloat("HLT_Accept", 0);
+    
+    if( triggerResultsHandle -> error(iHLT) )
+      NtupleFactory_->FillFloat("HLT_Error", 1);
+    else
+      NtupleFactory_->FillFloat("HLT_Error", 0);
+    
+    NtupleFactory_ -> FillString("HLT_Names", triggerNames.triggerName(iHLT));
+  }
 }
 
 
@@ -556,6 +598,15 @@ void conversionTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 {
   //std::cout << "analyze" << std::endl;
 
+  NtupleFactory_->FillInt("runId", iEvent.id().run());
+  NtupleFactory_->FillInt("lumiId", iEvent.luminosityBlock());
+  NtupleFactory_->FillInt("BXId", iEvent.bunchCrossing());
+  NtupleFactory_->FillInt("eventId", iEvent.id().event());
+  
+
+  ///---- fill HLT ----
+  if (saveHLT_) fillHLTInfo (iEvent, iSetup);
+
   ///---- fill muons ----
   if (saveConversion_) fillConversionInfo (iEvent, iSetup);
   
@@ -583,6 +634,19 @@ void conversionTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 void conversionTree::beginJob()
 {
 
+  NtupleFactory_->AddInt("runId"); 
+  NtupleFactory_->AddInt("lumiId"); 
+  NtupleFactory_->AddInt("BXId"); 
+  NtupleFactory_->AddInt("eventId"); 
+
+  if(saveHLT_)
+    {
+      NtupleFactory_->AddFloat("HLT_WasRun"); 
+      NtupleFactory_->AddFloat("HLT_Accept"); 
+      NtupleFactory_->AddFloat("HLT_Error"); 
+      NtupleFactory_->AddString("HLT_Names"); 
+    }
+  
   if(saveConversion_)
     {
       NtupleFactory_->AddFloat("pairInvariantMass"); 
