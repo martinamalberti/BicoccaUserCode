@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.GeometryExtended_cff import *
-#from Configuration.StandardSequences.MagneticField_cff import *
-#from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+from Configuration.StandardSequences.GeometryDB_cff import *
 
 SimpleNtuple = cms.EDAnalyzer(
     "SimpleNtuple",

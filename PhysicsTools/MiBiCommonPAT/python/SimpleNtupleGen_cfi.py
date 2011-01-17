@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.GeometryExtended_cff import *
+from Configuration.StandardSequences.GeometryDB_cff import *
 
 SimpleNtupleGen = cms.EDAnalyzer(
     "SimpleNtupleGen",
