@@ -458,6 +458,13 @@ void SimpleNtupleGen::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if(saveGenPtHat_) fillGenPtHatInfo(iEvent, iSetup);
   
   ///---- fill GenParticles ----
+  if(saveGenEle_)   fillGenEleInfo(iEvent, iSetup);
+  if(saveGenMu_)    fillGenMuInfo(iEvent, iSetup);
+  if(saveGenTau_)   fillGenTauInfo(iEvent, iSetup);
+  if(saveGenTauJ_)  fillGenTauJInfo(iEvent, iSetup);
+  if(saveGenJet_)   fillGenJetInfo(iEvent, iSetup);
+  
+  ///---- fill Higgs/TTBar ----
   if(saveGenTTBar_) fillGenTTBarInfo(iEvent, iSetup);
   if(saveGenHiggs_) fillGenHiggsInfo(iEvent, iSetup);
   
