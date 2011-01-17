@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.GeometryExtended_cff import *
 
-SimpleNtuple = cms.EDAnalyzer(
+SimpleNtupleGen = cms.EDAnalyzer(
     "SimpleNtupleGen",
     
     #-------------------
