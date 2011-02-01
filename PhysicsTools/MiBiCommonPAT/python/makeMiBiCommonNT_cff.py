@@ -17,7 +17,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 10
-    process.load('Configuration.StandardSequences.GeometryExtended_cff')
+    process.load('Configuration.StandardSequences.GeometryDB_cff')
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
@@ -344,6 +344,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiCommonNT.saveMCHiggs           = cms.untracked.bool (False)
     process.MiBiCommonNT.saveMCHiggsWW         = cms.untracked.bool (False)
     process.MiBiCommonNT.saveMCHiggsGammaGamma = cms.untracked.bool (False)
+    process.MiBiCommonNT.saveMCZW              = cms.untracked.bool (False)
     
     if MCType == 'TTBar':
         process.MiBiCommonNT.saveMCTTBar = cms.untracked.bool (True)
@@ -355,6 +356,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     if MCType == 'HiggsGammaGamma':
         process.MiBiCommonNT.saveMCHiggs           = cms.untracked.bool (True)
         process.MiBiCommonNT.saveMCHiggsGammaGamma = cms.untracked.bool (True)                
+    if MCType == 'ZW':
+        process.MiBiCommonNT.saveMCZW              = cms.untracked.bool (True)
 
 
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF = process.MiBiCommonNT.clone()
