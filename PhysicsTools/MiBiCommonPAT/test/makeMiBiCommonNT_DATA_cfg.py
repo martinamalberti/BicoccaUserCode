@@ -9,8 +9,8 @@ makeMiBiCommonNT(process, GlobalTag="GR_R_39X_V5::All", HLT='', MC=False, MCType
   
 process.source.fileNames = cms.untracked.vstring(
   # Dec22ReReco
-  '/store/data/Run2010B/Electron/RECO/Dec22ReReco_v1/0000/049351B8-E20D-E011-A421-00304867C1BC.root'
-  
+  #'/store/data/Run2010B/Electron/RECO/Dec22ReReco_v1/0000/049351B8-E20D-E011-A421-00304867C1BC.root'
+  'file:/tmp/deguio/4AB1C58E-730F-E011-AA63-002354EF3BE4.root'
   #'file:/grid_mnt/data__DATA/data.polcms/cms/abenagli/DATA_38X_RECO.root'
   #'file:/tmp/dimatteo/D8700674-35CB-DF11-8C60-0024E85A3ED8.root'
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/FA4BFB16-7AD3-DF11-AD7C-0019B9F72BFF.root',

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.15 2010/11/11 13:40:53 ghezzi Exp $
+// $Id: SimpleNtuple.cc,v 1.16 2010/12/04 13:37:13 abenagli Exp $
 //
 //
 
@@ -87,7 +87,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveMCHiggs_           = iConfig.getUntrackedParameter<bool> ("saveMCHiggs", false);
  saveMCHiggsWW_         = iConfig.getUntrackedParameter<bool> ("saveMCHiggsWW", false);
  saveMCHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsGammaGamma", false);
-  
+ saveMCZW_              = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
+
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
  
@@ -379,7 +380,31 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
      NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");  
    }
  }
-  
+ 
+ if(saveMCZW_)
+   {
+     NtupleFactory_->Add4V("mc_V");    
+     NtupleFactory_->AddFloat("mc_V_charge");    
+     NtupleFactory_->AddFloat("mcV_pdgId");    
+     NtupleFactory_->Add3V("mc_V_vertex");
+     
+     NtupleFactory_->Add4V("mcQ1_tag");    
+     NtupleFactory_->AddFloat("mcQ1_tag_charge");    
+     NtupleFactory_->AddFloat("mcQ1_tag_pdgId");  
+     
+     NtupleFactory_->Add4V("mcQ2_tag");         
+     NtupleFactory_->AddFloat("mcQ2_tag_charge");    
+     NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
+     
+     NtupleFactory_->Add4V("mcF1_fromV");   
+     NtupleFactory_->AddFloat("mcF1_fromV_charge");    
+     NtupleFactory_->AddFloat("mcF1_fromV_pdgId");  
+     
+     NtupleFactory_->Add4V("mcF2_fromV");         
+     NtupleFactory_->AddFloat("mcF2_fromV_charge");    
+     NtupleFactory_->AddFloat("mcF2_fromV_pdgId");       
+   }
+ 
 }
 
 
@@ -1048,7 +1073,43 @@ void SimpleNtuple::fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventS
  } 
 
 }
+
+
+void SimpleNtuple::fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtuple::fillMCZWDecayInfo" << std::endl; 
+
+ bool isValid = mcAnalysisZW_ -> isValid();
+  
+ if( (eventType_ == 0) && (isValid == true) )
+ {
+
+   NtupleFactory_->Fill4V("mc_V",mcAnalysisZW_ -> mcV()->p4());
+   NtupleFactory_->FillFloat("mc_V_charge",mcAnalysisZW_ -> mcV()->charge());
+   NtupleFactory_->FillFloat("mcV_pdgId",mcAnalysisZW_ -> mcV()->pdgId());
+
+   math::XYZPoint p(mcAnalysisZW_ -> mcV()->vertex());
+   ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> vertex(p.x(), p.y(), p.z());
+   NtupleFactory_->Fill3V("mc_V_vertex", vertex);   
+   
+   NtupleFactory_->Fill4V("mcQ1_tag",mcAnalysisZW_ -> mcQ1_tag()->p4());
+   NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysisZW_ -> mcQ1_tag()->charge());
+   NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysisZW_ -> mcQ1_tag()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcQ2_tag",mcAnalysisZW_ -> mcQ2_tag()->p4());
+   NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysisZW_ -> mcQ2_tag()->charge());
+   NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysisZW_ -> mcQ2_tag()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcF1_fromV",mcAnalysisZW_ -> mcF1_fromV()->p4());
+   NtupleFactory_->FillFloat("mcF1_fromV_charge",mcAnalysisZW_ -> mcF1_fromV()->charge());
+   NtupleFactory_->FillFloat("mcF1_fromV_pdgId",mcAnalysisZW_ -> mcF1_fromV()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcF2_fromV",mcAnalysisZW_ -> mcF2_fromV()->p4());
+   NtupleFactory_->FillFloat("mcF2_fromV_charge",mcAnalysisZW_ -> mcF2_fromV()->charge());
+   NtupleFactory_->FillFloat("mcF2_fromV_pdgId",mcAnalysisZW_ -> mcF2_fromV()->pdgId());
+ } 
  
+} 
 
 
 void SimpleNtuple::fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
@@ -1140,12 +1201,16 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  }
  
  if(saveMCHiggs_)
- {
-   iEvent.getByLabel(MCtruthTag_, genParticles);
-   mcAnalysisHiggs_ = new MCDumperHiggs(genParticles, eventType_, verbosity_);
- }
+   {
+     iEvent.getByLabel(MCtruthTag_, genParticles);
+     mcAnalysisHiggs_ = new MCDumperHiggs(genParticles, eventType_, verbosity_);
+   }
  
- 
+ if(saveMCZW_)
+   {
+     iEvent.getByLabel(MCtruthTag_, genParticles);
+     mcAnalysisZW_ = new MCDumperZW(genParticles, eventType_, verbosity_);
+   }
  
  ///---- fill HLT ----
  if (saveHLT_) fillHLTInfo (iEvent, iSetup);
@@ -1180,6 +1245,7 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  ///---- fill MCParticle ---- 
  if (saveMCTTBar_) fillMCTTBarInfo (iEvent, iSetup);
  if (saveMCHiggs_) fillMCHiggsInfo (iEvent, iSetup);
+ if (saveMCZW_) fillMCZWInfo (iEvent, iSetup);
 
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();

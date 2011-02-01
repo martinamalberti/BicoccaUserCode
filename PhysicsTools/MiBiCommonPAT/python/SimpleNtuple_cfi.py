@@ -71,8 +71,9 @@ SimpleNtuple = cms.EDAnalyzer(
     saveMCHiggs           = cms.untracked.bool (False),
     saveMCHiggsWW         = cms.untracked.bool (False),
     saveMCHiggsGammaGamma = cms.untracked.bool (False),
+    saveMCZW              = cms.untracked.bool (False),
     saveGenJet            = cms.untracked.bool (False),
        
-    verbosity = cms.untracked.bool(False),
+    verbosity = cms.untracked.bool(True),
     eventType = cms.untracked.int32(0) 
 )

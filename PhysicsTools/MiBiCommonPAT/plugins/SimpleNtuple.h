@@ -30,6 +30,7 @@
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 #include "PhysicsTools/MiBiCommonPAT/interface/MCDumperTTBar.h"
 #include "PhysicsTools/MiBiCommonPAT/interface/MCDumperHiggs.h"
+#include "PhysicsTools/MiBiCommonPAT/interface/MCDumperZW.h"
 
 // root/c++ include files
 #include "TTree.h"
@@ -78,6 +79,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   void fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
   
   
@@ -135,6 +137,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveMCHiggs_ ;
   bool saveMCHiggsWW_ ;
   bool saveMCHiggsGammaGamma_ ;
+  bool saveMCZW_ ;
   bool saveGenJet_;  
 
   int eventType_; //---- 0 = signal    1 = background 
@@ -143,6 +146,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   
   MCDumperHiggs* mcAnalysisHiggs_;
   MCDumperTTBar* mcAnalysisTTBar_;
+  MCDumperZW*    mcAnalysisZW_;
 
 };
 
