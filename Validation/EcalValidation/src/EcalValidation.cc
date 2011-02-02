@@ -154,8 +154,7 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   seleXtalMinEnergy_EE_ = ps.getParameter<double>("seleXtalMinEnergy_EE");
 
   edm::ParameterSet posCalcParameters = ps.getParameter<edm::ParameterSet>("posCalcParameters");
-  //posCalculator_ = PositionCalc(posCalcParameters);
-  posCalculator_ = PositionCalc();
+  posCalculator_ = PositionCalc(posCalcParameters);
 
   naiveId_ = 0;
   
@@ -845,7 +844,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_basicClusters_EB_nXtals_cleaned -> Fill( (*itBC).hitsAndFractions().size() );
     h_basicClusters_EB_energy_cleaned -> Fill( itBC->energy() );
     nBCcleaned++;
-    /*
     
     ///Do the Track-cluster matching for the cleaned ones
      
@@ -881,7 +879,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
     h_basicClusters_EB_eta_tkmatched    -> Fill( itBC->eta() );
     h_basicClusters_EB_phi_tkmatched    -> Fill( itBC->phi() );
-    */
   }
     
 
