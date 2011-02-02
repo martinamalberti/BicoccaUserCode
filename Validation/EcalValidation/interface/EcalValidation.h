@@ -313,6 +313,7 @@ class EcalValidation : public edm::EDAnalyzer {
          TProfile *h_Jets_EB_emf_phi;
          TProfile *h_Jets_EEP_emf_phi;
          TProfile *h_Jets_EEM_emf_phi;
+
 // Super Clusters ----------------------------------------------
 	 // ... barrel
 	 TH1D *h_superClusters_EB_size;
@@ -327,12 +328,16 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EB_nXtals_cleaned;
 	 TH1D *h_superClusters_EB_nBC_cleaned;
 	 TH1D *h_superClusters_EB_energy_cleaned;
+	 TH1D *h_superClusters_EB_rawEnergy_cleaned;
+	 TH1D *h_superClusters_EB_rawEt_cleaned;
 
 	 // ... endcap
 	 TH1D *h_superClusters_EEP_size;
 	 TH1D *h_superClusters_EEP_nXtals;
 	 TH1D *h_superClusters_EEP_nBC;
 	 TH1D *h_superClusters_EEP_energy;
+	 TH1D *h_superClusters_EEP_rawEnergy;
+	 TH1D *h_superClusters_EEP_rawEt;
 	 TH1D *h_superClusters_EEP_E1oE9;
 	 TH1D *h_superClusters_EEP_E1oE4; 
 	 
@@ -340,6 +345,8 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EEM_nXtals;
 	 TH1D *h_superClusters_EEM_nBC;
 	 TH1D *h_superClusters_EEM_energy;
+	 TH1D *h_superClusters_EEM_rawEnergy;
+	 TH1D *h_superClusters_EEM_rawEt;
 	 TH1D *h_superClusters_EEM_E1oE9;
 	 TH1D *h_superClusters_EEM_E1oE4; 
 	 

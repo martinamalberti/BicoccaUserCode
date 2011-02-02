@@ -154,7 +154,8 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   seleXtalMinEnergy_EE_ = ps.getParameter<double>("seleXtalMinEnergy_EE");
 
   edm::ParameterSet posCalcParameters = ps.getParameter<edm::ParameterSet>("posCalcParameters");
-  posCalculator_ = PositionCalc(posCalcParameters);
+  //posCalculator_ = PositionCalc(posCalcParameters);
+  posCalculator_ = PositionCalc();
 
   naiveId_ = 0;
   
@@ -344,11 +345,16 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EB_nBC_cleaned     = fs->make<TH1D>("h_superClusters_EB_nBC_cleaned","h_superClusters_EB_nBC_cleaned",100,0.,100.);
   h_superClusters_EB_energy_cleaned  = fs->make<TH1D>("h_superClusters_EB_energy_cleaned","h_superClusters_EB_energy_cleaned",2000,0.,400.);
 
+  h_superClusters_EB_rawEnergy_cleaned  = fs->make<TH1D>("h_superClusters_EB_rawEnergy_cleaned","h_superClusters_EB_rawEnergy_cleaned",2000,0.,400.);
+  h_superClusters_EB_rawEt_cleaned      = fs->make<TH1D>("h_superClusters_EB_rawEt_cleaned","h_superClusters_EB_rawEt_cleaned",2000,0.,400.);
+
   // ... endcap
   h_superClusters_EEP_size   = fs->make<TH1D>("h_superClusters_EEP_size","h_superClusters_EEP_size",200,0.,200.);
   h_superClusters_EEP_nXtals = fs->make<TH1D>("h_superClusters_EEP_nXtals","h_superClusters_EEP_nXtals",400,0.,400.);
   h_superClusters_EEP_nBC    = fs->make<TH1D>("h_superClusters_EEP_nBC","h_superClusters_EEP_nBC",100,0.,100.);
   h_superClusters_EEP_energy = fs->make<TH1D>("h_superClusters_EEP_energy","h_superClusters_EEP_energy",2000,0.,400.);
+  h_superClusters_EEP_rawEnergy = fs->make<TH1D>("h_superClusters_EEP_rawEnergy","h_superClusters_EEP_rawEnergy",2000,0.,400.);
+  h_superClusters_EEP_rawEt = fs->make<TH1D>("h_superClusters_EEP_rawEt","h_superClusters_EEP_rawEt",2000,0.,400.);
   h_superClusters_EEP_E1oE9  = fs->make<TH1D>("h_superClusters_EEP_E1oE9","h_superClusters_EEP_E1oE9",150,0,1.5);  
   h_superClusters_EEP_E1oE4  = fs->make<TH1D>("h_superClusters_EEP_E1oE4","h_superClusters_EEP_E1oE4",150,0,1.5);
 
@@ -356,6 +362,8 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EEM_nXtals = fs->make<TH1D>("h_superClusters_EEM_nXtals","h_superClusters_EEM_nXtals",400,0.,400.);
   h_superClusters_EEM_nBC    = fs->make<TH1D>("h_superClusters_EEM_nBC","h_superClusters_EEM_nBC",100,0.,100.);
   h_superClusters_EEM_energy = fs->make<TH1D>("h_superClusters_EEM_energy","h_superClusters_EEM_energy",2000,0.,400.);
+  h_superClusters_EEM_rawEnergy = fs->make<TH1D>("h_superClusters_EEM_rawEnergy","h_superClusters_EEM_rawEnergy",2000,0.,400.);
+  h_superClusters_EEM_rawEt = fs->make<TH1D>("h_superClusters_EEM_rawEt","h_superClusters_EEM_rawEt",2000,0.,400.);
   h_superClusters_EEM_E1oE9  = fs->make<TH1D>("h_superClusters_EEM_E1oE9","h_superClusters_EEM_E1oE9",150,0,1.5);  
   h_superClusters_EEM_E1oE4  = fs->make<TH1D>("h_superClusters_EEM_E1oE4","h_superClusters_EEM_E1oE4",150,0,1.5);  
 
@@ -837,6 +845,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_basicClusters_EB_nXtals_cleaned -> Fill( (*itBC).hitsAndFractions().size() );
     h_basicClusters_EB_energy_cleaned -> Fill( itBC->energy() );
     nBCcleaned++;
+    /*
     
     ///Do the Track-cluster matching for the cleaned ones
      
@@ -872,8 +881,9 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 
     h_basicClusters_EB_eta_tkmatched    -> Fill( itBC->eta() );
     h_basicClusters_EB_phi_tkmatched    -> Fill( itBC->phi() );
-
+    */
   }
+    
 
   h_basicClusters_EB_size         -> Fill( basicClusters_EB_h->size() );
   h_basicClusters_EB_size_cleaned -> Fill( nBCcleaned );
@@ -914,9 +924,10 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_basicClusters_EEP_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
       nBasicClustersEEP++;
 
+      
       float theBestDr = 99999.;
       for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
-      { 
+	{ 
         ECALPositionCalculator posCalc;
         const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),tkIt->vz());
         const math::XYZVector trackMom =  tkIt->momentum();
@@ -946,14 +957,14 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_basicClusters_eta_tkmatched       -> Fill(  (*basicClusters_EE_h)[icl].eta() );
       h_basicClusters_EE_eta_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].eta() );
       h_basicClusters_EE_phi_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].phi() );
-
+      
     }
     
     if ((*basicClusters_EE_h)[icl].z() < 0){
       h_basicClusters_EEM_nXtals -> Fill( (*basicClusters_EE_h)[icl].hitsAndFractions().size() );
       h_basicClusters_EEM_energy -> Fill( (*basicClusters_EE_h)[icl].energy() );
       nBasicClustersEEM++;
-
+      
       float theBestDr = 99999.;
       for (edm::View<reco::Track>::const_iterator tkIt = TracksHandle->begin (); tkIt != TracksHandle->end (); ++tkIt ) 
       { 
@@ -986,7 +997,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_basicClusters_eta_tkmatched       -> Fill(  (*basicClusters_EE_h)[icl].eta() );
       h_basicClusters_EE_eta_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].eta() );
       h_basicClusters_EE_phi_tkmatched    -> Fill(  (*basicClusters_EE_h)[icl].phi() );
-
+      
     }
   }
   
@@ -1011,6 +1022,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
        itSC != theBarrelSuperClusters->end(); ++itSC ) {
     
     double scEt = itSC -> energy() * sin(2.*atan( exp(- itSC->position().eta() )));
+    double scRawEt = itSC -> rawEnergy() * sin(2.*atan( exp(- itSC->position().eta() )));
     
     if (scEt < scEtThrEB_ ) continue;
 
@@ -1043,6 +1055,9 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_superClusters_EB_nXtals_cleaned -> Fill( (*itSC).hitsAndFractions().size() );
     h_superClusters_EB_nBC_cleaned    -> Fill( itSC -> clustersSize());
     h_superClusters_EB_energy_cleaned -> Fill( itSC -> energy() );
+    h_superClusters_EB_rawEnergy_cleaned -> Fill( itSC -> rawEnergy() );
+    h_superClusters_EB_rawEt_cleaned -> Fill( scRawEt );
+
     nSCcleaned++;
   }
 
@@ -1066,6 +1081,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
        itSC != theEndcapSuperClusters->end(); ++itSC ) {
 
     double scEt = itSC -> energy() * sin(2.*atan( exp(- itSC->position().eta() )));
+    double scRawEt = itSC -> rawEnergy() * sin(2.*atan( exp(- itSC->position().eta() )));
+
     if (scEt < scEtThrEE_ ) continue;
 
     h_superClusters_eta       -> Fill( itSC -> eta() );
@@ -1092,6 +1109,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_superClusters_EEP_nXtals -> Fill( (*itSC).hitsAndFractions().size() );
       h_superClusters_EEP_nBC    -> Fill( itSC -> clustersSize() );      
       h_superClusters_EEP_energy -> Fill( itSC -> energy() );
+      h_superClusters_EEP_rawEnergy -> Fill( itSC -> rawEnergy() );
+      h_superClusters_EEP_rawEt -> Fill( scRawEt );
       if ( E1 > 3. ) h_superClusters_EEP_E1oE9  -> Fill( E1/E9 );
       if ( E1 > 3. ) h_superClusters_EEP_E1oE4  -> Fill( 1.- E4/E1);
       nSuperClustersEEP++;
@@ -1101,6 +1120,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_superClusters_EEM_nXtals -> Fill( (*itSC).hitsAndFractions().size() );
       h_superClusters_EEM_nBC    -> Fill( itSC -> clustersSize() );      
       h_superClusters_EEM_energy -> Fill( itSC -> energy() );
+      h_superClusters_EEM_rawEnergy -> Fill( itSC -> rawEnergy() );
+      h_superClusters_EEM_rawEt -> Fill( scRawEt );
       if ( E1 > 3. ) h_superClusters_EEM_E1oE9  -> Fill( E1/E9 );
       if ( E1 > 3. ) h_superClusters_EEM_E1oE4  -> Fill( 1.- E4/E1);
       nSuperClustersEEM++;
