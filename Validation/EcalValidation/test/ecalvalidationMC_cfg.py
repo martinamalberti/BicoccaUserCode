@@ -11,12 +11,16 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
+# initialize magnetic field
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),                       
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_5_0/RelValMinBias/GEN-SIM-RECO/MC_3XY_V21-v1/0013/F6E3FFAC-6113-DF11-AF06-001BFCDBD15E.root',
-    '/store/relval/CMSSW_3_5_0/RelValMinBias/GEN-SIM-RECO/MC_3XY_V21-v1/0012/BA183BD4-3813-DF11-B015-00304867902C.root',
-    '/store/relval/CMSSW_3_5_0/RelValMinBias/GEN-SIM-RECO/MC_3XY_V21-v1/0012/A6D53A27-3813-DF11-B460-0026189437FA.root'
+    'file:/tmp/malberti/901E9460-4E0E-E011-9D0D-0015170AE6E4.root'
+    #'/store/relval/CMSSW_3_5_0/RelValMinBias/GEN-SIM-RECO/MC_3XY_V21-v1/0013/F6E3FFAC-6113-DF11-AF06-001BFCDBD15E.root',
+    #'/store/relval/CMSSW_3_5_0/RelValMinBias/GEN-SIM-RECO/MC_3XY_V21-v1/0012/BA183BD4-3813-DF11-B015-00304867902C.root',
+    #'/store/relval/CMSSW_3_5_0/RelValMinBias/GEN-SIM-RECO/MC_3XY_V21-v1/0012/A6D53A27-3813-DF11-B460-0026189437FA.root'
      
     )
 )
