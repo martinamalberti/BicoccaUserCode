@@ -74,6 +74,6 @@ SimpleNtuple = cms.EDAnalyzer(
     saveMCZW              = cms.untracked.bool (False),
     saveGenJet            = cms.untracked.bool (False),
        
-    verbosity = cms.untracked.bool(Flase),
+    verbosity = cms.untracked.bool(False),
     eventType = cms.untracked.int32(0) 
 )
