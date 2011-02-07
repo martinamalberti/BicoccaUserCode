@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.16 2010/12/04 13:37:13 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.17 2011/02/01 16:57:16 deguio Exp $
 //
 //
 
@@ -30,6 +30,9 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
+
+#include "Math/Vector4D.h"
+#include "Math/Vector3D.h"
 ///--------------
 ///---- ctor ----
 
@@ -231,6 +234,13 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("photons_r1x5");        
    NtupleFactory_ -> AddFloat("photons_r2x5");        
    NtupleFactory_ -> AddFloat("photons_r9");
+   NtupleFactory_ -> AddFloat("photons_ecalIso");   
+   NtupleFactory_ -> AddFloat("photons_hcalIso");   
+   NtupleFactory_ -> AddFloat("photons_hadronicOverEm");   
+   NtupleFactory_ -> AddFloat("photons_trkSumPtHollowConeDR04");   
+   NtupleFactory_ -> AddInt("photons_hasPixelSeed");   
+   NtupleFactory_ -> Add4V("photons_SC");   
+
    NtupleFactory_ ->AddTMatrix("photons_rechitTime");
    NtupleFactory_ ->AddTMatrix("photons_rechitE");
 
@@ -744,7 +754,23 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
   NtupleFactory_ -> FillFloat("photons_r1x5",photon.r1x5());        
   NtupleFactory_ -> FillFloat("photons_r2x5",photon.r2x5());        
   NtupleFactory_ -> FillFloat("photons_r9",photon.r9());   
+  NtupleFactory_ -> FillFloat("photons_ecalIso",photon.ecalIso());   
+  NtupleFactory_ -> FillFloat("photons_hcalIso",photon.hcalIso());   
+  NtupleFactory_ -> FillFloat("photons_hadronicOverEm",photon.hadronicOverEm());   
+  NtupleFactory_ -> FillFloat("photons_trkSumPtHollowConeDR04",photon.trkSumPtHollowConeDR04());   
+  NtupleFactory_ -> FillInt  ("photons_hasPixelSeed",photon.hasPixelSeed());   
 
+
+  //superCluster Info
+  reco::SuperClusterRef phoSC = photon.superCluster();
+  
+  double pos = sqrt(phoSC->x()*phoSC->x() + phoSC->y()*phoSC->y() + phoSC->z()*phoSC->z());
+  double ratio = phoSC->energy() / pos;
+  ROOT::Math::XYZTVector phoVec(phoSC->x()*ratio, phoSC->y()*ratio, phoSC->z()*ratio, phoSC->energy());
+  NtupleFactory_ -> Fill4V("photons_SC", phoVec);
+
+
+  //recHit time and energy
   TMatrix rechitTime(3,3);
   TMatrix rechitE(3,3);
   for (int i=0;i<3;i++){
