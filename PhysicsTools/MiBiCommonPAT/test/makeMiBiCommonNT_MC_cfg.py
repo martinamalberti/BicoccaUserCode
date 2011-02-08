@@ -5,7 +5,7 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonNT_cff import *
 process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT: Choose the MC type!!!
-# Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, Other
+# Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, ZW, Other
 makeMiBiCommonNT(process, GlobalTag="START39_V8::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
