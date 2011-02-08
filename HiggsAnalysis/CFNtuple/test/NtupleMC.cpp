@@ -17,7 +17,7 @@
 #include "TRandom3.h"
 #include <time.h>
 #include <sstream>
-#include "QCDjets.h"
+#include "CFNtuple.h"
 
 #if not defined(__CINT__) || defined(__MAKECINT__)
 #include "TMVA/Tools.h"
@@ -215,7 +215,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   reader.GetEntry(iEvent);	//un'entrata in questo caso è data da un TREE intero
   if((iEvent%entryMOD) == 0) std::cout << ">>>>> analysis::GetEntry " << iEvent << std::endl;   
   
-  int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
+  cint nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
   totalJets_had = totalJets_had + nJets_had;
   
   int nJets_reco = reader.Get4V("jets")->size();	// qui è il jet a livello reco
