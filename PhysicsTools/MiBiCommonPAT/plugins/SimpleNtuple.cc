@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.17 2011/02/01 16:57:16 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.18 2011/02/07 18:46:41 deguio Exp $
 //
 //
 
@@ -222,7 +222,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  if(savePhoton_)
  {
    NtupleFactory_ -> Add4V ("photons");
-   NtupleFactory_ -> AddFloat ("photons_hcalIso");
    NtupleFactory_ -> AddInt  ("photons_isGap");
    NtupleFactory_ -> AddFloat("photons_e1x5");           
    NtupleFactory_ -> AddFloat("photons_e2x5");         
@@ -741,7 +740,6 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
   pat::Photon photon = photons.at(i);
   
   NtupleFactory_ -> Fill4V   ("photons", photon.p4());
-  NtupleFactory_ -> FillFloat("photons_hcalIso", photon.hcalIso());
   
   NtupleFactory_ -> FillInt  ("photons_isGap",photon.isEBEtaGap() || photon.isEBPhiGap() || photon.isEERingGap() || photon.isEEDeeGap() || photon.isEBEEGap() );
   NtupleFactory_ -> FillFloat("photons_e1x5",photon.e1x5());           
