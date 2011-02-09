@@ -213,11 +213,13 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  
  for(int iEvent = entryMIN ; iEvent < entryMAX ; ++iEvent) {	//faccio un ciclo su tutte le entrate del Tree
   reader.GetEntry(iEvent);	//un'entrata in questo caso è data da un TREE intero
-  if((iEvent%entryMOD) == 0) std::cout << ">>>>> analysis::GetEntry " << iEvent << std::endl;   
+  if((iEvent%entryMOD) == 0) std::cout << ">>>>> analysis::GetEntry " << iEvent  << ":" << reader.GetEntries() << " (" << entryMAX << ")" << std::endl;   
   
+//   std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
   totalJets_had = totalJets_had + nJets_had;
   
+//   std::cerr << " 2 ... " << std::endl;
   int nJets_reco = reader.Get4V("jets")->size();	// qui è il jet a livello reco
   totalJets_reco = totalJets_reco + nJets_reco;
   
@@ -231,22 +233,23 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   std::vector <int> blacklistCentral_had;
   std::vector <int> blacklistForward_had;
   
-  for(int i = 0; i < nJets_had; ++i){
-    if(fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>2.8){
+//   std::cerr << " 3 ... " << std::endl;
+  for (int i = 0; i < nJets_had; ++i) {
+    if (fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>2.8){
       blacklistCentral_had.push_back(i);
-    
     }
   // Riempio blacklist Forward (con tutti i jet non forward)
-    else if(fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>4.7 || fabs(reader.Get4V("jets")->at(i).Eta())<3.2) {
-    blacklistForward_had.push_back(i);
-    
+    else if ( fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>4.7 || fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<3.2 ) {
+     blacklistForward_had.push_back(i);
     }
    }
    
   //Seleziono i due jet non presenti sulle black list con Pt massimo
- 
+//   std::cerr << " beginning ... " << std::endl;
   int Central_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMin, &blacklistCentral_had);
+//   std::cerr << " Central_i_had  = " << Central_i_had  << std::endl;
   int Forward_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMin, &blacklistForward_had);
+//   std::cerr << " Forward_i_had  = " << Forward_i_had  << std::endl;
   
   ///RECO BLACKLIST  
   std::vector <int> blacklistCentral_reco;
@@ -255,29 +258,30 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   for(int i = 0; i < nJets_reco; ++i){
     if(fabs(reader.Get4V("jets")->at(i).Eta())>2.8){
       blacklistCentral_reco.push_back(i);
-    
     }
   // Riempio blacklist Forward (con tutti i jet non forward)
     else if(fabs(reader.Get4V("jets")->at(i).Eta())>4.7 || fabs(reader.Get4V("jets")->at(i).Eta())<3.2) {
-    blacklistForward_reco.push_back(i);
-    
+     blacklistForward_reco.push_back(i);
     }
    }
    
   //Seleziono i due jet non presenti sulle black list con Pt massimo
  
   int Central_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMin, &blacklistCentral_reco);
+//   std::cerr << " Central_i_reco  = " << Central_i_reco  << std::endl;
   int Forward_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMin, &blacklistForward_reco);
+//   std::cerr << " Forward_i_reco  = " << Forward_i_reco  << std::endl;
   
   ///FILLING VARIABLES
     if (Central_i_had !=-1 && Forward_i_had !=-1){
       //&& 
      //riempi l'istogramma e il file con:
+//      std::cerr << ">>> Central_i_had  = " << Central_i_had  << std::endl;
+//      std::cerr << ">>> Forward_i_had  = " << Forward_i_had  << std::endl;
      
      hPtC.Fill(reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Pt());	//riempio l'istogramma
      hPtF.Fill(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt());	//riempio l'istogramma
-     
-     EtaPtF_reco.Fill(reader.Get4V("jets")->at(Forward_i_reco).Eta(), reader.Get4V("jets")->at(Forward_i_reco).Pt());	//riempio l'istogramma
+
      EtaPtF_had.Fill(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(), reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt());	//riempio l'istogramma
 
      //qui devo impostare tutte le variabili del tree!
@@ -297,6 +301,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     
      
      if(Central_i_reco !=-1 && Forward_i_reco !=-1) {
+      EtaPtF_reco.Fill(reader.Get4V("jets")->at(Forward_i_reco).Eta(), reader.Get4V("jets")->at(Forward_i_reco).Pt());	//riempio l'istogramma
+      
      hPtC_reco.Fill(reader.Get4V("jets")->at(Central_i_reco).Pt());	//riempio l'istogramma
      hPtF_reco.Fill(reader.Get4V("jets")->at(Forward_i_reco).Pt());	//riempio l'istogramma
      
@@ -352,6 +358,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      eventSel++;
      
     }
+//     std::cerr << " here " << std::endl;
     efficiency.SetBinContent(1,entryMAX-entryMIN);
     efficiency.SetBinContent(2,eventSel);
  }
