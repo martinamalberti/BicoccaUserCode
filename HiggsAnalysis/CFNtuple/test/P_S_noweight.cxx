@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldExample.cxx 248 2010-10-04 22:18:19Z T.J.Adye $
+//      $Id: P_S_noweight.cxx,v 1.1 2011/02/09 23:44:05 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -25,7 +25,7 @@ using std::endl;
 
 #endif
 
-#include "tdrStyle.cc"
+//#include "tdrStyle.cc"
 
 //==============================================================================
 // Global definitions
@@ -304,6 +304,11 @@ void P_S_noweight()
     StabilityC30->SetBinError(iBinY+1,sqrt((offd)/row/row*(offd)/row/row*diag+(diag/row/row)*(diag/row/row)*(offd)));
     
   }
+  
+  PurityC15->Add(PurityC30);
+  StabilityC15->Add(StabilityC30);
+  
+  
   /*TCanvas* cPurityC = new TCanvas("cPurityC","cPurityC",600,600);  
   PurityC->GetYaxis()->SetRangeUser(0.,1.0);
   PurityC->GetXaxis()->SetRangeUser(35.,150);
@@ -618,7 +623,6 @@ void P_S_noweight()
     double offd = column - diag;
     purity = diag/column;
     PurityCH30->SetBinContent(iBinX+1, purity);
-    
     PurityCH30->SetBinError(iBinX+1,sqrt((offd)/column/column*(offd)/column/column*diag+(diag/column/column)*(diag/column/column)*(offd)));
   }
   
@@ -638,6 +642,7 @@ void P_S_noweight()
   }
   PurityCH15->Add(PurityCH30);
   StabilityCH15->Add(StabilityCH30);
+  
   //DRAW
   
   TCanvas* cPurityF = new TCanvas("cPurityF","cPurityF",600,600);  
@@ -673,9 +678,9 @@ void P_S_noweight()
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
    
-   leg->AddEntry("Purity","Pythia", "lpf");
+   leg->AddEntry("Purity15","Pythia", "lpf");
    //entry = leg->AddEntry(central_M1,"Herwig+Jimmy ","lp");
-   leg->AddEntry("PurityH","Herwig", "lpf");
+   leg->AddEntry("PurityH15","Herwig", "lpf");
    leg->Draw();
   
   TCanvas* cStabilityF = new TCanvas("cStabilityF","cStabilityF",600,600);  
@@ -710,9 +715,9 @@ void P_S_noweight()
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
    
-   leg->AddEntry("Stability","Pythia", "lpf");
+   leg->AddEntry("Stability15","Pythia", "lpf");
    //entry = leg->AddEntry(central_M1,"Herwig+Jimmy ","lp");
-   leg->AddEntry("StabilityH","Herwig", "lpf");
+   leg->AddEntry("StabilityH15","Herwig", "lpf");
    leg->Draw();  
   
   TCanvas* cPurityC = new TCanvas("cPurityC","cPurityC",600,600);  
@@ -747,9 +752,9 @@ void P_S_noweight()
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
    
-   leg->AddEntry("PurityC","Pythia", "lpf");
+   leg->AddEntry("PurityC15","Pythia", "lpf");
    //entry = leg->AddEntry(central_M1,"Herwig+Jimmy ","lp");
-   leg->AddEntry("PurityCH","Herwig", "lpf");
+   leg->AddEntry("PurityCH15","Herwig", "lpf");
    leg->Draw();    
   
   TCanvas* cStabilityC = new TCanvas("cStabilityC","cStabilityC",600,600);  
@@ -784,9 +789,9 @@ void P_S_noweight()
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
    
-   leg->AddEntry("StabilityC","Pythia", "lpf");
+   leg->AddEntry("StabilityC15","Pythia", "lpf");
    //entry = leg->AddEntry(central_M1,"Herwig+Jimmy ","lp");
-   leg->AddEntry("StabilityCH","Herwig", "lpf");
+   leg->AddEntry("StabilityCH15","Herwig", "lpf");
    leg->Draw();    
    
    //Draw unweighted response matrix
