@@ -219,18 +219,15 @@ bool IsEleIsolatedID( treeReader& reader,const std::vector<double>& BarrelSelect
 
 bool IsMuIsolatedID( treeReader& reader,const std::vector<double>& Selections, int iMu){
  
- bool skipMu;
+ bool skipMu = false;
  
  if ( (reader.GetFloat("muons_tkIsoR03")->at(iMu) + reader.GetFloat("muons_emIsoR03")->at(iMu) + reader.GetFloat("muons_hadIsoR03")->at(iMu)) / reader.Get4V("muons")->at(iMu).pt() > Selections.at(0) ) skipMu = true;
- 
  if (reader.GetFloat("muons_normalizedChi2")->at(iMu) >= Selections.at(1) )           skipMu = true;
- if (reader.GetInt("muons_numberOfValidTrackerHits")->at(iMu) <= Selections.at(2) )  skipMu = true;
- if (reader.GetInt("muons_numberOfValidMuonHits")->at(iMu) == Selections.at(3)  )     skipMu = true;
- 
- if (reader.GetInt("muons_tracker")->at(iMu) == Selections.at(4)  )     skipMu = true;
- if (reader.GetInt("muons_standalone")->at(iMu) == Selections.at(5)  )     skipMu = true;
- if (reader.GetInt("muons_global")->at(iMu) == Selections.at(6)  )     skipMu = true;
-//  if (reader.GetInt("muons_goodMuon")->at(iMu) == Selections.at(7)  )     skipMu = true;
+ if (reader.GetInt("muons_numberOfValidMuonHits")->at(iMu) <=  Selections.at(3)  )     skipMu = true;
+ if (reader.GetInt("muons_tracker")->at(iMu) != Selections.at(4)  )     skipMu = true;
+ if (reader.GetInt("muons_standalone")->at(iMu) != Selections.at(5)  )     skipMu = true;
+ if (reader.GetInt("muons_global")->at(iMu) != Selections.at(6)  )     skipMu = true;
+ //  if (reader.GetInt("muons_goodMuon")->at(iMu) == Selections.at(7)  )     skipMu = true;
   
  return (!skipMu);
 }
