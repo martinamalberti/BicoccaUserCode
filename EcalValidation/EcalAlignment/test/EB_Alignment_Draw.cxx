@@ -21,12 +21,16 @@
  double DPHIe_SM_Mean[36];
  double DPHIe_SM_RMS[36];
 
-//  std::ifstream file ("Survey.txt"); 
+ std::ifstream file ("Survey.txt"); 
  
 //  std::ifstream file ("myEBAlignment_2010_Ieri.txt"); 
 // std::ifstream file ("myEBAlignment_2010_Andrea.txt"); 
- std::ifstream file ("myEBAlignment_2010_30Oct.txt"); 
+// std::ifstream file ("myEBAlignment_2010_Laser.txt"); 
 // std::ifstream file ("myEBAlignment_2010_Plus.txt"); 
+//  std::ifstream file ("myEBAlignment_2010.txt"); 
+// std::ifstream file ("myEBAlignment_Even_2010.txt"); 
+// std::ifstream file ("myEBAlignment_2010_SiStrip.txt"); 
+ // std::ifstream file ("myEBAlignment_2010_Plus.txt"); 
 //std::ifstream file ("myEBAlignment_2010_Old.txt"); 
  if (!file.is_open()){
   std::cerr << "noooo" << std::endl;
@@ -45,16 +49,19 @@
    line >> DZ_SM_Mean[iSM_After];      std::cout << " " << DZ_SM_Mean[iSM_After];
 
 // //==== if survey
-/*    if (iSM_After<18){
-   DZ_SM_Mean[iSM_After] -= +1.64;
-  }
-   else {
-   DZ_SM_Mean[iSM_After] -= +2.84;
-  }    
-   DX_SM_Mean[iSM_After] /= 10;
-   DY_SM_Mean[iSM_After] /= 10;
-   DZ_SM_Mean[iSM_After] /= 10;*/
-    
+//     if (iSM_After<18){
+//      DZ_SM_Mean[iSM_After] -= +1.64;
+//     }
+//     else {
+//      DZ_SM_Mean[iSM_After] -= +2.84;
+//     }    
+//     DX_SM_Mean[iSM_After] /= 10;
+//     DY_SM_Mean[iSM_After] /= 10;
+//     DZ_SM_Mean[iSM_After] /= 10;
+   //     
+//     DX_SM_RMS[iSM_After] = 0.1;
+//     DY_SM_RMS[iSM_After] = 0.1;
+//     DZ_SM_RMS[iSM_After] = 0.1;
     
    std::cout << std::endl;
    iSM_After++;
@@ -68,10 +75,8 @@
 
  std::cerr << " New File ... " << std::endl;
  
-//  std::ifstream fileEle ("myEBAlignment_2010_Minus.txt"); 
  std::ifstream fileEle ("myEBAlignment_2010.txt"); 
-//   std::ifstream fileEle ("myEBAlignment_2010_Andrea.txt"); 
-  
+
  double DX_SM_Mean_After[36];
  double DX_SM_RMS_After[36];
  double DY_SM_Mean_After[36];
@@ -229,7 +234,7 @@
  grDZ_EBMinus_Ele->SetMarkerStyle(20);
  grDZ_EBMinus_Ele->SetMarkerSize(1);
  grDZ_EBMinus_Ele->SetLineWidth(1);
- grDZ_EBMinus_Ele->GetXaxis()->SetTitle("#phi");
+ grDZ_EBMinus_Ele->GetXaxis()->SetTitle("iSM");
  grDZ_EBMinus_Ele->GetYaxis()->SetTitle("#DeltaZ (cm)");
  grDZ_EBMinus_Ele->Draw("AP");
  gPad->SetGrid();
@@ -240,7 +245,7 @@
  grDZ_EBMinus_After->SetMarkerStyle(21);
  grDZ_EBMinus_After->SetMarkerSize(1);
  grDZ_EBMinus_After->SetLineWidth(1);
- grDZ_EBMinus_After->GetXaxis()->SetTitle("#phi");
+ grDZ_EBMinus_After->GetXaxis()->SetTitle("iSM");
  grDZ_EBMinus_After->GetYaxis()->SetTitle("#DeltaZ (cm)");
  grDZ_EBMinus_After->Draw("P");
  gPad->SetGrid();
@@ -254,7 +259,7 @@
  grDZ_EBPlus_Ele->SetMarkerStyle(20);
  grDZ_EBPlus_Ele->SetMarkerSize(1);
  grDZ_EBPlus_Ele->SetLineWidth(1);
- grDZ_EBPlus_Ele->GetXaxis()->SetTitle("#phi");
+ grDZ_EBPlus_Ele->GetXaxis()->SetTitle("iSM");
  grDZ_EBPlus_Ele->GetYaxis()->SetTitle("#DeltaZ (cm)");
  grDZ_EBPlus_Ele->Draw("AP");
  gPad->SetGrid();
@@ -265,7 +270,7 @@
  grDZ_EBPlus_After->SetMarkerStyle(21);
  grDZ_EBPlus_After->SetMarkerSize(1);
  grDZ_EBPlus_After->SetLineWidth(1);
- grDZ_EBPlus_After->GetXaxis()->SetTitle("#phi");
+ grDZ_EBPlus_After->GetXaxis()->SetTitle("iSM");
  grDZ_EBPlus_After->GetYaxis()->SetTitle("#DeltaZ (cm)");
  grDZ_EBPlus_After->Draw("P");
  gPad->SetGrid();
@@ -281,7 +286,7 @@
  grDY_EBMinus_Ele->SetMarkerStyle(20);
  grDY_EBMinus_Ele->SetMarkerSize(1);
  grDY_EBMinus_Ele->SetLineWidth(1);
- grDY_EBMinus_Ele->GetXaxis()->SetTitle("#phi");
+ grDY_EBMinus_Ele->GetXaxis()->SetTitle("iSM");
  grDY_EBMinus_Ele->GetYaxis()->SetTitle("#DeltaY (cm)");
  grDY_EBMinus_Ele->Draw("AP");
  gPad->SetGrid();
@@ -292,7 +297,7 @@
  grDY_EBMinus_After->SetMarkerStyle(21);
  grDY_EBMinus_After->SetMarkerSize(1);
  grDY_EBMinus_After->SetLineWidth(1);
- grDY_EBMinus_After->GetXaxis()->SetTitle("#phi");
+ grDY_EBMinus_After->GetXaxis()->SetTitle("iSM");
  grDY_EBMinus_After->GetYaxis()->SetTitle("#DeltaY (cm)");
  grDY_EBMinus_After->Draw("P");
  gPad->SetGrid();
@@ -306,7 +311,7 @@
  grDY_EBPlus_Ele->SetMarkerStyle(20);
  grDY_EBPlus_Ele->SetMarkerSize(1);
  grDY_EBPlus_Ele->SetLineWidth(1);
- grDY_EBPlus_Ele->GetXaxis()->SetTitle("#phi");
+ grDY_EBPlus_Ele->GetXaxis()->SetTitle("iSM");
  grDY_EBPlus_Ele->GetYaxis()->SetTitle("#DeltaY (cm)");
  grDY_EBPlus_Ele->Draw("AP");
  gPad->SetGrid();
@@ -317,7 +322,7 @@
  grDY_EBPlus_After->SetMarkerStyle(21);
  grDY_EBPlus_After->SetMarkerSize(1);
  grDY_EBPlus_After->SetLineWidth(1);
- grDY_EBPlus_After->GetXaxis()->SetTitle("#phi");
+ grDY_EBPlus_After->GetXaxis()->SetTitle("iSM");
  grDY_EBPlus_After->GetYaxis()->SetTitle("#DeltaY (cm)");
  grDY_EBPlus_After->Draw("P");
  gPad->SetGrid();
@@ -331,7 +336,7 @@
  grDX_EBMinus_Ele->SetMarkerStyle(20);
  grDX_EBMinus_Ele->SetMarkerSize(1);
  grDX_EBMinus_Ele->SetLineWidth(1);
- grDX_EBMinus_Ele->GetXaxis()->SetTitle("#phi");
+ grDX_EBMinus_Ele->GetXaxis()->SetTitle("iSM");
  grDX_EBMinus_Ele->GetYaxis()->SetTitle("#DeltaX (cm)");
  grDX_EBMinus_Ele->Draw("AP");
  gPad->SetGrid();
@@ -342,7 +347,7 @@
  grDX_EBMinus_After->SetMarkerStyle(21);
  grDX_EBMinus_After->SetMarkerSize(1);
  grDX_EBMinus_After->SetLineWidth(1);
- grDX_EBMinus_After->GetXaxis()->SetTitle("#phi");
+ grDX_EBMinus_After->GetXaxis()->SetTitle("iSM");
  grDX_EBMinus_After->GetYaxis()->SetTitle("#DeltaX (cm)");
  grDX_EBMinus_After->Draw("P");
  gPad->SetGrid();
@@ -356,7 +361,7 @@
  grDX_EBPlus_Ele->SetMarkerStyle(20);
  grDX_EBPlus_Ele->SetMarkerSize(1);
  grDX_EBPlus_Ele->SetLineWidth(1);
- grDX_EBPlus_Ele->GetXaxis()->SetTitle("#phi");
+ grDX_EBPlus_Ele->GetXaxis()->SetTitle("iSM");
  grDX_EBPlus_Ele->GetYaxis()->SetTitle("#DeltaX (cm)");
  grDX_EBPlus_Ele->Draw("AP");
  gPad->SetGrid();
@@ -367,7 +372,7 @@
  grDX_EBPlus_After->SetMarkerStyle(21);
  grDX_EBPlus_After->SetMarkerSize(1);
  grDX_EBPlus_After->SetLineWidth(1);
- grDX_EBPlus_After->GetXaxis()->SetTitle("#phi");
+ grDX_EBPlus_After->GetXaxis()->SetTitle("iSM");
  grDX_EBPlus_After->GetYaxis()->SetTitle("#DeltaX (cm)");
  grDX_EBPlus_After->Draw("P");
  gPad->SetGrid();
@@ -538,6 +543,44 @@
  gPad->SetGrid();
   
   
+  
+  
+  
+  ///===========================================================================
+  ///===========================================================================
+  ///===========================================================================
+ TCanvas* cDifference = new TCanvas ("cDifference","cDifference",900,350);
+ cDifference->Divide(3,1);
+  
+ TH1F *hDX = new TH1F("hDX","#DeltaX",100,-1,1);
+ for (int i = 0; i<36; i++) hDX->Fill(DX_SM_Mean_After[i] - DX_SM_Mean[i]);
+
+ TH1F *hDY = new TH1F("hDY","#DeltaY",100,-1,1);
+ for (int i = 0; i<36; i++) hDY->Fill(DY_SM_Mean_After[i] - DY_SM_Mean[i]);
+
+ TH1F *hDZ = new TH1F("hDZ","#DeltaZ",100,-1,1);
+ for (int i = 0; i<36; i++) hDZ->Fill(DZ_SM_Mean_After[i] - DZ_SM_Mean[i]);
+ 
+ cDifference->cd(1);
+ hDX->SetLineColor(kRed);
+ hDX->SetFillColor(kRed);
+ hDX->SetFillStyle(3002);
+ hDX->Draw();
+ gPad->SetGrid();
+    
+ cDifference->cd(2);
+ hDY->SetLineColor(kRed);
+ hDY->SetFillColor(kRed);
+ hDY->SetFillStyle(3002);
+ hDY->Draw();
+ gPad->SetGrid();
+  
+ cDifference->cd(3);
+ hDZ->SetLineColor(kRed);
+ hDZ->SetFillColor(kRed);
+ hDZ->SetFillStyle(3002);
+ hDZ->Draw();
+ gPad->SetGrid();  
   
   
 }

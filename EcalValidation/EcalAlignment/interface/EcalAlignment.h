@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.h,v 1.1 2010/10/26 07:33:35 amassiro Exp $
+// $Id: EcalAlignment.h,v 1.2 2011/01/12 07:50:18 amassiro Exp $
 //
 //
 
@@ -95,6 +95,10 @@ class EcalAlignment : public edm::EDAnalyzer {
        double deltaPhiSeedClusterAtCalo_;
        int mishits_;
        int nAmbiguousGsfTracks_;
+
+       int electrons_classification_;
+       int electrons_basicClustersSize_;
+       
        double dist_;
        double dcot_;
 

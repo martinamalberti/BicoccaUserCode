@@ -26,11 +26,13 @@ scramv1 b
    crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_OldAlign
    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
 
+   crab -report -c Run2010B-WZEG-v2_RAWRECO_OldAlign
 
    hadd EcalAlignmentOldJoin_Temp.root Run2010B-WZEG-v2_RAWRECO_OldAlign/res/EcalAlignment_*
    hadd EcalAlignmentOldJoin.root EcalAlignmentOldJoin_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign/res/EcalAlignment_*
    rm EcalAlignmentOldJoin_Temp.root
 
+   hadd EcalAlignmentOldJoin.root Run2010B-WZEG-v2_RAWRECO_OldAlign/res/EcalAlignment_*
 
 ############################ Default alignment 0 ############################
 
@@ -50,12 +52,17 @@ scramv1 b
     crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_NoAlign
     crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
+    crab -report -c Run2010B-WZEG-v2_RAWRECO_NoAlign
+    crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+
  and join output tree
 
     hadd EcalAlignmentJoin_Temp.root Run2010B-WZEG-v2_RAWRECO_NoAlign/res/EcalAlignment_*
     hadd EcalAlignmentJoin.root EcalAlignmentJoin_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign/res/EcalAlignment_*
     rm EcalAlignmentJoin_Temp.root
 
+
+    hadd EcalAlignmentJoin.root Run2010B-WZEG-v2_RAWRECO_NoAlign/res/EcalAlignment_*
 
 ############################ Calculate alignment coefficients and create DB ############################
 
@@ -85,8 +92,8 @@ scramv1 b
 3) create new local DB with new alignment constants
   check the consistence of output name in "Align_cfg.py" and input name in "EcalTrivialAlignment_cfi.py"
   (remember absolute path for "EBAlignmentFile", "EEAlignmentFile", "ESAlignmentFile" as in the example)
-    cmsRun copyFileAlignEB_cfg.py 
     cmsRun copyFileAlignEE_cfg.py 
+    cmsRun copyFileAlignEB_cfg.py 
    
   to inspect DB do
     sqlite3 EBAlign_2010.db
@@ -111,12 +118,15 @@ scramv1 b
     crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_MyAlign
     crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
 
+    crab -report -c Run2010B-WZEG-v2_RAWRECO_MyAlign
+
 and join output tree
 
     hadd EcalAlignmentJoinMyAlign_Temp.root Run2010B-WZEG-v2_RAWRECO_MyAlign/res/EcalAlignment_*
     hadd EcalAlignmentJoinMyAlign.root EcalAlignmentJoinMyAlign_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign/res/EcalAlignment_*
     rm EcalAlignmentJoinMyAlign_Temp.root
 
+    hadd EcalAlignmentJoinMyAlign.root Run2010B-WZEG-v2_RAWRECO_MyAlign/res/EcalAlignment_*
 
 and get luminosity information:
     crab -report -c Run2010B-WZEG-v2_RAWRECO_MyAlign

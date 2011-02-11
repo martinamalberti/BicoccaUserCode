@@ -22,9 +22,11 @@
  double DPHIe_SM_Mean[4];
  double DPHIe_SM_RMS[4];
 
+ std::ifstream file ("myEEAlignment_Even_2010.txt"); 
 //  std::ifstream file ("myEEAlignment_2010_Ieri.txt"); 
 // std::ifstream file ("myEEAlignment_2010_Andrea.txt"); 
- std::ifstream file ("myEEAlignment_2010_30Oct.txt"); 
+// std::ifstream file ("myEEAlignment_2010_SiStrip.txt"); 
+// std::ifstream file ("myEEAlignment_2010_Laser.txt"); 
 //  std::ifstream file ("myEEAlignment_2010_Plus.txt"); 
 //std::ifstream file ("myEEAlignment_2010_Old.txt"); 
  if (!file.is_open()){
@@ -56,7 +58,9 @@
  std::cerr << " New File ... " << std::endl;
  
 //  std::ifstream fileEle ("myEEAlignment_2010_Minus.txt"); 
- std::ifstream fileEle ("myEEAlignment_2010.txt"); 
+//std::ifstream fileEle ("myEEAlignment_2010.txt"); 
+//std::ifstream fileEle ("myEEAlignment_2010_Laser.txt"); 
+ std::ifstream fileEle ("myEEAlignment_Odd_2010.txt"); 
   
  double DX_SM_Mean_After[4];
  double DX_SM_RMS_After[4];
@@ -523,6 +527,42 @@
  grDTHETAe_EEPlus_After->Draw("P");
  gPad->SetGrid();
   
+  
+  ///===========================================================================
+  ///===========================================================================
+  ///===========================================================================
+ TCanvas* cDifference = new TCanvas ("cDifference","cDifference",900,350);
+ cDifference->Divide(3,1);
+  
+ TH1F *hDX = new TH1F("hDX","#DeltaX",100,-1,1);
+ for (int i = 0; i<4; i++) hDX->Fill(DX_SM_Mean_After[i] - DX_SM_Mean[i]);
+
+ TH1F *hDY = new TH1F("hDY","#DeltaY",100,-1,1);
+ for (int i = 0; i<4; i++) hDY->Fill(DY_SM_Mean_After[i] - DY_SM_Mean[i]);
+
+ TH1F *hDZ = new TH1F("hDZ","#DeltaZ",100,-1,1);
+ for (int i = 0; i<4; i++) hDZ->Fill(DZ_SM_Mean_After[i] - DZ_SM_Mean[i]);
+ 
+ cDifference->cd(1);
+ hDX->SetLineColor(kRed);
+ hDX->SetFillColor(kRed);
+ hDX->SetFillStyle(3002);
+ hDX->Draw();
+ gPad->SetGrid();
+    
+ cDifference->cd(2);
+ hDY->SetLineColor(kRed);
+ hDY->SetFillColor(kRed);
+ hDY->SetFillStyle(3002);
+ hDY->Draw();
+ gPad->SetGrid();
+  
+ cDifference->cd(3);
+ hDZ->SetLineColor(kRed);
+ hDZ->SetFillColor(kRed);
+ hDZ->SetFillStyle(3002);
+ hDZ->Draw();
+ gPad->SetGrid();
   
   
 }

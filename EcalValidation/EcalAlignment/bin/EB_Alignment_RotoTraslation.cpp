@@ -48,6 +48,9 @@
 #include "CLHEP/Geometry/Transform3D.h"
 
 
+TF2* FunctionDeta;
+TF2* FunctionDphi;
+
 TChain* myTree;
 TString globalCut;
 double R = 1.290;
@@ -111,19 +114,25 @@ double Chi2Func(const double *xx ){
  
  myTree->SetEntryList(myList); 
  
+
  myTree->Draw("DeltaEtaIn:DeltaPhiIn:etaSC:phiSC","","para goff");
- 
  int nEntries = myList->GetN();
  Double_t *vTemp = myTree->GetV1();
  Double_t *vDEta = new Double_t[nEntries];
  for (int iEntry = 0; iEntry<nEntries; iEntry++){
   vDEta[iEntry] = vTemp[iEntry];
  }
- Double_t *vDPhi = myTree->GetV2();
+ Double_t *vTemp2 = myTree->GetV2();
+ Double_t *vDPhi = new Double_t[nEntries];
+ for (int iEntry = 0; iEntry<nEntries; iEntry++){
+  vDPhi[iEntry] = vTemp2[iEntry];
+ }
  Double_t *vEta = myTree->GetV3();
  Double_t *vPhi = myTree->GetV4();
- myTree->Draw("E5x5","","para goff");
+ myTree->Draw("E5x5:eleCharge","","para goff");
  Double_t *vEnergy = myTree->GetV1();
+ Double_t *vCharge = myTree->GetV2();
+
   
  Double_t vErrDEta;
  Double_t vErrDPhi;
@@ -137,6 +146,7 @@ double Chi2Func(const double *xx ){
  int counter = 0;
  for (int iEntry = 0; iEntry < nEntries; iEntry++){
   if ((even && !(iEntry%2)) || (odd && (iEntry%2))) {
+//   if (!(iEntry%10)) {
    counter++;
 
 //   for (int iEntry = 0; iEntry<nEntries/2; iEntry++){
@@ -149,7 +159,7 @@ double Chi2Func(const double *xx ){
     
     vErrDEta = (sqrt(3.6 / sqrt(vEnergy[iEntry]) * 3.6 / sqrt(vEnergy[iEntry]) + 12. / vEnergy[iEntry] * 12. / vEnergy[iEntry] + 0.54*0.54)) / 1000. / R * fabs(sin(2*atan(exp(-vEta[iEntry])))); ///===> /1000 perchè è in "mm" -> "m"
     
-    vErrDPhi = (sqrt(3.6 / sqrt(vEnergy[iEntry]) * 3.6 / sqrt(vEnergy[iEntry]) + 12. / vEnergy[iEntry] * 12. / vEnergy[iEntry] + 0.54*0.54)) / 1000. / R ; ///===> /1000 perchè è in "mm" -> "m"
+    vErrDPhi = 1.3 * (sqrt(3.6 / sqrt(vEnergy[iEntry]) * 3.6 / sqrt(vEnergy[iEntry]) + 12. / vEnergy[iEntry] * 12. / vEnergy[iEntry] + 0.54*0.54)) / 1000. / R ; ///===> /1000 perchè è in "mm" -> "m"
     
     vErrEta = 0.0;
     vErrPhi = 0.0;
@@ -169,11 +179,15 @@ double Chi2Func(const double *xx ){
     double dphi = deltaPhi(xyz.phi() , xyz_prime.phi()); ///==== check sign convention!!!!!!!!!!!!!!!!!!!!!
     double ddeta = (vDEta[iEntry] - deta);
     double ddphi = (vDPhi[iEntry] - dphi);
+    
+    ddeta = ddeta - FunctionDeta->Eval(vEta[iEntry],vCharge[iEntry]);
+    ddphi = ddphi - FunctionDphi->Eval(vEta[iEntry],vCharge[iEntry]);
+    
     Chi2 += (ddeta / vErrDEta * ddeta / vErrDEta + ddphi / vErrDPhi * ddphi / vErrDPhi);
     
    }
   }
-  std::cout << " Chi2 = " << Chi2 << " / " << counter << " = " << Chi2/counter << " - " << DX*1000 << " : " << DY*1000 << " : " << DZ*1000 << " : "  <<  DPHIEuler << " : "  <<  DTHETAEuler << " : "  <<  DPSIEuler << std::endl;
+  std::cout << " Chi2 = " << Chi2 << " / " << counter << " = " << Chi2/counter << " - " << DX*1000 << " mm: " << DY*1000 << " mm: " << DZ*1000 << " mm: "  <<  DPHIEuler << " : "  <<  DTHETAEuler << " : "  <<  DPSIEuler << std::endl;
   return Chi2;
 }
 
@@ -187,7 +201,9 @@ double Chi2Func(const double *xx ){
 
 int main(int argc, char** argv)
 {
+//  ROOT::Math::Minimizer* minuit = ROOT::Math::Factory::CreateMinimizer("Genetic");
  ROOT::Math::Minimizer* minuit = ROOT::Math::Factory::CreateMinimizer("Minuit", "Migrad2");
+
  ROOT::Math::Functor functorChi2(&Chi2Func,6); 
  
  TString genCut; //==== (eleFBrem<0.8&&eleCharge>0)
@@ -242,24 +258,65 @@ int main(int argc, char** argv)
  }
 
 
+ ///==== bias functions ==== 
+ 
+ std::string FunctionDetaName = subPSetInput.getUntrackedParameter<std::string> ("DetaBias","0") ; // x = eta, y = charge
+ std::string FunctionDphiName = subPSetInput.getUntrackedParameter<std::string> ("DphiBias","0") ;
+
+ FunctionDeta = new TF2 ("DetaBias",FunctionDetaName.c_str(),-5,5,-2,2);
+ FunctionDphi = new TF2 ("DphiBias",FunctionDphiName.c_str(),-5,5,-2,2);
 
  //==== output DATA ====
- 
+
+ ///==== Input ECAL position ====
+ std::string inputFilesPosition = subPSetInput.getUntrackedParameter<std::string> ("inputFilesPosition","") ;
+
  ///==== Build variables ====
- 
+
  double DX_SM_Mean[36];
  double DX_SM_RMS[36];
  double DY_SM_Mean[36];
  double DY_SM_RMS[36];
  double DZ_SM_Mean[36];
  double DZ_SM_RMS[36];
- 
+
  double DTHETAe_SM_Mean[36];
  double DTHETAe_SM_RMS[36];
  double DPSIe_SM_Mean[36];
  double DPSIe_SM_RMS[36];
  double DPHIe_SM_Mean[36];
  double DPHIe_SM_RMS[36];
+
+
+ std::ifstream* file;
+ if (inputFilesPosition != ""){
+  file = new std::ifstream(inputFilesPosition.c_str());
+  if(!file->is_open())
+  {
+   return false;
+  }
+ }
+//   while(!file->eof()){
+//   getline(file,buffer);
+//   std::stringstream line( buffer );
+//   double inputDX;
+//   double inputDY;
+//   double inputDZ;
+//   double inputDPHIe;
+//   double inputDTHETAe;
+//   double inputDPSIe;
+// 
+//   line >> inputDX;
+//   line >> inputDY;
+//   line >> inputDZ;
+//   line >> inputDPHIe;
+//   line >> inputDTHETAe;
+//   line >> inputDPSIe;
+//   }
+//  }
+
+ 
+ 
  
  
  for (int iSM = 0; iSM<36; iSM++){
@@ -270,6 +327,32 @@ int main(int argc, char** argv)
   ///===========================
   ///==== Chi2 minimization ====
   
+  double inputDX = 0;
+  double inputDY = 0;
+  double inputDZ = 0;
+  double inputDPHIe = 0;
+  double inputDTHETAe = 0;
+  double inputDPSIe = 0;
+  if (inputFilesPosition != ""){
+   std::string buffer;
+   getline(*file,buffer);
+   std::stringstream line( buffer );
+   line >> inputDPHIe;
+   line >> inputDTHETAe;
+   line >> inputDPSIe;
+   line >> inputDX; inputDX/=100;
+   line >> inputDY; inputDY/=100;
+   line >> inputDZ; inputDZ/=100;
+  }
+  
+     
+  std::cerr << " inputDPHIe   = " << inputDPHIe << std::endl;
+  std::cerr << " inputDTHETAe = " << inputDTHETAe << std::endl;
+  std::cerr << " inputDPSIe   = " << inputDPSIe << std::endl;
+  std::cerr << " inputDX      = " << inputDX << std::endl;
+  std::cerr << " inputDY      = " << inputDY << std::endl;
+  std::cerr << " inputDZ      = " << inputDZ << std::endl;
+   
   std::cout << " Chi2 minimization " << std::endl;
   
   globalCut = cut;
@@ -280,24 +363,24 @@ int main(int argc, char** argv)
   minuit->SetMaxIterations(10000);
   minuit->SetTolerance(0.000002);
   
-  if (traslationX)  minuit->SetLimitedVariable(0,"DX",0, 0.00001,-0.050,0.050);
+  if (traslationX)  minuit->SetLimitedVariable(0,"DX",inputDX, 0.00001,-0.050,0.050);
   else  minuit->SetFixedVariable(0,"DX",0);
 
-  if (traslationY)  minuit->SetLimitedVariable(1,"DY",0, 0.00001,-0.050,0.050);
+  if (traslationY)  minuit->SetLimitedVariable(1,"DY",inputDY, 0.00001,-0.050,0.050);
   else  minuit->SetFixedVariable(1,"DY",0);
 
-  if (traslationZ)  minuit->SetLimitedVariable(2,"DZ",0, 0.00001,-0.050,0.050);
+  if (traslationZ)  minuit->SetLimitedVariable(2,"DZ",inputDZ, 0.00001,-0.050,0.050);
   else  minuit->SetFixedVariable(2,"DZ",0);
 
 
-  if (rotationPhi)  minuit->SetLimitedVariable(3,"DPHIe",setRotationPhi, 0.001,-0.1,0.1);
-  else  minuit->SetFixedVariable(3,"DPHIe",setRotationPhi);
+  if (rotationPhi)  minuit->SetLimitedVariable(3,"DPHIe",inputDPHIe, 0.001,-0.1,0.1);
+  else  minuit->SetFixedVariable(3,"DPHIe",inputDPHIe);
 
-  if (rotationTheta)  minuit->SetLimitedVariable(4,"DTHETAe",setRotationTheta, 0.001,-0.1,0.1);
-  else  minuit->SetFixedVariable(4,"DTHETAe",setRotationTheta);
+  if (rotationTheta)  minuit->SetLimitedVariable(4,"DTHETAe",inputDTHETAe, 0.001,-0.1,0.1);
+  else  minuit->SetFixedVariable(4,"DTHETAe",inputDTHETAe);
 
-  if (rotationPsi)  minuit->SetLimitedVariable(5,"DPSIe",setRotationPsi, 0.001,-0.1,0.1);
-  else  minuit->SetFixedVariable(5,"DPSIe",setRotationPsi);
+  if (rotationPsi)  minuit->SetLimitedVariable(5,"DPSIe",inputDPSIe, 0.001,-0.1,0.1);
+  else  minuit->SetFixedVariable(5,"DPSIe",inputDPSIe);
 
 
   minuit->Minimize();
