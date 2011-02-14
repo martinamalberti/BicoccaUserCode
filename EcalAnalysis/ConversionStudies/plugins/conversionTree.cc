@@ -25,6 +25,9 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+
 //----objects----
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
@@ -36,6 +39,10 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -53,6 +60,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 //----geometry----
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -78,23 +88,42 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/AdaptiveGsfVertexFitter.h"
 #include "RecoTracker/TrackProducer/plugins/GsfTrackRefitter.h"
 
-using namespace edm;
+#include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+
+using namespace reco;
 
 conversionTree::conversionTree (const edm::ParameterSet& iConfig):
   //---- flags ----
   TriggerEventTag_ (iConfig.getParameter<edm::InputTag>("TriggerEventTag")),
   TriggerResultsTag_ (iConfig.getParameter<edm::InputTag>("TriggerResultsTag")),
+  PVTag_          (iConfig.getParameter<edm::InputTag>("PVTag")),
+  MCtruthTag_     (iConfig.getParameter<edm::InputTag>("MCtruthTag")),
+  PhotonTag_      (iConfig.getParameter<edm::InputTag>("PhotonTag")),
+  EBRechitTag_    (iConfig.getParameter<edm::InputTag>("EBRechitTag")),
+  EERechitTag_    (iConfig.getParameter<edm::InputTag>("EERechitTag")),
+
+  savePV_        (iConfig.getUntrackedParameter<bool> ("savePV", true)),
   saveHLT_ (iConfig.getUntrackedParameter<bool> ("saveHLT", true)),
   saveConversion_ (iConfig.getUntrackedParameter<bool> ("saveConversion", true)),
+  savePhoton_    (iConfig.getUntrackedParameter<bool> ("savePhoton", true)),
   savePFPhoton_ (iConfig.getUntrackedParameter<bool> ("savePFPhoton", true)),
   savePFCluster_ (iConfig.getUntrackedParameter<bool> ("savePFCluster", true)),
   saveIslandCluster_ (iConfig.getUntrackedParameter<bool> ("saveIslandCluster", false)),
-  saveMC_ (iConfig.getUntrackedParameter<bool> ("saveMC", false))
+  saveMC_ (iConfig.getUntrackedParameter<bool> ("saveMC", false)),
+  saveMCPi0_  (iConfig.getUntrackedParameter<bool> ("saveMCPi0", false)),
+
+
+  verbosity_ (iConfig.getUntrackedParameter<bool>("verbosity", false)),
+  eventType_ (iConfig.getUntrackedParameter<int>("eventType", 1))
 {
   edm::Service<TFileService> fs ;
   outTree_  = fs->make <TTree>("SimpleTree","SimpleTree"); 
 
   NtupleFactory_ = new NtupleFactory(outTree_);
+
+  mcAnalysisPi0_ = NULL;
+
 }
 
 
@@ -181,7 +210,8 @@ void conversionTree::fillConversionInfo (const edm::Event & iEvent, const edm::E
 // 	}
       //=====end test refit gdf vertex=====
 
-      std::vector<reco::TrackRef> origTks = itr->tracks();
+
+      std::vector<edm::RefToBase<reco::Track> > origTks = itr->tracks();
       const reco::Vertex& origV =  itr->conversionVertex();
       std::vector<reco::Track> refitTks;
 
@@ -245,6 +275,111 @@ void conversionTree::fillConversionInfo (const edm::Event & iEvent, const edm::E
     }
 }
 
+///-----------------
+///---- Photons ----
+
+void conversionTree::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtuple::fillPhotonInfo" << std::endl;
+ 
+  edm::Handle<reco::PhotonCollection> photonHandle;
+ iEvent.getByLabel(PhotonTag_,photonHandle);
+ 
+ 
+ for (reco::PhotonCollection::const_iterator itr = photonHandle->begin () ;
+      itr != photonHandle->end () ;
+      ++itr)
+   {
+     reco::Photon photon = *itr;
+  
+  NtupleFactory_ -> Fill4V   ("photons", photon.p4());
+  
+  NtupleFactory_ -> FillInt  ("photons_isGap",photon.isEBEtaGap() || photon.isEBPhiGap() || photon.isEERingGap() || photon.isEEDeeGap() || photon.isEBEEGap() );
+  NtupleFactory_ -> FillFloat("photons_e1x5",photon.e1x5());           
+  NtupleFactory_ -> FillFloat("photons_e2x5",photon.e2x5());         
+  NtupleFactory_ -> FillFloat("photons_e3x3",photon.e3x3());         
+  NtupleFactory_ -> FillFloat("photons_e5x5",photon.e5x5());         
+  NtupleFactory_ -> FillFloat("photons_maxEnergyXtal",photon.maxEnergyXtal());
+  NtupleFactory_ -> FillFloat("photons_sigmaEtaEta",photon.sigmaEtaEta());  
+  NtupleFactory_ -> FillFloat("photons_sigmaIetaIeta",photon.sigmaIetaIeta());
+  NtupleFactory_ -> FillFloat("photons_r1x5",photon.r1x5());        
+  NtupleFactory_ -> FillFloat("photons_r2x5",photon.r2x5());        
+  NtupleFactory_ -> FillFloat("photons_r9",photon.r9());   
+  NtupleFactory_ -> FillFloat("photons_ecalIso",photon.ecalRecHitSumEtConeDR04());   
+  NtupleFactory_ -> FillFloat("photons_hcalIso",photon.hcalTowerSumEtConeDR04());   
+  NtupleFactory_ -> FillFloat("photons_hadronicOverEm",photon.hadronicOverEm());   
+  NtupleFactory_ -> FillFloat("photons_trkSumPtHollowConeDR04",photon.trkSumPtHollowConeDR04());   
+  NtupleFactory_ -> FillInt  ("photons_hasPixelSeed",photon.hasPixelSeed());   
+  
+
+  //superCluster Info
+  reco::SuperClusterRef phoSC = photon.superCluster();
+  
+  double pos = sqrt(phoSC->x()*phoSC->x() + phoSC->y()*phoSC->y() + phoSC->z()*phoSC->z());
+  double ratio = phoSC->energy() / pos;
+  ROOT::Math::XYZTVector phoVec(phoSC->x()*ratio, phoSC->y()*ratio, phoSC->z()*ratio, phoSC->energy());
+  NtupleFactory_ -> Fill4V("photons_SC", phoVec);
+
+
+  //recHit time and energy
+  TMatrix rechitTime(3,3);
+  TMatrix rechitE(3,3);
+  for (int i=0;i<3;i++){
+    for (int j=0; j< 3; j++){
+      rechitTime[i][j]=999;
+      rechitE[i][j]=-999;
+    }
+  }
+
+   // calo topology
+  edm::ESHandle<CaloTopology> pTopology;
+  iESetup.get<CaloTopologyRecord>().get(pTopology);
+  const CaloTopology *topology = pTopology.product();
+ // Ecal barrel RecHits 
+  edm::Handle<EcalRecHitCollection> pBarrelEcalRecHits ;
+  iEvent.getByLabel (EBRechitTag_, pBarrelEcalRecHits) ;
+  const EcalRecHitCollection* theBarrelEcalRecHits = pBarrelEcalRecHits.product () ;
+
+  edm::Handle<EcalRecHitCollection> pEndcapEcalRecHits ;
+  iEvent.getByLabel (EERechitTag_, pEndcapEcalRecHits) ;
+  const EcalRecHitCollection* theEndcapEcalRecHits = pEndcapEcalRecHits.product () ;
+
+
+  if( photon.isEB() ){
+    EBDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theBarrelEcalRecHits )).first;
+    for(int xx = 0; xx < 3; ++xx)
+      for(int yy = 0; yy < 3; ++yy)
+	{
+	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-1, xx-1, yy-1, yy-1);
+	  if(vector.size() == 0) continue;
+	  EcalRecHitCollection::const_iterator iterator = theBarrelEcalRecHits->find (vector.at(0)) ;
+	  if(iterator == theBarrelEcalRecHits->end()) continue;
+	  rechitE[xx][yy]  = iterator -> energy();
+	  rechitTime[xx][yy]  = iterator -> time();
+	}
+    
+  }
+  else if (  photon.isEE() ){
+    EEDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theEndcapEcalRecHits )).first;
+    for(int xx = 0; xx < 3; ++xx)
+      for(int yy = 0; yy < 3; ++yy)
+	{
+	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-1, xx-1, yy-1, yy-1);
+	  if(vector.size() == 0) continue;
+	  EcalRecHitCollection::const_iterator iterator = theEndcapEcalRecHits->find (vector.at(0)) ;
+	  if(iterator == theEndcapEcalRecHits->end()) continue;
+	  rechitE[xx][yy]  = iterator -> energy();
+	  rechitTime[xx][yy]  = iterator -> time();
+	}
+  }
+  
+
+  NtupleFactory_ -> FillTMatrix("photons_rechitTime",rechitTime);
+  NtupleFactory_ -> FillTMatrix("photons_rechitE",rechitE);
+
+ }
+ 
+}
 
 
 ///---- PF photons
@@ -299,7 +434,7 @@ void conversionTree::fillPFPhotonInfo (const edm::Event & iEvent, const edm::Eve
 	  //only ecal blocks (inutile per fotoni...)
 	  reco::PFBlockElement::Type type = elem.type();
 	  if(type != reco::PFBlockElement::ECAL) continue;
-
+	  
 	  //Filling cluster variables
 	  myCluster = elem.clusterRef();  //quando trovo il blocco associato esco! (ce n'e' uno solo per candidate, ho controllato!)
 	  break;
@@ -572,8 +707,143 @@ void conversionTree::fillIslandClusterInfo (const edm::Event & iEvent, const edm
 }
 
 
+///-------------------
+///---- Beam Spot ----
+
+void conversionTree::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //std::cout << "conversionTree::fillBSInfo::begin" << std::endl;
+  
+  edm::Handle<reco::BeamSpot> BSHandle;
+  iEvent.getByType(BSHandle);
+  
+  
+  // select the BS
+  const reco::BeamSpot BS = *BSHandle;
+  math::XYZPoint BSPoint(BS.position().x(), BS.position().y(), BS.position().z());
+  BSPoint_ = BSPoint;
+  
+  
+  NtupleFactory_ -> FillFloat("BS_x0", BS.x0());
+  NtupleFactory_ -> FillFloat("BS_y0", BS.y0());
+  NtupleFactory_ -> FillFloat("BS_z0", BS.z0());
+  NtupleFactory_ -> FillFloat("BS_sigmaZ", BS.sigmaZ());
+  NtupleFactory_ -> FillFloat("BS_dxdz", BS.dxdz());
+  NtupleFactory_ -> FillFloat("BS_dydz", BS.dydz());
+  NtupleFactory_ -> FillFloat("BS_BeamWidthX", BS.BeamWidthX());
+  NtupleFactory_ -> FillFloat("BS_BeamWidthY", BS.BeamWidthY());
+  
+  //std::cout << "conversionTree::fillPVInfo::end" << std::endl;
+}
+
+
+///------------------------
+///---- Primary Vertex ----
+
+void conversionTree::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //std::cout << "conversionTree::fillPVInfo::begin" << std::endl;
+  
+  edm::Handle<reco::VertexCollection> vertexes;
+  iEvent.getByLabel(PVTag_, vertexes);
+  
+  
+  // select the primary vertex    
+  reco::Vertex PV;
+  bool PVfound = (vertexes -> size() != 0);
+
+  if(PVfound)
+  {
+    //VertexHigherPtSquared vertexTool;
+    // sort the primary vertices according to sum of (pt)^2 of tracks (first one -> highest  sum of (pt)^2 )        
+    PrimaryVertexSorter PVSorter;
+    std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
+    for( unsigned int u = 0 ; u < sortedVertices.size(); u++ ){
+      PV = sortedVertices[u];
+      
+      NtupleFactory_ -> FillFloat("PV_normalizedChi2", PV.normalizedChi2());
+      NtupleFactory_ -> FillInt  ("PV_ndof", PV.ndof());
+      NtupleFactory_ -> FillInt  ("PV_nTracks", PV.tracksSize());
+      NtupleFactory_ -> FillFloat("PV_z", PV.z());
+      NtupleFactory_ -> FillFloat("PV_d0", PV.position().Rho());
+
+      float myptsum = 0;
+      float myptsum2 = 0;
+
+      for ( Vertex::trackRef_iterator itr = PV.tracks_begin(); itr != PV.tracks_end(); ++itr){
+        float pt = (**itr).pt();
+        myptsum  += pt;
+        myptsum2 += pt*pt;
+      }
+
+      NtupleFactory_ -> FillFloat("PV_SumPt" , myptsum);
+      NtupleFactory_ -> FillFloat("PV_SumPt2", myptsum2);
+    }
+    PV = sortedVertices[0];
+  }
+  
+  else
+  {
+    //creating a dummy PV
+    reco::Vertex::Point p(BSPoint_.x(),BSPoint_.y(),BSPoint_.z());
+    reco::Vertex::Error e;
+    e(0,0) = 0.0015*0.0015;
+    e(1,1) = 0.0015*0.0015;
+    e(2,2) = 15.*15.;
+    PV = reco::Vertex(p, e, 1, 1, 1);
+    
+    NtupleFactory_ -> FillFloat("PV_normalizedChi2", -1.);
+    NtupleFactory_ -> FillInt  ("PV_ndof", -1);
+    NtupleFactory_ -> FillInt  ("PV_nTracks", -1);
+    NtupleFactory_ -> FillFloat("PV_z", -9999.);
+    NtupleFactory_ -> FillFloat("PV_d0", -9999.);
+    NtupleFactory_ -> FillFloat("PV_SumPt",-9999.);
+    NtupleFactory_ -> FillFloat("PV_SumPt2",-9999.);
+  }
+  
+  math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
+  PVPoint_ = PVPoint;
+  
+  //std::cout << "conversionTree::fillPVInfo::end" << std::endl;
+}
 
 ///---- MC ----
+void conversionTree::fillMCPi0Info (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "conversionTree::fillMCPi0DecayInfo" << std::endl; 
+
+ bool isValid = mcAnalysisPi0_ -> isValid();
+  
+ if( (eventType_ == 0) && (isValid == true) )
+ {
+
+   NtupleFactory_->Fill4V("mc_V",mcAnalysisPi0_ -> mcV()->p4());
+   NtupleFactory_->FillFloat("mc_V_charge",mcAnalysisPi0_ -> mcV()->charge());
+   NtupleFactory_->FillFloat("mcV_pdgId",mcAnalysisPi0_ -> mcV()->pdgId());
+
+   math::XYZPoint p(mcAnalysisPi0_ -> mcV()->vertex());
+   ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> vertex(p.x(), p.y(), p.z());
+   NtupleFactory_->Fill3V("mc_V_vertex", vertex);   
+   
+   NtupleFactory_->Fill4V("mcQ1_tag",mcAnalysisPi0_ -> mcQ1_tag()->p4());
+   NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysisPi0_ -> mcQ1_tag()->charge());
+   NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysisPi0_ -> mcQ1_tag()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcQ2_tag",mcAnalysisPi0_ -> mcQ2_tag()->p4());
+   NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysisPi0_ -> mcQ2_tag()->charge());
+   NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysisPi0_ -> mcQ2_tag()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcF1_fromV",mcAnalysisPi0_ -> mcF1_fromV()->p4());
+   NtupleFactory_->FillFloat("mcF1_fromV_charge",mcAnalysisPi0_ -> mcF1_fromV()->charge());
+   NtupleFactory_->FillFloat("mcF1_fromV_pdgId",mcAnalysisPi0_ -> mcF1_fromV()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcF2_fromV",mcAnalysisPi0_ -> mcF2_fromV()->p4());
+   NtupleFactory_->FillFloat("mcF2_fromV_charge",mcAnalysisPi0_ -> mcF2_fromV()->charge());
+   NtupleFactory_->FillFloat("mcF2_fromV_pdgId",mcAnalysisPi0_ -> mcF2_fromV()->pdgId());
+ } 
+ 
+}
+
 void conversionTree::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -603,6 +873,13 @@ void conversionTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   NtupleFactory_->FillInt("BXId", iEvent.bunchCrossing());
   NtupleFactory_->FillInt("eventId", iEvent.id().event());
   
+  edm::Handle<reco::GenParticleCollection> genParticles;
+
+  if(saveMCPi0_)
+    {
+      iEvent.getByLabel(MCtruthTag_, genParticles);
+      mcAnalysisPi0_ = new MCDumperPi0(genParticles, eventType_, verbosity_);
+    }
 
   ///---- fill HLT ----
   if (saveHLT_) fillHLTInfo (iEvent, iSetup);
@@ -610,6 +887,9 @@ void conversionTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   ///---- fill muons ----
   if (saveConversion_) fillConversionInfo (iEvent, iSetup);
   
+  ///---- fill photoninfo ---
+  if(savePhoton_)  fillPhotonInfo (iEvent, iSetup);
+
   ///---- fill PFPhotons ----
   if (savePFPhoton_)  fillPFPhotonInfo (iEvent, iSetup);
   
@@ -619,9 +899,17 @@ void conversionTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   ///---- fill fillIslandCluster ---- 
   if (saveIslandCluster_) fillIslandClusterInfo (iEvent, iSetup);
   
+  ///---- fill PV ---- 
+  if (savePV_) fillPVInfo (iEvent, iSetup);
+
+  ///---- fill BS ---- 
+  if(saveBS_) fillBSInfo (iEvent, iSetup);
+
   ///---- fill MC ---- 
   if (saveMC_) fillMCInfo (iEvent, iSetup);
   
+ if (saveMCPi0_) fillMCPi0Info (iEvent, iSetup);
+
   
   ///---- save the entry of the tree ----
   NtupleFactory_->FillNtuple();
@@ -671,6 +959,31 @@ void conversionTree::beginJob()
 
     }
   
+  if(savePhoton_)
+    {
+      NtupleFactory_ -> Add4V ("photons");
+      NtupleFactory_ -> AddInt  ("photons_isGap");
+      NtupleFactory_ -> AddFloat("photons_e1x5");           
+      NtupleFactory_ -> AddFloat("photons_e2x5");         
+      NtupleFactory_ -> AddFloat("photons_e3x3");         
+      NtupleFactory_ -> AddFloat("photons_e5x5");         
+      NtupleFactory_ -> AddFloat("photons_maxEnergyXtal");
+      NtupleFactory_ -> AddFloat("photons_sigmaEtaEta");  
+      NtupleFactory_ -> AddFloat("photons_sigmaIetaIeta");
+      NtupleFactory_ -> AddFloat("photons_r1x5");        
+      NtupleFactory_ -> AddFloat("photons_r2x5");        
+      NtupleFactory_ -> AddFloat("photons_r9");
+      NtupleFactory_ -> AddFloat("photons_ecalIso");   
+      NtupleFactory_ -> AddFloat("photons_hcalIso");   
+      NtupleFactory_ -> AddFloat("photons_hadronicOverEm");   
+      NtupleFactory_ -> AddFloat("photons_trkSumPtHollowConeDR04");   
+      NtupleFactory_ -> AddInt("photons_hasPixelSeed");   
+      NtupleFactory_ -> Add4V("photons_SC");   
+      
+      NtupleFactory_ ->AddTMatrix("photons_rechitTime");
+      NtupleFactory_ ->AddTMatrix("photons_rechitE");
+    }
+  
   if(savePFPhoton_)
     {
       NtupleFactory_->AddFloat("PFPhotonEnergy");
@@ -718,6 +1031,53 @@ void conversionTree::beginJob()
       NtupleFactory_->Add4V("IslandCluster");
     }
   
+  if(saveBS_)
+    {
+      NtupleFactory_ -> AddFloat("BS_x0"); 
+      NtupleFactory_ -> AddFloat("BS_y0"); 
+      NtupleFactory_ -> AddFloat("BS_z0"); 
+      NtupleFactory_ -> AddFloat("BS_sigmaZ"); 
+      NtupleFactory_ -> AddFloat("BS_dxdz"); 
+      NtupleFactory_ -> AddFloat("BS_dydz"); 
+      NtupleFactory_ -> AddFloat("BS_BeamWidthX"); 
+      NtupleFactory_ -> AddFloat("BS_BeamWidthY"); 
+    }
+  
+  if(savePV_)
+    {
+      NtupleFactory_ -> AddFloat("PV_normalizedChi2"); 
+      NtupleFactory_ -> AddInt  ("PV_ndof"); 
+      NtupleFactory_ -> AddInt  ("PV_nTracks"); 
+      NtupleFactory_ -> AddFloat("PV_z"); 
+      NtupleFactory_ -> AddFloat("PV_d0"); 
+      NtupleFactory_ -> AddFloat("PV_SumPt"); 
+      NtupleFactory_ -> AddFloat("PV_SumPt2"); 
+    }
+
+ if(saveMCPi0_)
+ {
+   NtupleFactory_->Add4V("mc_V");    
+   NtupleFactory_->AddFloat("mc_V_charge");    
+   NtupleFactory_->AddFloat("mcV_pdgId");    
+   NtupleFactory_->Add3V("mc_V_vertex");
+
+   NtupleFactory_->Add4V("mcQ1_tag");    
+   NtupleFactory_->AddFloat("mcQ1_tag_charge");    
+   NtupleFactory_->AddFloat("mcQ1_tag_pdgId");  
+   
+   NtupleFactory_->Add4V("mcQ2_tag");         
+   NtupleFactory_->AddFloat("mcQ2_tag_charge");    
+   NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
+   
+   NtupleFactory_->Add4V("mcF1_fromV");   
+   NtupleFactory_->AddFloat("mcF1_fromV_charge");    
+   NtupleFactory_->AddFloat("mcF1_fromV_pdgId");  
+     
+   NtupleFactory_->Add4V("mcF2_fromV");         
+   NtupleFactory_->AddFloat("mcF2_fromV_charge");    
+   NtupleFactory_->AddFloat("mcF2_fromV_pdgId");  
+ }  
+
   if(saveMC_)
     {
       NtupleFactory_->Add4V("MCPhoton");

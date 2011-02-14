@@ -11,8 +11,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-# process.GlobalTag.globaltag = 'IDEAL_V11::All'
-process.GlobalTag.globaltag = 'START3X_V26B::All'
+process.GlobalTag.globaltag = 'START39_V8::All'
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
@@ -21,7 +20,8 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 
 ##SOURCE
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.source = cms.Source("PoolSource",
         skipEvents = cms.untracked.uint32(0),
@@ -46,8 +46,9 @@ process.source = cms.Source("PoolSource",
     #'/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V26A_356ReReco-v1/0009/FEFC70B6-F53D-DF11-B57E-003048679150.root'
 
     #Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2
-    'file:/gwpool/users/deguio/DATASETS/Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2/FEFD6F35-BF68-DF11-A7E7-003048F0E81E.root'
-    
+    #'file:/gwpool/users/deguio/DATASETS/Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2/FEFD6F35-BF68-DF11-A7E7-003048F0E81E.root'
+
+    'file:/tmp/deguio/FEEC6FF3-890E-E011-8EAD-001A64789E60.root'
     )
 )
 
@@ -65,11 +66,12 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39)')
 
-#Good Vertex Filter (see GOODCOLL skim)
-process.primaryVertexFilter = cms.EDFilter("VertexSelector",
-                                           src = cms.InputTag("offlinePrimaryVertices"),
-                                           cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
-                                           filter = cms.bool(True)
+# filter on primary vertex
+process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
+                                           vertexCollection = cms.InputTag('offlinePrimaryVertices'),
+                                           minimumNDOF = cms.uint32(4) ,
+                                           maxAbsZ = cms.double(24),
+                                           maxd0 = cms.double(2)
                                            )
 
 # FilterOutScraping
@@ -86,26 +88,50 @@ process.goodcollisions=cms.Sequence(process.hltLevel1GTSeed*process.goodvertex)
 
 
 # Filter on conversions number per event
-process.conversionsFilter = cms.EDFilter('conversionsFilter')
+process.conversionFilter = cms.EDFilter('conversionFilter')
 
+process.conversionTree = cms.EDAnalyzer('conversionTree',
+                                        TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
+                                        TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                        PVTag = cms.InputTag("offlinePrimaryVertices"),
+                                        MCtruthTag = cms.InputTag("genParticles"),
+                                        saveMC = cms.untracked.bool(True),
+                                        saveMCPi0 = cms.untracked.bool(True),
+                                        #### photons ####
+                                        PhotonTag    = cms.InputTag("photons"),
+                                        EBRechitTag  = cms.InputTag("reducedEcalRecHitsEB","","RECO"),
+                                        EERechitTag  = cms.InputTag("reducedEcalRecHitsEE","","RECO"),
+                                        )
 
-process.conversionTree = cms.EDAnalyzer('conversionTree')
 
 
 ##OUTPUT
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("conversionTreeFiltered_MC_7TeV.root"),
+    fileName = cms.string("conversionTreeFiltered_MC.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 
 
+#process.load("PhysicsTools.NtupleUtils.AllPassFilter_cfi")
+
+# Counter1: All read events
+#process.AllEvents = process.AllPassFilter.clone()
+# Counter2: Good Vertex
+#process.ConvFilter = process.AllPassFilter.clone()
+# Counter3: Conversion Filter
+#process.GoodVertex = process.AllPassFilter.clone()
 
 process.p = cms.Path(
-    #process.skimming*
-    process.goodcollisions*
+ #   process.AllEvents* # -> Counter
     
-    process.conversionsFilter*
-    process.trackerOnlyConversionSequence*
+    process.noscraping*
+    process.primaryVertexFilter*
+ #   process.GoodVertex* # -> Counter
+
+    process.conversionFilter*
+ #   process.ConvFilter* # -> Counter
+
+    #process.trackerOnlyConversionSequence*
     process.conversionTree
     )
 

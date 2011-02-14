@@ -11,7 +11,10 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=TrackingTools/IPTools>
 <use name=RecoVertex/GaussianSumVertexFit>
+<use name=RecoVertex/PrimaryVertexProducer>
+
 
 <library file="*.cc" name=EcalAnalysisConversionStudiesPlugins>
     <flags EDM_PLUGIN=1>
+    <use name=EcalAnalysis/ConversionStudies>
 </library>

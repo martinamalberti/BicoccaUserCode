@@ -55,6 +55,9 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
+//MC dumper
+#include "EcalAnalysis/ConversionStudies/interface/MCDumperPi0.h"
+
 using namespace edm;
 
 class conversionTree : public edm::EDAnalyzer 
@@ -74,28 +77,51 @@ class conversionTree : public edm::EDAnalyzer
   
   void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillConversionInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFClusterInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillIslandClusterInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillBSInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  
+  void fillMCPi0Info (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+
   
  protected:
   
   TTree* outTree_ ;
   NtupleFactory* NtupleFactory_;
 
+  math::XYZPoint BSPoint_;
+  math::XYZPoint PVPoint_;
     
   ///---- input tag ----
   edm::InputTag TriggerEventTag_;
   edm::InputTag TriggerResultsTag_;
+  edm::InputTag PVTag_;
+  edm::InputTag MCtruthTag_;
+  edm::InputTag PhotonTag_;
+  edm::InputTag EBRechitTag_;
+  edm::InputTag EERechitTag_;
+
+  bool savePV_;
+  bool saveBS_;
   bool saveHLT_;
   bool saveConversion_;
+  bool savePhoton_;
   bool savePFPhoton_;
   bool savePFCluster_;
   bool saveIslandCluster_;
   bool saveMC_;
   ParameterSet gsfPSet_;
+
+  bool saveMCPi0_ ;
+
+  int eventType_; //---- 0 = signal    1 = background 
+  bool verbosity_; //---- true = loquacious    false = silence  
+  int eventNaiveId_;
+
+  MCDumperPi0*    mcAnalysisPi0_;
 } ;
 
 #endif

@@ -7,6 +7,7 @@ c++ -o testReader `root-config --cflags --glibs` -lGenVector testReader.cpp dict
 
 //usage: PFcalib conversionTree_collisions900.root conversionTree/SimpleTree
 
+
 #include "EcalAnalysis/ConversionStudies/interface/PFcalib_functions.h"
 #include "PhysicsTools/NtupleUtils/interface/treeReader.h"
 #include "PhysicsTools/NtupleUtils/interface/hFactory.h"
@@ -48,7 +49,7 @@ int main (int argc, char ** argv)
   //==== get input files list ====
   //=============================
   std::string fileName(argv[1]);
-  boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile(fileName);
+  boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfig(fileName);
   boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet();
   
   edm::ParameterSet subPSetSelections =  parameterSet -> getParameter<edm::ParameterSet>("selections");
@@ -127,7 +128,8 @@ int main (int argc, char ** argv)
   TH1F* firstHitPosition = new TH1F("firstHitPosition","firstHitPosition",6500,0.,130.);
 
   //PFPhotons plots
-  TH1F* nPhotonsPerEvent = new TH1F("nCluster_PFcandidate","nCluster_PFcandidate",100,0.,100.);
+  TH1F* nConvPerEvent = new TH1F("nConvPerEvent","nConvPerEvent",100,0.,100.);
+  TH1F* nPhotonsPerEvent = new TH1F("nPhotonsPerEvent","nPhotonsPerEvent",100,0.,100.);
   TH1F* nGoodPhotonsPerEvent = new TH1F("nGoodPhotonsPerEvent","nGoodPhotonsPerEvent",100,0.,100.);
   //Clusters plots
   TH1F* sumXtals_minusClusterEnergy = new TH1F("sumXtals_minusClusterEnergy","sumXtals_minusClusterEnergy",1000,-3.,3.);
@@ -143,6 +145,7 @@ int main (int argc, char ** argv)
   TH1F* pi0mass_PFcandidate_cut = new TH1F("pi0mass_PFcandidate_cut","pi0mass_PFcandidate_cut",100,0.,1.);
   TH1F* cosTheta = new TH1F("cosTheta","cosTheta",200,-1.,1.);
   TH1F* pi0pt_PFcandidate = new TH1F("pi0pt_PFcandidate","pi0pt_PFcandidate",1000,0.,10.);
+  TH1F* pi0p_PFcandidate = new TH1F("pi0p_PFcandidate","pi0p_PFcandidate",1000,0.,10.);
 
   TProfile* pi0mass_vsEta = new TProfile("pi0mass_vsEta","pi0mass_vsEta",2000,-2.,2.);
   TH2F* dR_vsPi0mass = new TH2F("dR_vsPi0mass","dR_vsPi0mass",1000,0.,10.,1000,0.,10.);
@@ -172,6 +175,12 @@ int main (int argc, char ** argv)
   TH2F* Eexp_vsEmeas = new TH2F("Eexp_vsEmeas","Eexp_vsEmeas",3000,0.,20.,2000,-10.,20.);
   TProfile* Eexp_vsEmeas_profile = new TProfile("Eexp_vsEmeas_profile","Eexp_vsEmeas_profile",2000,0.,20.);
   TH1F* Eexp_onEmeas = new TH1F("Eexp_onEmeas","Eexp_onEmeas",1000,0.,5.);
+
+  
+  //MAPS
+  TH2F* pi0peak_vsEnergy = new TH2F("pi0peak_vsEnergy","pi0peak_vsEnergy", 1000, 0., 50., 4000, 0., 1.);
+  TH2F* pi0peak_vsEta = new TH2F("pi0peak_vsEta","pi0peak_vsEta", 1000, -1.5, 1.5, 4000, 0., 1.);
+
 
   std::map<int,TH1F*> deltaE_energyBin;
   std::map<int,TH1F*> deltaE_etaBin;
@@ -387,11 +396,12 @@ int main (int argc, char ** argv)
   //==============================
   //==== loop over the events ====
   //==============================
+  int passed = 0;
   for (int iEvent = 0 ; iEvent < nevents ; ++iEvent)
     {
       reader.GetEntry (iEvent) ;
 
-      if(iEvent%100000 == 0) std::cout << "SECOND CYCLE - reading entry: " << iEvent << std::endl;
+      if(iEvent%100000 == 0) std::cout << "SECOND CYCLE - reading entry: " << iEvent << ", passed = " << passed << std::endl;
 
 
       //=========================
@@ -473,6 +483,7 @@ int main (int argc, char ** argv)
       //==== loop over the conversions ====
       //===================================
       int PFGoodPhotons = 0;
+      int goodConv = 0;
       for(unsigned int convItr = 0; convItr < pairMomentum.size(); ++convItr)
 	{
 	  if(pairIsConverted[convItr] == 0) continue;
@@ -653,7 +664,8 @@ int main (int argc, char ** argv)
 	      //==================================
 	      //==== Pi0 selections and plots ====
 	      //==================================
-	      pi0pt_PFcandidate->Fill(px*px + py*py);
+	      pi0pt_PFcandidate->Fill(sqrt(px*px + py*py));
+	      pi0p_PFcandidate->Fill(sqrt(px*px + py*py + pz*pz));
 
 	      if(sqrt(pho_px*pho_px + pho_py*pho_py) < 0.25 || sqrt(px*px + py*py) < 0.9)  //taglio su pt pi0
 		continue;
@@ -693,6 +705,13 @@ int main (int argc, char ** argv)
 	      //=====================
 	      //==== energy bins ====  
 	      //=====================
+	      //riempio le MAPS
+	      pi0peak_vsEnergy -> Fill(pho_ene, invMass);
+	      pi0peak_vsEta    -> Fill(pho_eta, invMass);
+
+
+
+
 	      //=== scelgo il bin dove cade il fotone ===
 
 	      int eneIndex = -1;
@@ -756,12 +775,16 @@ int main (int argc, char ** argv)
 
 
 	      ++PFGoodPhotons;
+	      ++goodConv;
 	      
 	    } //loop over PFcandidate collection
 	} //loop over conversions
 
       nPhotonsPerEvent -> Fill(PFPhoton.size());
-      nGoodPhotonsPerEvent->Fill(PFGoodPhotons);	  
+      nGoodPhotonsPerEvent->Fill(PFGoodPhotons);
+      nConvPerEvent -> Fill(goodConv);
+
+      ++passed;
 
     } //loop over the events
   
@@ -798,6 +821,7 @@ int main (int argc, char ** argv)
   pi0mass_PFcandidate->Write();
   pi0mass_PFcandidate_cut->Write();
   pi0pt_PFcandidate->Write();
+  pi0p_PFcandidate->Write();
   cosTheta->Write();
   deltaE->Write();
 
@@ -817,6 +841,7 @@ int main (int argc, char ** argv)
   pi0mass_vsEta->Write();
   dR_vsPi0mass->Write();
 
+  nConvPerEvent->Write();
   nPhotonsPerEvent->Write();
   nGoodPhotonsPerEvent->Write();
 
@@ -840,6 +865,9 @@ int main (int argc, char ** argv)
   Eexp_vsEmeas_profile->Write();
   Eexp_onEmeas->Write();
 
+  //MAPS
+  pi0peak_vsEnergy -> Write();
+  pi0peak_vsEta -> Write();
 
   file_->mkdir("deltaE_");
   file_->cd ("deltaE_");

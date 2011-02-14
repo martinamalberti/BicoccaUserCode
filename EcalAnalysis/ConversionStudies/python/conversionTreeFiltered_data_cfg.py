@@ -13,7 +13,6 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.GlobalTag.globaltag = 'GR_R_38X_V15::All'
 
-
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -21,7 +20,7 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 
 ##SOURCE
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(9028) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
     
 process.source = cms.Source("PoolSource",
@@ -31,7 +30,8 @@ process.source = cms.Source("PoolSource",
     #Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2
     #'file:/gwpool/users/deguio/DATASETS/Spring10_MinBias_TuneD6T_7TeV-pythia6_GEN-SIM-RECO_START3X_V26B-v2/FEFD6F35-BF68-DF11-A7E7-003048F0E81E.root'
 
-    '/store/data/Run2010B/Jet/RECO/PromptReco-v2/000/149/442/E46CB2D6-49E6-DF11-AAF1-0030487CD7EE.root'
+    #'/store/data/Run2010B/Jet/RECO/PromptReco-v2/000/149/442/E46CB2D6-49E6-DF11-AAF1-0030487CD7EE.root'
+    'file:/tmp/deguio/4AB1C58E-730F-E011-AA63-002354EF3BE4.root'
     )
 )
 
@@ -75,37 +75,42 @@ process.goodcollisions=cms.Sequence(process.hltLevel1GTSeed*process.goodvertex)
 # Filter on conversions number per event
 process.conversionFilter = cms.EDFilter('conversionFilter')
 
-
 process.conversionTree = cms.EDAnalyzer('conversionTree',
                                         TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
                                         TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                        PVTag = cms.InputTag("offlinePrimaryVertices"),
+                                        MCtruthTag = cms.InputTag("genParticles"),
+                                        #### photons ####
+                                        PhotonTag    = cms.InputTag("photons"),
+                                        EBRechitTag  = cms.InputTag("reducedEcalRecHitsEB","","RECO"),
+                                        EERechitTag  = cms.InputTag("reducedEcalRecHitsEE","","RECO"),
                                         )
 
 
 
 ##OUTPUT
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("conversionTreeFiltered.root"),
+    fileName = cms.string("conversionTreeFiltered_DATA.root"),
     closeFileFast = cms.untracked.bool(True),
     )
 
 process.load("PhysicsTools.NtupleUtils.AllPassFilter_cfi")
 
 # Counter1: All read events
-process.AllEvents = process.AllPassFilter.clone()
+#process.AllEvents = process.AllPassFilter.clone()
 # Counter2: Good Vertex
-process.ConvFilter = process.AllPassFilter.clone()
+#process.ConvFilter = process.AllPassFilter.clone()
 # Counter3: Conversion Filter
-process.GoodVertex = process.AllPassFilter.clone()
+#process.GoodVertex = process.AllPassFilter.clone()
 
 process.p = cms.Path(
-    process.AllEvents * # -> Counter
+    #process.AllEvents * # -> Counter
     
     process.goodvertex*
-    process.GoodVertex* # -> Counter
+    #process.GoodVertex* # -> Counter
     
     process.conversionFilter*
-    process.ConvFilter* # -> Counter
+    #process.ConvFilter* # -> Counter
     
     #process.trackerOnlyConversionSequence*  #ancora necessario in 38X?
     process.conversionTree
