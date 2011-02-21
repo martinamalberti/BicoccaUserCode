@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: Purity_Stability.cxx,v 1.1 2011/02/09 10:56:35 govoni Exp $
+//      $Id: Purity_Stability.cxx,v 1.1 2011/02/09 16:37:40 amassiro Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -25,7 +25,7 @@ using std::endl;
 
 #endif
 
-#include "tdrStyle.cc"
+//#include "tdrStyle.cc"
 
 //==============================================================================
 // Global definitions
@@ -45,8 +45,12 @@ void Purity_Stability()
 
 
   
-  Float_t lowEdge[8] = {27,35,45,57,72,90,120,150};
-  int NBIN = 7;
+  Float_t lowEdge[9] = {27,35,45,57,72,90,120,150,1000};
+  int NBIN = 8;
+    
+ // Float_t lowEdge[11] = {18,22,27,35,45,57,72,90,120,150,1000};
+ // int NBIN = 10;
+  
   TH1F myH("myH","myH",NBIN,lowEdge);
   TH2D* hResponseMatrixFJetPythia = new TH2D ("hResponseMatrixFJetPythia", "Response Matrix FJet Pythia",NBIN,lowEdge,NBIN,lowEdge);
   TH2D* hResponseMatrixCJetPythia = new TH2D ("hResponseMatrixCJetPythia", "Response Matrix CJet Pythia",NBIN,lowEdge,NBIN,lowEdge);
@@ -556,7 +560,7 @@ void Purity_Stability()
   
   TCanvas* cPurityF = new TCanvas("cPurityF","cPurityF",600,600);  
   Purity->GetYaxis()->SetRangeUser(0.,1.0);
-  Purity->GetXaxis()->SetRangeUser(35.,150);
+  Purity->GetXaxis()->SetRangeUser(35.,149);
   Purity->SetTitle();
   Purity->SetMarkerStyle(20);
   Purity->SetMarkerSize(1);
@@ -566,7 +570,7 @@ void Purity_Stability()
   Purity->DrawCopy("E");
   
   PurityH->GetYaxis()->SetRangeUser(0.,1.0);
-  PurityH->GetXaxis()->SetRangeUser(35.,150);
+  PurityH->GetXaxis()->SetRangeUser(35.,149);
   PurityH->SetTitle();
   PurityH->SetLineColor(kRed);
   PurityH->GetYaxis()->SetTitle("Purity");
@@ -594,21 +598,21 @@ void Purity_Stability()
   
   TCanvas* cStabilityF = new TCanvas("cStabilityF","cStabilityF",600,600);  
   Stability->GetYaxis()->SetRangeUser(0.,1.0);
-  Stability->GetXaxis()->SetRangeUser(35.,150);
+  Stability->GetXaxis()->SetRangeUser(35.,149.);
   Stability->SetTitle();
   Stability->SetMarkerStyle(20);
-  Stability->SetMarkerSize(1)
+  Stability->SetMarkerSize(1);
   Stability->GetYaxis()->SetTitle("Stability");
   Stability->GetXaxis()->SetTitle("forward jet p_{T} [GeV/c]");
   Stability->SetStats(0);
   Stability->DrawCopy("E");
 
   StabilityH->GetYaxis()->SetRangeUser(0.,1.0);
-  StabilityH->GetXaxis()->SetRangeUser(35.,150);
+  StabilityH->GetXaxis()->SetRangeUser(35.,149.);
   StabilityH->SetLineColor(kRed);
   StabilityH->SetMarkerColor(kRed);
   StabilityH->SetMarkerStyle(20);
-  StabilityH->SetMarkerSize(1)
+  StabilityH->SetMarkerSize(1);
   StabilityH->GetYaxis()->SetTitle("Stability");
   StabilityH->GetXaxis()->SetTitle("forward jet p_{T} [GeV/c]");
   StabilityH->SetStats(0);
@@ -665,9 +669,9 @@ void Purity_Stability()
   
   TCanvas* cPurityC = new TCanvas("cPurityC","cPurityC",600,600);  
   PurityC->GetYaxis()->SetRangeUser(0.,1.0);
-  PurityC->GetXaxis()->SetRangeUser(35.,150);
+  PurityC->GetXaxis()->SetRangeUser(35.,149);
   PurityC->SetTitle();
-  PurityC->SetMarkerSize(1)
+  PurityC->SetMarkerSize(1);
   PurityC->SetMarkerStyle(20);
   PurityC->GetYaxis()->SetTitle("Purity");
   PurityC->GetXaxis()->SetTitle("central jet p_{T} [GeV/c]");
@@ -675,10 +679,10 @@ void Purity_Stability()
   PurityC->DrawCopy("E");
   
   PurityCH->GetYaxis()->SetRangeUser(0.,1.0);
-  PurityCH->GetXaxis()->SetRangeUser(35.,150);
+  PurityCH->GetXaxis()->SetRangeUser(35.,149);
   PurityCH->SetLineColor(kRed);
   PurityCH->SetMarkerColor(kRed);
-  PurityCH->SetMarkerSize(1)
+  PurityCH->SetMarkerSize(1);
   PurityCH->SetMarkerStyle(20);
   PurityCH->GetYaxis()->SetTitle("Purity");
   PurityCH->GetXaxis()->SetTitle("central jet p_{T} [GeV/c]");
@@ -702,9 +706,9 @@ void Purity_Stability()
   
   TCanvas* cStabilityC = new TCanvas("cStabilityC","cStabilityC",600,600);  
   StabilityC->GetYaxis()->SetRangeUser(0.,1.0);
-  StabilityC->GetXaxis()->SetRangeUser(35.,150);
+  StabilityC->GetXaxis()->SetRangeUser(35.,149);
   StabilityC->SetMarkerStyle(20);
-  StabilityC->SetMarkerSize(1)
+  StabilityC->SetMarkerSize(1);
   StabilityC->SetTitle();
   StabilityC->GetYaxis()->SetTitle("Stability");
   StabilityC->GetXaxis()->SetTitle("central jet p_{T} [GeV/c]");
@@ -712,11 +716,11 @@ void Purity_Stability()
   StabilityC->DrawCopy("E");
   
   StabilityCH->GetYaxis()->SetRangeUser(0.,1.0);
-  StabilityCH->GetXaxis()->SetRangeUser(35.,150);
+  StabilityCH->GetXaxis()->SetRangeUser(35.,149);
   StabilityCH->SetLineColor(kRed);
   StabilityCH->SetMarkerColor(kRed);
   StabilityCH->SetMarkerStyle(20);
-  StabilityCH->SetMarkerSize(1)
+  StabilityCH->SetMarkerSize(1);
   StabilityCH->GetYaxis()->SetTitle("Stability");
   StabilityCH->GetXaxis()->SetTitle("central jet p_{T} [GeV/c]");
   StabilityCH->SetStats(0);
