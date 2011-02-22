@@ -1,5 +1,5 @@
 
-///==== Legge un NTupla e seleziona solo coppie di jet con pT>27 e posizione di pseudorapidità desiderata:: tutte le possibili coppie di jet all'interno di un evento vengono plottate  ====
+///==== Legge un NTupla e seleziona solo coppie di jet con pT>27 e posizione di pseudorapidità desiderata: sceglie il jet forard e central con pt Massimo ====
 
 #include "treeReader.h"
 #include "hFactory.h"
@@ -40,6 +40,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  std::string treeName= gConfigParser -> readStringOption("Input::treeName");	//HADRON LEVEL
  std::string inputFile = gConfigParser -> readStringOption("Input::inputFile");
  std::string nameGenJet = gConfigParser -> readStringOption("Input::nameGenJet"); //
+ 
+ double inputXSection  = gConfigParser -> readDoubleOption("Input::inputXSection");
   
  int entryMAX = gConfigParser -> readIntOption("Input::entryMAX");	//numero totale di eventi?entrate?
  int entryMIN = gConfigParser -> readIntOption("Input::entryMIN");
@@ -60,13 +62,34 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  chain->Add(inputFile.c_str());
  treeReader reader((TTree*)(chain));	//qui definisco reader
  
- 
- 
 
- //==================================================================
+ ///****************************
+ ///**** DATA JSON file ****
+ ///***************************************************
+
+  
+ int dataFlag = 0;
+ if (inputXSection == -1) dataFlag = 1; //==== it's a data sample!!!
+  // define map with events
+  std::map<std::pair<int,std::pair<int,int> >,int> eventsMap;  
  
- ///----------------
- ///---- output ---- qui dentro ci sono anche le condizioni di trigger!!!
+/* 
+  std::string inFileNameJSON;
+  try {
+  inFileNameJSON = gConfigParser -> readStringOption("Input::inFileNameJSON");
+ }
+ catch (char const* exceptionString){
+  std::cerr << " exception = " << exceptionString << std::endl;
+ }
+ std::cout << ">>>>> Input::inFileNameJSON  " << inFileNameJSON  << std::endl;  
+ std::map<int, std::vector<std::pair<int, int> > > jsonMap;
+ if( dataFlag == 1 ) {
+   jsonMap = readJSONFile(inFileNameJSON);	//Definisco la jsonMap!
+}*/
+
+
+ //======================== Istogrammi di controllo ==========================================
+ 
  std::string OutFileName    = gConfigParser -> readStringOption("Output::outFileName");
  std::cout << ">>>>> Output::outFileName  " << OutFileName  << std::endl;  
  
@@ -199,6 +222,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 // AnaHiggs.Branch("PtSel_had", &PtSel_had, "PtSel_had/I");
 // AnaHiggs.Branch("PtSel_reco", &PtSel_reco, "PtSel_reco/I");
 
+
+
+ 
  
 
  ///Selezione sugli eventi Dijet at HADRON LEVEL
@@ -215,6 +241,36 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   reader.GetEntry(iEvent);	//un'entrata in questo caso è data da un TREE intero
   if((iEvent%entryMOD) == 0) std::cout << ">>>>> analysis::GetEntry " << iEvent  << ":" << reader.GetEntries() << " (" << entryMAX << ")" << std::endl;   
   
+  
+  ///***************************************************
+  ///**** STEP -1 - Check no copies in DATA ****
+  ///***************************************************
+  
+  
+  /*
+  if( dataFlag == 1 )
+  {
+   std::pair<int,int> eventLSandID(reader.GetInt("lumiId")->at(0), reader.GetInt("eventId")->at(0));
+   std::pair<int,std::pair<int,int> > eventRUNandLSandID(reader.GetInt("runId")->at(0), eventLSandID);
+   
+   if( eventsMap[eventRUNandLSandID] == 1 ) continue;
+   else eventsMap[eventRUNandLSandID] = 1;
+  }*/
+
+  ///*************************************************
+  ///**** Check comparison with JSON file ***
+  ///*************************************************
+
+/*
+  if( dataFlag == 1 )
+    {
+      int runId  = reader.GetInt("runId")->at(0);
+      int lumiId = reader.GetInt("lumiId")->at(0);
+      if(AcceptEventByRunAndLumiSection(runId, lumiId, jsonMap) == false) continue;      
+    }
+
+  
+  */
 //   std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
   totalJets_had = totalJets_had + nJets_had;
@@ -273,6 +329,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 //   std::cerr << " Forward_i_reco  = " << Forward_i_reco  << std::endl;
   
   ///FILLING VARIABLES
+  if (dataFlag!=1){ 	//se si tratta di Dati non cercare nemmeno i GenJet!
     if (Central_i_had !=-1 && Forward_i_had !=-1){
       //&& 
      //riempi l'istogramma e il file con:
@@ -285,6 +342,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      EtaPtF_had.Fill(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(), reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt());	//riempio l'istogramma
 
      //qui devo impostare tutte le variabili del tree!
+     //Variabili at hadron level
      G_FJet_Pt = reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt();
      G_FJet_Eta = reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta();
      G_FJet_Phi = reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi();
@@ -299,15 +357,35 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      G_D_Phi = deltaPhi(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
      G_D_R = deltaR(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
     
+    }
+  }
+    
+     else {
+       //valori di default in assenza di jet at hadron level
+     G_FJet_Pt = -100.;
+     G_FJet_Eta = -100.;
+     G_FJet_Phi = -100.;
+     G_FJet_Energy = -100.;
      
+     G_CJet_Pt = -100.;
+     G_CJet_Eta = -100.;
+     G_CJet_Phi = -100.;
+     G_CJet_Energy= -100.;
+  
+     G_D_Eta = -100.;
+     G_D_Phi = -100.;
+     G_D_R = -100.;
+    
+     }
+     
+     //Variabili at detector level
      if(Central_i_reco !=-1 && Forward_i_reco !=-1) {
-      EtaPtF_reco.Fill(reader.Get4V("jets")->at(Forward_i_reco).Eta(), reader.Get4V("jets")->at(Forward_i_reco).Pt());	//riempio l'istogramma
+      
+     EtaPtF_reco.Fill(reader.Get4V("jets")->at(Forward_i_reco).Eta(), reader.Get4V("jets")->at(Forward_i_reco).Pt());	//riempio l'istogramma
       
      hPtC_reco.Fill(reader.Get4V("jets")->at(Central_i_reco).Pt());	//riempio l'istogramma
      hPtF_reco.Fill(reader.Get4V("jets")->at(Forward_i_reco).Pt());	//riempio l'istogramma
      
-     
-     //qui devo impostare tutte le variabili del tree!
      S_FJet_Pt = reader.Get4V("jets")->at(Forward_i_reco).Pt();
      S_FJet_Eta = reader.Get4V("jets")->at(Forward_i_reco).Eta();
      S_FJet_Phi = reader.Get4V("jets")->at(Forward_i_reco).Phi();
@@ -356,12 +434,12 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
           
      AnaHiggs.Fill();    
      eventSel++;
-     
-    }
+ }    
+    
 //     std::cerr << " here " << std::endl;
     efficiency.SetBinContent(1,entryMAX-entryMIN);
     efficiency.SetBinContent(2,eventSel);
- }
+ 
  
     /*
  //end = clock();
