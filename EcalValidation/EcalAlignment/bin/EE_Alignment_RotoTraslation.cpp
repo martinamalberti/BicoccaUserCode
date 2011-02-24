@@ -185,8 +185,8 @@ double Chi2Func(const double *xx ){
 
 int main(int argc, char** argv)
 {
- //  ROOT::Math::Minimizer* minuit = ROOT::Math::Factory::CreateMinimizer("Genetic");  ---> next ROOT  release!
- ROOT::Math::Minimizer* minuit = ROOT::Math::Factory::CreateMinimizer("Minuit", "Migrad2");
+   ROOT::Math::Minimizer* minuit = ROOT::Math::Factory::CreateMinimizer("Genetic");  //---> next ROOT  release!
+// ROOT::Math::Minimizer* minuit = ROOT::Math::Factory::CreateMinimizer("Minuit", "Migrad2");
  ROOT::Math::Functor functorChi2(&Chi2Func,6); 
  
  TString genCut; //==== (eleFBrem<0.8&&eleCharge>0)
