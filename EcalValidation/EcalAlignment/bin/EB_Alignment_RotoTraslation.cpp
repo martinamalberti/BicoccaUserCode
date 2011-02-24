@@ -89,7 +89,8 @@ double Chi2Func(const double *xx ){
  TIter next( myList->GetLists() ); 
 
 // std::cerr << " myList->GetLists() = " << (int) myList->GetLists() << std::endl;
- if ((int) myList->GetLists() != 0){
+ if (myList->GetLists() != 0){
+// if ((int) myList->GetLists() != 0){
 //  std::cerr << " entries = " << myList->GetLists()->GetEntries() << std::endl;
   TEntryList *ilist;
   while( (ilist = (TEntryList*) *next ) ) {

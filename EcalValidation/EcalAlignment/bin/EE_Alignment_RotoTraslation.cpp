@@ -84,7 +84,8 @@ double Chi2Func(const double *xx ){
 
  //==== bux fix in ROOT see https://savannah.cern.ch/bugs/?60569 ====
  TIter next( myList->GetLists() ); 
- if ((int) myList->GetLists() != 0){
+ if (myList->GetLists() != 0){
+// if ((int) myList->GetLists() != 0){
   TEntryList *ilist;
   while( (ilist = (TEntryList*) *next ) ) {
    ilist->SetTreeName(myTree->GetName()); 
