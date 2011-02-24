@@ -16,9 +16,9 @@ process.inputTree = cms.PSet(
   traslationX = cms.bool(True),
   traslationY = cms.bool(True),
   traslationZ = cms.bool(True),
-  rotationPhi   = cms.bool(False),
-  rotationTheta = cms.bool(False),
-  rotationPsi   = cms.bool(False),
+  rotationPhi   = cms.bool(True),
+  rotationTheta = cms.bool(True),
+  rotationPsi   = cms.bool(True),
 
   setRotationPhi   = cms.untracked.double(0),
   setRotationTheta = cms.untracked.double(0),
@@ -31,7 +31,7 @@ process.inputTree = cms.PSet(
       
      
   inputFilesPosition    = cms.untracked.string(
-         'myEBAlignment_2010_OLD.txt'
+         'myEEAlignment_2010_OLD.txt'
   ),
    
   inputFiles    = cms.vstring(
@@ -41,7 +41,7 @@ process.inputTree = cms.PSet(
 
 
 process.outputTree = cms.PSet(
-  outputFile = cms.string("myEEAlignment_2010.txt")
+  outputFile = cms.string("myEEAlignment_2010_Rotations_Yes_ES_DB.txt")
 # outputFile = cms.string("myEEAlignment_2010_Plus.txt")
 # outputFile = cms.string("myEEAlignment_2010_Minus.txt")
 )
