@@ -49,6 +49,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  
  double ptMin = gConfigParser -> readDoubleOption("Input::ptMin"); //
  double DRmax = gConfigParser -> readDoubleOption("Input::DRmax"); //
+ int debug = gConfigParser -> readIntOption("Input::debug"); // se uguale a 1 esegui il debug altrimenti no.
  
  
  std::cout << ">>>>> input::entryMIN  " << entryMIN  << std::endl;  
@@ -271,11 +272,11 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 
   
   */
-//   std::cerr << " 1 ... " << std::endl;  
+  if (debug == 1) std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
   totalJets_had = totalJets_had + nJets_had;
   
-//   std::cerr << " 2 ... " << std::endl;
+  if (debug == 1)  std::cerr << " 2 ... " << std::endl;
   int nJets_reco = reader.Get4V("jets")->size();	// qui è il jet a livello reco
   totalJets_reco = totalJets_reco + nJets_reco;
   
@@ -283,7 +284,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   //const double ptMin = 10.0;	//le passo dal file di configurazione!
   //const double D_R_cut = 100;
   
-//  cout << "=================== Selezione sugli eventi Dijet at HADRON LEVEL =============="<<endl;
+ //cout << "=================== Selezione sugli eventi Dijet at HADRON LEVEL =============="<<endl;
 
   ///HADRON BLACKLIST
   std::vector <int> blacklistCentral_had;
@@ -324,17 +325,17 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   //Seleziono i due jet non presenti sulle black list con Pt massimo
  
   int Central_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMin, &blacklistCentral_reco);
-//   std::cerr << " Central_i_reco  = " << Central_i_reco  << std::endl;
+  if (debug == 1) std::cerr << " Central_i_reco  = " << Central_i_reco  << std::endl;
   int Forward_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMin, &blacklistForward_reco);
-//   std::cerr << " Forward_i_reco  = " << Forward_i_reco  << std::endl;
+  if (debug == 1) std::cerr << " Forward_i_reco  = " << Forward_i_reco  << std::endl;
   
   ///FILLING VARIABLES
-  if (dataFlag!=1){ 	//se si tratta di Dati non cercare nemmeno i GenJet!
+  //if (dataFlag!=1){ 	//se è un MonteCarlo
     if (Central_i_had !=-1 && Forward_i_had !=-1){
       //&& 
      //riempi l'istogramma e il file con:
-//      std::cerr << ">>> Central_i_had  = " << Central_i_had  << std::endl;
-//      std::cerr << ">>> Forward_i_had  = " << Forward_i_had  << std::endl;
+//      if (debug == 1) std::cerr << ">>> Central_i_had  = " << Central_i_had  << std::endl;
+//      if (debug == 1) std::cerr << ">>> Forward_i_had  = " << Forward_i_had  << std::endl;
      
      hPtC.Fill(reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Pt());	//riempio l'istogramma
      hPtF.Fill(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt());	//riempio l'istogramma
@@ -358,7 +359,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      G_D_R = deltaR(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
     
     }
-  }
+//   }
     
      else {
        //valori di default in assenza di jet at hadron level
@@ -400,12 +401,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_D_Phi = deltaPhi(reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V("jets")->at(Central_i_reco).Phi());
      S_D_R = deltaR(reader.Get4V("jets")->at(Forward_i_reco).Eta(),reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V("jets")->at(Central_i_reco).Eta(),reader.Get4V("jets")->at(Central_i_reco).Phi());
       
-     DR_F =  deltaR(reader.Get4V("jets")->at(Forward_i_reco).Eta(),reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi());
-     DR_C =  deltaR(reader.Get4V("jets")->at(Central_i_reco).Eta(),reader.Get4V("jets")->at(Central_i_reco).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
-     
-      
      }
-    
      
      else {
        //valori di default in assenza di jet at reco level
@@ -422,10 +418,20 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_D_Eta = -100.;
      S_D_Phi = -100.;
      S_D_R = -100.;
-      
+     }
+     
+      if(Central_i_reco !=-1 && Forward_i_reco !=-1 && Central_i_had !=-1 && Forward_i_had !=-1){
+     DR_F =  deltaR(reader.Get4V("jets")->at(Forward_i_reco).Eta(),reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi());
+     DR_C =  deltaR(reader.Get4V("jets")->at(Central_i_reco).Eta(),reader.Get4V("jets")->at(Central_i_reco).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
+           
+     }
+     
+     else{      
      DR_F = -100.;
      DR_C = -100.;
      }
+     
+     
      
      S_RunNb = reader.GetInt("runId")->at(0);
      S_LumiBlk = reader.GetInt("lumiId")->at(0);
