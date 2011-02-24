@@ -91,13 +91,7 @@ class EcalValidation : public edm::EDAnalyzer {
 
 	 // for Pi0
 	 PositionCalc posCalculator_ ;
-         bool ParameterLogWeighted_; 	 
-         double ParameterX0_; 	 
-         double ParameterT0_barl_; 	 
-         double ParameterT0_endc_; 	 
-         double ParameterT0_endcPresh_; 	 
-         double ParameterW0_;
-         
+	 
 	 double clusSeedThr_;
 	 double clusSeedThr_EE_;
 	 int clusEtaSize_;
@@ -176,7 +170,6 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EB_time;
 	 TH1D *h_recHits_EB_Chi2;
 	 TH1D *h_recHits_EB_OutOfTimeChi2;
-	 TH1D *h_recHits_EB_E1oE9; 
 	 TH1D *h_recHits_EB_E1oE4; 
          TH1D *h_recHits_EB_iPhiOccupancy;
          TH1D *h_recHits_EB_iEtaOccupancy;
@@ -204,7 +197,6 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EEP_time;
 	 TH1D *h_recHits_EEP_Chi2;
 	 TH1D *h_recHits_EEP_OutOfTimeChi2;
- 	 TH1D *h_recHits_EEP_E1oE9; 
 	 TH1D *h_recHits_EEP_E1oE4; 
          TH1D *h_recHits_EEP_iXoccupancy;
          TH1D *h_recHits_EEP_iYoccupancy;
@@ -218,7 +210,6 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_recHits_EEM_time;
 	 TH1D *h_recHits_EEM_Chi2;
 	 TH1D *h_recHits_EEM_OutOfTimeChi2;
-	 TH1D *h_recHits_EEM_E1oE9; 
 	 TH1D *h_recHits_EEM_E1oE4; 
          TH1D *h_recHits_EEM_iXoccupancy;
          TH1D *h_recHits_EEM_iYoccupancy;
@@ -326,7 +317,6 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EB_nXtals;
 	 TH1D *h_superClusters_EB_nBC;
 	 TH1D *h_superClusters_EB_energy;
-	 TH1D *h_superClusters_EB_E1oE9;
 	 TH1D *h_superClusters_EB_E1oE4;
 
 	 // ... barrel (with spike cleaning)
@@ -344,7 +334,6 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EEP_energy;
 	 TH1D *h_superClusters_EEP_rawEnergy;
 	 TH1D *h_superClusters_EEP_rawEt;
-	 TH1D *h_superClusters_EEP_E1oE9;
 	 TH1D *h_superClusters_EEP_E1oE4; 
 	 
 	 TH1D *h_superClusters_EEM_size;
@@ -353,7 +342,6 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH1D *h_superClusters_EEM_energy;
 	 TH1D *h_superClusters_EEM_rawEnergy;
 	 TH1D *h_superClusters_EEM_rawEt;
-	 TH1D *h_superClusters_EEM_E1oE9;
 	 TH1D *h_superClusters_EEM_E1oE4; 
 	 
 	 TH1D *h_superClusters_eta;

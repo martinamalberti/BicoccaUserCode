@@ -17,12 +17,12 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),                       
     fileNames = cms.untracked.vstring(
-    'file:/tmp/dimatteo/62D0033C-FCC8-DF11-96C3-00304867BEE4.root'
+    '/store/relval/CMSSW_4_2_0_pre4/MinimumBias/RECO/GR_R_42_V0_RelVal_run2010B-v1/0001/021BD8B3-1839-E011-9528-0030486790B0.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -75,7 +75,7 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.Path(
     process.skimming*
     process.hltLevel1GTSeed*
-    process.hltHighLevel*
+    #process.hltHighLevel*
     process.noscraping*
     process.primaryVertexFilter*
     process.ecalvalidation

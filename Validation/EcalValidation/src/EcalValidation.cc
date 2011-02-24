@@ -41,7 +41,9 @@
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -153,23 +155,9 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   seleXtalMinEnergy_ = ps.getParameter<double>("seleXtalMinEnergy");
   seleXtalMinEnergy_EE_ = ps.getParameter<double>("seleXtalMinEnergy_EE");
 
-  ParameterLogWeighted_ = ps.getParameter<bool> ("ParameterLogWeighted"); 	 
-  ParameterX0_ = ps.getParameter<double> ("ParameterX0");
-  ParameterT0_barl_ = ps.getParameter<double> ("ParameterT0_barl"); 	 
-  ParameterT0_endc_ = ps.getParameter<double> ("ParameterT0_endc"); 	 
-  ParameterT0_endcPresh_ = ps.getParameter<double> ("ParameterT0_endcPresh"); 	 
-  ParameterW0_ = ps.getParameter<double> ("ParameterW0"); 	 
-	  	 
-  std::map<std::string,double> providedParameters; 	 
-  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_)); 	 
-  providedParameters.insert(std::make_pair("X0",ParameterX0_)); 	 
-  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_)); 	 
-  providedParameters.insert(std::make_pair("T0_endc",ParameterT0_endc_)); 	 
-  providedParameters.insert(std::make_pair("T0_endcPresh",ParameterT0_endcPresh_)); 	 
-  providedParameters.insert(std::make_pair("W0",ParameterW0_)); 	 
-	  	 
-  posCalculator_ = PositionCalc(providedParameters);
-  
+  edm::ParameterSet posCalcParameters = ps.getParameter<edm::ParameterSet>("posCalcParameters");
+  posCalculator_ = PositionCalc(posCalcParameters);
+
   naiveId_ = 0;
   
   // histos 
@@ -201,7 +189,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EB_time          = fs->make<TH1D>("h_recHits_EB_time","h_recHits_EB_time",400,-100,100);
   h_recHits_EB_Chi2          = fs->make<TH1D>("h_recHits_EB_Chi2","h_recHits_EB_Chi2",1000,0,100);
   h_recHits_EB_OutOfTimeChi2 = fs->make<TH1D>("h_recHits_EB_OutOfTimeChi2","h_recHits_EB_OutOfTimeChi2",1000,0,100);  
-  h_recHits_EB_E1oE9         = fs->make<TH1D>("h_recHits_EB_E1oE9","h_recHitsEB_E1oE9",150, 0, 1.5);
   h_recHits_EB_E1oE4         = fs->make<TH1D>("h_recHits_EB_E1oE4","h_recHitsEB_E1oE4",150, 0, 1.5);
   h_recHits_EB_iPhiOccupancy = fs->make<TH1D>("h_recHits_EB_iPhiOccupancy","h_recHits_EB_iPhiOccupancy",360,1.,361. );
   h_recHits_EB_iEtaOccupancy = fs->make<TH1D>("h_recHits_EB_iEtaOccupancy","h_recHits_EB_iEtaOccupancy",172,-86.,86.);
@@ -231,7 +218,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EEP_time          = fs->make<TH1D>("h_recHits_EEP_time","h_recHits_EEP_time",400,-100,100);
   h_recHits_EEP_Chi2          = fs->make<TH1D>("h_recHits_EEP_Chi2","h_recHits_EEP_Chi2",1000,0,100);
   h_recHits_EEP_OutOfTimeChi2 = fs->make<TH1D>("h_recHits_EEP_OutOfTimeChi2","h_recHits_EEP_OutOfTimeChi2",1000,0,100);  
-  h_recHits_EEP_E1oE9         = fs->make<TH1D>("h_recHits_EEP_E1oE9","h_recHitsEEP_E1oE9",150, 0, 1.5);
   h_recHits_EEP_E1oE4         = fs->make<TH1D>("h_recHits_EEP_E1oE4","h_recHitsEEP_E1oE4",150, 0, 1.5);
   h_recHits_EEP_iXoccupancy   = fs->make<TH1D>("h_recHits_EEP_iXoccupancy","h_recHits_EEP_iXoccupancy",100,0.,100.);
   h_recHits_EEP_iYoccupancy   = fs->make<TH1D>("h_recHits_EEP_iYoccupancy","h_recHits_EEP_iYoccupancy",100,0.,100.);
@@ -244,7 +230,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EEM_time          = fs->make<TH1D>("h_recHits_EEM_time","h_recHits_EEM_time",400,-100,100);
   h_recHits_EEM_Chi2          = fs->make<TH1D>("h_recHits_EEM_Chi2","h_recHits_EEM_Chi2",1000,0,100);
   h_recHits_EEM_OutOfTimeChi2 = fs->make<TH1D>("h_recHits_EEM_OutOfTimeChi2","h_recHits_EEM_OutOfTimeChi2",1000,0,100);  
-  h_recHits_EEM_E1oE9         = fs->make<TH1D>("h_recHits_EEM_E1oE9","h_recHitsEEM_E1oE9",150, 0, 1.5);
   h_recHits_EEM_E1oE4         = fs->make<TH1D>("h_recHits_EEM_E1oE4","h_recHitsEEM_E1oE4",150, 0, 1.5);
   h_recHits_EEM_iXoccupancy   = fs->make<TH1D>("h_recHits_EEM_iXoccupancy","h_recHits_EEM_iXoccupancy",100,0.,100.);
   h_recHits_EEM_iYoccupancy   = fs->make<TH1D>("h_recHits_EEM_iYoccupancy","h_recHits_EEM_iYoccupancy",100,0.,100.);
@@ -349,7 +334,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EB_nXtals  = fs->make<TH1D>("h_superClusters_EB_nXtals","h_superClusters_EB_nXtals",400,0.,400.);
   h_superClusters_EB_nBC     = fs->make<TH1D>("h_superClusters_EB_nBC","h_superClusters_EB_nBC",100,0.,100.);
   h_superClusters_EB_energy  = fs->make<TH1D>("h_superClusters_EB_energy","h_superClusters_EB_energy",2000,0.,400.);
-  h_superClusters_EB_E1oE9   = fs->make<TH1D>("h_superClusters_EB_E1oE9","h_superClusters_EB_E1oE9",150,0,1.5);
   h_superClusters_EB_E1oE4   = fs->make<TH1D>("h_superClusters_EB_E1oE4","h_superClusters_EB_E1oE4",150,0,1.5);
 
   // ... barrel (with spike cleaning)
@@ -368,7 +352,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EEP_energy = fs->make<TH1D>("h_superClusters_EEP_energy","h_superClusters_EEP_energy",2000,0.,400.);
   h_superClusters_EEP_rawEnergy = fs->make<TH1D>("h_superClusters_EEP_rawEnergy","h_superClusters_EEP_rawEnergy",2000,0.,400.);
   h_superClusters_EEP_rawEt = fs->make<TH1D>("h_superClusters_EEP_rawEt","h_superClusters_EEP_rawEt",2000,0.,400.);
-  h_superClusters_EEP_E1oE9  = fs->make<TH1D>("h_superClusters_EEP_E1oE9","h_superClusters_EEP_E1oE9",150,0,1.5);  
   h_superClusters_EEP_E1oE4  = fs->make<TH1D>("h_superClusters_EEP_E1oE4","h_superClusters_EEP_E1oE4",150,0,1.5);
 
   h_superClusters_EEM_size   = fs->make<TH1D>("h_superClusters_EEM_size","h_superClusters_EEM_size",200,0.,200.);
@@ -377,7 +360,6 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_superClusters_EEM_energy = fs->make<TH1D>("h_superClusters_EEM_energy","h_superClusters_EEM_energy",2000,0.,400.);
   h_superClusters_EEM_rawEnergy = fs->make<TH1D>("h_superClusters_EEM_rawEnergy","h_superClusters_EEM_rawEnergy",2000,0.,400.);
   h_superClusters_EEM_rawEt = fs->make<TH1D>("h_superClusters_EEM_rawEt","h_superClusters_EEM_rawEt",2000,0.,400.);
-  h_superClusters_EEM_E1oE9  = fs->make<TH1D>("h_superClusters_EEM_E1oE9","h_superClusters_EEM_E1oE9",150,0,1.5);  
   h_superClusters_EEM_E1oE4  = fs->make<TH1D>("h_superClusters_EEM_E1oE4","h_superClusters_EEM_E1oE4",150,0,1.5);  
 
   h_superClusters_eta        = fs->make<TH1D>("h_superClusters_eta","h_superClusters_eta",150,-3.,3.);
@@ -602,11 +584,8 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	h_recHits_EB_iEtaOccupancy -> Fill( ebid.ieta() );
       }
 
+      float R4 = EcalTools::swissCross( ebid, *theBarrelEcalRecHits, 0. );
       
-      float R9 = EcalSeverityLevelAlgo::E1OverE9( ebid, *theBarrelEcalRecHits, 0. );
-      float R4 = EcalSeverityLevelAlgo::swissCross( ebid, *theBarrelEcalRecHits, 0. );
-      
-      if ( itr -> energy() > 3. && abs(ebid.ieta())!=85 )  h_recHits_EB_E1oE9-> Fill( R9 );
       if ( itr -> energy() > 3. && abs(ebid.ieta())!=85 )  h_recHits_EB_E1oE4-> Fill( R4 );
 
       
@@ -1051,7 +1030,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
                EcalClusterTools::eBottom( *itSC, theBarrelEcalRecHits, topology )+
                EcalClusterTools::eLeft  ( *itSC, theBarrelEcalRecHits, topology );
 
-    if ( E1 > 3. ) h_superClusters_EB_E1oE9  -> Fill( E1/E9 );
     if ( E1 > 3. ) h_superClusters_EB_E1oE4  -> Fill( 1.- E4/E1);
 
     //Now get the seed:
@@ -1122,7 +1100,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_superClusters_EEP_energy -> Fill( itSC -> energy() );
       h_superClusters_EEP_rawEnergy -> Fill( itSC -> rawEnergy() );
       h_superClusters_EEP_rawEt -> Fill( scRawEt );
-      if ( E1 > 3. ) h_superClusters_EEP_E1oE9  -> Fill( E1/E9 );
       if ( E1 > 3. ) h_superClusters_EEP_E1oE4  -> Fill( 1.- E4/E1);
       nSuperClustersEEP++;
     }
@@ -1133,7 +1110,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       h_superClusters_EEM_energy -> Fill( itSC -> energy() );
       h_superClusters_EEM_rawEnergy -> Fill( itSC -> rawEnergy() );
       h_superClusters_EEM_rawEt -> Fill( scRawEt );
-      if ( E1 > 3. ) h_superClusters_EEM_E1oE9  -> Fill( E1/E9 );
       if ( E1 > 3. ) h_superClusters_EEM_E1oE4  -> Fill( 1.- E4/E1);
       nSuperClustersEEM++;
     }
