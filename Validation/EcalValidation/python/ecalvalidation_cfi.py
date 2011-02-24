@@ -18,8 +18,8 @@ ecalvalidation = cms.EDAnalyzer("EcalValidation",
     jets                      = cms.InputTag("ak5CaloJets"),
 
                                     
-    ethrEB = cms.double(-9999),
-    ethrEE = cms.double(-9999),
+    ethrEB = cms.double(0.8),
+    ethrEE = cms.double(1.2),
 
     scEtThrEB = cms.double(0.0),
     scEtThrEE = cms.double(0.0),
