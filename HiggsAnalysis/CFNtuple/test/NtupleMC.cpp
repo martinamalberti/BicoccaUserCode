@@ -355,6 +355,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      G_D_Phi = deltaPhi(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
      G_D_R = deltaR(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
     
+     S_Mjj = (reader.Get4V(nameGenJet.c_str())->at(Forward_i_had) + reader.Get4V(nameGenJet.c_str())->at(Central_i_had)).mass();      
     }
 //   }
     
@@ -397,7 +398,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_D_Eta = deltaEta(reader.Get4V("jets")->at(Forward_i_reco).Eta(),reader.Get4V("jets")->at(Central_i_reco).Eta());
      S_D_Phi = deltaPhi(reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V("jets")->at(Central_i_reco).Phi());
      S_D_R = deltaR(reader.Get4V("jets")->at(Forward_i_reco).Eta(),reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V("jets")->at(Central_i_reco).Eta(),reader.Get4V("jets")->at(Central_i_reco).Phi());
-      
+     S_Mjj = (reader.Get4V("jets")->at(Forward_i_reco) + reader.Get4V("jets")->at(Central_i_reco)).mass();      
+
      }
      
      else {
