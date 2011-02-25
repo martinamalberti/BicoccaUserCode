@@ -1,6 +1,8 @@
 ######################################################################
 ############################ Instructions ############################
 
+constants backed up here
+    /afs/cern.ch/cms/ECAL/ECAL_DB_BACKUP
 
 ############################ Prepare environment ############################
 to install
@@ -94,6 +96,26 @@ scramv1 b
   (remember absolute path for "EBAlignmentFile", "EEAlignmentFile", "ESAlignmentFile" as in the example)
     cmsRun copyFileAlignEE_cfg.py 
     cmsRun copyFileAlignEB_cfg.py 
+   
+   (http://cmslxr.fnal.gov/lxr/source/CalibCalorimetry/EcalTrivialCondModules/src/EcalTrivialConditionRetriever.cc
+   
+   2580     EEDetId eedetId(ix, iy, side);
+2581     if(getEEAlignmentFromFile_) {
+2582       f >> myeuler[0] >> myeuler[1] >> myeuler[2] >> mytrans[0] >> mytrans[1] >> mytrans[2];
+2583       std::cout << " translation " << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
+2584            << " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] << std::endl;
+2585     }
+2586     CLHEP::Hep3Vector translation( mytrans[0], mytrans[1], mytrans[2]);
+2587     CLHEP::HepEulerAngles euler( myeuler[0], myeuler[1], myeuler[2]);
+2588     AlignTransform transform( translation, euler, eedetId );
+2589     my_align.push_back(transform);
+
+http://cmslxr.fnal.gov/lxr/source/CondTools/Ecal/src/EcalDBCopy.cc
+
+http://proj-clhep.web.cern.ch/proj-clhep/CLHEP_2_1_0_1/doxygen/html/classCLHEP_1_1HepEulerAngles.html
+
+)
+
    
   to inspect DB do
     sqlite3 EBAlign_2010.db
