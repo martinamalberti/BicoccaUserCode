@@ -39,7 +39,7 @@
  for (int iSample = 0; iSample < numberOfSamples; iSample++){
   system ("rm ___temp.txt");
   char getNameList[1000];
-  if (xsection[iSample] != -1) sprintf(getNameList,"rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/Fall10_v3/%s/ | awk '{print \"@\"$9\"@\"}' | tr \"@\" \"\\\"\" >> ___temp.txt",nameSample[iSample]);
+  if (xsection[iSample] != -1) sprintf(getNameList,"rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/Winter10/%s/ | awk '{print \"@\"$9\"@\"}' | tr \"@\" \"\\\"\" >> ___temp.txt",nameSample[iSample]);
   else sprintf(getNameList,"rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/%s/ | awk '{print \"@\"$9\"@\"}' | tr \"@\" \"\\\"\" >> ___temp.txt",nameSample[iSample]);
   std::cout << " to do : " << getNameList << std::endl;
   system (getNameList);
@@ -63,9 +63,11 @@
    getline(inFileList,buffer);
    std::cout << "buffer = " << buffer << std::endl;
    if (buffer != ""){ ///---> save from empty line at the end!
-    if (numFiles != 0) myfile << "," << std::endl;
-    myfile << "      " << buffer << " ";
-    numFiles++;   
+    if (numFiles < 100) { ///---- max 100 files ... è rischioso? ...
+     if (numFiles != 0) myfile << "," << std::endl;
+     myfile << "      " << buffer << " ";
+     numFiles++;   
+    }   
    }   
   }
   myfile << std::endl;
@@ -102,13 +104,13 @@
   myfileSh << " mkdir temp_" << nameSample[iSample] << std::endl;
   myfileSh << " cd temp_" << nameSample[iSample] << std::endl;
   if (xsection[iSample] != -1) {
-   myfileSh << " rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/Fall10_v3/" << nameSample[iSample] << " | awk '{print \"rfcp /castor/cern.ch/user/a/amassiro/WeCalib/MC/Fall10_v3/" << nameSample[iSample] << "/\"$9\" ./\"}' | /bin/sh &> __time.txt" << std::endl;
+   myfileSh << " rfdir /castor/cern.ch/user/a/amassiro/WeCalib/MC/Winter10/" << nameSample[iSample] << " | awk '{print \"rfcp /castor/cern.ch/user/a/amassiro/WeCalib/MC/Winter10/" << nameSample[iSample] << "/\"$9\" ./\"}' | /bin/sh &> __time.txt" << std::endl;
    myfileSh << " head -100 __time.txt | awk '{print $1}' | /bin/sh " << std::endl;
   }
   else myfileSh << " rfdir /castor/cern.ch/user/a/amassiro/WeCalib/DATA/" << nameSample[iSample] << " | awk '{print \"rfcp /castor/cern.ch/user/a/amassiro/WeCalib/DATA/" << nameSample[iSample] << "/\"$9\" ./\"}' | /bin/sh" << std::endl;
 
   myfileSh << " WenuAnalysisNtple_Alignment " << dirString << "/" << nameFile << std::endl;
-  myfileSh << " rfcp ECALAlignMC_" << nameSample[iSample] << ".root  /castor/cern.ch/user/a/amassiro/WeCalib/Jan11/ECALAlignResult_WP" << WP << "/" << std::endl;
+  myfileSh << " rfcp ECALAlignMC_" << nameSample[iSample] << ".root  /castor/cern.ch/user/a/amassiro/WeCalib/ReReco39X/ECALAlignResult_1BC_WP" << WP << "/" << std::endl;
   myfileSh << " cd -" << std::endl;
   myfileSh << " rm -r temp_" << nameSample[iSample] << std::endl;
 

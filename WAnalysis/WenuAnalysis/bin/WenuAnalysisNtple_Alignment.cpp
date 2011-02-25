@@ -49,7 +49,7 @@ int main (int argc, char** argv)
  }
  // Parse the config file
  std::string fileName (argv[1]) ;
- boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfigFile(fileName) ;
+ boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfig(fileName) ;
  boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet () ;
 
  edm::ParameterSet subPSetInput = parameterSet->getParameter<edm::ParameterSet> ("Input") ;
@@ -223,6 +223,8 @@ int main (int argc, char** argv)
   nGoodElectrons_ = reader.Get4V("electrons")->size();
   for (int iEle = 0; iEle < nGoodElectrons_; iEle++){
 
+//   if (reader.GetInt("electrons_classification")->at(iEle) != 0) continue;
+   
    electrons_classification_ = reader.GetInt("electrons_classification")->at(iEle);
    electrons_basicClustersSize_ = reader.GetInt("electrons_basicClustersSize")->at(iEle);
 
@@ -248,7 +250,7 @@ int main (int argc, char** argv)
    eleHcalIsoD1_ = reader.GetFloat("electrons_hadIso03_1")->at(iEle);
    eleHcalIsoD2_ = reader.GetFloat("electrons_hadIso03_2")->at(iEle);
    met_ = reader.Get4V("PFMet")->at(0).Et(); ///==== PF MET
-   sumEt_ = reader.GetFloat("CALOSumEt")->at(0); ///==== PF SumET
+   sumEt_ = reader.GetFloat("PFSumEt")->at(0); ///==== PF SumET
    eta_ = reader.Get4V("electrons")->at(iEle).eta();
    phi_ = reader.Get4V("electrons")->at(iEle).phi();
    pT_ = reader.Get4V("electrons")->at(iEle).Pt();
@@ -256,8 +258,8 @@ int main (int argc, char** argv)
    EoP_ = reader.GetFloat("electrons_eOverP")->at(iEle);
    eleFBrem_ = reader.GetFloat("electrons_fbrem")->at(iEle);
    eleES_ = reader.GetFloat("electrons_ES")->at(iEle);
-   E2x2_ = reader.GetFloat("electrons_e2x2")->at(iEle);
-   E3x3_ = reader.GetFloat("electrons_e3x3")->at(iEle);
+   E2x2_ = 0; //reader.GetFloat("electrons_e2x2")->at(iEle);
+   E3x3_ = 0; //reader.GetFloat("electrons_e3x3")->at(iEle);
    E5x5_ = reader.GetFloat("electrons_e5x5")->at(iEle);
    ESC_ = reader.GetFloat("electrons_scE")->at(iEle);
    ETSC_ = reader.GetFloat("electrons_scEt")->at(iEle);
@@ -267,21 +269,21 @@ int main (int argc, char** argv)
    pOut_ = reader.GetFloat("electrons_pout")->at(iEle);
    pAtCalo_ = reader.GetFloat("electrons_pcalo")->at(iEle);
    p_ = reader.GetFloat("electrons_pin")->at(iEle);
-   E9oE25_ = reader.GetFloat("electrons_e3x3")->at(iEle) / reader.GetFloat("electrons_e5x5")->at(iEle);
+   E9oE25_ = 0; //reader.GetFloat("electrons_e3x3")->at(iEle) / reader.GetFloat("electrons_e5x5")->at(iEle);
    DeltaEtaIn_ = reader.GetFloat("electrons_deltaEtaIn")->at(iEle);
    DeltaPhiIn_ = reader.GetFloat("electrons_deltaPhiIn")->at(iEle);
    etaSC_ = reader.GetFloat("electrons_scEta")->at(iEle);
    phiSC_ = reader.GetFloat("electrons_scPhi")->at(iEle);
-   iSM_ = reader.GetInt("iSM")->at(iEle);
-   iSC_ = reader.GetInt("iSC")->at(iEle);
+   iSM_ = 0; //reader.GetInt("iSM")->at(iEle);
+   iSC_ = 0; //reader.GetInt("iSC")->at(iEle);
 
-   iDetEB_ = reader.GetInt("electrons_iDetEB")->at(iEle);
-   iDetEE_ = reader.GetInt("electrons_iDetEE")->at(iEle);
+   iDetEB_ = 0; //reader.GetInt("electrons_iDetEB")->at(iEle);
+   iDetEE_ = 0; //reader.GetInt("electrons_iDetEE")->at(iEle);
 
    dphiMETEle_ = deltaPhi(reader.Get4V("PFMet")->at(0).Phi(),reader.Get4V("electrons")->at(iEle).phi());
    eleCharge_ = reader.GetFloat("electrons_charge")->at(iEle);
-   eleSwissCross_ = reader.GetFloat("electrons_SwissCross")->at(iEle);
-   seedSeverityLevel_ = reader.GetInt("electrons_seedSeverityLevel")->at(iEle);
+   eleSwissCross_ = 0; //reader.GetFloat("electrons_SwissCross")->at(iEle);
+   seedSeverityLevel_ = 0; //reader.GetInt("electrons_seedSeverityLevel")->at(iEle);
 
    float cphi = (reader.Get4V("electrons")->at(iEle).x() * reader.Get4V("PFMet")->at(0).Px() 
      + reader.Get4V("electrons")->at(iEle).y() * reader.Get4V("PFMet")->at(0).Py()) 
@@ -289,6 +291,9 @@ int main (int argc, char** argv)
 
    MT_ = sqrt(2*ET_*met_*(1-cphi));
 
+   myTree_ -> Fill();
+   
+   /*
    ///==== WP 70% ====
    if (WP==70 && (( fabs(etaSC_)<1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.04 && (eleTrkIso_)/pT_ < 0.05&& (eleEcalIso_)/pT_ < 0.06&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.03&& HoE_ < 0.025&& SigmaIEtaIEta_ < 0.01)||( fabs(etaSC_)>1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.03&& (eleTrkIso_)/pT_ < 0.025&& (eleEcalIso_)/pT_ < 0.025&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.02&& HoE_ < 0.025&& SigmaIEtaIEta_ < 0.03))){
     myTree_ -> Fill(); ///==== for every electron!
@@ -301,7 +306,7 @@ int main (int argc, char** argv)
    if (WP==95 && (( fabs(etaSC_)<1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.15&& (eleTrkIso_)/pT_ < 0.15&& (eleEcalIso_)/pT_ < 2.00&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.12&& HoE_ < 0.15&& SigmaIEtaIEta_ < 0.01)||( fabs(etaSC_)>1.5 && (eleTrkIso_+eleEcalIso_+eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.1&& (eleTrkIso_)/pT_ < 0.08&& (eleEcalIso_)/pT_ < 0.06&& (eleHcalIsoD1_+eleHcalIsoD2_)/pT_ < 0.05&& HoE_ < 0.07&& SigmaIEtaIEta_ < 0.03))){
     myTree_ -> Fill(); ///==== for every electron!
    }
-   
+   */
    
   }// end loop over ele cand
  } // end loop over entries

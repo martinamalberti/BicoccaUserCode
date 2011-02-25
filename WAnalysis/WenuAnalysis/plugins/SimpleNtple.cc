@@ -37,8 +37,8 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   //eleIDCut_TightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_TightInputTag");
   //eleIDCut_RTightInputTag_ = iConfig.getParameter<edm::InputTag> ("eleIDCut_RTightInputTag");
   
-  recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
-  recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
+//   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
+//   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
   
   std::vector<std::string> empty;
   eleId_names_  = iConfig.getUntrackedParameter< std::vector<std::string> >("eleId_names",empty);
@@ -56,7 +56,6 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
   saveTCMet_    = iConfig.getUntrackedParameter<bool> ("saveTCMet", true);
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
-  saveEleShape_ = iConfig.getUntrackedParameter<bool> ("saveEleShape", false);
   
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
   
@@ -107,11 +106,6 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->Add4V("electrons");
     NtupleFactory_->AddFloat("electrons_charge"); 
     NtupleFactory_->AddInt("electrons_isEB"); 
-
-    NtupleFactory_->AddInt("iSM"); 
-    NtupleFactory_->AddInt("iSC");
-    NtupleFactory_->AddInt("electrons_iDetEB");
-    NtupleFactory_->AddInt("electrons_iDetEE");
 
     NtupleFactory_->Add3V("electrons_superClusterPosition");
     NtupleFactory_->AddInt("electrons_classification");
@@ -166,8 +160,6 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_e1x5");
     NtupleFactory_->AddFloat("electrons_e2x5Max");
     NtupleFactory_->AddFloat("electrons_e5x5");
-    NtupleFactory_->AddFloat("electrons_e3x3");
-    NtupleFactory_->AddFloat("electrons_e2x2");
     
     NtupleFactory_->AddInt("electrons_mishits");
     NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
@@ -181,16 +173,6 @@ SimpleNtple::SimpleNtple(const edm::ParameterSet& iConfig)
 
     NtupleFactory_->AddFloat("electrons_ES");
     
-     
-    if (saveEleShape_)
-    {
-      NtupleFactory_->AddFloat("E_xtal"); 
-      NtupleFactory_->AddInt("ieta_xtal");
-      NtupleFactory_->AddInt("iphi_xtal");
-      NtupleFactory_->AddInt("ix_xtal");
-      NtupleFactory_->AddInt("iy_xtal");
-      NtupleFactory_->AddInt("numRecHit");
-    }
   }
   
   if(saveJet_)
@@ -355,29 +337,29 @@ void SimpleNtple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup 
 void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 { 
  //*********** CALO TOPOLOGY
- edm::ESHandle<CaloTopology> pTopology;
- iSetup.get<CaloTopologyRecord>().get(pTopology);
- const CaloTopology *topology = pTopology.product();
+//  edm::ESHandle<CaloTopology> pTopology;
+//  iSetup.get<CaloTopologyRecord>().get(pTopology);
+//  const CaloTopology *topology = pTopology.product();
 
  //*********** CHANNEL STATUS
- edm::ESHandle<EcalChannelStatus> theChannelStatus;
- iSetup.get<EcalChannelStatusRcd>().get(theChannelStatus);
+//  edm::ESHandle<EcalChannelStatus> theChannelStatus;
+//  iSetup.get<EcalChannelStatusRcd>().get(theChannelStatus);
 
  //*********** EB REC HITS
- edm::Handle<EcalRecHitCollection> recHitsEB;
- iEvent.getByLabel( recHitCollection_EB_, recHitsEB );
- const EcalRecHitCollection* theBarrelEcalRecHits = recHitsEB.product () ;
- if ( ! recHitsEB.isValid() ) {
-  std::cerr << "SimpleNtple::analyze --> recHitsEB not found" << std::endl; 
- }
+//  edm::Handle<EcalRecHitCollection> recHitsEB;
+//  iEvent.getByLabel( recHitCollection_EB_, recHitsEB );
+//  const EcalRecHitCollection* theBarrelEcalRecHits = recHitsEB.product () ;
+//  if ( ! recHitsEB.isValid() ) {
+//   std::cerr << "SimpleNtple::analyze --> recHitsEB not found" << std::endl; 
+//  }
   
  //*********** EE REC HITS
- edm::Handle<EcalRecHitCollection> recHitsEE;
- iEvent.getByLabel( recHitCollection_EE_, recHitsEE );
- const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
- if ( ! recHitsEE.isValid() ) {
-  std::cerr << "SimpleNtple::analyze --> recHitsEE not found" << std::endl; 
- }
+//  edm::Handle<EcalRecHitCollection> recHitsEE;
+//  iEvent.getByLabel( recHitCollection_EE_, recHitsEE );
+//  const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
+//  if ( ! recHitsEE.isValid() ) {
+//   std::cerr << "SimpleNtple::analyze --> recHitsEE not found" << std::endl; 
+//  }
 
   //************* ELECTRONS
  edm::Handle<edm::View<pat::Electron> > electronHandle;
@@ -485,25 +467,9 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    
    // cluster shape variables
-   float E3x3 = 0;
-   float E2x2 = 0;
-   
-   if ( electron.isEB() )
-   {
-     E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
-     E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
-   }
-   
-   if ( electron.isEE() )
-   {
-     E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
-     E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
-   }
    
    NtupleFactory_->FillFloat("electrons_e1x5",electron.e1x5());
    NtupleFactory_->FillFloat("electrons_e2x5Max",electron.e2x5Max());
-   NtupleFactory_->FillFloat("electrons_e2x2",E2x2);
-   NtupleFactory_->FillFloat("electrons_e3x3",E3x3);
    NtupleFactory_->FillFloat("electrons_e5x5",electron.e5x5());
    
    
@@ -513,55 +479,10 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
    
    NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
    NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
-//   NtupleFactory_->FillFloat("electrons_dist", convInfo.dist());
-//   NtupleFactory_->FillFloat("electrons_dcot", convInfo.dcot());
+   NtupleFactory_->FillFloat("electrons_dist", electron.convDist());
+   NtupleFactory_->FillFloat("electrons_dcot", electron.convDcot());
    
    
-   // spike removal variables
-   int sev = -1;
-   int flag = -1;
-   
-   if(electron.isEB())
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
-     
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theBarrelEcalRecHits, *(theChannelStatus.product()));
-     
-     NtupleFactory_->FillFloat("electrons_SwissCross",EcalSeverityLevelAlgo::swissCross(id.first, *theBarrelEcalRecHits));   
-
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
-     
-     if( it != theBarrelEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
-     }
-   }
- 
-   else
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
-     
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theEndcapEcalRecHits, *(theChannelStatus.product()));
-     
-     NtupleFactory_->FillFloat("electrons_SwissCross",EcalSeverityLevelAlgo::swissCross(id.first, *theEndcapEcalRecHits));   
-
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-     
-     if( it != theEndcapEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
-     }
-   }
-
-   NtupleFactory_->FillInt("electrons_seedSeverityLevel", sev);
-   NtupleFactory_->FillInt("electrons_seedFlag", flag);
-  
    // preshower variables 
    NtupleFactory_->FillFloat("electrons_ES",scRef->preshowerEnergy());
    
@@ -569,64 +490,6 @@ void SimpleNtple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup 
 //   NtupleFactory_->Fill3V("electrons_superClusterPosition",ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>(electron.superClusterPosition()));
    
    NtupleFactory_->FillInt("electrons_classification",electron.classification());
-
-   
-   
-   
-   // rechit variables
-  if (saveEleShape_)
-  {
-    double seed_energy_temp = -1;
-    int iSC;
-    int iSM;
-    int iDetEB;
-    int iDetEE;
-    int numRecHit = 0;
-    const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
-    for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
-     if ((*rh).first.subdetId()== EcalBarrel){
-      EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
-      if (itrechit==theBarrelEcalRecHits->end()) continue;
-      EBDetId barrelId (itrechit->id ()); 
-      NtupleFactory_->FillFloat("E_xtal",itrechit->energy());
-      NtupleFactory_->FillInt("ieta_xtal",barrelId.ieta());
-      NtupleFactory_->FillInt("iphi_xtal",barrelId.iphi());
-      NtupleFactory_->FillInt("ix_xtal",-1000);
-      NtupleFactory_->FillInt("iy_xtal",-1000);
-      numRecHit++;
-      if (itrechit->energy() > seed_energy_temp) {
-       seed_energy_temp = itrechit->energy();
-       iSC = -1000;
-       iSM = barrelId.ism();
-       iDetEE  = -1000;
-       iDetEB  = EcalBarrelGeometry::alignmentTransformIndexLocal(barrelId);
-      }
-     }
-     if ((*rh).first.subdetId()== EcalEndcap){
-      EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
-      if (itrechit==theEndcapEcalRecHits->end()) continue;
-      EEDetId endcapId (itrechit->id ()); 
-      NtupleFactory_->FillFloat("E_xtal",itrechit->energy());
-      NtupleFactory_->FillInt("ix_xtal",endcapId.ix());
-      NtupleFactory_->FillInt("iy_xtal",endcapId.iy());
-      NtupleFactory_->FillInt("ieta_xtal",-1000);
-      NtupleFactory_->FillInt("iphi_xtal",-1000);
-      numRecHit++;
-      if (itrechit->energy() > seed_energy_temp) {
-       seed_energy_temp = itrechit->energy();
-       iSC = endcapId.isc();
-       iSM = -1000;
-       iDetEE  = EcalEndcapGeometry::alignmentTransformIndexLocal(endcapId);
-       iDetEB  = -1000;
-      }   
-     }
-    }
-    NtupleFactory_->FillInt("numRecHit",numRecHit);
-    NtupleFactory_->FillInt("iSM",iSM);
-    NtupleFactory_->FillInt("iSC",iSC);
-    NtupleFactory_->FillInt("electrons_iDetEB",iDetEB);
-    NtupleFactory_->FillInt("electrons_iDetEE",iDetEE);
-  }
   
   } // end loop over electron candidates
 

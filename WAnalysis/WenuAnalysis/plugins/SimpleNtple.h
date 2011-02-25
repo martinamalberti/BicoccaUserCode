@@ -116,7 +116,6 @@ class SimpleNtple : public edm::EDAnalyzer {
   bool saveHLT_ ;
   bool saveMu_ ;
   bool saveEle_ ;
-  bool saveEleShape_ ;
   bool saveJet_ ;
   bool saveCALOMet_ ;
   bool saveTCMet_ ;
