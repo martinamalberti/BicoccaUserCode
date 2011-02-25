@@ -73,8 +73,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  if (inputXSection == -1) dataFlag = 1; //==== it's a data sample!!!
   // define map with events
   std::map<std::pair<int,std::pair<int,int> >,int> eventsMap;  
- 
-/* 
+  
   std::string inFileNameJSON;
   try {
   inFileNameJSON = gConfigParser -> readStringOption("Input::inFileNameJSON");
@@ -86,8 +85,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  std::map<int, std::vector<std::pair<int, int> > > jsonMap;
  if( dataFlag == 1 ) {
    jsonMap = readJSONFile(inFileNameJSON);	//Definisco la jsonMap!
-}*/
-
+}
 
  //======================== Istogrammi di controllo ==========================================
  
@@ -248,7 +246,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   ///***************************************************
   
   
-  /*
+  
   if( dataFlag == 1 )
   {
    std::pair<int,int> eventLSandID(reader.GetInt("lumiId")->at(0), reader.GetInt("eventId")->at(0));
@@ -256,13 +254,13 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
    
    if( eventsMap[eventRUNandLSandID] == 1 ) continue;
    else eventsMap[eventRUNandLSandID] = 1;
-  }*/
+  }
 
   ///*************************************************
   ///**** Check comparison with JSON file ***
   ///*************************************************
 
-/*
+
   if( dataFlag == 1 )
     {
       int runId  = reader.GetInt("runId")->at(0);
@@ -271,7 +269,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     }
 
   
-  */
   if (debug == 1) std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
   totalJets_had = totalJets_had + nJets_had;
