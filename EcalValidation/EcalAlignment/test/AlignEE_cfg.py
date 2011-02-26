@@ -41,7 +41,7 @@ process.inputTree = cms.PSet(
 
 
 process.outputTree = cms.PSet(
-  outputFile = cms.string("myEEAlignment_2010_Rotations_Yes_ES_DB.txt")
+  outputFile = cms.string("myEEAlignment_2010.txt")
 # outputFile = cms.string("myEEAlignment_2010_Plus.txt")
 # outputFile = cms.string("myEEAlignment_2010_Minus.txt")
 )

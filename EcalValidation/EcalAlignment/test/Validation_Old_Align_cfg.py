@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -69,7 +69,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 #process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
-process.GlobalTag.globaltag = 'GR_R_39X_V5::All'
+#process.GlobalTag.globaltag = 'GR_R_39X_V5::All'
+process.GlobalTag.globaltag = 'GR_R_311_V1::All'
 
 # http://cms-conddb.cern.ch/gtlist/?GlobalTag=GR_R_39X_V5
   
@@ -91,6 +92,14 @@ process.GlobalTag.toGet = cms.VPSet(
              #tag = cms.string("EEAlignment_measured_v02_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")  #### Old ####
              #),
+    cms.PSet(record = cms.string("EBAlignmentRcd"),
+             tag = cms.string("EBAlignment_measured_v04_offline"),
+             connect = cms.untracked.string("sqlite_file:EBAlign_2010_FUNZIONA_2Feb.db")   #### New ####
+             ),
+    cms.PSet(record = cms.string("EEAlignmentRcd"),
+             tag = cms.string("EEAlignment_measured_v04_offline"),
+             connect = cms.untracked.string("sqlite_file:EEAlign_2010_FUNZIONA_2Feb.db")  #### New ####
+             ),
    #cms.PSet(record = cms.string("ESAlignmentRcd"),
              #tag = cms.string("ESAlignment_measured_v01_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
@@ -103,14 +112,14 @@ process.GlobalTag.toGet = cms.VPSet(
              #tag = cms.string("EcalLaserAPDPNRatios_v0_online"),
              #connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
              #),
-    #cms.PSet(record = cms.string("GlobalPositionRcd"),
-             #tag = cms.string("GlobalAlignment_v2_offline"),
-             #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
-             #),
-    #cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-             #tag = cms.string("TrackerAlignment_GR10_v2_offline"),
-             #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
-             #),
+    cms.PSet(record = cms.string("GlobalPositionRcd"),
+             tag = cms.string("GlobalAlignment_TkRotMuonFromLastIovV2_offline"),
+             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
+             ),
+    cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+             tag = cms.string("TrackerAlignment_GR10_v4_offline"),
+             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
+             )
     #cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
              #tag = cms.string("TrackerAlignmentErrors_GR10_v2_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
