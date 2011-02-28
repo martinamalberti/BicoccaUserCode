@@ -16,55 +16,37 @@ scramv1 b
 
 
 ############################ Old alignment TAG ############################
-   crab -create -cfg crab_validation_simpleNtpleDATA_WZ_OldAlign.cfg
    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_OldAlign.cfg
 
-   crab -submit -c Run2010B-WZEG-v2_RAWRECO_OldAlign
    crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
 
-   crab -status -c Run2010B-WZEG-v2_RAWRECO_OldAlign
    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
 
-   crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_OldAlign
    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
 
-   crab -report -c Run2010B-WZEG-v2_RAWRECO_OldAlign
+   crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
 
-   hadd EcalAlignmentOldJoin_Temp.root Run2010B-WZEG-v2_RAWRECO_OldAlign/res/EcalAlignment_*
-   hadd EcalAlignmentOldJoin.root EcalAlignmentOldJoin_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign/res/EcalAlignment_*
-   rm EcalAlignmentOldJoin_Temp.root
-
-   hadd EcalAlignmentOldJoin.root Run2010B-WZEG-v2_RAWRECO_OldAlign/res/EcalAlignment_*
+   hadd EcalAlignmentOldJoin.root Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign/res/EcalAlignment_*
 
 ############################ Default alignment 0 ############################
 
 1) create reconstruction with 0 alignment
 
-    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_NoAlign.cfg
     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_NoAlign.cfg
 
-    crab -submit -c Run2010B-WZEG-v2_RAWRECO_NoAlign
     crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
     That will store data (ROOT trees with electrons) (see [1.1] for Castor usage; default "getoutput" usage)
 
-    crab -status -c Run2010B-WZEG-v2_RAWRECO_NoAlign
     crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
-    crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_NoAlign
     crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
-    crab -report -c Run2010B-WZEG-v2_RAWRECO_NoAlign
     crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
 
  and join output tree
 
-    hadd EcalAlignmentJoin_Temp.root Run2010B-WZEG-v2_RAWRECO_NoAlign/res/EcalAlignment_*
-    hadd EcalAlignmentJoin.root EcalAlignmentJoin_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign/res/EcalAlignment_*
-    rm EcalAlignmentJoin_Temp.root
-
-
-    hadd EcalAlignmentJoin.root Run2010B-WZEG-v2_RAWRECO_NoAlign/res/EcalAlignment_*
+    hadd EcalAlignmentJoin.root Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign/res/EcalAlignment_*
 
 ############################ Calculate alignment coefficients and create DB ############################
 
