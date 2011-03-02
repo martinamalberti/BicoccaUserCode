@@ -114,18 +114,20 @@ void MCDumperHiggs::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
     }
     
     // tag quarks
-    if(counter == 6)
+    // pythia: 6,7
+    // powheg: 7,8
+    if(counter == 7)
       mcQ1_tag_p = pCurrent;
 
-    if(counter == 7)
+    if(counter == 8)
       mcQ2_tag_p = pCurrent;
 
-    //if(counter < 50)
+    if(counter < 50)
     //if(abs(pdgId) == 13)
-    //{
-    //  std::cout << "n: " << counter;
-    //  PrintParticleInfo(pCurrent);
-    //}
+    {
+      std::cout << "n: " << counter;
+      PrintParticleInfo(pCurrent);
+    }
     
     ++counter;
     
