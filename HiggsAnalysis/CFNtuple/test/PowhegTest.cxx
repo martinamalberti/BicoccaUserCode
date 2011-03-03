@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldExample.cxx 248 2010-10-04 22:18:19Z T.J.Adye $
+//      $Id: PowhegTest.cxx,v 1.1 2011/03/01 15:25:49 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -74,10 +74,7 @@ void PowhegTest()
   TFile FileTrain1Herwig("../output/outTestMineMC.root","READ");
   TFile FileTrain2Herwig("../output/outTestMineMC.root","READ");
   
-  TFile FileMineMC("../output/outTestMineMC.root","READ");
-
   
-   
 //   TFile FileTrain1Pythia("../input/Unfolding/qcd_15_pythia.root","READ");
 //   TFile FileTrain2Pythia("../input/Unfolding/qcd_30_pythia.root","READ");
 
@@ -131,6 +128,12 @@ void PowhegTest()
   
   Double_t S_FJet_Pt_P; //~~~~ had
   Double_t S_CJet_Pt_P; //~~~~ had
+  
+  /*Double_t G_FJet_Pt; //~~~~ had
+  Double_t S_FJet_Pt; //~~~~ reco
+
+  Double_t G_CJet_Pt; //~~~~ had
+  Double_t S_CJet_Pt; //~~~~ reco*/
   
   
    
