@@ -38,7 +38,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  // Parse the config file --> legge le info del file .cfg
  parseConfigFile (argv[1]) ;
  std::string treeName= gConfigParser -> readStringOption("Input::treeName");	//HADRON LEVEL
- std::string inputFile = gConfigParser -> readStringOption("Input::inputFile");
+ std::string inputFileList = gConfigParser -> readStringOption("Input::inputFileList"); //--- nome di un file txt con l'elenco di root file da anlizzare: elenco dei file su più righe con path assoluto
  std::string nameGenJet = gConfigParser -> readStringOption("Input::nameGenJet"); //
  
  double inputXSection  = gConfigParser -> readDoubleOption("Input::inputXSection");
@@ -59,10 +59,22 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  std::cout << ">>>>> input::DRmax  " << DRmax  << std::endl;  
  
  // Open ntple --> crea una catena di Tree
- TChain* chain = new TChain(treeName.c_str());	//treeName e inputFile sono definti nel file .cfg
- chain->Add(inputFile.c_str());
- treeReader reader((TTree*)(chain));	//qui definisco reader
+
+ TChain* chain = new TChain (treeName.c_str ()) ;
+ if (!FillChain (*chain, inputFileList.c_str ())) return 1 ;
+ treeReader reader ( (TTree*) (chain)) ;
+
+// TChain* chain = new TChain(treeName.c_str());	//treeName e inputFile sono definti nel file .cfg
+// chain->Add(inputFile.c_str());
+// treeReader reader((TTree*)(chain));	//qui definisco reader
  
+  std::map<int,int> totalEvents = GetTotalEvents ("AllEvents/totalEvents", inputFileList.c_str ()) ;  
+  std::map<int, int> stepEvents ;
+  stepEvents[0] = totalEvents[1] ;
+
+  TH1F* events = new TH1F ("events", "events", 1, 0., 1.) ;
+  events -> SetBinContent (1, stepEvents[0]) ;
+
 
  ///****************************
  ///**** DATA JSON file ****
@@ -460,6 +472,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  
  //hPt.Write();
  //Eta.Write();
+
+
+ events -> Write () ;
  outFile.Write();
  
  
