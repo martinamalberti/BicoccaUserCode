@@ -1,13 +1,3 @@
-//=====================================================================-*-C++-*-
-// File and Version Information:
-//      $Id: P_S_noweight.cxx,v 1.2 2011/02/10 16:16:45 govoni Exp $
-//
-// Description:
-//      Simple example usage of the RooUnfold package using toy MC.
-//
-// Authors: Tim Adye <T.J.Adye@rl.ac.uk> and Fergus Wilson <fwilson@slac.stanford.edu>
-//
-//==============================================================================
 
 
 #if not defined(__CINT__) || defined(__MAKECINT__)
@@ -55,7 +45,7 @@ using std::endl;
 // Unfolding for C-F jet analysis
 //==============================================================================
 
-void PurityF_Pythia()
+//void PurityF_Pythia()
 { 
       Float_t lowEdge[11] = {18,22,27,35,45,57,72,90,120,150,1000};
       int NBIN = 10;
@@ -73,8 +63,8 @@ void PurityF_Pythia()
   TH2D* hResponseMatrixFJetPythia30 = new TH2D ("hResponseMatrixFJetPythia30", "Response Matrix FJet Pythia30",NBIN,lowEdge,NBIN,lowEdge);
 
   // TFile FileTrain1PythiaF("/home/toliman/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
-   TFile FileTrain1PythiaF("/home/toliman/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
-   TFile FileTrain2PythiaF("/home/toliman/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_30_pythia.root","READ");
+   TFile FileTrain1PythiaF("/home/andrea/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
+   TFile FileTrain2PythiaF("/home/andrea/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_30_pythia.root","READ");
   
    
 //    TFile FileTrain1PythiaF("../input/BO/rootfiles/mc/qcd_15_pythia.root","READ");
@@ -148,7 +138,7 @@ void PurityF_Pythia()
 //     if (S_FJet_Pt>0 && G_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0)  {
 //      if (S_FJet_Pt>0 && G_FJet_Pt>18 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
       if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
-	Delta_R = sqrt((fabs(S_FJet_Eta-G_FJet_Eta))*(fabs(S_FJet_Eta-G_FJet_Eta))+ (fabs(S_FJet_Phi- G_FJet_Phi))*(fabs(S_FJet_Phi- G_FJet_Phi)));
+	double Delta_R = sqrt((fabs(S_FJet_Eta-G_FJet_Eta))*(fabs(S_FJet_Eta-G_FJet_Eta))+ (fabs(S_FJet_Phi- G_FJet_Phi))*(fabs(S_FJet_Phi- G_FJet_Phi)));
 	if (Delta_R<DR_F_max){
 	if (debug ==1) std::cerr<<"Delta_R = "<<Delta_R << std::endl;
 
@@ -212,9 +202,13 @@ void PurityF_Pythia()
   
   TCanvas* cPurityF_P = new TCanvas("cPurityF_P","cPurityF_P",600,600);  
     
+  TFile* _file0 = new TFile("/home/andrea/Dropbox/QCD_CF/F_hist_pP.root","READ");
+
   TH1F* Bop = (TH1F*) _file0->Get("hist_p");
   Bop->GetYaxis()->SetRangeUser(0.,1.0);
   Bop->SetMarkerColor(kRed);
+  Bop->SetLineColor(kRed);
+  Bop->SetMarkerSize(2);
   Bop->SetStats(0);
   Bop->Draw();
   
@@ -228,64 +222,17 @@ void PurityF_Pythia()
   Purity15->SetStats(0);
   Purity15->SetMarkerColor(kBlue);
   Purity15->SetLineColor(kBlue);
+  Purity15->SetMarkerSize(2);
+  Purity15->SetMarkerStyle(20);
+  Purity15->Draw("same");
   Purity15->DrawCopy("same");
   
   Purity30->SetMarkerColor(kGreen);
   Purity30->SetLineColor(kGreen);
+  Purity30->SetMarkerSize(2);
+  Purity30->SetMarkerStyle(20);
+  Purity30->Draw("same");
   Purity30->DrawCopy("same");
-
-  //for (int iBinX = 0; iBinX<NBIN; iBinX++){
-  // std::cerr << " iBinX " << iBinX << "[" << lowEdge[iBinX] << " ~ " << lowEdge[iBinX+1] << "] :: " << Purity15->GetBinContent(iBinX+1) << " :: " << Purity30->GetBinContent(iBinX+1) << " :: " << Bop->GetBinContent(iBinX+1) << std::endl;
-  //}
-
-
-  /*double diag_v[100];
-  double column_v[100];
-
-  for (int iBinX = 0; iBinX<NBIN; iBinX++){
-  	  diag_v[iBinX] = 0;
-  	  column_v[iBinX] = 0;
-   }
-  for (Int_t iEvt= 0; iEvt<TreeTrain1PythiaF->GetEntries(); iEvt++) {
-    TreeTrain1PythiaF->GetEntry(iEvt);
-//    if (S_FJet_Pt>0 && G_FJet_Pt>0 && (S_CJet_Pt>0 || G_CJet_Pt>0))  {
-    if (S_FJet_Pt>0 && G_FJet_Pt>0)  {
-      if (S_FJet_Pt < 57) {
-         for (int iBinX = 0; iBinX<NBIN; iBinX++){
-          if (S_FJet_Pt < lowEdge[iBinX+1] && S_FJet_Pt >= lowEdge[iBinX]) {
-            column_v[iBinX] ++;
-            if (G_FJet_Pt < lowEdge[iBinX+1] && G_FJet_Pt >= lowEdge[iBinX]) {
-              diag_v[iBinX] ++;
-            }
-          }
-        }
-      }
-    }
-   }
-   
-     for (Int_t iEvt= 0; iEvt<TreeTrain2PythiaF->GetEntries(); iEvt++) {
-    TreeTrain2PythiaF->GetEntry(iEvt);
-//    if (S_FJet_Pt>0 && G_FJet_Pt>0 && (S_CJet_Pt>0 || G_CJet_Pt>0))  {
-    if (S_FJet_Pt>0 && G_FJet_Pt>0)  {
-     if (S_FJet_Pt >= 57) {
-         for (int iBinX = 0; iBinX<NBIN; iBinX++){
-          if (S_FJet_Pt < lowEdge[iBinX+1] && S_FJet_Pt >= lowEdge[iBinX]) {
-            column_v[iBinX] ++;
-            if (G_FJet_Pt < lowEdge[iBinX+1] && G_FJet_Pt >= lowEdge[iBinX]) {
-              diag_v[iBinX] ++;
-            }
-          }
-        }
-      }
-    }
-   }
-   
-   
-   std::cerr << " ~~~~~~~~~~~~~~~~~~~~~~~~~~ " << std::endl;
-
-  for (int iBinX = 0; iBinX<NBIN; iBinX++){
-   std::cerr << " iBinX " << iBinX << "[" << lowEdge[iBinX] << " ~ " << lowEdge[iBinX+1] << "] :: " << diag_v[iBinX] << " / " << column_v[iBinX] << " = " << diag_v[iBinX] / column_v[iBinX] << " :: " << Purity15->GetBinContent(iBinX+1) << " :: " << Purity30->GetBinContent(iBinX+1) << " ::>> " << Bop->GetBinContent(iBinX+1) << std::endl;
-  }*/
 
    TLegend* leg = new TLegend(0.6,0.7,0.9,0.9,"","brNDC");
    leg->SetBorderSize(0);
@@ -297,10 +244,11 @@ void PurityF_Pythia()
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
    
-   leg->AddEntry("Purity15","Purity15", "lpf");
-   leg->AddEntry("Purity30","Purity30", "lpf");
-   leg->AddEntry("Bop","Bop", "lpf");
+   leg->AddEntry(Purity15,"Purity 15", "PL");
+   leg->AddEntry(Purity30,"Purity 30", "PL");
+   leg->AddEntry(Bop,"Bo purity", "PL");
    leg->Draw();
+
   
 }
 
