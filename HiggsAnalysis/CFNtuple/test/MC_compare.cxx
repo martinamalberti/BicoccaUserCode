@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: MC_compare.cxx,v 1.1 2011/03/03 15:24:13 govoni Exp $
+//      $Id: MC_compare.cxx,v 1.2 2011/03/04 08:52:30 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -38,23 +38,21 @@ void MC_compare()
   gSystem->Load("libRooUnfold");
 #endif
 
-   int NBIN = 40;
+   int NBIN = 20;
    double MIN = 35;
-   double MAX = 200;
+   double MAX = 235;
    
+  //Float_t lowEdge[8] = {35,45,57,72,90,120,150,1000};
+  //int NBIN = 7;
   
   cout << "================================= FILLING HISTOGRAMS =================================" << endl;
  
    TFile FileMC_H15("../input/BO/rootfiles/mc/qcd_15_herwigjimmy.root","READ");
    TFile FileMC_P15("../output/HerwigJimmy15.root","READ");
   
-   TFile FileMC_H30("../input/Unfolding/qcd_30_herwigjimmy.root","READ");
+   TFile FileMC_H30("../input/BO/rootfiles/mc/qcd_30_herwigjimmy.root","READ");
    TFile FileMC_P30("../output/HerwigJimmy30.root","READ");
   
-  
-
-  
-
   
   double Threshold_G_FJet = 57;
   double Threshold_G_CJet = 57;
@@ -68,11 +66,17 @@ void MC_compare()
 //  double xsec2H = 49240000. / TreeMC_H30->GetEntries();
   
     
+//     double xsec1H = 714000000. / 1631667.*1.9;		//cross section HERWIG
+//     double xsec2H = 49240000. / 1310829.*1.9;
+    
     double xsec1H = 714000000. / 1631667.;		//cross section HERWIG
     double xsec2H = 49240000. / 1310829.;
     
-    double xsec1 = 714000000. / 1532000.;		//cross section HERWIG
-    double xsec2 = 49240000. / 1111000.;
+     double xsec1 = 714000000. / 1532000.;		//cross section HERWIG
+     double xsec2 = 49240000. / 1111000.;
+     
+//     double xsec1 =xsec1H;		//cross section HERWIG
+//     double xsec2 = xsec2H;
     
   
 //    double xsec1H = 714000000. / TreeMC_H15->GetEntries();		//cross section HERWIG
@@ -116,19 +120,19 @@ void MC_compare()
  TreeMC_P30->SetBranchAddress("S_CJet_Pt",&S_CJet_Pt_D);
  
   
-  TH1D* PythiaC15 = new TH1D ("PythiaCentral", "Pythia Central 15",    NBIN, MIN, MAX);
+  TH1D* PythiaC15 = new TH1D ("Pythia15", "Pythia Central 15",    NBIN, MIN, MAX);
   TH1D* PythiaF15 = new TH1D ("PythiaForward", "Pythia Forward 15", NBIN, MIN, MAX);
   TH1D* PythiaC30 = new TH1D ("PythiaCentral", "Pythia Central 30",    NBIN, MIN, MAX);
   TH1D* PythiaF30 = new TH1D ("PythiaForward", "Pythia Forward 30", NBIN, MIN, MAX);
   
   
-  TH1D* HerwigC15= new TH1D ("HerwigCentral", "Herwig Central 15",    NBIN, MIN, MAX);
+  TH1D* HerwigC15= new TH1D ("HerwigC15", "Herwig Central 15",    NBIN, MIN, MAX);
   TH1D* HerwigF15 = new TH1D ("HerwigForward", "Herwig Forward 15", NBIN, MIN, MAX);
   TH1D* HerwigC30= new TH1D ("HerwigCentral", "Herwig Central 30",    NBIN, MIN, MAX);
   TH1D* HerwigF30 = new TH1D ("HerwigForward", "Herwig Forward 30", NBIN, MIN, MAX);
   
   
-  TH1D* PythiaC15_reco = new TH1D ("PythiaC15_reco", "Pythia Central 15_reco",    NBIN, MIN, MAX);
+  TH1D* PythiaC15_reco = new TH1D ("PythiaC15_reco", "Herwig Central 15_reco",    NBIN, MIN, MAX);
   TH1D* PythiaF15_reco = new TH1D ("PythiaF15_reco", "Pythia Forward 15_reco", NBIN, MIN, MAX);
   TH1D* PythiaC30_reco = new TH1D ("PythiaC30_reco", "Pythia Central 30_reco",    NBIN, MIN, MAX);
   TH1D* PythiaF30_reco = new TH1D ("PythiaF30_reco", "Pythia Forward 30_reco", NBIN, MIN, MAX);
@@ -145,8 +149,8 @@ void MC_compare()
    TreeMC_H15->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
 //     if (G_CJet_Pt>0 && G_FJet_Pt>0) {
-//     if (S_FJet_Pt>0 && S_CJet_Pt>0 ) {
-    if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+     if (S_FJet_Pt>35 && S_CJet_Pt>35 ) {
+//     if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
        HerwigF15->Fill(G_FJet_Pt,xsec1H);
        HerwigC15->Fill(G_CJet_Pt,xsec1H);
        
@@ -160,8 +164,8 @@ void MC_compare()
  for (Int_t iEvt= 0; iEvt<TreeMC_H30->GetEntries(); iEvt++) {
    TreeMC_H30->GetEntry(iEvt);
 //        if (G_CJet_Pt>0 && G_FJet_Pt>0) {
-//     if (S_FJet_Pt>0 && S_CJet_Pt>0 ) {
-    if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+     if (S_FJet_Pt>35 && S_CJet_Pt>35 ) {
+//     if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
     
      HerwigF30->Fill(G_FJet_Pt,xsec2H);
      HerwigC30->Fill(G_CJet_Pt,xsec2H);
@@ -177,8 +181,8 @@ void MC_compare()
  for (Int_t iEvt= 0; iEvt<TreeMC_P15->GetEntries(); iEvt++) {
    TreeMC_P15->GetEntry(iEvt);
 //    if (G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
-//    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 ) {
-   if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
+    if (S_FJet_Pt_D>35 && S_CJet_Pt_D>35 ) {
+//    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
         PythiaF15->Fill(G_FJet_Pt_D,xsec1);
         PythiaC15->Fill(G_CJet_Pt_D,xsec1);
 	
@@ -194,8 +198,8 @@ void MC_compare()
    TreeMC_P30->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
 //       if (G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
-//    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 ) {
-    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
+    if (S_FJet_Pt_D>35 && S_CJet_Pt_D>35) {
+//     if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
     
      PythiaF30->Fill(G_FJet_Pt_D,xsec2);
      PythiaC30->Fill(G_CJet_Pt_D,xsec2);
@@ -206,6 +210,31 @@ void MC_compare()
     }
    }
  
+ 
+ for (int iBinX = 0; iBinX<NBIN; iBinX++){
+   double factor = (MAX -MIN)/NBIN;
+   /*PythiaF15->SetBinError(iBinX+1,PythiaF15->GetBinError(iBinX+1) / factor);
+   PythiaC15->SetBinError(iBinX+1,PythiaC15->GetBinError(iBinX+1) / factor);
+   PythiaF15_reco->SetBinError(iBinX+1, PythiaF15_reco->GetBinError(iBinX+1) / factor);
+   PythiaC15_reco->SetBinError(iBinX+1,PythiaC15_reco->GetBinError(iBinX+1) / factor);  */
+   
+   PythiaF15->SetBinContent(iBinX+1,PythiaF15->GetBinContent(iBinX+1) / factor);
+   PythiaC15->SetBinContent(iBinX+1,PythiaC15->GetBinContent(iBinX+1) / factor);
+   PythiaF15_reco->SetBinContent(iBinX+1, PythiaF15_reco->GetBinContent(iBinX+1) / factor);
+   PythiaC15_reco->SetBinContent(iBinX+1,PythiaC15_reco->GetBinContent(iBinX+1) / factor);  
+   
+   /* HerwigF15->SetBinError(iBinX+1,HerwigF15->GetBinError(iBinX+1) / factor);
+   HerwigC15->SetBinError(iBinX+1,HerwigC15->GetBinError(iBinX+1) / factor);
+   HerwigF15_reco->SetBinError(iBinX+1, HerwigF15_reco->GetBinError(iBinX+1) / factor);
+   HerwigC15_reco->SetBinError(iBinX+1,HerwigC15_reco->GetBinError(iBinX+1) / factor);  */
+   
+   HerwigF15->SetBinContent(iBinX+1,HerwigF15->GetBinContent(iBinX+1) / factor);
+   HerwigC15->SetBinContent(iBinX+1,HerwigC15->GetBinContent(iBinX+1) / factor);
+   HerwigF15_reco->SetBinContent(iBinX+1, HerwigF15_reco->GetBinContent(iBinX+1) / factor);
+   HerwigC15_reco->SetBinContent(iBinX+1,HerwigC15_reco->GetBinContent(iBinX+1) / factor); 
+     
+ }
+   
     
   cout << "===================================== DRAW ====================================" << endl;
 
@@ -231,7 +260,7 @@ void MC_compare()
   //hResponseMatrixFJet->DrawCopy("colz");
   //gPad->SetGrid();
   */
-  /*
+  
   TCanvas* PythiaCentral = new TCanvas("PythiaCentral","Pythia Central",600,600);  
   //CompareMC->Divide(1,2);
   //CompareMC->cd(1);
@@ -257,17 +286,17 @@ void MC_compare()
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
    
-   leg->AddEntry("PythiaC15","Herwig 15_MiaNtuple", "lpf");
+  leg->AddEntry("PythiaC15","Herwig 15_MiaNtuple", "lpf");
    //entry = leg->AddEntry(central_M1,"Herwig+Jimmy ","lp");
    leg->AddEntry("HerwigC15","Herwig 15_BoNtuple", "lpf");
-   leg->Draw();      
+   leg->Draw();    
    
    for (int iBin = 0; iBin<NBIN; iBin ++){
    std::cerr<<"Mio/Bo = ["<< iBin << "]" << PythiaC15->GetBinContent(iBin+1)/HerwigC15->GetBinContent(iBin+1) <<std::endl;
-   }*/
+   }
    
    
-   TCanvas* PythiaCentral_reco = new TCanvas("PythiaCentral_reco","Pythia Central Reco",600,600);  
+   TCanvas* HerwigCentral_reco = new TCanvas("HerwigCentral_reco","Herwig Central Reco",600,600);  
   //CompareMC->Divide(1,2);
   //CompareMC->cd(1);
   PythiaC15_reco->SetStats(0);
