@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldExample.cxx 248 2010-10-04 22:18:19Z T.J.Adye $
+//      $Id: MC_compare.cxx,v 1.1 2011/03/03 15:24:13 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -128,13 +128,30 @@ void MC_compare()
   TH1D* HerwigF30 = new TH1D ("HerwigForward", "Herwig Forward 30", NBIN, MIN, MAX);
   
   
+  TH1D* PythiaC15_reco = new TH1D ("PythiaC15_reco", "Pythia Central 15_reco",    NBIN, MIN, MAX);
+  TH1D* PythiaF15_reco = new TH1D ("PythiaF15_reco", "Pythia Forward 15_reco", NBIN, MIN, MAX);
+  TH1D* PythiaC30_reco = new TH1D ("PythiaC30_reco", "Pythia Central 30_reco",    NBIN, MIN, MAX);
+  TH1D* PythiaF30_reco = new TH1D ("PythiaF30_reco", "Pythia Forward 30_reco", NBIN, MIN, MAX);
+  
+  
+  TH1D* HerwigC15_reco= new TH1D ("HerwigC15_reco", "Herwig Central 15_reco",    NBIN, MIN, MAX);
+  TH1D* HerwigF15_reco = new TH1D ("HerwigF15_reco", "Herwig Forward 15_reco", NBIN, MIN, MAX);
+  TH1D* HerwigC30_reco= new TH1D ("HerwigC30_reco", "Herwig Central 30_reco",    NBIN, MIN, MAX);
+  TH1D* HerwigF30_reco = new TH1D ("HerwigF30_reco", "Herwig Forward 30_reco", NBIN, MIN, MAX);
+  
+  
   //riempio con Herwig ptHat 15
  for (Int_t iEvt= 0; iEvt<TreeMC_H15->GetEntries(); iEvt++) {
    TreeMC_H15->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
-   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+//     if (G_CJet_Pt>0 && G_FJet_Pt>0) {
+//     if (S_FJet_Pt>0 && S_CJet_Pt>0 ) {
+    if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
        HerwigF15->Fill(G_FJet_Pt,xsec1H);
        HerwigC15->Fill(G_CJet_Pt,xsec1H);
+       
+       HerwigF15_reco->Fill(S_FJet_Pt,xsec1H);
+       HerwigC15_reco->Fill(S_CJet_Pt,xsec1H);
      
     }
    }
@@ -142,10 +159,15 @@ void MC_compare()
  //riempio con herwig ptHat 30
  for (Int_t iEvt= 0; iEvt<TreeMC_H30->GetEntries(); iEvt++) {
    TreeMC_H30->GetEntry(iEvt);
-   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+//        if (G_CJet_Pt>0 && G_FJet_Pt>0) {
+//     if (S_FJet_Pt>0 && S_CJet_Pt>0 ) {
+    if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
     
      HerwigF30->Fill(G_FJet_Pt,xsec2H);
      HerwigC30->Fill(G_CJet_Pt,xsec2H);
+     
+     HerwigF30_reco->Fill(S_FJet_Pt,xsec2H);
+     HerwigC30_reco->Fill(S_CJet_Pt,xsec2H);
      //hMeasCJet_MC->Fill(S_CJet_Pt,xsec1);
     }
    }
@@ -154,9 +176,14 @@ void MC_compare()
   //riempio con pythia ptHat 15
  for (Int_t iEvt= 0; iEvt<TreeMC_P15->GetEntries(); iEvt++) {
    TreeMC_P15->GetEntry(iEvt);
-  if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
+//    if (G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
+//    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 ) {
+   if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
         PythiaF15->Fill(G_FJet_Pt_D,xsec1);
         PythiaC15->Fill(G_CJet_Pt_D,xsec1);
+	
+	PythiaF15_reco->Fill(S_FJet_Pt_D,xsec1);
+        PythiaC15_reco->Fill(S_CJet_Pt_D,xsec1);
      //hMeasCJet_MC->Fill(S_CJet_Pt,xsec1);
     }
    }
@@ -166,10 +193,15 @@ void MC_compare()
  for (Int_t iEvt= 0; iEvt<TreeMC_P30->GetEntries(); iEvt++) {
    TreeMC_P30->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
-   if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
+//       if (G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
+//    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 ) {
+    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
     
      PythiaF30->Fill(G_FJet_Pt_D,xsec2);
      PythiaC30->Fill(G_CJet_Pt_D,xsec2);
+     
+     PythiaF30_reco->Fill(S_FJet_Pt_D,xsec2);
+     PythiaC30_reco->Fill(S_CJet_Pt_D,xsec2);
      //hMeasCJet_MC->Fill(S_CJet_Pt,xsec1);
     }
    }
@@ -199,7 +231,7 @@ void MC_compare()
   //hResponseMatrixFJet->DrawCopy("colz");
   //gPad->SetGrid();
   */
-  
+  /*
   TCanvas* PythiaCentral = new TCanvas("PythiaCentral","Pythia Central",600,600);  
   //CompareMC->Divide(1,2);
   //CompareMC->cd(1);
@@ -232,6 +264,41 @@ void MC_compare()
    
    for (int iBin = 0; iBin<NBIN; iBin ++){
    std::cerr<<"Mio/Bo = ["<< iBin << "]" << PythiaC15->GetBinContent(iBin+1)/HerwigC15->GetBinContent(iBin+1) <<std::endl;
+   }*/
+   
+   
+   TCanvas* PythiaCentral_reco = new TCanvas("PythiaCentral_reco","Pythia Central Reco",600,600);  
+  //CompareMC->Divide(1,2);
+  //CompareMC->cd(1);
+  PythiaC15_reco->SetStats(0);
+  PythiaC15_reco->SetLineColor(kRed);
+  PythiaC15_reco->SetMarkerStyle(20);
+  PythiaC15_reco->SetMarkerColor(kRed);
+  PythiaC15_reco->SetMarkerSize(1);
+  PythiaC15_reco->GetXaxis()->SetTitle("Central p_{T}");
+  PythiaC15_reco->DrawCopy();
+  
+  HerwigC15_reco->SetMarkerStyle(20);
+  HerwigC15_reco->SetMarkerSize(1);
+  HerwigC15_reco->DrawCopy("SAME");
+
+   leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.04);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
+   
+   leg->AddEntry("PythiaC15_reco","Herwig 15_MiaNtuple", "lpf");
+   //entry = leg->AddEntry(central_M1,"Herwig+Jimmy ","lp");
+   leg->AddEntry("HerwigC15_reco","Herwig 15_BoNtuple", "lpf");
+   leg->Draw();      
+   
+   for (int iBin = 0; iBin<NBIN/2; iBin ++){
+   std::cerr<<"Mio/Bo_reco = ["<< iBin << "]" << PythiaC15_reco->GetBinContent(iBin+1)/HerwigC15_reco->GetBinContent(iBin+1) <<std::endl;
    }
    
    /*
