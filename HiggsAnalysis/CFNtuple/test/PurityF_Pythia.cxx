@@ -184,7 +184,7 @@ using std::endl;
 
   //for forward Jets greater than 57
   for (int iBinX = tresholdBIN; iBinX<NBIN; iBinX++){
-    double purity = 0;   TFile FileTrain1PythiaF("/home/andrea/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
+    double purity = 0; 
     double column = 0;
     for (int iBinY = 0; iBinY<NBIN; iBinY++){
       column += hResponseMatrixFJetPythia30->GetBinContent(iBinX+1,iBinY+1);
