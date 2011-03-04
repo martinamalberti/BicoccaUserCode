@@ -65,6 +65,7 @@ using std::endl;
   TH2D* hResponseMatrixFJetPythia30 = new TH2D ("hResponseMatrixFJetPythia30", "Response Matrix FJet Pythia30",NBIN,lowEdge,NBIN,lowEdge);
 
   // TFile FileTrain1PythiaF("/home/toliman/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
+//   TFile FileTrain1PythiaF("/home/andrea/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
    TFile FileTrain1PythiaF("/home/andrea/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
    TFile FileTrain2PythiaF("/home/andrea/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_30_pythia.root","READ");
   
@@ -74,8 +75,9 @@ using std::endl;
    
      
   TTree* TreeTrain1PythiaF = (TTree*) FileTrain1PythiaF.Get("AnaHiggs");
+  TreeTrain1PythiaF -> SetName("ciccio1");
   TTree* TreeTrain2PythiaF = (TTree*) FileTrain2PythiaF.Get("AnaHiggs");
-
+  TreeTrain2PythiaF -> SetName("ciccio2");
   
   Float_t G_FJet_Pt; //~~~~ had
   Float_t S_FJet_Pt; //~~~~ reco
@@ -132,13 +134,14 @@ using std::endl;
   cout << "==================================== Pythia =====================================" << endl;
   
    double DR_F_max =  0.2;
-             
+   double DR_C_max =  0.2;
   for (Int_t iEvt= 0; iEvt<TreeTrain1PythiaF->GetEntries(); iEvt++) {
     TreeTrain1PythiaF->GetEntry(iEvt);
-  //      if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
+
         if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
-	double Delta_R = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
-	if (Delta_R<DR_F_max){
+	double Delta_R_F = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
+	double Delta_R_C = deltaR(S_CJet_Eta,S_CJet_Phi,G_CJet_Eta,G_CJet_Phi);
+	if (Delta_R_F<DR_F_max && Delta_R_C<DR_C_max ){
         	if (debug ==1) std::cerr<<"Delta_R = "<<Delta_R << std::endl;
         	hResponseMatrixFJetPythia15->Fill(S_FJet_Pt, G_FJet_Pt);
 	}
@@ -148,15 +151,12 @@ using std::endl;
   
   for (Int_t iEvt= 0; iEvt<TreeTrain2PythiaF->GetEntries(); iEvt++) {
     TreeTrain2PythiaF->GetEntry(iEvt);
-//      if (S_FJet_Pt>0 && G_FJet_Pt>18 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
-
       if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
 	
-	double Delta_R = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
-	if (Delta_R<DR_F_max){
-	//if (debug ==1) std::cerr<<"Delta_R = "<<Delta_R << std::endl;
-//    if (S_FJet_Pt>0 && G_FJet_Pt>0)  { 
-	hResponseMatrixFJetPythia30->Fill(S_FJet_Pt, G_FJet_Pt);
+	double Delta_R_F = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
+	double Delta_R_C = deltaR(S_CJet_Eta,S_CJet_Phi,G_CJet_Eta,G_CJet_Phi);
+	if (Delta_R_F<DR_F_max && Delta_R_C<DR_C_max ){
+        	hResponseMatrixFJetPythia30->Fill(S_FJet_Pt, G_FJet_Pt);
 	}
      }
   }
@@ -177,13 +177,14 @@ using std::endl;
     double offd = column - diag;
     purity = diag / column;
     Purity15->SetBinContent(iBinX+1, purity);
+    std::cerr << " pt15[" << iBinX << "] = " << purity << std::endl;
     Purity15->SetBinError(iBinX+1,sqrt((offd)/column/column*(offd)/column/column*diag+(diag/column/column)*(diag/column/column)*(offd)));
   }
   
 
   //for forward Jets greater than 57
   for (int iBinX = tresholdBIN; iBinX<NBIN; iBinX++){
-    double purity = 0;
+    double purity = 0;   TFile FileTrain1PythiaF("/home/andrea/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
     double column = 0;
     for (int iBinY = 0; iBinY<NBIN; iBinY++){
       column += hResponseMatrixFJetPythia30->GetBinContent(iBinX+1,iBinY+1);
@@ -192,6 +193,7 @@ using std::endl;
     double offd = column - diag;
     purity = diag / column;
     Purity30->SetBinContent(iBinX+1, purity);
+    std::cerr << " pt30[" << iBinX << "] = " << purity << std::endl;
     Purity30->SetBinError(iBinX+1,sqrt((offd)/column/column*(offd)/column/column*diag+(diag/column/column)*(diag/column/column)*(offd)));
   }
   
