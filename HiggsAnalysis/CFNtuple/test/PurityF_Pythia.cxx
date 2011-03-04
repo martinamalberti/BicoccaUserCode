@@ -47,6 +47,8 @@ using std::endl;
 
 //void PurityF_Pythia()
 { 
+#include "utils.cxx"
+
       Float_t lowEdge[11] = {18,22,27,35,45,57,72,90,120,150,1000};
       int NBIN = 10;
       int tresholdBIN= 5;
@@ -130,20 +132,15 @@ using std::endl;
   cout << "==================================== Pythia =====================================" << endl;
   
    double DR_F_max =  0.2;
-   //double DR_C_max =  0.2;
              
   for (Int_t iEvt= 0; iEvt<TreeTrain1PythiaF->GetEntries(); iEvt++) {
     TreeTrain1PythiaF->GetEntry(iEvt);
-   
-//     if (S_FJet_Pt>0 && G_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0)  {
-//      if (S_FJet_Pt>0 && G_FJet_Pt>18 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
-      if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
-	double Delta_R = sqrt((fabs(S_FJet_Eta-G_FJet_Eta))*(fabs(S_FJet_Eta-G_FJet_Eta))+ (fabs(S_FJet_Phi- G_FJet_Phi))*(fabs(S_FJet_Phi- G_FJet_Phi)));
+  //      if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
+        if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
+	double Delta_R = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
 	if (Delta_R<DR_F_max){
-	if (debug ==1) std::cerr<<"Delta_R = "<<Delta_R << std::endl;
-
-//    if (S_FJet_Pt>0 && G_FJet_Pt>0)  {     
-	hResponseMatrixFJetPythia15->Fill(S_FJet_Pt, G_FJet_Pt);
+        	if (debug ==1) std::cerr<<"Delta_R = "<<Delta_R << std::endl;
+        	hResponseMatrixFJetPythia15->Fill(S_FJet_Pt, G_FJet_Pt);
 	}
       }
    }
@@ -155,7 +152,7 @@ using std::endl;
 
       if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
 	
-       Delta_R = sqrt((fabs(S_FJet_Eta-G_FJet_Eta))*(fabs(S_FJet_Eta-G_FJet_Eta))+ (fabs(S_FJet_Phi- G_FJet_Phi))*(fabs(S_FJet_Phi- G_FJet_Phi)));
+	double Delta_R = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
 	if (Delta_R<DR_F_max){
 	//if (debug ==1) std::cerr<<"Delta_R = "<<Delta_R << std::endl;
 //    if (S_FJet_Pt>0 && G_FJet_Pt>0)  { 
