@@ -288,13 +288,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   if (debug == 1)  std::cerr << " 2 ... " << std::endl;
   int nJets_reco = reader.Get4V("jets")->size();	// qui è il jet a livello reco
   totalJets_reco = totalJets_reco + nJets_reco;
-  
    
-  //const double ptMin = 10.0;	//le passo dal file di configurazione!
-  //const double D_R_cut = 100;
-  
- //cout << "=================== Selezione sugli eventi Dijet at HADRON LEVEL =============="<<endl;
-
   ///HADRON BLACKLIST
   std::vector <int> blacklistCentral_had;
   std::vector <int> blacklistForward_had;
@@ -305,7 +299,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
       blacklistCentral_had.push_back(i);
     }
   // Riempio blacklist Forward (con tutti i jet non forward)
-    else if ( fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>4.7 || fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<3.2 ) {
+    if ( fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>4.7 || fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<3.2 ) {
      blacklistForward_had.push_back(i);
     }
    }
@@ -313,9 +307,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   //Seleziono i due jet non presenti sulle black list con Pt massimo
 //   std::cerr << " beginning ... " << std::endl;
   int Central_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMin, &blacklistCentral_had);
-//   std::cerr << " Central_i_had  = " << Central_i_had  << std::endl;
+  if (debug == 1) std::cerr << " Central_i_had  = " << Central_i_had  << std::endl;
   int Forward_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMin, &blacklistForward_had);
-//   std::cerr << " Forward_i_had  = " << Forward_i_had  << std::endl;
+  if (debug == 1)  std::cerr << " Forward_i_had  = " << Forward_i_had  << std::endl;
   
   ///RECO BLACKLIST  
   std::vector <int> blacklistCentral_reco;
@@ -326,7 +320,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
       blacklistCentral_reco.push_back(i);
     }
   // Riempio blacklist Forward (con tutti i jet non forward)
-    else if(fabs(reader.Get4V("jets")->at(i).Eta())>4.7 || fabs(reader.Get4V("jets")->at(i).Eta())<3.2) {
+    if(fabs(reader.Get4V("jets")->at(i).Eta())>4.7 || fabs(reader.Get4V("jets")->at(i).Eta())<3.2) {
      blacklistForward_reco.push_back(i);
     }
    }
@@ -339,12 +333,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   if (debug == 1) std::cerr << " Forward_i_reco  = " << Forward_i_reco  << std::endl;
   
   ///FILLING VARIABLES
-  //if (dataFlag!=1){ 	//se è un MonteCarlo
-    if (Central_i_had !=-1 && Forward_i_had !=-1){
-      //&& 
-     //riempi l'istogramma e il file con:
-//      if (debug == 1) std::cerr << ">>> Central_i_had  = " << Central_i_had  << std::endl;
-//      if (debug == 1) std::cerr << ">>> Forward_i_had  = " << Forward_i_had  << std::endl;
+  if (Central_i_had !=-1 && Forward_i_had !=-1){
+     if (debug == 1) std::cerr << ">>> Central_i_had  = " << Central_i_had  << std::endl;
+     if (debug == 1) std::cerr << ">>> Forward_i_had  = " << Forward_i_had  << std::endl;
      
      hPtC.Fill(reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Pt());	//riempio l'istogramma
      hPtF.Fill(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt());	//riempio l'istogramma
@@ -368,10 +359,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      G_D_R = deltaR(reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Phi(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Eta(),reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Phi());
     
      S_Mjj = (reader.Get4V(nameGenJet.c_str())->at(Forward_i_had) + reader.Get4V(nameGenJet.c_str())->at(Central_i_had)).mass();      
-    }
-//   }
-    
-     else {
+    }    
+    else {
        //valori di default in assenza di jet at hadron level
      G_FJet_Pt = -100.;
      G_FJet_Eta = -100.;
@@ -390,7 +379,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      }
      
      //Variabili at detector level
-     if(Central_i_reco !=-1 && Forward_i_reco !=-1) {
+   if(Central_i_reco !=-1 && Forward_i_reco !=-1) {
       
      EtaPtF_reco.Fill(reader.Get4V("jets")->at(Forward_i_reco).Eta(), reader.Get4V("jets")->at(Forward_i_reco).Pt());	//riempio l'istogramma
       
@@ -447,7 +436,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_RunNb = reader.GetInt("runId")->at(0);
      S_LumiBlk = reader.GetInt("lumiId")->at(0);
      S_EventNb = reader.GetInt("eventId")->at(0);
-     //S_Vtxnum = ;
           
      AnaHiggs.Fill();    
      eventSel++;
@@ -457,22 +445,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     efficiency.SetBinContent(1,entryMAX-entryMIN);
     efficiency.SetBinContent(2,eventSel);
  
- 
-    /*
- //end = clock();
- //std::cout <<"Time = " <<  ((double) (end - start)) << " (a.u.)" << std::endl;  
- cout<<"==================================== HADRON ==========================================="<<endl;
- std::cout<<"eventSel_had = "<<eventSel_had<<std::endl;
- std::cout<<"eventSel_had/entryMAX = "<<eventSel_had/entryMAX<<std::endl;
- 
- cout<<"==================================== RECO ==========================================="<<endl;
- std::cout<<"eventSel_reco = "<<eventSel_reco<<std::endl;
- std::cout<<"eventSel_reco/entryMAX = "<<eventSel_reco/entryMAX<<std::endl;
- */
- 
- //hPt.Write();
- //Eta.Write();
-
 
  events -> Write () ;
  outFile.Write();
