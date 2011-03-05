@@ -312,7 +312,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
       blacklistCentral_had.push_back(i);
     }
   // Riempio blacklist Forward (con tutti i jet non forward)
-    else if ( fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>4.7 || fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<3.2 ) {
+    if ( fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>4.7 || fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<3.2 ) {
      blacklistForward_had.push_back(i);
     }
    }
@@ -333,7 +333,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
       blacklistCentral_reco.push_back(i);
     }
   // Riempio blacklist Forward (con tutti i jet non forward)
-    else if(fabs(reader.Get4V("jets")->at(i).Eta())>4.7 || fabs(reader.Get4V("jets")->at(i).Eta())<3.2) {
+    if(fabs(reader.Get4V("jets")->at(i).Eta())>4.7 || fabs(reader.Get4V("jets")->at(i).Eta())<3.2) {
      blacklistForward_reco.push_back(i);
     }
    }
