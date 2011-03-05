@@ -68,8 +68,8 @@ using std::endl;
   TH2D* hResponseMatrixFJetPythia30 = new TH2D ("hResponseMatrixFJetPythia30", "Response Matrix FJet Pythia30",NBIN,lowEdge,NBIN,lowEdge);
 
   // TFile FileTrain1PythiaF("/home/toliman/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
-   TFile FileTrain1PythiaF("/home/toliman/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
-   TFile FileTrain2PythiaF("/home/toliman/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_30_pythia.root","READ");
+   TFile FileTrain1PythiaF("~/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_15_pythia.root","READ");
+   TFile FileTrain2PythiaF("~/Dropbox/QCD_CF/Unfolding/NewNtuple/cut_18_35/qcd_30_pythia.root","READ");
   
    
 //    TFile FileTrain1PythiaF("../input/BO/rootfiles/mc/qcd_15_pythia.root","READ");
@@ -138,7 +138,6 @@ using std::endl;
              
   for (Int_t iEvt= 0; iEvt<TreeTrain1PythiaF->GetEntries(); iEvt++) {
     TreeTrain1PythiaF->GetEntry(iEvt);
-  //      if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
         if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
 	double Delta_R = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
 	if (Delta_R<DR_F_max){
@@ -152,8 +151,8 @@ using std::endl;
   for (Int_t iEvt= 0; iEvt<TreeTrain2PythiaF->GetEntries(); iEvt++) {
     TreeTrain2PythiaF->GetEntry(iEvt);
 //      if (S_FJet_Pt>0 && G_FJet_Pt>18 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
-
       if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
+//      if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
 	
 	double Delta_R = deltaR(S_FJet_Eta,S_FJet_Phi,G_FJet_Eta,G_FJet_Phi);
 	if (Delta_R<DR_F_max){
@@ -208,7 +207,7 @@ for (int iBinY = 0; iBinY<tresholdBIN; iBinY++){
     AcceptanceF_Pythia->SetBinError(iBinY+1, (sqrt(1./row)+sqrt(1./N_all))*row/N_all);
     
   }
-  //for forward Jets greater than 57
+  //for forward Jets greater than 57  for (int iBinY = tresholdBIN; iBinY<NBIN; iBinY++){
 
   for (int iBinY = tresholdBIN; iBinY<NBIN; iBinY++){
     
@@ -231,7 +230,7 @@ for (int iBinY = 0; iBinY<tresholdBIN; iBinY++){
   
   TCanvas* cPurityF_P = new TCanvas("cPurityF_P","cPurityF_P",600,600);  
     
-  TFile* _file0 = new TFile("/home/toliman/Dropbox/QCD_CF/F_hist_pA.root","READ");
+  TFile* _file0 = new TFile("~/Dropbox/QCD_CF/F_hist_pA.root","READ");
 
   TH1F* Bop = (TH1F*) _file0->Get("hist_p");
   Bop->GetYaxis()->SetRangeUser(0.,1.0);
@@ -240,7 +239,13 @@ for (int iBinY = 0; iBinY<tresholdBIN; iBinY++){
   Bop->SetMarkerSize(1);
   Bop->SetStats(0);
   Bop->Draw();
-  
+
+ 
+  std::cout << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << std::endl; 
+  for (int iBinY = 0; iBinY<NBIN; iBinY++){
+   std::cout << " bin[" << iBinY << "] = " << Bop->GetBinContent(iBinY+1) << " : " << AcceptanceF_Pythia->GetBinContent(iBinY+1) << std::endl;
+  }
+
   AcceptanceF_Pythia->GetYaxis()->SetRangeUser(0.,1.0);
 //  AcceptanceF_Pythia->GetXaxis()->SetRangeUser(18.,150.);
   AcceptanceF_Pythia->SetTitle("");
