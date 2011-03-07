@@ -6,7 +6,7 @@ process.inputTree = cms.PSet(
   nameTree = cms.string("ntupleEcalAlignment/myTree"),
   #selection = cms.string("(ETSC>20 && met>20 && mishits <= 0 && MT>30)"),
    
-   selection = cms.string("(ETSC>20 && met>20 && mishits <= 0 && MT>30) && ((abs(eta) <= 1.5 && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pT < 0.07 && (eleTrkIso/pT<0.09 && eleEcalIso/pT<0.07 && (eleHcalIsoD1+eleHcalIsoD2)/pT<0.09) && (HoE<0.040 && SigmaIEtaIEta<0.01)) || (abs(eta) >= 1.5 && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pT < 0.06 && (eleTrkIso/pT<0.04 && eleEcalIso/pT<0.05 && (eleHcalIsoD1+eleHcalIsoD2)/pT<0.025) && (HoE<0.025 && SigmaIEtaIEta<0.03) ) )"),
+   selection = cms.string("(ETSC>20 && met>20 && mishits <= 0 && MT>30) && ((abs(eta) <= 1.5 && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pT < 0.07 && (eleTrkIso/pT<0.09 && eleEcalIso/pT<0.07 && (eleHcalIsoD1+eleHcalIsoD2)/pT<0.09) && (HoE<0.040 && abs(SigmaIEtaIEta)<0.01)) || (abs(eta) >= 1.5 && (eleTrkIso + eleEcalIso + eleHcalIsoD1 + eleHcalIsoD2)/pT < 0.06 && (eleTrkIso/pT<0.04 && eleEcalIso/pT<0.05 && (eleHcalIsoD1+eleHcalIsoD2)/pT<0.025) && (HoE<0.025 && abs(SigmaIEtaIEta)<0.03) ) )"),
      
   #selection = cms.string("(1)"),
    #selection = cms.string("(eleFBrem<0.8)"),
