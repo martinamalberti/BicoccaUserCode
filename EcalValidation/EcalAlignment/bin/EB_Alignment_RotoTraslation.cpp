@@ -374,13 +374,13 @@ int main(int argc, char** argv)
   else  minuit->SetFixedVariable(2,"DZ",0);
 
 
-  if (rotationPhi)  minuit->SetLimitedVariable(3,"DPHIe",inputDPHIe, 0.001,-0.1,0.1);
+  if (rotationPhi)  minuit->SetLimitedVariable(3,"DPHIe",inputDPHIe, 0.0001,-3.15,3.15);
   else  minuit->SetFixedVariable(3,"DPHIe",inputDPHIe);
 
-  if (rotationTheta)  minuit->SetLimitedVariable(4,"DTHETAe",inputDTHETAe, 0.001,-0.1,0.1);
+  if (rotationTheta)  minuit->SetLimitedVariable(4,"DTHETAe",inputDTHETAe, 0.0001,-3.15,3.15);
   else  minuit->SetFixedVariable(4,"DTHETAe",inputDTHETAe);
 
-  if (rotationPsi)  minuit->SetLimitedVariable(5,"DPSIe",inputDPSIe, 0.001,-0.1,0.1);
+  if (rotationPsi)  minuit->SetLimitedVariable(5,"DPSIe",inputDPSIe, 0.0001,-3.15,3.15);
   else  minuit->SetFixedVariable(5,"DPSIe",inputDPSIe);
 
 
