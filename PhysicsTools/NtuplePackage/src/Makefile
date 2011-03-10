@@ -34,7 +34,7 @@ ROOTGLIBS     = $(shell root-config --glibs)
 CLHEPCFLAGS   =  $(shell clhep-config --include)
 CLHEPLIBS     =  $(shell clhep-config --libs)
 
-ARCHL = -m32
+ARCHL = -m64
 
 CXX  =  c++
 CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
