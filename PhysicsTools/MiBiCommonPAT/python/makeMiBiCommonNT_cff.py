@@ -22,6 +22,10 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
 
+    #JEC
+    process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+    process.ak5CaloL1Offset.useCondDB = False
+    process.ak5PFL1Offset.useCondDB = False
     
     # Source
     process.source = cms.Source(
@@ -148,7 +152,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -164,7 +168,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -182,7 +186,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -198,7 +202,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,

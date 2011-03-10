@@ -8,7 +8,7 @@ process = cms.Process("MiBiCommonPAT")
 
 
 
-makeMiBiCommonPAT(process, GlobalTag="GR_R_38X_V15::All", MC=False, Filter=True, SavePAT=True)
+makeMiBiCommonPAT(process, GlobalTag="GR_R_39X_V6::All", MC=False, Filter=True, SavePAT=True)
 
 process.source.fileNames = cms.untracked.vstring(
   'file:/tmp/dimatteo/D8700674-35CB-DF11-8C60-0024E85A3ED8.root'

@@ -6,10 +6,10 @@ process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT: Choose the MC type!!!
 # Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, ZW, Other
-makeMiBiCommonNT(process, GlobalTag="START39_V8::All", HLT='', MC=True, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="START39_V9::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
-  'file:/grid_mnt/data__DATA/data.polcms/cms/abenagli/WENu_38X_AOD.root'
+  'file:/grid_mnt/data__DATA/data.polcms/cms/abenagli/VBFH170ToWWToLNuQQ_397_ProbDist_2011Flat_AODSIM.root'
   #'file:/tmp/dimatteo/963B8D02-12E7-DF11-A8E0-003048D3E452.root'
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/FA4BFB16-7AD3-DF11-AD7C-0019B9F72BFF.root',
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/F023A43C-83D3-DF11-9EC7-001D09F24047.root',
