@@ -2,6 +2,9 @@
 #define SimpleNtuple_h
 
 // cmssw include files
+// PU MC information
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
+
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -82,6 +85,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+
+  void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
   
   
@@ -122,6 +127,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   
   edm::InputTag MCtruthTag_;
   
+  edm::InputTag MCPileupTag_;
+
   
   ///---- save flags ----
   bool dataFlag_;
@@ -144,6 +151,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveMCHiggsGammaGamma_ ;
   bool saveMCZW_ ;
   bool saveGenJet_;  
+  bool saveMCPU_;
 
   int eventType_; //---- 0 = signal    1 = background 
   bool verbosity_; //---- true = loquacious    false = silence  

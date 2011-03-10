@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.19 2011/02/08 09:55:02 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.20 2011/03/10 10:30:28 amassiro Exp $
 //
 //
 
@@ -58,7 +58,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  EleTag_      = iConfig.getParameter<edm::InputTag>("EleTag");
  EleID_names_ = iConfig.getParameter< std::vector<std::string> >("EleID_names");
 
-TauTag_ = iConfig.getParameter<edm::InputTag>("TauTag");
+ TauTag_ = iConfig.getParameter<edm::InputTag>("TauTag");
   
  MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
 
@@ -94,6 +94,8 @@ TauTag_ = iConfig.getParameter<edm::InputTag>("TauTag");
  saveMCHiggsWW_         = iConfig.getUntrackedParameter<bool> ("saveMCHiggsWW", false);
  saveMCHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsGammaGamma", false);
  saveMCZW_              = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
+ saveMCPU_              = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
+ if (saveMCPU_) MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -445,6 +447,16 @@ TauTag_ = iConfig.getParameter<edm::InputTag>("TauTag");
      NtupleFactory_->AddFloat("mcF2_fromV_pdgId");       
    }
  
+
+ if(saveMCPU_){
+     NtupleFactory_->AddInt("mc_PU_NumInteractions");    
+     NtupleFactory_->AddFloat("mc_PU_zpositions");       
+     NtupleFactory_->AddFloat("mc_PU_sumpT_lowpT");       
+     NtupleFactory_->AddFloat("mc_PU_sumpT_highpT");       
+     NtupleFactory_->AddInt("mc_PU_ntrks_lowpT");    
+     NtupleFactory_->AddInt("mc_PU_ntrks_highpT");    
+  }
+   
 }
 
 
@@ -1273,6 +1285,39 @@ void SimpleNtuple::fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventS
 
 
 
+void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtuple::fillMCPUInfo" << std::endl;
+ 
+  edm::Handle<PileupSummaryInfo> PupInfo;
+  iEvent.getByLabel(MCPileupTag_, PupInfo);
+
+
+  NtupleFactory_->FillInt("mc_PU_NumInteractions",PupInfo->getPU_NumInteractions());    
+  
+  std::vector<float> temp_mc_PU_zpositions = PupInfo->getPU_zpositions();
+  std::vector<float> temp_mc_PU_sumpT_lowpT = PupInfo->getPU_sumpT_lowpT();
+  std::vector<float> temp_mc_PU_sumpT_highpT = PupInfo->getPU_sumpT_highpT();
+  std::vector<int> temp_mc_PU_ntrks_lowpT = PupInfo->getPU_ntrks_lowpT();
+  std::vector<int> temp_mc_PU_ntrks_highpT = PupInfo->getPU_ntrks_highpT();
+
+  for (std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it ){
+   NtupleFactory_->FillFloat("mc_PU_zpositions",*it);       
+  }
+  for (std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it ){
+   NtupleFactory_->FillFloat("mc_PU_sumpT_lowpT",*it);       
+  }
+  for (std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it ){
+   NtupleFactory_->FillFloat("mc_PU_sumpT_highpT",*it);       
+  }
+  for (std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it ){
+   NtupleFactory_->FillInt("mc_PU_ntrks_lowpT",*it);       
+  }
+  for (std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it ){
+   NtupleFactory_->FillInt("mc_PU_ntrks_highpT",*it);       
+  }
+}
+   
 
 
 
@@ -1348,6 +1393,9 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  if (saveMCHiggs_) fillMCHiggsInfo (iEvent, iSetup);
  if (saveMCZW_) fillMCZWInfo (iEvent, iSetup);
 
+ ///---- fill MC Pileup information ---- 
+ if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
+ 
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
 

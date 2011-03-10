@@ -17,7 +17,8 @@ process.source.fileNames = cms.untracked.vstring(
   #'/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/451/E4EE523D-83D3-DF11-9564-001D09F28F1B.root'
   #'file:/gwpool/users/amassiro/VBF/Releases/CMSSW_3_8_3/src/PhysicsTools/MiBiCommonPAT/669A4128-43D0-DF11-AE93-001A92810ACE.root'  
   # 'file:/gwterax1/users/amassiro/CMSSWroot/Fall10/WPlusToENu_CT10_TuneZ2_7TeV-powheg-pythia/D056A87C-66D0-DF11-AAE1-0018FE286DB2.root.1'
-    'file:/gwterax1/users/amassiro/CMSSWroot/Fall10/DY_ZTauTau_Fall10/ACC59E3D-860D-E011-BCE6-002354EF3BDE.root'   
+#    'file:/tmp/amassiro/ACC59E3D-860D-E011-BCE6-002354EF3BDE.root'   # Tau test
+    'file:/tmp/amassiro/1038652E-FA3D-E011-8EF9-003048679296.root'   # PU test
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
