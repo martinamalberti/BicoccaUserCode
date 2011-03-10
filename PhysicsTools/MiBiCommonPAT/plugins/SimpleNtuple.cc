@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.18 2011/02/07 18:46:41 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.19 2011/02/08 09:55:02 deguio Exp $
 //
 //
 
@@ -57,7 +57,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  
  EleTag_      = iConfig.getParameter<edm::InputTag>("EleTag");
  EleID_names_ = iConfig.getParameter< std::vector<std::string> >("EleID_names");
- 
+
+TauTag_ = iConfig.getParameter<edm::InputTag>("TauTag");
+  
  MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
 
  PhotonTag_      = iConfig.getParameter<edm::InputTag>("PhotonTag");
@@ -80,6 +82,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveBS_        = iConfig.getUntrackedParameter<bool> ("saveBS", true);
  savePV_        = iConfig.getUntrackedParameter<bool> ("savePV", true);
  saveEle_       = iConfig.getUntrackedParameter<bool> ("saveEle", true);
+ saveTau_        = iConfig.getUntrackedParameter<bool> ("saveTau", true);
  saveMu_        = iConfig.getUntrackedParameter<bool> ("saveMu", true);
  savePhoton_    = iConfig.getUntrackedParameter<bool> ("savePhoton", true);
  saveMet_       = iConfig.getUntrackedParameter<bool> ("saveMet", true);
@@ -187,6 +190,34 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    
    NtupleFactory_->AddFloat("electrons_eES");
   }
+ 
+ 
+ if(saveTau_)
+ {
+   NtupleFactory_ -> Add4V   ("taus");  
+   NtupleFactory_ -> AddFloat("taus_leadPFChargedHadrCand_hcalEnergy");
+   NtupleFactory_ -> AddFloat("taus_leadPFChargedHadrCand_ecalEnergy");
+   NtupleFactory_ -> AddFloat("taus_leadPFCand_hcalEnergy");
+   NtupleFactory_ -> AddFloat("taus_leadPFCand_ecalEnergy");
+   NtupleFactory_ -> AddFloat("taus_electronPreIDOutput");
+ 
+   NtupleFactory_ -> AddFloat("taus_leadPFCand_mva_e_pi");
+   NtupleFactory_ -> AddFloat("taus_hcal3x3OverPLead");
+   NtupleFactory_ -> Add3V("taus_leadPFChargedHadrCand_trackRef");
+   NtupleFactory_ -> Add4V("taus_leadPFCand");
+  
+   NtupleFactory_ -> AddInt("taus_signalPFChargedHadrCands_size");
+   NtupleFactory_ -> AddInt("taus_signalPFGammaCands_size");
+   NtupleFactory_ -> AddInt("taus_leadPFChargedHadrCand_trackRef_numberOfValidHits");
+  
+   NtupleFactory_ -> AddInt("taus_tauID");
+   NtupleFactory_ -> AddInt("taus_tauLooseIso");
+   NtupleFactory_ -> AddInt("taus_tauMediumIso");
+   NtupleFactory_ -> AddInt("taus_tauTightIso");
+   NtupleFactory_ -> AddInt("taus_tauAntiEMVA");
+   NtupleFactory_ -> AddInt("taus_tauIDPtCut");
+   NtupleFactory_ -> AddInt("taus_tauIso");
+ }
  
  if(saveMu_)
  {
@@ -572,6 +603,49 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
 
 
 
+///---------------
+///---- Taus ----
+
+void SimpleNtuple::fillTauInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtuple::fillTauInfo" << std::endl;
+ 
+ edm::Handle<edm::View<pat::Tau> > tauHandle;
+ iEvent.getByLabel(TauTag_,tauHandle);
+ edm::View<pat::Tau> taus = *tauHandle;
+ 
+ for ( unsigned int i=0; i<taus.size(); i++ ) {
+  pat::Tau tau = taus.at(i);
+
+  NtupleFactory_ -> Fill4V   ("taus",tau.p4());
+  NtupleFactory_ -> FillFloat("taus_leadPFChargedHadrCand_hcalEnergy",(tau.leadPFChargedHadrCand().isAvailable()) ? (tau.leadPFChargedHadrCand()->hcalEnergy()) : -100);
+  NtupleFactory_ -> FillFloat("taus_leadPFChargedHadrCand_ecalEnergy",tau.leadPFChargedHadrCand().isAvailable() ? (tau.leadPFChargedHadrCand()->ecalEnergy()) : -100);
+  NtupleFactory_ -> FillFloat("taus_leadPFCand_hcalEnergy",tau.leadPFCand().isAvailable() ? (tau.leadPFCand()->hcalEnergy()) : -100);
+  NtupleFactory_ -> FillFloat("taus_leadPFCand_ecalEnergy",tau.leadPFCand().isAvailable() ? (tau.leadPFCand()->ecalEnergy()) : -100);
+  NtupleFactory_ -> FillFloat("taus_electronPreIDOutput",(tau.electronPreIDOutput()));
+
+
+  NtupleFactory_ -> FillFloat("taus_leadPFCand_mva_e_pi",tau.leadPFCand().isAvailable() ? (tau.leadPFCand()->mva_e_pi()) : -100);
+  NtupleFactory_ -> FillFloat("taus_hcal3x3OverPLead",(tau.hcal3x3OverPLead()));
+  NtupleFactory_ -> Fill3V("taus_leadPFChargedHadrCand_trackRef", tau.leadPFChargedHadrCand().isAvailable() ? (tau.leadPFChargedHadrCand()->trackRef()->momentum()) : ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> (0,0,0));
+  NtupleFactory_ -> Fill4V("taus_leadPFCand",tau.leadPFCand().isAvailable() ? (tau.leadPFCand()->p4()) : ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >(0,0,0,0));
+  
+  NtupleFactory_ -> FillInt("taus_signalPFChargedHadrCands_size",(tau.signalPFChargedHadrCands().size()));    
+  NtupleFactory_ -> FillInt("taus_signalPFGammaCands_size",(tau.signalPFGammaCands().size()));
+  NtupleFactory_ -> FillInt("taus_leadPFChargedHadrCand_trackRef_numberOfValidHits",tau.leadPFChargedHadrCand().isAvailable() ? (tau.leadPFChargedHadrCand()->trackRef()->numberOfValidHits()) : -100);  
+  
+  NtupleFactory_ -> FillInt("taus_tauID",(tau.tauID("leadingTrackFinding")));
+  NtupleFactory_ -> FillInt("taus_tauLooseIso",(tau.tauID("byLooseIsolation")));
+  NtupleFactory_ -> FillInt("taus_tauMediumIso",(tau.tauID("byMediumIsolation")));  
+  NtupleFactory_ -> FillInt("taus_tauTightIso",(tau.tauID("byTightIsolation")));
+  NtupleFactory_ -> FillInt("taus_tauAntiEMVA",(tau.tauID("againstElectron")));
+  NtupleFactory_ -> FillInt("taus_tauIDPtCut",-1);
+//  NtupleFactory_ -> FillInt("taus_tauIDPtCut",(tau.tauID("leadingPionPtCut")));
+  NtupleFactory_ -> FillInt("taus_tauIso",-1);
+//  NtupleFactory_ -> FillInt("taus_tauIso",(tau.tauID("byIsolation")));
+
+ } 
+}
 
 
 ///---------------
@@ -1244,6 +1318,9 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  
  ///---- fill PV ----
  if(savePV_) fillPVInfo (iEvent, iSetup);
+ 
+ ///---- fill taus ----
+ if (saveTau_) fillTauInfo (iEvent, iSetup);
  
  ///---- fill muons ----
  if (saveMu_) fillMuInfo (iEvent, iSetup);

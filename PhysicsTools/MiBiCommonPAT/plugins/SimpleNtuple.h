@@ -23,6 +23,7 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
@@ -67,6 +68,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillBSInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   void fillPVInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   
+  void fillTauInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -107,6 +109,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   
   edm::InputTag PhotonTag_;
 
+  edm::InputTag TauTag_;
+  
   edm::InputTag MuTag_;
   
   edm::InputTag MetTag_;
@@ -124,6 +128,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveHLT_ ;
   bool saveBS_ ;
   bool savePV_ ;
+  bool saveTau_ ;
   bool saveMu_ ;
   bool saveEle_ ;
   bool savePhoton_ ;
