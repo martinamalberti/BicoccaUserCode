@@ -308,6 +308,12 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     continue;
   }
 
+  ///********************
+  ///**** HCAL Noise ****
+  ///********************
+
+//  if (reader.GetInt("HCAL_noise")->at(0) == 1) continue;
+  
   
   if (debug == 1) std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
