@@ -236,7 +236,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 
 
  
- 
+ int nHLT = -1;
 
  ///Selezione sugli eventi Dijet at HADRON LEVEL
  if (entryMAX == -1) entryMAX = reader.GetEntries();	// GetEntries restituisce il numero totale di eventi, qui utilizzo il reader per leggere dal Tree il numero di entrate! GetEntries è una funzione del reader
@@ -293,6 +293,21 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
       if(AcceptEventByRunAndLumiSection(runId, lumiId, jsonMap) == false) continue;      
     }
 
+
+  ///************************
+  ///**** HLT simulation ****
+  ///************************
+  
+  if (iEvent == entryMIN) {
+   for (int iHLT = 0; iHLT < reader.GetString("HLT_Names")->size(); iHLT++){
+    if (reader.GetString("HLT_Names")->at(iHLT) == "HLT_DiJetAve15U" || reader.GetString("HLT_Names")->at(iHLT) == "HLT_DiJetAve15U_8E29") nHLT = iHLT;
+   }
+  }
+  if (nHLT != -1 && reader.GetFloat("HLT_Accept")->at(nHLT) == 0) {
+    if (debug == 1) std::cerr << " HLT = " << reader.GetString("HLT_Names")->at(nHLT) << std::endl;
+    continue;
+  }
+
   
   if (debug == 1) std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
@@ -347,7 +362,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     }
   }
    
-
   //Seleziono i due jet non presenti sulle black list con Pt massimo
  
   int Central_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMin, &blacklistCentral_reco);
