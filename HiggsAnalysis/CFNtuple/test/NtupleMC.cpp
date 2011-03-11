@@ -252,6 +252,19 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   reader.GetEntry(iEvent);	//un'entrata in questo caso è data da un TREE intero
   if((iEvent%entryMOD) == 0) std::cout << ">>>>> analysis::GetEntry " << iEvent  << ":" << reader.GetEntries() << " (" << entryMAX << ")" << std::endl;   
   
+
+  
+  ///***************************************
+  ///**** STEP -2 - Event preselections ****
+  ///***************************************
+
+   //**** primaryVertexFilter
+   if (fabs(reader.GetFloat("PV_z")->at(0))> 24) continue;
+   if (fabs(reader.GetFloat("PV_d0")->at(0))> 2) continue;
+   if (fabs(reader.GetInt("PV_ndof")->at(0)) <= 4) continue;
+
+   if (reader.GetInt("PV_nTracks")->at(0) < 10) continue;
+
   
   ///***************************************************
   ///**** STEP -1 - Check no copies in DATA ****
