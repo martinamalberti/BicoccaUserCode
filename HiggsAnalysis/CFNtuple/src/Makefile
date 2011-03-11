@@ -38,6 +38,13 @@ NTUPLEPACKAGELIBS = $(shell ntuplepkg-config --libs)
 
 ARCHL = -m32
 
+ARCH  =  $(shell root-config --arch)
+ifeq ($(ARCH),linuxx8664gcc)
+ARCHL = -m64
+endif
+
+
+
 CXX  =  c++
 CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS) $(NTUPLEPACKAGEFLAGS)
 CPP  =  c++
