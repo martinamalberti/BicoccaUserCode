@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.20 2011/03/10 10:30:28 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.21 2011/03/10 15:56:27 amassiro Exp $
 //
 //
 
@@ -954,6 +954,12 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
     if(jecLevels.at(kk) == "L1Offset")
     {
       NtupleFactory_ -> FillFloat("jets_corrFactor_off",jet.jecFactor("L1Offset"));
+      isL1OffsetLevelFound = true;
+    }
+    
+    if(jecLevels.at(kk) == "L1FastJet")
+    {
+      NtupleFactory_ -> FillFloat("jets_corrFactor_off",jet.jecFactor("L1FastJet"));
       isL1OffsetLevelFound = true;
     }
     
