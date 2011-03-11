@@ -22,11 +22,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
-
-    #JEC
-    process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-    process.ak5CaloL1Offset.useCondDB = False
-    process.ak5PFL1Offset.useCondDB = False
     
     # Source
     process.source = cms.Source(
