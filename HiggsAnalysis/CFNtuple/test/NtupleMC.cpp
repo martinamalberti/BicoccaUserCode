@@ -341,10 +341,11 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 
   //==== Jet ID FWD ====
   for(int i = 0; i < nJets_reco; ++i){
-    if ( && reader.GetInt("jets_n90Hits")->at(i) < (1 + 2.4 *( log(reader.GetFloat("jets_corrFactor_raw")->at(i) * reader.Get4V("jets")->at(i).Pt() ) - 1 )) {
+    if (reader.GetInt("jets_n90Hits")->at(i) < (1 + 2.4 *( log(reader.GetFloat("jets_corrFactor_raw")->at(i) * reader.Get4V("jets")->at(i).Pt() ) - 1 ))) 
+    {
       blacklistForward_reco.push_back(i);
+    }
   }
-
    
 
   //Seleziono i due jet non presenti sulle black list con Pt massimo
