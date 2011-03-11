@@ -150,7 +150,7 @@ using std::endl;
   
   for (Int_t iEvt= 0; iEvt<TreeTrain2PythiaF->GetEntries(); iEvt++) {
     TreeTrain2PythiaF->GetEntry(iEvt);
-//      if (S_FJet_Pt>0 && G_FJet_Pt>18 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
+//       if (S_FJet_Pt>0 && G_FJet_Pt>18 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
       if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
 //      if (S_FJet_Pt>18 && G_FJet_Pt>18 && S_CJet_Pt>35 && G_CJet_Pt>35)  {
 	
@@ -167,8 +167,7 @@ using std::endl;
   cout << "=================================================================================" << endl;
   cout << "======================== Filling Histos with All Jets ==========================" << endl;
   
-   ///ACCEPTANCE
-  
+     
  
  TH1D* BackNon_matchedF_P = new TH1D ("BackNon_matchedF_P", "BackNon_matchedF_P",NBIN,lowEdge);
  TH1D* BackGroundF_Pythia = new TH1D ("BackgroundF_P", "BackgroundF_P",NBIN,lowEdge);
@@ -176,16 +175,17 @@ using std::endl;
  //Background
   for (Int_t iEvt= 0; iEvt<TreeTrain1PythiaF->GetEntries(); iEvt++) {
    TreeTrain1PythiaF->GetEntry(iEvt);
-    
-   if(S_FJet_Pt>18 && S_CJet_Pt>35 && S_FJet_Pt<Threshold_G_FJet){
+//    if(S_FJet_Pt>18 && S_CJet_Pt>35 && G_FJet_Pt>18 && G_CJet_Pt>35 && S_FJet_Pt>=Threshold_G_FJet){	//ATTENZIONE! QUI STIAMO FACENDO LA TRESHOLD DI S_JET ! 
+    if(S_FJet_Pt>18 && S_CJet_Pt>35 && S_FJet_Pt<Threshold_G_FJet){
       BackNon_matchedF_P->Fill(S_FJet_Pt);
      }
  }
  
   for (Int_t iEvt= 0; iEvt<TreeTrain2PythiaF->GetEntries(); iEvt++) {
    TreeTrain2PythiaF->GetEntry(iEvt);
-    
-   if(S_FJet_Pt>18 && S_CJet_Pt>35 && S_FJet_Pt>=Threshold_G_FJet){	//ATTENZIONE! QUI STIAMO FACENDO LA TRESHOLD DI S_JET !
+   
+//    if(S_FJet_Pt>18 && S_CJet_Pt>35 && G_FJet_Pt>18 && G_CJet_Pt>35 && S_FJet_Pt>=Threshold_G_FJet){	//ATTENZIONE! QUI STIAMO FACENDO LA TRESHOLD DI S_JET !
+    if(S_FJet_Pt>18 && S_CJet_Pt>35 && S_FJet_Pt>=Threshold_G_FJet){	//ATTENZIONE! QUI STIAMO FACENDO LA TRESHOLD DI S_JET !
       BackNon_matchedF_P->Fill(S_FJet_Pt);
      }
  }

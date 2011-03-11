@@ -228,7 +228,7 @@ for (int iBinY = 0; iBinY<tresholdBIN; iBinY++){
   
 //  Purity15->Add(Purity30);
   
-  TCanvas* cPurityF_P = new TCanvas("cPurityF_P","cPurityF_P",600,600);  
+  TCanvas* cPurityF_P = new TCanvas("cAcceptanceF_P","cAcceptanceF_P",600,600);  
     
   TFile* _file0 = new TFile("~/Dropbox/QCD_CF/F_hist_pA.root","READ");
 
