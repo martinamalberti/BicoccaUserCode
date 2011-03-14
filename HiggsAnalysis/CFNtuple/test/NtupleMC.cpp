@@ -67,13 +67,29 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 // TChain* chain = new TChain(treeName.c_str());	//treeName e inputFile sono definti nel file .cfg
 // chain->Add(inputFile.c_str());
 // treeReader reader((TTree*)(chain));	//qui definisco reader
+ ///check Ntuple type: if -1 skip vertex filter and events counting
  
+ int ntupleTYPE = 1;
+ 
+  try {
+  ntupleTYPE = gConfigParser -> readIntOption("Input::ntupleTYPE");
+ }
+ catch (char const* exceptionString){
+  std::cerr << " exception = " << exceptionString << std::endl;
+ }
+ std::cout << ">>>>> Input::ntupleTYPE  " << ntupleTYPE << std::endl; 
+  
+
+ TH1F* events = new TH1F ("events", "events", 1, 0., 1.) ;
+
+ if (ntupleTYPE!=-1){
+   
   std::map<int,int> totalEvents = GetTotalEvents ("AllEvents/totalEvents", inputFileList.c_str ()) ;  
   std::map<int, int> stepEvents ;
   stepEvents[0] = totalEvents[1] ;
 
-  TH1F* events = new TH1F ("events", "events", 1, 0., 1.) ;
   events -> SetBinContent (1, stepEvents[0]) ;
+ }
 
 
  ///****************************
@@ -257,7 +273,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   ///***************************************
   ///**** STEP -2 - Event preselections ****
   ///***************************************
-
+ if (ntupleTYPE!=-1){
    //**** primaryVertexFilter
    if (fabs(reader.GetFloat("PV_z")->at(0))> 24) continue;
    if (fabs(reader.GetFloat("PV_d0")->at(0))> 2) continue;
@@ -265,7 +281,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 
    if (reader.GetInt("PV_nTracks")->at(0) < 10) continue;
 
-  
+ }
+ 
   ///***************************************************
   ///**** STEP -1 - Check no copies in DATA ****
   ///***************************************************
@@ -487,9 +504,11 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 //     std::cerr << " here " << std::endl;
     efficiency.SetBinContent(1,entryMAX-entryMIN);
     efficiency.SetBinContent(2,eventSel);
- 
-
+  
+    
+ if (ntupleTYPE!=-1){
  events -> Write () ;
+ }
  outFile.Write();
  
  
