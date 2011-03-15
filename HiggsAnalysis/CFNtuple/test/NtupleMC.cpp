@@ -47,7 +47,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  int entryMIN = gConfigParser -> readIntOption("Input::entryMIN");
  int entryMOD = gConfigParser -> readIntOption("Input::entryMOD");
  
- double ptMin = gConfigParser -> readDoubleOption("Input::ptMin"); //
+ double ptMinF = gConfigParser -> readDoubleOption("Input::ptMinF"); //
+ double ptMinC = gConfigParser -> readDoubleOption("Input::ptMinC"); //
+ 
  double DRmax = gConfigParser -> readDoubleOption("Input::DRmax"); //
  int debug = gConfigParser -> readIntOption("Input::debug"); // se uguale a 1 esegui il debug altrimenti no.
  
@@ -55,7 +57,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  std::cout << ">>>>> input::entryMIN  " << entryMIN  << std::endl;  
  std::cout << ">>>>> input::entryMAX  " << entryMAX  << std::endl;   
  std::cout << ">>>>> input::entryMOD  " << entryMOD  << std::endl;  
- std::cout << ">>>>> input::ptMin  " << ptMin  << std::endl;   
+ std::cout << ">>>>> input::ptMinF  " << ptMinF  << std::endl;   
+ std::cout << ">>>>> input::ptMinC  " << ptMinC  << std::endl;   
  std::cout << ">>>>> input::DRmax  " << DRmax  << std::endl;  
  
  // Open ntple --> crea una catena di Tree
@@ -357,9 +360,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
    
   //Seleziono i due jet non presenti sulle black list con Pt massimo
 //   std::cerr << " beginning ... " << std::endl;
-  int Central_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMin, &blacklistCentral_had);
+  int Central_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMinC, &blacklistCentral_had);
   if (debug == 1) std::cerr << " Central_i_had  = " << Central_i_had  << std::endl;
-  int Forward_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMin, &blacklistForward_had);
+  int Forward_i_had = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMinF, &blacklistForward_had);
   if (debug == 1)  std::cerr << " Forward_i_had  = " << Forward_i_had  << std::endl;
   
   ///RECO BLACKLIST  
@@ -387,9 +390,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
    
   //Seleziono i due jet non presenti sulle black list con Pt massimo
  
-  int Central_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMin, &blacklistCentral_reco);
+  int Central_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMinC, &blacklistCentral_reco);
   if (debug == 1) std::cerr << " Central_i_reco  = " << Central_i_reco  << std::endl;
-  int Forward_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMin, &blacklistForward_reco);
+  int Forward_i_reco = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMinF, &blacklistForward_reco);
   if (debug == 1) std::cerr << " Forward_i_reco  = " << Forward_i_reco  << std::endl;
   
   ///FILLING VARIABLES
