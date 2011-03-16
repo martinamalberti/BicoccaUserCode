@@ -1,5 +1,5 @@
-#ifndef SimpleNtuple_h
-#define SimpleNtuple_h
+#ifndef VertexNtuple_h
+#define VertexNtuple_h
 
 // cmssw include files
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -49,15 +49,15 @@
 //---- class declaration ----
 //---------------------------
 
-class SimpleNtuple : public edm::EDAnalyzer {
+class VertexNtuple : public edm::EDAnalyzer {
  
  public:
   
   //! ctor
-  explicit SimpleNtuple(const edm::ParameterSet&);
+  explicit VertexNtuple(const edm::ParameterSet&);
   
   //! dtor
-  ~SimpleNtuple();
+  ~VertexNtuple();
   
   
   

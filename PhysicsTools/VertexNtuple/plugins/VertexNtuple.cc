@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SimpleNtuple
-// Class:      SimpleNtuple
+// Package:    VertexNtuple
+// Class:      VertexNtuple
 // 
-/**\class SimpleNtuple SimpleNtuple.cc Analysis/SimpleNtuple/src/SimpleNtuple.cc
+/**\class VertexNtuple VertexNtuple.cc Analysis/VertexNtuple/src/VertexNtuple.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.15 2010/11/11 13:40:53 ghezzi Exp $
+// $Id: VertexNtuple.cc,v 1.1 2011/03/16 16:34:31 deguio Exp $
 //
 //
 
@@ -53,11 +53,11 @@ using namespace reco;
 ///---- ctor ----
 
 
-SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
+VertexNtuple::VertexNtuple(const edm::ParameterSet& iConfig)
 {
  //---- Out file ----
  edm::Service<TFileService> fs;
- outTree_ = fs -> make<TTree>("SimpleNtuple","SimpleNtuple"); 
+ outTree_ = fs -> make<TTree>("VertexNtuple","VertexNtuple"); 
  NtupleFactory_ = new NtupleFactory(outTree_);  
  
  
@@ -543,7 +543,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
 ///--------------
 ///---- dtor ----
 
-SimpleNtuple::~SimpleNtuple()
+VertexNtuple::~VertexNtuple()
 {
  NtupleFactory_->WriteNtuple();
  delete NtupleFactory_;
@@ -557,7 +557,7 @@ SimpleNtuple::~SimpleNtuple()
 ///-------------
 ///---- HLT ----
 
-void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
   //---- HLT information ----
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
@@ -599,9 +599,9 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
 ///-------------------
 ///---- Beam Spot ----
 
-void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
-  //std::cout << "SimpleNtuple::fillBSInfo::begin" << std::endl;
+  //std::cout << "VertexNtuple::fillBSInfo::begin" << std::endl;
   
   edm::Handle<reco::BeamSpot> BSHandle;
   iEvent.getByType(BSHandle);
@@ -622,7 +622,7 @@ void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup &
   NtupleFactory_ -> FillFloat("BS_BeamWidthX", BS.BeamWidthX());
   NtupleFactory_ -> FillFloat("BS_BeamWidthY", BS.BeamWidthY());
   
-  //std::cout << "SimpleNtuple::fillBSInfo::end" << std::endl;
+  //std::cout << "VertexNtuple::fillBSInfo::end" << std::endl;
 }
 
 
@@ -633,9 +633,9 @@ void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup &
 ///------------------------
 ///---- Primary vertex without Electrons ----
 
-void SimpleNtuple::fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
-  //std::cout << "SimpleNtuple::fillEleLessPVInfo::begin" << std::endl;
+  //std::cout << "VertexNtuple::fillEleLessPVInfo::begin" << std::endl;
   
   //  using namespace edm;
   edm::Handle<reco::VertexCollection> vertexes;
@@ -734,16 +734,16 @@ void SimpleNtuple::fillEleLessPVInfo(const edm::Event & iEvent, const edm::Event
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
   EleLessPVPoint_ = PVPoint;
   
-  //std::cout << "SimpleNtuple::fillEleLessPVInfo::end" << std::endl;
+  //std::cout << "VertexNtuple::fillEleLessPVInfo::end" << std::endl;
 }
 
 
 ///------------------------
 ///---- Primary vertex without Muons ----
 
-void SimpleNtuple::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
-  //std::cout << "SimpleNtuple::fillMuonLessPVInfo::begin" << std::endl;
+  //std::cout << "VertexNtuple::fillMuonLessPVInfo::begin" << std::endl;
   
   //  using namespace edm;
   edm::Handle<reco::VertexCollection> vertexes;
@@ -843,13 +843,13 @@ void SimpleNtuple::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::Even
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
   MuonLessPVPoint_ = PVPoint;
   
-  //std::cout << "SimpleNtuple::fillMuonLessPVInfo::end" << std::endl;
+  //std::cout << "VertexNtuple::fillMuonLessPVInfo::end" << std::endl;
 }
 
 ///------------------------
 ///---- Tracks infos ----
 
-void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel(TrackTag_, tracks);
@@ -1020,9 +1020,9 @@ void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetu
 ///------------------------
 ///---- Primary Vertex ----
 
-void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
-  //std::cout << "SimpleNtuple::fillPVInfo::begin" << std::endl;
+  //std::cout << "VertexNtuple::fillPVInfo::begin" << std::endl;
   
   edm::Handle<reco::VertexCollection> vertexes;
   iEvent.getByLabel(PVTag_, vertexes);
@@ -1084,14 +1084,14 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
   PVPoint_ = PVPoint;
   
-  //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
+  //std::cout << "VertexNtuple::fillPVInfo::end" << std::endl;
 }
 
 ///-----------------------
 ///---- PUSummaryInfo ----
-void SimpleNtuple::fillPUSummaryInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillPUSummaryInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
-  //std::cout << "SimpleNtuple::fillPUSummaryInfo::begin" << std::endl;
+  //std::cout << "VertexNtuple::fillPUSummaryInfo::begin" << std::endl;
   edm::Handle<PileupSummaryInfo> PupInfo;
   iEvent.getByLabel(PileupTag_, PupInfo);  
   const PileupSummaryInfo *PUSummaryInfo = PupInfo.product();
@@ -1111,9 +1111,9 @@ void SimpleNtuple::fillPUSummaryInfo(const edm::Event & iEvent, const edm::Event
 
 ///---------------
 ///---- Muons ----
-void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillMuInfo" << std::endl;
+ //std::cout << "VertexNtuple::fillMuInfo" << std::endl;
  
  edm::Handle<edm::View<pat::Muon> > muHandle;
  iEvent.getByLabel(MuTag_,muHandle);
@@ -1177,9 +1177,9 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
 ///-------------------
 ///---- Electrons ----
 
-void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillEleInfo" << std::endl;
+ //std::cout << "VertexNtuple::fillEleInfo" << std::endl;
  
  edm::Handle<edm::View<pat::Electron> > eleHandle;
  iEvent.getByLabel(EleTag_,eleHandle);
@@ -1332,9 +1332,9 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 ///-----------------
 ///---- Photons ----
 
-void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillPhotonInfo" << std::endl;
+ //std::cout << "VertexNtuple::fillPhotonInfo" << std::endl;
  
  edm::Handle<edm::View<pat::Photon> > photonHandle;
  iEvent.getByLabel(PhotonTag_,photonHandle);
@@ -1439,9 +1439,9 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
 ///--------------
 ///---- Jets ----
 
-void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
-  //std::cout << "SimpleNtuple::fillJetInfo::begin" << std::endl;
+  //std::cout << "VertexNtuple::fillJetInfo::begin" << std::endl;
  
   edm::Handle<edm::View<pat::Jet> > jetHandle;
   iEvent.getByLabel(JetTag_,jetHandle);
@@ -1577,7 +1577,7 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
    
   } // loop on jets
   
-  //std::cout << "SimpleNtuple::fillJetInfo::end" << std::endl;
+  //std::cout << "VertexNtuple::fillJetInfo::end" << std::endl;
 }
 
 
@@ -1587,16 +1587,16 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
 
 ///--------------------
 ///---- HCAL Noise ----
-void SimpleNtuple::fillHCALNoiseInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup)
+void VertexNtuple::fillHCALNoiseInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup)
 {
-  //std::cout << "SimpleNtuple::fillHCALNoiseInfo::begin" << std::endl;
+  //std::cout << "VertexNtuple::fillHCALNoiseInfo::begin" << std::endl;
   
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   iEvent.getByLabel("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult", HBHENoiseFilterResultHandle);
 
   NtupleFactory_ -> FillInt("HCAL_noise", *(HBHENoiseFilterResultHandle.product()));
 
-  //std::cout << "SimpleNtuple::fillHCALNoiseInfo::end" << std::endl;
+  //std::cout << "VertexNtuple::fillHCALNoiseInfo::end" << std::endl;
 }
 
 
@@ -1607,9 +1607,9 @@ void SimpleNtuple::fillHCALNoiseInfo(const edm::Event & iEvent, const edm::Event
 ///-------------
 ///---- MET ----
 
-void SimpleNtuple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillMetInfo" << std::endl;
+ //std::cout << "VertexNtuple::fillMetInfo" << std::endl;
  
   edm::Handle<edm::View<pat::MET> > MetHandle;
   iEvent.getByLabel(MetTag_,MetHandle);
@@ -1636,9 +1636,9 @@ void SimpleNtuple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup
 ///------------
 ///---- MC ----
 
-void SimpleNtuple::fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
-  //std::cout << "SimpleNtuple::fillPtHatInfo::begin" << std::endl; 
+  //std::cout << "VertexNtuple::fillPtHatInfo::begin" << std::endl; 
   
   edm::Handle< GenEventInfoProduct > GenInfoHandle;
   iEvent.getByLabel( "generator", GenInfoHandle );
@@ -1646,13 +1646,13 @@ void SimpleNtuple::fillMCPtHatInfo (const edm::Event & iEvent, const edm::EventS
   
   NtupleFactory_->FillFloat("mc_ptHat", ptHat);
   
-  //std::cout << "SimpleNtuple::fillPtHatInfo::end" << std::endl; 
+  //std::cout << "VertexNtuple::fillPtHatInfo::end" << std::endl; 
 }
 
 
-void SimpleNtuple::fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillMCHiggsDecayInfo" << std::endl; 
+ //std::cout << "VertexNtuple::fillMCHiggsDecayInfo" << std::endl; 
 
  bool isValid = mcAnalysisHiggs_ -> isValid();
   
@@ -1708,9 +1708,9 @@ void SimpleNtuple::fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventS
 }
  
 
-void SimpleNtuple::fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillMCZWDecayInfo" << std::endl; 
+ //std::cout << "VertexNtuple::fillMCZWDecayInfo" << std::endl; 
 
  bool isValid = mcAnalysisZW_ -> isValid();
   
@@ -1745,9 +1745,9 @@ void SimpleNtuple::fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetu
 }
 
 
-void SimpleNtuple::fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void VertexNtuple::fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillMCTTBarInfo" << std::endl;
+ //std::cout << "VertexNtuple::fillMCTTBarInfo" << std::endl;
  
  edm::Handle<reco::GenParticleCollection> genParticles;
  iEvent.getByLabel(MCtruthTag_, genParticles);
@@ -1814,7 +1814,7 @@ void SimpleNtuple::fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventS
 
 
 // ------------ method called to for each event  ------------
-void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void VertexNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
  ++eventNaiveId_;
  
@@ -1905,6 +1905,6 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
 ///===================================
-DEFINE_FWK_MODULE(SimpleNtuple) ;
+DEFINE_FWK_MODULE(VertexNtuple) ;
 
 
