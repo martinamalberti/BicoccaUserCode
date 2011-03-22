@@ -140,8 +140,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  
  int NBIN_mult = 20;
  
- TH1F hMultiplicity("hMultiplicity","central jets multiplicity",NBIN_mult,0,6);		//jet centrali
-  
+ TH1F hMultiplicityC("hMultiplicityC","central jets multiplicity",NBIN_mult,0,6);		//jet centrali
+ TH1F hMultiplicityF("hMultiplicityF","forward jets multiplicity",NBIN_mult,0,6);		//jet forward
+
  
 
  ///==============
@@ -171,6 +172,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  double S_FJet_Energy;
  
  int nCJet_S_FJet;
+ int nFJet_S_CJet;
+
  
  double S_CJet_Pt;
  double S_CJet_Eta;
@@ -228,6 +231,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("S_FJet_Energy",&S_FJet_Energy,"S_FJet_Energy/D");
  
  AnaHiggs.Branch("nCJet_S_FJet",&nCJet_S_FJet,"nCJet_S_FJet/I");  	//RECO
+ AnaHiggs.Branch("nFJet_S_CJet",&nFJet_S_CJet,"nFJet_S_CJet/I");  	//RECO
 
  AnaHiggs.Branch("S_CJet_Pt",&S_CJet_Pt,"S_CJet_Pt/D");
  AnaHiggs.Branch("S_CJet_Eta",&S_CJet_Eta,"S_CJet_Eta/D");
@@ -408,18 +412,24 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   ///MULTIPLICITY
   
   int nC_Jets = 0;
+  int nF_Jets = 0;
   
-  if (Forward_i_had !=-1){
+  if (Central_i_had !=-1 && Forward_i_had !=-1)
     
    for(int i = 0; i < nJets_reco; ++i){
-    if(fabs(reader.Get4V("jets")->at(i).Eta())>2.8 && reader.Get4V("jets")->at(i).Pt()>ptMinC){
+    if(fabs(reader.Get4V("jets")->at(i).Eta())<2.8 && reader.Get4V("jets")->at(i).Pt()>ptMinC){
       
       nC_Jets ++;
      }
+    if(fabs(reader.Get4V("jets")->at(i).Eta())<4.7 || fabs(reader.Get4V("jets")->at(i).Eta()) >3.2 && reader.Get4V("jets")->at(i).Pt()>ptMinF) {
+      nF_Jets ++;
     }
     
-    nCJet_S_FJet = nC_Jets;
-    hMultiplicity.Fill(nC_Jets);
+    nCJet_S_FJet = nC_Jets;	//molteplicità dei jet centrali con pt>35
+    nFJet_S_CJet = nF_Jets;	//molteplicità dei jet forward con pt>35
+    
+    hMultiplicityC.Fill(nC_Jets);
+    hMultiplicityF.Fill(nF_Jets);
     
    }
       
