@@ -414,7 +414,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   int nC_Jets = 0;
   int nF_Jets = 0;
   
-  if (Central_i_had !=-1 && Forward_i_had !=-1)
+  if (Central_i_had !=-1 && Forward_i_had !=-1){
     
    for(int i = 0; i < nJets_reco; ++i){
     if(fabs(reader.Get4V("jets")->at(i).Eta())<2.8 && reader.Get4V("jets")->at(i).Pt()>ptMinC){
@@ -424,20 +424,21 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
       
       
      }
+     
     if(fabs(reader.Get4V("jets")->at(i).Eta())<4.7 && fabs(reader.Get4V("jets")->at(i).Eta()) >3.2 && reader.Get4V("jets")->at(i).Pt()>ptMinF) {
       nF_Jets ++;
       cout<<"nF_Jets = " <<nF_Jets<<endl;
     }
     
+   }
     nCJet_S_FJet = nC_Jets;	//molteplicità dei jet centrali con pt>35
     nFJet_S_CJet = nF_Jets;	//molteplicità dei jet forward con pt>35
     
     hMultiplicityC.Fill(nC_Jets);
     hMultiplicityF.Fill(nF_Jets);
     
-   }
-      
-  
+        
+  }
   
   
   
