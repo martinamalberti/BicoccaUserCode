@@ -15,7 +15,7 @@ public:
   virtual ~MuMuLooper() {};
   void bookHistos();
   void saveHistos(TFile *f1);
-  void Loop(string filename);
+  void Loop(string filename, string flag);
   int theBestQQ() const;
   bool accept_glb_mu(const int mu_index) const;
   bool accept_trk_mu(const int mu_index) const;
@@ -32,23 +32,18 @@ private:
   float MAX_S3Dip;
   float MAX_muisol;
   float MIN_muP;
+  float MIN_pt;
 
   float weight;
   bool onlyTheBest;
-              
+
+  Float_t invMass;
+
+  TTree *tInvMass;              
   TH1F *hInvMass;
-  TH1F *hIsoVar03_glb_TKECAL1;
-  TH1F *hIsoVar03_glb_TKECAL2;
-  TH1F *hIsoVar03_glb_TK;
-  TH1F *hIsoVar03_glb_ECAL;
-  TH1F *hIsoVar03_trk_TKECAL1;
-  TH1F *hIsoVar03_trk_TKECAL2;
-  TH1F *hIsoVar03_trk_TK;
-  TH1F *hIsoVar03_trk_ECAL;
 
   TH1F * hQQProbChi2;
   TH1F *hQQS3Dip; 
-  TH1F *hQQSTip ;
   TH1F *hQQEta   ;
   TH1F *hQQPt    ;
   TH1F *hMuEtaTk   ;

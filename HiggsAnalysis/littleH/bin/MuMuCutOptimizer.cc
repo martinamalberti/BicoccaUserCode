@@ -5,6 +5,7 @@
 #include <TH2F.h>
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <string.h>
 
@@ -12,30 +13,74 @@
 
 #include "MuMuCutOptimizer.hh"
 
-using namespace std;
-
+using std::cout;
+using std::endl;
 
 MuMuCutOptimizer::MuMuCutOptimizer(TChain *tree) 
   : smallHBaseClass(tree) {
 
   /// SELECTION CUTS ///
  
-  MIN_nhits_trk = 12;
-  MAX_normchi2_trk = 5.0;
   MAX_normchi2_glb = 20.0;
-  MIN_nhits_pixel = 2;
-  MAX_d0_trk = 2.0;
-  MAX_dz_trk = 25.0;
-  MIN_PtBar = 0.;
-  MIN_PtEndc = 0.;
-  MIN_P = 0.;
-  MAX_iso = 0.11;
-  MIN_Chi2 = 0.;
-  n_step = 40;
-  n_signal = 7;
+  MIN_vtxprob = 0.001;//0.04;
+  MAX_S3Dip = 10.;//1.1;
+  MAX_muisol = 1.;// 0.5;
+  MIN_muP = 0.;
+  minPt = 3.;
+  n_step = 1;
+  n_signal = 1;
+
+  bookHistos();
+
 }
 
-void MuMuCutOptimizer::Loop(TString optVar) {
+void MuMuCutOptimizer::bookHistos()
+{
+
+  hIsoVar03_glb_TKECAL     = new TH1F("hIsoVar03_glb_TKECAL", "isolation var03 on tk+ecal, glb", 500, 0., 5. );
+  hIsoVar03_glb_TKECALHCAL = new TH1F("hIsoVar03_glb_TKECALHCAL", "isolation var03 on tk+ecal+hcal, glb", 500, 0., 5. );
+  hIsoVar03_trk_TKECAL     = new TH1F("hIsoVar03_trk_TKECAL", "isolation var03 on tk+ecal, trk", 500, 0., 5. );
+  hIsoVar03_trk_TKECALHCAL = new TH1F("hIsoVar03_trk_TKECALHCAL", "isolation var03 on tk+ecal+hcal, trk", 500, 0., 5. );
+
+  hIsoVar03_glb_TKECAL_pt     = new TH1F("hIsoVar03_glb_TKECAL_pt", "isolation var03 on tk+ecal/pt, glb", 500, 0., 5. );
+  hIsoVar03_glb_TKECALHCAL_pt = new TH1F("hIsoVar03_glb_TKECALHCAL_pt", "isolation var03 on tk+ecal+hcal/pt, glb", 500, 0., 5. );
+  hIsoVar03_trk_TKECAL_pt     = new TH1F("hIsoVar03_trk_TKECAL_pt", "isolation var03 on tk+ecal/pt, trk", 500, 0., 5. );
+  hIsoVar03_trk_TKECALHCAL_pt = new TH1F("hIsoVar03_trk_TKECALHCAL_pt", "isolation var03 on tk+ecal+hcal/pt, trk", 500, 0., 5. );
+
+  hIsoVar03_glb_TK = new TH1F("hIsoVar03_glb_TK", "isolation var03 on tk, glb", 500, 0., 5. );
+  hIsoVar03_trk_TK = new TH1F("hIsoVar03_trk_TK", "isolation var03 on tk, trk", 500, 0., 5. );
+  hIsoVar03_glb_ECAL = new TH1F("hIsoVar03_glb_ECAL", "isolation var03 on ecal, glb", 500, 0., 5. );
+  hIsoVar03_trk_ECAL = new TH1F("hIsoVar03_trk_ECAL", "isolation var03 on ecal, trk", 500, 0., 5. );
+  hIsoVar03_glb_HCAL = new TH1F("hIsoVar03_glb_HCAL", "isolation var03 on hcal, glb", 500, 0., 5. );
+  hIsoVar03_trk_HCAL = new TH1F("hIsoVar03_trk_HCAL", "isolation var03 on hcal, trk", 500, 0., 5. );
+
+  hQQProbChi2 = new TH1F("hQQProbChi2","#chi^2 prob", 1000, 0., 1.);
+  hQQS3Dip = new TH1F("hQQS3Dip", "", 100, 0., 30.);
+  hQQSTip = new TH1F("hQQSTip", "", 100, 0., 5.);
+  hQQEta = new TH1F("hQQEta", "Eta", 100, -5.,5.);
+  hQQPt = new TH1F("hQQPt", "Pt", 100, 0., 50.);
+  hMuEtaTk = new TH1F("hMuEtaTk","Muon Eta Tk", 100, -5., 5.);
+  hMuPtTk = new TH1F("hMuPtTk","Muon Pt Tk", 100, 0., 50.);
+  hMuEtaGlb = new TH1F("hMuEtaGlb","Muon Eta Glb", 100, -5., 5.);
+  hMuPtGlb = new TH1F("hMuPtGlb","Muon Pt Glb", 100, 0., 50.);
+
+  hMuPGlb = new TH1F("hMuPGlb","Muon P Glb", 100, 0., 50.);
+  hMuPTk = new TH1F("hMuPTk","Muon P Tk", 100, 0., 50.);
+
+  hInvMass_all = new TH1F("invMass","#mu-#mu invariant mass",1000,4.,14.);
+
+  for(Int_t i=0; i<n_step; i++){
+    cut[i]=0;
+    stringstream stream;  stream << i;
+    TString counter = stream.str();
+    
+    TString hName = "hInvMass_"+counter;
+    hInvMass[i] = new TH1F(hName,"#mu-#mu invariant mass",1000,4.,14.);
+  }
+  return;
+}
+
+void MuMuCutOptimizer::Loop(string filename, TString flag, TString optVar) {
 
   if (fChain == 0) return;  
   int nentries = (int)fChain->GetEntries(); 
@@ -46,7 +91,10 @@ void MuMuCutOptimizer::Loop(TString optVar) {
   // counters
   int totalEvents = 0;
   int passedTriggers = 0;
+  int passedCandidates = 0;
   
+  bool accept;
+
   Float_t signal[n_signal][n_step];
   Float_t m[n_signal];
   Float_t backcont[n_step];
@@ -77,287 +125,388 @@ void MuMuCutOptimizer::Loop(TString optVar) {
     cut2[i]=0;
   }
   
+  //===========================
+  // === load the HLT tree ====
+  //===========================
+  std::vector<int> *HLTwasrun=0;
+  std::vector<int> *HLTaccept=0;
+  std::vector<int> *HLTerror=0;
+
+  TChain *chainHLT = new TChain ("TriggerResults/HLTree") ;
+
+  chainHLT -> SetBranchAddress("HLTwasrun", &HLTwasrun);
+  chainHLT -> SetBranchAddress("HLTaccept", &HLTaccept);
+  chainHLT -> SetBranchAddress("HLTerror" , &HLTerror);
+  chainHLT -> Add(filename.c_str());
+
   for (int jentry=0; jentry< nentries; jentry++) {
     
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     fChain->GetEntry(jentry);
+    chainHLT->GetEntry(jentry);
     
     if (jentry%100000 == 0) cout << ">>> Processing event # " << jentry << endl;
     
     totalEvents++;
     
     // TRIGGER CUTS 
-    if (!(*HLTBits_accept)[0]) continue;    // SingleMu3
+    if( flag.Contains("MC"))  accept = HLTaccept->at(0);
+    else
+      if ((*nRun)[0] < 147116)
+	accept = HLTaccept->at(0);
+      else accept = HLTaccept->at(1);
+    
+    if(accept == 0) continue;
     
     passedTriggers++;
     
     TString filestring(fChain->GetCurrentFile()->GetName());
-     
-    if (filestring.Contains("_ppMuX"))
-      weight = 4080.96;
-    else if (filestring.Contains("Upsilon1S"))
-      weight = 70;
-    else if (filestring.Contains("Upsilon2S"))
-      weight = 28;
-    else if (filestring.Contains("Upsilon3S")) 
-      weight = 8;
-    else if (filestring.Contains("A0_5GEV"))
-      weight = 0.166667;
-    else if (filestring.Contains("A0_6GEV"))
-      weight = 0.163265;
-    else if (filestring.Contains("A0_7GEV"))
-      weight = 0.172043;
-    else if (filestring.Contains("A0_8GEV"))
-      weight = 0.177419;
-    else if (filestring.Contains("A0_9GEV"))
-      weight = 0.239362;
-    else if (filestring.Contains("A0_10GEV"))
-      weight = 0.421348;
-    else if (filestring.Contains("A0_10.5GEV"))
-      weight = 0.252525;
-
-    int thehptMu;
-    int thelptMu;
     
-    for (int iqq=0; iqq<(*QQ_size)[0]; iqq++) {
-      
-      if((*QQ_sign)[iqq] != 0) continue;//only opposite sign
-      
-      if((*QQ_type)[iqq] == 0) continue;//exclude electrons
+ //    if (filestring.Contains("QCD"))
+//       weight = (35.86*406896)/42827261;//these numbers are for QCD in 362
+// //48440000000*0.00084//532840//(1000*406896)/2886523; //these are tests for QCD in 397
+//     else if (filestring.Contains("Y1S"))
+//       weight = (35.86*99900*0.143)/2323818;
+//     else if (filestring.Contains("Y2S"))
+//       weight = (35.86*75400*0.080)/1148581;
+//     else if (filestring.Contains("Y3S")) 
+//       weight = (35.86*2850*0.57)/944625;
+//     else if (filestring.Contains("Data"))
+//       weight = 1.;
 
-      if((*QQ_type)[iqq] == 1){//GLB-GLB
-	thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
-	thelptMu = QQ_leplpt->at(iqq);   if (thelptMu >= muons_glb_normChi2->size()) continue;
-      }      
- 
-      if((*QQ_type)[iqq] == 2){//GLB-TRK
-	thehptMu = QQ_lephpt->at(iqq);   if (thehptMu >= muons_glb_normChi2->size()) continue;
-	thelptMu = QQ_leplpt->at(iqq);   if (thelptMu >= muons_trk_normChi2->size()) continue;
-      }
-      
-      for(Int_t i=0; i<n_step; i++){
-	if(optVar.Contains("Pt")){
-	  cut[i] = 1. + 0.1*i;//cut in the barrel
-	  for(Int_t j=0; j<n_step; j++){
-	    cut2[j] = 1. + 0.1*j;//cut in the endcap
-	    if( (*QQ_type)[iqq] == 1)  
-	      if( !(accept_glb_mu(thehptMu,cut[i],cut2[j],optVar) && accept_glb_mu(thelptMu,cut[i],cut2[j],optVar))) continue;//GLB-GLB case	
-	    if( (*QQ_type)[iqq] == 2)
-	      if( !(accept_glb_mu(thehptMu,cut[i],cut2[j],optVar) && accept_trk_mu(thelptMu,cut[i],cut2[j],optVar))) continue;//GLB-TRK case
-	  }
-	}	  
-	else if (optVar.Contains("PfwdTk")){
-	  cut[i] = 3. + 0.1*i;
-	  if( (*QQ_type)[iqq] == 1)
-	    if( !(accept_glb_mu(thehptMu,cut[i],0,optVar) && accept_glb_mu(thelptMu,cut[i],0,optVar))) continue;//GLB-GLB case
-	  if( (*QQ_type)[iqq] == 2)
-	    if( !(accept_glb_mu(thehptMu,cut[i],0,optVar) && accept_trk_mu(thelptMu,cut[i],0,optVar))) continue;//GLB-TRK case
-	}
-	else if (optVar.Contains("Iso")){
-	  cut[i] = 0.05 + 0.01*i;
-	  if( (*QQ_type)[iqq] == 1 && !(accept_glb_mu(thehptMu,cut[i],0,optVar) && accept_glb_mu(thelptMu,cut[i],0,optVar))) continue;//GLB-GLB case
-	  if( (*QQ_type)[iqq] == 2 && !(accept_glb_mu(thehptMu,cut[i],0,optVar) && accept_trk_mu(thelptMu,cut[i],0,optVar))) continue;//GLB-TRK case   `
-	}      
-	else if(optVar.Contains("Chi2")){
-	  cut[i] = 0.05 + 0.01*i;	
-	  if(!(QQ_probChi2->at(iqq) > cut[i])) continue;
-	}
-	else if(optVar.Contains("S3Dip")){
-	  cut[i] = 0.5 + 0.05*i;	
-	  if(!(QQ_S3Dip->at(iqq) < cut[i])) continue;
-	}
+    if (filestring.Contains("QCD_Simple"))
+      weight = (35.9*40689600)/42827261;//these numbers are for QCD in 362
+    else if (filestring.Contains("Y1S_Simple"))
+      weight = (35.9*7370)/2323818;
+    else if (filestring.Contains("Y2S_Simple"))
+      weight = (35.9*1900)/1148581;
+    else if (filestring.Contains("Y3S_Simple")) 
+      weight = (35.9*1020)/944625;
+    else if (filestring.Contains("Data"))
+      weight = 1.;
 
-	if(filestring.Contains("5GEV") ) signal[0][i]+=weight;
-	else if(filestring.Contains("6GEV") ) signal[1][i]+=weight;
-	else if(filestring.Contains("7GEV") ) signal[2][i]+=weight;
-	else if(filestring.Contains("8GEV") ) signal[3][i]+=weight;
-	else if(filestring.Contains("9GEV") ) signal[4][i]+=weight;
-	else if(filestring.Contains("10GEV") ) signal[5][i]+=weight;
-	else if(filestring.Contains("10.5GEV") ) signal[6][i]+=weight;
+    for (int iqq=0; iqq<(*QQ_size)[0]; iqq++) {//loop on all candidates
+      
+      //	if (filestring.Contains("QCD") && (*QQ_MC_PDGID)[iqq]==553 )
+      //	  continue;//temporary FIX for the QCD sample with the Y1S inside... 
+
+      if ((*QQ_sign)[iqq] != 0) continue;//check if the muons are opposite sign
+      
+      if((*QQ_type)[iqq] == 0) continue;//check if it is dimuon (not dielectron)
+
+      //if(fabs(((TLorentzVector*)QQ_4mom->At(iqq))->Eta())<2. && ((TLorentzVector*)QQ_4mom->At(iqq))->M() < 14. && ((TLorentzVector*)QQ_4mom->At(iqq))->M() > 4.){
+      //if(  (((TLorentzVector*)QQ_4mom->At(iqq))->M() < 8.6 && ((TLorentzVector*)QQ_4mom->At(iqq))->M() > 4.) || (((TLorentzVector*)QQ_4mom->At(iqq))->M() < 14. && ((TLorentzVector*)QQ_4mom->At(iqq))->M() > 10.7)){
 	
-	else if(filestring.Contains("ppMuX")) backcont[i]+=weight;
-	else if(filestring.Contains("Upsilon1S")) ups1S[i]+=weight;
-	else if(filestring.Contains("Upsilon2S")) ups2S[i]+=weight; 
-	else if(filestring.Contains("Upsilon3S")) ups3S[i]+=weight;
+      //fill histos for QQ quantities
+      if(((TLorentzVector*)QQ_4mom->At(iqq))->M() < 14. && ((TLorentzVector*)QQ_4mom->At(iqq))->M() > 4.){
+	hQQProbChi2->Fill(QQ_probChi2 -> at(iqq),weight);
+	hQQS3Dip -> Fill(QQ_S3Dip -> at(iqq),weight);
+	hQQSTip  -> Fill(QQ_STip -> at(iqq),weight );
+	hQQEta->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Eta(),weight);
+	hQQPt->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->Pt(),weight);
 
-      }
-    }//end of loop on candidates
-  }//end of loop on events
-  
-  for(Int_t j=0; j<n_signal; j++){//AGGIUNGERE loop su secondo taglio!!!!
-    for(Int_t i=0; i<n_step; i++){
-      ssquared[j] = signal[j][i]/sqrt(signal[j][i]+backcont[i]+ups1S[i]+ups2S[i]+ups3S[i]);
-      sgraph[j][i] = ssquared[j];
-      cout << "cuts " << cut[i] << " " << signal[j][i] << " " << ups1S[i] << endl;
-      if(ssquared[j] > signifi_max[j]){
-	signifi_max[j] = ssquared[j];
-	cout << signifi_max[j] << " " << j << endl;
-	cut_max[j] = cut[i];
-      }
-    }
-  }  
-  
-  TGraph *gr1 = new TGraph(n_step,cut,sgraph[0]);
-  gr1->GetXaxis()->SetTitle(optVar+" cut");
-  gr1->GetYaxis()->SetTitle("stat. signif."); 
-  
-  TGraph *gr2 = new TGraph(n_step,cut,sgraph[1]);
-  gr2->GetXaxis()->SetTitle(optVar+" cut");
-  gr2->GetYaxis()->SetTitle("stat. signif."); 
-  
-  TGraph *gr3 = new TGraph(n_step,cut,sgraph[2]);
-  gr3->GetXaxis()->SetTitle(optVar+" cut");
-  gr3->GetYaxis()->SetTitle("stat. signif."); 
-  
-  TGraph *gr4 = new TGraph(n_step,cut,sgraph[3]);
-  gr4->GetXaxis()->SetTitle(optVar+" cut");
-  gr4->GetYaxis()->SetTitle("stat. signif."); 
-  
-  TGraph *gr5 = new TGraph(n_step,cut,sgraph[4]);
-  gr5->GetXaxis()->SetTitle(optVar+" cut");
-  gr5->GetYaxis()->SetTitle("stat. signif."); 
-  
-  TGraph *gr6 = new TGraph(n_step,cut,sgraph[5]);
-  gr6->GetXaxis()->SetTitle(optVar+" cut");
-  gr6->GetYaxis()->SetTitle("stat. signif."); 
-  
-  TGraph *gr7 = new TGraph(n_step,cut,sgraph[6]);
-  gr7->GetXaxis()->SetTitle(optVar+" cut");
-  gr7->GetYaxis()->SetTitle("stat. signif."); 
-  
-  TGraph *gr8 = new TGraph(n_signal,m,cut_max);
-  gr8->GetXaxis()->SetTitle("a0 Mass");
-  gr8->GetYaxis()->SetTitle("cut on "+optVar);
-  
-  TCanvas tmp1;
-  tmp1.cd();
-  gr1->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"5GeV.gif");
-  gr2->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"6GeV.gif");
-  gr3->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"7GeV.gif");
-  gr4->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"8GeV.gif");
-  gr5->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"9GeV.gif");
-  gr6->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"10GeV.gif");
-  gr7->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"105GeV.gif");
-  
-  gr8->Draw("AC*");
-  tmp1.Print("statsigcut"+optVar+"VSmass.gif");
+	hInvMass_all->Fill(((TLorentzVector*)QQ_4mom->At(iqq))->M(), weight);	
 
-//   for(Int_t j=0; j<n_signal; j++){//AGGIUNGERE loop su secondo taglio!!!!
-//     for(Int_t i=0; i<n_step; i++){
-//       for(Int_t k=0;k<n_step; k++){
-//       ssquared[j] = signal[j][i][k]/sqrt(signal[j][i][k]+backcont[i][k]+ups1S[i][k]+ups2S[i][k]+ups3S[i][k]);
-//       sth2[j][i][k] = ssquared[j];
-//       cout << "cuts " << cut[i] << " " << signal[j][i] << " " << ups1S[i] << endl;
-//       if(ssquared[j] > signifi_max[j]){
-// 	signifi_max[j] = ssquared[j];
-// 	cout << signifi_max[j] << " " << j << endl;
-// 	cut_max[j] = cut[i];
-//      cut2_max[j] = cut2[k];
-//       }
-//     }
-//   }  
+	//Fill histos for muons quantities
+	
+	int thehptMu;
+	int thelptMu;
+	
+	if( QQ_type->at(iqq) == 1 ) {//for GLB-GLB
+	  
+	  thehptMu = QQ_lepone->at(iqq);    if (thehptMu >= muons_glb_charge->size()) continue;
+	  thelptMu = QQ_leptwo->at(iqq);    if (thelptMu >= muons_glb_charge->size()) continue;      
+	  
+	  fillGlbMuonHistos(thehptMu,weight);
+	  fillGlbMuonHistos(thelptMu,weight);
+	  
+	}else{
+	  
+	  thehptMu = QQ_lepone->at(iqq);    if (thehptMu >= muons_glb_charge->size()) continue;
+	  thelptMu = QQ_leptwo->at(iqq);    if (thelptMu >= muons_trk_charge->size()) continue; 
+	  
+	  fillGlbMuonHistos(thehptMu,weight);
+	  fillTrkMuonHistos(thelptMu,weight);
+	}
+	
+	for(Int_t i=0; i<n_step; i++){
+	  //	  cout << i << " " << backcont[i] << " " << ups1S[i] << " " << ups2S[i] << " " << ups3S[i] << endl;
  
-//   TFile *f = new TFile("signif.root", "RECREATE");
-//   TH2F *h2 = new TH2F("h2","Pcut vs EtaCut",30,2.5,5.,30,0.5,2.5);
-//   for(Int_t i=1; i<n_step; i++){
-//     for (Int_t k=1; k<n_step; k++){
-//       h2->SetBinContent(i,k,sth2[i-1][k-1]);
-//     }
-//   }
-  
-//   h2->GetXaxis()->SetTitle("P Cut");
-//   h2->GetYaxis()->SetTitle("Eta Cut");
-//   f->cd();
-//   h2->Draw();
-//   h2->Write();
-// //   h2_corr->Draw();
-// //   h2_corr->Write();
-//   f->Close();
+	  //set the different cuts
+	  if(optVar.Contains("Chi2"))  cut[i] = 0.001 + 0.01*i;
+	  else if(optVar.Contains("S3Dip")) cut[i] = .25 + 0.25*i;
+	  
+	  else if(optVar.Contains("Iso"))
+	    cut[i] = 1. - 0.1*i;
 
-   
+	  else if(optVar.Contains("PFwdTk"))
+	    cut[i] = 3.+ i*0.5;
+	  
+	  if(!passCuts(iqq, cut[i], optVar)) {
+	    //	    cout << "candidate " << iqq << " did not pass cut " << cut[i] << endl;
+	    continue;
+	  }
+	  passedCandidates++;
+	  
+	  const float invMass = ((TLorentzVector*)QQ_4mom->At(iqq))->M();
+	  
+	  // Fill histos
+	  hInvMass[i]->Fill(invMass, weight);
+	  
+	  //Starts calculating the significance
+	  
+	  if(flag.Contains("MC") && invMass < 11. && invMass > 8.){
+	    if(filestring.Contains("QCD_Simple")) backcont[i]+=weight;
+	    else if(filestring.Contains("Y1S_Simple")) ups1S[i]+=weight;
+	    else if(filestring.Contains("Y2S_Simple")) ups2S[i]+=weight; 
+	    else if(filestring.Contains("Y3S_Simple")) ups3S[i]+=weight;
+	  }//end of if MC
+	  
+	  // 	else if(filestring.Contains("5GEV") ) signal[0][i]+=weight;
+	  // 	else if(filestring.Contains("6GEV") ) signal[1][i]+=weight;
+	  // 	else if(filestring.Contains("7GEV") ) signal[2][i]+=weight;
+	  // 	else if(filestring.Contains("8GEV") ) signal[3][i]+=weight;
+	  // 	else if(filestring.Contains("9GEV") ) signal[4][i]+=weight;
+	  // 	else if(filestring.Contains("10GEV") ) signal[5][i]+=weight;
+	  // 	else if(filestring.Contains("10.5GEV") ) signal[6][i]+=weight;
+	  
+	}//end of loop on step
+      }//end of eta <2 selection
+    }//end of loop on iqq
+  }//end of loop on events
+
   cout << "###############" << endl;
   cout << "Some statistics " << endl;
   cout << "Total number of processed events = " << totalEvents << endl;
   cout << "Total number of triggered events = " << passedTriggers << endl;
-  cout << "###############" << endl;
+  cout << "Total number of passed candidates = " << passedCandidates << endl;
+
+  if(flag.Contains("MC")){
+    for(Int_t j=0; j<n_signal; j++){//AGGIUNGERE loop su secondo taglio!!!!
+      for(Int_t i=0; i<n_step; i++){
+	ssquared[j] = (ups1S[i]+ups2S[i]+ups3S[i])/sqrt(backcont[i]+ups1S[i]+ups2S[i]+ups3S[i]);//to compare to the one from data
+	sgraph[j][i] = ssquared[j];
+	cout << "cuts " << cut[i] << " " << ssquared[j] << endl;
+	if(ssquared[j] > signifi_max[j]){
+	  signifi_max[j] = ssquared[j];
+	  cout << "max sign " << signifi_max[j] << " for " << cut[i] << endl;
+	  cut_max[j] = cut[i];
+	}
+      }
+    }  
+    
+  for(Int_t i=0; i<n_step; i++){
+    cout << sgraph[0][i] << " for " << cut[i] << endl;    
+  }
+
+  TGraph *gr1 = new TGraph(n_step,cut,sgraph[0]);
+  gr1->SetTitle(0);
+  gr1->GetXaxis()->SetTitle(optVar+" cut");
+  gr1->GetYaxis()->SetTitle("S/sqrt(S+B)"); 
   
+  TCanvas tmp1;
+  tmp1.SetFillColor(kWhite);
+  tmp1.cd();
+
+  gr1->SetMarkerStyle(20);
+  gr1->SetMarkerColor(kRed);
+  gr1->Draw("AP");
+
+  tmp1.Print(flag+"opt"+optVar+".root","root");
+
   cout << "######### Optimization cuts ########" << endl;
   for(Int_t j=0; j<n_signal; j++){
     cout << "The best cut for " << optVar << " is " << cut_max[j] << " for " << m[j] << " GeV" << endl;
-    cout << "Statistical significance is " << signifi_max[j] << endl;
-    
+    cout << "Statistical significance is " << signifi_max[j] << endl;    
   }
-  
+  }  
   return;
 } // end of program
 
-bool MuMuCutOptimizer::accept_glb_mu(const int mu_index, float cut, float cut2, TString optVar) const
+void MuMuCutOptimizer::saveHistos(TFile * f1)
+{
+  f1->cd();
+
+  hIsoVar03_glb_TKECAL->Write();
+  hIsoVar03_glb_TKECALHCAL->Write();
+  hIsoVar03_trk_TKECAL->Write();
+  hIsoVar03_trk_TKECALHCAL->Write();
+
+  hIsoVar03_glb_TKECAL_pt->Write();
+  hIsoVar03_glb_TKECALHCAL_pt->Write();
+  hIsoVar03_trk_TKECAL_pt->Write();
+  hIsoVar03_trk_TKECALHCAL_pt->Write();
+
+  hIsoVar03_glb_TK->Write();
+  hIsoVar03_glb_ECAL->Write();
+  hIsoVar03_glb_HCAL->Write();
+  hIsoVar03_trk_TK->Write();
+  hIsoVar03_trk_ECAL->Write();
+  hIsoVar03_trk_HCAL->Write();
+  hQQProbChi2->Write();
+  hQQSTip->Write();
+  hQQS3Dip->Write();
+  hQQEta->Write()   ;
+  hQQPt->Write()    ;
+  hMuEtaTk->Write()   ;
+  hMuPtTk->Write()    ;
+  hMuEtaGlb ->Write()  ;
+  hMuPtGlb->Write()    ;
+  hMuPGlb->Write();
+  hMuPTk->Write();
+  hInvMass_all->Write();
+
+  for(int i=0;i<n_step;i++) hInvMass[i]->Write();
+
+  f1->Close();
+
+  return;
+}
+
+bool MuMuCutOptimizer::accept_glb_mu(const int mu_index, float cut, TString optVar) const
 {
   TLorentzVector *mu_4mom = (TLorentzVector*)muons_glb_4mom->At(mu_index);
 
-  Float_t isoVar = (muons_glb_tkIsoR03->at(mu_index) + muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt();
+  Float_t isoVar = (muons_glb_tkIsoR03->at(mu_index) + muons_glb_emIsoR03->at(mu_index) + muons_glb_hadIsoR03->at(mu_index))/mu_4mom->Pt();
 
-  if( !(muons_glb_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
-	muons_glb_normChi2->at(mu_index)   < MAX_normchi2_glb  &&
-	fabs(muons_glb_d0->at(mu_index))   < MAX_d0_trk        &&
-	fabs(muons_glb_dz->at(mu_index))   < MAX_dz_trk        &&
-	( ( (muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) ||
-	  ( (muons_glb_nhitsPixB->at(mu_index) + muons_glb_nhitsPixE->at(mu_index)) > MIN_nhits_pixel-1 && muons_glb_nhitsPix1Hit->at(mu_index) == 1) ) &&
-	fabs(mu_4mom->Eta()) < 2.4) )  return false; 
-  if( (fabs(mu_4mom->Eta()) < 1.1 && mu_4mom->Pt() > MIN_PtBar) || //min pt in the barrel
-      (fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Pt() > MIN_PtEndc &&  mu_4mom->Rho() > MIN_P) && //min pt and p in the endcap
-      isoVar < MAX_iso){
-
-    if(optVar.Contains("Pt")){
-      if(fabs(mu_4mom->Eta()) < 1.1 && mu_4mom->Pt() < cut ) return false;//cut in the barrel if pt < cut
-      if(fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Pt() < cut2 ) return false;//cut in the endcap if pt < cut
-    }	
-//     else if (optVar.Contains("PfwdTk")){
-//       if(fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Rho() < cut) return false;
-      
-//     }
-    else if (optVar.Contains("Iso")){
-      if(!(isoVar < cut)) return false;
-    }
+  if(muons_glb_normChi2->at(mu_index) < MAX_normchi2_glb && isoVar < MAX_muisol && mu_4mom->Pt() > minPt && fabs(mu_4mom->Eta()) <= 2.4){
+    
+    if (optVar.Contains("Iso"))
+      if(isoVar < cut)
+	return true;
+      else return false;
+    
+    else  return true;   
   }
-  return true;
+  return false;
 }
 
-bool MuMuCutOptimizer::accept_trk_mu(const int mu_index, float cut, float cut2, TString optVar) const
+bool MuMuCutOptimizer::accept_trk_mu(const int mu_index, float cut, TString optVar) const
 {
   TLorentzVector *mu_4mom = (TLorentzVector*)muons_trk_4mom->At(mu_index);
+
+  Float_t isoVar = (muons_trk_tkIsoR03->at(mu_index) + muons_trk_emIsoR03->at(mu_index) + muons_trk_hadIsoR03->at(mu_index))/mu_4mom->Pt();
   
-  Float_t isoVar = (muons_trk_tkIsoR03->at(mu_index) + muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt();
+  if(((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0) && 
+     isoVar < MAX_muisol && mu_4mom->Pt() > minPt && fabs(mu_4mom->Eta()) <= 2.4){
+    if(fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Rho() < MIN_muP) return false;
+    
+    if(optVar.Contains("PFwdTk"))
+      if( fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Rho() < cut) return false;
+      else return true;
+
+    else if (optVar.Contains("Iso"))
+      if( isoVar < cut )
+	return true;
+      else return false;
+    
+    else return true;
+  }
   
-  if( !(muons_trk_nhitstrack->at(mu_index) > MIN_nhits_trk     &&
-	muons_trk_normChi2->at(mu_index)   < MAX_normchi2_trk  &&
-	fabs(muons_trk_d0->at(mu_index))   < MAX_d0_trk        &&
-	fabs(muons_trk_dz->at(mu_index))   < MAX_dz_trk        &&
-	((muons_trk_nhitsPixB->at(mu_index) + muons_trk_nhitsPixE->at(mu_index)) > MIN_nhits_pixel) &&
-	((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0) &&
-	fabs(mu_4mom->Eta()) < 2.4) ) return false;
-  if( (fabs(mu_4mom->Eta()) < 1.1 && mu_4mom->Pt() > MIN_PtBar) || //min pt in the barrel
-      (fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Pt() > MIN_PtEndc &&  mu_4mom->Rho() > MIN_P) && //min pt and p in the endcap
-      isoVar < MAX_iso){
-    if(optVar.Contains("Pt")){
-      if(fabs(mu_4mom->Eta()) < 1.1 && mu_4mom->Pt() < cut ) return false;//cut in the barrel if pt < cut
-      if(fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Pt() < cut2 ) return false;//cut in the endcap if pt < cut      
-    }	
-    else if (optVar.Contains("PfwdTk")){
-      if(fabs(mu_4mom->Eta()) > 1.1 && mu_4mom->Rho() < cut)  return false;  
+  return false;
+}
+
+bool MuMuCutOptimizer::passCuts(int iqq, float cut, TString optVar) const
+{    
+  if (QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 1 ) {//check if GLB-GLB
+    
+    int thehptMu = QQ_lepone->at(iqq);    if (thehptMu >= muons_glb_charge->size()) return false;
+    int thelptMu = QQ_leptwo->at(iqq);    if (thelptMu >= muons_glb_charge->size()) return false;
+    
+    if( ((TLorentzVector*)muons_glb_4mom->At(QQ_lepone->at(iqq))) -> Pt() < ((TLorentzVector*)muons_glb_4mom->At(QQ_leptwo->at(iqq))) -> Pt() )
+      {
+	int tempiMu = thelptMu ;
+	thelptMu = thehptMu ;
+	thehptMu = tempiMu ;
+      }
+    
+    if( QQ_probChi2->at(iqq) > MIN_vtxprob && QQ_S3Dip->at(iqq) < MAX_S3Dip ){
+      
+      if(accept_glb_mu(thehptMu, cut, optVar) && accept_glb_mu(thelptMu, cut, optVar)){
+	
+	if(optVar.Contains("Chi2"))
+	  if(QQ_probChi2->at(iqq) > cut)
+	    return true; 
+	  else return false;
+
+	if(optVar.Contains("S3Dip"))
+	  if(QQ_S3Dip->at(iqq) < cut)
+	    return true;
+	  else return false;
+	
+	return true;
+      }
     }
-    else if (optVar.Contains("Iso")){
-      if(!(isoVar < cut)) return false;      
+  }
+  if(QQ_sign->at(iqq) == 0 && QQ_type->at(iqq) == 2 ){
+
+    int thehptMu = QQ_lepone->at(iqq);    if (thehptMu >= muons_glb_charge->size()) return false;
+    int thelptMu = QQ_leptwo->at(iqq);    if (thelptMu >= muons_trk_charge->size()) return false; 
+    
+    if( QQ_probChi2->at(iqq) > MIN_vtxprob && QQ_S3Dip->at(iqq) < MAX_S3Dip ){
+      
+      if(accept_glb_mu(thehptMu, cut, optVar) && accept_trk_mu(thelptMu, cut, optVar)){
+	
+	if(optVar.Contains("Chi2"))
+	  if(QQ_probChi2->at(iqq) > cut)
+	    return true;
+	  else return false;
+
+	if(optVar.Contains("S3Dip"))
+	  if(QQ_S3Dip->at(iqq) < cut)
+	    return true;
+	  else return false;
+
+	return true;
+      }
     }
-  }    
-  return true;
+  }
+  else return false;
+
+} 			       
+
+void MuMuCutOptimizer::fillTrkMuonHistos(const int mu_index, float weight) const
+{
+  TLorentzVector *mu_4mom = (TLorentzVector*)muons_trk_4mom->At(mu_index);
+
+  hIsoVar03_trk_TKECAL->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index)),weight);
+  hIsoVar03_trk_TKECALHCAL->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index)+muons_trk_hadIsoR03->at(mu_index)),weight);
+
+  hIsoVar03_trk_TKECAL_pt->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index))/mu_4mom->Pt(),weight);
+  hIsoVar03_trk_TKECALHCAL_pt->Fill((muons_trk_tkIsoR03->at(mu_index)+muons_trk_emIsoR03->at(mu_index)+muons_trk_hadIsoR03->at(mu_index))/mu_4mom->Pt(),weight);
+
+  hIsoVar03_trk_TK->Fill(muons_trk_tkIsoR03->at(mu_index)/mu_4mom->Pt(),weight);
+  hIsoVar03_trk_ECAL->Fill(muons_trk_emIsoR03->at(mu_index)/mu_4mom->Pt(),weight);
+  hIsoVar03_trk_HCAL->Fill(muons_trk_hadIsoR03->at(mu_index)/mu_4mom->Pt(),weight);
+
+  if(((((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,5))/(int)pow(2,5) > 0 || (((int)muons_trk_PIDmask->at(mu_index)) & (int)pow(2,8))/(int)pow(2,8) > 0)){
+    hMuPtTk->Fill(mu_4mom->Pt(),weight);
+    hMuEtaTk->Fill(mu_4mom->Eta(),weight);
+    if(fabs(mu_4mom->Eta()) > 1.3){
+      hMuPTk->Fill(mu_4mom->Rho(),weight); 
+    }
+  }
+}
+
+void MuMuCutOptimizer::fillGlbMuonHistos(const int mu_index, float weight) const{
+  TLorentzVector *mu_4mom = (TLorentzVector*)muons_glb_4mom->At(mu_index);
   
+  hIsoVar03_glb_TKECAL->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index)),weight);
+  hIsoVar03_glb_TKECALHCAL->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index)+muons_glb_hadIsoR03->at(mu_index)),weight);
+
+  hIsoVar03_glb_TKECAL_pt->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index))/mu_4mom->Pt(),weight);
+  hIsoVar03_glb_TKECALHCAL_pt->Fill((muons_glb_tkIsoR03->at(mu_index)+muons_glb_emIsoR03->at(mu_index)+muons_glb_hadIsoR03->at(mu_index))/mu_4mom->Pt(),weight);
+
+  hIsoVar03_glb_TK->Fill(muons_glb_tkIsoR03->at(mu_index)/mu_4mom->Pt(),weight);
+  hIsoVar03_glb_ECAL->Fill(muons_glb_emIsoR03->at(mu_index)/mu_4mom->Pt(),weight);
+  hIsoVar03_glb_HCAL->Fill(muons_glb_hadIsoR03->at(mu_index)/mu_4mom->Pt(),weight);
+  
+  if(muons_glb_normChi2->at(mu_index) < MAX_normchi2_glb){
+    hMuPtGlb->Fill(mu_4mom->Pt(),weight);
+    hMuEtaGlb->Fill(mu_4mom->Eta(),weight); 
+    if(fabs(mu_4mom->Eta()) > 1.3){
+      hMuPGlb->Fill(mu_4mom->Rho(),weight); 
+    }
+  }
 }
