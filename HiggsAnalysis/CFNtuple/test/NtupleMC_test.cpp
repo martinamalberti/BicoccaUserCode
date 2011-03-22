@@ -169,6 +169,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  double S_FJet_Eta;
  double S_FJet_Phi;
  double S_FJet_Energy;
+ 
+ int nCJet_S_FJet;
+ 
  double S_CJet_Pt;
  double S_CJet_Eta;
  double S_CJet_Phi;
@@ -223,6 +226,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("S_FJet_Eta",&S_FJet_Eta,"S_FJet_Eta/D");
  AnaHiggs.Branch("S_FJet_Phi",&S_FJet_Phi,"S_FJet_Phi/D");
  AnaHiggs.Branch("S_FJet_Energy",&S_FJet_Energy,"S_FJet_Energy/D");
+ 
+ AnaHiggs.Branch("nCJet_S_FJet",&nCJet_S_FJet,"nCJet_S_FJet/I");  	//RECO
 
  AnaHiggs.Branch("S_CJet_Pt",&S_CJet_Pt,"S_CJet_Pt/D");
  AnaHiggs.Branch("S_CJet_Eta",&S_CJet_Eta,"S_CJet_Eta/D");
@@ -413,7 +418,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      }
     }
     
-    
+    nCJet_S_FJet = nC_Jets;
     hMultiplicity.Fill(nC_Jets);
     
    }
@@ -526,7 +531,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      }
      
      
-     
+    
      S_RunNb = reader.GetInt("runId")->at(0);
      S_LumiBlk = reader.GetInt("lumiId")->at(0);
      S_EventNb = reader.GetInt("eventId")->at(0);
