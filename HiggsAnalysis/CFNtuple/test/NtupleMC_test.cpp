@@ -420,9 +420,13 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     if(fabs(reader.Get4V("jets")->at(i).Eta())<2.8 && reader.Get4V("jets")->at(i).Pt()>ptMinC){
       
       nC_Jets ++;
+      cout<<"nc_Jets = " <<nC_Jets<<endl;
+      
+      
      }
-    if(fabs(reader.Get4V("jets")->at(i).Eta())<4.7 || fabs(reader.Get4V("jets")->at(i).Eta()) >3.2 && reader.Get4V("jets")->at(i).Pt()>ptMinF) {
+    if(fabs(reader.Get4V("jets")->at(i).Eta())<4.7 && fabs(reader.Get4V("jets")->at(i).Eta()) >3.2 && reader.Get4V("jets")->at(i).Pt()>ptMinF) {
       nF_Jets ++;
+      cout<<"nF_Jets = " <<nF_Jets<<endl;
     }
     
     nCJet_S_FJet = nC_Jets;	//molteplicità dei jet centrali con pt>35
