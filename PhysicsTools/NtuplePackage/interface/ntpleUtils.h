@@ -36,6 +36,9 @@ std::map<int, int> GetTotalEvents(const std::string& histoName, const std::strin
 /** fill a chain from a list of files */
 bool FillChain(TChain& chain, const std::string& inputFileList);
 
+/** fill a chain from a vector of files */
+bool FillVectorChain(TChain& chain, const std::vector<std::string>& inputFileVector) ;
+
 /** get the parameters from a congiguration file */
 int parseConfigFile (const TString& config) ;
 

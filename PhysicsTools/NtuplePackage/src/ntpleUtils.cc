@@ -59,6 +59,18 @@ bool FillChain(TChain& chain, const std::string& inputFileList)
 
 //  ------------------------------------------------------------
 
+
+bool FillVectorChain(TChain& chain, const std::vector<std::string>& inputFileVector)
+{
+  for (std::vector<std::string>::const_iterator iFile = inputFileVector.begin(); iFile<inputFileVector.end(); iFile++){
+   chain.Add((*iFile).c_str());
+  }
+
+  return true;
+}
+
+//  ------------------------------------------------------------
+
 int parseConfigFile (const TString& config)
 {
   std::cout << ">>> Parsing " << config << " file" << std::endl ;
