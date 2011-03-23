@@ -143,6 +143,10 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  TH1F hMultiplicityC("hMultiplicityC","central jets multiplicity",NBIN_mult,0,6);		//jet centrali
  TH1F hMultiplicityF("hMultiplicityF","forward jets multiplicity",NBIN_mult,0,6);		//jet forward
 
+ TH1F hMultiplicityC_had("hMultiplicityC_had","had central jets multiplicity",NBIN_mult,0,6);		//jet centrali
+ TH1F hMultiplicityF_had("hMultiplicityF_had","had forward jets multiplicity",NBIN_mult,0,6);		//jet forward
+
+
  
 
  ///==============
@@ -156,6 +160,10 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  double G_FJet_Eta;
  double G_FJet_Phi;
  double G_FJet_Energy;
+ 
+ int nCJet_G_FJet;
+ int nFJet_G_CJet;
+
  double G_CJet_Pt;
  double G_CJet_Eta;
  double G_CJet_Phi;
@@ -173,7 +181,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  
  int nCJet_S_FJet;
  int nFJet_S_CJet;
-
  
  double S_CJet_Pt;
  double S_CJet_Eta;
@@ -214,6 +221,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("G_FJet_Eta",&G_FJet_Eta,"G_FJet_Eta/D");
  AnaHiggs.Branch("G_FJet_Phi",&G_FJet_Phi,"G_FJet_Phi/D");
  AnaHiggs.Branch("G_FJet_Energy",&G_FJet_Energy,"G_FJet_Energy/D");
+ 
+ AnaHiggs.Branch("nCJet_G_FJet",&nCJet_G_FJet,"nCJet_G_FJet/I");  	//had
+ AnaHiggs.Branch("nFJet_G_CJet",&nFJet_G_CJet,"nFJet_G_CJet/I");  	//had
 
  AnaHiggs.Branch("G_CJet_Pt",&G_CJet_Pt,"G_CJet_Pt/D");
  AnaHiggs.Branch("G_CJet_Eta",&G_CJet_Eta,"G_CJet_Eta/D");
@@ -409,25 +419,27 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   
   
   
-  ///MULTIPLICITY
+  ///MULTIPLICITY RECO
   
   int nC_Jets = 0;
   int nF_Jets = 0;
   
-  if (Central_i_had !=-1 && Forward_i_had !=-1){
+  if (Central_i_reco !=-1 && Forward_i_reco !=-1){
+    
+//     std::cout<<"step 1 = " <<std::endl;
     
    for(int i = 0; i < nJets_reco; ++i){
     if(fabs(reader.Get4V("jets")->at(i).Eta())<2.8 && reader.Get4V("jets")->at(i).Pt()>ptMinC){
       
       nC_Jets ++;
-      std::cout<<"nC_Jets = " <<nC_Jets<<std::endl;
+//       std::cout<<"nC_Jets = " <<nC_Jets<<std::endl;
       
       
      }
      
     if(fabs(reader.Get4V("jets")->at(i).Eta())<4.7 && fabs(reader.Get4V("jets")->at(i).Eta()) >3.2 && reader.Get4V("jets")->at(i).Pt()>ptMinF) {
       nF_Jets ++;
-      cout<<"nF_Jets = " <<nF_Jets<<endl;
+//       cout<<"nF_Jets = " <<nF_Jets<<endl;
     }
     
    }
@@ -445,6 +457,47 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     
     nCJet_S_FJet = -100;	//molteplicità dei jet centrali con pt>35
     nFJet_S_CJet = -100;
+  
+  }
+  
+  ///MULTIPLICITY HAD
+  
+  int nC_Jets_had = 0;
+  int nF_Jets_had = 0;
+  
+  if (Central_i_had !=-1 && Forward_i_had !=-1){
+    
+//     std::cout<<"step 1 = " <<std::endl;
+    
+   for(int i = 0; i < nJets_had; ++i){
+    if(fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<2.8 && reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinC){
+      
+      nC_Jets_had ++;
+//       std::cout<<"nC_Jets = " <<nC_Jets<<std::endl;
+      
+      
+     }
+     
+    if(fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<4.7 && fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta()) >3.2 && reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinF) {
+      nF_Jets_had ++;
+//       cout<<"nF_Jets = " <<nF_Jets<<endl;
+    }
+    
+   }
+   
+    nCJet_G_FJet = nC_Jets_had;	//molteplicità dei jet centrali con pt>35
+    nFJet_G_CJet = nF_Jets_had;	//molteplicità dei jet forward con pt>35
+    
+    hMultiplicityC_had.Fill(nC_Jets_had);
+    hMultiplicityF_had.Fill(nF_Jets_had);
+    
+        
+  }
+  
+  else {
+    
+    nCJet_G_FJet = -100;	//molteplicità dei jet centrali con pt>35
+    nFJet_G_CJet = -100;
   
   }
   
