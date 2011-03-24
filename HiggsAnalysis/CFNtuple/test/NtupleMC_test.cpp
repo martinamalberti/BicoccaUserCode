@@ -182,6 +182,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  int nCJet_S_FJet;
  int nFJet_S_CJet;
  
+ int nJets_had_sel;
+ int nJets_reco_sel;
+ 
  double S_CJet_Pt;
  double S_CJet_Eta;
  double S_CJet_Phi;
@@ -221,9 +224,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("G_FJet_Eta",&G_FJet_Eta,"G_FJet_Eta/D");
  AnaHiggs.Branch("G_FJet_Phi",&G_FJet_Phi,"G_FJet_Phi/D");
  AnaHiggs.Branch("G_FJet_Energy",&G_FJet_Energy,"G_FJet_Energy/D");
- 
- AnaHiggs.Branch("nCJet_G_FJet",&nCJet_G_FJet,"nCJet_G_FJet/I");  	//had
- AnaHiggs.Branch("nFJet_G_CJet",&nFJet_G_CJet,"nFJet_G_CJet/I");  	//had
 
  AnaHiggs.Branch("G_CJet_Pt",&G_CJet_Pt,"G_CJet_Pt/D");
  AnaHiggs.Branch("G_CJet_Eta",&G_CJet_Eta,"G_CJet_Eta/D");
@@ -240,9 +240,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("S_FJet_Phi",&S_FJet_Phi,"S_FJet_Phi/D");
  AnaHiggs.Branch("S_FJet_Energy",&S_FJet_Energy,"S_FJet_Energy/D");
  
- AnaHiggs.Branch("nCJet_S_FJet",&nCJet_S_FJet,"nCJet_S_FJet/I");  	//RECO
- AnaHiggs.Branch("nFJet_S_CJet",&nFJet_S_CJet,"nFJet_S_CJet/I");  	//RECO
-
  AnaHiggs.Branch("S_CJet_Pt",&S_CJet_Pt,"S_CJet_Pt/D");
  AnaHiggs.Branch("S_CJet_Eta",&S_CJet_Eta,"S_CJet_Eta/D");
  AnaHiggs.Branch("S_CJet_Phi",&S_CJet_Phi,"S_CJet_Phi/D");
@@ -255,6 +252,14 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 
  AnaHiggs.Branch("DR_C",&DR_C,"DR_C/D");
  AnaHiggs.Branch("DR_F",&DR_F,"DR_F/D");
+ 
+ AnaHiggs.Branch("nCJet_G_FJet",&nCJet_G_FJet,"nCJet_G_FJet/I");  	//had
+ AnaHiggs.Branch("nFJet_G_CJet",&nFJet_G_CJet,"nFJet_G_CJet/I");  	//had
+ AnaHiggs.Branch("nCJet_S_FJet",&nCJet_S_FJet,"nCJet_S_FJet/I");  	//RECO
+ AnaHiggs.Branch("nFJet_S_CJet",&nFJet_S_CJet,"nFJet_S_CJet/I");  	//RECO
+
+ AnaHiggs.Branch("nJets_had_sel",&nJets_had_sel,"nJets_had_sel/I");
+ AnaHiggs.Branch("nJets_reco_sel",&nJets_reco_sel,"nJets_reco_sel/I");
  
  /*AnaHiggs.Branch("Trig_Jet15",&Trig_Jet15,"Trig_Jet15/D");
  AnaHiggs.Branch("Trig_Jet30",&Trig_Jet30,"Trig_Jet30/D");
@@ -424,11 +429,21 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   int nC_Jets = 0;
   int nF_Jets = 0;
   
+  int reco_sel = 0;
+  
+  
   if (Central_i_reco !=-1 && Forward_i_reco !=-1){
+    
+    
     
 //     std::cout<<"step 1 = " <<std::endl;
     
    for(int i = 0; i < nJets_reco; ++i){
+    if (reader.Get4V("jets")->at(i).Pt()>ptMinC){
+      reco_sel ++;
+    }
+     
+     
     if(fabs(reader.Get4V("jets")->at(i).Eta())<2.8 && reader.Get4V("jets")->at(i).Pt()>ptMinC){
       
       nC_Jets ++;
@@ -447,6 +462,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     nCJet_S_FJet = nC_Jets;	//molteplicità dei jet centrali con pt>35
     nFJet_S_CJet = nF_Jets;	//molteplicità dei jet forward con pt>35
     
+    nJets_reco_sel = reco_sel;
+    
     hMultiplicityC.Fill(nC_Jets);
     hMultiplicityF.Fill(nF_Jets);
     
@@ -457,6 +474,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     
     nCJet_S_FJet = -100;	//molteplicità dei jet centrali con pt>35
     nFJet_S_CJet = -100;
+    
+    nJets_reco_sel = -100;
   
   }
   
@@ -465,11 +484,18 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   int nC_Jets_had = 0;
   int nF_Jets_had = 0;
   
+  int had_sel = 0;
+  
   if (Central_i_had !=-1 && Forward_i_had !=-1){
     
 //     std::cout<<"step 1 = " <<std::endl;
     
    for(int i = 0; i < nJets_had; ++i){
+     if(reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinC){
+       had_sel++;
+     }
+     
+     
     if(fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<2.8 && reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinC){
       
       nC_Jets_had ++;
@@ -488,6 +514,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     nCJet_G_FJet = nC_Jets_had;	//molteplicità dei jet centrali con pt>35
     nFJet_G_CJet = nF_Jets_had;	//molteplicità dei jet forward con pt>35
     
+    nJets_had_sel = had_sel;
+    
     hMultiplicityC_had.Fill(nC_Jets_had);
     hMultiplicityF_had.Fill(nF_Jets_had);
     
@@ -498,6 +526,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     
     nCJet_G_FJet = -100;	//molteplicità dei jet centrali con pt>35
     nFJet_G_CJet = -100;
+    
+    nJets_had_sel = -100;
   
   }
   
