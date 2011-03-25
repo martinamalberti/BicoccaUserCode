@@ -21,6 +21,7 @@ void prova()
 
   Int_t S_EventNb; //~~~~ event number
 
+
   Float_t G_FJet_Pt; //~~~~ had
   Float_t S_FJet_Pt; //~~~~ reco
 
@@ -32,6 +33,13 @@ void prova()
 
   Double_t G_CJet_Pt_D; //~~~~ had
   Double_t S_CJet_Pt_D; //~~~~ reco
+
+  Double_t G_FJet_Eta_D; //~~~~ had
+  Double_t S_FJet_Eta_D; //~~~~ reco
+
+  Double_t G_CJet_Eta_D; //~~~~ had
+  Double_t S_CJet_Eta_D; //~~~~ reco
+ 
  
 
  TreeMC_Bo->SetBranchAddress("S_EventNb",&S_EventNb); 
@@ -46,6 +54,11 @@ void prova()
  TreeMC_My->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt_D);
  TreeMC_My->SetBranchAddress("S_CJet_Pt",&S_CJet_Pt_D);
 
+ TreeMC_My->SetBranchAddress("G_FJet_Eta",&G_FJet_Eta_D);
+ TreeMC_My->SetBranchAddress("S_FJet_Eta",&S_FJet_Eta_D);
+ TreeMC_My->SetBranchAddress("G_CJet_Eta",&G_CJet_Eta_D);
+ TreeMC_My->SetBranchAddress("S_CJet_Eta",&S_CJet_Eta_D);
+
  TH1D* MyHerwigC15 = new TH1D ("MyHerwigC15", "MyHerwig Central 15 HAD",    NBIN, MIN, MAX);
  TH1D* MyHerwigF15 = new TH1D ("MyHerwigF15", "MyHerwig Forward 15", NBIN, MIN, MAX);
   
@@ -58,12 +71,12 @@ void prova()
  TH1D* HerwigC15_reco= new TH1D ("HerwigC15_reco", "Herwig Central 15_reco",    NBIN, MIN, MAX);
  TH1D* HerwigF15_reco = new TH1D ("HerwigF15_reco", "Herwig Forward 15_reco", NBIN, MIN, MAX);
   
-std::cerr << "S_EventNb ::: G_FJet_Pt_D ::: G_CJet_Pt_D ::: S_FJet_Pt_D :::S_CJet_Pt_D " << std::endl;
+std::cerr << "S_EventNb ::: G_FJet_Pt ::: G_CJet_Pt ::: S_FJet_Pt :::S_CJet_Pt " << std::endl;
  for (Int_t iEvt= 0; iEvt<TreeMC_Bo->GetEntries(); iEvt++) {
    TreeMC_Bo->GetEntry(iEvt);
    if (G_CJet_Pt>35 && G_FJet_Pt>35){ // && (S_CJet_Pt>15 && S_FJet_Pt>15)) {
    //if (((G_CJet_Pt>35 && G_FJet_Pt>35) || (S_CJet_Pt>35 && S_FJet_Pt>35))){ // && (S_CJet_Pt>15 && S_FJet_Pt>15)) {
-       std::cerr << " " << S_EventNb << " ::: " << G_FJet_Pt_D << " ::: " << G_CJet_Pt_D << " ::: " << S_FJet_Pt_D << " ::: " << S_CJet_Pt_D << " " << std::endl;
+       std::cerr << " " << S_EventNb << " ::: " << G_FJet_Pt << " ::: " << G_CJet_Pt << " ::: " << S_FJet_Pt << " ::: " << S_CJet_Pt << " " << std::endl;
      HerwigF15->Fill(G_FJet_Pt,xsec1H);
      HerwigC15->Fill(G_CJet_Pt,xsec1H);
    }       
@@ -74,7 +87,7 @@ std::cerr << "S_EventNb ::: G_FJet_Pt_D ::: G_CJet_Pt_D ::: S_FJet_Pt_D :::S_CJe
  }
 
 std::cerr << " ~~~~~~~~~~~~~~~~~~~~~~~~~~~ our ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " << std::endl;
-std::cerr << "S_EventNb ::: G_FJet_Pt_D ::: G_CJet_Pt_D ::: S_FJet_Pt_D :::S_CJet_Pt_D " << std::endl;
+std::cerr << "S_EventNb ::: G_FJet_Pt_D ::: G_CJet_Pt_D ::: S_FJet_Pt_D ::: S_CJet_Pt_D ::: G_FJet_Eta_D ::: G_CJet_Eta_D ::: S_FJet_Eta_D :::S_CJet_Eta_D " << std::endl;
 
   //riempio con MyHerwig ptHat 15
  for (Int_t iEvt= 0; iEvt<TreeMC_My->GetEntries(); iEvt++) {
@@ -83,7 +96,7 @@ std::cerr << "S_EventNb ::: G_FJet_Pt_D ::: G_CJet_Pt_D ::: S_FJet_Pt_D :::S_CJe
 //    if (((G_CJet_Pt_D>35 && G_FJet_Pt_D>35) || (S_CJet_Pt_D>35 && S_FJet_Pt_D>35))){ // && (S_CJet_Pt_D>15 && S_FJet_Pt_D>15)){
         MyHerwigF15->Fill(G_FJet_Pt_D,xsec1);
         MyHerwigC15->Fill(G_CJet_Pt_D,xsec1);
-        std::cerr << " " << S_EventNb << " ::: " << G_FJet_Pt_D << " ::: " << G_CJet_Pt_D << " ::: " << S_FJet_Pt_D << " ::: " << S_CJet_Pt_D << " " << std::endl;
+        std::cerr << " " << S_EventNb << " ::: " << G_FJet_Pt_D << " ::: " << G_CJet_Pt_D << " ::: " << S_FJet_Pt_D << " ::: " << S_CJet_Pt_D << " ::: " << G_FJet_Eta_D << " ::: " << G_CJet_Eta_D << " ::: " << S_FJet_Eta_D << " ::: " << S_CJet_Eta_D << std::endl;
 	}
     if (S_CJet_Pt_D>35 && S_FJet_Pt_D>35){
 	MyHerwigF15_reco->Fill(S_FJet_Pt_D,xsec1);
