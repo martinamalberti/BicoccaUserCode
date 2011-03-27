@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.metTools import *
+from PhysicsTools.PatAlgos.tools.tauTools import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
 from PhysicsTools.PatAlgos.tools.coreTools import *
 from PhysicsTools.PatAlgos.tools.pfTools import *
@@ -17,11 +18,10 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 10
-    process.load('Configuration.StandardSequences.GeometryExtended_cff')
+    process.load('Configuration.StandardSequences.GeometryDB_cff')
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
-
     
     # Source
     process.source = cms.Source(
@@ -29,7 +29,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         fileNames = cms.untracked.vstring()
     )
     
-    # Output
+    # Out
     process.out = cms.OutputModule(
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
@@ -95,10 +95,104 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
     
     process.patJets.addTagInfos = cms.bool(False)    #bugfix related to btagging
     
-        #Prepare everything for electron ID: (check https://twiki.cern.ch/twiki/bin/viewauth/CMS/SimpleCutBasedEleID#How_to_Calculate_the_Electron_ID)
     
+    ### tau ###
+    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+    switchToPFTauHPS(process, 
+        pfTauLabelOld = 'shrinkingConePFTauProducer',
+        pfTauLabelNew = 'hpsPFTauProducer'
+        )
+
+    process.patCandidates.replace(process.makePatTaus,
+        process.makePatTaus+
+        getattr(process,"makePatTaus"+postfix)
+        )   
+    
+    process.patCandidateSummary.candidates.append(cms.InputTag("patTaus"+postfix))
+    
+    setattr(process,"selectedPatTaus"+postfix,process.selectedPatTaus.clone())
+    getattr(process,"selectedPatTaus"+postfix).src = 'patTaus'+postfix
+    process.selectedPatCandidates.replace(process.selectedPatTaus,
+        process.selectedPatTaus+
+        getattr(process,"selectedPatTaus"+postfix)
+    )
+    process.selectedPatCandidateSummary.candidates.append(cms.InputTag("selectedPatTaus"+postfix))
+
+    getattr(process,"patTaus"+postfix).embedIsolationTracks = cms.bool(True)
+    getattr(process,"patTaus"+postfix).embedSignalTracks = cms.bool(True)
+    getattr(process,"patTaus"+postfix).embedGenMatch = cms.bool(True)
+    getattr(process,"patTaus"+postfix).embedLeadTrack = cms.bool(True)
+    getattr(process,"patTaus"+postfix).embedLeadPFCand = True
+    getattr(process,"patTaus"+postfix).embedLeadPFChargedHadrCand = True
+    getattr(process,"patTaus"+postfix).embedLeadPFNeutralCand = True
+    getattr(process,"patTaus"+postfix).embedSignalPFCands = True
+    getattr(process,"patTaus"+postfix).embedSignalPFChargedHadrCands = True
+    getattr(process,"patTaus"+postfix).embedSignalPFNeutralHadrCands = True
+    getattr(process,"patTaus"+postfix).embedSignalPFGammaCands = True
+    getattr(process,"patTaus"+postfix).embedIsolationPFCands = True
+    getattr(process,"patTaus"+postfix).embedIsolationPFChargedHadrCands = True
+    getattr(process,"patTaus"+postfix).embedIsolationPFNeutralHadrCands = True
+    getattr(process,"patTaus"+postfix).embedIsolationPFGammaCands = True
+    getattr(process,"patTaus"+postfix).embedGenJetMatch = cms.bool(True)
+    getattr(process,"patTaus").embedIsolationTracks = cms.bool(True)
+    getattr(process,"patTaus").embedSignalTracks = cms.bool(True)
+    getattr(process,"patTaus").embedGenMatch = cms.bool(True)
+    getattr(process,"patTaus").embedLeadTrack = cms.bool(True)
+    getattr(process,"patTaus").embedLeadPFCand = True
+    getattr(process,"patTaus").embedLeadPFChargedHadrCand = True
+    getattr(process,"patTaus").embedLeadPFNeutralCand = True
+    getattr(process,"patTaus").embedSignalPFCands = True
+    getattr(process,"patTaus").embedSignalPFChargedHadrCands = True
+    getattr(process,"patTaus").embedSignalPFNeutralHadrCands = True
+    getattr(process,"patTaus").embedSignalPFGammaCands = True
+    getattr(process,"patTaus").embedIsolationPFCands = True
+    getattr(process,"patTaus").embedIsolationPFChargedHadrCands = True
+    getattr(process,"patTaus").embedIsolationPFNeutralHadrCands = True
+    getattr(process,"patTaus").embedIsolationPFGammaCands = True
+    getattr(process,"patTaus").embedGenJetMatch = cms.bool(True)
+   
+    setattr(process,"hpsPFTauDiscriminationAgainstElectron2D",
+      getattr(process,"hpsPFTauDiscriminationAgainstElectron").clone(
+         ApplyCut_ElectronPreID_2D = cms.bool(True),
+         ApplyCut_PFElectronMVA =  cms.bool(False)
+      )
+    )
+    setattr(process,"hpsPFTauDiscriminationAgainstElectronCrackRem",
+         getattr(process,"hpsPFTauDiscriminationAgainstElectron").clone(
+           ApplyCut_EcalCrackCut = cms.bool(True),
+           ApplyCut_PFElectronMVA =  cms.bool(False)
+       )
+    )
+    
+    setattr(process,"shrinkingConePFTauDiscriminationAgainstElectron2D",
+        getattr(process,"shrinkingConePFTauDiscriminationAgainstElectron").clone(
+           ApplyCut_ElectronPreID_2D = cms.bool(True),
+           ApplyCut_PFElectronMVA =  cms.bool(False)
+    )
+    )
+    setattr(process,"shrinkingConePFTauDiscriminationAgainstElectronCrackRem",
+        getattr(process,"shrinkingConePFTauDiscriminationAgainstElectron").clone(
+           ApplyCut_EcalCrackCut = cms.bool(True),
+           ApplyCut_PFElectronMVA =  cms.bool(False)
+         )
+    )
+    process.patHPSPFTauDiscrimination += process.hpsPFTauDiscriminationAgainstElectron2D
+    process.patHPSPFTauDiscrimination += process.hpsPFTauDiscriminationAgainstElectronCrackRem
+    process.patShrinkingConePFTauDiscrimination += process.shrinkingConePFTauDiscriminationAgainstElectron2D
+    process.patShrinkingConePFTauDiscrimination += process.shrinkingConePFTauDiscriminationAgainstElectronCrackRem
+
+    getattr(process,"makePatTaus"+postfix).replace(
+        getattr(process,"patTaus"+postfix),
+        process.patHPSPFTauDiscrimination + getattr(process,"patTaus"+postfix)
+    )
+    getattr(process,"makePatTaus").replace(
+        getattr(process,"patTaus"),
+        process.patShrinkingConePFTauDiscrimination + getattr(process,"patTaus")
+    )
+    
+    
+    #### electrons ####
     process.load("PhysicsTools.MiBiCommonPAT.simpleEleIdSequence_cff")
-    process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
 
     process.patElectrons.addElectronID = cms.bool(True)
     process.patElectrons.electronIDSources = cms.PSet(
@@ -115,6 +209,23 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
       simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
     )
+    
+    process.patElectronsPFlow.addElectronID = cms.bool(True)
+    process.patElectronsPFlow.electronIDSources = cms.PSet(
+      simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
+      simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
+      simpleEleId85relIso= cms.InputTag("simpleEleId85relIso"),
+      simpleEleId80relIso= cms.InputTag("simpleEleId80relIso"),
+      simpleEleId70relIso= cms.InputTag("simpleEleId70relIso"),
+      simpleEleId60relIso= cms.InputTag("simpleEleId60relIso"),
+      simpleEleId95cIso= cms.InputTag("simpleEleId95cIso"),
+      simpleEleId90cIso= cms.InputTag("simpleEleId90cIso"),
+      simpleEleId85cIso= cms.InputTag("simpleEleId85cIso"),
+      simpleEleId80cIso= cms.InputTag("simpleEleId80cIso"),
+      simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
+      simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
+    )
+    
     process.patElectronIDs = cms.Sequence(process.simpleEleIdSequence)
     process.makePatElectrons = cms.Sequence(
       process.patElectronIDs*
@@ -122,15 +233,27 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
       process.electronMatch*
       process.patElectrons
     )
+    
     if not MC:
         process.makePatElectrons.remove(process.electronMatch)
-
+    
+    
+    #### jets ####        
+    process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+    process.load('RecoJets.Configuration.RecoJets_cff')
+    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    process.kt6PFJets.doRhoFastjet = True
+    process.kt6PFJets.Ghost_EtaMax = cms.double(5.0)
+    process.kt6PFJets.Rho_EtaMax = cms.double(5.0)
+    process.ak5PFJets.doAreaFastjet = True
+    process.ak5PFJets.Rho_EtaMax = cms.double(5.0)
+    
+    process.patJetCorrFactors.rho = cms.InputTag("kt6PFJets","rho")
     
     # ---------------
     # add collections
     addTcMET(process, 'TC')
     addPfMET(process, 'PF')
-    
     
     if not MC:    
         addJetCollection(
@@ -140,7 +263,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -156,7 +279,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -165,7 +288,6 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             jetIdLabel   = "ak5"
             )
             
-                
     if MC:    
         addJetCollection(
             process,
@@ -174,7 +296,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -190,7 +312,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -237,6 +359,7 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         process.GoodVtxEvents * # -> Counter
         getattr(process,"patPF2PATSequence"+postfix) *
         process.makePatElectrons* # -> EleID + EleIso + PatEle
+        process.recoPFJets *
         process.patDefaultSequence
     )
     
@@ -326,37 +449,14 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         process.PhotonsFilter*
         process.PhotonsFilterEvents
         )
-
-
-
-
-
-
-#    process.MiBiSchedule = cms.Path(
-#         process.MiBiCommonPAT
-#         +process.OneLeptonTwoJetsAK5CaloPath
-#         +process.OneLeptonTwoJetsAK5PFPath
-#         +process.OneLeptonTwoJetsPath
-#        )
-
+    
+    
+    
+    # the MiBiPAT
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq)
     process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq)
     process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq)
-
-
-#    process.MiBiScheduleJetsAK5Calo = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5CaloPath)
-#    process.MiBiScheduleJetsAK5PF = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsAK5PFPath)
-#    process.MiBiScheduleJets = cms.Schedule(process.MiBiCommonPAT,process.OneLeptonTwoJetsPath)
-
-
-# the following works!
-#   process.MiBiSchedule = cms.Path(process.MiBiCommonPAT*(process.OneLeptonTwoJetsPath+process.TwoPhotonsPath))
-
-# the following do NOT work!
-#    process.MiBiSchedule = cms.Schedule([process.MiBiCommonPAT*process.OneLeptonTwoJetsPath*process.TwoPhotonsPath])
-#    process.MiBiSchedule = cms.Path(process.MiBiCommonPAT*(process.ElectronFilter*process.JetFilter)*(process.PhotonFilter))
-    
     
     process.out.outputCommands = cms.untracked.vstring(
         'drop *',
@@ -373,5 +473,3 @@ def makeMiBiCommonPAT(process, GlobalTag, MC=False, Filter=False, SavePAT=True):
         'keep *_reducedEcalRecHitsEB_*_*',             # reduced recHits Barrel
         'keep *_reducedEcalRecHitsEE_*_*'              # reduced recHits Barrel
     )
-
-

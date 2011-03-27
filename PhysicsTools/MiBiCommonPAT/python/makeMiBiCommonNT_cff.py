@@ -31,9 +31,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # Out
     process.out = cms.OutputModule(
-      "PoolOutputModule",
-      fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
-      outputCommands = cms.untracked.vstring()
+        "PoolOutputModule",
+        fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
+        outputCommands = cms.untracked.vstring()
     )
 
 
@@ -83,26 +83,16 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     ### tau ###
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     switchToPFTauHPS(process, 
-                 pfTauLabelOld = 'shrinkingConePFTauProducer',
-                 pfTauLabelNew = 'hpsPFTauProducer'
-                 )
+        pfTauLabelOld = 'shrinkingConePFTauProducer',
+        pfTauLabelNew = 'hpsPFTauProducer'
+        )
 
-#    cloneProcessingSnippet(process, process.makePatTaus, postfix)
-
-
-#    switchToPFTauShrinkingCone(process,
-#                           pfTauLabelOld = 'hpsPFTauProducer',
-#                           pfTauLabelNew = 'shrinkingConePFTauProducer'
-#                           )
-#
     process.patCandidates.replace(process.makePatTaus,
-                              process.makePatTaus+
-                              getattr(process,"makePatTaus"+postfix)
-                             )   
-    
+        process.makePatTaus+
+        getattr(process,"makePatTaus"+postfix)
+        )   
     
     process.patCandidateSummary.candidates.append(cms.InputTag("patTaus"+postfix))
-    
     
     setattr(process,"selectedPatTaus"+postfix,process.selectedPatTaus.clone())
     getattr(process,"selectedPatTaus"+postfix).src = 'patTaus'+postfix
@@ -239,8 +229,19 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     if not MC:
         process.makePatElectrons.remove(process.electronMatch)
         process.makePatElectronsPFlow.remove(process.electronMatchPFlow)
-
-
+    
+    
+    #### jets ####    
+    process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+    process.load('RecoJets.Configuration.RecoJets_cff')
+    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    process.kt6PFJets.doRhoFastjet = True
+    process.kt6PFJets.Ghost_EtaMax = cms.double(5.0)
+    process.kt6PFJets.Rho_EtaMax = cms.double(5.0)
+    process.ak5PFJets.doAreaFastjet = True
+    process.ak5PFJets.Rho_EtaMax = cms.double(5.0)
+    
+    process.patJetCorrFactors.rho = cms.InputTag("kt6PFJets","rho")
     
     # ---------------
     # add collections
@@ -255,7 +256,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -271,7 +272,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -279,7 +280,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             doJetID      = True,
             jetIdLabel   = "ak5"
             )
-
     
     if MC:
         addJetCollection(
@@ -289,7 +289,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -305,7 +305,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -321,7 +321,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
     # collections have standard names + postfix (e.g. patElectronPFlow)  
     
-        adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+    adaptPFTaus(process,"hpsPFTau",postfix=postfix)
     
     # -------------------
     # pat selection layer
@@ -350,6 +350,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.primaryVertexFilter *
         process.GoodVtxEvents * # -> Counter
         getattr(process,"patPF2PATSequence"+postfix) *
+        process.recoPFJets *
         process.patDefaultSequence
     )
     
@@ -441,6 +442,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         )
     
     
+    
     # the MiBiNTUPLE
     process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
     process.MiBiCommonNT = process.SimpleNtuple.clone()
@@ -479,7 +481,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiCommonNTOneLeptonTwoJetsAK5Calo.MetTag    = cms.InputTag("patMETsAK5Calo")
     
     process.MiBiCommonNTOneLeptonTwoJetsPFlow = process.MiBiCommonNT.clone()
-    process.MiBiCommonNTOneLeptonTwoJetsPFlow.TauTag     = cms.InputTag("patTausPFlow")
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.TauTag    = cms.InputTag("patTausPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.MuTag     = cms.InputTag("patMuonsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.EleTag    = cms.InputTag("patElectronsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag    = cms.InputTag("patJetsPFlow")
