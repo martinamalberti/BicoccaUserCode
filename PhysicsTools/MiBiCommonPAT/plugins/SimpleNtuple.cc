@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.21 2011/03/10 15:56:27 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.22 2011/03/11 08:29:54 abenagli Exp $
 //
 //
 
@@ -145,12 +145,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_ -> Add4V   ("electrons");
    NtupleFactory_ -> AddFloat("electrons_charge"); 
+   NtupleFactory_ -> AddFloat("electrons_z");
    NtupleFactory_ -> AddFloat("electrons_dB");
    NtupleFactory_ -> AddFloat("electrons_edB");
-   NtupleFactory_ -> AddFloat("electrons_dxy");
-   NtupleFactory_ -> AddFloat("electrons_edxy");
-   NtupleFactory_ -> AddFloat("electrons_dz");
-   NtupleFactory_ -> AddFloat("electrons_edz");
+   NtupleFactory_ -> AddFloat("electrons_dxy_BS");
+   NtupleFactory_ -> AddFloat("electrons_dz_BS");
    NtupleFactory_ -> AddFloat("electrons_dxy_PV");
    NtupleFactory_ -> AddFloat("electrons_dz_PV");
    
@@ -224,13 +223,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  if(saveMu_)
  {
    NtupleFactory_ -> Add4V   ("muons");
-   NtupleFactory_ -> AddFloat("muons_charge"); 
+   NtupleFactory_ -> AddFloat("muons_charge");
+   NtupleFactory_ -> AddFloat("muons_z");
    NtupleFactory_ -> AddFloat("muons_dB");
    NtupleFactory_ -> AddFloat("muons_edB"); 
-   NtupleFactory_ -> AddFloat("muons_dxy");
-   NtupleFactory_ -> AddFloat("muons_edxy");
-   NtupleFactory_ -> AddFloat("muons_dz");
-   NtupleFactory_ -> AddFloat("muons_edz");
+   NtupleFactory_ -> AddFloat("muons_dxy_BS");
+   NtupleFactory_ -> AddFloat("muons_dz_BS");
    NtupleFactory_ -> AddFloat("muons_dxy_PV");
    NtupleFactory_ -> AddFloat("muons_dz_PV");
    
@@ -248,8 +246,10 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("muons_global");
    NtupleFactory_ -> AddInt  ("muons_goodMuon");
    NtupleFactory_ -> AddFloat("muons_normalizedChi2");
-   NtupleFactory_ -> AddInt  ("muons_numberOfValidTrackerHits");
+   NtupleFactory_ -> AddInt  ("muons_numberOfMatches");
    NtupleFactory_ -> AddInt  ("muons_numberOfValidMuonHits");
+   NtupleFactory_ -> AddInt  ("muons_numberOfValidTrackerHits");
+   NtupleFactory_ -> AddInt  ("muons_pixelLayersWithMeasurement");
  }
  
  if(savePhoton_)
@@ -673,27 +673,36 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
  
  for ( unsigned int i=0; i<muons.size(); i++ ) {
   pat::Muon muon = muons.at(i);
-  reco::TrackRef tkRef; 
+  reco::TrackRef globalTrackRef;
+  reco::TrackRef innerTrackRef;
   
-  if(muon.isGlobalMuon())  
-    tkRef = muon.globalTrack();
+  if(muon.isGlobalMuon())
+  {  
+    globalTrackRef = muon.globalTrack();
+    innerTrackRef  = muon.innerTrack();    
+  }
   else if(!muon.isGlobalMuon() && muon.isTrackerMuon())
-    tkRef = muon.innerTrack();
+  {
+    globalTrackRef = muon.innerTrack();
+    innerTrackRef = muon.innerTrack();
+  }
   else if(!muon.isGlobalMuon() && muon.isStandAloneMuon())
-    tkRef = muon.outerTrack();
+  {
+    globalTrackRef = muon.outerTrack();
+    innerTrackRef = muon.outerTrack();
+  }
   else
     continue;  
   
   NtupleFactory_ -> Fill4V   ("muons",muon.p4());
   NtupleFactory_ -> FillFloat("muons_charge",(muon.charge()));
+  NtupleFactory_ -> FillFloat("muons_z",muon.vertex().z());
   NtupleFactory_ -> FillFloat("muons_dB",muon.dB());
   NtupleFactory_ -> FillFloat("muons_edB",muon.edB());
-  NtupleFactory_ -> FillFloat("muons_dxy",tkRef->dxy());
-  NtupleFactory_ -> FillFloat("muons_edxy",tkRef->dxyError());
-  NtupleFactory_ -> FillFloat("muons_dz",tkRef->dz());
-  NtupleFactory_ -> FillFloat("muons_edz",tkRef->dzError());
-  NtupleFactory_ -> FillFloat("muons_dxy_PV",tkRef->dxy(PVPoint_));
-  NtupleFactory_ -> FillFloat("muons_dz_PV",tkRef->dz(PVPoint_));
+  NtupleFactory_ -> FillFloat("muons_dxy_BS",innerTrackRef->dxy(BSPoint_));
+  NtupleFactory_ -> FillFloat("muons_dz_BS",innerTrackRef->dz(BSPoint_));
+  NtupleFactory_ -> FillFloat("muons_dxy_PV",innerTrackRef->dxy(PVPoint_));
+  NtupleFactory_ -> FillFloat("muons_dz_PV",innerTrackRef->dz(PVPoint_));
 
   NtupleFactory_ -> FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
   NtupleFactory_ -> FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);    
@@ -709,9 +718,11 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillInt  ("muons_standalone",muon.isStandAloneMuon());
   NtupleFactory_ -> FillInt  ("muons_global",muon.isGlobalMuon());
   NtupleFactory_ -> FillInt  ("muons_goodMuon",muon::isGoodMuon(muon, muon::GlobalMuonPromptTight));
-  NtupleFactory_ -> FillFloat("muons_normalizedChi2",tkRef->normalizedChi2());
-  NtupleFactory_ -> FillInt  ("muons_numberOfValidTrackerHits",tkRef->hitPattern().numberOfValidTrackerHits());
-  NtupleFactory_ -> FillInt  ("muons_numberOfValidMuonHits",tkRef->hitPattern().numberOfValidMuonHits());
+  NtupleFactory_ -> FillFloat("muons_normalizedChi2",globalTrackRef->normalizedChi2());
+  NtupleFactory_ -> FillInt  ("muons_numberOfMatches",muon.numberOfMatches());
+  NtupleFactory_ -> FillInt  ("muons_numberOfValidMuonHits",globalTrackRef->hitPattern().numberOfValidMuonHits());
+  NtupleFactory_ -> FillInt  ("muons_numberOfValidTrackerHits",innerTrackRef->numberOfValidHits());
+  NtupleFactory_ -> FillInt  ("muons_pixelLayersWithMeasurement",innerTrackRef->hitPattern().pixelLayersWithMeasurement());
  }
  
 }
@@ -741,12 +752,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   
   NtupleFactory_ -> Fill4V   ("electrons", electron.p4());
   NtupleFactory_ -> FillFloat("electrons_charge", electron.charge());
+  NtupleFactory_ -> FillFloat("electrons_z", electron.vertex().z());
   NtupleFactory_ -> FillFloat("electrons_dB", electron.dB());
   NtupleFactory_ -> FillFloat("electrons_edB", electron.edB());
-  NtupleFactory_ -> FillFloat("electrons_dxy", tkRef->dxy());
-  NtupleFactory_ -> FillFloat("electrons_edxy", tkRef->dxyError());
-  NtupleFactory_ -> FillFloat("electrons_dz", tkRef->dz());
-  NtupleFactory_ -> FillFloat("electrons_edz", tkRef->dzError());
+  NtupleFactory_ -> FillFloat("electrons_dxy_BS", tkRef->dxy(BSPoint_));
+  NtupleFactory_ -> FillFloat("electrons_dz_BS", tkRef->dz(BSPoint_));
   NtupleFactory_ -> FillFloat("electrons_dxy_PV", tkRef->dxy(PVPoint_));
   NtupleFactory_ -> FillFloat("electrons_dz_PV", tkRef->dz(PVPoint_));
   
