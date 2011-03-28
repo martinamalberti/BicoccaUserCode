@@ -22,6 +22,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 // pat include files
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -89,7 +91,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
   
-  
+  HLTConfigProvider hltConfig_;
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
 

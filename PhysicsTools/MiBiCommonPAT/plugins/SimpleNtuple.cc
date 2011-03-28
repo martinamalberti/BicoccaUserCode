@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.22 2011/03/11 08:29:54 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.23 2011/03/27 01:49:35 abenagli Exp $
 //
 //
 
@@ -117,6 +117,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddFloat("HLT_Accept"); 
    NtupleFactory_->AddFloat("HLT_Error"); 
    NtupleFactory_->AddString("HLT_Names"); 
+   NtupleFactory_->AddInt("HLT_Prescale"); 
  }
  
  if(saveBS_)
@@ -488,6 +489,8 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
   iEvent.getByLabel(TriggerEventTag_, triggerEventHandle);
   const edm::Provenance* provenance = triggerEventHandle.provenance();
   //std::cout << "Trigger process name = " << provenance->processName() << std::endl;
+  bool changed(true);
+  int init = hltConfig_.init(iEvent.getRun(),iESetup,TriggerResultsTag_.process(),changed);
   
   edm::Handle<edm::TriggerResults> triggerResultsHandle;
   iEvent.getByLabel(edm::InputTag(TriggerResultsTag_.label(), TriggerResultsTag_.instance(), provenance->processName()), triggerResultsHandle);
@@ -495,7 +498,11 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
   for(unsigned int iHLT = 0; iHLT < triggerResultsHandle->size(); ++iHLT)
   {
     //std::cout << "bit: " << std::fixed << setw(3)<< iHLT << "   name: " << triggerNames.triggerName(iHLT) << std::endl;
-    
+    //std::cout << " >>> prescaleSize =  " << hltConfig_.prescaleSize() << std::endl;
+    //std::cout << " >>> prescaleValue = " <<  << std::endl;
+    // prescale
+    NtupleFactory_ -> FillInt("HLT_Prescale", hltConfig_.prescaleValue(iHLT, triggerNames.triggerName(iHLT)));
+
     if( triggerResultsHandle -> wasrun(iHLT) )
       NtupleFactory_ -> FillFloat("HLT_WasRun", 1);
     else
