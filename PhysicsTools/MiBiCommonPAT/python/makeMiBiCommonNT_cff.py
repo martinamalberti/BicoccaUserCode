@@ -448,6 +448,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiCommonNT = process.SimpleNtuple.clone()
     process.MiBiCommonNT.TriggerResultTag      = cms.InputTag("TriggerResults","",HLT)
     process.MiBiCommonNT.saveMCPU              = cms.untracked.bool (MC)
+    process.MiBiCommonNT.saveProcessId         = cms.untracked.bool (MC)
+    process.MiBiCommonNT.savePhotonsMother     = cms.untracked.bool (MC)
+    
     if MC : 
      process.MiBiCommonNT.MCPileupTag          = cms.InputTag ("addPileupInfo")
 

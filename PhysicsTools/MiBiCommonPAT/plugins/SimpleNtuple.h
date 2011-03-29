@@ -91,6 +91,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
   void fillProcessIdInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPhotonsMotherInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
   
   HLTConfigProvider hltConfig_;
@@ -157,6 +158,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveGenJet_;  
   bool saveMCPU_;
   bool saveProcessId_ ;
+  bool savePhotonsMother_ ;
 
   int eventType_; //---- 0 = signal    1 = background 
   bool verbosity_; //---- true = loquacious    false = silence  

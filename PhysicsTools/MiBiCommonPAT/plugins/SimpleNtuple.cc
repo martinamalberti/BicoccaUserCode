@@ -97,7 +97,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveMCPU_              = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
  if (saveMCPU_) MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
  saveProcessId_         = iConfig.getUntrackedParameter<bool> ("saveProcessId", false);
-
+ savePhotonsMother_     = iConfig.getUntrackedParameter<bool> ("savePhotonsMother", false);
 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -463,6 +463,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  if(saveProcessId_)
    {
      NtupleFactory_->AddFloat("mcProcessId");
+   }
+
+ if(savePhotonsMother_)
+   {
+     NtupleFactory_->AddFloat("mcPhotonsMotherId");
+     NtupleFactory_->AddFloat("mcPhotonsMotherStatus");
    }
    
 }
@@ -1361,7 +1367,21 @@ void SimpleNtuple::fillProcessIdInfo (const edm::Event & iEvent, const edm::Even
 
 }
 
+void SimpleNtuple::fillPhotonsMotherInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  iEvent.getByLabel(MCtruthTag_, genParticles);
 
+  for(reco::GenParticleCollection::const_iterator p = genParticles -> begin(); p != genParticles -> end(); ++p)
+  {
+    if (p -> pdgId() == 22)
+      {
+	NtupleFactory_->FillFloat("mcPhotonsMotherId", p->mother()->pdgId());
+	NtupleFactory_->FillFloat("mcPhotonsMotherStatus", p->mother()->status());
+	  
+      }
+  }
+}
 
 
 // ------------ method called to for each event  ------------
@@ -1415,7 +1435,7 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  if (saveEle_)  fillEleInfo (iEvent, iSetup);
  
  ///---- fill photons ----
- if(savePhoton_)  fillPhotonInfo (iEvent, iSetup);
+ if (savePhoton_)  fillPhotonInfo (iEvent, iSetup);
  
  ///---- fill met ---- 
  if (saveMet_) fillMetInfo (iEvent, iSetup);
@@ -1439,6 +1459,7 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
  ///---- save processId ----
  if (saveProcessId_) fillProcessIdInfo (iEvent, iSetup);
+ if (savePhotonsMother_) fillPhotonsMotherInfo (iEvent, iSetup);
 
  
  ///---- save the entry of the tree ----
