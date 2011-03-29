@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.23 2011/03/27 01:49:35 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.24 2011/03/28 14:50:54 amassiro Exp $
 //
 //
 
@@ -96,6 +96,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveMCZW_              = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
  saveMCPU_              = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
  if (saveMCPU_) MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
+ saveProcessId_         = iConfig.getUntrackedParameter<bool> ("saveProcessId", false);
+
 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -457,6 +459,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
      NtupleFactory_->AddInt("mc_PU_ntrks_lowpT");    
      NtupleFactory_->AddInt("mc_PU_ntrks_highpT");    
   }
+
+ if(saveProcessId_)
+   {
+     NtupleFactory_->AddFloat("mcProcessId");
+   }
    
 }
 
@@ -1341,7 +1348,18 @@ void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetu
   }
 }
    
+void SimpleNtuple::fillProcessIdInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //std::cout << "SimpleNtuple::fillProcessIdInfo" << std::endl; 
+  
+  edm::Handle<edm::HepMCProduct> evt;
+  iEvent.getByLabel("generator",evt);
+  const HepMC::GenEvent * myEvt = evt->GetEvent();
+  
+  int processID = myEvt->signal_process_id();
+  NtupleFactory_->FillFloat("mcProcessId", processID);
 
+}
 
 
 
@@ -1418,6 +1436,10 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
  ///---- fill MC Pileup information ---- 
  if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
+
+ ///---- save processId ----
+ if (saveProcessId_) fillProcessIdInfo (iEvent, iSetup);
+
  
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
