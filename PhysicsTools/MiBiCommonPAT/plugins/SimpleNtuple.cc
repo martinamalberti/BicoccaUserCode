@@ -1359,7 +1359,7 @@ void SimpleNtuple::fillProcessIdInfo (const edm::Event & iEvent, const edm::Even
   //std::cout << "SimpleNtuple::fillProcessIdInfo" << std::endl; 
   
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel("generator",evt);
+  iEvent.getByLabel("MCTruthCollection",evt);
   const HepMC::GenEvent * myEvt = evt->GetEvent();
   
   int processID = myEvt->signal_process_id();
