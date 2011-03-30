@@ -21,8 +21,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
@@ -40,8 +38,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionInfo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
@@ -119,7 +115,6 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag PVTag_;
   edm::InputTag L1Tag_;
   edm::InputTag HLTTag_;
-  edm::InputTag TrackTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
   edm::InputTag EleTag_;

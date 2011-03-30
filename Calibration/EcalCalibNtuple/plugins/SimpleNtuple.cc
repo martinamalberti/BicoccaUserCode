@@ -22,8 +22,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   
   PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
   
-  TrackTag_ = iConfig.getParameter<edm::InputTag>("TrackTag");
-  
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
   
@@ -49,7 +47,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   saveL1_       = iConfig.getUntrackedParameter<bool> ("saveL1", true);
   saveHLT_      = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
   saveEle_      = iConfig.getUntrackedParameter<bool> ("saveEle", true);
-  saveEleShape_ = iConfig.getUntrackedParameter<bool> ("saveEleShape", false);
   saveMu_       = iConfig.getUntrackedParameter<bool> ("saveMu", true);
   saveJet_      = iConfig.getUntrackedParameter<bool> ("saveJet", true);
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
@@ -126,6 +123,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   
   if(saveEle_)
   {
+    f = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
+    
+    // general variables
     NtupleFactory_->Add4V("electrons");
     NtupleFactory_->AddFloat("electrons_charge"); 
     NtupleFactory_->AddInt("electrons_isEB"); 
@@ -135,11 +135,25 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddInt("electrons_isEEDeeGap");
     NtupleFactory_->AddInt("electrons_isEERingGap");
     
+    // track variables
     NtupleFactory_->AddFloat("electrons_dxy_BS");
     NtupleFactory_->AddFloat("electrons_dz_BS");
     NtupleFactory_->AddFloat("electrons_dxy_PV");
     NtupleFactory_->AddFloat("electrons_dz_PV");
+    NtupleFactory_->Add3V("electrons_p_atVtx");
+    NtupleFactory_->Add3V("electrons_p_out");
+    NtupleFactory_->Add3V("electrons_p_atCalo");
+    NtupleFactory_->Add3PV("electrons_position_atVtx");
+    NtupleFactory_->Add3PV("electrons_position_atCalo");
+    NtupleFactory_->AddFloat("electrons_deltaEtaSuperClusterAtVtx");
+    NtupleFactory_->AddFloat("electrons_deltaEtaSeedClusterAtCalo");
+    NtupleFactory_->AddFloat("electrons_deltaEtaEleClusterAtCalo");
+    NtupleFactory_->AddFloat("electrons_deltaPhiEleClusterAtCalo");
+    NtupleFactory_->AddFloat("electrons_deltaPhiSuperClusterAtVtx");
+    NtupleFactory_->AddFloat("electrons_deltaPhiSeedClusterAtCalo");
     
+    // supercluster variables
+    NtupleFactory_->Add3PV("electrons_scPosition");    
     NtupleFactory_->AddFloat("electrons_scE");
     NtupleFactory_->AddFloat("electrons_scEt");
     NtupleFactory_->AddFloat("electrons_scERaw");
@@ -148,12 +162,41 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scPhi");
     NtupleFactory_->AddFloat("electrons_scPhiWidth");
     NtupleFactory_->AddFloat("electrons_scEtaWidth");
+    NtupleFactory_->AddFloat("electrons_avgLaserCorrection");
     
+    // cluster variables
+    NtupleFactory_->AddInt("electrons_basicClustersSize");    
+    NtupleFactory_->AddFloat("electrons_e1x5");
+    NtupleFactory_->AddFloat("electrons_e2x5Max");
+    NtupleFactory_->AddFloat("electrons_e5x5");
+    NtupleFactory_->AddFloat("electrons_e3x3");
+    NtupleFactory_->AddFloat("electrons_e2x2");
+    
+    // rechit variables
+    NtupleFactory_->AddFloat("recHit_E"); 
+    NtupleFactory_->AddInt("recHit_ieta");
+    NtupleFactory_->AddInt("recHit_iphi");
+    NtupleFactory_->AddInt("recHit_ix");
+    NtupleFactory_->AddInt("recHit_iy");
+    NtupleFactory_->AddInt("recHit_n");
+    
+    // seed variables
+    NtupleFactory_->AddInt("electrons_seedSeverityLevel");
+    NtupleFactory_->AddInt("electrons_seedFlag");
+    NtupleFactory_->AddFloat("electrons_seedEnergy");
+    NtupleFactory_->AddFloat("electrons_seedTime");
+    NtupleFactory_->AddFloat("electrons_seedE1OverE9");
+    NtupleFactory_->AddFloat("electrons_seedSwissCross");
+    NtupleFactory_->AddFloat("electrons_seedLaserAlpha");
+    NtupleFactory_->AddFloat("electrons_seedLaserCorrection");
+    
+    // preshower variables
+    NtupleFactory_->AddFloat("electrons_ES");
+    
+    // id variables
+    NtupleFactory_->AddFloat("electrons_classification");
     NtupleFactory_->AddFloat("electrons_eOverP");
     NtupleFactory_->AddFloat("electrons_eSeed");
-    NtupleFactory_->AddFloat("electrons_pin");
-    NtupleFactory_->AddFloat("electrons_pout");
-    NtupleFactory_->AddFloat("electrons_pcalo");
     NtupleFactory_->AddFloat("electrons_fbrem");
     NtupleFactory_->AddFloat("electrons_sigmaIetaIeta");
     NtupleFactory_->AddFloat("electrons_hOverE");
@@ -162,6 +205,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     for( std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++ )
       NtupleFactory_->AddFloat(*iEleId);
     
+    // isolation variables
     NtupleFactory_->AddFloat("electrons_tkIso03"); 
     NtupleFactory_->AddFloat("electrons_tkIso04"); 
     NtupleFactory_->AddFloat("electrons_emIso03"); 
@@ -171,41 +215,14 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_hadIso04_1"); 
     NtupleFactory_->AddFloat("electrons_hadIso04_2"); 
     
-    NtupleFactory_->AddFloat("electrons_e1x5");
-    NtupleFactory_->AddFloat("electrons_e2x5Max");
-    NtupleFactory_->AddFloat("electrons_e5x5");
-    NtupleFactory_->AddFloat("electrons_e3x3");
-    NtupleFactory_->AddFloat("electrons_e2x2");
-    
+    // conversion rejection variables
+    NtupleFactory_->AddInt("electrons_convFlag");
     NtupleFactory_->AddInt("electrons_mishits");
     NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
     NtupleFactory_->AddFloat("electrons_dist");
     NtupleFactory_->AddFloat("electrons_dcot");
     
-    NtupleFactory_->AddFloat("electrons_avgLaserCorrection");
-    
-    NtupleFactory_->AddInt("electrons_seedSeverityLevel");
-    NtupleFactory_->AddInt("electrons_seedFlag");
-    NtupleFactory_->AddFloat("electrons_seedEnergy");
-    NtupleFactory_->AddFloat("electrons_seedTime");
-    NtupleFactory_->AddFloat("electrons_seedE1OverE9");
-    NtupleFactory_->AddFloat("electrons_seedSwissCross");
-    NtupleFactory_->AddFloat("electrons_seedLaserAlpha");
-    NtupleFactory_->AddFloat("electrons_seedLaserCorrection");
-
-    NtupleFactory_->AddFloat("electrons_ES");
-    
-    if (saveEleShape_)
-    {
-      NtupleFactory_->AddFloat("E_xtal"); 
-      NtupleFactory_->AddInt("ieta_xtal");
-      NtupleFactory_->AddInt("iphi_xtal");
-      NtupleFactory_->AddInt("ix_xtal");
-      NtupleFactory_->AddInt("iy_xtal");
-      NtupleFactory_->AddInt("numRecHit");
-    }
-    
-    f = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
+    // crack correction variables
     NtupleFactory_->AddFloat("electrons_crackCorrection");
   }
   
@@ -487,10 +504,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  edm::ESHandle<EcalLaserDbService> theLaser;
  iSetup.get<EcalLaserDbRecord>().get(theLaser);
  
- //************* TRACKS
- edm::Handle<reco::TrackCollection> trackHandle;
- iEvent.getByLabel(TrackTag_, trackHandle);
- 
  //*********** EB REC HITS
  edm::Handle<EcalRecHitCollection> recHitsEB;
  iEvent.getByLabel( recHitCollection_EB_, recHitsEB );
@@ -512,27 +525,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  iEvent.getByLabel(EleTag_,electronHandle);
  View<pat::Electron> electrons = *electronHandle;
  
- //************* BFIELD
- edm::Handle<DcsStatusCollection> dcsHandle;
- iEvent.getByLabel(DCSTag_, dcsHandle);
- double bField;
- 
- if (dataFlag_)
- {
-   // scale factor = 3.801/18166.0 which are
-   // average values taken over a stable two
-   // week period
-   float currentToBFieldScaleFactor = 2.09237036221512717e-04;
-   float current = (*dcsHandle)[0].magnetCurrent();
-   bField = current*currentToBFieldScaleFactor;
- }
- else
- {
-   edm::ESHandle<MagneticField> magneticField;
-   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-   bField = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
- }
- 
  
  
  // Loop over electrons
@@ -553,20 +545,32 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    
    
    // track variables
-   reco::GsfTrackRef eleTrack  = electron.gsfTrack () ; 
+   reco::GsfTrackRef eleTrack  = electron.gsfTrack() ; 
    NtupleFactory_->FillFloat("electrons_dxy_BS", eleTrack->dxy (BSPoint_));
    NtupleFactory_->FillFloat("electrons_dz_BS", eleTrack->dz (BSPoint_));
    NtupleFactory_->FillFloat("electrons_dxy_PV", eleTrack->dxy (PVPoint_));
    NtupleFactory_->FillFloat("electrons_dz_PV", eleTrack->dz (PVPoint_));
+   NtupleFactory_->Fill3V("electrons_p_atVtx",electron.trackMomentumAtVtx());
+   NtupleFactory_->Fill3V("electrons_p_out",electron.trackMomentumOut());
+   NtupleFactory_->Fill3V("electrons_p_atCalo",electron.trackMomentumAtCalo());
+   NtupleFactory_->Fill3PV("electrons_position_atVtx",electron.trackPositionAtVtx());
+   NtupleFactory_->Fill3PV("electrons_position_atCalo",electron.trackPositionAtCalo());
+   NtupleFactory_->FillFloat("electrons_deltaEtaSuperClusterAtVtx",electron.deltaEtaSuperClusterTrackAtVtx());
+   NtupleFactory_->FillFloat("electrons_deltaEtaSeedClusterAtCalo",electron.deltaEtaSeedClusterTrackAtCalo());
+   NtupleFactory_->FillFloat("electrons_deltaEtaEleClusterAtCalo",electron.deltaEtaEleClusterTrackAtCalo());
+   NtupleFactory_->FillFloat("electrons_deltaPhiEleClusterAtCalo",electron.deltaPhiEleClusterTrackAtCalo());
+   NtupleFactory_->FillFloat("electrons_deltaPhiSuperClusterAtVtx",electron.deltaPhiSuperClusterTrackAtVtx());
+   NtupleFactory_->FillFloat("electrons_deltaPhiSeedClusterAtCalo",electron.deltaPhiSeedClusterTrackAtCalo());
    
    
-   // SC variables
+   // supercluster variables
    reco::SuperClusterRef scRef = electron.superCluster();
    const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
    
    double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
    double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
    
+   NtupleFactory_->Fill3PV("electrons_scPosition",electron.superClusterPosition());
    NtupleFactory_->FillFloat("electrons_scE",scRef->energy());
    NtupleFactory_->FillFloat("electrons_scEt",scRef->energy()*(Rt/R));
    NtupleFactory_->FillFloat("electrons_scERaw",scRef->rawEnergy());
@@ -577,34 +581,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_->FillFloat("electrons_scEtaWidth",scRef->etaWidth());
    
    
-   // eleid variables
-   NtupleFactory_->FillFloat("electrons_eOverP",electron.eSuperClusterOverP());
-   NtupleFactory_->FillFloat("electrons_eSeed",electron.superCluster()->seed()->energy());
-   NtupleFactory_->FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
-   NtupleFactory_->FillFloat("electrons_pout",electron.trackMomentumOut().R());
-   NtupleFactory_->FillFloat("electrons_pcalo",electron.trackMomentumAtCalo().R());
-   NtupleFactory_->FillFloat("electrons_fbrem",electron.fbrem());
-   NtupleFactory_->FillFloat("electrons_sigmaIetaIeta",electron.sigmaIetaIeta());
-   NtupleFactory_->FillFloat("electrons_hOverE",electron.hadronicOverEm());
-   NtupleFactory_->FillFloat("electrons_deltaPhiIn",electron.deltaPhiSuperClusterTrackAtVtx());
-   NtupleFactory_->FillFloat("electrons_deltaEtaIn",electron.deltaEtaSuperClusterTrackAtVtx());
-   
-   for(std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++)
-     NtupleFactory_->FillFloat(*iEleId, electron.electronID(*iEleId));
-   
-   
-   // isolation variables
-   NtupleFactory_->FillFloat("electrons_tkIso03",(electron.dr03TkSumPt()));
-   NtupleFactory_->FillFloat("electrons_tkIso04",(electron.dr04TkSumPt()));
-   NtupleFactory_->FillFloat("electrons_emIso03",(electron.dr03EcalRecHitSumEt()));
-   NtupleFactory_->FillFloat("electrons_emIso04",(electron.dr04EcalRecHitSumEt()));
-   NtupleFactory_->FillFloat("electrons_hadIso03_1",(electron.dr03HcalDepth1TowerSumEt()));
-   NtupleFactory_->FillFloat("electrons_hadIso03_2",(electron.dr03HcalDepth2TowerSumEt()));
-   NtupleFactory_->FillFloat("electrons_hadIso04_1",(electron.dr04HcalDepth1TowerSumEt()));
-   NtupleFactory_->FillFloat("electrons_hadIso04_2",(electron.dr04HcalDepth2TowerSumEt()));
-   
-   
-   // cluster shape variables
+   // cluster variables
    float E3x3 = 0;
    float E2x2 = 0;
    
@@ -613,13 +590,13 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
    }
-   
    if ( electron.isEE() )
    {
      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
    }
    
+   NtupleFactory_->FillInt("electrons_basicClustersSize",electron.basicClustersSize());
    NtupleFactory_->FillFloat("electrons_e1x5",electron.e1x5());
    NtupleFactory_->FillFloat("electrons_e2x5Max",electron.e2x5Max());
    NtupleFactory_->FillFloat("electrons_e2x2",E2x2);
@@ -627,14 +604,55 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_->FillFloat("electrons_e5x5",electron.e5x5());
    
    
-   // conversion rejection variables
-   ConversionFinder convFinder;
-   ConversionInfo convInfo = convFinder.getConversionInfo(electron, trackHandle, bField);
+   // rechit variables
+   int numRecHit = 0;
+   float sumRecHitE = 0.;
+   float sumLaserCorrectionRecHitE = 0.;
    
-   NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
-   NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
-   NtupleFactory_->FillFloat("electrons_dist", convInfo.dist());
-   NtupleFactory_->FillFloat("electrons_dcot", convInfo.dcot());
+   const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
+   for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
+   {
+     float rhLaserCorrection = -1.;
+     
+     if ((*rh).first.subdetId()== EcalBarrel)
+     {
+       EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
+       if (itrechit==theBarrelEcalRecHits->end()) continue;
+       EBDetId barrelId (itrechit->id ()); 
+       NtupleFactory_->FillFloat("recHit_E",itrechit->energy());
+       NtupleFactory_->FillInt("recHit_ieta",barrelId.ieta());
+       NtupleFactory_->FillInt("recHit_iphi",barrelId.iphi());
+       NtupleFactory_->FillInt("recHit_ix",-9999);
+       NtupleFactory_->FillInt("reHit_iy",-9999);
+       ++numRecHit;
+       
+       // laser correction
+       rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+       sumRecHitE += itrechit->energy();
+       sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+     }
+       
+     if ((*rh).first.subdetId()== EcalEndcap)
+     {
+       EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
+       if (itrechit==theEndcapEcalRecHits->end()) continue;
+       EEDetId endcapId (itrechit->id ()); 
+       NtupleFactory_->FillFloat("recHit_E",itrechit->energy());
+       NtupleFactory_->FillInt("recHit_ix",endcapId.ix());
+       NtupleFactory_->FillInt("recHit_iy",endcapId.iy());
+       NtupleFactory_->FillInt("recHit_ieta",-9999);
+       NtupleFactory_->FillInt("recHit_iphi",-9999);
+       ++numRecHit;
+       
+       // laser correction
+       rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+       sumRecHitE += itrechit->energy();
+       sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+     }
+   }
+   
+   NtupleFactory_->FillInt("recHit_n",numRecHit);
+   NtupleFactory_->FillFloat("electrons_scAvgLaserCorrection", sumLaserCorrectionRecHitE/sumRecHitE);
    
    
    // seed variables
@@ -647,7 +665,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    float seedLaserAlpha = -1.;
    float seedLaserCorrection = -1.;
    
-
    if(electron.isEB())
    {
      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
@@ -676,7 +693,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
      // laser correction
      seedLaserCorrection = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
    }
- 
+   
    else
    {
      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
@@ -719,63 +736,40 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    // preshower variables 
    NtupleFactory_->FillFloat("electrons_ES",scRef->preshowerEnergy());
    
-   
-   // rechit variables
-   if (saveEleShape_)
-   {
-     int numRecHit = 0;
-     float sumRecHitE = 0.;
-     float sumLaserCorrectionRecHitE = 0.;
-     
-     const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
-     for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
-     {
-       float rhLaserCorrection = -1.;
-       
-       if ((*rh).first.subdetId()== EcalBarrel)
-       {
-         EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
-         if (itrechit==theBarrelEcalRecHits->end()) continue;
-         EBDetId barrelId (itrechit->id ()); 
-         NtupleFactory_->FillFloat("E_xtal",itrechit->energy());
-         NtupleFactory_->FillInt("ieta_xtal",barrelId.ieta());
-         NtupleFactory_->FillInt("iphi_xtal",barrelId.iphi());
-         NtupleFactory_->FillInt("ix_xtal",-1000);
-         NtupleFactory_->FillInt("iy_xtal",-1000);
-         numRecHit++;
-         
-	 // laser correction
-	 rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
-         sumRecHitE += itrechit->energy();
-         sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
-       }
-       
-       
-       if ((*rh).first.subdetId()== EcalEndcap)
-       {
-         EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
-         if (itrechit==theEndcapEcalRecHits->end()) continue;
-         EEDetId endcapId (itrechit->id ()); 
-         NtupleFactory_->FillFloat("E_xtal",itrechit->energy());
-         NtupleFactory_->FillInt("ix_xtal",endcapId.ix());
-         NtupleFactory_->FillInt("iy_xtal",endcapId.iy());
-         NtupleFactory_->FillInt("ieta_xtal",-1000);
-         NtupleFactory_->FillInt("iphi_xtal",-1000);
-         numRecHit++;
-         
-	 // laser correction
-	 rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
-         sumRecHitE += itrechit->energy();
-         sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
-       }
-     }
-    
-     NtupleFactory_->FillInt("numRecHit",numRecHit);
-     NtupleFactory_->FillFloat("electrons_avgLaserCorrection", sumLaserCorrectionRecHitE/sumRecHitE);
-   }
+      
+   // eleid variables
+   NtupleFactory_->FillInt("electrons_classification",electron.classification());
+   NtupleFactory_->FillFloat("electrons_eOverP",electron.eSuperClusterOverP());
+   NtupleFactory_->FillFloat("electrons_eSeed",electron.superCluster()->seed()->energy());
+   NtupleFactory_->FillFloat("electrons_fbrem",electron.fbrem());
+   NtupleFactory_->FillFloat("electrons_sigmaIetaIeta",electron.sigmaIetaIeta());
+   NtupleFactory_->FillFloat("electrons_hOverE",electron.hadronicOverEm());
+   NtupleFactory_->FillFloat("electrons_deltaPhiIn",electron.deltaPhiSuperClusterTrackAtVtx());
+   NtupleFactory_->FillFloat("electrons_deltaEtaIn",electron.deltaEtaSuperClusterTrackAtVtx());
+   for(std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++)
+     NtupleFactory_->FillFloat(*iEleId, electron.electronID(*iEleId));
    
    
-   // crack corrections
+   // isolation variables
+   NtupleFactory_->FillFloat("electrons_tkIso03",(electron.dr03TkSumPt()));
+   NtupleFactory_->FillFloat("electrons_tkIso04",(electron.dr04TkSumPt()));
+   NtupleFactory_->FillFloat("electrons_emIso03",(electron.dr03EcalRecHitSumEt()));
+   NtupleFactory_->FillFloat("electrons_emIso04",(electron.dr04EcalRecHitSumEt()));
+   NtupleFactory_->FillFloat("electrons_hadIso03_1",(electron.dr03HcalDepth1TowerSumEt()));
+   NtupleFactory_->FillFloat("electrons_hadIso03_2",(electron.dr03HcalDepth2TowerSumEt()));
+   NtupleFactory_->FillFloat("electrons_hadIso04_1",(electron.dr04HcalDepth1TowerSumEt()));
+   NtupleFactory_->FillFloat("electrons_hadIso04_2",(electron.dr04HcalDepth2TowerSumEt()));
+   
+   
+   // conversion rejection variables
+   NtupleFactory_->FillInt("electrons_convFlag",electron.convFlags());
+   NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
+   NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
+   NtupleFactory_->FillFloat("electrons_dist", electron.convDist());
+   NtupleFactory_->FillFloat("electrons_dcot", electron.convDcot());
+   
+   
+   // crack correction variables
    f -> init(iSetup);
    double crackcor = 1.;
    
@@ -787,7 +781,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    }
    
    NtupleFactory_->FillFloat("electrons_crackCorrection", crackcor);
-   //std::cout << "crackor = " << crackcor << std::endl;
    
    
  } // end loop over electron candidates

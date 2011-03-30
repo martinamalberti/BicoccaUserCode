@@ -6,8 +6,6 @@
 <use   name="FWCore/Common"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
-<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="PhysicsTools/CandUtils"/>
