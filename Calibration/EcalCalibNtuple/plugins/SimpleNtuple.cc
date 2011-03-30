@@ -623,7 +623,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        NtupleFactory_->FillInt("recHit_ieta",barrelId.ieta());
        NtupleFactory_->FillInt("recHit_iphi",barrelId.iphi());
        NtupleFactory_->FillInt("recHit_ix",-9999);
-       NtupleFactory_->FillInt("reHit_iy",-9999);
+       NtupleFactory_->FillInt("recHit_iy",-9999);
        ++numRecHit;
        
        // laser correction
