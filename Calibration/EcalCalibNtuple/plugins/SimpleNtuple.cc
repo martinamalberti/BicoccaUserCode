@@ -162,7 +162,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scPhi");
     NtupleFactory_->AddFloat("electrons_scPhiWidth");
     NtupleFactory_->AddFloat("electrons_scEtaWidth");
-    NtupleFactory_->AddFloat("electrons_avgLaserCorrection");
+    NtupleFactory_->AddFloat("electrons_scAvgLaserCorrection");
     
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
@@ -194,7 +194,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_ES");
     
     // id variables
-    NtupleFactory_->AddFloat("electrons_classification");
+    NtupleFactory_->AddInt("electrons_classification");
     NtupleFactory_->AddFloat("electrons_eOverP");
     NtupleFactory_->AddFloat("electrons_eSeed");
     NtupleFactory_->AddFloat("electrons_fbrem");
