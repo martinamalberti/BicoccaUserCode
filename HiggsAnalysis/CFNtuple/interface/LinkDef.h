@@ -5,6 +5,8 @@
 
 #pragma link off all classes;
 
+#pragma link C++ class std::vector<float>;
+
 #endif
 
 #endif
