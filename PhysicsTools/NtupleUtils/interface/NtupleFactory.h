@@ -17,6 +17,7 @@
 #include "Math/PtEtaPhiM4D.h"
 #include "Math/LorentzVector.h"
 #include "Math/Vector3D.h"
+#include "Math/PositionVector3D.h"
 #include "Math/Vector3Dfwd.h"
 
 class NtupleFactory{
@@ -36,6 +37,9 @@ class NtupleFactory{
  
   void Add3V(const TString &name);
   void Fill3V(const TString &name,const ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> &vect);
+
+  void Add3PV(const TString &name);
+  void Fill3PV(const TString &name,const ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> &vect);
       
   void Add3TV(const TString &name);
   void Fill3TV(const TString &name,const TVector3 &vect);
@@ -71,6 +75,7 @@ class NtupleFactory{
   std::map <TString,TClonesArray*> ArrayContent_4TV_ ;
   std::map <TString,int> ArrayContent_4TV_num_ ;
   std::map <TString,std::vector<ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* > ArrayContent_StdXYZ_ ;
+  std::map <TString,std::vector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >* > ArrayContent_StdXYZ2_ ;
   std::map <TString,TClonesArray*> ArrayContent_3TV_ ;
   std::map <TString,int> ArrayContent_3TV_num_ ;
   std::map <TString,std::vector<float>* > ArrayContentFloat_ ;
