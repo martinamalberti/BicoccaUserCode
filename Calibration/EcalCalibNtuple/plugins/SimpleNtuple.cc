@@ -174,21 +174,32 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     
     // rechit variables
     NtupleFactory_->AddFloat("recHit_E"); 
+    NtupleFactory_->AddInt("recHit_ism");
     NtupleFactory_->AddInt("recHit_ieta");
     NtupleFactory_->AddInt("recHit_iphi");
     NtupleFactory_->AddInt("recHit_ix");
     NtupleFactory_->AddInt("recHit_iy");
+    NtupleFactory_->AddInt("recHit_zside");
+    NtupleFactory_->AddInt("recHit_hashedIndex");
+    NtupleFactory_->AddFloat("recHit_time");
+    NtupleFactory_->AddInt("recHit_flag");
     NtupleFactory_->AddInt("recHit_n");
     
     // seed variables
-    NtupleFactory_->AddInt("electrons_seedSeverityLevel");
-    NtupleFactory_->AddInt("electrons_seedFlag");
-    NtupleFactory_->AddFloat("electrons_seedEnergy");
+    NtupleFactory_->AddFloat("electrons_seedE");
+    NtupleFactory_->AddInt("electrons_seedIsm");
+    NtupleFactory_->AddInt("electrons_seedIeta");
+    NtupleFactory_->AddInt("electrons_seedIphi");
+    NtupleFactory_->AddInt("electrons_seedIx");
+    NtupleFactory_->AddInt("electrons_seedIy");
+    NtupleFactory_->AddInt("electrons_seedZside");
+    NtupleFactory_->AddInt("electrons_seedHashedIndex");
     NtupleFactory_->AddFloat("electrons_seedTime");
-    NtupleFactory_->AddFloat("electrons_seedE1OverE9");
-    NtupleFactory_->AddFloat("electrons_seedSwissCross");
+    NtupleFactory_->AddInt("electrons_seedFlag");
     NtupleFactory_->AddFloat("electrons_seedLaserAlpha");
     NtupleFactory_->AddFloat("electrons_seedLaserCorrection");
+    NtupleFactory_->AddFloat("electrons_seedSwissCross");
+    
     
     // preshower variables
     NtupleFactory_->AddFloat("electrons_ES");
@@ -469,9 +480,9 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
     NtupleFactory_ -> FillFloat("PV_normalizedChi2", -1.);
     NtupleFactory_ -> FillInt  ("PV_ndof", -1);
     NtupleFactory_ -> FillInt  ("PV_nTracks", -1);
-    NtupleFactory_ -> FillFloat("PV_z", -9999.);
-    NtupleFactory_ -> FillFloat("PV_d0", -9999.);
-    NtupleFactory_ -> FillFloat("PV_SumPt",-9999.);
+    NtupleFactory_ -> FillFloat("PV_z", -999.);
+    NtupleFactory_ -> FillFloat("PV_d0", -999.);
+    NtupleFactory_ -> FillFloat("PV_SumPt",-999.);
   }
   
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
@@ -491,10 +502,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  iSetup.get<CaloTopologyRecord>().get(pTopology);
  const CaloTopology *topology = pTopology.product();
 
- //*********** CHANNEL STATUS
- edm::ESHandle<EcalChannelStatus> theChannelStatus;
- iSetup.get<EcalChannelStatusRcd>().get(theChannelStatus);
- 
  //*********** LASER ALPHAS
  edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
  iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
@@ -620,10 +627,15 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        if (itrechit==theBarrelEcalRecHits->end()) continue;
        EBDetId barrelId (itrechit->id ()); 
        NtupleFactory_->FillFloat("recHit_E",itrechit->energy());
+       NtupleFactory_->FillInt("recHit_ism",int(barrelId.ism()-1));
        NtupleFactory_->FillInt("recHit_ieta",barrelId.ieta());
        NtupleFactory_->FillInt("recHit_iphi",barrelId.iphi());
-       NtupleFactory_->FillInt("recHit_ix",-9999);
-       NtupleFactory_->FillInt("recHit_iy",-9999);
+       NtupleFactory_->FillInt("recHit_ix",-999);
+       NtupleFactory_->FillInt("recHit_iy",-999);
+       NtupleFactory_->FillInt("recHit_zside",0);
+       NtupleFactory_->FillInt("recHit_hashedIndex",barrelId.hashedIndex());
+       NtupleFactory_->FillFloat("recHit_time",itrechit->time());
+       NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        ++numRecHit;
        
        // laser correction
@@ -638,10 +650,15 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        if (itrechit==theEndcapEcalRecHits->end()) continue;
        EEDetId endcapId (itrechit->id ()); 
        NtupleFactory_->FillFloat("recHit_E",itrechit->energy());
+       NtupleFactory_->FillInt("recHit_ism",int(endcapId.ix()/51+(endcapId.zside()<0 ? 0 : 2 )));
        NtupleFactory_->FillInt("recHit_ix",endcapId.ix());
        NtupleFactory_->FillInt("recHit_iy",endcapId.iy());
-       NtupleFactory_->FillInt("recHit_ieta",-9999);
-       NtupleFactory_->FillInt("recHit_iphi",-9999);
+       NtupleFactory_->FillInt("recHit_ieta",-999);
+       NtupleFactory_->FillInt("recHit_iphi",-999);
+       NtupleFactory_->FillInt("recHit_zside",endcapId.zside());
+       NtupleFactory_->FillInt("recHit_hashedIndex",endcapId.hashedIndex());
+       NtupleFactory_->FillFloat("recHit_time",itrechit->time());
+       NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        ++numRecHit;
        
        // laser correction
@@ -656,11 +673,16 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    
    
    // seed variables
-   int sev = -1;
-   int flag = -1;
    float energy;
+   int ism;
+   int ieta;
+   int iphi;
+   int ix;
+   int iy;
+   int zside;
+   int hashedIndex;
    float time; 
-   float E1OverE9;
+   int flag = -1;
    float swissCross;
    float seedLaserAlpha = -1.;
    float seedLaserCorrection = -1.;
@@ -669,20 +691,23 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    {
      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
      
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theBarrelEcalRecHits, *(theChannelStatus.product()));
-     
-     // flag - OutOfTime
+     // flag
      EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
      
      if( it != theBarrelEcalRecHits->end() )
      {
        const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
        energy = rh.energy();
+       ism = int((EBDetId(id.first)).ism() - 1);
+       ieta = (EBDetId(id.first)).ieta();
+       iphi = (EBDetId(id.first)).iphi();
+       ix = -999;
+       iy = -999;
+       zside = 0;
+       hashedIndex = (EBDetId(id.first)).hashedIndex();
        time = rh.time();
-       E1OverE9 = EcalSeverityLevelAlgo::E1OverE9(id.first, *theBarrelEcalRecHits);
-       swissCross = EcalSeverityLevelAlgo::swissCross(id.first, *theBarrelEcalRecHits);
+       flag = rh.recoFlag();
+       swissCross = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
      }
      
      // laser alphas
@@ -698,20 +723,23 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    {
      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
      
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theEndcapEcalRecHits, *(theChannelStatus.product()));
-     
      // flag - OutOfTime
      EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
      
      if( it != theEndcapEcalRecHits->end() )
      {
        const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
        energy = rh.energy();
+       ism = int((EEDetId(id.first)).ix()/51 + ( (EEDetId(id.first)).zside()<0 ? 0 : 2 ));
+       ix = (EEDetId(id.first)).ix();
+       iy = (EEDetId(id.first)).iy();
+       ieta = -999;
+       iphi = -999;
+       zside = (EEDetId(id.first)).zside();
+       hashedIndex = (EEDetId(id.first)).hashedIndex();
        time = rh.time();
-       E1OverE9 = EcalSeverityLevelAlgo::E1OverE9(id.first, *theEndcapEcalRecHits);
-       swissCross = EcalSeverityLevelAlgo::swissCross(id.first, *theEndcapEcalRecHits);
+       flag = rh.recoFlag();
+       swissCross = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
      }
      
      // laser alphas
@@ -723,11 +751,16 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
      seedLaserCorrection = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
    }
 
-   NtupleFactory_->FillInt("electrons_seedSeverityLevel", sev);
-   NtupleFactory_->FillInt("electrons_seedFlag", flag);
-   NtupleFactory_->FillFloat("electrons_seedEnergy", energy);
+   NtupleFactory_->FillFloat("electrons_seedE", energy);
+   NtupleFactory_->FillInt("electrons_seedIsm", ism);
+   NtupleFactory_->FillInt("electrons_seedIeta", ieta);
+   NtupleFactory_->FillInt("electrons_seedIphi", iphi);
+   NtupleFactory_->FillInt("electrons_seedIx", ix);
+   NtupleFactory_->FillInt("electrons_seedIy", iy);
+   NtupleFactory_->FillInt("electrons_seedZside", zside);
+   NtupleFactory_->FillInt("electrons_seedHashedIndex", hashedIndex);
    NtupleFactory_->FillFloat("electrons_seedTime", time);
-   NtupleFactory_->FillFloat("electrons_seedE1OverE9", E1OverE9);
+   NtupleFactory_->FillInt("electrons_seedFlag", flag);
    NtupleFactory_->FillFloat("electrons_seedSwissCross", swissCross);
    NtupleFactory_->FillFloat("electrons_seedLaserAlpha", seedLaserAlpha);
    NtupleFactory_->FillFloat("electrons_seedLaserCorrection", seedLaserCorrection);
