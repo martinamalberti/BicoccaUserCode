@@ -210,6 +210,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  double DR_F;	//DR tra had e reco jets
  
  int eventSel;
+ int G_noTop;
+ int S_noTop;
  
  //int EtaSel;	//trigger su eta
  //int PtSel_had;	// trigger su ptMin
@@ -270,6 +272,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("S_RunNb",&S_RunNb,"S_RunNb/I");
  AnaHiggs.Branch("S_LumiBlk",&S_LumiBlk,"S_LumiBlk/I");
  AnaHiggs.Branch("S_EventNb",&S_EventNb,"S_EventNb/I");
+ AnaHiggs.Branch("G_noTop",&G_noTop,"G_noTop/I");
+ AnaHiggs.Branch("S_noTop",&S_noTop,"S_noTop/I");
  //AnaHiggs.Branch("S_Vtxnum",&S_Vtxnum,"S_Vtxnum/I");
  
  AnaHiggs.Branch("S_D_Eta",&S_D_Eta,"S_D_Eta/D");
@@ -346,11 +350,11 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   ///**** HLT simulation ****
   ///************************
   
-  if (iEvent == entryMIN) {
+//   if (iEvent == entryMIN) {
    for (int iHLT = 0; iHLT < reader.GetString("HLT_Names")->size(); iHLT++){
-    if (reader.GetString("HLT_Names")->at(iHLT) == "HLT_DiJetAve15U" || reader.GetString("HLT_Names")->at(iHLT) == "HLT_DiJetAve15U_8E29") nHLT = iHLT;
+    if (reader.GetString("HLT_Names")->at(iHLT) == "HLT_DiJetAve15U") nHLT = iHLT;
    }
-  }
+//   }
   if (nHLT != -1 && reader.GetFloat("HLT_Accept")->at(nHLT) == 0) {
     if (debug == 1) std::cerr << " HLT = " << reader.GetString("HLT_Names")->at(nHLT) << std::endl;
     continue;
@@ -428,31 +432,37 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   
   int nC_Jets = 0;
   int nF_Jets = 0;
-  
   int reco_sel = 0;
   
   
   if (Central_i_reco !=-1 && Forward_i_reco !=-1){
-    
-    
-    
-//     std::cout<<"step 1 = " <<std::endl;
+//          std::cout<<"step 1 = " <<std::endl;
     
    for(int i = 0; i < nJets_reco; ++i){
-    if (reader.Get4V("jets")->at(i).Pt()>ptMinC){
+     double pt_i = reader.Get4V("jets")->at(i).Pt();
+     double eta_i = fabs(reader.Get4V("jets")->at(i).Eta());
+     
+    if (pt_i>ptMinC){
       reco_sel ++;
     }
-     
-     
-    if(fabs(reader.Get4V("jets")->at(i).Eta())<2.8 && reader.Get4V("jets")->at(i).Pt()>ptMinC){
+    //conta quante volte esiste un secondo jet central che ha pt maggiore del jet forward selezionato
+    if (eta_i<2.8 && pt_i>reader.Get4V("jets")->at(Forward_i_reco).Pt() && i!=Central_i_reco){
+     S_noTop = 1; 
+    }
+    //conta quante volte esiste un secondo jet forward che ha pt maggiore del jet central selezionato    
+    else if (eta_i<4.7 && eta_i >3.2 && pt_i>reader.Get4V("jets")->at(Central_i_reco).Pt() && i!=Forward_i_reco){
+     S_noTop = 1; 
+    }
+    
+    else S_noTop = 0;
+        
+    if(eta_i<2.8 && pt_i>ptMinC){
       
       nC_Jets ++;
 //       std::cout<<"nC_Jets = " <<nC_Jets<<std::endl;
-      
-      
      }
      
-    if(fabs(reader.Get4V("jets")->at(i).Eta())<4.7 && fabs(reader.Get4V("jets")->at(i).Eta()) >3.2 && reader.Get4V("jets")->at(i).Pt()>ptMinF) {
+    if(eta_i<4.7 && eta_i >3.2 && pt_i>ptMinF) {
       nF_Jets ++;
 //       cout<<"nF_Jets = " <<nF_Jets<<endl;
     }
@@ -467,13 +477,13 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     hMultiplicityC.Fill(nC_Jets);
     hMultiplicityF.Fill(nF_Jets);
     
-        
   }
   
   else {
     
     nCJet_S_FJet = -100;	//molteplicità dei jet centrali con pt>35
     nFJet_S_CJet = -100;
+    S_noTop = -100;
     
     nJets_reco_sel = -100;
   
@@ -491,12 +501,26 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 //     std::cout<<"step 1 = " <<std::endl;
     
    for(int i = 0; i < nJets_had; ++i){
+     
+     double pt_i = reader.Get4V(nameGenJet.c_str())->at(i).Pt();
+     double eta_i = fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta());
+     
      if(reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinC){
        had_sel++;
      }
      
+         //conta quante volte esiste un secondo jet central che ha pt maggiore del jet forward selezionato
+    if (eta_i<2.8 && pt_i>reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt() && i!=Central_i_had){
+     G_noTop = 1; 
+    }
+    //conta quante volte esiste un secondo jet forward che ha pt maggiore del jet central selezionato    
+    else if (eta_i<4.7 && eta_i >3.2 && pt_i>reader.Get4V(nameGenJet.c_str())->at(Central_i_had).Pt() && i!=Forward_i_had){
+     G_noTop = 1; 
+    }
+    
+    else G_noTop = 0;
      
-    if(fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<2.8 && reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinC){
+    if(eta_i<2.8 && pt_i>ptMinC){
       
       nC_Jets_had ++;
 //       std::cout<<"nC_Jets = " <<nC_Jets<<std::endl;
@@ -504,7 +528,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
       
      }
      
-    if(fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<4.7 && fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta()) >3.2 && reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinF) {
+    if(eta_i<4.7 && eta_i >3.2 && pt_i>ptMinF) {
       nF_Jets_had ++;
 //       cout<<"nF_Jets = " <<nF_Jets<<endl;
     }
@@ -526,7 +550,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     
     nCJet_G_FJet = -100;	//molteplicità dei jet centrali con pt>35
     nFJet_G_CJet = -100;
-    
+    G_noTop = -100;
+        
     nJets_had_sel = -100;
   
   }
