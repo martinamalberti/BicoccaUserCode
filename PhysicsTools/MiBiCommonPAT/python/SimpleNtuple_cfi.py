@@ -22,18 +22,18 @@ SimpleNtuple = cms.EDAnalyzer(
     #### electrons ####
     EleTag                = cms.InputTag("patElectrons"),
     EleID_names           = cms.vstring(
-        'simpleEleId95relIso',
-        'simpleEleId90relIso',
-        'simpleEleId85relIso',
-        'simpleEleId80relIso',
-        'simpleEleId70relIso',
-        'simpleEleId60relIso',
-        'simpleEleId95cIso',
-        'simpleEleId90cIso',
-        'simpleEleId85cIso',
-        'simpleEleId80cIso',
-        'simpleEleId70cIso',
-        'simpleEleId60cIso'
+#        'simpleEleId95relIso',
+#        'simpleEleId90relIso',
+#        'simpleEleId85relIso',
+#        'simpleEleId80relIso',
+#        'simpleEleId70relIso',
+#        'simpleEleId60relIso',
+#        'simpleEleId95cIso',
+#        'simpleEleId90cIso',
+#        'simpleEleId85cIso',
+#        'simpleEleId80cIso',
+#        'simpleEleId70cIso',
+#        'simpleEleId60cIso'
         ),
     
     #### photons ####
@@ -62,7 +62,7 @@ SimpleNtuple = cms.EDAnalyzer(
     saveHLT       = cms.untracked.bool (True),     
     saveBS        = cms.untracked.bool (True),
     savePV        = cms.untracked.bool (True),     
-    saveTau      = cms.untracked.bool (True),
+    saveTau       = cms.untracked.bool (False), # default no tau saved
     saveMu        = cms.untracked.bool (True),
     saveEle       = cms.untracked.bool (True),
     saveMet       = cms.untracked.bool (True),

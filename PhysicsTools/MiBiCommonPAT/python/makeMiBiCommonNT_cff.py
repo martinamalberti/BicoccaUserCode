@@ -10,19 +10,20 @@ from PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
-
-
 def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
 
     # Setup the process
     process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 10
+#    process.load('Configuration.StandardSequences.GeometryExtended_cff')
+#   process.load("Configuration.StandardSequences.Geometry_cff")
     process.load('Configuration.StandardSequences.GeometryDB_cff')
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
     
+
     # Source
     process.source = cms.Source(
         "PoolSource",
@@ -77,108 +78,114 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     if not MC:
      removeMCMatching(process, ['All'])
     
+
+    # bugfix for DATA Run2011 (begin)
+    removeSpecificPATObjects( process, ['Taus'] )
+    process.patDefaultSequence.remove( process.patTaus )
+    # bugfix for DATA Run2011 (end)
+
     process.patJets.addTagInfos = cms.bool(False)    #bugfix related to btagging
     
     
     ### tau ###
-    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-    switchToPFTauHPS(process, 
-        pfTauLabelOld = 'shrinkingConePFTauProducer',
-        pfTauLabelNew = 'hpsPFTauProducer'
-        )
-
-    process.patCandidates.replace(process.makePatTaus,
-        process.makePatTaus+
-        getattr(process,"makePatTaus"+postfix)
-        )   
-    
-    process.patCandidateSummary.candidates.append(cms.InputTag("patTaus"+postfix))
-    
-    setattr(process,"selectedPatTaus"+postfix,process.selectedPatTaus.clone())
-    getattr(process,"selectedPatTaus"+postfix).src = 'patTaus'+postfix
-    process.selectedPatCandidates.replace(process.selectedPatTaus,
-        process.selectedPatTaus+
-        getattr(process,"selectedPatTaus"+postfix)
-    )
-    process.selectedPatCandidateSummary.candidates.append(cms.InputTag("selectedPatTaus"+postfix))
-
-    getattr(process,"patTaus"+postfix).embedIsolationTracks = cms.bool(True)
-    getattr(process,"patTaus"+postfix).embedSignalTracks = cms.bool(True)
-    getattr(process,"patTaus"+postfix).embedGenMatch = cms.bool(True)
-    getattr(process,"patTaus"+postfix).embedLeadTrack = cms.bool(True)
-    getattr(process,"patTaus"+postfix).embedLeadPFCand = True
-    getattr(process,"patTaus"+postfix).embedLeadPFChargedHadrCand = True
-    getattr(process,"patTaus"+postfix).embedLeadPFNeutralCand = True
-    getattr(process,"patTaus"+postfix).embedSignalPFCands = True
-    getattr(process,"patTaus"+postfix).embedSignalPFChargedHadrCands = True
-    getattr(process,"patTaus"+postfix).embedSignalPFNeutralHadrCands = True
-    getattr(process,"patTaus"+postfix).embedSignalPFGammaCands = True
-    getattr(process,"patTaus"+postfix).embedIsolationPFCands = True
-    getattr(process,"patTaus"+postfix).embedIsolationPFChargedHadrCands = True
-    getattr(process,"patTaus"+postfix).embedIsolationPFNeutralHadrCands = True
-    getattr(process,"patTaus"+postfix).embedIsolationPFGammaCands = True
-    getattr(process,"patTaus"+postfix).embedGenJetMatch = cms.bool(True)
-    getattr(process,"patTaus").embedIsolationTracks = cms.bool(True)
-    getattr(process,"patTaus").embedSignalTracks = cms.bool(True)
-    getattr(process,"patTaus").embedGenMatch = cms.bool(True)
-    getattr(process,"patTaus").embedLeadTrack = cms.bool(True)
-    getattr(process,"patTaus").embedLeadPFCand = True
-    getattr(process,"patTaus").embedLeadPFChargedHadrCand = True
-    getattr(process,"patTaus").embedLeadPFNeutralCand = True
-    getattr(process,"patTaus").embedSignalPFCands = True
-    getattr(process,"patTaus").embedSignalPFChargedHadrCands = True
-    getattr(process,"patTaus").embedSignalPFNeutralHadrCands = True
-    getattr(process,"patTaus").embedSignalPFGammaCands = True
-    getattr(process,"patTaus").embedIsolationPFCands = True
-    getattr(process,"patTaus").embedIsolationPFChargedHadrCands = True
-    getattr(process,"patTaus").embedIsolationPFNeutralHadrCands = True
-    getattr(process,"patTaus").embedIsolationPFGammaCands = True
-    getattr(process,"patTaus").embedGenJetMatch = cms.bool(True)
-   
-    setattr(process,"hpsPFTauDiscriminationAgainstElectron2D",
-      getattr(process,"hpsPFTauDiscriminationAgainstElectron").clone(
-         ApplyCut_ElectronPreID_2D = cms.bool(True),
-         ApplyCut_PFElectronMVA =  cms.bool(False)
-      )
-    )
-    setattr(process,"hpsPFTauDiscriminationAgainstElectronCrackRem",
-         getattr(process,"hpsPFTauDiscriminationAgainstElectron").clone(
-           ApplyCut_EcalCrackCut = cms.bool(True),
-           ApplyCut_PFElectronMVA =  cms.bool(False)
-       )
-    )
-    
-    setattr(process,"shrinkingConePFTauDiscriminationAgainstElectron2D",
-        getattr(process,"shrinkingConePFTauDiscriminationAgainstElectron").clone(
-           ApplyCut_ElectronPreID_2D = cms.bool(True),
-           ApplyCut_PFElectronMVA =  cms.bool(False)
-    )
-    )
-    setattr(process,"shrinkingConePFTauDiscriminationAgainstElectronCrackRem",
-        getattr(process,"shrinkingConePFTauDiscriminationAgainstElectron").clone(
-           ApplyCut_EcalCrackCut = cms.bool(True),
-           ApplyCut_PFElectronMVA =  cms.bool(False)
-         )
-    )
-    process.patHPSPFTauDiscrimination += process.hpsPFTauDiscriminationAgainstElectron2D
-    process.patHPSPFTauDiscrimination += process.hpsPFTauDiscriminationAgainstElectronCrackRem
-    process.patShrinkingConePFTauDiscrimination += process.shrinkingConePFTauDiscriminationAgainstElectron2D
-    process.patShrinkingConePFTauDiscrimination += process.shrinkingConePFTauDiscriminationAgainstElectronCrackRem
-
-    getattr(process,"makePatTaus"+postfix).replace(
-        getattr(process,"patTaus"+postfix),
-        process.patHPSPFTauDiscrimination + getattr(process,"patTaus"+postfix)
-    )
-    getattr(process,"makePatTaus").replace(
-        getattr(process,"patTaus"),
-        process.patShrinkingConePFTauDiscrimination + getattr(process,"patTaus")
-    )
+#    process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
+#    switchToPFTauHPS(process, 
+#        pfTauLabelOld = 'shrinkingConePFTauProducer',
+#        pfTauLabelNew = 'hpsPFTauProducer'
+#        )
+#
+#    process.patCandidates.replace(process.makePatTaus,
+#        process.makePatTaus+
+#        getattr(process,"makePatTaus"+postfix)
+#        )   
+#    
+#    process.patCandidateSummary.candidates.append(cms.InputTag("patTaus"+postfix))
+#    
+#    setattr(process,"selectedPatTaus"+postfix,process.selectedPatTaus.clone())
+#    getattr(process,"selectedPatTaus"+postfix).src = 'patTaus'+postfix
+#    process.selectedPatCandidates.replace(process.selectedPatTaus,
+#        process.selectedPatTaus+
+#        getattr(process,"selectedPatTaus"+postfix)
+#    )
+#    process.selectedPatCandidateSummary.candidates.append(cms.InputTag("selectedPatTaus"+postfix))
+#
+#    getattr(process,"patTaus"+postfix).embedIsolationTracks = cms.bool(True)
+#    getattr(process,"patTaus"+postfix).embedSignalTracks = cms.bool(True)
+#    getattr(process,"patTaus"+postfix).embedGenMatch = cms.bool(True)
+#    getattr(process,"patTaus"+postfix).embedLeadTrack = cms.bool(True)
+#    getattr(process,"patTaus"+postfix).embedLeadPFCand = True
+#    getattr(process,"patTaus"+postfix).embedLeadPFChargedHadrCand = True
+#    getattr(process,"patTaus"+postfix).embedLeadPFNeutralCand = True
+#    getattr(process,"patTaus"+postfix).embedSignalPFCands = True
+#    getattr(process,"patTaus"+postfix).embedSignalPFChargedHadrCands = True
+#    getattr(process,"patTaus"+postfix).embedSignalPFNeutralHadrCands = True
+#    getattr(process,"patTaus"+postfix).embedSignalPFGammaCands = True
+#    getattr(process,"patTaus"+postfix).embedIsolationPFCands = True
+#    getattr(process,"patTaus"+postfix).embedIsolationPFChargedHadrCands = True
+#    getattr(process,"patTaus"+postfix).embedIsolationPFNeutralHadrCands = True
+#    getattr(process,"patTaus"+postfix).embedIsolationPFGammaCands = True
+#    getattr(process,"patTaus"+postfix).embedGenJetMatch = cms.bool(True)
+#    getattr(process,"patTaus").embedIsolationTracks = cms.bool(True)
+#    getattr(process,"patTaus").embedSignalTracks = cms.bool(True)
+#    getattr(process,"patTaus").embedGenMatch = cms.bool(True)
+#    getattr(process,"patTaus").embedLeadTrack = cms.bool(True)
+#    getattr(process,"patTaus").embedLeadPFCand = True
+#    getattr(process,"patTaus").embedLeadPFChargedHadrCand = True
+#    getattr(process,"patTaus").embedLeadPFNeutralCand = True
+#    getattr(process,"patTaus").embedSignalPFCands = True
+#    getattr(process,"patTaus").embedSignalPFChargedHadrCands = True
+#    getattr(process,"patTaus").embedSignalPFNeutralHadrCands = True
+#    getattr(process,"patTaus").embedSignalPFGammaCands = True
+#    getattr(process,"patTaus").embedIsolationPFCands = True
+#    getattr(process,"patTaus").embedIsolationPFChargedHadrCands = True
+#    getattr(process,"patTaus").embedIsolationPFNeutralHadrCands = True
+#    getattr(process,"patTaus").embedIsolationPFGammaCands = True
+#    getattr(process,"patTaus").embedGenJetMatch = cms.bool(True)
+#   
+#    setattr(process,"hpsPFTauDiscriminationAgainstElectron2D",
+#      getattr(process,"hpsPFTauDiscriminationAgainstElectron").clone(
+#         ApplyCut_ElectronPreID_2D = cms.bool(True),
+#         ApplyCut_PFElectronMVA =  cms.bool(False)
+#      )
+#    )
+#    setattr(process,"hpsPFTauDiscriminationAgainstElectronCrackRem",
+#         getattr(process,"hpsPFTauDiscriminationAgainstElectron").clone(
+#           ApplyCut_EcalCrackCut = cms.bool(True),
+#           ApplyCut_PFElectronMVA =  cms.bool(False)
+#       )
+#    )
+#    
+#    setattr(process,"shrinkingConePFTauDiscriminationAgainstElectron2D",
+#        getattr(process,"shrinkingConePFTauDiscriminationAgainstElectron").clone(
+#           ApplyCut_ElectronPreID_2D = cms.bool(True),
+#           ApplyCut_PFElectronMVA =  cms.bool(False)
+#    )
+#    )
+#    setattr(process,"shrinkingConePFTauDiscriminationAgainstElectronCrackRem",
+#        getattr(process,"shrinkingConePFTauDiscriminationAgainstElectron").clone(
+#           ApplyCut_EcalCrackCut = cms.bool(True),
+#           ApplyCut_PFElectronMVA =  cms.bool(False)
+#         )
+#    )
+#    process.patHPSPFTauDiscrimination += process.hpsPFTauDiscriminationAgainstElectron2D
+#    process.patHPSPFTauDiscrimination += process.hpsPFTauDiscriminationAgainstElectronCrackRem
+#    process.patShrinkingConePFTauDiscrimination += process.shrinkingConePFTauDiscriminationAgainstElectron2D
+#    process.patShrinkingConePFTauDiscrimination += process.shrinkingConePFTauDiscriminationAgainstElectronCrackRem
+#
+#    getattr(process,"makePatTaus"+postfix).replace(
+#        getattr(process,"patTaus"+postfix),
+#        process.patHPSPFTauDiscrimination + getattr(process,"patTaus"+postfix)
+#    )
+#    getattr(process,"makePatTaus").replace(
+#        getattr(process,"patTaus"),
+#        process.patShrinkingConePFTauDiscrimination + getattr(process,"patTaus")
+#    )
    
     
     #### electrons ####
     process.load("PhysicsTools.MiBiCommonPAT.simpleEleIdSequence_cff")
     
-    process.patElectrons.addElectronID = cms.bool(True)
+    process.patElectrons.addElectronID = cms.bool(False)
     process.patElectrons.electronIDSources = cms.PSet(
       simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
       simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
@@ -194,7 +201,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
       simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
     )
 
-    process.patElectronsPFlow.addElectronID = cms.bool(True)
+    process.patElectronsPFlow.addElectronID = cms.bool(False)
     process.patElectronsPFlow.electronIDSources = cms.PSet(
       simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
       simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
@@ -321,7 +328,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
     # collections have standard names + postfix (e.g. patElectronPFlow)  
     
-    adaptPFTaus(process,"hpsPFTau",postfix=postfix)
+#    adaptPFTaus(process,"hpsPFTau",postfix=postfix)
     
     # -------------------
     # pat selection layer
