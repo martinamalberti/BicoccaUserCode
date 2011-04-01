@@ -427,6 +427,28 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   if (debug == 1) std::cerr << " Forward_i_reco  = " << Forward_i_reco  << std::endl;
   
   
+  ///MAX PT JETS in the event
+  
+  if (Central_i_reco !=-1 && Forward_i_reco !=-1){
+  std::vector <int> blacklist_reco_max;
+    
+  int maxPt_1 = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMinC, &blacklist_reco_max);
+  blacklist_reco_max.push_back(maxPt_1);
+  int maxPt_2 = SelectObject(*(reader.Get4V("jets")), "maxPt", ptMinC, &blacklist_reco_max);
+  
+  if (maxPt_1 == Central_i_reco || maxPt_1 == Forward_i_reco){
+    if(maxPt_2 == Central_i_reco || maxPt_2 == Forward_i_reco){
+      S_noTop = 0;
+            
+    }
+    else S_noTop = 1;
+  }
+  else S_noTop = 1;
+  
+  }
+  
+  else S_noTop = -100;
+  
   
   ///MULTIPLICITY RECO
   
@@ -445,6 +467,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     if (pt_i>ptMinC){
       reco_sel ++;
     }
+    /*
     //conta quante volte esiste un secondo jet central che ha pt maggiore del jet forward selezionato
     if (eta_i<2.8 && pt_i>reader.Get4V("jets")->at(Forward_i_reco).Pt() && i!=Central_i_reco){
      S_noTop = 1; 
@@ -454,7 +477,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_noTop = 1; 
     }
     
-    else S_noTop = 0;
+    else S_noTop = 0; */
         
     if(eta_i<2.8 && pt_i>ptMinC){
       
@@ -483,11 +506,35 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     
     nCJet_S_FJet = -100;	//molteplicità dei jet centrali con pt>35
     nFJet_S_CJet = -100;
-    S_noTop = -100;
+//     S_noTop = -100;
     
     nJets_reco_sel = -100;
   
   }
+    
+    ///MAX PT JETS in the event HAD
+  
+  if (Central_i_had !=-1 && Forward_i_had !=-1){
+  std::vector <int> blacklist_had_max;
+    
+  int maxPt_1 = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMinC, &blacklist_had_max);
+  blacklist_had_max.push_back(maxPt_1);
+  int maxPt_2 = SelectObject(*(reader.Get4V(nameGenJet.c_str())), "maxPt", ptMinC, &blacklist_had_max);
+  
+  if (maxPt_1 == Central_i_had || maxPt_1 == Forward_i_had){
+    if(maxPt_2 == Central_i_had || maxPt_2 == Forward_i_had){
+      G_noTop = 0;
+            
+    }
+    else G_noTop = 1;
+  }
+  else G_noTop = 1;
+  
+  }
+  
+  else G_noTop = -100;
+  
+  
   
   ///MULTIPLICITY HAD
   
@@ -508,7 +555,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      if(reader.Get4V(nameGenJet.c_str())->at(i).Pt()>ptMinC){
        had_sel++;
      }
-     
+     /*
          //conta quante volte esiste un secondo jet central che ha pt maggiore del jet forward selezionato
     if (eta_i<2.8 && pt_i>reader.Get4V(nameGenJet.c_str())->at(Forward_i_had).Pt() && i!=Central_i_had){
      G_noTop = 1; 
@@ -518,7 +565,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      G_noTop = 1; 
     }
     
-    else G_noTop = 0;
+    else G_noTop = 0;*/
      
     if(eta_i<2.8 && pt_i>ptMinC){
       
@@ -550,7 +597,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
     
     nCJet_G_FJet = -100;	//molteplicità dei jet centrali con pt>35
     nFJet_G_CJet = -100;
-    G_noTop = -100;
+//     G_noTop = -100;
         
     nJets_had_sel = -100;
   
