@@ -16,7 +16,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 
 # simpleNtuple
-ReReco=True
+ReReco=False
 makeSimpleNtuple(process,GlobalTag="GR_R_311_V2::All",ReReco=ReReco)
 makeRecoTags(process)
 
