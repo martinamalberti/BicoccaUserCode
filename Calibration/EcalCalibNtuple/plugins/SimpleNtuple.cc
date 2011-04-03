@@ -18,7 +18,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   outTreeNameEleId->Branch("eleId_names",&eleId_names_);
   
   L1Tag_ = iConfig.getParameter<edm::InputTag>("L1Tag");
-  HLTTag_ = iConfig.getParameter<edm::InputTag>("HLTTag");
+  TriggerEventTag_ = iConfig.getParameter<edm::InputTag>("TriggerEventTag");
+  TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
   
   PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
   
@@ -366,12 +367,16 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
 {
   //std::cout << "SimpleNtuple::fillHLTInfo::begin" << std::endl;
   
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  iEvent.getByLabel(TriggerEventTag_, triggerEventHandle);
+  const edm::Provenance* provenance = triggerEventHandle.provenance();
+  //std::cout << "Trigger process name = " << provenance->processName() << std::endl;
+  bool changed(true);
+  int init = hltConfig_.init(iEvent.getRun(),iSetup,TriggerResultsTag_.process(),changed);
   
   edm::Handle<edm::TriggerResults> triggerResultsHandle;
-  iEvent.getByLabel(HLTTag_, triggerResultsHandle);
-  
+  iEvent.getByLabel(edm::InputTag(TriggerResultsTag_.label(), TriggerResultsTag_.instance(), provenance->processName()), triggerResultsHandle);
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResultsHandle);
-  
   
   
   for(unsigned int iHLT = 0; iHLT < triggerResultsHandle->size(); ++iHLT)

@@ -58,6 +58,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -66,6 +67,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
@@ -104,6 +107,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   EcalClusterFunctionBaseClass* f;
   
+  HLTConfigProvider hltConfig_;
+  
   math::XYZPoint BSPoint_;
   math::XYZPoint PVPoint_;
   
@@ -112,7 +117,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag DCSTag_;
   edm::InputTag PVTag_;
   edm::InputTag L1Tag_;
-  edm::InputTag HLTTag_;
+  edm::InputTag TriggerEventTag_;
+  edm::InputTag TriggerResultsTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
   edm::InputTag EleTag_;
