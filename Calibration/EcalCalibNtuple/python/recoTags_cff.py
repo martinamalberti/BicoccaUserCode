@@ -18,7 +18,7 @@ def makeRecoTags(process):
         cms.PSet(
             record = cms.string("ESRecHitRatioCutsRcd"),
             tag = cms.string("ESRecHitRatioCuts_V02_offline"),
-            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_311X_PRESHOWER")
+            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
             )
         
         )
