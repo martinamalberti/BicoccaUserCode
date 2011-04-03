@@ -41,7 +41,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   
   
   //---- flags ----
-  dataFlag_     = iConfig.getUntrackedParameter<bool> ("dataFlag_", false);
+  useTriggerEvent_ = iConfig.getUntrackedParameter<bool> ("useTriggerEvent_", true);
+  dataFlag_     = iConfig.getUntrackedParameter<bool> ("dataFlag_", true);
   saveL1_       = iConfig.getUntrackedParameter<bool> ("saveL1", true);
   saveBS_       = iConfig.getUntrackedParameter<bool> ("saveBS", true);
   savePV_       = iConfig.getUntrackedParameter<bool> ("savePV", true);
@@ -369,13 +370,19 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
   
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   iEvent.getByLabel(TriggerEventTag_, triggerEventHandle);
+  
   const edm::Provenance* provenance = triggerEventHandle.provenance();
   //std::cout << "Trigger process name = " << provenance->processName() << std::endl;
   bool changed(true);
-  int init = hltConfig_.init(iEvent.getRun(),iSetup,TriggerResultsTag_.process(),changed);
+  hltConfig_.init(iEvent.getRun(),iSetup,TriggerResultsTag_.process(),changed);
   
   edm::Handle<edm::TriggerResults> triggerResultsHandle;
-  iEvent.getByLabel(edm::InputTag(TriggerResultsTag_.label(), TriggerResultsTag_.instance(), provenance->processName()), triggerResultsHandle);
+  
+  if(useTriggerEvent_)
+    iEvent.getByLabel(edm::InputTag(TriggerResultsTag_.label(), TriggerResultsTag_.instance(), provenance->processName()), triggerResultsHandle);
+  else
+    iEvent.getByLabel(TriggerResultsTag_, triggerResultsHandle);
+  
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResultsHandle);
   
   

@@ -131,6 +131,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   std::vector<std::string> eleId_names_;
   
   ///---- flags ----
+  bool useTriggerEvent_ ;
   bool dataFlag_ ;
   bool saveL1_ ;
   bool saveHLT_ ;

@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 simpleNtuple = cms.EDAnalyzer(
     "SimpleNtuple",
     L1Tag               = cms.InputTag("gtDigis"),
-    HLTTag              = cms.InputTag("TriggerResults"),
+    TriggerEventTag     = cms.InputTag("hltTriggerSummaryAOD"),
+    TriggerResultsTag   = cms.InputTag("TriggerResults::HLT"),
     PVTag               = cms.InputTag("offlinePrimaryVertices"),
     #recHitCollection_EB = cms.InputTag("reducedEcalRecHitsEB"),
     #recHitCollection_EE = cms.InputTag("reducedEcalRecHitsEB"),
@@ -16,6 +17,8 @@ simpleNtuple = cms.EDAnalyzer(
     TCMetTag            = cms.InputTag("patMETsTC"),
     PFMetTag            = cms.InputTag("patMETsPF"),
     eleId_names         = cms.vstring('eidLoose','eidTight','eidRobustLoose','eidRobustTight'),
+    useTriggerEvent = cms.untracked.bool(True),
+    dataFlag      = cms.untracked.bool(True),
     saveL1        = cms.untracked.bool(True),
     saveHLT       = cms.untracked.bool(True),
     saveEle       = cms.untracked.bool(True),

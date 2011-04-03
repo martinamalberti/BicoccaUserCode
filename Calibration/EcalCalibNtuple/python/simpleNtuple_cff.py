@@ -19,7 +19,9 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.source.inputCommands = cms.untracked.vstring(
             "drop *_*_*_RECO",
             "drop *_MEtoEDMConverter_*_*",
-            "keep FEDRawDataCollection_*_*_*"
+            "keep FEDRawDataCollection_*_*_*",
+            "keep triggerTriggerEvent_*_*_*",
+            "keep *_TriggerResults_*_*"            
             )
     
     # Out
@@ -31,7 +33,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
 
     # Standard Sequences
     process.load('Configuration.StandardSequences.Services_cff')
-    process.load('Configuration.StandardSequences.Geometry_cff')
+    process.load('Configuration.StandardSequences.GeometryDB_cff')
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load('Configuration.StandardSequences.RawToDigi_Data_cff')    
     process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -115,6 +117,10 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     process.load("Calibration/EcalCalibNtuple/simpleNtuple_cfi")
 
+    if ReReco:
+        process.simpleNtuple.useTriggerEvent = cms.untracked.bool(True)
+        #process.simpleNtuple.TriggerResultsTag = cms.InputTag("TriggerResults")
+    
 
     
     #--------------------------

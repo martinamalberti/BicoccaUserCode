@@ -24,12 +24,14 @@ makeRecoTags(process)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    #Run2011A - /SingleElectron/Run2011A-PromptReco-v1/RECO
+    #Run2011A - /SingleElectron/Run2011A-PromptReco-v1/*
+    #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_RAW.root'
     'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_RECO.root'
+    #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_AOD.root'
     )
 
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(1000)
+   input = cms.untracked.int32(10)
 )
 
 # out
@@ -53,9 +55,10 @@ if ReReco:
 
     process.out = cms.OutputModule(
         "PoolOutputModule",
-        fileName = cms.untracked.string('file:SimplePATpleReReco.root'),
-        outputCommands = cms.untracked.vstring()
+        fileName = cms.untracked.string('simplePATpleReReco.root'),
+        outputCommands = cms.untracked.vstring('keep *_*_*_*')
         )
+    process.e = cms.EndPath(process.out)
 
 
 
@@ -72,5 +75,6 @@ if ReReco:
         process.L1Reco_step,
         process.reconstruction_step,
         process.endjob_step,
-        process.simpleNtuple_step
+        process.simpleNtuple_step,
+        process.e
         )
