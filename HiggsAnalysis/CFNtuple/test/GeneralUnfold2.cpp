@@ -725,7 +725,7 @@ int main(int argc, char** argv)
   }
   
   for (int iBinX = 0; iBinX<slimNBIN; iBinX++){
-   if (debug) std::cout<<"hMeasFJet_slim(Bin)"<<iBinX+1 " = "<<hMeasFJet_slim->GetBinContent(iBinX+1)<<std::endl;
+   if (debug) std::cout<<"hMeasFJet_slim(Bin)"<<iBinX+1 <<" = "<<hMeasFJet_slim->GetBinContent(iBinX+1)<<std::endl;
    
    hMeasFJet_slim->SetBinError(iBinX+1,hMeasFJet_slim->GetBinError(iBinX+1) / (lowEdgeSlim[iBinX+1] - lowEdgeSlim[iBinX]) / lumi);
    hMeasCJet_slim->SetBinError(iBinX+1,hMeasCJet_slim->GetBinError(iBinX+1) / (lowEdgeSlim[iBinX+1] - lowEdgeSlim[iBinX]) / lumi);

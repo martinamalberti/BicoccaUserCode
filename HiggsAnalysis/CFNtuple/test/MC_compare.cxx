@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: MC_compare.cxx,v 1.4 2011/03/04 13:47:26 govoni Exp $
+//      $Id: MC_compare.cxx,v 1.5 2011/03/11 15:05:20 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -47,15 +47,15 @@ void MC_compare()
   
   cout << "================================= FILLING HISTOGRAMS =================================" << endl;
  
-    TFile FileMC_H15("~/Dropbox/QCD_CF/NtupleBo/cut_35_35/qcd_15_herwigjimmy.root","READ");
-//    TFile FileMC_H15("~/Dropbox/QCD_CF/NtupleBo/cut_35_35/data/qcd_15_herwigjimmy.root","READ"); 
-   TFile FileMC_P15("../output/HerwigJimmy15_new.root","READ");
+     TFile FileMC_H15("~/Dropbox/QCD_CF/NtupleBo/cut_35_35/qcd_15_herwigjimmy.root","READ");
+//     TFile FileMC_H15("~/Dropbox/QCD_CF/NtupleBo/cut_35_35/data/qcd_15_herwigjimmy.root","READ"); 
+   TFile FileMC_P15("../output/HerwigJimmy15.root","READ");
     
-//    TFile FileMC_P15("/home/toliman/Dropbox/QCD_CF/MyHerwig/HerwigJimmy15.root","READ");../input/BO/rootfiles/mc/qcd_15_herwigjimmy
+//     TFile FileMC_P15("/home/toliman/Dropbox/QCD_CF/MyHerwig/HerwigJimmy15.root","READ");../input/BO/rootfiles/mc/qcd_15_herwigjimmy
   
-    TFile FileMC_H30("~/Dropbox/QCD_CF/NtupleBo/cut_35_35/qcd_30_herwigjimmy.root","READ");
+     TFile FileMC_H30("~/Dropbox/QCD_CF/NtupleBo/cut_35_35/qcd_30_herwigjimmy.root","READ");
 //    TFile FileMC_H30("~/Dropbox/QCD_CF/NtupleBo/cut_35_35/data/qcd_30_herwigjimmy.root","READ");
-    TFile FileMC_P30("../output/HerwigJimmy30_new.root","READ");
+    TFile FileMC_P30("../output/HerwigJimmy30.root","READ");
 // TFile FileMC_P30("/home/toliman/Dropbox/QCD_CF/MyHerwig/HerwigJimmy30.root","READ");
   
   
@@ -78,8 +78,7 @@ void MC_compare()
     double xsec2H = 49240000. / 1310829.;
     
     double xsec1 = 714000000. / 1532000.;	
-//    double xsec1 = 714000000. / 1631667.;
-     double xsec2 = 49240000. / 1111000.;
+    double xsec2 = 49240000. / 1111000.;
      
 //     double xsec1 =xsec1H;		//cross section HERWIG
 //     double xsec2 = xsec2H;
@@ -92,14 +91,14 @@ void MC_compare()
 //   double xsec2 = 49240000. /TreeMC_P30->GetEntries();
   
   
-  Float_t G_FJet_Pt; //~~~~ had
-  Float_t S_FJet_Pt; //~~~~ reco
+ Float_t G_FJet_Pt; //~~~~ had
+ Float_t S_FJet_Pt; //~~~~ reco
 
  Float_t G_CJet_Pt; //~~~~ had
  Float_t S_CJet_Pt; //~~~~ reco
  
  Double_t G_FJet_Pt_D; //~~~~ had
-  Double_t S_FJet_Pt_D; //~~~~ reco
+ Double_t S_FJet_Pt_D; //~~~~ reco
 
  Double_t G_CJet_Pt_D; //~~~~ had
  Double_t S_CJet_Pt_D; //~~~~ reco
@@ -154,7 +153,7 @@ void MC_compare()
  for (Int_t iEvt= 0; iEvt<TreeMC_H15->GetEntries(); iEvt++) {
    TreeMC_H15->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
-     if (G_CJet_Pt>35 && G_FJet_Pt>35) {
+     if (G_CJet_Pt>35 && G_FJet_Pt>35 ) {
 //      if (S_FJet_Pt>35 && S_CJet_Pt>35 ) {
 //     if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
        HerwigF15->Fill(G_FJet_Pt,xsec1H);
@@ -163,8 +162,10 @@ void MC_compare()
  }
        
        
-    for (Int_t iEvt= 0; iEvt<TreeMC_H15->GetEntries(); iEvt++) {
-   TreeMC_H15->GetEntry(iEvt);
+//     for (Int_t iEvt= 0; iEvt<TreeMC_H30->GetEntries(); iEvt++) {
+//       TreeMC_H30->GetEntry(iEvt);
+       for (Int_t iEvt= 0; iEvt<TreeMC_H15->GetEntries(); iEvt++) {
+    TreeMC_H15->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
      if (S_CJet_Pt>35 && S_FJet_Pt>35) {
 //      if (S_FJet_Pt>35 && S_CJet_Pt>35 ) {
@@ -175,7 +176,7 @@ void MC_compare()
      
     }
    }
-   
+   /*
  //riempio con herwig ptHat 30
  for (Int_t iEvt= 0; iEvt<TreeMC_H30->GetEntries(); iEvt++) {
    TreeMC_H30->GetEntry(iEvt);
@@ -191,12 +192,13 @@ void MC_compare()
      //hMeasCJet_MC->Fill(S_CJet_Pt,xsec1);
     }
    }
- 
+ */
 
   //riempio con pythia ptHat 15
  for (Int_t iEvt= 0; iEvt<TreeMC_P15->GetEntries(); iEvt++) {
    TreeMC_P15->GetEntry(iEvt);
-    if (G_CJet_Pt_D>35 && G_FJet_Pt_D>35) {
+//   && (S_CJet_Pt + S_FJet_Pt ) > 30
+    if (G_CJet_Pt_D>35 && G_FJet_Pt_D>35 ) {
 //     if (S_FJet_Pt_D>35 && S_CJet_Pt_D>35 ) {
 //    if (S_FJet_Pt_D>0 && S_CJet_Pt_D>0 && G_CJet_Pt_D>0 && G_FJet_Pt_D>0) {
         PythiaF15->Fill(G_FJet_Pt_D,xsec1);
@@ -205,8 +207,11 @@ void MC_compare()
  }
 	
 	
-for (Int_t iEvt= 0; iEvt<TreeMC_P15->GetEntries(); iEvt++) {
-   TreeMC_P15->GetEntry(iEvt);
+// for (Int_t iEvt= 0; iEvt<TreeMC_P30->GetEntries(); iEvt++) {
+//    TreeMC_P30->GetEntry(iEvt);
+    for (Int_t iEvt= 0; iEvt<TreeMC_P15->GetEntries(); iEvt++) {
+    TreeMC_P15->GetEntry(iEvt);
+
     if (S_CJet_Pt_D>35 && S_FJet_Pt_D>35) {
 	PythiaF15_reco->Fill(S_FJet_Pt_D,xsec1);
         PythiaC15_reco->Fill(S_CJet_Pt_D,xsec1);
@@ -214,7 +219,7 @@ for (Int_t iEvt= 0; iEvt<TreeMC_P15->GetEntries(); iEvt++) {
     }
    }
  
- 
+ /*
   //riempio con pythia ptHat 30
  for (Int_t iEvt= 0; iEvt<TreeMC_P30->GetEntries(); iEvt++) {
    TreeMC_P30->GetEntry(iEvt);
@@ -231,7 +236,7 @@ for (Int_t iEvt= 0; iEvt<TreeMC_P15->GetEntries(); iEvt++) {
      //hMeasCJet_MC->Fill(S_CJet_Pt,xsec1);
     }
    }
- 
+ */
  
  for (int iBinX = 0; iBinX<NBIN; iBinX++){
 //    double factor = (MAX -MIN)/NBIN;

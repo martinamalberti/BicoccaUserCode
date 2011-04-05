@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldExample.cxx 248 2010-10-04 22:18:19Z T.J.Adye $
+//      $Id: multiplicity.cxx,v 1.1 2011/03/23 15:49:33 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -78,25 +78,8 @@ using std::endl;
   TH2D* hResponseMatrixCJet_tempHerwig = new TH2D ("hResponseMatrixCJet_tempHerwig", "Response Matrix CJet",NBIN,lowEdge,NBIN,lowEdge);
 
   
-  cout << "==================================== TRAIN ====================================" << endl;
-  
-  RooUnfoldResponse responseFJetPythia (&myH,&myH);
-  RooUnfoldResponse responseCJetPythia (&myH,&myH);
-
-  RooUnfoldResponse responseFJetHerwig (&myH,&myH);
-  RooUnfoldResponse responseCJetHerwig (&myH,&myH);
-  
-  TFile FileTrain1Pythia("../input/Unfolding/qcd_15_pythia.root","READ");
-  TFile FileTrain2Pythia("../input/Unfolding/qcd_30_pythia.root","READ");
-
-  TFile FileTrain1Herwig("../input/Unfolding/qcd_15_herwigjimmy.root","READ");
-  TFile FileTrain2Herwig("../input/Unfolding/qcd_30_herwigjimmy.root","READ");
-  
-  TFile FileTrainPOW("../output/POWHEG_kt15_PYTHIA_JOB_9_2.root","READ");
-  TFile FileTrainPOW7("../output/Hannes_pt7.root","READ");
-  
-
-  double lumi = 5.1e-3;
+//   double lumi = 5.1e-3;
+  double lumi = 0.023;
   
   double xsec1Pythia = 8.762e8 / 6190500.;
   double xsec2Pythia = 6.041e7 / 4918016.;
@@ -109,15 +92,7 @@ using std::endl;
   
   double Threshold_G_FJet = 57;
   double Threshold_G_CJet = 57;
-  
- TTree* TreeTrain1Pythia = (TTree*) FileTrain1Pythia.Get("AnaHiggs");
-  TTree* TreeTrain2Pythia = (TTree*) FileTrain2Pythia.Get("AnaHiggs");
- 
-  TTree* TreeTrain1Herwig = (TTree*) FileTrain1Herwig.Get("AnaHiggs");
-  TTree* TreeTrain2Herwig = (TTree*) FileTrain2Herwig.Get("AnaHiggs");
-  
-  TTree* TreeTrainPOW = (TTree*) FileTrainPOW.Get("AnaHiggs");
-  TTree* TreeTrainPOW7 = (TTree*) FileTrainPOW7.Get("AnaHiggs");
+
   
   Double_t G_FJet_Pt; //~~~~ had
   Double_t S_FJet_Pt; //~~~~ reco
@@ -130,6 +105,9 @@ using std::endl;
  
   Int_t nCJet_S_FJet; 
   Int_t nFJet_S_CJet;
+  
+  Int_t nCJet_G_FJet; 
+  Int_t nFJet_G_CJet;
 
 
 
@@ -139,9 +117,16 @@ using std::endl;
 
   double JES = 0.05; //incertezza del 5 per cento sulla scala di energia del jet
   
-  TFile FileTest("/home/toliman/Dropbox/QCD_CF/Multiplicity/data_Nov.root","READ");
+//   TFile FileTest("/home/toliman/Dropbox/QCD_CF/Multiplicity/Ntuples/Data_Nov4_v3.root","READ");
+  TFile FileTest("~/Dropbox/QCD_CF/NtupleMiBi/Data/Data_Nov4_v3.root","READ");
+  
+  TFile FileTest2("~/Dropbox/QCD_CF/NtupleMiBi/Herwig/Herwi15_cut27multi_v2.root","READ");
+  TFile FileTest3("~/Dropbox/QCD_CF/NtupleMiBi/Powheg/POWHEG_kt15_multi.root","READ");
   
   TTree* TreeTest = (TTree*) FileTest.Get("AnaHiggs");
+  TTree* TreeTest2 = (TTree*) FileTest2.Get("AnaHiggs");
+  TTree* TreeTest3 = (TTree*) FileTest3.Get("AnaHiggs");
+  
   TreeTest->SetBranchAddress("S_FJet_Pt",&S_FJet_Pt);
   TreeTest->SetBranchAddress("S_CJet_Pt",&S_CJet_Pt);
   
@@ -149,6 +134,26 @@ using std::endl;
   TreeTest->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt);
   TreeTest->SetBranchAddress("nCJet_S_FJet",&nCJet_S_FJet);
   TreeTest->SetBranchAddress("nFJet_S_CJet",&nFJet_S_CJet);
+
+  TreeTest2->SetBranchAddress("S_FJet_Pt",&S_FJet_Pt);
+  TreeTest2->SetBranchAddress("S_CJet_Pt",&S_CJet_Pt);
+  
+  TreeTest2->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt);
+  TreeTest2->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt);
+  TreeTest2->SetBranchAddress("nCJet_S_FJet",&nCJet_S_FJet);
+  TreeTest2->SetBranchAddress("nFJet_S_CJet",&nFJet_S_CJet);
+  TreeTest2->SetBranchAddress("nCJet_G_FJet",&nCJet_G_FJet);
+  TreeTest2->SetBranchAddress("nFJet_G_CJet",&nFJet_G_CJet);
+  
+  TreeTest3->SetBranchAddress("S_FJet_Pt",&S_FJet_Pt);
+  TreeTest3->SetBranchAddress("S_CJet_Pt",&S_CJet_Pt);
+  
+  TreeTest3->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt);
+  TreeTest3->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt);
+  TreeTest3->SetBranchAddress("nCJet_S_FJet",&nCJet_S_FJet);
+  TreeTest3->SetBranchAddress("nFJet_S_CJet",&nFJet_S_CJet);
+  TreeTest3->SetBranchAddress("nCJet_G_FJet",&nCJet_G_FJet);
+  TreeTest3->SetBranchAddress("nFJet_G_CJet",&nFJet_G_CJet);
   
   
   
@@ -195,6 +200,39 @@ using std::endl;
 //     TH2D* hScatterPlot = new TH2D ("hScatterPlot", "ScatterPlot", NBIN , lowEdge,  NBIN , lowEdge);
 //    TH2D* hRatioBin = new TH2D ("hRatioBin", "RatioBin", NBIN , lowEdge, NBIN, lowEdge);
 
+  TH1D* hMulti57_Herwig = new TH1D ("hMulti57_Herwig", "Multi 57 Herwig", NBIN_multi, 0., NBIN_multi);
+
+  for (Int_t iEvt= 0; iEvt<TreeTest2->GetEntries(); iEvt++) {
+   TreeTest2->GetEntry(iEvt);
+   
+   
+     if(S_FJet_Pt>57 && S_FJet_Pt<72 &&S_CJet_Pt>35 && nFJet_S_CJet == 1){
+//     if(G_FJet_Pt>57 && G_FJet_Pt<72 &&G_CJet_Pt>30 && nFJet_G_CJet == 1){
+    
+     hMulti57_Herwig->Fill(nCJet_S_FJet);
+//     hMulti57_Herwig->Fill(nCJet_G_FJet);
+    
+//     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
+    }
+  }
+  
+  
+  TH1D* hMulti57_Powheg = new TH1D ("hMulti57_Powheg", "Multi 57 Powheg", NBIN_multi, 0., NBIN_multi);
+
+  for (Int_t iEvt= 0; iEvt<TreeTest3->GetEntries(); iEvt++) {
+   TreeTest3->GetEntry(iEvt);
+   
+   
+    if(G_FJet_Pt>57 && G_FJet_Pt<72 &&G_CJet_Pt>35 && nFJet_G_CJet == 1){
+    
+    hMulti57_Powheg->Fill(nCJet_G_FJet);
+    
+//     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
+    }
+  }
+  
+//   hMulti57_Herwig->Scale(TreeTest->GetEntries()/TreeTest2->GetEntries());
+
 
   for (Int_t iEvt= 0; iEvt<TreeTest->GetEntries(); iEvt++) {
    TreeTest->GetEntry(iEvt);
@@ -202,63 +240,47 @@ using std::endl;
    if (S_FJet_Pt>35 && S_CJet_Pt>35) {
     hMeasFJet->Fill(S_FJet_Pt);
     hMeasCJet->Fill(S_CJet_Pt);
-    
-    hMeasFJet_Plus->Fill(S_FJet_Pt * (1 + JES));
-    hMeasCJet_Plus->Fill(S_CJet_Pt * (1 + JES));
-
-    hMeasFJet_Minus->Fill(S_FJet_Pt * (1 - JES));
-    hMeasCJet_Minus->Fill(S_CJet_Pt * (1 - JES));
+   }
     
     
-    if(S_FJet_Pt>35 && S_FJet_Pt<45 && nFJet_S_CJet == 1){
+     if(S_FJet_Pt>35 && S_FJet_Pt<45 && S_CJet_Pt>35  && nFJet_S_CJet == 1){
     hRatio35->Fill(S_FJet_Pt/S_CJet_Pt);
     hMulti35->Fill(nCJet_S_FJet);
     hCJet_pt35->Fill(S_CJet_Pt);
-    
-//     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
+    //     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
     }
-    
-    /*  if(S_FJet_Pt>40 && S_FJet_Pt<45){
-    hRatio40->Fill(S_FJet_Pt/S_CJet_Pt);
-    hMulti40->Fill(nCJet_S_FJet);
-//     hCJet_pt40->Fill(S_CJet_Pt);
-    
-//     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
-    }*/
-    
-    
-     if(S_FJet_Pt>45 && S_FJet_Pt<57){
+        
+     if(S_FJet_Pt>45 && S_FJet_Pt<57 && S_CJet_Pt>35  && nFJet_S_CJet == 1){
     hRatio45->Fill(S_FJet_Pt/S_CJet_Pt);
     hMulti45->Fill(nCJet_S_FJet);
     hCJet_pt45->Fill(S_CJet_Pt);
 //     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
     }
-     if(S_FJet_Pt>57 && S_FJet_Pt<72){
+     if(S_FJet_Pt>57 && S_FJet_Pt<72 && S_CJet_Pt>35 && nFJet_S_CJet == 1){
     hRatio57->Fill(S_FJet_Pt/S_CJet_Pt);
     hMulti57->Fill(nCJet_S_FJet);
     hCJet_pt57->Fill(S_CJet_Pt);
 //     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
     }
-     if(S_FJet_Pt>72 && S_FJet_Pt<90){
+     if(S_FJet_Pt>72 && S_FJet_Pt<90 && S_CJet_Pt>35  && nFJet_S_CJet == 1){
     hRatio72->Fill(S_FJet_Pt/S_CJet_Pt);
     hMulti72->Fill(nCJet_S_FJet);
     hCJet_pt72->Fill(S_CJet_Pt);
 //     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
     }
-     if(S_FJet_Pt>90 && S_FJet_Pt<120){
+     if(S_FJet_Pt>90 && S_FJet_Pt<120 && S_CJet_Pt>35  && nFJet_S_CJet == 1){
     hRatio90->Fill(S_FJet_Pt/S_CJet_Pt);
     hMulti90->Fill(nCJet_S_FJet);
     hCJet_pt90->Fill(S_CJet_Pt);
 //     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
     }
-     if(S_FJet_Pt>120 && S_FJet_Pt<150){
+     if(S_FJet_Pt>120 && S_FJet_Pt<150 &&S_CJet_Pt>35 && nFJet_S_CJet == 1){
     hRatio120->Fill(S_FJet_Pt/S_CJet_Pt);
     hMulti120->Fill(nCJet_S_FJet);
     hCJet_pt120->Fill(S_CJet_Pt);
 //     hRatioBin->Fill(S_FJet_Pt, S_FJet_Pt/S_CJet_Pt);
     }
     
-   }
   }
   
   
@@ -381,7 +403,7 @@ using std::endl;
   hRatio57->DrawCopy();
   hRatio57->Fit("gaus+gaus", "L");
   
-  ccRatio57->cd(2);
+   ccRatio57->cd(2);
   hMulti57->GetXaxis()->SetTitle("number of central jets");
   hMulti57->GetYaxis()->SetTitle("nEvents");
 //   hMulti57->SetFillStyle(3001);  
@@ -393,7 +415,17 @@ using std::endl;
   hMulti57->GetXaxis()->SetRangeUser(0, 5);
 //   hMulti57->SetStats(0);
   hMulti57->DrawCopy();
-
+  
+  /*
+  hMulti57_Herwig->SetLineColor(kBlue);  
+//   hMulti57_Herwig->SetMarkerColor(kYellow); 
+  hMulti57_Herwig->SetMarkerStyle(20);
+  hMulti57_Herwig->SetMarkerSize(1);
+  hMulti57_Herwig->GetXaxis()->SetRangeUser(0, 5);
+//   hMulti57_Herwig->SetStats(0);
+  hMulti57_Herwig->DrawCopy("SAME");*/
+  
+  
   
   TCanvas* ccRatio72 = new TCanvas("ccRatio72","ccRatio72",600,600);  
   ccRatio72->Divide(1,2);
@@ -492,7 +524,7 @@ using std::endl;
   
 //     ccRatio->SetLogy();
 
-
+/*
 TCanvas* ccCJet_pt35 = new TCanvas("ccCJet_pt35","ccCJet_pt35",600,600);  
 
   hCJet_pt35->GetXaxis()->SetTitle("Central_pt");
@@ -533,7 +565,7 @@ TCanvas* ccCJet_pt35 = new TCanvas("ccCJet_pt35","ccCJet_pt35",600,600);
   hCJet_pt72->SetMarkerSize(1);
   hCJet_pt72->GetXaxis()->SetRangeUser(35.,149.);
 //   hCJet_pt72->SetStats(0);
-  hCJet_pt72->DrawCopy();
+  hCJet_pt72->DrawCopy();*/
   
 
   
@@ -586,6 +618,19 @@ TCanvas* ccCJet_pt35 = new TCanvas("ccCJet_pt35","ccCJet_pt35",600,600);
    hMeasCJet_Minus->SetBinContent(iBinX+1,hMeasCJet_Minus->GetBinContent(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]) / lumi);       
 
   }
+  
+  
+ 
+  cout<<"Dijet_events = " << hMulti57->GetBinContent(2)<<endl;
+  cout<<"Trijet_events = " << hMulti57->GetBinContent(3)<<endl;
+  cout<<"Quadrijet_events = " << hMulti57->GetBinContent(4)<<endl;
+  cout<<"All_events = " << hMulti57->GetEntries()<<endl;
+  cout<<"Dijet_events/All_events Data= " << hMulti57->GetBinContent(2)/hMulti57->GetEntries()<<endl;
+  cout<<"Dijet_events/All_events Herwig= " << hMulti57_Herwig->GetBinContent(2)/hMulti57_Herwig->GetEntries()<<endl;
+  cout<<"Dijet_events/All_events Powheg= " << hMulti57_Powheg->GetBinContent(2)/hMulti57_Powheg->GetEntries()<<endl;
+  
+  
+  
 }
 
 #ifndef __CINT__

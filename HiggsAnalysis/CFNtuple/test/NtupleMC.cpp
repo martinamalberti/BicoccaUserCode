@@ -512,6 +512,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  if (ntupleTYPE!=-1){
  events -> Write () ;
  }
+ 
  outFile.Write();
  
  

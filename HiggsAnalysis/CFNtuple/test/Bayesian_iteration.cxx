@@ -42,7 +42,13 @@ void Bayesian_iteration()
 #endif
 
   Float_t lowEdge[9] = {27,35,45,57,72,90,120,150,1000};	//mi sto creando un istogramma con bin di grandezza fissata da me che poi passo alla matrice di risposta che lo usa
-  int NBIN = 8;
+   int NBIN = 8;
+ 
+//   Float_t lowEdge[16] = {27,31,35,40,45,51,57,64.5,72,81,90,105,120,135,150,1000};	//mi sto creando un istogramma con bin di grandezza fissata da me che poi passo alla matrice di risposta che lo usa
+//   int NBIN = 15;
+  
+//   Float_t lowEdge[20] = {27,29,31,33,35,37.5,40,42.5,45,51,57,64.5,72,81,90,105,120,135,150,1000};	//mi sto creando un istogramma con bin di grandezza fissata da me che poi passo alla matrice di risposta che lo usa
+//   int NBIN = 19;
   
   TH1F myH("myH","myH",NBIN,lowEdge);
   TH2D* hResponseMatrixFJet = new TH2D ("hResponseMatrixFJet", "Response Matrix FJet",NBIN,lowEdge,NBIN,lowEdge);
@@ -57,10 +63,26 @@ void Bayesian_iteration()
   RooUnfoldResponse responseFJet (&myH,&myH);
   RooUnfoldResponse responseCJet (&myH,&myH);
   
-   TFile FileTest1("../input/Unfolding/qcd_15_herwigjimmy.root","READ");
-  TFile FileTrain1("../input/Unfolding/qcd_15_pythia.root","READ");
-   TFile FileTest2("../input/Unfolding/qcd_30_herwigjimmy.root","READ");
-  TFile FileTrain2("../input/Unfolding/qcd_30_pythia.root","READ");
+  
+  //PYHTIA SU HERWIG 
+  /*
+     TFile FileTest1("../input/Unfolding/qcd_15_herwigjimmy.root","READ");
+    TFile FileTrain1("../input/Unfolding/qcd_15_pythia.root","READ");
+     TFile FileTest2("../input/Unfolding/qcd_30_herwigjimmy.root","READ");
+    TFile FileTrain2("../input/Unfolding/qcd_30_pythia.root","READ");*/
+
+   //HERWIG SU PYTHIA
+  /*  TFile FileTest1("../input/Unfolding/qcd_15_pythia.root","READ");
+   TFile FileTrain1("../input/Unfolding/qcd_15_herwigjimmy.root","READ");
+    TFile FileTest2("../input/Unfolding/qcd_30_pythia.root","READ");
+   TFile FileTrain2("../input/Unfolding/qcd_30_herwigjimmy.root","READ");*/
+
+ //PYTHIA SU PYTHIA
+    TFile FileTest1("../input/Unfolding/qcd_15_pythia.root","READ");
+    TFile FileTrain1("../input/Unfolding/qcd_15_pythia.root","READ");
+    TFile FileTest2("../input/Unfolding/qcd_30_pythia.root","READ");
+    TFile FileTrain2("../input/Unfolding/qcd_30_pythia.root","READ");
+
 
   
   double lumi = 5.1e-3;
@@ -72,13 +94,25 @@ void Bayesian_iteration()
   double Threshold_G_FJet = 57;
   double Threshold_G_CJet = 57;*/
   
+  //PYTHIA SU HERWIG
+    double xsec1 =  8.762e8 / 6190500.*1000 ;
+    double xsec2 = 6.041e7 / 4918016.*1000 ;
+    double xsec1Herwig = 714000000. / 1631667.*1000;
+    double xsec2Herwig =  49240000. / 1310829.*1000;
   
-//  double xsec1 = 8.762e8 / 1000.;
-//  double xsec2 = 6.041e7 / 1000.;
-  double xsec1 =  8.762e8 / 6190500.*1000 ;
-  double xsec2 = 6.041e7 / 4918016.*1000 ;
-  double xsec1Herwig = 714000000. / 1631667.*1000;
-  double xsec2Herwig =  49240000. / 1310829.*1000;
+  //HERWIG SU PYTHIA
+/*   double xsec1Herwig =  8.762e8 / 6190500.*1000 ;
+   double xsec2Herwig = 6.041e7 / 4918016.*1000 ;
+   double xsec1 = 714000000. / 1631667.*1000;
+   double xsec2 =  49240000. / 1310829.*1000;*/
+
+//PYTHIA SU PYTHIA
+   /* double xsec1 =  8.762e8 / 6190500.*1000 ;
+    double xsec2 = 6.041e7 / 4918016.*1000 ;
+    double xsec1Herwig = xsec1;
+    double xsec2Herwig =  xsec2;*/
+  
+  
   
   int test = 1; //if set to 0 use Pythia else use Herwig
   
@@ -421,18 +455,43 @@ void Bayesian_iteration()
  
   cout << "==================================== UNFOLD ON MC ===================================" << endl;
 
+  
+  ///Metodo BIN-TO-BIN
+  RooUnfoldBinByBin unfoldCJet_Bin (&responseCJet, hMeasCJet_MC_test);
+  TH1D* hRecoCJet_Bin = (TH1D*) unfoldCJet_Bin.Hreco();
+
     // RooUnfoldBinByBin unfoldFJet_5 (&responseFJet, hMeasFJet_MC_test);
-     
+  
+    ///Metodo Bayesiano
+//for 5 iterations    
+        // RooUnfoldBayes    unfoldFJet_5 (&responseFJet, hMeasFJet_MC, 10);    // OR
+  RooUnfoldBayes    unfoldFJet_1 (&responseFJet, hMeasFJet_MC_test, 5);    // OR
+  
+  TH1D* hRecoFJet_1 = (TH1D*) unfoldFJet_1.Hreco();
+  hRecoFJet_1->SetTitle("FJetUnfold_1");
+  // RooUnfoldBayes    unfoldCJet_5 (&responseCJet, hMeasCJet_MC, 10);    // OR
+   
+  RooUnfoldBayes    unfoldCJet_1 (&responseCJet, hMeasCJet_MC_test, 5);
+  TH1D* hRecoCJet_1 = (TH1D*) unfoldCJet_1.Hreco();
+  hRecoCJet_1->SetTitle("CJetUnfold_1");
+    
+  hRecoFJet_1->Sumw2();
+  hRecoCJet_1->Sumw2();
+  for (int iBinX = 0; iBinX<NBIN; iBinX++){
+    hRecoFJet_1->SetBinContent(iBinX+1,hRecoFJet_1->GetBinContent(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]));
+    hRecoCJet_1->SetBinContent(iBinX+1,hRecoCJet_1->GetBinContent(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]));    
+   }
+   
+   //for 10 iterations
     // RooUnfoldBayes    unfoldFJet_5 (&responseFJet, hMeasFJet_MC, 10);    // OR
-     RooUnfoldBayes    unfoldFJet_5 (&responseFJet, hMeasFJet_MC_test, 10);    // OR
+   RooUnfoldBayes    unfoldFJet_5 (&responseFJet, hMeasFJet_MC_test, 10);    // OR
+//   RooUnfoldBayes    unfoldFJet_5 (&responseFJet, hMeasFJet_MC_test, 5);    // OR
   
   TH1D* hRecoFJet_5 = (TH1D*) unfoldFJet_5.Hreco();
   hRecoFJet_5->SetTitle("FJetUnfold_5");
-  
   // RooUnfoldBayes    unfoldCJet_5 (&responseCJet, hMeasCJet_MC, 10);    // OR
-  RooUnfoldBinByBin unfoldCJet_Bin (&responseCJet, hMeasCJet_MC_test);
-  RooUnfoldBayes    unfoldCJet_5 (&responseCJet, hMeasCJet_MC_test, 10);
-  TH1D* hRecoCJet_Bin = (TH1D*) unfoldCJet_Bin.Hreco();
+   RooUnfoldBayes    unfoldCJet_5 (&responseCJet, hMeasCJet_MC_test, 10);
+//   RooUnfoldBayes    unfoldCJet_5 (&responseCJet, hMeasCJet_MC_test, 5);
   TH1D* hRecoCJet_5 = (TH1D*) unfoldCJet_5.Hreco();
   hRecoCJet_5->SetTitle("CJetUnfold_5");
     
@@ -856,38 +915,49 @@ void Bayesian_iteration()
  
  ///Draw Graph for single Bin Response
   
-   const Int_t n = 7;
+   const Int_t n = 8;
    Double_t x[n], y[n];
       
-   x[0] = 10;
-   x[1] = 25;
-   x[2] = 50;
-   x[3] = 100;
-   x[4] = 200;
-   x[5] = 500;
-   x[6] = 1000;
+   x[0] = 5;
+   x[1] = 10;
+   x[2] = 25;
+   x[3] = 50;
+   x[4] = 100;
+   x[5] = 200;
+   x[6] = 500;
+   x[7] = 1000;
+   
    
    //for Bin 1
    int iBin = 1;
-   TCanvas* cgBinResponse35 = new TCanvas("cgBinResponse35","cgBinResponse35");  
+   TCanvas* cgBinResponse35 = new TCanvas("cgBinResponse35","cgBinResponse35", 600, 600);  
+    double True = hTrueCJet_MC_test->GetBinContent(iBin);
    
-   y[0] = hRecoCJet_5->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[1] = hRecoCJet_10->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[2] = hRecoCJet_15->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[3] = hRecoCJet_20->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[4] = hRecoCJet_25->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[5] = hRecoCJet_50->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[6] = hRecoCJet_100->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
+   y[0] = hRecoCJet_1->GetBinContent(iBin)/True;
+   y[1] = hRecoCJet_5->GetBinContent(iBin)/True;
+   y[2] = hRecoCJet_10->GetBinContent(iBin)/True;
+   y[3] = hRecoCJet_15->GetBinContent(iBin)/True;
+   y[4] = hRecoCJet_20->GetBinContent(iBin)/True;
+   y[5] = hRecoCJet_25->GetBinContent(iBin)/True;
+   y[6] = hRecoCJet_50->GetBinContent(iBin)/True;
+   y[7] = hRecoCJet_100->GetBinContent(iBin)/True;
+   
+   std::cout<<"Unfolding - Bin number =  " << iBin <<std::endl;
+   std::cout<<"Err[%] - Bin-to-Bin   = " << fabs(hRecoCJet_Bin->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (10)   = " << fabs(hRecoCJet_5->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (1000) = " << fabs(hRecoCJet_100->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   
    
    gr7 = new TGraph(n,x,y);
    gr7->SetLineColor(2);
    gr7->SetLineWidth(2);
+   gr7->SetFillColor(0);
    //gr7->SetMarkerColor(3);
    gr7->SetMarkerStyle(21);
    gr7->SetTitle("Bin 35");
    gr7->GetXaxis()->SetTitle("Iterations number");
    gr7->GetYaxis()->SetTitle("Bin Entries");
-   gr7->GetYaxis()->SetRangeUser(0.,2.);
+   gr7->GetYaxis()->SetRangeUser(0.6,1.4);
    gr7->Draw("ALP");
   
    //double val = hTrueCJet_MC->GetBinContent(iBin);
@@ -903,29 +973,53 @@ void Bayesian_iteration()
    lin35Bin->SetLineWidth(1);
    //lin120->SetLineColor(kRed);
    lin35Bin->Draw();
+   
+      leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.04);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
+   
+   leg->AddEntry(gr7,"Bayesian", "lpf");
+   leg->AddEntry(lin35,"True", "lpf");
+   leg->AddEntry(lin35Bin,"Bin-by-bin", "lpf");
+   
+   leg->Draw(); 
   
    
    //for first Bin
    iBin = 2;
-   TCanvas* cgBinResponse45 = new TCanvas("cgBinResponse45","cgBinResponse45");  
+   TCanvas* cgBinResponse45 = new TCanvas("cgBinResponse45","cgBinResponse45", 600, 600);  
+   double True = hTrueCJet_MC_test->GetBinContent(iBin);
    
-   y[0] = hRecoCJet_5->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[1] = hRecoCJet_10->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[2] = hRecoCJet_15->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[3] = hRecoCJet_20->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[4] = hRecoCJet_25->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[5] = hRecoCJet_50->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[6] = hRecoCJet_100->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
+   y[0] = hRecoCJet_1->GetBinContent(iBin)/True;
+   y[1] = hRecoCJet_5->GetBinContent(iBin)/True;
+   y[2] = hRecoCJet_10->GetBinContent(iBin)/True;
+   y[3] = hRecoCJet_15->GetBinContent(iBin)/True;
+   y[4] = hRecoCJet_20->GetBinContent(iBin)/True;
+   y[5] = hRecoCJet_25->GetBinContent(iBin)/True;
+   y[6] = hRecoCJet_50->GetBinContent(iBin)/True;
+   y[7] = hRecoCJet_100->GetBinContent(iBin)/True;
+   
+   std::cout<<"Unfolding - Bin number =  " << iBin <<std::endl;
+   std::cout<<"Err[%] - Bin-to-Bin   = " << fabs(hRecoCJet_Bin->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (10)   = " << fabs(hRecoCJet_5->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (1000) = " << fabs(hRecoCJet_100->GetBinContent(iBin)-True)/True*100 <<std::endl;
    
    gr7 = new TGraph(n,x,y);
    gr7->SetLineColor(2);
    gr7->SetLineWidth(2);
+   gr7->SetFillColor(0);
    //gr7->SetMarkerColor(3);
    gr7->SetMarkerStyle(21);
    gr7->SetTitle("Bin 45");
    gr7->GetXaxis()->SetTitle("Iterations number");
    gr7->GetYaxis()->SetTitle("Bin Entries");
-   gr7->GetYaxis()->SetRangeUser(0.,2.);
+   gr7->GetYaxis()->SetRangeUser(0.6,1.4);
    gr7->Draw("ALP");
   
    //double val = hTrueCJet_MC->GetBinContent(iBin);
@@ -940,27 +1034,51 @@ void Bayesian_iteration()
    lin45Bin->SetLineWidth(1);
    lin45Bin->Draw();
    
+      leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.04);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
+   
+   leg->AddEntry(gr7,"Bayesian", "lpf");
+   leg->AddEntry(lin45,"True", "lpf");
+   leg->AddEntry(lin45Bin,"Bin-by-bin", "lpf");
+   
+   leg->Draw(); 
+   
    //for first Bin
    iBin = 3;
-   TCanvas* cgBinResponse57 = new TCanvas("cgBinResponse57","cgBinResponse57");  
+   TCanvas* cgBinResponse57 = new TCanvas("cgBinResponse57","cgBinResponse57", 600, 600);  
+   double True = hTrueCJet_MC_test->GetBinContent(iBin);
    
-   y[0] = hRecoCJet_5->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[1] = hRecoCJet_10->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[2] = hRecoCJet_15->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[3] = hRecoCJet_20->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[4] = hRecoCJet_25->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[5] = hRecoCJet_50->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[6] = hRecoCJet_100->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
+   y[0] = hRecoCJet_1->GetBinContent(iBin)/True;
+   y[1] = hRecoCJet_5->GetBinContent(iBin)/True;
+   y[2] = hRecoCJet_10->GetBinContent(iBin)/True;
+   y[3] = hRecoCJet_15->GetBinContent(iBin)/True;
+   y[4] = hRecoCJet_20->GetBinContent(iBin)/True;
+   y[5] = hRecoCJet_25->GetBinContent(iBin)/True;
+   y[6] = hRecoCJet_50->GetBinContent(iBin)/True;
+   y[7] = hRecoCJet_100->GetBinContent(iBin)/True;
+   
+   std::cout<<"Unfolding - Bin number =  " << iBin <<std::endl;
+   std::cout<<"Err[%] - Bin-to-Bin   = " << fabs(hRecoCJet_Bin->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (10)   = " << fabs(hRecoCJet_5->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (1000) = " << fabs(hRecoCJet_100->GetBinContent(iBin)-True)/True*100 <<std::endl;
    
    gr7 = new TGraph(n,x,y);
    gr7->SetLineColor(2);
    gr7->SetLineWidth(2);
+   gr7->SetFillColor(0);
    //gr7->SetMarkerColor(3);
    gr7->SetMarkerStyle(21);
    gr7->SetTitle("Bin 57");
    gr7->GetXaxis()->SetTitle("Iterations number");
    gr7->GetYaxis()->SetTitle("Bin Entries");
-   gr7->GetYaxis()->SetRangeUser(0.,2.);
+   gr7->GetYaxis()->SetRangeUser(0.6,1.4);
    gr7->Draw("ALP");
   
     //double val = hTrueCJet_MC->GetBinContent(iBin);
@@ -975,29 +1093,53 @@ void Bayesian_iteration()
    lin57Bin->SetLineWidth(1);
    //lin120->SetLineColor(kRed);
    lin57Bin->Draw();
+      
+   leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.04);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
    
+   leg->AddEntry(gr7,"Bayesian", "lpf");
+   leg->AddEntry(lin57,"True", "lpf");
+   leg->AddEntry(lin57Bin,"Bin-by-bin", "lpf");
+   
+   leg->Draw(); 
    
    //for first Bin
    iBin = 4;
-   TCanvas* cgBinResponse72 = new TCanvas("cgBinResponse72","cgBinResponse72");  
+   TCanvas* cgBinResponse72 = new TCanvas("cgBinResponse72","cgBinResponse72", 600, 600);  
+   double True = hTrueCJet_MC_test->GetBinContent(iBin);
    
-   y[0] = hRecoCJet_5->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[1] = hRecoCJet_10->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[2] = hRecoCJet_15->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[3] = hRecoCJet_20->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[4] = hRecoCJet_25->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[5] = hRecoCJet_50->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[6] = hRecoCJet_100->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
+   y[0] = hRecoCJet_1->GetBinContent(iBin)/True;
+   y[1] = hRecoCJet_5->GetBinContent(iBin)/True;
+   y[2] = hRecoCJet_10->GetBinContent(iBin)/True;
+   y[3] = hRecoCJet_15->GetBinContent(iBin)/True;
+   y[4] = hRecoCJet_20->GetBinContent(iBin)/True;
+   y[5] = hRecoCJet_25->GetBinContent(iBin)/True;
+   y[6] = hRecoCJet_50->GetBinContent(iBin)/True;
+   y[7] = hRecoCJet_100->GetBinContent(iBin)/True;
+   
+   std::cout<<"Unfolding - Bin number =  " << iBin <<std::endl;
+   std::cout<<"Err[%] - Bin-to-Bin   = " << fabs(hRecoCJet_Bin->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (10)   = " << fabs(hRecoCJet_5->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (1000) = " << fabs(hRecoCJet_100->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   
    
    gr7 = new TGraph(n,x,y);
    gr7->SetLineColor(2);
    gr7->SetLineWidth(2);
+   gr7->SetFillColor(0);
    //gr7->SetMarkerColor(3);
    gr7->SetMarkerStyle(21);
    gr7->SetTitle("Bin 72");
    gr7->GetXaxis()->SetTitle("Iterations number");
    gr7->GetYaxis()->SetTitle("Bin Entries");
-   gr7->GetYaxis()->SetRangeUser(0.,2.);
+   gr7->GetYaxis()->SetRangeUser(0.6,1.4);
    gr7->Draw("ALP");
   
   //double val = hTrueCJet_MC->GetBinContent(iBin);
@@ -1013,29 +1155,54 @@ void Bayesian_iteration()
    //lin120->SetLineColor(kRed);
    lin72Bin->Draw();
    
+      leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.04);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
+   
+   leg->AddEntry(gr7,"Bayesian", "lpf");
+   leg->AddEntry(lin72,"True", "lpf");
+   leg->AddEntry(lin72Bin,"Bin-by-bin", "lpf");
+   
+   leg->Draw(); 
+   
    
    //for first Bin
    iBin = 5;
-   TCanvas* cgBinResponse90 = new TCanvas("cgBinResponse90","cgBinResponse90");  
-    
-   y[0] = hRecoCJet_5->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[1] = hRecoCJet_10->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[2] = hRecoCJet_15->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[3] = hRecoCJet_20->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[4] = hRecoCJet_25->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[5] = hRecoCJet_50->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[6] = hRecoCJet_100->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
+   TCanvas* cgBinResponse90 = new TCanvas("cgBinResponse90","cgBinResponse90", 600, 600);  
+   double True = hTrueCJet_MC_test->GetBinContent(iBin);
+   
+   y[0] = hRecoCJet_1->GetBinContent(iBin)/True;
+   y[1] = hRecoCJet_5->GetBinContent(iBin)/True;
+   y[2] = hRecoCJet_10->GetBinContent(iBin)/True;
+   y[3] = hRecoCJet_15->GetBinContent(iBin)/True;
+   y[4] = hRecoCJet_20->GetBinContent(iBin)/True;
+   y[5] = hRecoCJet_25->GetBinContent(iBin)/True;
+   y[6] = hRecoCJet_50->GetBinContent(iBin)/True;
+   y[7] = hRecoCJet_100->GetBinContent(iBin)/True;
+   
+   std::cout<<"Unfolding - Bin number =  " << iBin <<std::endl;
+   std::cout<<"Err[%] - Bin-to-Bin   = " << fabs(hRecoCJet_Bin->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (10)   = " << fabs(hRecoCJet_5->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (1000) = " << fabs(hRecoCJet_100->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   
    
    gr7 = new TGraph(n,x,y);
    gr7->SetLineColor(2);
    gr7->SetLineWidth(2);
+   gr7->SetFillColor(0);
    //gr7->SetMarkerColor(3);
    gr7->SetMarkerStyle(21);
    
    gr7->SetTitle("Bin 90");
    gr7->GetXaxis()->SetTitle("Iterations number");
    gr7->GetYaxis()->SetTitle("Bin Entries");
-   gr7->GetYaxis()->SetRangeUser(0.,2.);
+   gr7->GetYaxis()->SetRangeUser(0.6,1.4);
    gr7->Draw("ALP");
    //double val = hTrueCJet_MC->GetBinContent(iBin);
    double val = 1;	//Valore atteso da HERWIG!
@@ -1050,28 +1217,56 @@ void Bayesian_iteration()
    lin90Bin->SetLineWidth(1);
    
    lin90Bin->Draw();
+   
+      leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.04);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
+   
+   leg->AddEntry(gr7,"Bayesian", "lpf");
+   leg->AddEntry(lin90,"True", "lpf");
+   leg->AddEntry(lin90Bin,"Bin-by-bin", "lpf");
+   
+   leg->Draw(); 
+   
+   
+   
    //for bin 6
    iBin = 6;
-   TCanvas* cgBinResponse120 = new TCanvas("cgBinResponse120","cgBinResponse120");  
+   TCanvas* cgBinResponse120 = new TCanvas("cgBinResponse120","cgBinResponse120", 600, 600);  
+   double True = hTrueCJet_MC_test->GetBinContent(iBin);
    
-     y[0] = hRecoCJet_5->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[1] = hRecoCJet_10->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[2] = hRecoCJet_15->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[3] = hRecoCJet_20->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[4] = hRecoCJet_25->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[5] = hRecoCJet_50->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
-   y[6] = hRecoCJet_100->GetBinContent(iBin)/hTrueCJet_MC_test->GetBinContent(iBin);
+   y[0] = hRecoCJet_1->GetBinContent(iBin)/True;
+   y[1] = hRecoCJet_5->GetBinContent(iBin)/True;
+   y[2] = hRecoCJet_10->GetBinContent(iBin)/True;
+   y[3] = hRecoCJet_15->GetBinContent(iBin)/True;
+   y[4] = hRecoCJet_20->GetBinContent(iBin)/True;
+   y[5] = hRecoCJet_25->GetBinContent(iBin)/True;
+   y[6] = hRecoCJet_50->GetBinContent(iBin)/True;
+   y[7] = hRecoCJet_100->GetBinContent(iBin)/True;
+   
+   std::cout<<"Unfolding - Bin number =  " << iBin <<std::endl;
+   std::cout<<"Err[%] - Bin-to-Bin   = " << fabs(hRecoCJet_Bin->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (10)   = " << fabs(hRecoCJet_5->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   std::cout<<"Err[%] - Bayes (1000) = " << fabs(hRecoCJet_100->GetBinContent(iBin)-True)/True*100 <<std::endl;
+   
    
    gr7 = new TGraph(n,x,y);
    gr7->SetLineColor(2);
    gr7->SetLineWidth(2);
+   gr7->SetFillColor(0);
    //gr7->SetMarkerColor(3);
    gr7->SetMarkerStyle(21);
    
    gr7->SetTitle("Bin 120");
    gr7->GetXaxis()->SetTitle("Iterations number");
    gr7->GetYaxis()->SetTitle("Bin Entries");
-   gr7->GetYaxis()->SetRangeUser(0.,2.);
+   gr7->GetYaxis()->SetRangeUser(0.6,1.4);
    gr7->Draw("ALP");
   
    //double val = hTrueCJet_MC->GetBinContent(iBin);
@@ -1082,11 +1277,27 @@ void Bayesian_iteration()
    lin120->SetLineWidth(1);
    lin120->SetLineColor(kBlue);
    lin120->Draw();
+   
    TLine* lin120Bin = new TLine (0., val2, 1100., val2);
    lin120Bin->SetLineWidth(1);
    //lin120->SetLineColor(kRed);
    lin120Bin->Draw();
    
+   leg = new TLegend(0.6,0.7,0.9,0.9,NULL,"brNDC");
+   leg->SetBorderSize(0);
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.04);
+   leg->SetLineColor(1);
+   leg->SetLineStyle(1);
+   leg->SetLineWidth(1);
+   leg->SetFillColor(0);
+   leg->SetFillStyle(1001);
+   
+   leg->AddEntry(gr7,"Bayesian", "lpf");
+   leg->AddEntry(lin120,"True", "lpf");
+   leg->AddEntry(lin120Bin,"Bin-by-bin", "lpf");
+   
+   leg->Draw();    
    /*
    //for bin 6
    iBin = 7;

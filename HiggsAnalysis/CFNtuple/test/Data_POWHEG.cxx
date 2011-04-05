@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldExample.cxx 248 2010-10-04 22:18:19Z T.J.Adye $
+//      $Id: Data_POWHEG.cxx,v 1.1 2011/03/03 15:24:53 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -42,7 +42,7 @@ void Data_POWHEG()
   
 //  setTDRStyle();
 
-  int matching = 0;	//if matching = 1 require S_Jet >0 for filling MC histos else do not
+  int matching = 0;	//if matching == 1 require S_Jet_Pt >0 for filling MC histos else do not
   
   Float_t lowEdge[8] = {35,45,57,72,90,120,150,1000};
   const int NBIN = 7;
@@ -68,11 +68,11 @@ void Data_POWHEG()
   RooUnfoldResponse responseFJetHerwig (&myH,&myH);
   RooUnfoldResponse responseCJetHerwig (&myH,&myH);
   
-  TFile FileTrain1Pythia("../input/BO/rootfiles/mc/qcd_15_pythia.root","READ");
-  TFile FileTrain2Pythia("../input/BO/rootfiles/mc/qcd_30_pythia.root","READ");
+  TFile FileTrain1Pythia("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_15_pythia.root","READ");
+  TFile FileTrain2Pythia("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_30_pythia.root","READ");
 
-   TFile FileTrain1Herwig("../input/BO/rootfiles/mc/qcd_15_herwigjimmy.root","READ");
-   TFile FileTrain2Herwig("../input/BO/rootfiles/mc/qcd_30_herwigjimmy.root","READ");
+   TFile FileTrain1Herwig("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_15_herwigjimmy.root","READ");
+   TFile FileTrain2Herwig("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_30_herwigjimmy.root","READ");
   
   
 //   TFile FileTrain1Pythia("../input/Unfolding/qcd_15_pythia.root","READ");
@@ -81,20 +81,24 @@ void Data_POWHEG()
 //    TFile FileTrain1Herwig("../output/HerwigJimmy15.root","READ");
 //    TFile FileTrain2Herwig("../output/HerwigJimmy30.root","READ");
   
-     TFile FileTrainPOW("../output/powheg15_JOB_8_2.root","READ");
+     TFile FileTrainPOW("~/Dropbox/QCD_CF/NtupleMiBi/Powheg/POWHEG_kt15_v1.root","READ");
 //     TFile FileTrainPOW("../output/powheg15.root","READ");
+     TFile FileTrainPOW7("~/Dropbox/QCD_CF/NtupleMiBi/Powheg/POWHEG_HERWIG6_kt15_temp_cut35.root","READ");
+//      TFile FileTrainPOW7("../output/Hannes_pt7.root","READ");
+
 //     TFile FileTrainPOW("../output/powheg10.root","READ");
 //      TFile FileTrainPOW("../output/powheg25.root","READ");
 
 
 
 
-  double lumi = 5.1e-3;
+  double lumi = 0.023;
 //     double lumi = 5.1e-3;	//lumiNew
 
   
   double xsec1Pythia = 8.762e8 / 6190500.;
   double xsec2Pythia = 6.041e7 / 4918016.;
+  
   double xsec1Herwig = 714000000. / 1631667.;
   double xsec2Herwig =  49240000. / 1310829.;
   
@@ -113,7 +117,7 @@ void Data_POWHEG()
   TTree* TreeTrain2Herwig = (TTree*) FileTrain2Herwig.Get("AnaHiggs");
   
   TTree* TreeTrainPOW = (TTree*) FileTrainPOW.Get("AnaHiggs");
-  
+  TTree* TreeTrainPOW7 = (TTree*) FileTrainPOW7.Get("AnaHiggs");
 
    Float_t G_FJet_Pt; //~~~~ had
    Float_t S_FJet_Pt; //~~~~ reco
@@ -150,6 +154,9 @@ void Data_POWHEG()
  
  TreeTrainPOW->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt_P);
  TreeTrainPOW->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt_P);
+  
+ TreeTrainPOW7->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt_P);
+ TreeTrainPOW7->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt_P);
 
  
 
@@ -162,7 +169,7 @@ void Data_POWHEG()
     TreeTrain1Pythia->GetEntry(iEvt);
 //     if (S_FJet_Pt>0 && G_FJet_Pt>0)   std::cerr << " S_FJet_Pt = " << S_FJet_Pt << " G_FJet_Pt = " << G_FJet_Pt << std::endl;
     
-    if (S_FJet_Pt>0 && G_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0)  {
+    if (S_FJet_Pt>0 && G_FJet_Pt>35 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
      if (G_FJet_Pt < Threshold_G_FJet) {
 //      responseFJet.Fill (S_FJet_Pt, G_FJet_Pt, xsec1 / xsec_mean);
       hResponseMatrixFJet_tempPythia->Fill(S_FJet_Pt, G_FJet_Pt);
@@ -190,7 +197,7 @@ void Data_POWHEG()
    TreeTrain2Pythia->GetEntry(iEvt);
    //     if (S_FJet_Pt>0 && G_FJet_Pt>0)   std::cerr << " S_FJet_Pt = " << S_FJet_Pt << " G_FJet_Pt = " << G_FJet_Pt << std::endl;
    
-   if (S_FJet_Pt>0 && G_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0)  {
+   if (S_FJet_Pt>0 && G_FJet_Pt>35 && S_CJet_Pt>0 && G_CJet_Pt>35)  {
     if (G_FJet_Pt >= Threshold_G_FJet) {
 //     responseFJet.Fill (S_FJet_Pt, G_FJet_Pt, xsec2 / xsec_mean);
      hResponseMatrixFJetPythia->Fill(S_FJet_Pt, G_FJet_Pt);
@@ -232,7 +239,7 @@ void Data_POWHEG()
  for (Int_t iEvt= 0; iEvt<TreeTrain1Pythia->GetEntries(); iEvt++) {
    TreeTrain1Pythia->GetEntry(iEvt);
     
-   if(G_FJet_Pt>0 && G_FJet_Pt<Threshold_G_FJet){
+   if(G_FJet_Pt>35 && G_CJet_Pt>35 && G_FJet_Pt<Threshold_G_FJet){
       Non_matchedF_P->Fill(G_FJet_Pt, xsec1Pythia);
      }
  }
@@ -240,7 +247,7 @@ void Data_POWHEG()
   for (Int_t iEvt= 0; iEvt<TreeTrain2Pythia->GetEntries(); iEvt++) {
    TreeTrain2Pythia->GetEntry(iEvt);
     
-   if(G_FJet_Pt>=Threshold_G_FJet){
+   if(G_CJet_Pt>35 && G_FJet_Pt>=Threshold_G_FJet){
       Non_matchedF_P->Fill(G_FJet_Pt, xsec2Pythia);
      }
  }
@@ -268,7 +275,7 @@ void Data_POWHEG()
  for (Int_t iEvt= 0; iEvt<TreeTrain1Pythia->GetEntries(); iEvt++) {
    TreeTrain1Pythia->GetEntry(iEvt);
     
-   if(G_CJet_Pt>0 && G_CJet_Pt<Threshold_G_CJet){
+   if(G_CJet_Pt>35 && G_FJet_Pt>35 && G_CJet_Pt<Threshold_G_CJet){
       Non_matchedC_P->Fill(G_CJet_Pt, xsec1Pythia);
      }
  }
@@ -276,7 +283,7 @@ void Data_POWHEG()
   for (Int_t iEvt= 0; iEvt<TreeTrain2Pythia->GetEntries(); iEvt++) {
    TreeTrain2Pythia->GetEntry(iEvt);
     
-   if(G_CJet_Pt>=Threshold_G_CJet){
+   if(G_CJet_Pt>35 &&G_FJet_Pt>35 && G_CJet_Pt>=Threshold_G_CJet){
       Non_matchedC_P->Fill(G_CJet_Pt, xsec2Pythia);
      }
  }
@@ -351,7 +358,7 @@ void Data_POWHEG()
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
    
    if (matching ==1){
-   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt < Threshold_G_FJet) {
      hTrueFJet_MC_tempPythia->Fill(G_FJet_Pt);
      hMeasFJet_MC_tempPythia->Fill(S_FJet_Pt);
@@ -364,7 +371,7 @@ void Data_POWHEG()
   }
   
   else {
-   if (G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt < Threshold_G_FJet) {
      hTrueFJet_MC_tempPythia->Fill(G_FJet_Pt);
      hMeasFJet_MC_tempPythia->Fill(S_FJet_Pt);
@@ -394,7 +401,7 @@ void Data_POWHEG()
    TreeTrain2Pythia->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
    if (matching ==1){
-   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt > Threshold_G_FJet) {
      hTrueFJet_MCPythia->Fill(G_FJet_Pt);
      hMeasFJet_MCPythia->Fill(S_FJet_Pt);
@@ -407,7 +414,7 @@ void Data_POWHEG()
   }  
   
   else {
-   if (G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt > Threshold_G_FJet) {
      hTrueFJet_MCPythia->Fill(G_FJet_Pt);
      hMeasFJet_MCPythia->Fill(S_FJet_Pt);
@@ -581,7 +588,7 @@ void Data_POWHEG()
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
    
    if (matching == 1) {
-   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt < Threshold_G_FJet) {
      hTrueFJet_MC_tempHerwig->Fill(G_FJet_Pt);
      hMeasFJet_MC_tempHerwig->Fill(S_FJet_Pt);
@@ -594,7 +601,7 @@ void Data_POWHEG()
   }
   
   else {
-   if (G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt < Threshold_G_FJet) {
      hTrueFJet_MC_tempHerwig->Fill(G_FJet_Pt);
      hMeasFJet_MC_tempHerwig->Fill(S_FJet_Pt);
@@ -628,7 +635,7 @@ void Data_POWHEG()
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
    
    if (matching ==1){
-   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (S_FJet_Pt>0 && S_CJet_Pt>0 && G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt > Threshold_G_FJet) {
      hTrueFJet_MCHerwig->Fill(G_FJet_Pt);
      hMeasFJet_MCHerwig->Fill(S_FJet_Pt);
@@ -641,7 +648,7 @@ void Data_POWHEG()
   }
   
   else {
-   if (G_CJet_Pt>0 && G_FJet_Pt>0) {
+   if (G_CJet_Pt>35 && G_FJet_Pt>35) {
     if (G_FJet_Pt > Threshold_G_FJet) {
      hTrueFJet_MCHerwig->Fill(G_FJet_Pt);
      hMeasFJet_MCHerwig->Fill(S_FJet_Pt);
@@ -711,7 +718,7 @@ void Data_POWHEG()
   double JES = 0.05;
   
 //   TFile FileTest("../input/Unfolding/Jet_Jun14_jet_v2.root","READ");
-    TFile FileTest("../input/BO/rootfiles/data/Jet_Jun14.root","READ");
+    TFile FileTest("~/Dropbox/QCD_CF/NtupleBo/ntuple/data/Jet_2010A.root","READ");
 //     TFile FileTest("../input/MiBiCommonNT_23_1_xGH.root","READ");
     
 
@@ -734,7 +741,7 @@ void Data_POWHEG()
   for (Int_t iEvt= 0; iEvt<TreeTest->GetEntries(); iEvt++) {
    TreeTest->GetEntry(iEvt);
 //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
-   if (S_FJet_Pt>0 && S_CJet_Pt>0) {
+   if (S_FJet_Pt>35 && S_CJet_Pt>35) {
     hMeasFJet->Fill(S_FJet_Pt);
     hMeasCJet->Fill(S_CJet_Pt);
     
@@ -782,7 +789,7 @@ cout << "==================================== POWHEG Distributions =============
   for (Int_t iEvt= 0; iEvt<TreeTrainPOW->GetEntries(); iEvt++) {
    TreeTrainPOW->GetEntry(iEvt);
    //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
-   if (G_CJet_Pt_P>0 && G_FJet_Pt_P>0) {
+   if (G_CJet_Pt_P>35 && G_FJet_Pt_P>35) {
     
      hTrueFJet_MCPowheg->Fill(G_FJet_Pt_P);
      hTrueCJet_MCPowheg->Fill(G_CJet_Pt_P);
@@ -792,7 +799,7 @@ cout << "==================================== POWHEG Distributions =============
 //   double xsecPowheg = 901.6;
 //    double xsecPowheg = 900054123. / TreeTrainPOW->GetEntries();
 //    double xsecPowheg = 900054123. / 1000000; //xsec15
-    double xsecPowheg = 900054123. / 1517099; //sample parallel15_2/JOB_8
+    double xsecPowheg = 900054123. /15999208.; //sample parallel15_2/JOB_8
 //     double xsecPowheg = 3523524384. / 500000;	//xsec10
 //    double xsecPowheg =    142380275.4 / 500000;	//xsec25
 
@@ -816,8 +823,8 @@ cout << "==================================== POWHEG Distributions =============
    
   }
   
-   //Weight for Pythia Acceptance 
-   /*
+   /*//Weight for Pythia Acceptance 
+   
    for (int iBinX = 0; iBinX<NBIN; iBinX++){
    hTrueFJet_MCPowheg->SetBinError(iBinX+1,hTrueFJet_MCPowheg->GetBinError(iBinX+1) * AcceptanceF_Pythia[iBinX]);
    hTrueCJet_MCPowheg->SetBinError(iBinX+1,hTrueCJet_MCPowheg->GetBinError(iBinX+1) * AcceptanceC_Pythia[iBinX]);
@@ -826,6 +833,45 @@ cout << "==================================== POWHEG Distributions =============
    hTrueCJet_MCPowheg->SetBinContent(iBinX+1,hTrueCJet_MCPowheg->GetBinContent(iBinX+1) * AcceptanceC_Pythia[iBinX]);
    
   }*/
+   
+   
+ 
+cout << "==================================== POWHEG7 Distributions ===================================" << endl;
+
+  TH1D* hTrueFJet_MCPowheg7 = new TH1D ("hTrueFJet_MCPowheg7", "MC Truth FJet Powheg7",    NBIN , lowEdge);
+  TH1D* hTrueCJet_MCPowheg7 = new TH1D ("hTrueCJet_MCPowheg7", "MC Truth CJet Powheg7",    NBIN , lowEdge);
+  
+//   double xsecPowheg7 = 1.07846619e10 /2000000.;
+  double xsecPowheg7 = 900054123. /1850209.;
+   
+  for (Int_t iEvt= 0; iEvt<TreeTrainPOW7->GetEntries(); iEvt++) {
+   TreeTrainPOW7->GetEntry(iEvt);
+   //    std::cerr << " S_FJet_Pt = " << S_FJet_Pt << std::endl;
+   if (G_CJet_Pt_P>35 && G_FJet_Pt_P>35) {
+    
+     hTrueFJet_MCPowheg7->Fill(G_FJet_Pt_P);
+     hTrueCJet_MCPowheg7->Fill(G_CJet_Pt_P);
+   }
+  }  
+  
+   
+  for (int iBinX = 0; iBinX<NBIN; iBinX++){
+   hTrueFJet_MCPowheg7->SetBinError(iBinX+1,hTrueFJet_MCPowheg7->GetBinError(iBinX+1) * xsecPowheg7);
+   hTrueCJet_MCPowheg7->SetBinError(iBinX+1,hTrueCJet_MCPowheg7->GetBinError(iBinX+1) * xsecPowheg7); 
+  
+   hTrueFJet_MCPowheg7->SetBinContent(iBinX+1,hTrueFJet_MCPowheg7->GetBinContent(iBinX+1) * xsecPowheg7);
+   hTrueCJet_MCPowheg7->SetBinContent(iBinX+1,hTrueCJet_MCPowheg7->GetBinContent(iBinX+1) * xsecPowheg7);
+  }
+  
+   for (int iBinX = 0; iBinX<NBIN; iBinX++){
+   hTrueFJet_MCPowheg7->SetBinError(iBinX+1,hTrueFJet_MCPowheg7->GetBinError(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]));
+   hTrueCJet_MCPowheg7->SetBinError(iBinX+1,hTrueCJet_MCPowheg7->GetBinError(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]));
+   
+   hTrueFJet_MCPowheg7->SetBinContent(iBinX+1,hTrueFJet_MCPowheg7->GetBinContent(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]));
+   hTrueCJet_MCPowheg7->SetBinContent(iBinX+1,hTrueCJet_MCPowheg7->GetBinContent(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]));
+   
+  }
+ 
   
 
   
@@ -1257,6 +1303,12 @@ cout << "==================================== POWHEG Distributions =============
   hTrueCJet_MCPowheg->SetMarkerSize(1);
   hTrueCJet_MCPowheg->DrawCopy("SAMEE");
   
+  hTrueCJet_MCPowheg7->SetLineColor(kViolet);
+  hTrueCJet_MCPowheg7->SetMarkerColor(kViolet);
+  hTrueCJet_MCPowheg7->SetMarkerStyle(21);
+  hTrueCJet_MCPowheg7->SetMarkerSize(1);
+  hTrueCJet_MCPowheg7->DrawCopy("SAMEE");
+  
   ccCJet_JESHerwigPythia->SetLogy();
 
   gPad->BuildLegend();
@@ -1323,6 +1375,12 @@ cout << "==================================== POWHEG Distributions =============
   hTrueFJet_MCPowheg->SetMarkerStyle(21);
   hTrueFJet_MCPowheg->SetMarkerSize(1);
   hTrueFJet_MCPowheg->DrawCopy("SAMEE");
+  
+  hTrueFJet_MCPowheg7->SetLineColor(kViolet);
+  hTrueFJet_MCPowheg7->SetMarkerColor(kViolet);
+  hTrueFJet_MCPowheg7->SetMarkerStyle(21);
+  hTrueFJet_MCPowheg7->SetMarkerSize(1);
+  hTrueFJet_MCPowheg7->DrawCopy("SAMEE");
   
   ccFJet_JESHerwigPythia->SetLogy();
 

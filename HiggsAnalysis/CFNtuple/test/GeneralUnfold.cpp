@@ -31,7 +31,7 @@
 #include "RooUnfoldDagostini.h"
 #include "RooUnfoldTUnfold.h"
 
-#include "TDRStyle.h"
+// #include "TDRStyle.h"
 
 #include <math.h>
 
@@ -54,7 +54,7 @@
 
 int main(int argc, char** argv)
 {
-  TDRStyle();
+//   TDRStyle();
 
  //Check if all nedeed arguments to parse are there
  if(argc != 2)
@@ -79,9 +79,7 @@ int main(int argc, char** argv)
  std::string OutFileName    = gConfigParser -> readStringOption("Output::outFileName");
  std::cout << ">>>>> Output::outFileName  " << OutFileName  << std::endl;  
  
- TFile outFile(OutFileName.c_str(),"RECREATE");
- outFile.cd();
-
+ 
   
   //==== input file ====
   double  normalizationMCLowA;
@@ -180,6 +178,11 @@ int main(int argc, char** argv)
   double Threshold_G_FJet = gConfigParser -> readDoubleOption("Options::ThresholdFJet");
   double Threshold_G_CJet = gConfigParser -> readDoubleOption("Options::ThresholdCJet"); 
   
+  
+  
+  TFile outFile(OutFileName.c_str(),"RECREATE");
+  outFile.cd();
+
   
   TH1F myH("myH","myH",NBIN,lowEdge);
   TH2D* hResponseMatrixFJet_A = new TH2D ("hResponseMatrixFJet_A", (TString) Form("Response Matrix FJet %s", nameTypeFileA.c_str()),NBIN,lowEdge,NBIN,lowEdge);
@@ -914,6 +917,7 @@ int main(int argc, char** argv)
   hRecoCJet_Plus_B->Sumw2();
   hRecoFJet_Minus_B->Sumw2();
   hRecoCJet_Minus_B->Sumw2();
+  
   for (int iBinX = 0; iBinX<NBIN; iBinX++){
    if (ALGO == 1 || ALGO == 2) {
    hRecoFJet_B->SetBinError(iBinX+1,hRecoFJet_B->GetBinError(iBinX+1) / (lowEdge[iBinX+1] - lowEdge[iBinX]));
@@ -1174,6 +1178,28 @@ int main(int argc, char** argv)
   //==== write to output file ====
   
   outFile.cd();
+  
+  hResponseMatrixCJet_A->Write();  
+  hResponseMatrixCJet_B->Write();
+  hRecoCJet_Mean_A->Write();
+  hRecoCJet_Mean_B->Write();
+  
+  hRecoCJet_A->Write();
+  hTrueCJet_MC_A->Write();
+  hRecoCJet_B->Write();
+  hTrueCJet_MC_B->Write();
+    
+  hResponseMatrixFJet_A->Write();
+  hResponseMatrixFJet_B->Write();
+  hRecoFJet_Mean_A->Write();
+  hRecoFJet_Mean_B->Write();
+  
+  hRecoFJet_A->Write();
+  hTrueFJet_MC_A->Write();
+  hRecoFJet_B->Write();
+  hTrueFJet_MC_B->Write();
+  
+  
   ccResponseCJet_B->Write();
   ccResponseCJet_A->Write();
   ccResponseFJet_B->Write();
@@ -1190,6 +1216,8 @@ int main(int argc, char** argv)
   ccCJet_JES_B->Write(); 
   ccFJet_JES_B_A->Write(); 
   ccCJet_JES_B_A->Write(); 
+  
+  
   outFile.Close();
   
 }
