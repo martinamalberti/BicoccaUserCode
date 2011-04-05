@@ -122,6 +122,12 @@ std::vector<ROOT::Math::XYZVector>* treeReader::Get3V(const std::string &name){
  else return new std::vector<ROOT::Math::XYZVector>;
 }
 
+std::vector<ROOT::Math::XYZPoint>* treeReader::Get3PV(const std::string &name){
+ std::map<std::string,std::vector<ROOT::Math::XYZPoint> * >::const_iterator    it_3PV  = m_3PVvectors.find(name);
+ if (it_3PV  != m_3PVvectors.end()  ) return m_3PVvectors[name];
+ else return new std::vector<ROOT::Math::XYZPoint>;
+}
+
 std::vector<ROOT::Math::XYZTVector>* treeReader::Get4V(const std::string &name){
  std::map<std::string,std::vector<ROOT::Math::XYZTVector> * >::const_iterator   it_4V  = m_4Vvectors.find(name);
  if (it_4V  != m_4Vvectors.end()  ) return m_4Vvectors[name];
