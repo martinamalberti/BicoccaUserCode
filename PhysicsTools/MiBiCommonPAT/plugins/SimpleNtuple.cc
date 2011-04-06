@@ -736,21 +736,30 @@ void SimpleNtuple::fillEleLessPVInfo(const edm::Event & iEvent, const edm::Event
 
   for (size_t i = 0, n = pvtracks->size(); i < n; ++i) {
     //check the dR with the colsest electron
-    float drmin = 1000;
+    //float drmin = 1000;
+
+    unsigned int eleIndex = -1;
     for ( unsigned int el=0; el<electrons.size(); ++el )
       {
 
 	pat::Electron electron = electrons.at(el);
-	reco::GsfTrackRef tkRef = electron.gsfTrack();
+
+	reco::TrackRef tkRef_ele = electron.closestCtfTrackRef();
+	reco::TrackRef tkRef_tk(pvtracks, i); 
+
 	
-	//reco::GsfElectron electron = electrons->at(el);
 	if(electron.pt() < ElePtTh_){continue;}
 	//calculate dr between the two tracks;
-	//float dr = DeltaR (electron.trackMomentumAtVtx(), (*pvtracks)[i].momentum());
-	float dr = reco::deltaR(electron.trackMomentumAtVtx().eta(), electron.trackMomentumAtVtx().phi(),  (*pvtracks)[i].momentum().eta(), (*pvtracks)[i].momentum().phi() );
-	if( dr < drmin) { drmin=dr;}
+	//float dr = reco::deltaR(electron.trackMomentumAtVtx().eta(), electron.trackMomentumAtVtx().phi(),  (*pvtracks)[i].momentum().eta(), (*pvtracks)[i].momentum().phi() );
+
+	if (tkRef_tk == tkRef_ele) eleIndex = i;
+
+	//if( dr < drmin) { drmin=dr;}
       }
-    if (drmin > ConeTh_ ){ ElectronLess.push_back( (*pvtracks)[i]);}
+
+    if (i != eleIndex ){ ElectronLess.push_back( (*pvtracks)[i]);}
+    //if (drmin > ConeTh_ ){ ElectronLess.push_back( (*pvtracks)[i]);}
+
 
   }
 
