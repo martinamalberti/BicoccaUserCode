@@ -15,7 +15,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # Setup the process
     process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
     process.load("FWCore.MessageService.MessageLogger_cfi")
-    process.MessageLogger.cerr.FwkReport.reportEvery = 10
+    process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #    process.load('Configuration.StandardSequences.GeometryExtended_cff')
 #   process.load("Configuration.StandardSequences.Geometry_cff")
     process.load('Configuration.StandardSequences.GeometryDB_cff')

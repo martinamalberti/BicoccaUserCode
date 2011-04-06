@@ -33,6 +33,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 // user include files
+#include "PhysicsTools/NtupleUtils/interface/VertexReProducer.h"
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 #include "PhysicsTools/MiBiCommonPAT/interface/MCDumperTTBar.h"
 #include "PhysicsTools/MiBiCommonPAT/interface/MCDumperHiggs.h"
@@ -75,9 +76,12 @@ class SimpleNtuple : public edm::EDAnalyzer {
   
   void fillTauInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMuonLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  
+  void fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
@@ -100,7 +104,11 @@ class SimpleNtuple : public edm::EDAnalyzer {
 
   math::XYZPoint BSPoint_;
   math::XYZPoint PVPoint_;
-    
+  math::XYZPoint EleLessPVPoint_;
+  math::XYZPoint MuonLessPVPoint_;
+
+  std::vector<TransientVertex> EleLessPvs;
+  std::vector<TransientVertex> MuonLessPvs;
   
   ///---- input tag ----
   edm::InputTag EBRechitTag_;
@@ -134,12 +142,18 @@ class SimpleNtuple : public edm::EDAnalyzer {
   
   edm::InputTag MCPileupTag_;
 
-  
+  double ConeTh_ ;
+  double ElePtTh_  ;
+  double MuPtTh_  ;
+
   ///---- save flags ----
   bool dataFlag_;
   bool saveHLT_ ;
   bool saveBS_ ;
   bool savePV_ ;
+  bool saveEleLessPV_;
+  bool saveMuonLessPV_;
+  bool saveTrack_;
   bool saveTau_ ;
   bool saveMu_ ;
   bool saveEle_ ;

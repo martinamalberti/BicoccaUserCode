@@ -13,6 +13,9 @@ SimpleNtuple = cms.EDAnalyzer(
     
     PVTag = cms.InputTag("offlinePrimaryVertices"),
 
+    #### tracks ####
+    TracksTag = cms.InputTag("generalTracks"),
+
     #### muons ####
     TauTag = cms.InputTag("patTaus"),
     
@@ -53,7 +56,9 @@ SimpleNtuple = cms.EDAnalyzer(
     #### jets ####
     MCtruthTag = cms.InputTag("genParticles"),
     
-    
+    MatchingConeTreshold = cms.double(0.05),
+    ElectronPtCut        = cms.double(8.0),     
+    MuonPtCut        = cms.double(8.0),     
     
     #--------------
     #### flags ####
@@ -61,7 +66,10 @@ SimpleNtuple = cms.EDAnalyzer(
     dataFlag      = cms.untracked.bool (True),
     saveHLT       = cms.untracked.bool (True),     
     saveBS        = cms.untracked.bool (True),
-    savePV        = cms.untracked.bool (True),     
+    savePV        = cms.untracked.bool (True),
+    saveEleLessPV = cms.untracked.bool (False), # default no revertex
+    saveMuonLessPV = cms.untracked.bool (False), # default no revertex
+    saveTrack_     = cms.untracked.bool (False), # default no tracks
     saveTau       = cms.untracked.bool (False), # default no tau saved
     saveMu        = cms.untracked.bool (True),
     saveEle       = cms.untracked.bool (True),
