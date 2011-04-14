@@ -54,6 +54,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
 
  
  //---- Input tags ---- 
+ MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
+ 
  TriggerEventTag_ = iConfig.getParameter<edm::InputTag>("TriggerEventTag");
  TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
   
@@ -107,7 +109,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveMCHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool> ("saveMCHiggsGammaGamma", false);
  saveMCZW_              = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
  saveMCPU_              = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
- if (saveMCPU_) MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
  saveProcessId_         = iConfig.getUntrackedParameter<bool> ("saveProcessId", false);
  savePhotonsMother_     = iConfig.getUntrackedParameter<bool> ("savePhotonsMother", false);
 
@@ -225,12 +226,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_dxy_BS");
    NtupleFactory_ -> AddFloat("electrons_dz_BS");
    NtupleFactory_ -> AddFloat("electrons_dxy_PV");
+   NtupleFactory_ -> AddFloat("electrons_edxy_PV");
    NtupleFactory_ -> AddFloat("electrons_dz_PV");
-
-   if( saveEleLessPV_ ){
-     NtupleFactory_ -> AddFloat("electrons_dxy_PV_noEle");
-     NtupleFactory_ -> AddFloat("electrons_dz_PV_noEle");
-   }
    
    NtupleFactory_ -> AddFloat("electrons_tkIsoR03"); 
    NtupleFactory_ -> AddFloat("electrons_tkIsoR04"); 
@@ -265,8 +262,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat(*iEleID);
    }
    
+   NtupleFactory_->AddInt("electrons_convFlag");
    NtupleFactory_->AddInt("electrons_mishits");
    NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
+   NtupleFactory_->AddFloat("electrons_dist");
+   NtupleFactory_->AddFloat("electrons_dcot");
    
    NtupleFactory_->AddFloat("electrons_eES");
   }
@@ -309,12 +309,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("muons_dxy_BS");
    NtupleFactory_ -> AddFloat("muons_dz_BS");
    NtupleFactory_ -> AddFloat("muons_dxy_PV");
+   NtupleFactory_ -> AddFloat("muons_edxy_PV");
    NtupleFactory_ -> AddFloat("muons_dz_PV");
-
-   if( saveMuonLessPV_ ){
-     NtupleFactory_ -> AddFloat("muons_dxy_PV_noMuon");
-     NtupleFactory_ -> AddFloat("muons_dz_PV_noMuon");
-   }
    
    NtupleFactory_ -> AddFloat("muons_nTkIsoR03"); 
    NtupleFactory_ -> AddFloat("muons_nTkIsoR05"); 
@@ -584,7 +580,7 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
   const edm::Provenance* provenance = triggerEventHandle.provenance();
   //std::cout << "Trigger process name = " << provenance->processName() << std::endl;
   bool changed(true);
-  int init = hltConfig_.init(iEvent.getRun(),iESetup,TriggerResultsTag_.process(),changed);
+  hltConfig_.init(iEvent.getRun(),iESetup,TriggerResultsTag_.process(),changed);
   
   edm::Handle<edm::TriggerResults> triggerResultsHandle;
   iEvent.getByLabel(edm::InputTag(TriggerResultsTag_.label(), TriggerResultsTag_.instance(), provenance->processName()), triggerResultsHandle);
@@ -708,6 +704,7 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
   }
   
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
+  PV_ = PV;
   PVPoint_ = PVPoint;
   
   //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
@@ -969,7 +966,7 @@ void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetu
     sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
   
   double distmin = 10000;
-  double dRmin = 10000;
+  //double dRmin = 10000;
   int vertexIndex = -1;
   for (reco::TrackCollection::const_iterator TKitr = theTracks->begin(); TKitr != theTracks->end(); ++TKitr)
     {
@@ -1176,6 +1173,9 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
  iEvent.getByLabel(MuTag_,muHandle);
  edm::View<pat::Muon> muons = *muHandle;
  
+ edm::ESHandle<TransientTrackBuilder> trackBuilder;
+ iESetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+ 
  for ( unsigned int i=0; i<muons.size(); i++ ) {
   pat::Muon muon = muons.at(i);
   reco::TrackRef globalTrackRef;
@@ -1199,6 +1199,9 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   else
     continue;  
   
+  reco::TransientTrack tt = trackBuilder->build(innerTrackRef);
+  std::pair<bool,Measurement1D> dxy = IPTools::absoluteTransverseImpactParameter(tt,PV_);  
+  
   NtupleFactory_ -> Fill4V   ("muons",muon.p4());
   NtupleFactory_ -> FillFloat("muons_charge",(muon.charge()));
   NtupleFactory_ -> FillFloat("muons_z",muon.vertex().z());
@@ -1206,13 +1209,8 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillFloat("muons_edB",muon.edB());
   NtupleFactory_ -> FillFloat("muons_dxy_BS",innerTrackRef->dxy(BSPoint_));
   NtupleFactory_ -> FillFloat("muons_dz_BS",innerTrackRef->dz(BSPoint_));
-  NtupleFactory_ -> FillFloat("muons_dxy_PV",innerTrackRef->dxy(PVPoint_));
-
-  if (saveMuonLessPV_) {
-    NtupleFactory_ -> FillFloat("muons_dxy_PV_noMuon", innerTrackRef->dxy(MuonLessPVPoint_));
-    NtupleFactory_ -> FillFloat("muons_dz_PV_noMuon", innerTrackRef->dz(MuonLessPVPoint_));
-  }
-
+  NtupleFactory_ -> FillFloat("muons_dxy_PV",dxy.second.value());
+  NtupleFactory_ -> FillFloat("muons_edxy_PV",dxy.second.error());
   NtupleFactory_ -> FillFloat("muons_dz_PV",innerTrackRef->dz(PVPoint_));
 
   NtupleFactory_ -> FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
@@ -1254,12 +1252,18 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  iEvent.getByLabel(EleTag_,eleHandle);
  edm::View<pat::Electron> electrons = *eleHandle;
  
+ edm::ESHandle<TransientTrackBuilder> trackBuilder;
+ iESetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
  
+  
  for ( unsigned int i=0; i<electrons.size(); ++i )
  {
   pat::Electron electron = electrons.at(i);
   reco::SuperClusterRef scRef = electron.superCluster();
   reco::GsfTrackRef tkRef = electron.gsfTrack (); 
+  
+  reco::TransientTrack tt = trackBuilder->build(tkRef);
+  std::pair<bool,Measurement1D> dxy = IPTools::absoluteTransverseImpactParameter(tt,PV_);
   
   NtupleFactory_ -> Fill4V   ("electrons", electron.p4());
   NtupleFactory_ -> FillFloat("electrons_charge", electron.charge());
@@ -1268,13 +1272,9 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_edB", electron.edB());
   NtupleFactory_ -> FillFloat("electrons_dxy_BS", tkRef->dxy(BSPoint_));
   NtupleFactory_ -> FillFloat("electrons_dz_BS", tkRef->dz(BSPoint_));
-  NtupleFactory_ -> FillFloat("electrons_dxy_PV", tkRef->dxy(PVPoint_));
+  NtupleFactory_ -> FillFloat("electrons_dxy_PV", dxy.second.value());
+  NtupleFactory_ -> FillFloat("electrons_edxy_PV", dxy.second.error());
   NtupleFactory_ -> FillFloat("electrons_dz_PV", tkRef->dz(PVPoint_));
-
-  if (saveEleLessPV_) {
-    NtupleFactory_ -> FillFloat("electrons_dxy_PV_noEle", tkRef->dxy(EleLessPVPoint_));
-    NtupleFactory_ -> FillFloat("electrons_dz_PV_noEle", tkRef->dz(EleLessPVPoint_));
-  }
   
   NtupleFactory_ -> FillFloat("electrons_tkIsoR03",electron.dr03TkSumPt());
   NtupleFactory_ -> FillFloat("electrons_tkIsoR04",electron.dr04TkSumPt());
@@ -1322,9 +1322,12 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_e5x5",electron.e5x5());
   
   // conversion rejection variables
-  NtupleFactory_ -> FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
-  NtupleFactory_ -> FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
-
+  NtupleFactory_->FillInt("electrons_convFlag",electron.convFlags());
+  NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
+  NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
+  NtupleFactory_->FillFloat("electrons_dist", electron.convDist());
+  NtupleFactory_->FillFloat("electrons_dcot", electron.convDcot());
+  
   // preshower variables 
   NtupleFactory_->FillFloat("electrons_eES",scRef->preshowerEnergy());
  }
@@ -1820,8 +1823,8 @@ void SimpleNtuple::fillMCTTBarInfo (const edm::Event & iEvent, const edm::EventS
 void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
  //std::cout << "SimpleNtuple::fillMCPUInfo" << std::endl;
- 
-  edm::Handle<PileupSummaryInfo> PupInfo;
+
+  edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
   iEvent.getByLabel(MCPileupTag_, PupInfo);
 
 

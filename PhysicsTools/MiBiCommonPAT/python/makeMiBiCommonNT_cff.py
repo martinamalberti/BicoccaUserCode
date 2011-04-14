@@ -16,8 +16,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
     process.load("FWCore.MessageService.MessageLogger_cfi")
     process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-#    process.load('Configuration.StandardSequences.GeometryExtended_cff')
-#   process.load("Configuration.StandardSequences.Geometry_cff")
     process.load('Configuration.StandardSequences.GeometryDB_cff')
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -61,7 +59,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # Counter3: Filter on primary vertex
     process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
         vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-        minimumNDOF = cms.uint32(4),
+        minimumNDOF = cms.uint32(3),
         maxAbsZ = cms.double(24),
         maxd0 = cms.double(2)
     )
@@ -263,7 +261,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            ##jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),            
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -279,7 +278,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            ##jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -296,7 +296,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'Calo',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
+            ##jetCorrLabel = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),            
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -312,7 +313,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
+            ##jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute'])),            
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -347,7 +349,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.selectedPatPhotonsPFlow.cut = cms.string("pt > 10. & abs(eta) < 5")    
     
     # the HCAL Noise Filter
-    #process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+    process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+
+
     
     # the MiBiPAT path
     process.MiBiCommonPAT = cms.Sequence(
@@ -357,7 +361,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.primaryVertexFilter *
         process.GoodVtxEvents * # -> Counter
         getattr(process,"patPF2PATSequence"+postfix) *
-        process.recoPFJets *
+        #process.recoPFJets *
+        process.HBHENoiseFilterResultProducer *
         process.patDefaultSequence
     )
     
@@ -470,14 +475,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # the MiBiNTUPLE
     process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
     process.MiBiCommonNT = process.SimpleNtuple.clone()
-    process.MiBiCommonNT.TriggerResultTag      = cms.InputTag("TriggerResults","",HLT)
-    process.MiBiCommonNT.saveMCPU              = cms.untracked.bool (MC)
+    process.MiBiCommonNT.saveMCPU              = cms.untracked.bool (False)
     process.MiBiCommonNT.saveProcessId         = cms.untracked.bool (MC)
     process.MiBiCommonNT.savePhotonsMother     = cms.untracked.bool (MC)
-    
-    if MC : 
-     process.MiBiCommonNT.MCPileupTag          = cms.InputTag ("addPileupInfo")
-
     process.MiBiCommonNT.saveGenJet            = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCPtHat           = cms.untracked.bool (MC)
     process.MiBiCommonNT.saveMCTTBar           = cms.untracked.bool (False)    
@@ -533,12 +533,12 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
 
 
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
-    process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5Calo)
+    ##process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5Calo)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
-    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
+    ##process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
 
 
-    process.MiBiPathTwoJetsAK5PF = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5PFSeq*process.MiBiCommonNTTwoJetsAK5PF)
-    process.MiBiPathTwoJetsAK5Calo = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5CaloSeq*process.MiBiCommonNTTwoJetsAK5Calo)
-    process.MiBiPathTwoJetsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoJetsPFlowSeq*process.MiBiCommonNTTwoJetsPFlow)
+    ##process.MiBiPathTwoJetsAK5PF = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5PFSeq*process.MiBiCommonNTTwoJetsAK5PF)
+    ##process.MiBiPathTwoJetsAK5Calo = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5CaloSeq*process.MiBiCommonNTTwoJetsAK5Calo)
+    ##process.MiBiPathTwoJetsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoJetsPFlowSeq*process.MiBiCommonNTTwoJetsPFlow)
 

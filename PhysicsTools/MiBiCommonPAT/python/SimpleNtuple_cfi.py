@@ -7,6 +7,8 @@ SimpleNtuple = cms.EDAnalyzer(
     
     #-------------------
     #### Input Tags ####
+
+    MCPileupTag = cms.InputTag ("addPileupInfo"),
     
     TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
@@ -63,21 +65,22 @@ SimpleNtuple = cms.EDAnalyzer(
     #--------------
     #### flags ####
 
-    dataFlag      = cms.untracked.bool (True),
-    saveHLT       = cms.untracked.bool (True),     
-    saveBS        = cms.untracked.bool (True),
-    savePV        = cms.untracked.bool (True),
-    saveEleLessPV = cms.untracked.bool (False), # default no revertex
+    dataFlag       = cms.untracked.bool (True),
+    saveHLT        = cms.untracked.bool (True),     
+    saveBS         = cms.untracked.bool (True),
+    savePV         = cms.untracked.bool (True),
+    saveEleLessPV  = cms.untracked.bool (False), # default no revertex
     saveMuonLessPV = cms.untracked.bool (False), # default no revertex
     saveTrack_     = cms.untracked.bool (False), # default no tracks
-    saveTau       = cms.untracked.bool (False), # default no tau saved
-    saveMu        = cms.untracked.bool (True),
-    saveEle       = cms.untracked.bool (True),
-    saveMet       = cms.untracked.bool (True),
-    saveJet       = cms.untracked.bool (True),
-    savePhoton    = cms.untracked.bool (True),
-    saveHCALNoise = cms.untracked.bool (False),
+    saveTau        = cms.untracked.bool (False), # default no tau saved
+    saveMu         = cms.untracked.bool (True),
+    saveEle        = cms.untracked.bool (True),
+    saveMet        = cms.untracked.bool (True),
+    saveJet        = cms.untracked.bool (True),
+    savePhoton     = cms.untracked.bool (False),
+    saveHCALNoise  = cms.untracked.bool (True),
     
+    saveMCPU              = cms.untracked.bool (False),
     saveMCPtHat           = cms.untracked.bool (False),
     saveMCTTBar           = cms.untracked.bool (False),    
     saveMCHiggs           = cms.untracked.bool (False),

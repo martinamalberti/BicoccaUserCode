@@ -21,6 +21,10 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -101,7 +105,9 @@ class SimpleNtuple : public edm::EDAnalyzer {
   HLTConfigProvider hltConfig_;
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
-
+  
+  reco::Vertex PV_;
+  
   math::XYZPoint BSPoint_;
   math::XYZPoint PVPoint_;
   math::XYZPoint EleLessPVPoint_;
