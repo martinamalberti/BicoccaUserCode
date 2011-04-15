@@ -113,14 +113,14 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddInt("muons_global");
     NtupleFactory_->AddInt("muons_goodMuon");
     NtupleFactory_->AddFloat("muons_charge"); 
-    NtupleFactory_->AddFloat("muons_nTkIsoR03"); 
-    NtupleFactory_->AddFloat("muons_nTkIsoR05"); 
-    NtupleFactory_->AddFloat("muons_tkIsoR03"); 
-    NtupleFactory_->AddFloat("muons_tkIsoR05"); 
-    NtupleFactory_->AddFloat("muons_emIsoR03"); 
-    NtupleFactory_->AddFloat("muons_emIsoR05"); 
-    NtupleFactory_->AddFloat("muons_hadIsoR03"); 
-    NtupleFactory_->AddFloat("muons_hadIsoR05"); 
+    NtupleFactory_->AddFloat("muons_nTkIso03"); 
+    NtupleFactory_->AddFloat("muons_nTkIso05"); 
+    NtupleFactory_->AddFloat("muons_tkIso03"); 
+    NtupleFactory_->AddFloat("muons_tkIso05"); 
+    NtupleFactory_->AddFloat("muons_emIso03"); 
+    NtupleFactory_->AddFloat("muons_emIso05"); 
+    NtupleFactory_->AddFloat("muons_hadIso03"); 
+    NtupleFactory_->AddFloat("muons_hadIso05"); 
   }
   
   if(saveEle_)
@@ -165,6 +165,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scPhiWidth");
     NtupleFactory_->AddFloat("electrons_scEtaWidth");
     NtupleFactory_->AddFloat("electrons_scAvgLaserCorrection");
+    NtupleFactory_->AddFloat("electrons_scCrackCorrection");
+    
     
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
@@ -234,9 +236,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
     NtupleFactory_->AddFloat("electrons_dist");
     NtupleFactory_->AddFloat("electrons_dcot");
-    
-    // crack correction variables
-    NtupleFactory_->AddFloat("electrons_crackCorrection");
   }
   
   if(saveJet_)
@@ -825,7 +824,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
      crackcor *= ( (electron.superCluster()->rawEnergy() + (*cIt)->energy()*(f->getValue(*cc)-1.)) / electron.superCluster()->rawEnergy() );
    }
    
-   NtupleFactory_->FillFloat("electrons_crackCorrection", crackcor);
+   NtupleFactory_->FillFloat("electrons_scCrackCorrection", crackcor);
    
    
  } // end loop over electron candidates
@@ -920,15 +919,15 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
     NtupleFactory_->FillInt("muons_goodMuon",muon::isGoodMuon(muon, muon::GlobalMuonPromptTight));
 
     NtupleFactory_->FillFloat("muons_charge",(muon.charge()));
-    NtupleFactory_->FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
-    NtupleFactory_->FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);
-    NtupleFactory_->FillFloat("muons_emIsoR03",(muon.isolationR03()).emEt);
-    NtupleFactory_->FillFloat("muons_hadIsoR03",(muon.isolationR03()).hadEt);
+    NtupleFactory_->FillFloat("muons_tkIso03",(muon.isolationR03()).sumPt);
+    NtupleFactory_->FillFloat("muons_nTkIso03",(muon.isolationR03()).nTracks);
+    NtupleFactory_->FillFloat("muons_emIso03",(muon.isolationR03()).emEt);
+    NtupleFactory_->FillFloat("muons_hadIso03",(muon.isolationR03()).hadEt);
 
-    NtupleFactory_->FillFloat("muons_tkIsoR05",(muon.isolationR05()).sumPt);
-    NtupleFactory_->FillFloat("muons_nTkIsoR05",(muon.isolationR05()).nTracks);
-    NtupleFactory_->FillFloat("muons_emIsoR05",(muon.isolationR05()).emEt);
-    NtupleFactory_->FillFloat("muons_hadIsoR05",(muon.isolationR05()).hadEt);
+    NtupleFactory_->FillFloat("muons_tkIso05",(muon.isolationR05()).sumPt);
+    NtupleFactory_->FillFloat("muons_nTkIso05",(muon.isolationR05()).nTracks);
+    NtupleFactory_->FillFloat("muons_emIso05",(muon.isolationR05()).emEt);
+    NtupleFactory_->FillFloat("muons_hadIso05",(muon.isolationR05()).hadEt);
   }
 } // dumpMuonInfo 
 
