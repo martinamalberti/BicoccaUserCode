@@ -277,7 +277,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("G_noTop",&G_noTop,"G_noTop/I");
  AnaHiggs.Branch("S_noTop",&S_noTop,"S_noTop/I");
  AnaHiggs.Branch("S_Vtxnum",&S_Vtxnum,"S_Vtxnum/I");
- 
+  
  AnaHiggs.Branch("S_D_Eta",&S_D_Eta,"S_D_Eta/D");
  AnaHiggs.Branch("S_D_Phi",&S_D_Phi,"S_D_Phi/D");
  AnaHiggs.Branch("S_D_R",&S_D_R,"S_D_R/D");
@@ -678,8 +678,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_Mjj = (reader.Get4V("jets")->at(Forward_i_reco) + reader.Get4V("jets")->at(Central_i_reco)).mass();      
      
      if (reader.GetInt("PV_ndof")->size() < 10) {
-       
-       S_Vtxnum = reader.GetInt("PV_ndof")->size();
+       if (debug == 1) S_Vtxnum = reader.GetInt("PV_ndof")->size();
        cout<<"S_Vtxnum = "<< S_Vtxnum << endl;
      }
      
