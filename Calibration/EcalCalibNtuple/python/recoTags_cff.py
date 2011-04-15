@@ -13,12 +13,12 @@ def makeRecoTags(process):
             tag = cms.string("EcalLaserAPDPNRatios_v3_online"),
             connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_311X_ECAL_LAS")
             ),
-
+        
         # to correct the bug in ES from run 160176
-        cms.PSet(
-            record = cms.string("ESRecHitRatioCutsRcd"),
-            tag = cms.string("ESRecHitRatioCuts_V02_offline"),
-            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
-            )
+        #cms.PSet(
+        #    record = cms.string("ESRecHitRatioCutsRcd"),
+        #    tag = cms.string("ESRecHitRatioCuts_V02_offline"),
+        #    connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
+        #    )
         
         )
