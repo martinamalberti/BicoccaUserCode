@@ -56,27 +56,9 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     process.load("PhysicsTools.PatAlgos.tools.pfTools")
     removeMCMatching(process, ['All'])
     removeSpecificPATObjects( process, ['Photons'] )
-    removeSpecificPATObjects( process, ['Taus'] )    
+    removeSpecificPATObjects( process, ['Taus'] )
     process.patDefaultSequence.remove( process.patPhotons )
-    process.patDefaultSequence.remove( process.patTaus )    
-    
-    # add electron ID
-    #process.load("Calibration.EcalCalibNtuple.CiC_eIDSequence_cff")
-    #
-    #process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
-    #process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
-    #
-    #process.patElectrons.addElectronID = cms.bool(True)
-    #process.patElectrons.electronIDSources = cms.PSet(
-    #    eidVeryLoose  = cms.InputTag("eidVeryLoose"),
-    #    eidLoose      = cms.InputTag("eidLoose"),
-    #    eidMedium     = cms.InputTag("eidMedium"),
-    #    eidTight      = cms.InputTag("eidTight"),
-    #    eidSuperTight = cms.InputTag("eidSuperTight")
-    #    )
-    ##
-    #process.patElectrons.addGenMatch = cms.bool(False)
-    #process.patElectrons.embedGenMatch = cms.bool(False)
+    process.patDefaultSequence.remove( process.patTaus )
     
     
     # Add tcMET and pfMET
