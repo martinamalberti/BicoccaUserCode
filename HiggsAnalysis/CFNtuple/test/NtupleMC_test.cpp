@@ -213,6 +213,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  int G_noTop;
  int S_noTop;
  
+ int S_Vtxnum;
+ 
  //int EtaSel;	//trigger su eta
  //int PtSel_had;	// trigger su ptMin
  //int PtSel_reco;	// trigger su ptMin
@@ -274,7 +276,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("S_EventNb",&S_EventNb,"S_EventNb/I");
  AnaHiggs.Branch("G_noTop",&G_noTop,"G_noTop/I");
  AnaHiggs.Branch("S_noTop",&S_noTop,"S_noTop/I");
- //AnaHiggs.Branch("S_Vtxnum",&S_Vtxnum,"S_Vtxnum/I");
+ AnaHiggs.Branch("S_Vtxnum",&S_Vtxnum,"S_Vtxnum/I");
  
  AnaHiggs.Branch("S_D_Eta",&S_D_Eta,"S_D_Eta/D");
  AnaHiggs.Branch("S_D_Phi",&S_D_Phi,"S_D_Phi/D");
@@ -674,6 +676,13 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_D_Phi = deltaPhi(reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V("jets")->at(Central_i_reco).Phi());
      S_D_R = deltaR(reader.Get4V("jets")->at(Forward_i_reco).Eta(),reader.Get4V("jets")->at(Forward_i_reco).Phi(),reader.Get4V("jets")->at(Central_i_reco).Eta(),reader.Get4V("jets")->at(Central_i_reco).Phi());
      S_Mjj = (reader.Get4V("jets")->at(Forward_i_reco) + reader.Get4V("jets")->at(Central_i_reco)).mass();      
+     
+     if (reader.GetInt("PV_ndof")->size() < 10) {
+       
+       S_Vtxnum = reader.GetInt("PV_ndof")->size();
+       cout<<"S_Vtxnum = "<< S_Vtxnum << endl;
+     }
+     
 
      }
      
@@ -692,6 +701,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      S_D_Eta = -100.;
      S_D_Phi = -100.;
      S_D_R = -100.;
+     
+      S_Vtxnum = -100;
      }
      
       if(Central_i_reco !=-1 && Forward_i_reco !=-1 && Central_i_had !=-1 && Forward_i_had !=-1){
