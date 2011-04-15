@@ -18,16 +18,13 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 # simpleNtuple
 ReReco=False
 makeSimpleNtuple(process,GlobalTag="GR_R_311_V2::All",ReReco=ReReco)
-makeRecoTags(process)
+#makeRecoTags(process)
 
 
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    #Run2011A - /SingleElectron/Run2011A-PromptReco-v1/*
-    #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_RAW.root'
-    #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_RECO.root'
-    'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_AOD.root'
+    'file:/data_CMS/cms/abenagli/MC_GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6_PU_S1_START311_V1G1-v1_AODSIM.root'
     )
 
 process.maxEvents = cms.untracked.PSet(
