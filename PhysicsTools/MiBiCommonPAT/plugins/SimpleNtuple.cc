@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.30 2011/04/06 18:07:31 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.32 2011/04/14 08:24:46 abenagli Exp $
 //
 //
 
@@ -228,6 +228,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_dxy_PV");
    NtupleFactory_ -> AddFloat("electrons_edxy_PV");
    NtupleFactory_ -> AddFloat("electrons_dz_PV");
+
+   if( saveEleLessPV_ ){	 
+     NtupleFactory_ -> AddFloat("electrons_dxy_PV_noEle");	 
+     NtupleFactory_ -> AddFloat("electrons_dz_PV_noEle");	 
+   }
    
    NtupleFactory_ -> AddFloat("electrons_tkIsoR03"); 
    NtupleFactory_ -> AddFloat("electrons_tkIsoR04"); 
@@ -311,6 +316,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("muons_dxy_PV");
    NtupleFactory_ -> AddFloat("muons_edxy_PV");
    NtupleFactory_ -> AddFloat("muons_dz_PV");
+
+   if( saveMuonLessPV_ ){	 
+     NtupleFactory_ -> AddFloat("muons_dxy_PV_noMuon");	 
+     NtupleFactory_ -> AddFloat("muons_dz_PV_noMuon");	 
+   }
    
    NtupleFactory_ -> AddFloat("muons_nTkIsoR03"); 
    NtupleFactory_ -> AddFloat("muons_nTkIsoR05"); 
@@ -1212,6 +1222,11 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillFloat("muons_dxy_PV",dxy.second.value());
   NtupleFactory_ -> FillFloat("muons_edxy_PV",dxy.second.error());
   NtupleFactory_ -> FillFloat("muons_dz_PV",innerTrackRef->dz(PVPoint_));
+  
+  if (saveMuonLessPV_) {	 
+    NtupleFactory_ -> FillFloat("muons_dxy_PV_noMuon", innerTrackRef->dxy(MuonLessPVPoint_));	 
+    NtupleFactory_ -> FillFloat("muons_dz_PV_noMuon", innerTrackRef->dz(MuonLessPVPoint_));	 
+  }
 
   NtupleFactory_ -> FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
   NtupleFactory_ -> FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);    
@@ -1275,6 +1290,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_dxy_PV", dxy.second.value());
   NtupleFactory_ -> FillFloat("electrons_edxy_PV", dxy.second.error());
   NtupleFactory_ -> FillFloat("electrons_dz_PV", tkRef->dz(PVPoint_));
+
+  if (saveEleLessPV_) {	 
+    NtupleFactory_ -> FillFloat("electrons_dxy_PV_noEle", tkRef->dxy(EleLessPVPoint_));	 
+    NtupleFactory_ -> FillFloat("electrons_dz_PV_noEle", tkRef->dz(EleLessPVPoint_));	 
+  }
   
   NtupleFactory_ -> FillFloat("electrons_tkIsoR03",electron.dr03TkSumPt());
   NtupleFactory_ -> FillFloat("electrons_tkIsoR04",electron.dr04TkSumPt());
@@ -1824,7 +1844,8 @@ void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetu
 {
  //std::cout << "SimpleNtuple::fillMCPUInfo" << std::endl;
 
-  edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+  //edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+  edm::Handle<PileupSummaryInfo> PupInfo;
   iEvent.getByLabel(MCPileupTag_, PupInfo);
 
 
