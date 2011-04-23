@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.32 2011/04/14 08:24:46 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.33 2011/04/21 13:20:43 deguio Exp $
 //
 //
 
@@ -94,7 +94,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveEleLessPV_ = iConfig.getUntrackedParameter<bool> ("saveEleLessPV", true);
  saveMuonLessPV_ = iConfig.getUntrackedParameter<bool> ("saveMuonLessPV", true);
 
- saveTrack_     = iConfig.getUntrackedParameter<bool> ("saveTrack", true);
+ saveTrack_     = iConfig.getUntrackedParameter<bool> ("saveTrack", false);
  saveEle_       = iConfig.getUntrackedParameter<bool> ("saveEle", true);
  saveTau_        = iConfig.getUntrackedParameter<bool> ("saveTau", true);
  saveMu_        = iConfig.getUntrackedParameter<bool> ("saveMu", true);
