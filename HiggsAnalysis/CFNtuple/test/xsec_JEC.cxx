@@ -502,8 +502,8 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
   double statF = hMeasFJet->GetBinError(iBin+1)*Correction_Weight_F->GetBinContent(iBin+1);
   double statC = hMeasCJet->GetBinError(iBin+1)*Correction_Weight_C->GetBinContent(iBin+1);
   
-  double JES_F = (hRecoFJet_Plus->GetBinContent(iBin+1) - hRecoFJet_Minus->GetBinContent(iBin+1))/2 ;
-  double JES_C = (hRecoCJet_Plus->GetBinContent(iBin+1) - hRecoCJet_Minus->GetBinContent(iBin+1))/2 ;
+  double JES_F = (fabs(hRecoFJet_Plus->GetBinContent(iBin+1) - hRecoFJet_Minus->GetBinContent(iBin+1)))/2 ;
+  double JES_C = (fabs(hRecoCJet_Plus->GetBinContent(iBin+1) - hRecoCJet_Minus->GetBinContent(iBin+1)))/2 ;
   
   hRecoFJet->SetBinError(iBin+1, sqrt(statF*statF+JES_F*JES_F));
   hRecoCJet->SetBinError(iBin+1, sqrt(statC*statC+JES_C*JES_C));
