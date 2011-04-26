@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldExample.cxx 248 2010-10-04 22:18:19Z T.J.Adye $
+//      $Id: xsec_JEC.cxx,v 1.2 2011/04/26 09:02:25 govoni Exp $
 //
 // Description:
 //      Simple example usage of the RooUnfold package using toy MC.
@@ -39,25 +39,25 @@ using std::endl;
   
   gSystem->Load("libFWCoreFWLite.so");
   AutoLibraryLoader::enable();
-  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty("/home/toliman/Dropbox/QCD_CF/START38_V13_Uncertainty_AK5Calo.txt");
+  JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty("START38_V13_AK5Calo_Uncertainty.txt");
   
   Float_t lowEdge[8] = {35,45,57,72,90,120,150,1000};
   const int NBIN = 7;
   
-   TFile FileTrain1Pythia("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_15_pythia.root","READ");
-   TFile FileTrain2Pythia("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_30_pythia.root","READ");
+   TFile FileTrain1Pythia("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/qcd_15_pythia.root","READ");
+   TFile FileTrain2Pythia("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/qcd_30_pythia.root","READ");
    
-   TFile FileTrain3Pythia("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_15_pythia_TuneZ2.root","READ");
+   TFile FileTrain3Pythia("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/qcd_15_pythia_TuneZ2.root","READ");
 
 
 //   TFile FileTrain1Herwig("../Unfolding/qcd_15_herwigjimmy.root","READ");
 //   TFile FileTrain2Herwig("../Unfolding/qcd_30_herwigjimmy.root","READ");
 
-  TFile FileTrain1Herwig("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_15_herwigjimmy.root","READ");
-  TFile FileTrain2Herwig("~/Dropbox/QCD_CF/NtupleBo/ntuple/qcd_30_herwigjimmy.root","READ");
+  TFile FileTrain1Herwig("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/qcd_15_herwigjimmy.root","READ");
+  TFile FileTrain2Herwig("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/qcd_30_herwigjimmy.root","READ");
   
-  TFile FileTrainPOWPY("~/Dropbox/QCD_CF/NtupleMiBi/Powheg/POWHEG_kt15_v1.root","READ");
-  TFile FileTrainPOWHE("~/Dropbox/QCD_CF/NtupleMiBi/Powheg/POWHEG_HERWIG6_kt15_A.root","READ");
+  //  TFile FileTrainPOWPY("~/Dr/POWHEG_kt15_v1.root","READ");
+  //  TFile FileTrainPOWHE("~/Dropbox/QCD_CF/NtupleMiBi/Powheg/POWHEG_HERWIG6_kt15_A.root","READ");
 //    TFile FileTrainPOWHE("~/Dropbox/QCD_CF/NtupleMiBi/Powheg/POWHEG_HERWIG6_kt15_cut35_oldNtuple.root","READ");
 
 
@@ -87,14 +87,21 @@ using std::endl;
   TTree* TreeTrain1Herwig = (TTree*) FileTrain1Herwig.Get("AnaHiggs");
   TTree* TreeTrain2Herwig = (TTree*) FileTrain2Herwig.Get("AnaHiggs");
   
-  TTree* TreeTrainPOWPY = (TTree*) FileTrainPOWPY.Get("AnaHiggs");
-  TTree* TreeTrainPOWHE = (TTree*) FileTrainPOWHE.Get("AnaHiggs");
+  //  TTree* TreeTrainPOWPY = (TTree*) FileTrainPOWPY.Get("AnaHiggs");
+  //  TTree* TreeTrainPOWHE = (TTree*) FileTrainPOWHE.Get("AnaHiggs");
   
   Float_t G_FJet_Pt; //~~~~ had
   Float_t S_FJet_Pt; //~~~~ reco
 
   Float_t G_CJet_Pt; //~~~~ had
   Float_t S_CJet_Pt; //~~~~ reco
+
+  Float_t G_FJet_Eta; //~~~~ had
+  Float_t S_FJet_Eta; //~~~~ reco
+
+  Float_t G_CJet_Eta; //~~~~ had
+  Float_t S_CJet_Eta; //~~~~ reco
+
   
   Double_t G_FJet_Pt_P; //~~~~ had
   Double_t G_CJet_Pt_P; //~~~~ had
@@ -124,11 +131,11 @@ using std::endl;
  TreeTrain2Herwig->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt);
  TreeTrain2Herwig->SetBranchAddress("S_CJet_Pt",&S_CJet_Pt);
  
- TreeTrainPOWPY->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt_P);
+ /* TreeTrainPOWPY->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt_P);
  TreeTrainPOWPY->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt_P);
 
- TreeTrainPOWHE->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt_P);
- TreeTrainPOWHE->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt_P);
+// TreeTrainPOWHE->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt_P);
+ TreeTrainPOWHE->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt_P);*/
  
  
  /*
@@ -397,9 +404,16 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
 
   cout << "==================================== TEST =====================================" << endl;
 
+  char fileName[30] = "Jet_2010A_JEC.root";
+  cout<< "Output fileName = "<< fileName <<endl;
+
+  TFile outFile(fileName,"RECREATE");
+  outFile.cd();
+
+
   
 //   TFile FileTest("~/Dropbox/QCD_CF/NtupleBo/ntuple/data/Jet_2010A.root","READ");
-  TFile FileTest("~/Dropbox/QCD_CF/NtupleBo/ntuple/data/Jet_2010A.root","READ");
+  TFile FileTest("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/Jet_2010A.root","READ");
   
   TTree* TreeTest = (TTree*) FileTest.Get("AnaHiggs");
   TreeTest->SetBranchAddress("S_FJet_Pt",&S_FJet_Pt);
@@ -407,6 +421,12 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
   
   TreeTest->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt);
   TreeTest->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt);
+
+  TreeTest->SetBranchAddress("S_FJet_Eta",&S_FJet_Eta);
+  TreeTest->SetBranchAddress("S_CJet_Eta",&S_CJet_Eta);
+  
+  TreeTest->SetBranchAddress("G_FJet_Eta",&G_FJet_Eta);
+  TreeTest->SetBranchAddress("G_CJet_Eta",&G_CJet_Eta);
   
   TH1D* hMeasFJet = new TH1D ("hMeasFJet", "Measured FJet", NBIN , lowEdge);
   TH1D* hMeasCJet = new TH1D ("hMeasCJet", "Measured CJet", NBIN , lowEdge);
@@ -471,7 +491,7 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
   cout << "==================================== UNFOLD Pythia ===================================" << endl;
 
   //get the correction factors from file
-  TFile* _file0 = new TFile("/home/toliman/Scrivania/Tesi/CFNtuple/test/CorrectionFactors/correction_mean.root","READ");
+  TFile* _file0 = new TFile("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/correction_mean.root","READ");
   TH1D* Correction_Weight_F = (TH1D*) _file0->Get("Correction_Weight_F_mean");
   TH1D* Correction_Weight_C = (TH1D*) _file0->Get("Correction_Weight_C_mean");
   
@@ -794,6 +814,11 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
   hTrueFJet_MCPythia_ratio->SetMarkerSize(1);
   hTrueFJet_MCPythia_ratio->DrawCopy("SAME");
    
+
+
+  outFile.Write();
+
+
 }
 
 #ifndef __CINT__
