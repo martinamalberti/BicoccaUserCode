@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.33 2011/04/21 13:20:43 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.34 2011/04/23 18:05:55 deguio Exp $
 //
 //
 
@@ -220,6 +220,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_ -> Add4V   ("electrons");
    NtupleFactory_ -> AddFloat("electrons_charge"); 
+   
+   // track variables
    NtupleFactory_ -> AddFloat("electrons_z");
    NtupleFactory_ -> AddFloat("electrons_dB");
    NtupleFactory_ -> AddFloat("electrons_edB");
@@ -228,12 +230,30 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_dxy_PV");
    NtupleFactory_ -> AddFloat("electrons_edxy_PV");
    NtupleFactory_ -> AddFloat("electrons_dz_PV");
-
+   NtupleFactory_ -> Add3V   ("electrons_p_atVtx");
+   NtupleFactory_ -> Add3V   ("electrons_p_out");
+   NtupleFactory_ -> Add3V   ("electrons_p_atCalo");   
+   NtupleFactory_ -> AddFloat("electrons_pin");
+   NtupleFactory_ -> AddFloat("electrons_pout");
+   NtupleFactory_ -> AddFloat("electrons_pcalo");
+   
    if( saveEleLessPV_ ){	 
      NtupleFactory_ -> AddFloat("electrons_dxy_PV_noEle");	 
      NtupleFactory_ -> AddFloat("electrons_dz_PV_noEle");	 
    }
    
+   // supercluster variables 
+   NtupleFactory_ -> Add3PV  ("electrons_positionSC");
+   NtupleFactory_ -> AddFloat("electrons_eSC");
+   NtupleFactory_ -> AddFloat("electrons_eES");
+   
+   // seed variables
+   NtupleFactory_->AddFloat("electrons_eSeed");
+   NtupleFactory_->AddFloat("electrons_timeSeed");
+   NtupleFactory_->AddInt  ("electrons_flagSeed");
+   NtupleFactory_->AddFloat("electrons_swissCrossSeed");
+      
+   // iso variables
    NtupleFactory_ -> AddFloat("electrons_tkIsoR03"); 
    NtupleFactory_ -> AddFloat("electrons_tkIsoR04"); 
    NtupleFactory_ -> AddFloat("electrons_emIsoR03"); 
@@ -243,14 +263,17 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_hadIsoR04_depth1"); 
    NtupleFactory_ -> AddFloat("electrons_hadIsoR04_depth2"); 
    
+   // id variables
    NtupleFactory_ -> AddInt  ("electrons_isEB");
+   NtupleFactory_ -> AddInt  ("electrons_isGap");
+   NtupleFactory_ -> AddInt  ("electrons_isEBEEGap");
+   NtupleFactory_ -> AddInt  ("electrons_isEBEtaGap");
+   NtupleFactory_ -> AddInt  ("electrons_isEBPhiGap");
+   NtupleFactory_ -> AddInt  ("electrons_isEEDeeGap");
+   NtupleFactory_ -> AddInt  ("electrons_isEERingGap");
    NtupleFactory_ -> AddInt  ("electrons_ecalDrivenSeed");
    NtupleFactory_ -> AddInt  ("electrons_trackerDrivenSeed");
    NtupleFactory_ -> AddFloat("electrons_mva");
-   NtupleFactory_ -> AddFloat("electrons_eSC");
-   NtupleFactory_ -> AddFloat("electrons_pin");
-   NtupleFactory_ -> AddFloat("electrons_pout");
-   NtupleFactory_ -> AddFloat("electrons_pcalo");
    NtupleFactory_ -> AddFloat("electrons_eSCOverP");
    NtupleFactory_ -> AddFloat("electrons_eSeedOverP");
    NtupleFactory_ -> AddInt  ("electrons_classification");
@@ -267,13 +290,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat(*iEleID);
    }
    
+   // conv rejection variables
    NtupleFactory_->AddInt("electrons_convFlag");
    NtupleFactory_->AddInt("electrons_mishits");
    NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
    NtupleFactory_->AddFloat("electrons_dist");
    NtupleFactory_->AddFloat("electrons_dcot");
-   
-   NtupleFactory_->AddFloat("electrons_eES");
   }
  
  
@@ -538,14 +560,22 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    }
  
 
- if(saveMCPU_){
-     NtupleFactory_->AddInt("mc_PU_NumInteractions");    
-     NtupleFactory_->AddFloat("mc_PU_zpositions");       
-     NtupleFactory_->AddFloat("mc_PU_sumpT_lowpT");       
-     NtupleFactory_->AddFloat("mc_PU_sumpT_highpT");       
-     NtupleFactory_->AddInt("mc_PU_ntrks_lowpT");    
-     NtupleFactory_->AddInt("mc_PU_ntrks_highpT");    
-  }
+ if(saveMCPU_)
+ {
+   NtupleFactory_ -> AddInt  ("mc_PUit_NumInteractions");
+   NtupleFactory_ -> AddFloat("mc_PUit_zpositions");
+   NtupleFactory_ -> AddFloat("mc_PUit_sumpT_lowpT");
+   NtupleFactory_ -> AddFloat("mc_PUit_sumpT_highpT");
+   NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_lowpT");
+   NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_highpT");
+   
+   NtupleFactory_ -> AddInt  ("mc_PUoot_NumInteractions");
+   NtupleFactory_ -> AddFloat("mc_PUoot_zpositions");
+   NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_lowpT");
+   NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_highpT");
+   NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_lowpT");
+   NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_highpT");
+ }
 
  if(saveProcessId_)
    {
@@ -1263,6 +1293,14 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 {
  //std::cout << "SimpleNtuple::fillEleInfo" << std::endl;
  
+ edm::Handle<EcalRecHitCollection> pBarrelEcalRecHits ;
+ iEvent.getByLabel (EBRechitTag_, pBarrelEcalRecHits) ;
+ const EcalRecHitCollection* theBarrelEcalRecHits = pBarrelEcalRecHits.product () ;
+ 
+ edm::Handle<EcalRecHitCollection> pEndcapEcalRecHits ;
+ iEvent.getByLabel (EERechitTag_, pEndcapEcalRecHits) ;
+ const EcalRecHitCollection* theEndcapEcalRecHits = pEndcapEcalRecHits.product () ;
+ 
  edm::Handle<edm::View<pat::Electron> > eleHandle;
  iEvent.getByLabel(EleTag_,eleHandle);
  edm::View<pat::Electron> electrons = *eleHandle;
@@ -1277,11 +1315,17 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   reco::SuperClusterRef scRef = electron.superCluster();
   reco::GsfTrackRef tkRef = electron.gsfTrack (); 
   
+  const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
+  
   reco::TransientTrack tt = trackBuilder->build(tkRef);
   std::pair<bool,Measurement1D> dxy = IPTools::absoluteTransverseImpactParameter(tt,PV_);
   
+  
   NtupleFactory_ -> Fill4V   ("electrons", electron.p4());
   NtupleFactory_ -> FillFloat("electrons_charge", electron.charge());
+  
+  
+  // track variables
   NtupleFactory_ -> FillFloat("electrons_z", electron.vertex().z());
   NtupleFactory_ -> FillFloat("electrons_dB", electron.dB());
   NtupleFactory_ -> FillFloat("electrons_edB", electron.edB());
@@ -1290,12 +1334,71 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_dxy_PV", dxy.second.value());
   NtupleFactory_ -> FillFloat("electrons_edxy_PV", dxy.second.error());
   NtupleFactory_ -> FillFloat("electrons_dz_PV", tkRef->dz(PVPoint_));
-
+  NtupleFactory_ -> Fill3V   ("electrons_p_atVtx",electron.trackMomentumAtVtx());
+  NtupleFactory_ -> Fill3V   ("electrons_p_out",electron.trackMomentumOut());
+  NtupleFactory_ -> Fill3V   ("electrons_p_atCalo",electron.trackMomentumAtCalo());
+  NtupleFactory_ -> FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
+  NtupleFactory_ -> FillFloat("electrons_pout",electron.trackMomentumOut().R());
+  NtupleFactory_ -> FillFloat("electrons_pcalo",electron.trackMomentumAtCalo().R());
+  
   if (saveEleLessPV_) {	 
     NtupleFactory_ -> FillFloat("electrons_dxy_PV_noEle", tkRef->dxy(EleLessPVPoint_));	 
     NtupleFactory_ -> FillFloat("electrons_dz_PV_noEle", tkRef->dz(EleLessPVPoint_));	 
   }
   
+  
+  // supercluster variables
+  NtupleFactory_ -> Fill3PV  ("electrons_positionSC",electron.superClusterPosition());
+  NtupleFactory_ -> FillFloat("electrons_eSC",scRef->energy());
+  NtupleFactory_ -> FillFloat("electrons_eES",scRef->preshowerEnergy());
+  
+  
+  // seed variables
+  float energy = -1.;
+  float time = -1.; 
+  int flag = -1;
+  float swissCross = -1.;
+    
+  if(electron.isEB())
+  {
+    std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
+    
+    // flag
+    EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+    
+    if( it != theBarrelEcalRecHits->end() )
+    {
+      const EcalRecHit& rh = (*it);
+      energy = rh.energy();
+      time = rh.time();
+      flag = rh.recoFlag();
+      swissCross = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
+    }
+  }
+  else
+  {
+    std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
+         
+    // flag
+    EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+    
+    if( it != theEndcapEcalRecHits->end() )
+    {
+      const EcalRecHit& rh = (*it);
+      energy = rh.energy();
+      time = rh.time();
+      flag = rh.recoFlag();
+      swissCross = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
+    }
+  }
+  
+  NtupleFactory_ -> FillFloat("electrons_eSeed", energy);
+  NtupleFactory_ -> FillFloat("electrons_timeSeed", time);
+  NtupleFactory_ -> FillInt  ("electrons_flagSeed", flag);
+  NtupleFactory_ -> FillFloat("electrons_swissCrossSeed", swissCross);
+  
+  
+  // iso variables
   NtupleFactory_ -> FillFloat("electrons_tkIsoR03",electron.dr03TkSumPt());
   NtupleFactory_ -> FillFloat("electrons_tkIsoR04",electron.dr04TkSumPt());
   NtupleFactory_ -> FillFloat("electrons_emIsoR03",electron.dr03EcalRecHitSumEt());
@@ -1305,8 +1408,17 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_hadIsoR04_depth1",electron.dr04HcalDepth1TowerSumEt());
   NtupleFactory_ -> FillFloat("electrons_hadIsoR04_depth2",electron.dr04HcalDepth2TowerSumEt());
   
+  
+  // id variables
   if(electron.isEB()) NtupleFactory_ -> FillInt("electrons_isEB", 1);
   else                NtupleFactory_ -> FillInt("electrons_isEB", 0);
+  NtupleFactory_ -> FillInt("electrons_isGap",(electron.isGap()));
+  NtupleFactory_ -> FillInt("electrons_isEBEEGap",(electron.isEBEEGap()));
+  NtupleFactory_ -> FillInt("electrons_isEBEtaGap",(electron.isEBEtaGap()));
+  NtupleFactory_ -> FillInt("electrons_isEBPhiGap",(electron.isEBPhiGap()));
+  NtupleFactory_ -> FillInt("electrons_isEEDeeGap",(electron.isEEDeeGap()));
+  NtupleFactory_ -> FillInt("electrons_isEERingGap",(electron.isEERingGap()));
+    
   if(electron.ecalDrivenSeed()) NtupleFactory_ -> FillInt("electrons_ecalDrivenSeed", 1);
   else                          NtupleFactory_ -> FillInt("electrons_ecalDrivenSeed", 0);
   if(electron.trackerDrivenSeed())
@@ -1320,15 +1432,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
     NtupleFactory_ -> FillFloat("electrons_mva",-9999.);
   }
   
-  //ELE ID
-  for( std::vector<std::string>::const_iterator iEleID = EleID_names_.begin(); iEleID != EleID_names_.end(); iEleID++ ) {
-    NtupleFactory_ -> FillFloat(*iEleID,electron.electronID(*iEleID));
-  }
-  
-  NtupleFactory_ -> FillFloat("electrons_eSC",scRef->energy());
-  NtupleFactory_ -> FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
-  NtupleFactory_ -> FillFloat("electrons_pout",electron.trackMomentumOut().R());
-  NtupleFactory_ -> FillFloat("electrons_pcalo",electron.trackMomentumAtCalo().R());
   NtupleFactory_ -> FillFloat("electrons_eSCOverP",electron.eSuperClusterOverP());
   NtupleFactory_ -> FillFloat("electrons_eSeedOverP",electron.eSeedClusterOverP());
   NtupleFactory_ -> FillInt  ("electrons_classification",electron.classification());
@@ -1341,15 +1444,18 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_e2x5Max",electron.e2x5Max());
   NtupleFactory_ -> FillFloat("electrons_e5x5",electron.e5x5());
   
+  for( std::vector<std::string>::const_iterator iEleID = EleID_names_.begin(); iEleID != EleID_names_.end(); iEleID++ ) {
+    NtupleFactory_ -> FillFloat(*iEleID,electron.electronID(*iEleID));
+  }
+  
+  
   // conversion rejection variables
   NtupleFactory_->FillInt("electrons_convFlag",electron.convFlags());
   NtupleFactory_->FillInt("electrons_mishits",electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits());
   NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
   NtupleFactory_->FillFloat("electrons_dist", electron.convDist());
   NtupleFactory_->FillFloat("electrons_dcot", electron.convDcot());
-  
-  // preshower variables 
-  NtupleFactory_->FillFloat("electrons_eES",scRef->preshowerEnergy());
+
  }
  
 }
@@ -1417,7 +1523,7 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
   edm::ESHandle<CaloTopology> pTopology;
   iESetup.get<CaloTopologyRecord>().get(pTopology);
   const CaloTopology *topology = pTopology.product();
- // Ecal barrel RecHits 
+  // Ecal barrel RecHits 
   edm::Handle<EcalRecHitCollection> pBarrelEcalRecHits ;
   iEvent.getByLabel (EBRechitTag_, pBarrelEcalRecHits) ;
   const EcalRecHitCollection* theBarrelEcalRecHits = pBarrelEcalRecHits.product () ;
@@ -1844,34 +1950,69 @@ void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetu
 {
  //std::cout << "SimpleNtuple::fillMCPUInfo" << std::endl;
 
-  //edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
-  edm::Handle<PileupSummaryInfo> PupInfo;
+  edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
   iEvent.getByLabel(MCPileupTag_, PupInfo);
-
-
-  NtupleFactory_->FillInt("mc_PU_NumInteractions",PupInfo->getPU_NumInteractions());    
   
-  std::vector<float> temp_mc_PU_zpositions = PupInfo->getPU_zpositions();
-  std::vector<float> temp_mc_PU_sumpT_lowpT = PupInfo->getPU_sumpT_lowpT();
-  std::vector<float> temp_mc_PU_sumpT_highpT = PupInfo->getPU_sumpT_highpT();
-  std::vector<int> temp_mc_PU_ntrks_lowpT = PupInfo->getPU_ntrks_lowpT();
-  std::vector<int> temp_mc_PU_ntrks_highpT = PupInfo->getPU_ntrks_highpT();
-
-  for (std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it ){
-   NtupleFactory_->FillFloat("mc_PU_zpositions",*it);       
-  }
-  for (std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it ){
-   NtupleFactory_->FillFloat("mc_PU_sumpT_lowpT",*it);       
-  }
-  for (std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it ){
-   NtupleFactory_->FillFloat("mc_PU_sumpT_highpT",*it);       
-  }
-  for (std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it ){
-   NtupleFactory_->FillInt("mc_PU_ntrks_lowpT",*it);       
-  }
-  for (std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it ){
-   NtupleFactory_->FillInt("mc_PU_ntrks_highpT",*it);       
-  }
+  // loop on BX
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI)
+  {
+    // in-time pileup
+    if( PVI->getBunchCrossing() == 0 )
+    {
+      NtupleFactory_->FillInt("mc_PUit_NumInteractions",PVI->getPU_NumInteractions());    
+      
+      std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
+      std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
+      std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
+      std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
+      std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+      
+     for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUit_sumpT_lowpT",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUit_sumpT_highpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUit_ntrks_lowpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUit_ntrks_highpT",*it);
+    }
+    
+    // out-of-time pileup
+    else
+    {
+      NtupleFactory_->FillInt("mc_PUoot_NumInteractions",PVI->getPU_NumInteractions());
+      
+      std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
+      std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
+      std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
+      std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
+      std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+      
+     for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUoot_zpositions",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUoot_sumpT_lowpT",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUoot_sumpT_highpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUoot_ntrks_lowpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUoot_ntrks_highpT",*it);
+    }
+      
+  } // loop on BX
+  
 }
    
 void SimpleNtuple::fillProcessIdInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
