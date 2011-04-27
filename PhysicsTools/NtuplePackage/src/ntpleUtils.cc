@@ -954,6 +954,68 @@ TH1D * smartGausProfileY (TH2F * strip, double width){
 // -------------------------------------------------------------
 
 
+TH1F* FC1D(TH1F* h, double CL){
+ ///==== AM Get Neyman Intervals ====
+ std::vector<int> flags; 
+ std::vector<int> flagsNo; 
+ std::multimap<double,int > values;
+ for(int bin = 1; bin <= h->GetNbinsX(); bin++){
+  values.insert(std::pair<double, int>(h->GetBinContent(bin), bin));
+ }
+ 
+ double allIntegral = h->Integral(1, h->GetNbinsX()); 
+ double tempIntegral = 0;
+ 
+ for (std::multimap<double,int>::iterator iMap = values.begin(); iMap!= values.end(); iMap++){
+  tempIntegral += iMap->first;
+  if (tempIntegral > allIntegral*(1-CL)) flags.push_back(iMap->second);
+  else flagsNo.push_back(iMap->second);
+ }
+ 
+ TH1F* clone = (TH1F*)(h->Clone()); 
+ for (int iFlag = 0; iFlag<flags.size(); iFlag++ ){
+  clone -> SetBinContent(flags.at(iFlag), h->GetBinContent(flags.at(iFlag)));
+ }
+ for (int iFlag = 0; iFlag<flagsNo.size(); iFlag++ ){
+  clone -> SetBinContent(flagsNo.at(iFlag), 0);
+ } 
+ return clone;
+}
+
+
+TH2F* FC2D(TH2F* h, double CL){
+ ///---- same as before but 2D ----
+ std::vector<int> flags; 
+ std::vector<int> flagsNo; 
+ std::multimap<double,int > values;
+ 
+ for (int iBinX = 1; iBinX <= h->GetXaxis()->GetNbins(); iBinX++){
+  for (int iBinY = 1; iBinY <= h->GetYaxis()->GetNbins(); iBinY++){
+   int bin = h->GetBin(iBinX,iBinY);
+   values.insert(std::pair<double, int>(h->GetBinContent(iBinX,iBinY),bin));
+  }
+ }
+ 
+ double allIntegral = h->Integral(1, h->GetNbinsX(),1, h->GetNbinsY()); 
+ double tempIntegral = 0;
+ for (std::multimap<double,int>::iterator iMap = values.begin(); iMap!= values.end(); iMap++){
+  tempIntegral += iMap->first;
+  if (tempIntegral > allIntegral*(1-CL)) flags.push_back(iMap->second);
+  else flagsNo.push_back(iMap->second);
+ }
+ 
+ TH2F* clone = (TH2F*)(h->Clone()); 
+ for (int iFlag = 0; iFlag<flags.size(); iFlag++ ){
+  clone -> SetBinContent(flags.at(iFlag), 1);
+ }
+ for (int iFlag = 0; iFlag<flagsNo.size(); iFlag++ ){
+  clone -> SetBinContent(flagsNo.at(iFlag), 0);
+ } 
+ return clone;
+}
+
+// -------------------------------------------------------------
+
 std::vector<double> getSigmaBands_FeldmanCousins (const TH1 & histo)
 {
  ///==== AM Get Neyman Intervals, MPV, +/- 1 sigma ====

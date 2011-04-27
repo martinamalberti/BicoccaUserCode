@@ -254,6 +254,11 @@ range from a first averaging */
 TH1D * smartGausProfileY (TH2F * strip, double width) ; 
 
 /** 68% and 95% bands using Neyman intervals 
+ * and Feldman-Cousins principle */
+TH1F* FC1D(TH1F* h, double CL = 0.68) ;
+TH2F* FC2D(TH2F* h, double CL = 0.68) ;
+
+/** 68% and 95% bands using Neyman intervals 
 and Feldman-Cousins principle */
 std::vector<double> getSigmaBands_FeldmanCousins (const TH1 & histo) ;
  
