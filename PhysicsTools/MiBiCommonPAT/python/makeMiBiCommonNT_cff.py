@@ -8,6 +8,7 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 
 from PhysicsTools.PatAlgos.selectionLayer1.leptonCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonCountFilter_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import *
 
 def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
@@ -330,6 +331,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # -------------------
     # pat selection layer
+    #process.selectedPatElectrons.cut      = cms.string("pt > 30. & abs(eta) < 2.5")  #fede
+    #process.selectedPatElectronsPFlow.cut = cms.string("pt > 15. & abs(eta) < 2.5")  #fede
+    
     process.selectedPatElectrons.cut      = cms.string("pt > 10. & abs(eta) < 2.5")
     process.selectedPatElectronsPFlow.cut = cms.string("pt > 10. & abs(eta) < 2.5")
     
@@ -388,6 +392,12 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
       minNumber = cms.uint32(2)
      )
 
+    process.load('PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi')
+    process.ElectronsFilter = countPatElectrons.clone(
+      src       = cms.InputTag("selectedPatElectrons"),
+      minNumber = cms.uint32(1)
+     )
+
     
     
     #------------
@@ -416,6 +426,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # Sequences & Other counters
     process.LeptonsFilterEvents = process.AllPassFilter.clone()
     process.LeptonsFilterPFlowEvents = process.AllPassFilter.clone()
+    process.ElectronsFilterEvents = process.AllPassFilter.clone()
     process.JetFilterAK5CaloEvents = process.AllPassFilter.clone()
     process.JetFilterAK5PFEvents = process.AllPassFilter.clone()
     process.JetFilterPFlowEvents = process.AllPassFilter.clone()
@@ -443,6 +454,12 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.JetFilterPFlow*
         process.JetFilterPFlowEvents
         )
+
+    process.OneEleSeq = cms.Sequence(
+        process.ElectronsFilter*
+        process.ElectronsFilterEvents
+        )
+
 
     process.TwoPhotonsSeq = cms.Sequence(
         process.PhotonsFilter*
@@ -525,6 +542,10 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
 
     process.MiBiCommonNTTwoPhotons = process.MiBiCommonNT.clone()
     process.MiBiCommonNTTwoPhotons.JetTag = cms.InputTag("patJetsAK5PF")
+
+    process.MiBiCommonNTOneElectron = process.MiBiCommonNT.clone()
+    process.MiBiCommonNTOneElectron.JetTag = cms.InputTag("patJetsAK5PF")
+
     
     
     
@@ -540,3 +561,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiPathTwoJetsAK5PF = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5PFSeq*process.MiBiCommonNTTwoJetsAK5PF)
     process.MiBiPathTwoJetsAK5Calo = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5CaloSeq*process.MiBiCommonNTTwoJetsAK5Calo)
     process.MiBiPathTwoJetsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoJetsPFlowSeq*process.MiBiCommonNTTwoJetsPFlow)
+
+    #ele path
+    #process.MiBiPathOneElectron = cms.Path(process.MiBiCommonPAT*process.OneEleSeq*process.MiBiCommonNTOneElectron)
