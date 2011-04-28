@@ -185,7 +185,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     #### electrons ####
     process.load("PhysicsTools.MiBiCommonPAT.simpleEleIdSequence_cff")
     
-    process.patElectrons.addElectronID = cms.bool(False)
+    process.patElectrons.addElectronID = cms.bool(True)
     process.patElectrons.electronIDSources = cms.PSet(
       simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
       simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
@@ -201,7 +201,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
       simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
     )
 
-    process.patElectronsPFlow.addElectronID = cms.bool(False)
+    process.patElectronsPFlow.addElectronID = cms.bool(True)
     process.patElectronsPFlow.electronIDSources = cms.PSet(
       simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
       simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
