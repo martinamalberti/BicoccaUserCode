@@ -69,6 +69,7 @@ SimpleNtuple = cms.EDAnalyzer(
     saveHLT        = cms.untracked.bool (True),     
     saveBS         = cms.untracked.bool (True),
     savePV         = cms.untracked.bool (True),
+    saveRho        = cms.untracked.bool (True),
     saveEleLessPV  = cms.untracked.bool (False), # default no revertex
     saveMuonLessPV = cms.untracked.bool (False), # default no revertex
     saveTrack      = cms.untracked.bool (False), # default no tracks
