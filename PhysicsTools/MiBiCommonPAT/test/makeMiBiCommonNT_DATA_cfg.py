@@ -36,7 +36,7 @@ process.source.fileNames = cms.untracked.vstring(
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.TFileService = cms.Service(
     "TFileService", 
