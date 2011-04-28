@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.35 2011/04/27 11:00:20 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.36 2011/04/28 17:08:27 abenagli Exp $
 //
 //
 
@@ -409,6 +409,14 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("photons_trkSumPtHollowConeDR04");   
    NtupleFactory_ -> AddInt("photons_hasPixelSeed");   
    NtupleFactory_ -> Add4V("photons_SC");   
+   NtupleFactory_ -> Add3V("photons_SCpos");   
+
+   NtupleFactory_ -> Add3V("photons_convVtx");
+   NtupleFactory_ -> AddInt("photons_convNtracks");
+   NtupleFactory_ -> AddInt("photons_convVtxIsValid");
+   NtupleFactory_ -> AddFloat("photons_convVtxChi2");
+   NtupleFactory_ -> AddFloat("photons_convVtxNDOF");
+   NtupleFactory_ -> AddFloat("photons_convEoverP");
 
    NtupleFactory_ ->AddTMatrix("photons_rechitTime");
    NtupleFactory_ ->AddTMatrix("photons_rechitE");
@@ -1589,7 +1597,27 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
   NtupleFactory_ -> FillFloat("photons_hcalIso",photon.hcalIso());   
   NtupleFactory_ -> FillFloat("photons_hadronicOverEm",photon.hadronicOverEm());   
   NtupleFactory_ -> FillFloat("photons_trkSumPtHollowConeDR04",photon.trkSumPtHollowConeDR04());   
-  NtupleFactory_ -> FillInt  ("photons_hasPixelSeed",photon.hasPixelSeed());   
+  NtupleFactory_ -> FillInt  ("photons_hasPixelSeed",photon.hasPixelSeed());  
+
+
+  //conversion info
+  reco::ConversionRefVector conversions = photon.conversions();
+  if (conversions.size() > 0) std::cout << "conversions.size() = " << conversions.size() << std::endl;
+  
+  if ( conversions.size() == 1 )
+    {
+      reco::Conversion conversion = *( conversions.at(0) );
+
+      ROOT::Math::XYZVector conversionVertex(conversion.conversionVertex().x(), conversion.conversionVertex().y(), conversion.conversionVertex().z());
+      NtupleFactory_ -> Fill3V   ("photons_convVtx", conversionVertex);
+      NtupleFactory_ -> FillInt  ("photons_convVtxIsValid", conversion.conversionVertex().isValid() );
+      NtupleFactory_ -> FillFloat("photons_convVtxChi2", conversion.conversionVertex().chi2() );
+      NtupleFactory_ -> FillFloat("photons_convVtxNDOF", conversion.conversionVertex().ndof() );
+      NtupleFactory_ -> FillFloat("photons_convEoverP", conversion.EoverP() );
+      NtupleFactory_ -> FillInt  ("photons_convNtracks", conversion.nTracks());
+
+
+    }
 
 
   //superCluster Info
@@ -1599,6 +1627,8 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
   double ratio = phoSC->energy() / pos;
   ROOT::Math::XYZTVector phoVec(phoSC->x()*ratio, phoSC->y()*ratio, phoSC->z()*ratio, phoSC->energy());
   NtupleFactory_ -> Fill4V("photons_SC", phoVec);
+  ROOT::Math::XYZVector phoPos(phoSC->x(), phoSC->y(), phoSC->z());
+  NtupleFactory_ -> Fill3V("photons_SCpos", phoPos);
 
 
   //recHit time and energy

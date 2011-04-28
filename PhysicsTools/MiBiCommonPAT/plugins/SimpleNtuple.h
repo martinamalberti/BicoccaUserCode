@@ -36,6 +36,8 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+
 
 // user include files
 #include "PhysicsTools/NtupleUtils/interface/VertexReProducer.h"
@@ -88,6 +90,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+
 
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
