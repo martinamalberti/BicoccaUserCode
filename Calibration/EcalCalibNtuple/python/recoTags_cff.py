@@ -10,7 +10,7 @@ def makeRecoTags(process):
         
         cms.PSet(
             record = cms.string("EcalLaserAPDPNRatiosRcd"),
-            tag = cms.string("EcalLaserAPDPNRatios_v3_online"),
+            tag = cms.string("EcalLaserAPDPNRatios_v5_online"),
             connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_311X_ECAL_LAS")
             ),
         
