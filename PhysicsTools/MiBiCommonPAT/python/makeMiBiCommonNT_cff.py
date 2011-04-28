@@ -33,7 +33,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.out = cms.OutputModule(
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
-        outputCommands = cms.untracked.vstring('keep *')
     )
     #process.e = cms.EndPath(process.out)
     
