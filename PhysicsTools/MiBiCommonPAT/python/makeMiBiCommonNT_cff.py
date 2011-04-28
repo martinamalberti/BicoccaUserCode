@@ -32,6 +32,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # Out
     process.out = cms.OutputModule(
         "PoolOutputModule",
+        outputCommands = cms.untracked.vstring(),
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
     )
     #process.e = cms.EndPath(process.out)
@@ -84,6 +85,16 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # bugfix for DATA Run2011 (end)
 
     process.patJets.addTagInfos = cms.bool(False)    #bugfix related to btagging
+    
+    
+    
+    ### vertex ###
+    process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")
+    process.offlinePrimaryVertices = process.offlinePrimaryVerticesDA.clone()
+    process.offlinePrimaryVertices.useBeamConstraint = cms.bool(True)
+    process.offlinePrimaryVertices.TkClusParameters.TkDAClusParameters.Tmin = cms.double(4.)
+    process.offlinePrimaryVertices.TkClusParameters.TkDAClusParameters.vertexSize = cms.double(0.01)
+    
     
     
     ### tau ###
@@ -366,6 +377,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.AllEvents * # -> Counter
         process.scrapingFilter *
         process.NonScrapedEvents * # -> Counter
+        #process.offlinePrimaryVertices * # -> DA vertex
         process.primaryVertexFilter *
         process.GoodVtxEvents * # -> Counter
         getattr(process,"patPF2PATSequence"+postfix) *
