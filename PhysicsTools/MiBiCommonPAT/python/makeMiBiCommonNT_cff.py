@@ -33,10 +33,11 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.out = cms.OutputModule(
         "PoolOutputModule",
         fileName = cms.untracked.string('file:./MiBiCommonPAT.root'),
-        outputCommands = cms.untracked.vstring()
+        outputCommands = cms.untracked.vstring('keep *')
     )
-
-
+    #process.e = cms.EndPath(process.out)
+    
+    
     process.load("PhysicsTools.NtupleUtils.AllPassFilter_cfi")
 
     #--------------------------
@@ -241,13 +242,21 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
     process.load('RecoJets.Configuration.RecoJets_cff')
     process.load('RecoJets.Configuration.RecoPFJets_cff')
-    process.kt6PFJets.doRhoFastjet = True
-    process.kt6PFJets.Ghost_EtaMax = cms.double(5.5)
-    process.kt6PFJets.Rho_EtaMax = cms.double(5.0)
+    from RecoJets.JetProducers.kt4PFJets_cfi import *
+
+    # to compute FastJet rho to correct jets (note: EtaMax restricted to 5.0)
+    process.kt6PFJetsForJets = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+    process.kt6PFJetsForJets.Rho_EtaMax = cms.double(5.0)
+    process.kt6PFJetsForJets.Ghost_EtaMax = cms.double(6.0)
+    
+    # to compute FastJet rho to correct isolation (note: EtaMax restricted to 2.8)
+    process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+    process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.8)
+    
     process.ak5PFJets.doAreaFastjet = True
     process.ak5PFJets.Rho_EtaMax = cms.double(5.0)
+    process.patJetCorrFactors.rho = cms.InputTag("kt6PFJetsForJets","rho")
     
-    process.patJetCorrFactors.rho = cms.InputTag("kt6PFJets","rho")
     
     # ---------------
     # add collections
@@ -361,10 +370,12 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.primaryVertexFilter *
         process.GoodVtxEvents * # -> Counter
         getattr(process,"patPF2PATSequence"+postfix) *
+        process.kt6PFJetsForIsolation *
+        process.kt6PFJetsForJets *        
         process.recoPFJets *
         process.HBHENoiseFilterResultProducer *
         process.patDefaultSequence
-    )
+        )
     
 
     
@@ -551,16 +562,18 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # VBF paths
     process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
-    process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5Calo)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
+    #process.MiBiPathAK5Calo = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5CaloSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5Calo)
 
     # GammaGamma paths
     process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
     
     # Di-jet paths
-    process.MiBiPathTwoJetsAK5PF = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5PFSeq*process.MiBiCommonNTTwoJetsAK5PF)
-    process.MiBiPathTwoJetsAK5Calo = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5CaloSeq*process.MiBiCommonNTTwoJetsAK5Calo)
-    process.MiBiPathTwoJetsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoJetsPFlowSeq*process.MiBiCommonNTTwoJetsPFlow)
+    #process.MiBiPathTwoJetsAK5PF = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5PFSeq*process.MiBiCommonNTTwoJetsAK5PF)
+    #process.MiBiPathTwoJetsAK5Calo = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5CaloSeq*process.MiBiCommonNTTwoJetsAK5Calo)
+    #process.MiBiPathTwoJetsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoJetsPFlowSeq*process.MiBiCommonNTTwoJetsPFlow)
 
     #ele path
     #process.MiBiPathOneElectron = cms.Path(process.MiBiCommonPAT*process.OneEleSeq*process.MiBiCommonNTOneElectron)
+
+    process.out.outputCommands = cms.untracked.vstring('keep *')
