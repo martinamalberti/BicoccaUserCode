@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.34 2011/04/23 18:05:55 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.35 2011/04/27 11:00:20 abenagli Exp $
 //
 //
 
@@ -91,9 +91,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  saveHLT_       = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
  saveBS_        = iConfig.getUntrackedParameter<bool> ("saveBS", true);
  savePV_        = iConfig.getUntrackedParameter<bool> ("savePV", true);
+ saveRho_       = iConfig.getUntrackedParameter<bool> ("saveRho", true);
  saveEleLessPV_ = iConfig.getUntrackedParameter<bool> ("saveEleLessPV", true);
  saveMuonLessPV_ = iConfig.getUntrackedParameter<bool> ("saveMuonLessPV", true);
-
  saveTrack_     = iConfig.getUntrackedParameter<bool> ("saveTrack", false);
  saveEle_       = iConfig.getUntrackedParameter<bool> ("saveEle", true);
  saveTau_        = iConfig.getUntrackedParameter<bool> ("saveTau", true);
@@ -155,6 +155,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("PV_z"); 
    NtupleFactory_ -> AddFloat("PV_d0"); 
    NtupleFactory_ -> AddFloat("PV_SumPt"); 
+ }
+ 
+ if(saveRho_)
+ {
+   NtupleFactory_ -> AddFloat("rho_isolation"); 
+   NtupleFactory_ -> AddFloat("rho_jets"); 
  }
  
  if(saveEleLessPV_)
@@ -220,6 +226,14 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_ -> Add4V   ("electrons");
    NtupleFactory_ -> AddFloat("electrons_charge"); 
+   
+   // resolution variables
+   NtupleFactory_ -> AddFloat("electrons_resolP");
+   NtupleFactory_ -> AddFloat("electrons_resolPt");
+   NtupleFactory_ -> AddFloat("electrons_resolE");
+   NtupleFactory_ -> AddFloat("electrons_resolEt");
+   NtupleFactory_ -> AddFloat("electrons_resolEta");
+   NtupleFactory_ -> AddFloat("electrons_resolPhi");
    
    // track variables
    NtupleFactory_ -> AddFloat("electrons_z");
@@ -330,6 +344,16 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_ -> Add4V   ("muons");
    NtupleFactory_ -> AddFloat("muons_charge");
+   
+   // resolution variables
+   NtupleFactory_ -> AddFloat("muons_resolP");
+   NtupleFactory_ -> AddFloat("muons_resolPt");
+   NtupleFactory_ -> AddFloat("muons_resolE");
+   NtupleFactory_ -> AddFloat("muons_resolEt");
+   NtupleFactory_ -> AddFloat("muons_resolEta");
+   NtupleFactory_ -> AddFloat("muons_resolPhi");
+   
+   // track variables
    NtupleFactory_ -> AddFloat("muons_z");
    NtupleFactory_ -> AddFloat("muons_dB");
    NtupleFactory_ -> AddFloat("muons_edB"); 
@@ -338,12 +362,13 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("muons_dxy_PV");
    NtupleFactory_ -> AddFloat("muons_edxy_PV");
    NtupleFactory_ -> AddFloat("muons_dz_PV");
-
+   
    if( saveMuonLessPV_ ){	 
      NtupleFactory_ -> AddFloat("muons_dxy_PV_noMuon");	 
      NtupleFactory_ -> AddFloat("muons_dz_PV_noMuon");	 
    }
    
+   // isolation variables
    NtupleFactory_ -> AddFloat("muons_nTkIsoR03"); 
    NtupleFactory_ -> AddFloat("muons_nTkIsoR05"); 
    NtupleFactory_ -> AddFloat("muons_tkIsoR03"); 
@@ -393,16 +418,44 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  if(saveMet_)
  {
    NtupleFactory_->Add4V("Met");         
+   NtupleFactory_ -> AddFloat("Met_resolP");
+   NtupleFactory_ -> AddFloat("Met_resolPt");
+   NtupleFactory_ -> AddFloat("Met_resolE");
+   NtupleFactory_ -> AddFloat("Met_resolEt");
+   NtupleFactory_ -> AddFloat("Met_resolEta");
+   NtupleFactory_ -> AddFloat("Met_resolPhi");
+
    NtupleFactory_->Add4V("TCMet");         
-   NtupleFactory_->Add4V("PFMet");         
+   NtupleFactory_ -> AddFloat("TCMet_resolP");
+   NtupleFactory_ -> AddFloat("TCMet_resolPt");
+   NtupleFactory_ -> AddFloat("TCMet_resolE");
+   NtupleFactory_ -> AddFloat("TCMet_resolEt");
+   NtupleFactory_ -> AddFloat("TCMet_resolEta");
+   NtupleFactory_ -> AddFloat("TCMet_resolPhi");
+   
+   NtupleFactory_->Add4V("PFMet");        
+   NtupleFactory_ -> AddFloat("PFMet_resolP");
+   NtupleFactory_ -> AddFloat("PFMet_resolPt");
+   NtupleFactory_ -> AddFloat("PFMet_resolE");
+   NtupleFactory_ -> AddFloat("PFMet_resolEt");
+   NtupleFactory_ -> AddFloat("PFMet_resolEta");
+   NtupleFactory_ -> AddFloat("PFMet_resolPhi");
  }
  
  if(saveJet_)
  {
    NtupleFactory_->Add4V("jets");
-   NtupleFactory_->AddFloat("jets_charge");   
-   NtupleFactory_->AddFloat("jets_dzAvg");   
-   NtupleFactory_->AddFloat("jets_dzAvgCut");   
+   
+   NtupleFactory_ -> AddFloat("jets_resolP");
+   NtupleFactory_ -> AddFloat("jets_resolPt");
+   NtupleFactory_ -> AddFloat("jets_resolE");
+   NtupleFactory_ -> AddFloat("jets_resolEt");
+   NtupleFactory_ -> AddFloat("jets_resolEta");
+   NtupleFactory_ -> AddFloat("jets_resolPhi");
+   
+   NtupleFactory_->AddFloat("jets_charge");
+   NtupleFactory_->AddFloat("jets_dzAvg");
+   NtupleFactory_->AddFloat("jets_dzAvgCut");
    
    NtupleFactory_->AddFloat("jets_corrFactor_raw");   
    NtupleFactory_->AddFloat("jets_corrFactor_off");   
@@ -683,7 +736,7 @@ void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup &
   NtupleFactory_ -> FillFloat("BS_BeamWidthX", BS.BeamWidthX());
   NtupleFactory_ -> FillFloat("BS_BeamWidthY", BS.BeamWidthY());
   
-  //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
+  //std::cout << "SimpleNtuple::fillBSInfo::end" << std::endl;
 }
 
 
@@ -749,6 +802,28 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
   
   //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
 }
+
+
+
+///-------------
+///---- Rho ----
+
+void SimpleNtuple::fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //std::cout << "SimpleNtuple::fillRhoInfo::begin" << std::endl;
+  
+  edm::Handle<double> rhoForIsolation;
+  iEvent.getByLabel("kt6PFJetsForIsolation", "rho", rhoForIsolation);
+  
+  edm::Handle<double> rhoForJets;
+  iEvent.getByLabel("kt6PFJetsForJets", "rho", rhoForJets);
+  
+  NtupleFactory_ -> FillFloat("rho_isolation", *(rhoForIsolation.product()));
+  NtupleFactory_ -> FillFloat("rho_jets", *(rhoForJets.product()));
+  
+  //std::cout << "SimpleNtuple::fillRhoInfo::end" << std::endl;
+}
+
 
 
 ///------------------------
@@ -1244,6 +1319,16 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   
   NtupleFactory_ -> Fill4V   ("muons",muon.p4());
   NtupleFactory_ -> FillFloat("muons_charge",(muon.charge()));
+
+  // resolution variables
+  /*NtupleFactory_ -> FillFloat("muons_resolP",muon.resolP());
+  NtupleFactory_ -> FillFloat("muons_resolPt",muon.resolPt());
+  NtupleFactory_ -> FillFloat("muons_resolE",muon.resolE());
+  NtupleFactory_ -> FillFloat("muons_resolEt",muon.resolEt());
+  NtupleFactory_ -> FillFloat("muons_resolEta",muon.resolEta());
+  NtupleFactory_ -> FillFloat("muons_resolPhi",muon.resolPhi());*/
+  
+  // track variables  
   NtupleFactory_ -> FillFloat("muons_z",muon.vertex().z());
   NtupleFactory_ -> FillFloat("muons_dB",muon.dB());
   NtupleFactory_ -> FillFloat("muons_edB",muon.edB());
@@ -1324,6 +1409,13 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> Fill4V   ("electrons", electron.p4());
   NtupleFactory_ -> FillFloat("electrons_charge", electron.charge());
   
+  // resolution variables
+  /*NtupleFactory_ -> FillFloat("electrons_resolP",electron.resolP());
+  NtupleFactory_ -> FillFloat("electrons_resolPt",electron.resolPt());
+  NtupleFactory_ -> FillFloat("electrons_resolE",electron.resolE());
+  NtupleFactory_ -> FillFloat("electrons_resolEt",electron.resolEt());
+  NtupleFactory_ -> FillFloat("electrons_resolEta",electron.resolEta());
+  NtupleFactory_ -> FillFloat("electrons_resolPhi",electron.resolPhi());*/
   
   // track variables
   NtupleFactory_ -> FillFloat("electrons_z", electron.vertex().z());
@@ -1589,6 +1681,13 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> Fill4V   ("jets",jet.p4());
   NtupleFactory_ -> FillFloat("jets_charge",jet.charge());
   
+  // resolution variables
+  /*NtupleFactory_ -> FillFloat("jets_resolP",jet.resolP());
+  NtupleFactory_ -> FillFloat("jets_resolPt",jet.resolPt());
+  NtupleFactory_ -> FillFloat("jets_resolE",jet.resolE());
+  NtupleFactory_ -> FillFloat("jets_resolEt",jet.resolEt());
+  NtupleFactory_ -> FillFloat("jets_resolEta",jet.resolEta());
+  NtupleFactory_ -> FillFloat("jets_resolPhi",jet.resolPhi());*/
   
   // jet energy corrections
   bool isUncorrectedLevelFound = false;
@@ -1767,8 +1866,28 @@ void SimpleNtuple::fillMetInfo (const edm::Event & iEvent, const edm::EventSetup
   edm::View<pat::MET> PFMet = *PFMetHandle;
  
   NtupleFactory_->Fill4V("Met", Met.at(0).p4());
+  /*NtupleFactory_ -> FillFloat("Met_resolP",Met.at(0).resolP());
+  NtupleFactory_ -> FillFloat("Met_resolPt",Met.at(0).resolPt());
+  NtupleFactory_ -> FillFloat("Met_resolE",Met.at(0).resolE());
+  NtupleFactory_ -> FillFloat("Met_resolEt",Met.at(0).resolEt());
+  NtupleFactory_ -> FillFloat("Met_resolEta",Met.at(0).resolEta());
+  NtupleFactory_ -> FillFloat("Met_resolPhi",Met.at(0).resolPhi());*/
+  
   NtupleFactory_->Fill4V("TCMet", TCMet.at(0).p4());
+  /*NtupleFactory_ -> FillFloat("TCMet_resolP",TCMet.at(0).resolP());
+  NtupleFactory_ -> FillFloat("TCMet_resolPt",TCMet.at(0).resolPt());
+  NtupleFactory_ -> FillFloat("TCMet_resolE",TCMet.at(0).resolE());
+  NtupleFactory_ -> FillFloat("TCMet_resolEt",TCMet.at(0).resolEt());
+  NtupleFactory_ -> FillFloat("TCMet_resolEta",TCMet.at(0).resolEta());
+  NtupleFactory_ -> FillFloat("TCMet_resolPhi",TCMet.at(0).resolPhi());*/
+  
   NtupleFactory_->Fill4V("PFMet", PFMet.at(0).p4());
+  /*NtupleFactory_ -> FillFloat("PFMet_resolP",PFMet.at(0).resolP());
+  NtupleFactory_ -> FillFloat("PFMet_resolPt",PFMet.at(0).resolPt());
+  NtupleFactory_ -> FillFloat("PFMet_resolE",PFMet.at(0).resolE());
+  NtupleFactory_ -> FillFloat("PFMet_resolEt",PFMet.at(0).resolEt());
+  NtupleFactory_ -> FillFloat("PFMet_resolEta",PFMet.at(0).resolEta());
+  NtupleFactory_ -> FillFloat("PFMet_resolPhi",PFMet.at(0).resolPhi());*/
 }
 
 
@@ -2086,6 +2205,9 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  
  ///---- fill PV ----
  if(savePV_) fillPVInfo (iEvent, iSetup);
+ 
+ ///---- fill Rho ----
+ if(savePV_) fillRhoInfo (iEvent, iSetup);
 
  ///---- fill EleLessPV ----
  if(saveEleLessPV_) fillEleLessPVInfo (iEvent, iSetup);

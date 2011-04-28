@@ -79,6 +79,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillBSInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   void fillPVInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
   
+  void fillRhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ; 
+  
   void fillTauInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuonLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -158,6 +160,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveHLT_ ;
   bool saveBS_ ;
   bool savePV_ ;
+  bool saveRho_ ;
   bool saveEleLessPV_;
   bool saveMuonLessPV_;
   bool saveTrack_;
@@ -192,5 +195,3 @@ class SimpleNtuple : public edm::EDAnalyzer {
 };
 
 #endif
-
-    
