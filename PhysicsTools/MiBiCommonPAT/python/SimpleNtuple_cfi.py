@@ -27,18 +27,18 @@ SimpleNtuple = cms.EDAnalyzer(
     #### electrons ####
     EleTag                = cms.InputTag("patElectrons"),
     EleID_names           = cms.vstring(
-        'simpleEleId95relIso',
-        'simpleEleId90relIso',
-        'simpleEleId85relIso',
-        'simpleEleId80relIso',
-        'simpleEleId70relIso',
-        'simpleEleId60relIso',
-        'simpleEleId95cIso',
-        'simpleEleId90cIso',
-        'simpleEleId85cIso',
-        'simpleEleId80cIso',
-        'simpleEleId70cIso',
-        'simpleEleId60cIso'
+        #'simpleEleId95relIso',
+        #'simpleEleId90relIso',
+        #'simpleEleId85relIso',
+        #'simpleEleId80relIso',
+        #'simpleEleId70relIso',
+        #'simpleEleId60relIso',
+        #'simpleEleId95cIso',
+        #'simpleEleId90cIso',
+        #'simpleEleId85cIso',
+        #'simpleEleId80cIso',
+        #'simpleEleId70cIso',
+        #'simpleEleId60cIso'
         ),
     
     #### photons ####
