@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.36 2011/04/28 17:08:27 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.37 2011/04/28 21:35:43 deguio Exp $
 //
 //
 
@@ -1602,7 +1602,7 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
 
   //conversion info
   reco::ConversionRefVector conversions = photon.conversions();
-  if (conversions.size() > 0) std::cout << "conversions.size() = " << conversions.size() << std::endl;
+  //if (conversions.size() > 0) std::cout << "conversions.size() = " << conversions.size() << std::endl;
   
   if ( conversions.size() == 1 )
     {
