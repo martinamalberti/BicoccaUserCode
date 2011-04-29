@@ -524,6 +524,30 @@ int SelectObject(const std::vector<ROOT::Math::XYZTVector>& objects, const std::
   return -1;
  }
 }
+
+//  ------------------------------------------------------------
+
+
+int getNumberPTThreshold (const std::vector<ROOT::Math::XYZTVector>& objects, const double& ptMin,  const std::vector<int>* blacklist ){
+ // initialize variable with result
+ int number = 0;
+ // loop over objects
+ for(unsigned int i = 0; i < objects.size(); ++i){
+  if( objects.at(i).Pt() < ptMin ) continue;
+  //~~~~ check blacklist ~~~~
+  bool skipObj = false;
+  if(blacklist)
+   for(unsigned int kk = 0; kk < blacklist -> size(); ++kk){
+    if(blacklist -> at(kk) == static_cast<int>(i)) skipObj = true;
+   }
+   if(skipObj) continue;
+   
+   number++;
+ } // loop over objects
+  
+ return number;  
+}
+
 //  ------------------------------------------------------------
 
 

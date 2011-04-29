@@ -223,7 +223,9 @@ double SelectResonanceOppositeCharge(std::vector<int>& it,
 		       const double& ptMin,
 		       const std::vector<int>* blacklist = 0);
 
-
+/** get the number of objects with pT > threshold*/
+int getNumberPTThreshold (const std::vector<ROOT::Math::XYZTVector>& objects, const double& ptMin,  const std::vector<int>* blacklist = 0);
+ 
 /** build combinations of n jets */
 int Build4JetCombinations(std::vector<std::vector<int> >& comb, const int& nJets);
 
