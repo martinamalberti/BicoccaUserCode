@@ -7,6 +7,9 @@
 
 #pragma link C++ class std::vector<float>;
 
+#pragma link C++ class PUclass +;
+
+
 #endif
 
 #endif
