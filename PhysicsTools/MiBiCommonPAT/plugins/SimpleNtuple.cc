@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.37 2011/04/28 21:35:43 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.38 2011/04/29 12:45:06 amassiro Exp $
 //
 //
 
@@ -556,6 +556,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_->Add4V("mc_H");    
    NtupleFactory_->AddFloat("mc_H_charge");    
+   NtupleFactory_->Add3V("mc_H_vertex");
+
    
    if(saveMCHiggsWW_ || saveMCHiggsGammaGamma_)
    {
@@ -1953,6 +1955,10 @@ void SimpleNtuple::fillMCHiggsInfo (const edm::Event & iEvent, const edm::EventS
    NtupleFactory_->Fill4V("mc_H",mcAnalysisHiggs_ -> mcH()->p4());
    NtupleFactory_->FillFloat("mc_H_charge",mcAnalysisHiggs_ -> mcH()->charge());
    
+   math::XYZPoint p(mcAnalysisHiggs_ -> mcH()->vertex());
+   ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> vertex(p.x(), p.y(), p.z());
+   NtupleFactory_->Fill3V("mc_H_vertex", vertex);
+
    if(saveMCHiggsWW_ || saveMCHiggsGammaGamma_)
    {  
      NtupleFactory_->Fill4V("mcQ1_tag",mcAnalysisHiggs_ -> mcQ1_tag()->p4());
