@@ -367,6 +367,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
 //  if (reader.GetInt("HCAL_noise")->at(0) == 1) continue;
   
   
+
+  
   if (debug == 1) std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
   totalJets_had = totalJets_had + nJets_had;
@@ -375,16 +377,19 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   int nJets_reco = reader.Get4V("jets")->size();	// qui è il jet a livello reco
   totalJets_reco = totalJets_reco + nJets_reco;
    
-
+  ///******************************************************************************************
+  ///ciclo su tutti i jet!!! Riempio l'intero tree per ogni singolo jet che passa la selezione!
+  ///******************************************************************************************
+  
+  for (int i = 0; i<nJets_had; i++){
   
   
   ///FILLING VARIABLES
   
-  for (int i = 0; i<nJets_had; i++){
+  
   
   if (fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<4.7 && fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>3.2 && reader.Get4V(nameGenJet.c_str())->at(i).Pt()>35){
      
-     hPtC.Fill(reader.Get4V(nameGenJet.c_str())->at(i).Pt());	//riempio l'istogramma
      hPtF.Fill(reader.Get4V(nameGenJet.c_str())->at(i).Pt());	//riempio l'istogramma
 
      EtaPtF_had.Fill(reader.Get4V(nameGenJet.c_str())->at(i).Eta(), reader.Get4V(nameGenJet.c_str())->at(i).Pt());	//riempio l'istogramma
@@ -396,7 +401,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
      G_FJet_Phi = reader.Get4V(nameGenJet.c_str())->at(i).Phi();
      G_FJet_Energy = reader.Get4V(nameGenJet.c_str())->at(i).energy();
      
-
+     
    
      S_Mjj = (reader.Get4V(nameGenJet.c_str())->at(i) + reader.Get4V(nameGenJet.c_str())->at(i)).mass();      
     }    
@@ -410,7 +415,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   
     
      }
-  } 
+   
      /*
      //Variabili at detector level
      
@@ -467,7 +472,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
           
      AnaHiggs.Fill();    
      eventSel++;
- }    
+     
     
 //     std::cerr << " here " << std::endl;
     efficiency.SetBinContent(1,entryMAX-entryMIN);
@@ -478,8 +483,11 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  events -> Write () ;
  }
  
- outFile.Write();
- 
- 
+   outFile.Write();
+  }
+ }
+
  return 0;
+ 
+
 }
