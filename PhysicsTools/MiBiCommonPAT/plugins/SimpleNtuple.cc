@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.38 2011/04/29 12:45:06 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.39 2011/05/04 14:52:58 deguio Exp $
 //
 //
 
@@ -1617,9 +1617,17 @@ void SimpleNtuple::fillPhotonInfo (const edm::Event & iEvent, const edm::EventSe
       NtupleFactory_ -> FillFloat("photons_convVtxNDOF", conversion.conversionVertex().ndof() );
       NtupleFactory_ -> FillFloat("photons_convEoverP", conversion.EoverP() );
       NtupleFactory_ -> FillInt  ("photons_convNtracks", conversion.nTracks());
-
-
     }
+  else {
+  
+      ROOT::Math::XYZVector conversionVertex( -999 , -999 , -999);
+      NtupleFactory_ -> Fill3V   ("photons_convVtx", conversionVertex);
+      NtupleFactory_ -> FillInt  ("photons_convVtxIsValid", 0.);
+      NtupleFactory_ -> FillFloat("photons_convVtxChi2", -999 );
+      NtupleFactory_ -> FillFloat("photons_convVtxNDOF", -999 );
+      NtupleFactory_ -> FillFloat("photons_convEoverP", -999);
+      NtupleFactory_ -> FillInt  ("photons_convNtracks", 0);
+  }
 
 
   //superCluster Info
