@@ -126,14 +126,15 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  TFile outFile(OutFileName.c_str(),"RECREATE");
  outFile.cd();
  
- TH1F hPtC("hPtC","central jets",1000,0,500);	//jet centrali
- TH1F hPtF("hPtF","forward jets",1000,0,500);	//jet forward
+  Float_t lowEdge[8] = {35,45,57,72,90,120,150,1000};
+  int NBIN = 7;
  
- TH1F hPtC_reco("hPtC_reco","central jets",1000,0,500);	//jet centrali
- TH1F hPtF_reco("hPtF_reco","forward jets",1000,0,500);	//jet forward
+  TH1F hPtF("hPtF","forward jets",1000,0,500);	//jet forward
+  
+  TH1F hPtF_rebinned("hPtF","forward jets",NBIN,lowEdge);	//jet forward
+  
 
- TH2F EtaPtF_reco("EtaPtF_reco","EtaPtF_reco", 200,-7,7, 1000,0,500);	//eta sulla x, pt sulle y
- TH2F EtaPtF_had("EtaPtF_had","EtaPtF_had", 200,-7,7, 1000,0,500);	//eta sulla x, pt sulle y
+  TH2F EtaPtF_had("EtaPtF_had","EtaPtF_had", 200,-7,7, 1000,0,500);	//eta sulla x, pt sulle y
  
  TH1F efficiency("efficiency","efficiency",0,1,4);	//jet centrali
  
@@ -183,7 +184,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  int nFJet_S_CJet;
  
  int nJets_had_sel;
- int nJets_reco_sel;
+ 
  
  double S_CJet_Pt;
  double S_CJet_Eta;
@@ -195,33 +196,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  double S_D_Phi;
  double S_D_R;
  
- /*double Trig_Jet15;
- double Trig_Jet30;
- double Trig_Jet50;
- double Trig_DiJ15;
- double Trig_DiJ30;*/
- 
- int S_RunNb;
- int S_LumiBlk;
- int S_EventNb;
- //int S_Vtxnum;
- 
- double DR_C;	//DR tra had e reco jets
- double DR_F;	//DR tra had e reco jets
- 
- int eventSel;
- int G_noTop;
- int S_noTop;
- 
- int S_Vtxnum;
- 
- //int EtaSel;	//trigger su eta
- //int PtSel_had;	// trigger su ptMin
- //int PtSel_reco;	// trigger su ptMin
-
- 
- //double MET;
- // int AnalysisStep; 
   
 
  AnaHiggs.Branch("G_FJet_Pt",&G_FJet_Pt,"G_FJet_Pt/D"); 	//HADRON
@@ -254,8 +228,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("S_D_Phi",&S_D_Phi,"S_D_Phi/D");
  AnaHiggs.Branch("S_D_R",&S_D_R,"S_D_R/D");
 
- AnaHiggs.Branch("DR_C",&DR_C,"DR_C/D");
- AnaHiggs.Branch("DR_F",&DR_F,"DR_F/D");
  
  AnaHiggs.Branch("nCJet_G_FJet",&nCJet_G_FJet,"nCJet_G_FJet/I");  	//had
  AnaHiggs.Branch("nFJet_G_CJet",&nFJet_G_CJet,"nFJet_G_CJet/I");  	//had
@@ -263,26 +235,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  AnaHiggs.Branch("nFJet_S_CJet",&nFJet_S_CJet,"nFJet_S_CJet/I");  	//RECO
 
  AnaHiggs.Branch("nJets_had_sel",&nJets_had_sel,"nJets_had_sel/I");
- AnaHiggs.Branch("nJets_reco_sel",&nJets_reco_sel,"nJets_reco_sel/I");
- 
- /*AnaHiggs.Branch("Trig_Jet15",&Trig_Jet15,"Trig_Jet15/D");
- AnaHiggs.Branch("Trig_Jet30",&Trig_Jet30,"Trig_Jet30/D");
- AnaHiggs.Branch("Trig_Jet50",&Trig_Jet50,"Trig_Jet50/D");
- AnaHiggs.Branch("Trig_DiJ15",&Trig_DiJ15,"Trig_DiJ15/D");
- AnaHiggs.Branch("Trig_DiJ30",&Trig_DiJ30,"Trig_DiJ30/D");*/
- 
- AnaHiggs.Branch("S_RunNb",&S_RunNb,"S_RunNb/I");
- AnaHiggs.Branch("S_LumiBlk",&S_LumiBlk,"S_LumiBlk/I");
- AnaHiggs.Branch("S_EventNb",&S_EventNb,"S_EventNb/I");
- AnaHiggs.Branch("G_noTop",&G_noTop,"G_noTop/I");
- AnaHiggs.Branch("S_noTop",&S_noTop,"S_noTop/I");
- AnaHiggs.Branch("S_Vtxnum",&S_Vtxnum,"S_Vtxnum/I");
-  
 
-
- //AnaHiggs.Branch("eventSel", &eventSel, "eventSel/I");
-// AnaHiggs.Branch("PtSel_had", &PtSel_had, "PtSel_had/I");
-// AnaHiggs.Branch("PtSel_reco", &PtSel_reco, "PtSel_reco/I");
 
 
 
@@ -295,7 +248,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  
 
  double totalJets_had = 0;
- double totalJets_reco = 0;
+ 
  //double eventSel_had = 0;
  //double eventSel_reco = 0;
  
@@ -303,48 +256,6 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   reader.GetEntry(iEvent);	//un'entrata in questo caso è data da un TREE intero
   if((iEvent%entryMOD) == 0) std::cout << ">>>>> analysis::GetEntry " << iEvent  << ":" << reader.GetEntries() << " (" << entryMAX << ")" << std::endl;   
   
-
-  
-  ///***************************************
-  ///**** STEP -2 - Event preselections ****
-  ///***************************************
- if (ntupleTYPE!=-1){
-   //**** primaryVertexFilter
-   if (fabs(reader.GetFloat("PV_z")->at(0))> 24) continue;
-   if (fabs(reader.GetFloat("PV_d0")->at(0))> 2) continue;
-   if (fabs(reader.GetInt("PV_ndof")->at(0)) <= 4) continue;
-
-   if (reader.GetInt("PV_nTracks")->at(0) < 10) continue;
-
- }
- 
-  ///***************************************************
-  ///**** STEP -1 - Check no copies in DATA ****
-  ///***************************************************
-  
-  
-  
-  if( dataFlag == 1 )
-  {
-   std::pair<int,int> eventLSandID(reader.GetInt("lumiId")->at(0), reader.GetInt("eventId")->at(0));
-   std::pair<int,std::pair<int,int> > eventRUNandLSandID(reader.GetInt("runId")->at(0), eventLSandID);
-   
-   if( eventsMap[eventRUNandLSandID] == 1 ) continue;
-   else eventsMap[eventRUNandLSandID] = 1;
-  }
-
-  ///*************************************************
-  ///**** Check comparison with JSON file ***
-  ///*************************************************
-
-
-  if( dataFlag == 1 )
-    {
-      int runId  = reader.GetInt("runId")->at(0);
-      int lumiId = reader.GetInt("lumiId")->at(0);
-      if(AcceptEventByRunAndLumiSection(runId, lumiId, jsonMap) == false) continue;      
-    }
-
 
   ///************************
   ///**** HLT simulation ****
@@ -372,11 +283,8 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   if (debug == 1) std::cerr << " 1 ... " << std::endl;  
   int nJets_had = reader.Get4V(nameGenJet.c_str())->size();	//qui dovrei accedere al GenJet
   totalJets_had = totalJets_had + nJets_had;
+
   
-  if (debug == 1)  std::cerr << " 2 ... " << std::endl;
-  int nJets_reco = reader.Get4V("jets")->size();	// qui è il jet a livello reco
-  totalJets_reco = totalJets_reco + nJets_reco;
-   
   ///******************************************************************************************
   ///ciclo su tutti i jet!!! Riempio l'intero tree per ogni singolo jet che passa la selezione!
   ///******************************************************************************************
@@ -391,6 +299,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   if (fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())<4.7 && fabs(reader.Get4V(nameGenJet.c_str())->at(i).Eta())>3.2 && reader.Get4V(nameGenJet.c_str())->at(i).Pt()>35){
      
      hPtF.Fill(reader.Get4V(nameGenJet.c_str())->at(i).Pt());	//riempio l'istogramma
+     hPtF_rebinned.Fill(reader.Get4V(nameGenJet.c_str())->at(i).Pt());
 
      EtaPtF_had.Fill(reader.Get4V(nameGenJet.c_str())->at(i).Eta(), reader.Get4V(nameGenJet.c_str())->at(i).Pt());	//riempio l'istogramma
 
@@ -405,91 +314,9 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
    
      S_Mjj = (reader.Get4V(nameGenJet.c_str())->at(i) + reader.Get4V(nameGenJet.c_str())->at(i)).mass();      
     }    
-    else {
-       //valori di default in assenza di jet at hadron level
-     G_FJet_Pt = -100.;
-     G_FJet_Eta = -100.;
-     G_FJet_Phi = -100.;
-     G_FJet_Energy = -100.;
-
-  
-    
-     }
-   
-     /*
-     //Variabili at detector level
-     
-   for (int i = 0; i<nJets_reco; i++){
-    if (fabs(reader.Get4V("jets")->at(i).Eta())<4.7 && fabs(reader.Get4V("jets")->at(i).Eta())>3.2 && reader.Get4V("jets")->at(i).Pt()>35){
-      
-     EtaPtF_reco.Fill(reader.Get4V("jets")->at(i).Eta(), reader.Get4V("jets")->at(Fi).Pt());	//riempio l'istogramma
-      
-     hPtC_reco.Fill(reader.Get4V("jets")->at(i).Pt());	//riempio l'istogramma
-     hPtF_reco.Fill(reader.Get4V("jets")->at(i).Pt());	//riempio l'istogramma
-     
-     S_FJet_Pt = reader.Get4V("jets")->at(i).Pt();
-     S_FJet_Eta = reader.Get4V("jets")->at(i).Eta();
-     S_FJet_Phi = reader.Get4V("jets")->at(i).Phi();
-     S_FJet_Energy = reader.Get4V("jets")->at(i).energy();
-
-  
-     S_D_Eta = deltaEta(reader.Get4V("jets")->at(i).Eta(),reader.Get4V("jets")->at(i).Eta());
-     S_D_Phi = deltaPhi(reader.Get4V("jets")->at(i).Phi(),reader.Get4V("jets")->at(i).Phi());
-     S_D_R = deltaR(reader.Get4V("jets")->at(i).Eta(),reader.Get4V("jets")->at(i).Phi(),reader.Get4V("jets")->at(i).Eta(),reader.Get4V("jets")->at(i).Phi());
-     S_Mjj = (reader.Get4V("jets")->at(i) + reader.Get4V("jets")->at(i)).mass();      
-     
-     if (reader.GetInt("PV_ndof")->size() < 10) {
-       if (debug == 1) S_Vtxnum = reader.GetInt("PV_ndof")->size();
-       cout<<"S_Vtxnum = "<< S_Vtxnum << endl;
-     }
-     
-
-     }
-     
-     else {
-       //valori di default in assenza di jet at reco level
-     S_FJet_Pt = -100.;
-     S_FJet_Eta = -100.;
-     S_FJet_Phi = -100.;
-     S_FJet_Energy = -100.;
-     
-
-  
-     S_D_Eta = -100.;
-     S_D_Phi = -100.;
-     S_D_R = -100.;
-     
-      S_Vtxnum = -100;
-     }
-     
    }
-     
-    */
-     
-     S_RunNb = reader.GetInt("runId")->at(0);
-     S_LumiBlk = reader.GetInt("lumiId")->at(0);
-     S_EventNb = reader.GetInt("eventId")->at(0);
-          
-     AnaHiggs.Fill();    
-     eventSel++;
-     
-    
-//     std::cerr << " here " << std::endl;
-    efficiency.SetBinContent(1,entryMAX-entryMIN);
-    efficiency.SetBinContent(2,eventSel);
-  
-    
- if (ntupleTYPE!=-1){
- events -> Write () ;
  }
- 
    
-   }
-  outFile.Write();
- }
- 
- 
  return 0;
- 
-
-}
+   
+ }
