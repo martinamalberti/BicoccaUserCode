@@ -381,7 +381,7 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
   ///ciclo su tutti i jet!!! Riempio l'intero tree per ogni singolo jet che passa la selezione!
   ///******************************************************************************************
   
-  for (int i = 0; i<nJets_had; i++){
+   for (int i = 0; i<nJets_had; i++){
   
   
   ///FILLING VARIABLES
@@ -483,10 +483,12 @@ int main(int argc, char** argv)	// chiede in ingresso il file di configurazione 
  events -> Write () ;
  }
  
-   outFile.Write();
-  }
+   
+   }
+  outFile.Write();
  }
-
+ 
+ 
  return 0;
  
 
