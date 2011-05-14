@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.39 2011/05/04 14:52:58 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.40 2011/05/06 12:38:28 malberti Exp $
 //
 //
 
@@ -1436,9 +1436,9 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_dxy_PV", dxy.second.value());
   NtupleFactory_ -> FillFloat("electrons_edxy_PV", dxy.second.error());
   NtupleFactory_ -> FillFloat("electrons_dz_PV", tkRef->dz(PVPoint_));
-  NtupleFactory_ -> Fill3V   ("electrons_p_atVtx",electron.trackMomentumAtVtx());
-  NtupleFactory_ -> Fill3V   ("electrons_p_out",electron.trackMomentumOut());
-  NtupleFactory_ -> Fill3V   ("electrons_p_atCalo",electron.trackMomentumAtCalo());
+  NtupleFactory_ -> Fill3V   ("electrons_p_atVtx", (math::XYZVectorD)electron.trackMomentumAtVtx());
+  NtupleFactory_ -> Fill3V   ("electrons_p_out",(math::XYZVectorD)electron.trackMomentumOut());
+  NtupleFactory_ -> Fill3V   ("electrons_p_atCalo",(math::XYZVectorD)electron.trackMomentumAtCalo());
   NtupleFactory_ -> FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
   NtupleFactory_ -> FillFloat("electrons_pout",electron.trackMomentumOut().R());
   NtupleFactory_ -> FillFloat("electrons_pcalo",electron.trackMomentumAtCalo().R());
