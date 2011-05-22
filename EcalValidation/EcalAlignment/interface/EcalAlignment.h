@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.h,v 1.2 2011/01/12 07:50:18 amassiro Exp $
+// $Id: EcalAlignment.h,v 1.3 2011/02/11 18:26:22 amassiro Exp $
 //
 //
 
@@ -22,6 +22,9 @@
 
 // system include files
 #include <memory>
+
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -85,7 +88,23 @@ class EcalAlignment : public edm::EDAnalyzer {
        edm::InputTag CALOMetTag_;
        edm::InputTag TrackTag_;
 
+
+
+  
+       TH1F* m_totalEvents;
+       TH1F* m_passedEvents;
+       TH1F* m_filterEfficiency;
+
+
        TTree* myTree_;
+
+
+
+       int BX_;
+       int lumiId_;
+       int runId_;
+       int eventId_;
+       int eventNaiveId_;
 
        double deltaEtaSuperClusterAtVtx_;
        double deltaEtaSeedClusterAtCalo_;

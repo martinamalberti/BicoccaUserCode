@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.7 2011/01/12 07:50:18 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.8 2011/02/11 18:26:22 amassiro Exp $
 //
 //
 
@@ -33,7 +33,10 @@
 EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
   edm::Service<TFileService> fs ;
   myTree_  =        fs -> make <TTree>("myTree","myTree"); 
-   
+  m_totalEvents =      fs -> make<TH1F>("totalEvents", "totalEvents", 1,  0., 1.);
+  m_passedEvents =     fs -> make<TH1F>("passedEvents", "passedEvents", 1,  0., 1.);
+  m_filterEfficiency = fs -> make<TH1F>("filterEfficiency", "filterEfficiency", 1,  0., 1.);
+
    
   ///==== tags ====
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag"); 
@@ -58,7 +61,13 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
    } 
   }
 
+  myTree_ -> Branch("BX",            &BX_,           "BX/I");
+  myTree_ -> Branch("lumiId",        &lumiId_,       "limuId/I");
+  myTree_ -> Branch("runId",         &runId_,        "runId/I");
+  myTree_ -> Branch("eventId",       &eventId_,      "eventId/I");
+  myTree_ -> Branch("eventNaiveId",  &eventNaiveId_, "eventNaiveId/I" );
   
+ 
   myTree_ -> Branch("sumEt",&sumEt_,"sumEt/D");
   myTree_ -> Branch("met",&met_,"met/D");
   myTree_ -> Branch("eta",&eta_,"eta/D");
@@ -140,6 +149,21 @@ EcalAlignment::~EcalAlignment()
 void
 EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  int nTotalEvents = static_cast<int>(m_totalEvents -> GetBinContent(1));
+  int nPassedEvents = static_cast<int>(m_passedEvents -> GetBinContent(1));
+  
+  m_totalEvents -> Fill(0.5);
+  m_passedEvents -> Fill(0.5);
+  m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents+1)/(nTotalEvents+1));
+
+ ///==== save envent INFO ====
+ eventNaiveId_++;
+
+ BX_ = iEvent.bunchCrossing();
+ lumiId_ = iEvent.luminosityBlock();
+ runId_ = iEvent.id ().run ();
+ eventId_ = iEvent.id ().event ();
+
  ///==== save MET ====
  edm::Handle<edm::View<pat::MET> > calometHandle;
  iEvent.getByLabel(CALOMetTag_,calometHandle);
@@ -278,75 +302,44 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int sev = -1;
    int flag = -1;
    
-   if(electron.isEB())
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
-     
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theBarrelEcalRecHits, *(theChannelStatus.product()));
-     eleSwissCross_ = EcalSeverityLevelAlgo::swissCross(id.first, *theBarrelEcalRecHits);   
-
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
-     
-     if( it != theBarrelEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
-     }
-   }
- 
-   else
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
-     
-     // severity level - SwissCross 
-     sev = EcalSeverityLevelAlgo::severityLevel(id.first, *theEndcapEcalRecHits, *(theChannelStatus.product()));
-     eleSwissCross_ = EcalSeverityLevelAlgo::swissCross(id.first, *theEndcapEcalRecHits);   
-
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-     
-     if( it != theEndcapEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       flag = rh.recoFlag();
-     }
-   }
-    
+   sev = -1; //---- ??
    seedSeverityLevel_ = sev;
-  
    double seed_energy_temp = -1;
    int iSC;
    int iSM;
    int numRecHit = 0;
    const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
-   for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
-    if ((*rh).first.subdetId()== EcalBarrel){
-     EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
-     if (itrechit==theBarrelEcalRecHits->end()) continue;
-     EBDetId barrelId (itrechit->id ()); 
-     if (itrechit->energy() > seed_energy_temp) {
-      seed_energy_temp = itrechit->energy();
+
+   const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
+   if(electron.isEB())
+   {
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);   
+     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);    
+     eleSwissCross_ = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
+     if( it != theBarrelEcalRecHits->end() )
+     {
+      EBDetId barrelId (it->id ()); 
       iSC_ = -1000;
       iSM_ = barrelId.ism();      
       iDetEE_  = -1000;
       iDetEB_  = EcalBarrelGeometry::alignmentTransformIndexLocal(barrelId);
      }
     }
-    if ((*rh).first.subdetId()== EcalEndcap){
-     EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
-     if (itrechit==theEndcapEcalRecHits->end()) continue;
-     EEDetId endcapId (itrechit->id ()); 
-     if (itrechit->energy() > seed_energy_temp) {
-      seed_energy_temp = itrechit->energy();
+   if (electron.isEE()){
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);   
+     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+     eleSwissCross_ = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
+     if( it != theEndcapEcalRecHits->end() )
+     {
+      EEDetId endcapId (it->id ()); 
       iSC_ = endcapId.isc();
       iSM_ = -1000;
       iDetEE_  = EcalEndcapGeometry::alignmentTransformIndexLocal(endcapId);
       iDetEB_  = -1000;
-     }   
-    }
+     }
    }
+
+
    
    dphiMETEle_ = deltaPhi(metP.phi(),electron.p4().phi());  
    
