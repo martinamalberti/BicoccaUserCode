@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.h,v 1.3 2011/02/11 18:26:22 amassiro Exp $
+// $Id: EcalAlignment.h,v 1.4 2011/05/22 15:02:26 amassiro Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 // system include files
 #include <memory>
 
-
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 // user include files
@@ -98,7 +98,7 @@ class EcalAlignment : public edm::EDAnalyzer {
 
        TTree* myTree_;
 
-
+       int numPUMC_;
 
        int BX_;
        int lumiId_;

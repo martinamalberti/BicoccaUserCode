@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.8 2011/02/11 18:26:22 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.9 2011/05/22 15:02:26 amassiro Exp $
 //
 //
 
@@ -60,6 +60,8 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
      myTree_ -> Branch(iEleId->c_str(),&(eleId_[iEleId-eleId_names_.begin()]),nameBranch.Data());
    } 
   }
+
+  myTree_ -> Branch("numPUMC",            &numPUMC_,           "numPUMC/I");
 
   myTree_ -> Branch("BX",            &BX_,           "BX/I");
   myTree_ -> Branch("lumiId",        &lumiId_,       "limuId/I");
@@ -163,6 +165,27 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  lumiId_ = iEvent.luminosityBlock();
  runId_ = iEvent.id ().run ();
  eventId_ = iEvent.id ().event ();
+
+ numPUMC_ = -1;
+/*
+ ///==== only if MC ====
+ edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+ iEvent.getByLabel("addPileupInfo", PupInfo);
+ std::vector<PileupSummaryInfo>::const_iterator PVI;
+ for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+ // in-time pileup
+  if( PVI->getBunchCrossing() == 0 ){
+   numPUMC_ = PVI->getPU_NumInteractions();
+  }
+ }
+ ///==== 
+*/
+
+
+
+
+
+
 
  ///==== save MET ====
  edm::Handle<edm::View<pat::MET> > calometHandle;
