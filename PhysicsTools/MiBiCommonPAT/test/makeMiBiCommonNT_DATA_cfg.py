@@ -5,11 +5,11 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonNT_cff import *
 process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT
-makeMiBiCommonNT(process, GlobalTag="FT_R_311_V4A::All", HLT='', MC=False, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="GR_R_42_V12::All", HLT='', MC=False, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
     #May10 su cmsmi5
-    'file:/data2/Datasets/SingleElectron_Run2011A-May10ReReco-v1_AOD.root'
+  'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-PromptReco-v4_AOD/165/364/085AF159-C384-E011-ACE0-001617DC1F70.root'
 
 )
 

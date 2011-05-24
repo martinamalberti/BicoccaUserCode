@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.40 2011/05/06 12:38:28 malberti Exp $
+// $Id: SimpleNtuple.cc,v 1.41 2011/05/14 13:46:05 deguio Exp $
 //
 //
 
@@ -161,6 +161,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_ -> AddFloat("rho_isolation"); 
    NtupleFactory_ -> AddFloat("rho_jets"); 
+   NtupleFactory_ -> AddFloat("rho_jetsPFlow"); 
  }
  
  if(saveEleLessPV_)
@@ -826,10 +827,13 @@ void SimpleNtuple::fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup 
   iEvent.getByLabel("kt6PFJetsForIsolation", "rho", rhoForIsolation);
   
   edm::Handle<double> rhoForJets;
-  iEvent.getByLabel("kt6PFJetsForJets", "rho", rhoForJets);
+  iEvent.getByLabel("kt6PFJets", "rho", rhoForJets);
+  edm::Handle<double> rhoForJetsPFlow;
+  iEvent.getByLabel("kt6PFJetsPFlow", "rho", rhoForJetsPFlow);
   
   NtupleFactory_ -> FillFloat("rho_isolation", *(rhoForIsolation.product()));
   NtupleFactory_ -> FillFloat("rho_jets", *(rhoForJets.product()));
+  NtupleFactory_ -> FillFloat("rho_jetsPFlow", *(rhoForJetsPFlow.product()));
   
   //std::cout << "SimpleNtuple::fillRhoInfo::end" << std::endl;
 }
