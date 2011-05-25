@@ -41,8 +41,12 @@ using std::endl;
   AutoLibraryLoader::enable();
   JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty("START38_V13_AK5Calo_Uncertainty.txt");
   
-  Float_t lowEdge[8] = {35,45,57,72,90,120,150,1000};
-  const int NBIN = 7;
+  //  Float_t lowEdge[8] = {35,45,57,72,90,120,150,1000};
+  //  const int NBIN = 7;
+
+  Float_t lowEdge[7] = {35,45,57,72,90,120,150};
+  const int NBIN = 6;
+
   
    TFile FileTrain1Pythia("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/qcd_15_pythia.root","READ");
    TFile FileTrain2Pythia("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/qcd_30_pythia.root","READ");
@@ -62,6 +66,7 @@ using std::endl;
 
 
   double lumi = 0.0426;
+//  double lumi = 0.023;
   
   double xsec1Pythia = 8.762e8 / 6190500.;
   double xsec2Pythia = 6.041e7 / 4918016.;
@@ -105,6 +110,14 @@ using std::endl;
   
   Double_t G_FJet_Pt_P; //~~~~ had
   Double_t G_CJet_Pt_P; //~~~~ had
+
+  Double_t S_FJet_Pt_P; //~~~~ had                                                                                                                          
+  Double_t S_CJet_Pt_P; //~~~~ had 
+
+  Double_t G_FJet_Eta_P; //~~~~ had                                                                                                                    
+  Double_t G_CJet_Eta_P; //~~~~ had                                                                                                                          
+  Double_t S_FJet_Eta_P; //~~~~ had                                                                                                                
+  Double_t S_CJet_Eta_P; //~~~~ had  
  
  TreeTrain1Pythia->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt);
  TreeTrain1Pythia->SetBranchAddress("S_FJet_Pt",&S_FJet_Pt);
@@ -404,16 +417,20 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
 
   cout << "==================================== TEST =====================================" << endl;
 
-  char fileName[30] = "Jet_2010A_JEC.root";
+  //  char fileName[50] = "data_Nov_JetMET_27_PF_JEC.root";
+    char fileName[30] = "Jet_2010A_JEC_test.root";
   cout<< "Output fileName = "<< fileName <<endl;
 
   TFile outFile(fileName,"RECREATE");
-  outFile.cd();
+  
 
 
   
 //   TFile FileTest("~/Dropbox/QCD_CF/NtupleBo/ntuple/data/Jet_2010A.root","READ");
-  TFile FileTest("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/Jet_2010A.root","READ");
+   TFile FileTest("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/Jet_2010A.root","READ"); 
+//  TFile FileTest("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/ntuples/data_Nov_noTop.root","READ");
+//  TFile FileTest("/gwpool/users/mlucchin/Unfolding/CFNtuple/output/data_Nov_JetMET_27_PF.root","READ"); 
+
   
   TTree* TreeTest = (TTree*) FileTest.Get("AnaHiggs");
   TreeTest->SetBranchAddress("S_FJet_Pt",&S_FJet_Pt);
@@ -427,7 +444,22 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
   
   TreeTest->SetBranchAddress("G_FJet_Eta",&G_FJet_Eta);
   TreeTest->SetBranchAddress("G_CJet_Eta",&G_CJet_Eta);
+  /*
+
+  TreeTest->SetBranchAddress("S_FJet_Pt",&S_FJet_Pt_P);
+  TreeTest->SetBranchAddress("S_CJet_Pt",&S_CJet_Pt_P);
+
+  TreeTest->SetBranchAddress("G_FJet_Pt",&G_FJet_Pt_P);
+  TreeTest->SetBranchAddress("G_CJet_Pt",&G_CJet_Pt_P);
+
+  TreeTest->SetBranchAddress("S_FJet_Eta",&S_FJet_Eta_P);
+  TreeTest->SetBranchAddress("S_CJet_Eta",&S_CJet_Eta_P);
+
+  TreeTest->SetBranchAddress("G_FJet_Eta",&G_FJet_Eta_P);
+  TreeTest->SetBranchAddress("G_CJet_Eta",&G_CJet_Eta_P);*/
   
+  outFile.cd();
+
   TH1D* hMeasFJet = new TH1D ("hMeasFJet", "Measured FJet", NBIN , lowEdge);
   TH1D* hMeasCJet = new TH1D ("hMeasCJet", "Measured CJet", NBIN , lowEdge);
 
@@ -487,11 +519,19 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
 
   }
 
+
+  hMeasFJet->Write();
+  hMeasCJet->Write();
+  hMeasFJet_Plus->Write();
+  hMeasCJet_Plus->Write();
+  hMeasFJet_Minus->Write();
+  hMeasCJet_Minus->Write();
   
   cout << "==================================== UNFOLD Pythia ===================================" << endl;
 
   //get the correction factors from file
-  TFile* _file0 = new TFile("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/correction_mean.root","READ");
+  //  TFile* _file0 = new TFile("/gwpool/users/mlucchin/Unfolding/CFNtuple/input/correction_mean.root","READ");
+  TFile* _file0 = new TFile("correction_mean.root","READ");
   TH1D* Correction_Weight_F = (TH1D*) _file0->Get("Correction_Weight_F_mean");
   TH1D* Correction_Weight_C = (TH1D*) _file0->Get("Correction_Weight_C_mean");
   
@@ -525,8 +565,8 @@ cout << "==================================== POWHEG + HERWIG Distributions ====
   double JES_F = (fabs(hRecoFJet_Plus->GetBinContent(iBin+1) - hRecoFJet_Minus->GetBinContent(iBin+1)))/2 ;
   double JES_C = (fabs(hRecoCJet_Plus->GetBinContent(iBin+1) - hRecoCJet_Minus->GetBinContent(iBin+1)))/2 ;
   
-  hRecoFJet->SetBinError(iBin+1, sqrt(statF*statF+JES_F*JES_F));
-  hRecoCJet->SetBinError(iBin+1, sqrt(statC*statC+JES_C*JES_C));
+  //  hRecoFJet->SetBinError(iBin+1, sqrt(statF*statF+JES_F*JES_F));
+  //  hRecoCJet->SetBinError(iBin+1, sqrt(statC*statC+JES_C*JES_C));
   }
   
   
