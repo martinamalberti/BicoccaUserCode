@@ -6,7 +6,7 @@ process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT: Choose the MC type!!!
 # Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, ZW, Other
-makeMiBiCommonNT(process, GlobalTag="START311_V2::All", HLT='', MC=True, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="START42_V12::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
   #'file:/grid_mnt/data__DATA/data.polcms/cms/abenagli/MC_GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6_PU_S1_START311_V1G1-v1_AODSIM.root'
@@ -20,12 +20,11 @@ process.source.fileNames = cms.untracked.vstring(
   #'file:/gwterax1/users/amassiro/CMSSWroot/Fall10/WPlusToENu_CT10_TuneZ2_7TeV-powheg-pythia/D056A87C-66D0-DF11-AAE1-0018FE286DB2.root.1'
   #'file:/tmp/amassiro/ACC59E3D-860D-E011-BCE6-002354EF3BDE.root'   # Tau test
   #'file:/tmp/amassiro/1038652E-FA3D-E011-8EF9-003048679296.root'   # PU test
-   'file:/data2/amassiro/CMSSWRoot/WZtoAnything_TuneZ2_7TeV-pythia6-tauola_Spring11-PU_S1_START311_V1G1-v1/F0F54048-4A50-E011-9CDE-003048D47792.root',
-   'file:/data2/amassiro/CMSSWRoot/WZtoAnything_TuneZ2_7TeV-pythia6-tauola_Spring11-PU_S1_START311_V1G1-v1/106AFBB1-2D50-E011-A529-00E0817918AD.root'
+   'file:/data1/dimatteo/TestSamples/Summer11_WToENu_TuneZ2_7TeV-pythia6_PU_S3_START42_V11-v2.root'
 
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.TFileService = cms.Service(
