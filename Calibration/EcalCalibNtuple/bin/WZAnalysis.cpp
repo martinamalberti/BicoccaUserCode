@@ -36,8 +36,7 @@ int main(int argc, char** argv)
   }
   
   std::string fileName(argv[1]);
-  boost::shared_ptr<edm::ProcessDesc> processDesc = edm::readConfig(fileName);
-  boost::shared_ptr<edm::ParameterSet> parameterSet = processDesc->getProcessPSet();
+  boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName);
   
   
   // "Input"
