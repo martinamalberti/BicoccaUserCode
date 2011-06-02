@@ -36,6 +36,13 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("isZ", &vars.isZ, "isZ/I");
   
   
+  // PV variables
+  vars.m_reducedTree -> Branch("PV_n",     &vars.PV_n,         "PV_n/I");
+  vars.m_reducedTree -> Branch("PV_z",     &vars.PV_z,         "PV_z/F");
+  vars.m_reducedTree -> Branch("PV_d0",    &vars.PV_d0,       "PV_d0/F");
+  vars.m_reducedTree -> Branch("PV_SumPt", &vars.PV_SumPt, "PV_SumPt/F");
+  
+  
   // 1st electron variables
   //vars.m_reducedTree -> Branch("ele1", "ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >", &vars.p_ele1);
   vars.m_reducedTree -> Branch("ele1_charge", &vars.ele1_charge, "ele1_charge/F");
@@ -43,6 +50,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_pt",     &vars.ele1_pt,         "ele1_pt/F");
   vars.m_reducedTree -> Branch("ele1_eta",    &vars.ele1_eta,       "ele1_eta/F");
   vars.m_reducedTree -> Branch("ele1_phi",    &vars.ele1_phi,       "ele1_phi/F");
+  
+  vars.m_reducedTree -> Branch("ele1_sigmaIetaIeta", &vars.ele1_sigmaIetaIeta, "ele1_sigmaIetaIeta/F");
+  vars.m_reducedTree -> Branch("ele1_DphiIn",        &vars.ele1_DphiIn,               "ele1_DphiIn/F");
+  vars.m_reducedTree -> Branch("ele1_DetaIn",        &vars.ele1_DetaIn,               "ele1_DetaIn/F");
+  vars.m_reducedTree -> Branch("ele1_HOverE",        &vars.ele1_HOverE,               "ele1_HOverE/F");
+  vars.m_reducedTree -> Branch("ele1_tkIso",         &vars.ele1_tkIso,                 "ele1_tkIso/F");
+  vars.m_reducedTree -> Branch("ele1_emIso",         &vars.ele1_emIso,                 "ele1_emIso/F");
+  vars.m_reducedTree -> Branch("ele1_hadIso",        &vars.ele1_hadIso,               "ele1_hadIso/F");
   
   vars.m_reducedTree -> Branch("ele1_scERaw",      &vars.ele1_scERaw,           "ele1_scERaw/F");
   vars.m_reducedTree -> Branch("ele1_scEtRaw",     &vars.ele1_scEtRaw,         "ele1_scEtRaw/F");
@@ -56,6 +71,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_scCrackCorr", &vars.ele1_scCrackCorr, "ele1_scCrackCorr/F");
   vars.m_reducedTree -> Branch("ele1_es",          &vars.ele1_es,                   "ele1_es/F");
   
+  vars.m_reducedTree -> Branch("ele1_e3x3", &vars.ele1_e3x3, "ele1_e3x3/F");
+  
+  vars.m_reducedTree -> Branch("ele1_seedE",          &vars.ele1_seedE,                   "ele1_seedE/F");
+  vars.m_reducedTree -> Branch("ele1_seedIeta",       &vars.ele1_seedIeta,             "ele1_seedIeta/I");
+  vars.m_reducedTree -> Branch("ele1_seedIphi",       &vars.ele1_seedIphi,             "ele1_seedIphi/I");
+  vars.m_reducedTree -> Branch("ele1_seedIx",         &vars.ele1_seedIx,                 "ele1_seedIx/I");
+  vars.m_reducedTree -> Branch("ele1_seedIy",         &vars.ele1_seedIy,                 "ele1_seedIy/I");
+  vars.m_reducedTree -> Branch("ele1_seedZside",      &vars.ele1_seedZside,           "ele1_seedZside/I");
   vars.m_reducedTree -> Branch("ele1_seedLaserAlpha", &vars.ele1_seedLaserAlpha, "ele1_seedLaserAlpha/F");
   vars.m_reducedTree -> Branch("ele1_seedLaserCorr",  &vars.ele1_seedLaserCorr,   "ele1_seedLaserCorr/F");
   
@@ -81,6 +104,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_eta",    &vars.ele2_eta,       "ele2_eta/F");
   vars.m_reducedTree -> Branch("ele2_phi",    &vars.ele2_phi,       "ele2_phi/F");
   
+  vars.m_reducedTree -> Branch("ele2_sigmaIetaIeta", &vars.ele2_sigmaIetaIeta, "ele2_sigmaIetaIeta/F");
+  vars.m_reducedTree -> Branch("ele2_DphiIn",        &vars.ele2_DphiIn,               "ele2_DphiIn/F");
+  vars.m_reducedTree -> Branch("ele2_DetaIn",        &vars.ele2_DetaIn,               "ele2_DetaIn/F");
+  vars.m_reducedTree -> Branch("ele2_HOverE",        &vars.ele2_HOverE,               "ele2_HOverE/F");
+  vars.m_reducedTree -> Branch("ele2_tkIso",         &vars.ele2_tkIso,                 "ele2_tkIso/F");
+  vars.m_reducedTree -> Branch("ele2_emIso",         &vars.ele2_emIso,                 "ele2_emIso/F");
+  vars.m_reducedTree -> Branch("ele2_hadIso",        &vars.ele2_hadIso,               "ele2_hadIso/F");
+  
   vars.m_reducedTree -> Branch("ele2_scERaw",      &vars.ele2_scERaw,           "ele2_scERaw/F");
   vars.m_reducedTree -> Branch("ele2_scEtRaw",     &vars.ele2_scEtRaw,         "ele2_scEtRaw/F");
   vars.m_reducedTree -> Branch("ele2_scE",         &vars.ele2_scE,                 "ele2_scE/F");
@@ -93,6 +124,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_scCrackCorr", &vars.ele2_scCrackCorr, "ele2_scCrackCorr/F");
   vars.m_reducedTree -> Branch("ele2_es",          &vars.ele2_es,                   "ele2_es/F");
   
+  vars.m_reducedTree -> Branch("ele2_e3x3", &vars.ele2_e3x3, "ele2_e3x3/F");
+  
+  vars.m_reducedTree -> Branch("ele2_seedE",          &vars.ele2_seedE,                   "ele2_seedE/F");
+  vars.m_reducedTree -> Branch("ele2_seedIeta",       &vars.ele2_seedIeta,             "ele2_seedIeta/I");
+  vars.m_reducedTree -> Branch("ele2_seedIphi",       &vars.ele2_seedIphi,             "ele2_seedIphi/I");
+  vars.m_reducedTree -> Branch("ele2_seedIx",         &vars.ele2_seedIx,                 "ele2_seedIx/I");
+  vars.m_reducedTree -> Branch("ele2_seedIy",         &vars.ele2_seedIy,                 "ele2_seedIy/I");
+  vars.m_reducedTree -> Branch("ele2_seedZside",      &vars.ele2_seedZside,           "ele2_seedZside/I");
   vars.m_reducedTree -> Branch("ele2_seedLaserAlpha", &vars.ele2_seedLaserAlpha, "ele2_seedLaserAlpha/F");
   vars.m_reducedTree -> Branch("ele2_seedLaserCorr",  &vars.ele2_seedLaserCorr,   "ele2_seedLaserCorr/F");
   
@@ -162,6 +201,14 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.ele1_eta = -99.;
   vars.ele1_phi = -99.;
   
+  vars.ele1_sigmaIetaIeta = -99.;
+  vars.ele1_DphiIn = -99.;
+  vars.ele1_DetaIn = -99.;
+  vars.ele1_HOverE = -99.;
+  vars.ele1_tkIso = -99.;
+  vars.ele1_emIso = -99.;
+  vars.ele1_hadIso = -99.;
+  
   vars.ele1_scERaw = -99.;
   vars.ele1_scEtRaw = -99.;
   vars.ele1_scE = -99.;
@@ -174,6 +221,14 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.ele1_scCrackCorr = -99.;
   vars.ele1_es = -99.;
   
+  vars.ele1_e3x3 = -99.;
+
+  vars.ele1_seedE = -99.;
+  vars.ele1_seedIeta = -99;
+  vars.ele1_seedIphi = -99;
+  vars.ele1_seedIx = -99;
+  vars.ele1_seedIy = -99;
+  vars.ele1_seedZside = -99;
   vars.ele1_seedLaserAlpha = -99.;
   vars.ele1_seedLaserCorr = -99.;
   
@@ -200,6 +255,14 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.ele2_eta = -99.;
   vars.ele2_phi = -99.;
   
+  vars.ele2_sigmaIetaIeta = -99.;
+  vars.ele2_DphiIn = -99.;
+  vars.ele2_DetaIn = -99.;
+  vars.ele2_HOverE = -99.;
+  vars.ele2_tkIso = -99.;
+  vars.ele2_emIso = -99.;
+  vars.ele2_hadIso = -99.;
+  
   vars.ele2_scERaw = -99.;
   vars.ele2_scEtRaw = -99.;
   vars.ele2_scE = -99.;
@@ -210,8 +273,16 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.ele2_scPhiWidth = -99.;
   vars.ele2_scLaserCorr = -99.;
   vars.ele2_scCrackCorr = -99.;
-  vars.ele1_es = -99.;  
-
+  vars.ele2_es = -99.;  
+  
+  vars.ele2_e3x3 = -99.;
+  
+  vars.ele2_seedE = -99.;
+  vars.ele2_seedIeta = -99;
+  vars.ele2_seedIphi = -99;
+  vars.ele2_seedIx = -99;
+  vars.ele2_seedIy = -99;
+  vars.ele2_seedZside = -99;
   vars.ele2_seedLaserAlpha = -99.;
   vars.ele2_seedLaserCorr = -99.;
   
@@ -259,6 +330,17 @@ void DeleteWZAnalysisVariables(WZAnalysisVariables& vars)
 
 
 
+void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader)
+{
+  vars.PV_n = reader.GetFloat("PV_z")->size();
+  
+  vars.PV_z = reader.GetFloat("PV_z")->at(0);
+  vars.PV_d0 = reader.GetFloat("PV_d0")->at(0);
+  vars.PV_SumPt = reader.GetFloat("PV_SumPt")->at(0);
+}
+
+
+
 void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It)
 {
   vars.ele1 = reader.Get4V("electrons")->at(ele1It);
@@ -268,6 +350,15 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_pt = vars.ele1.pt();
   vars.ele1_eta = vars.ele1.eta();
   vars.ele1_phi = vars.ele1.phi();
+  
+  vars.ele1_sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(ele1It);
+  vars.ele1_DphiIn = reader.GetFloat("electrons_deltaPhiIn")->at(ele1It);
+  vars.ele1_DetaIn = reader.GetFloat("electrons_deltaEtaIn")->at(ele1It);
+  vars.ele1_HOverE = reader.GetFloat("electrons_hOverE")->at(ele1It);
+  vars.ele1_tkIso = reader.GetFloat("electrons_tkIso03")->at(ele1It);
+  vars.ele1_emIso = reader.GetFloat("electrons_emIso03")->at(ele1It);
+  vars.ele1_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele1It) +
+                     reader.GetFloat("electrons_hadIso03_2")->at(ele1It);
   
   vars.ele1_scERaw = reader.GetFloat("electrons_scERaw")->at(ele1It);
   vars.ele1_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele1It);
@@ -281,6 +372,14 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele1It);
   vars.ele1_es = reader.GetFloat("electrons_ES")->at(ele1It);
   
+  vars.ele1_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele1It);
+
+  vars.ele1_seedE = reader.GetFloat("electrons_seedE")->at(ele1It);
+  vars.ele1_seedIeta = reader.GetInt("electrons_seedIeta")->at(ele1It);
+  vars.ele1_seedIphi = reader.GetInt("electrons_seedIphi")->at(ele1It);
+  vars.ele1_seedIx = reader.GetInt("electrons_seedIx")->at(ele1It);
+  vars.ele1_seedIy = reader.GetInt("electrons_seedIy")->at(ele1It);
+  vars.ele1_seedZside = reader.GetInt("electrons_seedZside")->at(ele1It);
   vars.ele1_seedLaserAlpha = reader.GetFloat("electrons_seedLaserAlpha")->at(ele1It);
   vars.ele1_seedLaserCorr = reader.GetFloat("electrons_seedLaserCorrection")->at(ele1It);
   
@@ -310,6 +409,15 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele2_eta = vars.ele2.eta();
   vars.ele2_phi = vars.ele2.phi();
   
+  vars.ele2_sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(ele2It);
+  vars.ele2_DphiIn = reader.GetFloat("electrons_deltaPhiIn")->at(ele2It);
+  vars.ele2_DetaIn = reader.GetFloat("electrons_deltaEtaIn")->at(ele2It);
+  vars.ele2_HOverE = reader.GetFloat("electrons_hOverE")->at(ele2It);
+  vars.ele2_tkIso = reader.GetFloat("electrons_tkIso03")->at(ele2It);
+  vars.ele2_emIso = reader.GetFloat("electrons_emIso03")->at(ele2It);
+  vars.ele2_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele2It) +
+                     reader.GetFloat("electrons_hadIso03_2")->at(ele2It);
+  
   vars.ele2_scERaw = reader.GetFloat("electrons_scERaw")->at(ele2It);
   vars.ele2_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele2It);
   vars.ele2_scE = reader.GetFloat("electrons_scE")->at(ele2It);
@@ -322,6 +430,14 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele2_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele2It);
   vars.ele2_es = reader.GetFloat("electrons_ES")->at(ele2It);
   
+  vars.ele2_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele2It);
+  
+  vars.ele2_seedE = reader.GetFloat("electrons_seedE")->at(ele2It);
+  vars.ele2_seedIeta = reader.GetInt("electrons_seedIeta")->at(ele2It);
+  vars.ele2_seedIphi = reader.GetInt("electrons_seedIphi")->at(ele2It);
+  vars.ele2_seedIx = reader.GetInt("electrons_seedIx")->at(ele2It);
+  vars.ele2_seedIy = reader.GetInt("electrons_seedIy")->at(ele2It);
+  vars.ele2_seedZside = reader.GetInt("electrons_seedZside")->at(ele2It);
   vars.ele2_seedLaserAlpha = reader.GetFloat("electrons_seedLaserAlpha")->at(ele2It);
   vars.ele2_seedLaserCorr = reader.GetFloat("electrons_seedLaserCorrection")->at(ele2It);
 
@@ -358,7 +474,7 @@ void SetDiElectronVariables(WZAnalysisVariables& vars, treeReader& reader)
 {
   vars.ele1ele2_m = (vars.ele1 + vars.ele2).mass();
   
-  ROOT::Math::PtEtaPhiEVector ele1_sc(vars.ele1_scEt,vars.ele1_eta,vars.ele1_phi,vars.ele1_scE);
-  ROOT::Math::PtEtaPhiEVector ele2_sc(vars.ele2_scEt,vars.ele2_eta,vars.ele2_phi,vars.ele2_scE);
+  ROOT::Math::PtEtaPhiEVector ele1_sc(vars.ele1_scE*sin(2*atan(exp(-1.*vars.ele1_eta))),vars.ele1_eta,vars.ele1_phi,vars.ele1_scE);
+  ROOT::Math::PtEtaPhiEVector ele2_sc(vars.ele2_scE*sin(2*atan(exp(-1.*vars.ele2_eta))),vars.ele2_eta,vars.ele2_phi,vars.ele2_scE);
   vars.ele1ele2_scM = (ele1_sc + ele2_sc).mass();
 }

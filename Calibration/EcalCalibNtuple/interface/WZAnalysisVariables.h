@@ -27,6 +27,13 @@ struct WZAnalysisVariables
   int isZ;
   
   
+  // PV variables
+  int PV_n;
+  float PV_z;
+  float PV_d0;
+  float PV_SumPt;
+  
+  
   // 1st electron variables
   ROOT::Math::XYZTVector ele1;
   ROOT::Math::XYZTVector* p_ele1;
@@ -35,6 +42,14 @@ struct WZAnalysisVariables
   float ele1_pt;
   float ele1_eta;
   float ele1_phi;
+  
+  float ele1_sigmaIetaIeta;
+  float ele1_DphiIn;
+  float ele1_DetaIn;
+  float ele1_HOverE;
+  float ele1_tkIso;
+  float ele1_emIso;
+  float ele1_hadIso;
   
   float ele1_scERaw;
   float ele1_scEtRaw;
@@ -48,6 +63,14 @@ struct WZAnalysisVariables
   float ele1_scCrackCorr;
   float ele1_es;
   
+  float ele1_e3x3;
+  
+  float ele1_seedE;
+  int ele1_seedIeta;
+  int ele1_seedIphi;
+  int ele1_seedIx;
+  int ele1_seedIy;
+  int ele1_seedZside;
   float ele1_seedLaserAlpha;
   float ele1_seedLaserCorr;
   
@@ -74,6 +97,14 @@ struct WZAnalysisVariables
   float ele2_eta;
   float ele2_phi;
   
+  float ele2_sigmaIetaIeta;
+  float ele2_DphiIn;
+  float ele2_DetaIn;
+  float ele2_HOverE;
+  float ele2_tkIso;
+  float ele2_emIso;
+  float ele2_hadIso;
+  
   float ele2_scERaw;
   float ele2_scEtRaw;
   float ele2_scE;
@@ -86,6 +117,14 @@ struct WZAnalysisVariables
   float ele2_scCrackCorr;
   float ele2_es;
   
+  float ele2_e3x3;
+  
+  float ele2_seedE;
+  int ele2_seedIeta;
+  int ele2_seedIphi;
+  int ele2_seedIx;
+  int ele2_seedIy;
+  int ele2_seedZside;
   float ele2_seedLaserAlpha;
   float ele2_seedLaserCorr;
   
@@ -128,6 +167,7 @@ void FillWZAnalysisTree(WZAnalysisVariables& vars);
 void ClearWZAnalysisVariables(WZAnalysisVariables&);
 void DeleteWZAnalysisVariables(WZAnalysisVariables&);
 
+void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader);
 void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It);
 void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It);
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader);

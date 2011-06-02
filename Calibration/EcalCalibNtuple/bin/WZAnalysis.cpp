@@ -192,6 +192,8 @@ int main(int argc, char** argv)
     vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
     vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
     
+    SetPVVariables(vars,reader);
+    
     
     
     
@@ -240,7 +242,7 @@ int main(int argc, char** argv)
         skipEvent = false;
     }
     
-    if( skipEvent == true ) continue;
+    //if( skipEvent == true ) continue;
     stepEvents[step] += 1;    
     
     
