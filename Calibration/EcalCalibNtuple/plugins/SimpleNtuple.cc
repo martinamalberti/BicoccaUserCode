@@ -178,6 +178,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     
     // rechit variables
     NtupleFactory_->AddFloat("recHit_E"); 
+    NtupleFactory_->AddFloat("recHit_time");
+    NtupleFactory_->AddFloat("recHit_laserCorrection");
     NtupleFactory_->AddInt("recHit_ism");
     NtupleFactory_->AddInt("recHit_ieta");
     NtupleFactory_->AddInt("recHit_iphi");
@@ -185,7 +187,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddInt("recHit_iy");
     NtupleFactory_->AddInt("recHit_zside");
     NtupleFactory_->AddInt("recHit_hashedIndex");
-    NtupleFactory_->AddFloat("recHit_time");
     NtupleFactory_->AddInt("recHit_flag");
     NtupleFactory_->AddInt("recHit_n");
     
@@ -568,11 +569,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_->FillFloat("electrons_dz_BS", eleTrack->dz (BSPoint_));
    NtupleFactory_->FillFloat("electrons_dxy_PV", eleTrack->dxy (PVPoint_));
    NtupleFactory_->FillFloat("electrons_dz_PV", eleTrack->dz (PVPoint_));
-   NtupleFactory_->Fill3V("electrons_p_atVtx",electron.trackMomentumAtVtx());
-   NtupleFactory_->Fill3V("electrons_p_out",electron.trackMomentumOut());
-   NtupleFactory_->Fill3V("electrons_p_atCalo",electron.trackMomentumAtCalo());
-   NtupleFactory_->Fill3PV("electrons_position_atVtx",electron.trackPositionAtVtx());
-   NtupleFactory_->Fill3PV("electrons_position_atCalo",electron.trackPositionAtCalo());
+   NtupleFactory_->Fill3V("electrons_p_atVtx",(math::XYZVectorD)(electron.trackMomentumAtVtx()));
+   NtupleFactory_->Fill3V("electrons_p_out",(math::XYZVectorD)(electron.trackMomentumOut()));
+   NtupleFactory_->Fill3V("electrons_p_atCalo",(math::XYZVectorD)(electron.trackMomentumAtCalo()));
+   NtupleFactory_->Fill3PV("electrons_position_atVtx",(math::XYZPointD)(electron.trackPositionAtVtx()));
+   NtupleFactory_->Fill3PV("electrons_position_atCalo",(math::XYZPointD)(electron.trackPositionAtCalo()));
    NtupleFactory_->FillFloat("electrons_deltaEtaSuperClusterAtVtx",electron.deltaEtaSuperClusterTrackAtVtx());
    NtupleFactory_->FillFloat("electrons_deltaEtaSeedClusterAtCalo",electron.deltaEtaSeedClusterTrackAtCalo());
    NtupleFactory_->FillFloat("electrons_deltaEtaEleClusterAtCalo",electron.deltaEtaEleClusterTrackAtCalo());
@@ -638,6 +639,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        if (itrechit==theBarrelEcalRecHits->end()) continue;
        EBDetId barrelId (itrechit->id ()); 
        NtupleFactory_->FillFloat("recHit_E",itrechit->energy());
+       NtupleFactory_->FillFloat("recHit_time",itrechit->time());
        NtupleFactory_->FillInt("recHit_ism",int(barrelId.ism()-1));
        NtupleFactory_->FillInt("recHit_ieta",barrelId.ieta());
        NtupleFactory_->FillInt("recHit_iphi",barrelId.iphi());
@@ -645,12 +647,13 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        NtupleFactory_->FillInt("recHit_iy",-999);
        NtupleFactory_->FillInt("recHit_zside",0);
        NtupleFactory_->FillInt("recHit_hashedIndex",barrelId.hashedIndex());
-       NtupleFactory_->FillFloat("recHit_time",itrechit->time());
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        ++numRecHit;
        
        // laser correction
        rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+       NtupleFactory_->FillFloat("recHit_laserCorrection",rhLaserCorrection);
+       
        sumRecHitE += itrechit->energy();
        sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
      }
@@ -661,6 +664,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        if (itrechit==theEndcapEcalRecHits->end()) continue;
        EEDetId endcapId (itrechit->id ()); 
        NtupleFactory_->FillFloat("recHit_E",itrechit->energy());
+       NtupleFactory_->FillFloat("recHit_time",itrechit->time());
        NtupleFactory_->FillInt("recHit_ism",int(endcapId.ix()/51+(endcapId.zside()<0 ? 0 : 2 )));
        NtupleFactory_->FillInt("recHit_ix",endcapId.ix());
        NtupleFactory_->FillInt("recHit_iy",endcapId.iy());
@@ -668,12 +672,13 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        NtupleFactory_->FillInt("recHit_iphi",-999);
        NtupleFactory_->FillInt("recHit_zside",endcapId.zside());
        NtupleFactory_->FillInt("recHit_hashedIndex",endcapId.hashedIndex());
-       NtupleFactory_->FillFloat("recHit_time",itrechit->time());
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        ++numRecHit;
        
        // laser correction
        rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+       NtupleFactory_->FillFloat("recHit_laserCorrection",rhLaserCorrection);
+       
        sumRecHitE += itrechit->energy();
        sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
      }

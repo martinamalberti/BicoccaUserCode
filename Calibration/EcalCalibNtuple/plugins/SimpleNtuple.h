@@ -27,6 +27,8 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -69,7 +71,6 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 using namespace cms ;
@@ -80,7 +81,9 @@ using namespace reco;
 
 
 class SimpleNtuple : public edm::EDAnalyzer {
-   
+ 
+  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > XYZVectorF; 
+
  public:
 
   explicit SimpleNtuple (const edm::ParameterSet&) ;

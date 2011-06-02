@@ -67,7 +67,8 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     
     # Jet energy corrections to use:
-    inputJetCorrLabel = ('AK5PF', ['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+    #inputJetCorrLabel = ('AK5PF', ['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+    inputJetCorrLabel = ('AK5PF', ['L1Offset', 'L2Relative', 'L3Absolute'])    
     
     # Add PF jets
     switchJetCollection(process,
