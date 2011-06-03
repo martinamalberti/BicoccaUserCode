@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.41 2011/05/14 13:46:05 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.42 2011/05/24 16:43:03 dimatteo Exp $
 //
 //
 
@@ -293,6 +293,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_eSeedOverP");
    NtupleFactory_ -> AddInt  ("electrons_classification");
    NtupleFactory_ -> AddFloat("electrons_fbrem");
+   NtupleFactory_ -> AddInt  ("electrons_numberOfBrems");
    NtupleFactory_ -> AddFloat("electrons_hOverE");
    NtupleFactory_ -> AddFloat("electrons_deltaPhiIn");
    NtupleFactory_ -> AddFloat("electrons_deltaEtaIn");
@@ -1542,6 +1543,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_eSeedOverP",electron.eSeedClusterOverP());
   NtupleFactory_ -> FillInt  ("electrons_classification",electron.classification());
   NtupleFactory_ -> FillFloat("electrons_fbrem",electron.fbrem());
+  NtupleFactory_ -> FillInt  ("electrons_numberOfBrems",electron.numberOfBrems());
   NtupleFactory_ -> FillFloat("electrons_hOverE",electron.hadronicOverEm());
   NtupleFactory_ -> FillFloat("electrons_deltaPhiIn",electron.deltaPhiSuperClusterTrackAtVtx());
   NtupleFactory_ -> FillFloat("electrons_deltaEtaIn",electron.deltaEtaSuperClusterTrackAtVtx());
