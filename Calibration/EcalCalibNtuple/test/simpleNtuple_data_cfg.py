@@ -44,11 +44,11 @@ if not ReReco:
         fileName = cms.string("simpleNtuple.root")
         )
 
-    process.out = cms.OutputModule(
-        "PoolOutputModule",
-        fileName = cms.untracked.string('file:SimplePATple.root'),
-        outputCommands = cms.untracked.vstring()
-        )
+    #process.out = cms.OutputModule(
+    #    "PoolOutputModule",
+    #    fileName = cms.untracked.string('file:SimplePATple.root'),
+    #    outputCommands = cms.untracked.vstring()
+    #    )
 
 if ReReco:
     process.TFileService = cms.Service(
@@ -56,12 +56,12 @@ if ReReco:
         fileName = cms.string("simpleNtupleReReco.root")
         )
 
-    process.out = cms.OutputModule(
-        "PoolOutputModule",
-        fileName = cms.untracked.string('simplePATpleReReco.root'),
-        outputCommands = cms.untracked.vstring('keep *_*_*_*')
-        )
-    process.e = cms.EndPath(process.out)
+    #process.out = cms.OutputModule(
+    #    "PoolOutputModule",
+    #    fileName = cms.untracked.string('simplePATpleReReco.root'),
+    #    outputCommands = cms.untracked.vstring('keep *_*_*_*')
+    #    )
+    #process.e = cms.EndPath(process.out)
 
 
 
@@ -78,6 +78,6 @@ if ReReco:
         process.L1Reco_step,
         process.reconstruction_step,
         process.endjob_step,
-        process.simpleNtuple_step,
-        process.e
+        process.simpleNtuple_step
+        #process.e
         )
