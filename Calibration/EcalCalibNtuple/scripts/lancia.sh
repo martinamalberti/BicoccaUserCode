@@ -1,7 +1,7 @@
 #! /bin/sh
 
 
-ls -ltrh /data2/abenagli/NTUPLES/CALIBRATION/Run2011A/SingleElectron_Run2011A-PromptReco-v4/ | awk '{print $9}' | grep "run1" | tr "_" " " | tr "." " " | tr "n" " " | awk '{print $3}' > ./list.txt
+ls -ltrh /data2/calibrator/NTUPLES/Run2011A/SingleElectron_Run2011A-PromptReco-v4/ | awk '{print $9}' | grep "run1" | tr "_" " " | tr "." " " | tr "n" " " | awk '{print $3}' > ./list.txt
 chmod a+rw ./list.txt
 
 

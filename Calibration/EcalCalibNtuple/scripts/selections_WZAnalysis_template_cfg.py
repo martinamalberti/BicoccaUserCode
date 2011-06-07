@@ -6,7 +6,7 @@ process = cms.Process("WZAnalysis")
 
 process.Input = cms.PSet(
 
-    inputFileList = cms.string("./list.txt"),
+    inputFileList = cms.string("LISTFILES"),
     jsonFileName = cms.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/DCSOnly/json_DCSONLY.txt")
     )
 

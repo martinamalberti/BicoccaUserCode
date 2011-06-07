@@ -58,27 +58,30 @@ while (<RUNFILEList>)
   system ("mkdir ".$jobDir) ;
   
   
+  
+  $LISTFiles = $jobDir."/listFiles.txt";
+  
+
    
   $tempo1 = "./tempo1" ;
   system ("cat ".$CFGTemplate."   | sed -e s%OUTPUTSAVEPATH%".$OUTPUTSAVEPath. 
                               "%g | sed -e s%OUTPUTSAVEFOLDER%".$OUTPUTSAVEFolder. 
                               "%g | sed -e s%OUTPUTFILENAME%".$OUTPUTFileName. 
                               "%g | sed -e s%RUN%".$run.
+                              "%g | sed -e s%LISTFILES%".$LISTFiles.
                               "%g > ".$tempo1) ;
   
-  $LISTFile = $currDir."/listFiles.txt";
-  
-  $command = "echo ".$INPUTSAVEFolder."/simpleNtuple_run".$run.".root  > ".$LISTFile;
+  $command = "echo ".$INPUTSAVEFolder."/simpleNtuple_run".$run.".root  > ".$LISTFiles;
   system($command);
   
   
   
   $CFGFile = $jobDir."/".$run."_cfg.py" ;
   system ("mv ".$tempo1." ".$CFGFile) ;
-  system ("rm ./tempo*") ;
   
-  $command = "WZAnalysis.exe ".$CFGFile ;
+  $command = "WZAnalysis.cpp ".$CFGFile ;
   print($command."\n");
+  system($command."\n");
   
   
   
