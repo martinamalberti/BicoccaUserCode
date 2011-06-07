@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.42 2011/05/24 16:43:03 dimatteo Exp $
+// $Id: SimpleNtuple.cc,v 1.43 2011/06/03 15:36:21 amassiro Exp $
 //
 //
 
@@ -380,6 +380,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("muons_hadIsoR03"); 
    NtupleFactory_ -> AddFloat("muons_hadIsoR05"); 
    
+   NtupleFactory_ -> AddInt  ("muons_TMLST");
+   NtupleFactory_ -> AddInt  ("muons_innerTrack_found");
+   NtupleFactory_ -> AddInt  ("muons_numberOfValidPixelHits");
+   NtupleFactory_ -> AddFloat("muons_trackPtErrorOverPt");
+
    NtupleFactory_ -> AddInt  ("muons_tracker");
    NtupleFactory_ -> AddInt  ("muons_standalone");
    NtupleFactory_ -> AddInt  ("muons_global");
@@ -1367,7 +1372,13 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillFloat("muons_nTkIsoR05",(muon.isolationR05()).nTracks);    
   NtupleFactory_ -> FillFloat("muons_emIsoR05",(muon.isolationR05()).emEt);
   NtupleFactory_ -> FillFloat("muons_hadIsoR05",(muon.isolationR05()).hadEt);
+
+  NtupleFactory_ -> FillInt  ("muons_innerTrack_found",innerTrackRef->found());
+  NtupleFactory_ -> FillInt  ("muons_numberOfValidPixelHits",globalTrackRef->hitPattern().numberOfValidPixelHits());
+  NtupleFactory_ -> FillInt  ("muons_TMLST",muon::isGoodMuon(muon, muon::TMLastStationTight));
   
+  NtupleFactory_ -> FillFloat("muons_trackPtErrorOverPt",globalTrackRef->ptError() / muon.pt());
+
   NtupleFactory_ -> FillInt  ("muons_tracker",muon.isTrackerMuon());
   NtupleFactory_ -> FillInt  ("muons_standalone",muon.isStandAloneMuon());
   NtupleFactory_ -> FillInt  ("muons_global",muon.isGlobalMuon());
