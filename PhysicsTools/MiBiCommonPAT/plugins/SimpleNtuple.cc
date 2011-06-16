@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.43 2011/06/03 15:36:21 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.44 2011/06/07 15:06:45 amassiro Exp $
 //
 //
 
@@ -697,11 +697,14 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResultsHandle);
   for(unsigned int iHLT = 0; iHLT < triggerResultsHandle->size(); ++iHLT)
   {
-    //std::cout << "bit: " << std::fixed << setw(3)<< iHLT << "   name: " << triggerNames.triggerName(iHLT) << std::endl;
-    //std::cout << " >>> prescaleSize =  " << hltConfig_.prescaleSize() << std::endl;
-    //std::cout << " >>> prescaleValue = " <<  << std::endl;
+    // std::cout << "run: " << iEvent.id().run() << std::endl;
+    // std::cout << "bit: " << std::fixed << std::setw(3)<< iHLT << "   name: " << triggerNames.triggerName(iHLT) << std::endl;
+    // std::cout << " >>> prescaleSize =  " << hltConfig_.prescaleSize() << std::endl;
+    // std::cout << " >>> prescaleValue = " << hltConfig_.prescaleValue(iEvent, iESetup, triggerNames.triggerName(iHLT)) << std::endl;
+    // std::cout << std::endl;
+
     // prescale
-    NtupleFactory_ -> FillInt("HLT_Prescale", hltConfig_.prescaleValue(iHLT, triggerNames.triggerName(iHLT)));
+    NtupleFactory_ -> FillInt("HLT_Prescale", hltConfig_.prescaleValue(iEvent, iESetup, triggerNames.triggerName(iHLT)));
 
     if( triggerResultsHandle -> wasrun(iHLT) )
       NtupleFactory_ -> FillFloat("HLT_WasRun", 1);
