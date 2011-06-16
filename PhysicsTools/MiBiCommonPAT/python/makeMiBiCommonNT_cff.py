@@ -164,11 +164,11 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # -------------------
     # pat selection layer
-    #process.selectedPatElectrons.cut      = cms.string("pt > 30. & abs(eta) < 2.5")  #fede
-    #process.selectedPatElectronsPFlow.cut = cms.string("pt > 15. & abs(eta) < 2.5")  #fede
+    process.selectedPatElectrons.cut      = cms.string("pt > 35. & abs(eta) < 2.5")  #fede
+    process.selectedPatElectronsPFlow.cut = cms.string("pt > 35. & abs(eta) < 2.5")  #fede
     
-    process.selectedPatElectrons.cut      = cms.string("pt > 10. & abs(eta) < 2.5")
-    process.selectedPatElectronsPFlow.cut = cms.string("pt > 10. & abs(eta) < 2.5")
+    #process.selectedPatElectrons.cut      = cms.string("pt > 10. & abs(eta) < 2.5")
+    #process.selectedPatElectronsPFlow.cut = cms.string("pt > 10. & abs(eta) < 2.5")
     
     process.selectedPatMuons.cut      = cms.string("pt > 10. & abs(eta) < 2.5")
     process.selectedPatMuonsPFlow.cut = cms.string("pt > 10. & abs(eta) < 2.5")
@@ -231,8 +231,14 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
      )
 
     process.load('PhysicsTools.PatAlgos.selectionLayer1.electronCountFilter_cfi')
+
     process.ElectronsFilter = countPatElectrons.clone(
       src       = cms.InputTag("selectedPatElectrons"),
+      minNumber = cms.uint32(1)
+     )
+
+    process.ElectronsPFlowFilter = countPatElectrons.clone(
+      src       = cms.InputTag("selectedPatElectronsPFlow"),
       minNumber = cms.uint32(1)
      )
 
@@ -260,6 +266,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.LeptonsFilterEvents = process.AllPassFilter.clone()
     process.LeptonsFilterPFlowEvents = process.AllPassFilter.clone()
     process.ElectronsFilterEvents = process.AllPassFilter.clone()
+    process.ElectronsPFlowFilterEvents = process.AllPassFilter.clone()
     process.JetFilterAK5PFEvents = process.AllPassFilter.clone()
     process.JetFilterPFlowEvents = process.AllPassFilter.clone()
     process.PhotonsFilterEvents = process.AllPassFilter.clone()
@@ -282,6 +289,11 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.OneEleSeq = cms.Sequence(
         process.ElectronsFilter*
         process.ElectronsFilterEvents
+        )
+
+    process.OneElePFlowSeq = cms.Sequence(
+        process.ElectronsPFlowFilter*
+        process.ElectronsPFlowFilterEvents
         )
 
 
@@ -356,12 +368,19 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiCommonNTOneElectron = process.MiBiCommonNT.clone()
     process.MiBiCommonNTOneElectron.JetTag = cms.InputTag("patJetsAK5PF")
     
+    process.MiBiCommonNTOneElectronPFlow = process.MiBiCommonNT.clone()
+    process.MiBiCommonNTOneElectronPFlow.MuTag     = cms.InputTag("patMuonsPFlow")
+    process.MiBiCommonNTOneElectronPFlow.EleTag    = cms.InputTag("patElectronsPFlow")
+    process.MiBiCommonNTOneElectronPFlow.JetTag    = cms.InputTag("patJetsPFlow")
+    process.MiBiCommonNTOneElectronPFlow.MetTag    = cms.InputTag("patMETsPFlow")
+    #process.MiBiCommonNTOneElectronPFlow.PhotonTag    = cms.InputTag("patPhotonsPFlow")
+    
     
     
     
     # VBF paths
-    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
-    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
+    #process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
+    #process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
     
     # GammaGamma paths
     #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
@@ -371,6 +390,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     #process.MiBiPathTwoJetsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoJetsPFlowSeq*process.MiBiCommonNTTwoJetsPFlow)
     
     #ele path
-    #process.MiBiPathOneElectron = cms.Path(process.MiBiCommonPAT*process.OneEleSeq*process.MiBiCommonNTOneElectron)
+    process.MiBiPathOneElectron      = cms.Path(process.MiBiCommonPAT*process.OneEleSeq*process.MiBiCommonNTOneElectron)
+    process.MiBiPathOneElectronPFlow = cms.Path(process.MiBiCommonPAT*process.OneElePFlowSeq*process.MiBiCommonNTOneElectronPFlow)
 
     #process.out.outputCommands = cms.untracked.vstring('keep *')
