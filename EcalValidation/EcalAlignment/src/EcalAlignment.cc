@@ -13,11 +13,13 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.9 2011/05/22 15:02:26 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.10 2011/05/24 06:58:07 amassiro Exp $
 //
 //
 
 #include "EcalValidation/EcalAlignment/interface/EcalAlignment.h"
+
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 //
 // constants, enums and typedefs
@@ -49,6 +51,7 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
   std::vector<std::string> empty;
   eleId_names_  = iConfig.getUntrackedParameter< std::vector<std::string> >("eleId_names",empty);
 
+  debug_  = iConfig.getUntrackedParameter< bool >("debug",false);
 
 
   //==== output ====
@@ -153,7 +156,9 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   int nTotalEvents = static_cast<int>(m_totalEvents -> GetBinContent(1));
   int nPassedEvents = static_cast<int>(m_passedEvents -> GetBinContent(1));
-  
+
+  if (debug_) std::cout << ">>>  EcalAlignment::analyze: nPassedEvents " << nPassedEvents << " : " << nTotalEvents << std::endl;
+
   m_totalEvents -> Fill(0.5);
   m_passedEvents -> Fill(0.5);
   m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents+1)/(nTotalEvents+1));
@@ -231,9 +236,11 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  // Loop over electrons
  for ( unsigned int i=0; i<electrons.size(); ++i ){
-//    std::cout << " electron " << i << " : " << electrons.size() << std::endl;
+  if (debug_) std::cout << ">>> >>> electron " << i << " : " << electrons.size() << std::endl;
    pat::Electron electron = electrons.at(i);
+   if (debug_) std::cout << ">>> >>> electron get track" << std::endl;
    reco::GsfTrackRef eleTrack  = electron.gsfTrack () ; 
+   if (debug_) std::cout << ">>> >>> electron get SC" << std::endl;
    reco::SuperClusterRef scRef = electron.superCluster();
 
    electrons_classification_ = electron.classification();
@@ -296,6 +303,8 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    E3x3_ = 0;
    E2x2_ = 0;
    
+   if (debug_) std::cout << ">>> >>> electron EB / EE" << std::endl;
+
    if ( electron.isEB() )
    {
      E3x3_ = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
@@ -333,10 +342,11 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int numRecHit = 0;
    const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
 
-   const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
+   if (debug_) std::cout << ">>> >>> electron get SC" << std::endl;
+//    const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
    if(electron.isEB())
    {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);   
+    std::pair<DetId, float> id = EcalClusterTools::getMaximum(hits, theBarrelEcalRecHits);   
      EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);    
      eleSwissCross_ = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
      if( it != theBarrelEcalRecHits->end() )
@@ -349,7 +359,7 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
     }
    if (electron.isEE()){
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);   
+    std::pair<DetId, float> id = EcalClusterTools::getMaximum(hits, theEndcapEcalRecHits);   
      EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
      eleSwissCross_ = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
      if( it != theEndcapEcalRecHits->end() )

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.h,v 1.4 2011/05/22 15:02:26 amassiro Exp $
+// $Id: EcalAlignment.h,v 1.5 2011/05/24 06:58:07 amassiro Exp $
 //
 //
 
@@ -64,6 +64,7 @@
 
 
 
+
 //
 // class declaration
 //
@@ -88,9 +89,10 @@ class EcalAlignment : public edm::EDAnalyzer {
        edm::InputTag CALOMetTag_;
        edm::InputTag TrackTag_;
 
+       bool debug_;
 
 
-  
+
        TH1F* m_totalEvents;
        TH1F* m_passedEvents;
        TH1F* m_filterEfficiency;
