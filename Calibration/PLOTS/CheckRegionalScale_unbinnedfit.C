@@ -63,11 +63,12 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
   EBregionBuilder* regionTemplate = BuildEBRegion("inputREGION_template.txt","h_EBRegion_template");
   TH2F* h_EBRegionTemplate = regionTemplate->DrawEBRegion();
 
-// Define regions where you want to check the scale
+  // Define regions where you want to check the scale
   EBregionBuilder* region = BuildEBRegion("inputREGION.txt","h_EBRegion");
   TH2F* h_EBRegion = (TH2F*)region->DrawEBRegion();
 
-    
+ 
+
   // Get trees
   std::cout << std::endl;
   
@@ -82,10 +83,10 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
   std::cout << "REFERENCE: " << std::setw(8) << ntu_MC->GetEntries() << " entries" << std::endl;
   
   if (ntu_DA->GetEntries() == 0 || ntu_MC->GetEntries() == 0 )
-  {
-    std::cout << "CHK-STB Error: At least one file is empty" << std::endl; 
-    return;
-  }
+    {
+      std::cout << "CHK-STB Error: At least one file is empty" << std::endl; 
+      return;
+    }
     
   
   // Set branch addresses
@@ -100,8 +101,6 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
   ntu_DA->SetBranchAddress("ele1_EOverP", &EoP);
   ntu_DA->SetBranchAddress("ele1_seedIeta", &Ieta);
   ntu_DA->SetBranchAddress("ele1_seedIphi", &Iphi);
-  ntu_DA->SetBranchAddress("ele1_seedIx", &seedIx);
-  ntu_DA->SetBranchAddress("ele1_seedIy", &seedIy);
   ntu_DA->SetBranchAddress("ele1_seedZside", &seedZside);
   
   ntu_MC->SetBranchAddress("isW", &isW);
@@ -129,8 +128,6 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
       if (strcmp(EBEE,"EB")==0 && fabs(scEta) > 1.45) continue;                       // barrel
       if (strcmp(EBEE,"EE")==0 && (fabs(scEta) < 1.47 || fabs(scEta)>2.7 )) continue; // endcap
       
-
-      
       // define the region and fill the reference histograms
       int regionId = regionTemplate->EBRegionId(Ieta,Iphi);
       std::map<int,TH1F*>::const_iterator itr = href.find(regionId);
@@ -151,51 +148,39 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
       std::cout << itr->first << "    -- events :" << (itr->second) -> GetEntries() << std::endl;
     }
   
-  
-  // Loop and sort events
-  std::cout << std::endl;
-  std::cout << "***** Sort events and define bins *****" << std::endl;
- 
-  int nEntries = ntu_DA -> GetEntriesFast(); 
-  int nSavePts = 0; 
-  std::vector<bool> isSavedEntries(nEntries);
-     
-  for(int ientry = 0; ientry < nEntries; ++ientry)  {
-    ntu_DA -> GetEntry(ientry);
-    isSavedEntries.at(ientry) = false;
     
-    // save only what is needed for the analysis!!!
-    if (strcmp(EBEE,"EB")==0 && fabs(scEta) > 1.45) continue;                       // barrel
-    if (strcmp(EBEE,"EE")==0 && (fabs(scEta) < 1.47 || fabs(scEta)>2.7 )) continue; // endcap
-  
-    //if( fabs(scEta) > 0.44 ) continue;
-    //if( fabs(scEta) < 0.44 || fabs(scEta) > 0.77 ) continue;
-    //if( fabs(scEta) < 0.77 || fabs(scEta) > 1.10 ) continue;
-    //if( fabs(scEta) < 1.10 || fabs(scEta) > 1.56 ) continue;
-    //if( fabs(scEta) < 1.56 || fabs(scEta) > 2.00 ) continue;
-    
-    //if( fabs(scEta) > 0.77 ) continue;
-    //if( fabs(scEta) < 0.77 || fabs(scEta) > 1.4442 ) continue;
-    
-    //if( (seedIeta > 0 && (seedIphi >= 100 && seedIphi < 121) ) ||
-    //    (seedIeta < 0 && (seedIphi >= 160 && seedIphi < 180) ) ||
-    //    (seedIeta < 0 && (seedIphi >= 300 && seedIphi < 320) ) )
-    
-    isSavedEntries.at(ientry) = true;
-    nSavePts++;
-  }
-  
-  std::cout << "Data sorted in " << EBEE << " - " << nSavePts << " events" << std::endl;
-  
   // histograms definition
-  TH2F* h_scale_EB  = new TH2F("h_scale_EB","", h_EBRegion->GetNbinsY()/region->EBRegionPhiWidth(),1.,361., h_EBRegion->GetNbinsX()/region->EBRegionEtaWidth(), -85., 86.);
-  TH2F* h_error_EB  = new TH2F("h_error_EB","", h_EBRegion->GetNbinsY()/region->EBRegionPhiWidth(),1.,361., h_EBRegion->GetNbinsX()/region->EBRegionEtaWidth(), -85., 86.);
-  TH2F* h_occupancy_EB  = new TH2F("h_occupancy_EB","", h_EBRegion->GetNbinsY()/region->EBRegionPhiWidth(),1.,361., h_EBRegion->GetNbinsX()/region->EBRegionEtaWidth(), -85., 86.);
+  double *xbins = new double;
+  double *ybins = new double;
+  int nx = 0;
+  for (int ii = 1; ii < 362; ii++){
+    if ( (ii % region->EBRegionPhiWidth()) == 1 ) { 
+      xbins[nx]=ii; 
+      nx++;
+    }
+  }
+
+  int ny = 0;
+  for (int jj = -85; jj < 87; jj++){
+    if ( (jj == -85) || (jj == 86))  {
+      ybins[ny]=jj;
+      ny++;
+    }
+    if (abs(jj) % region->EBRegionEtaWidth() == 1) {
+      ybins[ny]=jj;
+      ny++;
+    }
+  }
+
+  TH2F* h_scale_EB  = new TH2F("h_scale_EB","",nx-1, xbins, ny-1, ybins);
+  TH2F* h_error_EB  = new TH2F("h_error_EB","",nx-1, xbins, ny-1, ybins );
+  TH2F* h_occupancy_EB  = new TH2F("h_occupancy_EB","",nx-1, xbins, ny-1, ybins );
+
   TH1F* h_EoP_spread = new TH1F("h_EoP_spread","",100,0.9,1.1);
-  TH1F* h_EoP_error = new TH1F("h_EoP_error","",500,0.,0.5);
+  TH1F* h_EoP_error = new TH1F("h_EoP_error","",1000,0.,0.25);
      
   std::cout << std::endl;
-  std::cout << "***** Fill and fit histograms *****" << std::endl;
+  std::cout << "***** Fill histograms and fit  *****" << std::endl;
   
   std::map<int,TH1F*> h_EoP;
   std::map<int,int> indref;
@@ -206,25 +191,32 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
     dataEoP.push_back(new std::vector<double>);
   }
 
+  // Loop over events
+  int nEntries = ntu_DA -> GetEntriesFast(); 
   for(int ientry = 0; ientry < nEntries; ++ientry)
     {
       // use only odd events to fit
       if ( useEvenOdd==1  && ientry%2!=1) continue; 
       
       if( (ientry%100000 == 0) ) std::cout << "reading entry " << ientry << std::endl;
-      
-      if( isSavedEntries.at(ientry) == false ) continue;
-      
+            
       ntu_DA->GetEntry(ientry);
       
+      // save only what is needed for the analysis!!!
+      if (strcmp(EBEE,"EB")==0 && fabs(scEta) > 1.45) continue;                       // barrel
+      if (strcmp(EBEE,"EE")==0 && (fabs(scEta) < 1.47 || fabs(scEta)>2.7 )) continue; // endcap
+ 
       // fill the data histograms
       int regionId = region->EBRegionId(Ieta,Iphi);
-    
+      if ( regionId == -1) continue;
+      
       // matching ref regions
       int regionIdRef = regionTemplate->EBRegionId(Ieta,Iphi);
+      if ( regionIdRef == -1) continue;
+
       std::map<int,int>::const_iterator itr2 = indref.find(regionId);
       if (itr2 == indref.end()) indref[regionId] = regionIdRef;
-            
+                  
       std::map<int,TH1F*>::const_iterator itr = h_EoP.find(regionId);
       if (itr == h_EoP.end())
 	{ 
@@ -240,22 +232,32 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
 	}
       else h_EoP[regionId]->Fill(EoP);
       
+      
       // fill the vectors data E/p 
-      if (EoP > 0.5 && EoP < 1.5 ) {
+      if ( EoP > 0.5 && EoP < 1.5 ) {
 	dataEoP[regionId]->push_back(EoP);
-	//h_occupancy_EB -> Fill( region->EBRegionPhi(regionId), region->EBRegionEta(regionId));
 	if (Ieta>0) h_occupancy_EB -> Fill( Iphi, Ieta);
-	if (Ieta<0) h_occupancy_EB -> Fill( Iphi, Ieta+1); // ????
+ 	if (Ieta<0) h_occupancy_EB -> Fill( Iphi, Ieta); // ????
       }
+
     }
   
   // Define graph and histograms
   TGraphAsymmErrors* gregion   = new TGraphAsymmErrors();
-  TGraphAsymmErrors* gphi      = new TGraphAsymmErrors();
-  TGraphAsymmErrors* gphi_EBP  = new TGraphAsymmErrors();
-  TGraphAsymmErrors* gphi_EBM  = new TGraphAsymmErrors();
-  int np = 0;
-  int nm = 0;
+
+  int nEtaRegions = regionTemplate->EBregionsNum();
+  TGraphAsymmErrors* gphi[nEtaRegions]; 
+  vector<int> np;
+  for (int ir = 0; ir < nEtaRegions; ir++){
+    char gname[100], gtitle[100];
+    sprintf(gname,"gphi_etaRegion%d",ir);
+    sprintf(gtitle,"<#eta> = %d",(int)regionTemplate->EBRegionEta(ir));
+    gphi[ir] = new TGraphAsymmErrors();
+    gphi[ir]->SetName(gname);
+    gphi[ir]->SetTitle(gtitle);
+    np.push_back(0);
+  }
+  
   int nGoodFit  = 0;
   int nBadFit   = 0;
   int nTot = 0;
@@ -279,20 +281,24 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
   myfit->SetPrintLevel(-1);
   double arglist[2];
   
+  
   for (std::map<int,TH1F*>::const_iterator data_itr = h_EoP.begin(); data_itr != h_EoP.end(); ++data_itr)
     {
       
       (data_itr->second) -> Rebin(rebin*4);
       
       int idata = data_itr->first; 
-      if( idata%100==0) cout << "Fitting region " << idata << endl;
+      
+      if( idata%100==0) 
+	cout << "Fitting region " << idata << endl;
       
       mydata = dataEoP.at(idata);
-
+      
       // match actual data region with ref region
       std::map<int,int>::const_iterator index_itr = indref.find(idata);
       int iref = index_itr->second; 
 
+      
       // define the fitting function  
       templateHisto = (TH1F*)href[iref]->Clone("templateHisto");
       FitTemplate(); 
@@ -302,14 +308,14 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
       arglist[0] = 10000; // Max number of function calls
       arglist[1] = 1e-2;  // Tolerance on likelihood ?????????
       double step = h_EoP[idata]->GetRMS()/sqrt(h_EoP[idata]->GetEntries());
-      myfit->SetParameter(0, "scale", 1.,step,0.50,1.50);
+      myfit->SetParameter(0, "scale", 1.,step,0.5,1.5);
       int fStatus = myfit->ExecuteCommand("MIGRAD",arglist,2); 
      
       //if Fit did not converge, try with different step size, up to a maximum of 10 trials
       int ntrials = 1;
       while ( fStatus!=0 && ntrials < 10) {
 	myfit->Clear();
-	myfit->SetParameter(0, "scale", h_EoP[idata]->GetBinCenter(h_EoP[idata]->GetMaximumBin()),step*(ntrials+1),0.,0.);
+	myfit->SetParameter(0, "scale", h_EoP[idata]->GetBinCenter(h_EoP[idata]->GetMaximumBin()),step*(ntrials+1),0.5,1.5);
 	fStatus = myfit->ExecuteCommand("MIGRAD",arglist,2); 
 	//cout << ntrials << " " << step*(ntrials+1) << fStatus << endl;
 	ntrials++;
@@ -349,35 +355,26 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
       if ( fStatus==0 )
 	{
 	  nGoodFit++;
-	  gregion    -> SetPoint(nGoodFit,  idata , bestScale);
-	  gregion    -> SetPointError(nGoodFit, 0 , 0, eee, eee);
-	  gphi       -> SetPoint(nGoodFit,  avePhi , bestScale);
-	  gphi       -> SetPointError(nGoodFit, 0 , 0, eee, eee);
-	  h_scale_EB -> Fill(avePhi,aveEta, bestScale );
-	  h_error_EB -> Fill(avePhi,aveEta, eee );
-      	  h_EoP_spread  -> Fill(bestScale);
-	  h_EoP_error   -> Fill(eee);
+	  gregion      -> SetPoint(nGoodFit,  idata , bestScale);
+	  gregion      -> SetPointError(nGoodFit, 0 , 0, eee, eee);
+      	  h_EoP_spread -> Fill(bestScale);
+	  h_EoP_error  -> Fill(eee);
+	  h_scale_EB   -> Fill(avePhi,aveEta, bestScale );
+	  h_error_EB   -> Fill(avePhi,aveEta, eee );
 
-	  if ( aveEta > 0. ) {
-	    gphi_EBP    -> SetPoint(np,  avePhi  , bestScale);
-	    gphi_EBP    -> SetPointError(np, 0. , 0., eee, eee);
-	    np++;
-	  }
-	  
-	  if ( aveEta < 0. ) {
-	    gphi_EBM    -> SetPoint(nm,  avePhi  , bestScale);
-	    gphi_EBM    -> SetPointError(nm, 0. , 0., eee, eee);
-	    nm++;
-	  }
-	  
+	  int indgraph = iref;
+	  gphi[indgraph] -> SetPoint(np[indgraph],  avePhi  , bestScale);
+ 	  gphi[indgraph] -> SetPointError(np[indgraph], 0. , 0., eee, eee);
+ 	  np[indgraph]++;
 	}
       else
 	{
-	  
-	  std::cout << "Fitting region : " << idata << "   Fail status: " << fStatus << "   scale: " << bestScale <<"   sigma: " << eee << endl;
+	  std::cout << "Fitting region : " << idata << "   Fail status: " << fStatus 
+		    << "   scale: "        << bestScale <<"   sigma: " << eee << endl;
 	  h_scale_EB -> Fill(avePhi,aveEta, 1.);
 	  nBadFit++;
 	}
+      
     }
 
 
@@ -428,13 +425,8 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
       latex->Draw("same");
     }
 
-  
-//   TF1 pol0("pol0","pol0",0,1000);
-//   pol0.SetLineColor(kGreen+2);
-//   pol0.SetLineWidth(2);
-//   pol0.SetLineStyle(2);
-//   gregion -> Fit("pol0","QR");
-  
+
+
 
   // Final plots
 
@@ -448,38 +440,55 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
   gregion -> Draw("ap");
   gregion -> GetHistogram()->GetXaxis() ->SetTitle("region index");
   gregion -> GetHistogram()->GetYaxis() ->SetTitle("scale");
-  gregion -> GetHistogram()->GetYaxis() ->SetRangeUser(0.8,1.2);
+  gregion -> GetHistogram()->GetYaxis() ->SetRangeUser(0.9,1.1);
+
+  TLegend * leg = new TLegend(0.69, 0.69, 0.89, 0.89);
+  leg->SetFillColor(0);
 
   TCanvas *cc = new TCanvas("cc","cc");
   cc -> cd();
   cc->SetGridx();
   cc->SetGridy();
-  gphi_EBP->SetMarkerStyle(20);
-  gphi_EBP->SetMarkerSize(0.8);
-  gphi_EBP->SetMarkerColor(kGreen+2);
-  gphi_EBM->SetMarkerStyle(24);
-  gphi_EBM->SetMarkerSize(0.8);
-  gphi_EBM->SetMarkerColor(kGreen+2);
-  gphi_EBP -> Draw("ap");
-  gphi_EBP  -> GetHistogram()->GetXaxis() ->SetTitle("#phi");
-  gphi_EBP  -> GetHistogram()->GetYaxis() ->SetTitle("scale");
-  gphi_EBP  -> GetHistogram()->GetXaxis() ->SetRangeUser(0.,361);
-  gphi_EBP  -> GetHistogram()->GetYaxis() ->SetRangeUser(0.8,1.2);
-  gphi_EBM -> Draw("psame");
+  int mycolor ;
+  for ( int i = 0; i < nEtaRegions ; i++){
+    gphi[i]->SetMarkerStyle(20);
+    gphi[i]->SetMarkerSize(0.8);
+    if (i==9) {
+      mycolor = 1; 
+      gphi[i]->SetMarkerStyle(24);
+    }
+    else { mycolor = i+1; }
+    gphi[i]->SetMarkerColor(mycolor);
+    gphi[i]->SetLineColor(mycolor);
+    if (i==0) {
+      gphi[i] -> Draw("ap");
+      leg->AddEntry(gphi[i], gphi[i]->GetTitle(), "PL");
+    }
+    //if (i!=0 && i%(nEtaRegions/5)==0)  {
+    if ( i!=0 )  {
+      gphi[i] -> Draw("psame");
+      leg->AddEntry(gphi[i], gphi[i]->GetTitle(), "PL");
+      leg->Draw("same");
+    }
+    gphi[i] -> GetHistogram()->GetXaxis() ->SetTitle("#phi");
+    gphi[i] -> GetHistogram()->GetYaxis() ->SetTitle("scale");
+    gphi[i] -> GetHistogram()->GetXaxis() ->SetRangeUser(0.,361);
+    gphi[i] -> GetHistogram()->GetYaxis() ->SetRangeUser(0.95,1.05);
+  }
 
   TCanvas *cmap = new TCanvas("cmap","cmap");
   cmap -> cd();
   h_scale_EB->Draw("COLZ");
   h_scale_EB->GetXaxis() ->SetTitle("#phi");
   h_scale_EB->GetYaxis() ->SetTitle("#eta");
-  h_scale_EB->GetZaxis() ->SetRangeUser(0.85,1.15);
+  h_scale_EB->GetZaxis() ->SetRangeUser(0.95,1.05);
 
   TCanvas *cmapErr = new TCanvas("cmapErr","cmapErr");
   cmapErr -> cd();
   h_error_EB->Draw("COLZ");
   h_error_EB->GetXaxis() ->SetTitle("#phi");
   h_error_EB->GetYaxis() ->SetTitle("#eta");
-  h_error_EB->GetZaxis() ->SetRangeUser(0.,0.2);
+  h_error_EB->GetZaxis() ->SetRangeUser(0.,2*h_EoP_error->GetRMS());
 
   TCanvas *cOcc = new TCanvas("cOcc","cOcc");
   cOcc -> cd();
@@ -499,7 +508,7 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
   gPad->Update();
 
   TPaveStats *s_EoP_spread = (TPaveStats*)(h_EoP_spread->GetListOfFunctions()->FindObject("stats"));
-  s_EoP_spread->SetX1NDC(0.49); //new x start position
+  s_EoP_spread->SetX1NDC(0.55); //new x start position
   s_EoP_spread->SetX2NDC(0.89); //new x end position
   s_EoP_spread->SetY1NDC(0.750); //new x start position
   s_EoP_spread->SetY2NDC(0.875); //new x end position
@@ -514,46 +523,93 @@ void CheckRegionalScale_unbinnedfit(Char_t* EBEE = 0){
   h_EoP_error -> SetLineWidth(3001);
   h_EoP_error -> SetFillColor(kGreen+2);
   h_EoP_error -> SetLineColor(kGreen+2);
-  h_EoP_error -> GetXaxis() -> SetTitle("Relative E/p scale");
+  h_EoP_error -> GetXaxis() -> SetTitle("error");
+  h_EoP_error -> GetXaxis() -> SetRangeUser(0.,2*h_EoP_error->GetRMS());
   h_EoP_error -> Draw("hs");
   gPad->Update();
 
   TPaveStats *s_scale_error = (TPaveStats*)(h_EoP_error->GetListOfFunctions()->FindObject("stats"));
-  s_scale_error->SetX1NDC(0.49); //new x start position
+  s_scale_error->SetX1NDC(0.55); //new x start position
   s_scale_error->SetX2NDC(0.89); //new x end position
   s_scale_error->SetY1NDC(0.750); //new x start position
   s_scale_error->SetY2NDC(0.875); //new x end position
   s_scale_error ->SetOptStat(1110);
   s_scale_error ->SetTextColor(kGreen+2);
-  s_scale_error ->SetTextSize(0.05);
+  s_scale_error ->SetTextSize(0.04);
   s_scale_error -> Draw("sames");
 
   
-//   TCanvas *cTemplate = new TCanvas("cTemplate","cTemplate");
-//   cTemplate -> cd();
-//   h_EBRegionTemplate -> Draw("text colz");
+  TCanvas *cTemplate = new TCanvas("cTemplate","cTemplate");
+  cTemplate -> cd();
+  h_EBRegionTemplate -> Draw("colz");
   
-//   TCanvas *cRegion = new TCanvas("cRegion","cRegion");
-//   cRegion -> cd();
-//   h_EBRegion ->Draw("colz");
+  TCanvas *cRegion = new TCanvas("cRegion","cRegion");
+  cRegion -> cd();
+  h_EBRegion ->Draw("colz");
 
+
+
+  // save plots in a root file  
+  //std::string dirname("./plots/Regions20x20/May10ReReco_2011Laser_Bon_V20110616_weightedAverage/");
+  std::string dirname("./plots/TTscale/May10ReReco_plus_PromptReco_2011Laser_Bon_V20110616_weightedAverage/");
+  //std::string dirname("./plots/Regions20x20/May10ReReco/");
+
+  std::string outfilename("checkSMscale.root");
+
+  TFile* o = new TFile((dirname+outfilename).c_str(),"RECREATE");
   
-   
-  TFile* o = new TFile("checkTTscale.root","RECREATE");
   o -> cd();
+  
   gregion      -> Write("gregion");
-  gphi         -> Write("gphi");
-  gphi_EBP     -> Write("gphi_EBP");
-  gphi_EBM     -> Write("gphi_EBM");
+  for (int i=0; i< nEtaRegions; i++){
+    gphi[i]     -> Write();
+    gphi[i]     -> Write();
+  }
   h_EoP_spread -> Write("h_EoP_spread");
   h_EoP_error  -> Write("h_EoP_error");
-
+  
   h_scale_EB   -> Write("h_scale_EB_map");
   h_error_EB   -> Write("h_error_EB_map");
   h_occupancy_EB   -> Write("h_occupancy_EB");
-
   o -> Close();
+ 
+  
+  // print plots
+  std::string plotname;
 
+  cfit[0] ->cd(); 
+  plotname = "exampleFits.gif";
+  cfit[0] -> Print((dirname+plotname).c_str());
+  
+  c->cd();
+  plotname = "RelativeScale_vs_regionIndex.gif";
+  c -> Print((dirname+plotname).c_str());
+ 
+  cc->cd();
+  plotname="RelativeScale_vs_phi.gif";
+  cc->Print((dirname+plotname).c_str());
 
+  cspread->cd();
+  plotname="RelativeScale_spread.gif";
+  cspread->Print((dirname+plotname).c_str()); 
+
+  cErr->cd();
+  plotname="RelativeScale_error.gif";
+  cErr->Print((dirname+plotname).c_str()); 
+
+  gStyle->SetOptStat(0);
+  cmap->cd();
+  plotname="RelativeScale_map.gif";
+  cmap->Print((dirname+plotname).c_str());
+
+  cmapErr->cd();
+  plotname="RelativeScale_errorsmap.gif";
+  cmapErr->Print((dirname+plotname).c_str());
+  
+  cOcc->cd();
+  plotname="occupancy_map.gif";
+  cOcc->Print((dirname+plotname).c_str());
+
+ 
   
 }
