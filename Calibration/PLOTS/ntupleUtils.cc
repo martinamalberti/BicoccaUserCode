@@ -58,6 +58,7 @@ void FitTemplate(const bool& draw = false)
   templateFunc -> SetParameters(templateHisto->GetMaximum(),1.,0.05,1.,2.,2.,1.,1.);
   templateFunc -> FixParameter(7,1.);
   templateFunc -> SetParLimits(3,0.,10.);
+  templateFunc -> SetParLimits(4,0.,10.);
   templateFunc -> SetParLimits(5,0.,10.);
   
   templateFunc -> SetParName(0,"N");
