@@ -31,9 +31,10 @@ EBregionBuilder::EBregionBuilder(int etaStart,int etaEnd,int etaWidth,int phiSta
 //!Shifts eta in other coordinates (from 0 to 170)
 int EBregionBuilder::etaShifter(int etaOld) const
 {
-  if (etaOld < 0) return etaOld + 85;
-  else if (etaOld > 0) return etaOld + 84;
-  else return etaOld;
+//  if (etaOld < 0) return etaOld + 85;
+//   else if (etaOld > 0) return etaOld + 84;
+//   else return etaOld;
+  return etaOld;
 }
 
 //--------------------------------------------
@@ -61,14 +62,45 @@ int EBregionBuilder::EBregionCheck(int eta,int phi) const
 //! number of regions in EB
 int EBregionBuilder::EBregionsNum() const
 {
-  int neta = (m_etaEnd - m_etaStart) / m_etaWidth ;
-  int nphi = (m_phiEnd - m_phiStart) / m_phiWidth;
+  int nEtaEBP = 0;
+  int nEtaEBM = 0;
+  int dEtaEBP = 0;
+  int dEtaEBM = 0;
 
-  if ( ((m_etaEnd - m_etaStart)%m_etaWidth)!=0 ) neta+=1;
+
+  if (m_etaEnd > 0 && m_etaStart > 0) {
+    dEtaEBP = m_etaEnd - m_etaStart ;
+    dEtaEBM = 0;
+  }
+  
+  if (m_etaEnd > 0 && m_etaStart < 0) {
+    dEtaEBP = (m_etaEnd - 1) ;
+    dEtaEBM = (0 - m_etaStart);
+  }
+
+  if (m_etaEnd < 0 && m_etaStart < 0) {
+    dEtaEBP = 0 ;
+    dEtaEBM = m_etaEnd - m_etaStart;
+  }
+
+  nEtaEBP=dEtaEBP/m_etaWidth;
+  nEtaEBM=dEtaEBM/m_etaWidth;
+
+  if ( (dEtaEBP%m_etaWidth)!=0 ) nEtaEBP+=1;
+  if ( (dEtaEBM%m_etaWidth)!=0 ) nEtaEBM+=1;
+  int neta    = nEtaEBP+nEtaEBM;
+
+  int nphi = (m_phiEnd - m_phiStart) / m_phiWidth;
   if ( ((m_phiEnd - m_phiStart)%m_phiWidth)!=0 ) nphi+=1; 
-  
-  
+
+  // cout << "netaEBP = " << nEtaEBP << endl;
+  // cout << "netaEBM = " << nEtaEBM << endl;
+  // cout << "netaEB  = " << neta << endl;
+  // cout << "nphi    = " << nphi << endl;
+  // cout << "number of regions = " << neta*nphi << endl;
+
   return ( neta*nphi ); 
+
 }
 
 //----------------------------------------
@@ -79,13 +111,38 @@ int EBregionBuilder::EBregionsNum() const
 int EBregionBuilder::EBRegionId(int etaXtl,int phiXtl) const
 {
   if( EBregionCheck(etaXtl,phiXtl) ) return -1;
-  
-  int etaLocal = etaShifter(etaXtl);
+
   int Nphi = (m_phiEnd - m_phiStart) / m_phiWidth;
-  int etaI = (etaLocal - m_etaStart) / m_etaWidth;  
-  int phiI = (phiXtl   - m_phiStart) / m_phiWidth; 
-  int regionNumEB = phiI + Nphi * etaI;
+  int etaI = (etaXtl-m_etaStart)/m_etaWidth;  
+  int phiI = (phiXtl-m_phiStart)/m_phiWidth; 
+  int regionNumEB = 0;
   
+  if ( m_etaStart > 0 && m_etaEnd > 0 ) 
+    regionNumEB = phiI + Nphi * etaI;
+ 
+  if ( m_etaStart < 0 && m_etaEnd < 0 ) {
+    etaI = (abs(etaXtl)-abs(m_etaEnd))/m_etaWidth;
+    regionNumEB = phiI + Nphi * etaI;
+  }
+
+  if ( m_etaStart < 0 && m_etaEnd > 0) {
+    if ( etaXtl > 0 ) {
+      etaI = (etaXtl-1)/m_etaWidth;
+      regionNumEB = phiI + Nphi * etaI;
+    }    
+    if ( etaXtl < 0 ) {
+      etaI = (abs(etaXtl)-1)/m_etaWidth; 
+      int nEtaEBP = (m_etaEnd-1)/m_etaWidth;
+      //cout << "etaI = " << etaI << "  eta = " <<etaXtl << endl;
+      //cout << "phiI = " << phiI << "  phi = " <<phiXtl << endl;
+      regionNumEB = Nphi * nEtaEBP + phiI + Nphi* etaI;
+      if ( (m_etaEnd-1)%m_etaWidth !=0  ) regionNumEB += Nphi;
+  
+    }
+  }
+
+  if (regionNumEB >= EBregionsNum()) cout << "regionNumEB = " << regionNumEB << endl;
+
   return regionNumEB;
 }
 
