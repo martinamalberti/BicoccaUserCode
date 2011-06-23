@@ -223,17 +223,24 @@ void DrawValidationPlots(Char_t* infile1 = 0,
                     "kLeadingEdgeRecovered",
                     "kNeighboursRecovered",
                     "kTowerRecovered",
-                    "kFake",
-                    "kFakeNeighbours",
                     "kDead",
                     "kKilled",
                     "kTPSaturated",
-                    "kL1SpikeFlag"};
+                    "kL1SpikeFlag",
+                    "kWeird",
+                    "kDiWeird"};
+                    
+//                     "kFake",
+//                     "kFakeNeighbours",
+//                     "kDead",
+//                     "kKilled",
+//                     "kTPSaturated",
+//                     "kL1SpikeFlag"};
 
   char *labelY[1]={"Counts"};
 
   double xMin[nObj]={0.,0.,0.,0., 
-		   0.,0.,0.,0., 
+		   0,0,0,-10, 
 		   1.,1.,1.,1.,
 		   -50.,-50.,-50.,-50.,
 		   -3.,-3.2,-3.2,
@@ -252,7 +259,7 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		   0,0,0};
   
   double xMax[nObj]={3000.,1700.,1700.,2200.,  
-		   20.,20.,20.,0.5, 
+		   20,20.,20.,0.5, 
 		   40,40,40,1.,
 		   50.,50.,50.,50.,
 		   3.,3.2,3.2,
@@ -271,7 +278,7 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		   0.01,0.01,10};
 
   int reBin[nObj]  = {2,2,2,2, 
-		    8,8,8,8, 
+		    1,1,1,8, 
 		    4,4,4,4, 
 		    1,1,1,1, 
 		    5,5,5, 
