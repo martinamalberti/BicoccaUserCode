@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.44 2011/06/07 15:06:45 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.45 2011/06/16 11:56:33 deguio Exp $
 //
 //
 
@@ -228,6 +228,10 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> Add4V   ("electrons");
    NtupleFactory_ -> AddFloat("electrons_charge"); 
    
+   // isolation
+   NtupleFactory_ -> AddFloat("electrons_PFIso");
+   NtupleFactory_ -> AddFloat("electrons_likelihood");
+
    // resolution variables
    NtupleFactory_ -> AddFloat("electrons_resolP");
    NtupleFactory_ -> AddFloat("electrons_resolPt");
@@ -347,6 +351,10 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> Add4V   ("muons");
    NtupleFactory_ -> AddFloat("muons_charge");
    
+  // isolation 
+
+   NtupleFactory_ -> AddFloat("muons_PFIso");
+
    // resolution variables
    NtupleFactory_ -> AddFloat("muons_resolP");
    NtupleFactory_ -> AddFloat("muons_resolPt");
@@ -1351,6 +1359,9 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillFloat("muons_resolEta",muon.resolEta());
   NtupleFactory_ -> FillFloat("muons_resolPhi",muon.resolPhi());*/
   
+  //  mu isolation PF
+  NtupleFactory_ -> FillFloat("muons_PFIso",(muon.userFloat("muSmurfPF")));
+
   // track variables  
   NtupleFactory_ -> FillFloat("muons_z",muon.vertex().z());
   NtupleFactory_ -> FillFloat("muons_dB",muon.dB());
@@ -1438,6 +1449,10 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> Fill4V   ("electrons", electron.p4());
   NtupleFactory_ -> FillFloat("electrons_charge", electron.charge());
   
+  //  ele isolation PF
+  NtupleFactory_ -> FillFloat("electrons_PFIso",(electron.userFloat("eleSmurfPF")));
+  NtupleFactory_ -> FillFloat("electrons_likelihood",(electron.userFloat("egammaIDLikelihood")));
+
   // resolution variables
   /*NtupleFactory_ -> FillFloat("electrons_resolP",electron.resolP());
   NtupleFactory_ -> FillFloat("electrons_resolPt",electron.resolPt());
