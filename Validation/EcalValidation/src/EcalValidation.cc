@@ -514,8 +514,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     EEDetId eeid( itr -> id() );
     GlobalPoint mycell = geometry->getPosition(itr->detid());
 
-    double et = itr -> energy()*mycell.perp()/mycell.mag();
-
       h_redRecHits_EE_recoFlag       -> Fill( itr -> recoFlag() );
       h_redRecHits_recoFlag          -> Fill( itr -> recoFlag() );
 
@@ -1024,7 +1022,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_superClusters_EB_phi    -> Fill( itSC -> phi() );
  
     float E1 = EcalClusterTools::eMax   ( *itSC, theBarrelEcalRecHits);
-    float E9 = EcalClusterTools::e3x3   ( *itSC, theBarrelEcalRecHits, topology );
     float E4 = EcalClusterTools::eTop   ( *itSC, theBarrelEcalRecHits, topology )+
                EcalClusterTools::eRight ( *itSC, theBarrelEcalRecHits, topology )+
                EcalClusterTools::eBottom( *itSC, theBarrelEcalRecHits, topology )+
@@ -1080,7 +1077,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     
 
     float E1 = EcalClusterTools::eMax( *itSC, theEndcapEcalRecHits);
-    float E9 = EcalClusterTools::e3x3( *itSC, theEndcapEcalRecHits, topology );
     float E4 = EcalClusterTools::eTop( *itSC, theEndcapEcalRecHits, topology)+
                EcalClusterTools::eRight( *itSC, theEndcapEcalRecHits, topology)+
                EcalClusterTools::eBottom( *itSC, theEndcapEcalRecHits, topology)+
