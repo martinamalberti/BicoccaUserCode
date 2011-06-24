@@ -17,7 +17,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),                       
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_4_2_0_pre4/MinimumBias/RECO/GR_R_42_V0_RelVal_run2010B-v1/0001/021BD8B3-1839-E011-9528-0030486790B0.root'
+    'file:/tmp/dimatteo/rerecoData.root'
     )
 )
 
@@ -53,7 +53,7 @@ process.hltHighLevel = cms.EDFilter("HLTHighLevel",
 #Good Vertex Filter (see GOODCOLL skim)
 process.primaryVertexFilter = cms.EDFilter("VertexSelector",
   src = cms.InputTag("offlinePrimaryVertices"),
-  cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), 
+  cut = cms.string("!isFake && ndof > 3 && abs(z) <= 24 && position.Rho <= 2"), 
   filter = cms.bool(True)   
 )
 

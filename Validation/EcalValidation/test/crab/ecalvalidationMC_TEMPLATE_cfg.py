@@ -18,31 +18,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),                       
     fileNames = cms.untracked.vstring(
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_1.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_2.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_3.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_4.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_5.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_6.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_7.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_8.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_9.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_10.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_11.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_12.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_13.root",
-    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_14.root",
-        
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_1.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_2.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_4.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_5.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_6.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_7.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_9.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_10.root",
-    #"rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_11.root",
-            
+    "rfio:/castor/cern.ch/user/d/deguio/REDIGI_minBias7TeV_Spring10-START3X_V25B-v1_newNoise_360_v03_newMask/test_DIGI_L1_DIGI2RAW_RAW2DIGI_RECO_360_v03_newMask_1.root"
     )
 )
 
@@ -68,7 +44,7 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NO
 #Good Vertex Filter (see GOODCOLL skim)
 process.primaryVertexFilter = cms.EDFilter("VertexSelector",
   src = cms.InputTag("offlinePrimaryVertices"),
-  cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), 
+  cut = cms.string("!isFake && ndof > 3 && abs(z) <= 24 && position.Rho <= 2"), 
   filter = cms.bool(True)   
 )
 
