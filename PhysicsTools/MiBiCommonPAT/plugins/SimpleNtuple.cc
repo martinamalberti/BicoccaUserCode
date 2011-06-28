@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.45 2011/06/16 11:56:33 deguio Exp $
+// $Id: SimpleNtuple.cc,v 1.46 2011/06/24 19:41:49 amassiro Exp $
 //
 //
 
@@ -477,6 +477,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("jets_resolPhi");
    
    NtupleFactory_->AddFloat("jets_charge");
+   NtupleFactory_->AddFloat("jets_ptD");
    NtupleFactory_->AddFloat("jets_dzAvg");
    NtupleFactory_->AddFloat("jets_dzAvgCut");
    
@@ -1849,18 +1850,26 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_ -> FillInt  ("jets_neutralMultiplicity",jet.neutralMultiplicity()); 
    NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
    
-   // loop on charged constituents to get avg z
+   // loop on charged constituents to get avg z and ptD
    std::vector<reco::PFCandidatePtr> jetConstituents =  jet.getPFConstituents();
+   float sumPt = 0.;
+   float sumPt2 = 0.;
    float dzAvg = 0.;
    int nChargedConstituents = 0;
    for(unsigned int jj = 0; jj < jetConstituents.size(); ++jj)
    {
+     sumPt += jetConstituents.at(jj)->pt();
+     sumPt2 += jetConstituents.at(jj)->pt()*jetConstituents.at(jj)->pt();
+     
      if( jetConstituents.at(jj)->trackRef().isNonnull() )
      {
        dzAvg += jetConstituents.at(jj)->trackRef()->dz();
        ++nChargedConstituents;
      }
    }
+   
+   NtupleFactory_ -> FillFloat("jets_ptD", sqrt(sumPt2/(sumPt*sumPt)));
+   
    
    if(nChargedConstituents > 0) dzAvg /= nChargedConstituents;
    else dzAvg = -9999.;
