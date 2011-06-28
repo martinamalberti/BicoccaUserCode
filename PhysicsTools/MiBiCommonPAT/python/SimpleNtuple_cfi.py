@@ -42,7 +42,7 @@ SimpleNtuple = cms.EDAnalyzer(
         ),
     
     #### photons ####
-    PhotonTag             = cms.InputTag("patPhotons"),
+    PhotonTag    = cms.InputTag("patPhotons"),
     EBRechitTag  = cms.InputTag("reducedEcalRecHitsEB"),
     EERechitTag  = cms.InputTag("reducedEcalRecHitsEE"),
     
