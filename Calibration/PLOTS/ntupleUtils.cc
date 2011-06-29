@@ -6,7 +6,6 @@ extern TF1* templateFunc;
 extern std::vector<double>* mydata;
 
 
-
 void mylike(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*iflag*/)
 {
   TF1* func = new TF1("func", crystalBallLowHigh, 0., 10., 8);
@@ -28,13 +27,17 @@ void mylike(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*ifl
     sumlog += log(p);
     //std::cout << "i: " << i << "   fval: " << sumlog << std::endl;
   }  
+
   
+ 
   fval = -2. * sumlog;
+   
 }
 
 
 
 /*** fit the template ***/
+//void FitTemplate(const bool& draw = false)
 void FitTemplate(const bool& draw = false)
 {
   TCanvas* c_template;
@@ -68,9 +71,12 @@ void FitTemplate(const bool& draw = false)
   templateFunc -> SetParName(4,"n_{high}");
   templateFunc -> SetParName(5,"#alpha_{low}");
   templateFunc -> SetParName(6,"n_{low}");
-      
-  templateHisto -> Fit("templateFunc","NQR+","",0.5,3.);
   
+  TFitResultPtr fStatus = templateHisto -> Fit("templateFunc","SNQR+","",0.5,3.);
+  
+  if (fStatus!=0) std::cout<< " >>>>>>>> Template fit did not converge!!! " << std::endl;
+  
+
   if( draw )
     templateFunc -> Draw("same");
 }
@@ -100,7 +106,10 @@ bool FillChain(TChain* chain, const std::string& inputFileList)
     
     chain -> Add(buffer.c_str());
     std::cout << ">>> ntupleUtils::FillChain - treeName = " << chain -> GetName() << " from file " << buffer << std::endl;
+    
   }
+  
+  inFile.close();
 
   return true;
 }
