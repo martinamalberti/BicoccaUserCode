@@ -93,12 +93,6 @@ int EBregionBuilder::EBregionsNum() const
   int nphi = (m_phiEnd - m_phiStart) / m_phiWidth;
   if ( ((m_phiEnd - m_phiStart)%m_phiWidth)!=0 ) nphi+=1; 
 
-  // cout << "netaEBP = " << nEtaEBP << endl;
-  // cout << "netaEBM = " << nEtaEBM << endl;
-  // cout << "netaEB  = " << neta << endl;
-  // cout << "nphi    = " << nphi << endl;
-  // cout << "number of regions = " << neta*nphi << endl;
-
   return ( neta*nphi ); 
 
 }
@@ -133,15 +127,13 @@ int EBregionBuilder::EBRegionId(int etaXtl,int phiXtl) const
     if ( etaXtl < 0 ) {
       etaI = (abs(etaXtl)-1)/m_etaWidth; 
       int nEtaEBP = (m_etaEnd-1)/m_etaWidth;
-      //cout << "etaI = " << etaI << "  eta = " <<etaXtl << endl;
-      //cout << "phiI = " << phiI << "  phi = " <<phiXtl << endl;
       regionNumEB = Nphi * nEtaEBP + phiI + Nphi* etaI;
       if ( (m_etaEnd-1)%m_etaWidth !=0  ) regionNumEB += Nphi;
   
     }
   }
 
-  if (regionNumEB >= EBregionsNum()) cout << "regionNumEB = " << regionNumEB << endl;
+  if (regionNumEB >= EBregionsNum()) std::cout << "regionNumEB = " << regionNumEB << std::endl;
 
   return regionNumEB;
 }
@@ -257,7 +249,9 @@ EBregionBuilder* BuildEBRegion(const std::string& inFileName, const std::string&
     if( name == "phiEnd" )   phiEnd   = val;
     if( name == "phiWidth" ) phiWidth = val;
   }
-  
+ 
+  inFile.close();
+ 
   EBregionBuilder* dummy = new EBregionBuilder(etaStart,etaEnd,etaWidth,phiStart,phiEnd,phiWidth,histoName);
   
   std::cout << ">>> EB region definition:" << std::endl;

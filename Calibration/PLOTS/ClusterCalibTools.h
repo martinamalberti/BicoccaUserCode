@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <cmath>
 
 #include "TH2F.h"
 
