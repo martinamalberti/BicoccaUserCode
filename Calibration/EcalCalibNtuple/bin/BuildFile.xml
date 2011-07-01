@@ -5,3 +5,11 @@
   <use   name="PhysicsTools/NtupleUtils"/>
   <flags   LCGDICT_ARGS="--deep"/>
 </bin>
+
+<bin   name="WZAnalysisSingleXtal.cpp" file="WZAnalysisSingleXtal.cpp">
+  <use   name="root"/>
+  <use   name="rootmath"/>
+  <use   name="Calibration/EcalCalibNtuple"/>
+  <use   name="PhysicsTools/NtupleUtils"/>
+  <flags   LCGDICT_ARGS="--deep"/>
+</bin>
