@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <utility>
 
 #include "TChain.h"
 #include "TF1.h"
@@ -19,7 +20,7 @@
 
 
 void SetStepNames(std::map<int, std::string>&, const std::string&, const int&, const int&);
-bool AcceptHLTPath(treeReader&, const std::string&);
+bool AcceptHLTPath(treeReader&, const std::pair<std::string,std::pair<int,int> >&);
 
 
 
@@ -81,10 +82,27 @@ int main(int argc, char** argv)
   
   
   // define HLT paths
-  std::vector<std::string> HLTPathNames;
-  HLTPathNames.push_back("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1");
-  HLTPathNames.push_back("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2");
-  HLTPathNames.push_back("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3");
+  std::vector<std::pair<std::string,std::pair<int,int> > > HLTPathNames;
+  
+  std::pair<int,int> runRanges1(160404,161176);
+  std::pair<std::string,std::pair<int,int> > HLTPathName1("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1",runRanges1);
+  std::pair<int,int> runRanges2(161216,163261);
+  std::pair<std::string,std::pair<int,int> > HLTPathName2("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2",runRanges2);
+  std::pair<int,int> runRanges3(163269,163869);
+  std::pair<std::string,std::pair<int,int> > HLTPathName3("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3",runRanges3);
+  std::pair<int,int> runRanges4(165088,165633);
+  std::pair<std::string,std::pair<int,int> > HLTPathName4("HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3",runRanges4);
+  std::pair<int,int> runRanges5(165970,166967);
+  std::pair<std::string,std::pair<int,int> > HLTPathName5("HLT_Ele25_WP80_PFMT40_v1",runRanges5);
+  std::pair<int,int> runRanges6(167039,999999);
+  std::pair<std::string,std::pair<int,int> > HLTPathName6("HLT_Ele27_WP80_PFMT50_v1",runRanges6);
+  
+  HLTPathNames.push_back(HLTPathName1);
+  HLTPathNames.push_back(HLTPathName2);
+  HLTPathNames.push_back(HLTPathName3);
+  HLTPathNames.push_back(HLTPathName4);
+  HLTPathNames.push_back(HLTPathName5);
+  HLTPathNames.push_back(HLTPathName6);
   
   
   
@@ -234,7 +252,6 @@ int main(int argc, char** argv)
                   << std::endl;
     }
     
-    std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
     for(unsigned int HLTIt = 0; HLTIt < HLTPathNames.size(); ++HLTIt)
     {
       if( AcceptHLTPath(reader, HLTPathNames.at(HLTIt)) == true )
@@ -405,6 +422,16 @@ int main(int argc, char** argv)
     
     if( nTightEle == 1 )
     {
+      if( vars.ele1_pt < 30. ) continue;
+      if( ( vars.ele1_isEB == 1 ) && ( (vars.ele1_tkIso+vars.ele1_emIso+vars.ele1_hadIso)/vars.ele1_pt > 0.04 ) ) continue;
+      if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) continue;
+      if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DetaIn) > 0.004 ) ) continue;
+      if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
+      if( ( vars.ele1_isEB == 0 ) && ( (vars.ele1_tkIso+vars.ele1_emIso+vars.ele1_hadIso)/vars.ele1_pt > 0.03 ) ) continue;
+      if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) continue;
+      if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DetaIn) > 0.005 ) ) continue;
+      if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
+      
       if( vars.met_et       < 25.00 ) continue;
       if( vars.ele1Met_mt   < 50.00 ) continue;
       if( vars.ele1Met_Dphi <  1.57 ) continue;
@@ -495,13 +522,17 @@ void SetStepNames(std::map<int, std::string>& stepNames, const std::string& step
 
 
 
-bool AcceptHLTPath(treeReader& reader, const std::string& HLTPathName)
+bool AcceptHLTPath(treeReader& reader, const std::pair<std::string,std::pair<int,int> >& HLTPathName)
 {
   bool acceptEvent = false;
 
+  int runId = reader.GetInt("runId")->at(0);
+  if( runId < (HLTPathName.second).first )  return acceptEvent;
+  if( runId > (HLTPathName.second).second ) return acceptEvent;
+
   std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
   for(unsigned int HLTIt = 0; HLTIt < HLT_names.size(); ++HLTIt)
-    if( (reader.GetString("HLT_Names")->at(HLTIt) == HLTPathName) &&
+    if( (reader.GetString("HLT_Names")->at(HLTIt) == HLTPathName.first) &&
         (reader.GetFloat("HLT_Accept")->at(HLTIt) == 1) )
       acceptEvent = true;
 
