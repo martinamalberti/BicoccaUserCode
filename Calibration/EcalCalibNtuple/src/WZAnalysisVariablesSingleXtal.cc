@@ -50,8 +50,8 @@ void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::st
   
   
   // 2nd electron variables  
-  vars.m_reducedTree -> Branch("ele2_recHit_E",      &vars.ele2_recHit_E,    "ele2_recHit_E/F");
-  vars.m_reducedTree -> Branch("ele2_recHit_hashedIndex",&vars.ele2_recHit_hashedIndex,"ele2_recHit_hashedIndex/I");
+  vars.m_reducedTree -> Branch("ele2_recHit_E",           "std::vector<float>", &vars.ele2_recHit_E);
+  vars.m_reducedTree -> Branch("ele2_recHit_hashedIndex", "std::vector<int>",   &vars.ele2_recHit_hashedIndex);
 
   vars.m_reducedTree -> Branch("ele2_scERaw",      &vars.ele2_scERaw,           "ele2_scERaw/F");
   vars.m_reducedTree -> Branch("ele2_scE",         &vars.ele2_scE,                 "ele2_scE/F");
@@ -274,8 +274,10 @@ void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
     for ( int iEle = 0; iEle < ele2It - 1; iEle++ ) theRecHitBeginIndex += reader.GetInt("recHit_n")->at(iEle);
   
   for ( int iRecHit = theRecHitBeginIndex; iRecHit < theRecHitBeginIndex + reader.GetInt("recHit_n")->at(ele2It); iRecHit++ ){
-    vars.ele2_recHit_E.push_back(reader.GetFloat("recHit_E")->at(iRecHit));
-    vars.ele2_recHit_hashedIndex.push_back(reader.GetInt("recHit_hashedIndex")->at(iRecHit));
+    float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
+    int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
+    vars.ele2_recHit_E.push_back(iRecHit_E);
+    vars.ele2_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
   }
 
   vars.ele2_scERaw = reader.GetFloat("electrons_scERaw")->at(ele2It);
