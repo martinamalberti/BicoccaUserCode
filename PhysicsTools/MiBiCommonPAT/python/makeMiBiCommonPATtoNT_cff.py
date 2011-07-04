@@ -114,6 +114,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     if MCType == 'ZW':
         process.MiBiCommonNT.saveMCZW              = cms.untracked.bool (True)
 
+    if not MC:
+        process.MiBiCommonNT.TriggerResultsTag     = cms.InputTag("TriggerResults","","RECO")
+
 
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF = process.MiBiCommonNT.clone()
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF.JetTag    = cms.InputTag("slimPatJetsTriggerMatch")
