@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.46 2011/06/24 19:41:49 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.47 2011/06/28 15:09:04 abenagli Exp $
 //
 //
 
@@ -2295,7 +2295,7 @@ void SimpleNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
  if(savePV_) fillPVInfo (iEvent, iSetup);
  
  ///---- fill Rho ----
- if(savePV_) fillRhoInfo (iEvent, iSetup);
+ if(saveRho_) fillRhoInfo (iEvent, iSetup);
 
  ///---- fill EleLessPV ----
  if(saveEleLessPV_) fillEleLessPVInfo (iEvent, iSetup);
