@@ -9,7 +9,7 @@ process = cms.Process("MiBiCommonNT")
 makeMiBiCommonNT(process, GlobalTag="GR_R_42_V12::All", HLT='', MC=False, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
-   'file:/data2/amassiro/CMSSWRoot/Latinos_DATA_PAT/DoubleMuon2011A_3_1_Dkh.root'
+   'file:/data2/amassiro/CMSSWRoot/Latinos_DATA_PAT/DoubleMuon2011A_27_1_GPa.root'
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
