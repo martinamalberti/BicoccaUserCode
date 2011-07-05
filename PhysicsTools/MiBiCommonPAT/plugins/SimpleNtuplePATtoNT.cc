@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuplePATtoNT.cc,v 1.47 2011/06/28 15:09:04 abenagli Exp $
+// $Id: SimpleNtuplePATtoNT.cc,v 1.1 2011/07/04 08:49:13 amassiro Exp $
 //
 //
 
@@ -444,6 +444,8 @@ SimpleNtuplePATtoNT::SimpleNtuplePATtoNT(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddFloat("muons_pfPhoton");
    NtupleFactory_->AddFloat("muons_pfNeutral");
    NtupleFactory_->AddFloat("muons_rhoMuNoPU");
+
+   NtupleFactory_->AddFloat("muons_combinedQuality_trkKink");
 
 
  }
@@ -1490,13 +1492,16 @@ void SimpleNtuplePATtoNT::fillMuInfo (const edm::Event & iEvent, const edm::Even
   // IP variables 
   NtupleFactory_->FillFloat("muons_tip", muon.userFloat("tip"));
   NtupleFactory_->FillFloat("muons_dzPV", muon.userFloat("dzPV"));
-\
+
   // isolation variable
   NtupleFactory_->FillFloat("muons_rhoMu", muon.userFloat("rhoMu"));
   NtupleFactory_->FillFloat("muons_pfCharged", muon.userFloat("pfCharged"));
   NtupleFactory_->FillFloat("muons_pfPhoton", muon.userFloat("pfPhoton"));
   NtupleFactory_->FillFloat("muons_pfNeutral", muon.userFloat("pfNeutral"));
   NtupleFactory_->FillFloat("muons_rhoMuNoPU", muon.userFloat("rhoMuNoPU"));
+
+//  NtupleFactory_->FillFloat("muons_combinedQuality_trkKink", muon.combinedQuality().trkKink());
+
 
  }
  

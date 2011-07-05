@@ -115,7 +115,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.MiBiCommonNT.saveMCZW              = cms.untracked.bool (True)
 
     if not MC:
-        process.MiBiCommonNT.TriggerResultsTag     = cms.InputTag("TriggerResults","","RECO")
+        process.MiBiCommonNT.TriggerResultsTag     = cms.InputTag("TriggerResults","","HLT")
 
 
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF = process.MiBiCommonNT.clone()
