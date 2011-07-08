@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ecalvalidation = cms.EDAnalyzer("EcalValidation",
     superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
     superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
-    basicClusterCollection_EE = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
+    basicClusterCollection_EE = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
     recHitCollection_EE       = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     recHitCollection_EB       = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     redRecHitCollection_EE    = cms.InputTag("reducedEcalRecHitsEE"),
