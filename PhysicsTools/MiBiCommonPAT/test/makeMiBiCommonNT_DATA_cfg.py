@@ -5,12 +5,10 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonNT_cff import *
 process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT
-makeMiBiCommonNT(process, GlobalTag="GR_R_42_V14::All", HLT='', MC=False, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="GR_R_42_V19::All", HLT='', MC=False, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
-    #May10 su cmsmi5
-  'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-May10ReReco-v1_AOD/SingleElectron_Run2011A-May10ReReco-v1_AOD.root'
-#    'file:/data2/Datasets/SingleElectron_Run2011A-May10ReReco-v1_AOD.root'
+    'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-May10ReReco-v1_AOD/SingleElectron_Run2011A-May10ReReco-v1_AOD.root'
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
