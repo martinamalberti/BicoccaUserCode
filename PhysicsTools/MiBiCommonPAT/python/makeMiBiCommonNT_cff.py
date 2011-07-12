@@ -81,8 +81,11 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     process.load("PhysicsTools.PatAlgos.tools.pfTools")
     postfix = "PFlow"
-    
-    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=MC, postfix = postfix, jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']) )
+
+    if not MC:
+      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=MC, postfix = postfix, jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute','L2L3Residual']) )
+    if MC:
+      usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=MC, postfix = postfix, jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']) )
     process.pfPileUpPFlow.Enable = True
     process.pfPileUpPFlow.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
     process.pfPileUpPFlow.checkClosestZVertex = cms.bool(False)
@@ -140,7 +143,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             'PF',
             doJTA        = True,
             doBTagging   = True,
-            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
+            jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])),
             doType1MET   = True,
             doL1Cleaning = True,
             doL1Counters = False,
@@ -223,19 +226,19 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # the MiBiPAT path
     process.MiBiCommonPAT = cms.Sequence(
-        process.PUDumper * 
-        process.AllEvents * # -> Counter
-        process.scrapingFilter *
-        process.NonScrapedEvents * # -> Counter
-        process.goodOfflinePrimaryVertices *
-        process.GoodVtxEvents * # -> Counter
-        process.HBHENoiseFilterResultProducer *
-        process.prePatSequence *
-        getattr(process,"patPF2PATSequence"+postfix) *
-        process.kt6PFJets *        
-        process.kt6PFJetsForIsolation *
-        process.ak5PFJets *
-        process.patDefaultSequence
+        process.PUDumper# * 
+        #process.AllEvents * # -> Counter
+        #process.scrapingFilter *
+        #process.NonScrapedEvents * # -> Counter
+        #process.goodOfflinePrimaryVertices *
+        #process.GoodVtxEvents * # -> Counter
+        #process.HBHENoiseFilterResultProducer *
+        #process.prePatSequence *
+        #getattr(process,"patPF2PATSequence"+postfix) *
+        #process.kt6PFJets *        
+        #process.kt6PFJetsForIsolation *
+        #process.ak5PFJets *
+        #process.patDefaultSequence
         )
     
     
@@ -413,8 +416,10 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     
     # VBF paths
-    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
-    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)
+    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT)
+    
+    #process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
+    #process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)    
     
     # GammaGamma paths
     #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)

@@ -5,7 +5,7 @@ from PhysicsTools.MiBiCommonPAT.makeMiBiCommonNT_cff import *
 process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT
-makeMiBiCommonNT(process, GlobalTag="GR_R_42_V12::All", HLT='', MC=False, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="GR_R_42_V19::All", HLT='', MC=False, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
     'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-May10ReReco-v1_AOD/SingleElectron_Run2011A-May10ReReco-v1_AOD.root'
