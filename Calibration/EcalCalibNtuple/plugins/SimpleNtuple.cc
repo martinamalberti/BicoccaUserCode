@@ -125,8 +125,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   
   if(saveEle_)
   {
-    f = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
-    
+    EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
+    EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
+    //SC coordinates wrt the ECAL local system
+    PositionCalc dummy(iConfig.getParameter<edm::ParameterSet>("posCalcParameters"));
+    positionCalculator = dummy;
+
     // general variables
     NtupleFactory_->Add4V("electrons");
     NtupleFactory_->AddFloat("electrons_charge"); 
@@ -158,6 +162,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     
     // supercluster variables
     NtupleFactory_->Add3PV("electrons_scPosition");    
+    NtupleFactory_->Add3PV("electrons_scLocalPosition");    
     NtupleFactory_->AddFloat("electrons_scE");
     NtupleFactory_->AddFloat("electrons_scEt");
     NtupleFactory_->AddFloat("electrons_scERaw");
@@ -168,6 +173,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scEtaWidth");
     NtupleFactory_->AddFloat("electrons_scAvgLaserCorrection");
     NtupleFactory_->AddFloat("electrons_scCrackCorrection");
+    NtupleFactory_->AddFloat("electrons_scLocalContCorrection");
     
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
@@ -516,6 +522,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  iSetup.get<CaloTopologyRecord>().get(pTopology);
  const CaloTopology *topology = pTopology.product();
  
+ //*********** CALO GEOM
+ edm::ESHandle<CaloGeometry> theCaloGeom;
+ iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+ const CaloGeometry *caloGeometry = theCaloGeom.product();
+
  //*********** IC CONSTANTS
  edm::ESHandle<EcalIntercalibConstants> theICConstants;
  iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
@@ -611,22 +622,27 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_->FillFloat("electrons_scPhiWidth",scRef->phiWidth());
    NtupleFactory_->FillFloat("electrons_scEtaWidth",scRef->etaWidth());
    
+   const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
    
    // cluster variables
    float E3x3 = 0;
    float E2x2 = 0;
+   math::XYZPoint SClocalPos(0.,0.,0.);
    
    if ( electron.isEB() )
    {
      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
+     SClocalPos = positionCalculator.Calculate_Location(hits, theBarrelEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
    }
    if ( electron.isEE() )
    {
      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
+     SClocalPos = positionCalculator.Calculate_Location(hits, theEndcapEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
    }
    
+   NtupleFactory_->Fill3PV("electrons_scLocalPosition",SClocalPos);
    NtupleFactory_->FillInt("electrons_basicClustersSize",electron.basicClustersSize());
    NtupleFactory_->FillFloat("electrons_e1x5",electron.e1x5());
    NtupleFactory_->FillFloat("electrons_e2x5Max",electron.e2x5Max());
@@ -651,7 +667,6 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 	       << std::endl;
    } 
    
-   const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
    const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
    
    for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
@@ -891,19 +906,25 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_->FillFloat("electrons_dcot", electron.convDcot());
    
    
-   // crack correction variables
-   f -> init(iSetup);
+   // crack correction variables and local containment corrections
+   EcalClusterCrackCorrection -> init(iSetup);
+   EcalClusterLocalContCorrection -> init(iSetup);
    double crackcor = 1.;
-   
+   double localContCorr = 1.;
+
    for(reco::CaloCluster_iterator cIt = electron.superCluster()->clustersBegin();
        cIt != electron.superCluster()->clustersEnd(); ++cIt)
-   {
-     const reco::CaloClusterPtr cc = *cIt; 
-     crackcor *= ( (electron.superCluster()->rawEnergy() + (*cIt)->energy()*(f->getValue(*cc)-1.)) / electron.superCluster()->rawEnergy() );
-   }
-   
+     {
+       const reco::CaloClusterPtr cc = *cIt; 
+       crackcor *= ( (electron.superCluster()->rawEnergy() + (*cIt)->energy()*(EcalClusterCrackCorrection->getValue(*cc)-1.)) / electron.superCluster()->rawEnergy() );
+       
+     }
+   localContCorr = EcalClusterLocalContCorrection->getValue(*electron.superCluster(), 1) ;
+
    NtupleFactory_->FillFloat("electrons_scCrackCorrection", crackcor);
+   NtupleFactory_->FillFloat("electrons_scLocalContCorrection", localContCorr);
    
+      
    
  } // end loop over electron candidates
 

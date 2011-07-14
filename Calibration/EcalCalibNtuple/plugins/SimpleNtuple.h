@@ -20,6 +20,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
@@ -48,6 +50,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -112,8 +115,11 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
   // ----------member data ---------------------------
-  EcalClusterFunctionBaseClass* f;
+  EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
+  EcalClusterFunctionBaseClass* EcalClusterLocalContCorrection;
+  PositionCalc                  positionCalculator;
   
+
   HLTConfigProvider hltConfig_;
   
   math::XYZPoint BSPoint_;
