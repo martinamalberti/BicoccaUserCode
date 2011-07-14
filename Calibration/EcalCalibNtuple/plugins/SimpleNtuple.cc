@@ -136,6 +136,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddInt("electrons_isEBPhiGap");
     NtupleFactory_->AddInt("electrons_isEEDeeGap");
     NtupleFactory_->AddInt("electrons_isEERingGap");
+    NtupleFactory_->AddFloat("electrons_ADCToGeVEB");
+    NtupleFactory_->AddFloat("electrons_ADCToGeVEE");
     
     // track variables
     NtupleFactory_->AddFloat("electrons_dxy_BS");
@@ -167,7 +169,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scAvgLaserCorrection");
     NtupleFactory_->AddFloat("electrons_scCrackCorrection");
     
-    
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
     NtupleFactory_->AddFloat("electrons_e1x5");
@@ -179,6 +180,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     // rechit variables
     NtupleFactory_->AddFloat("recHit_E"); 
     NtupleFactory_->AddFloat("recHit_time");
+    NtupleFactory_->AddFloat("recHit_ICConstant");
     NtupleFactory_->AddFloat("recHit_laserCorrection");
     NtupleFactory_->AddInt("recHit_ism");
     NtupleFactory_->AddInt("recHit_ieta");
@@ -201,10 +203,10 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddInt("electrons_seedHashedIndex");
     NtupleFactory_->AddFloat("electrons_seedTime");
     NtupleFactory_->AddInt("electrons_seedFlag");
+    NtupleFactory_->AddFloat("electrons_seedICConstant");
     NtupleFactory_->AddFloat("electrons_seedLaserAlpha");
     NtupleFactory_->AddFloat("electrons_seedLaserCorrection");
     NtupleFactory_->AddFloat("electrons_seedSwissCross");
-    
     
     // preshower variables
     NtupleFactory_->AddFloat("electrons_ES");
@@ -513,11 +515,19 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  edm::ESHandle<CaloTopology> pTopology;
  iSetup.get<CaloTopologyRecord>().get(pTopology);
  const CaloTopology *topology = pTopology.product();
-
+ 
+ //*********** IC CONSTANTS
+ edm::ESHandle<EcalIntercalibConstants> theICConstants;
+ iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
+  
  //*********** LASER ALPHAS
  edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
  iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
  const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
+ 
+ //*********** ADCToGeV
+ edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
+ iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);
  
  //*********** LASER CORRECTION
  edm::ESHandle<EcalLaserDbService> theLaser;
@@ -561,6 +571,8 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_->FillInt("electrons_isEBPhiGap",(electron.isEBPhiGap()));
    NtupleFactory_->FillInt("electrons_isEEDeeGap",(electron.isEEDeeGap()));
    NtupleFactory_->FillInt("electrons_isEERingGap",(electron.isEERingGap()));
+   NtupleFactory_->FillFloat("electrons_ADCToGeVEB",theADCToGeV->getEBValue());
+   NtupleFactory_->FillFloat("electrons_ADCToGeVEE",theADCToGeV->getEEValue());
    
    
    // track variables
@@ -628,9 +640,23 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    float sumRecHitE = 0.;
    float sumLaserCorrectionRecHitE = 0.;
    
+   bool printOut = false;
+   if( printOut )
+   {
+     std::cout << "runId: " << iEvent.id().run() 
+	       << std::fixed
+	       << "   electron eta: " << std::setprecision(2) << std::setw(5) << electron.eta()
+	       << "   electron phi: " << std::setprecision(2) << std::setw(5) << electron.phi()
+	       << "   SC energy: "    << std::setprecision(2) << std::setw(6) << scRef -> energy()
+	       << std::endl;
+   } 
+   
    const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
+   const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
+   
    for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
    {
+     float rhICConstant = -1.;
      float rhLaserCorrection = -1.;
      
      if ((*rh).first.subdetId()== EcalBarrel)
@@ -650,12 +676,29 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        ++numRecHit;
        
+       // intercalib constant
+       EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
+       if( ICMapIt != ICMap.end() )
+	 rhICConstant = *ICMapIt;
+       NtupleFactory_->FillFloat("recHit_ICConstant",rhICConstant);
+              
        // laser correction
        rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
        NtupleFactory_->FillFloat("recHit_laserCorrection",rhLaserCorrection);
        
        sumRecHitE += itrechit->energy();
        sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+       
+       if( printOut && itrechit->energy() > 1. )
+       {
+         std::cout << std::fixed
+		   << ">>> recHitIeta: "  << std::setprecision(0) << std::setw(4) << barrelId.ieta()
+		   << "    recHitIphi: "  << std::setprecision(0) << std::setw(4) << barrelId.iphi()
+		   << "    recHitE: "     << std::setprecision(2) << std::setw(6) << itrechit->energy()
+		   << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhICConstant
+		   << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
+		   << std::endl;
+       }
      }
        
      if ((*rh).first.subdetId()== EcalEndcap)
@@ -675,12 +718,30 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        ++numRecHit;
        
+       // intercalib constant
+       EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
+       if( ICMapIt != ICMap.end() )
+	 rhICConstant = *ICMapIt;
+       NtupleFactory_->FillFloat("recHit_ICConstant",rhICConstant);
+       
        // laser correction
        rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
        NtupleFactory_->FillFloat("recHit_laserCorrection",rhLaserCorrection);
        
        sumRecHitE += itrechit->energy();
        sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+       
+       if( printOut && itrechit->energy() > 1. )
+       {
+         std::cout << std::fixed
+		   << ">>> recHitIx: "    << std::setprecision(0) << std::setw(4) << endcapId.ix()
+		   << "    recHitIy: "    << std::setprecision(0) << std::setw(4) << endcapId.iy()
+		   << "    recHitZside: " << std::setprecision(0) << std::setw(4) << endcapId.zside()
+		   << "    recHitE: "     << std::setprecision(2) << std::setw(6) << itrechit->energy()
+		   << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhICConstant
+		   << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
+		   << std::endl;
+       }
      }
    }
    
@@ -700,6 +761,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    float time; 
    int flag = -1;
    float swissCross;
+   float seedICConstant = -1.;
    float seedLaserAlpha = -1.;
    float seedLaserCorrection = -1.;
    
@@ -725,6 +787,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        flag = rh.recoFlag();
        swissCross = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
      }
+     
+     // intercalib constant
+     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
+     if( ICMapIt != ICMap.end() )
+       seedICConstant = *ICMapIt;
      
      // laser alphas
      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
@@ -758,6 +825,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
        swissCross = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
      }
      
+     // intercalib constant
+     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EEDetId(id.first));
+     if( ICMapIt != ICMap.end() )
+       seedICConstant = *ICMapIt;
+     
      // laser alphas
      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
      if( italpha != theEcalLaserAlphaMap->end() )
@@ -778,6 +850,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    NtupleFactory_->FillFloat("electrons_seedTime", time);
    NtupleFactory_->FillInt("electrons_seedFlag", flag);
    NtupleFactory_->FillFloat("electrons_seedSwissCross", swissCross);
+   NtupleFactory_->FillFloat("electrons_seedICConstant", seedICConstant);
    NtupleFactory_->FillFloat("electrons_seedLaserAlpha", seedLaserAlpha);
    NtupleFactory_->FillFloat("electrons_seedLaserCorrection", seedLaserCorrection);
    

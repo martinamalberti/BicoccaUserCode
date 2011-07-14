@@ -14,11 +14,37 @@ def makeRecoTags(process):
         #    connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_311X_ECAL_LAS")
         #    ),
         
+        #cms.PSet(
+        #    record = cms.string("EcalLaserAPDPNRatiosRcd"),
+        #    tag = cms.string("EcalLaserAPDPNRatios_v6_noVPT_online"),
+        #    connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_311X_ECAL_LAS")
+        #    ),
+        
+        #cms.PSet(
+        #    record = cms.string("EcalLaserAPDPNRatiosRefRcd"),
+        #    tag = cms.string("EcalLaserAPDPNRatiosRef_v6_noVPT_13_3_online"),
+        #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+        #    ),
+        
+        #cms.PSet(
+        #    record = cms.string("EcalLaserAPDPNRatiosRcd"),
+        #    tag = cms.string("EcalLaserAPDPNRatios_2011fit_noVPT_nolim_online"),
+        #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+        #    ),
+        
+        #cms.PSet(
+        #    record = cms.string("EcalLaserAPDPNRatiosRcd"),
+        #    tag = cms.string("EcalLaserAPDPNRatios_test_20110625"),
+        #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+        #    ),
+        
         cms.PSet(
             record = cms.string("EcalLaserAPDPNRatiosRcd"),
-            tag = cms.string("EcalLaserAPDPNRatios_v6_noVPT_online"),
-            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_311X_ECAL_LAS")
+            tag = cms.string("EcalLaserAPDPNRatios_2011V3_online"),
+            connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
             ),
+        
+
         
         # to correct the bug in ES from run 160176
         #cms.PSet(
@@ -26,8 +52,31 @@ def makeRecoTags(process):
         #    tag = cms.string("ESRecHitRatioCuts_V02_offline"),
         #    connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
         #    )
+
+
         
-        )
+        # new intercalibration constants
+        #cms.PSet(
+        #    record = cms.string("EcalIntercalibConstantsRcd"),
+        #    tag = cms.string("EcalIntercalibConstants_Bon_V20110616_weightedAverage"),
+        #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+        #    )
+        
+        cms.PSet(
+            record = cms.string("EcalIntercalibConstantsRcd"),
+            tag = cms.string("EcalIntercalibConstants_v10_offline"),
+            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
+            ),
+        
+        
+        
+        # new ADCToGeV
+        cms.PSet(
+            record = cms.string("EcalADCToGeVConstantRcd"),
+            tag = cms.string("EcalADCToGeVConstant_v10_offline"),
+            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
+            )
+)
 
 
 
