@@ -163,6 +163,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     // supercluster variables
     NtupleFactory_->Add3PV("electrons_scPosition");    
     NtupleFactory_->Add3PV("electrons_scLocalPosition");    
+    NtupleFactory_->AddFloat("electrons_scLocalPositionEtaCry");
+    NtupleFactory_->AddFloat("electrons_scLocalPositionPhiCry");
     NtupleFactory_->AddFloat("electrons_scE");
     NtupleFactory_->AddFloat("electrons_scEt");
     NtupleFactory_->AddFloat("electrons_scERaw");
@@ -628,12 +630,78 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    float E3x3 = 0;
    float E2x2 = 0;
    math::XYZPoint SClocalPos(0.,0.,0.);
-   
+   float EtaCry = 0.;
+   float PhiCry = 0.;
+
    if ( electron.isEB() )
    {
      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theBarrelEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+
+     //--------------if barrel calculate local position wrt xtal center -------------------
+     const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
+  
+     const math::XYZPoint position_ = seedCluster->position(); 
+     double Theta = -position_.theta()+0.5*TMath::Pi();
+     double Eta = position_.eta();
+     double Phi = TVector2::Phi_mpi_pi(position_.phi());
+     
+     //Calculate expected depth of the maximum shower from energy (like in PositionCalc::Calculate_Location()):
+     // The parameters X0 and T0 are hardcoded here because these values were used to calculate the corrections:
+     const float X0 = 0.89; const float T0 = 7.4;
+     double depth = X0 * (T0 + log(seedCluster->energy()));
+  
+  
+     //search which crystal is closest to the cluster position and call it crystalseed:
+     //std::vector<DetId> crystals_vector = *scRef.getHitsByDetId();   //deprecated
+     std::vector< std::pair<DetId, float> > crystals_vector = seedCluster->hitsAndFractions();
+     float dphimin=999.;
+     float detamin=999.;
+     int ietaclosest = 0;
+     int iphiclosest = 0;
+     for (unsigned int icry=0; icry!=crystals_vector.size(); ++icry) 
+       {    
+	 EBDetId crystal(crystals_vector[icry].first);
+	 const CaloCellGeometry* cell=geom->getGeometry(crystal);
+	 GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+	 double EtaCentr = center_pos.eta();
+	 double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
+	 if (TMath::Abs(EtaCentr-Eta) < detamin) {
+	   detamin = TMath::Abs(EtaCentr-Eta); 
+	   ietaclosest = crystal.ieta();
+	 }
+	 if (TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr-Phi)) < dphimin) {
+	   dphimin = TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr-Phi)); 
+	   iphiclosest = crystal.iphi();
+	 }
+       }
+     EBDetId crystalseed(ietaclosest, iphiclosest);
+  
+     // Get center cell position from shower depth
+     const CaloCellGeometry* cell=geom->getGeometry(crystalseed);
+     GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+     
+     //PHI
+     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
+     double PhiWidth = (TMath::Pi()/180.);
+     PhiCry = (TVector2::Phi_mpi_pi(Phi-PhiCentr))/PhiWidth;
+     if (PhiCry>0.5) PhiCry=0.5;
+     if (PhiCry<-0.5) PhiCry=-0.5;
+     //flip to take into account ECAL barrel symmetries:
+     if (ietaclosest<0) PhiCry *= -1.;
+   
+     //ETA
+      double ThetaCentr = -center_pos.theta()+0.5*TMath::Pi();
+      double ThetaWidth = (TMath::Pi()/180.)*TMath::Cos(ThetaCentr);
+      EtaCry = (Theta-ThetaCentr)/ThetaWidth;    
+      if (EtaCry>0.5) EtaCry=0.5;
+      if (EtaCry<-0.5) EtaCry=-0.5;
+      //flip to take into account ECAL barrel symmetries:
+      if (ietaclosest<0) EtaCry *= -1.;
+      
+      //-------------- end calculate local position -------------
+      //std::cout << "EtaCry = " << EtaCry << " PhiCry = " << PhiCry << std::endl;
    }
    if ( electron.isEE() )
    {
@@ -641,7 +709,11 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
      E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theEndcapEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
    }
+
    
+
+   NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",EtaCry);
+   NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",PhiCry);
    NtupleFactory_->Fill3PV("electrons_scLocalPosition",SClocalPos);
    NtupleFactory_->FillInt("electrons_basicClustersSize",electron.basicClustersSize());
    NtupleFactory_->FillFloat("electrons_e1x5",electron.e1x5());
@@ -1029,6 +1101,7 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
     NtupleFactory_->FillFloat("muons_hadIso05",(muon.isolationR05()).hadEt);
   }
 } // dumpMuonInfo 
+
 
 
 

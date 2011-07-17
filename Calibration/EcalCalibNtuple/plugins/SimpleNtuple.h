@@ -23,6 +23,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
