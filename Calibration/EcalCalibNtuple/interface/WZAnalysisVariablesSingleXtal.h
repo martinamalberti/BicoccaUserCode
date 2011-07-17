@@ -38,6 +38,9 @@ struct WZAnalysisVariablesSingleXtal
 
   std::vector<float> ele1_recHit_E;
   std::vector<int> ele1_recHit_hashedIndex;
+  std::vector<int> ele1_recHit_ieta;
+  std::vector<int> ele1_recHit_iphi;
+  std::vector<int> ele1_recHit_zside;
     
   float ele1_scERaw;
   float ele1_scE;
@@ -77,6 +80,9 @@ struct WZAnalysisVariablesSingleXtal
   
   std::vector<float> ele2_recHit_E;
   std::vector<int> ele2_recHit_hashedIndex;
+  std::vector<int> ele2_recHit_ieta;
+  std::vector<int> ele2_recHit_iphi;
+  std::vector<int> ele2_recHit_zside;
     
   float ele2_scERaw;
   float ele2_scE;

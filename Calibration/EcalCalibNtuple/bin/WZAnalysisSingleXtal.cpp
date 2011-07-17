@@ -198,13 +198,11 @@ int main(int argc, char** argv)
     
     bool skipEvent = false;
     
+    if(AcceptEventByRunAndLumiSection(vars.runId,vars.lumiId,jsonMap) == false)
+      skipEvent = true;
+
     if( (jsonFlag == 1) && (skipEvent == true) ) continue;
     stepEvents[step] += 1;
-    
-    
-    
-    
-    
     
     //***********************
     // STEP 7 - HLT selection

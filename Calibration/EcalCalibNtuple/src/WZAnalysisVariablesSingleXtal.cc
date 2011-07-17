@@ -29,6 +29,9 @@ void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::st
   // 1st electron variables
   vars.m_reducedTree -> Branch("ele1_recHit_E",           "std::vector<float>", &vars.ele1_recHit_E);
   vars.m_reducedTree -> Branch("ele1_recHit_hashedIndex", "std::vector<int>",   &vars.ele1_recHit_hashedIndex);
+  vars.m_reducedTree -> Branch("ele1_recHit_ietaORix", "std::vector<int>",   &vars.ele1_recHit_ieta);
+  vars.m_reducedTree -> Branch("ele1_recHit_iphiORiy", "std::vector<int>",   &vars.ele1_recHit_iphi);
+  vars.m_reducedTree -> Branch("ele1_recHit_zside", "std::vector<int>",   &vars.ele1_recHit_zside);
   
   vars.m_reducedTree -> Branch("ele1_scERaw",      &vars.ele1_scERaw,           "ele1_scERaw/F");
   vars.m_reducedTree -> Branch("ele1_scE",         &vars.ele1_scE,                 "ele1_scE/F");
@@ -52,6 +55,9 @@ void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::st
   // 2nd electron variables  
   vars.m_reducedTree -> Branch("ele2_recHit_E",           "std::vector<float>", &vars.ele2_recHit_E);
   vars.m_reducedTree -> Branch("ele2_recHit_hashedIndex", "std::vector<int>",   &vars.ele2_recHit_hashedIndex);
+  vars.m_reducedTree -> Branch("ele2_recHit_ietaORix", "std::vector<int>",   &vars.ele2_recHit_ieta);
+  vars.m_reducedTree -> Branch("ele2_recHit_iphiORiy", "std::vector<int>",   &vars.ele2_recHit_iphi);
+  vars.m_reducedTree -> Branch("ele2_recHit_zside", "std::vector<int>",   &vars.ele2_recHit_zside);
 
   vars.m_reducedTree -> Branch("ele2_scERaw",      &vars.ele2_scERaw,           "ele2_scERaw/F");
   vars.m_reducedTree -> Branch("ele2_scE",         &vars.ele2_scE,                 "ele2_scE/F");
@@ -113,6 +119,10 @@ void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars)
 
   vars.ele1_recHit_E.clear();
   vars.ele1_recHit_hashedIndex.clear();
+  vars.ele1_recHit_ieta.clear();
+  vars.ele1_recHit_iphi.clear();
+  vars.ele1_recHit_zside.clear();
+
   
   vars.ele1_scERaw = -99.;
   vars.ele1_scE = -99.;
@@ -152,6 +162,9 @@ void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars)
 
   vars.ele2_recHit_E.clear();
   vars.ele2_recHit_hashedIndex.clear();
+  vars.ele2_recHit_ieta.clear();
+  vars.ele2_recHit_iphi.clear();
+  vars.ele2_recHit_zside.clear();
   
   vars.ele2_scERaw = -99.;
   vars.ele2_scE = -99.;
@@ -218,13 +231,27 @@ void SetElectron1Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
   int theRecHitBeginIndex = 0;
   if ( ele1It == 0 ) theRecHitBeginIndex = 0;
   else 
-    for ( int iEle = 0; iEle < ele1It - 1; iEle++ ) theRecHitBeginIndex += reader.GetInt("recHit_n")->at(iEle);
+    for ( int iEle = 0; iEle < ele1It; iEle++ ) theRecHitBeginIndex += reader.GetInt("recHit_n")->at(iEle);
   
   for ( int iRecHit = theRecHitBeginIndex; iRecHit < theRecHitBeginIndex + reader.GetInt("recHit_n")->at(ele1It); iRecHit++ ){
+    
+    int iRecHit_zside = reader.GetInt("recHit_zside")->at(iRecHit);
     float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
     int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
+    int iRecHit_ietaORix, iRecHit_iphiORiy;
+    if ( iRecHit_zside == 0 ) {
+      iRecHit_ietaORix = reader.GetInt("recHit_ieta")->at(iRecHit);
+      iRecHit_iphiORiy = reader.GetInt("recHit_iphi")->at(iRecHit);
+    }
+    else {
+      iRecHit_ietaORix = reader.GetInt("recHit_ix")->at(iRecHit);
+      iRecHit_iphiORiy = reader.GetInt("recHit_iy")->at(iRecHit);
+    }
+    vars.ele1_recHit_zside.push_back(iRecHit_zside);
     vars.ele1_recHit_E.push_back(iRecHit_E);
     vars.ele1_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
+    vars.ele1_recHit_ieta.push_back(iRecHit_ietaORix);
+    vars.ele1_recHit_iphi.push_back(iRecHit_iphiORiy);
 
   }  
 
@@ -271,13 +298,28 @@ void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
   int theRecHitBeginIndex = 0;
   if ( ele2It == 0 ) theRecHitBeginIndex = 0;
   else 
-    for ( int iEle = 0; iEle < ele2It - 1; iEle++ ) theRecHitBeginIndex += reader.GetInt("recHit_n")->at(iEle);
+    for ( int iEle = 0; iEle < ele2It; iEle++ ) theRecHitBeginIndex += reader.GetInt("recHit_n")->at(iEle);
   
   for ( int iRecHit = theRecHitBeginIndex; iRecHit < theRecHitBeginIndex + reader.GetInt("recHit_n")->at(ele2It); iRecHit++ ){
+    
+    int iRecHit_zside = reader.GetInt("recHit_zside")->at(iRecHit);
     float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
     int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
+    int iRecHit_ietaORix, iRecHit_iphiORiy;
+    if ( iRecHit_zside == 0 ) {
+      iRecHit_ietaORix = reader.GetInt("recHit_ieta")->at(iRecHit);
+      iRecHit_iphiORiy = reader.GetInt("recHit_iphi")->at(iRecHit);
+    }
+    else {
+      iRecHit_ietaORix = reader.GetInt("recHit_ix")->at(iRecHit);
+      iRecHit_iphiORiy = reader.GetInt("recHit_iy")->at(iRecHit);
+    }
+    vars.ele2_recHit_zside.push_back(iRecHit_zside);
     vars.ele2_recHit_E.push_back(iRecHit_E);
     vars.ele2_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
+    vars.ele2_recHit_ieta.push_back(iRecHit_ietaORix);
+    vars.ele2_recHit_iphi.push_back(iRecHit_iphiORiy);
+  
   }
 
   vars.ele2_scERaw = reader.GetFloat("electrons_scERaw")->at(ele2It);
