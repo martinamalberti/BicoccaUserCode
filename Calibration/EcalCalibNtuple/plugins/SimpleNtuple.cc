@@ -176,7 +176,6 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scAvgLaserCorrection");
     NtupleFactory_->AddFloat("electrons_scCrackCorrection");
     NtupleFactory_->AddFloat("electrons_scLocalContCorrection");
-    NtupleFactory_->AddFloat("electrons_scLocalContCorrection_DK");
     
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
@@ -994,14 +993,8 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
      }
    localContCorr = EcalClusterLocalContCorrection->getValue(*electron.superCluster(), 1) ;
 
-   PhotonFix::initialise("4_2");
-   PhotonFix Correction (scRef->energy(),scRef->eta(),scRef->phi(),E3x3/scRef->energy());
-   double EnCorr = Correction.fixedEnergy();
-
-
    NtupleFactory_->FillFloat("electrons_scCrackCorrection", crackcor);
    NtupleFactory_->FillFloat("electrons_scLocalContCorrection", localContCorr);
-   NtupleFactory_->FillFloat("electrons_scLocalContCorrection_DK", EnCorr/scRef->energy());
    
       
    
