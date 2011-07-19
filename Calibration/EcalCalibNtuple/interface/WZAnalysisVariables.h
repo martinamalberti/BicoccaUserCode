@@ -57,10 +57,14 @@ struct WZAnalysisVariables
   float ele1_scEt;
   float ele1_scEta;
   float ele1_scPhi;
+  float ele1_scLocalEta;
+  float ele1_scLocalPhi;
   float ele1_scEtaWidth;
   float ele1_scPhiWidth;
   float ele1_scLaserCorr;
   float ele1_scCrackCorr;
+  float ele1_scLocalContCorr;
+  float ele1_scLocalContCorr_DK;
   float ele1_es;
   
   float ele1_e3x3;
@@ -111,10 +115,14 @@ struct WZAnalysisVariables
   float ele2_scEt;
   float ele2_scEta;
   float ele2_scPhi;
+  float ele2_scLocalEta;
+  float ele2_scLocalPhi;
   float ele2_scEtaWidth;
   float ele2_scPhiWidth;
   float ele2_scLaserCorr;
   float ele2_scCrackCorr;
+  float ele2_scLocalContCorr;
+  float ele2_scLocalContCorr_DK;
   float ele2_es;
   
   float ele2_e3x3;

@@ -65,10 +65,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_scEt",        &vars.ele1_scEt,               "ele1_scEt/F");
   vars.m_reducedTree -> Branch("ele1_scEta",       &vars.ele1_scEta,             "ele1_scEta/F");
   vars.m_reducedTree -> Branch("ele1_scPhi",       &vars.ele1_scPhi,             "ele1_scPhi/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalPhi",       &vars.ele1_scLocalPhi,             "ele1_scLocalPhi/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalEta",       &vars.ele1_scLocalEta,             "ele1_scLocalEta/F");
   vars.m_reducedTree -> Branch("ele1_scEtaWidth",  &vars.ele1_scEtaWidth,   "ele1_scEtaWidth/F");
   vars.m_reducedTree -> Branch("ele1_scPhiWidth",  &vars.ele1_scPhiWidth,   "ele1_scPhiWidth/F");
   vars.m_reducedTree -> Branch("ele1_scLaserCorr", &vars.ele1_scLaserCorr, "ele1_scLaserCorr/F");
   vars.m_reducedTree -> Branch("ele1_scCrackCorr", &vars.ele1_scCrackCorr, "ele1_scCrackCorr/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalContCorr", &vars.ele1_scLocalContCorr, "ele1_scLocalContCorr/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalContCorr_DK", &vars.ele1_scLocalContCorr_DK, "ele1_scLocalContCorr_DK/F");
   vars.m_reducedTree -> Branch("ele1_es",          &vars.ele1_es,                   "ele1_es/F");
   
   vars.m_reducedTree -> Branch("ele1_e3x3", &vars.ele1_e3x3, "ele1_e3x3/F");
@@ -118,10 +122,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_scEt",        &vars.ele2_scEt,               "ele2_scEt/F");
   vars.m_reducedTree -> Branch("ele2_scEta",       &vars.ele2_scEta,             "ele2_scEta/F");
   vars.m_reducedTree -> Branch("ele2_scPhi",       &vars.ele2_scPhi,             "ele2_scPhi/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalPhi",       &vars.ele2_scLocalPhi,             "ele2_scLocalPhi/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalEta",       &vars.ele2_scLocalEta,             "ele2_scLocalEta/F");
   vars.m_reducedTree -> Branch("ele2_scEtaWidth",  &vars.ele2_scEtaWidth,   "ele2_scEtaWidth/F");
   vars.m_reducedTree -> Branch("ele2_scPhiWidth",  &vars.ele2_scPhiWidth,   "ele2_scPhiWidth/F");
   vars.m_reducedTree -> Branch("ele2_scLaserCorr", &vars.ele2_scLaserCorr, "ele2_scLaserCorr/F");
   vars.m_reducedTree -> Branch("ele2_scCrackCorr", &vars.ele2_scCrackCorr, "ele2_scCrackCorr/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalContCorr", &vars.ele2_scLocalContCorr, "ele2_scLocalContCorr/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalContCorr_DK", &vars.ele2_scLocalContCorr_DK, "ele2_scLocalContCorr_DK/F");
   vars.m_reducedTree -> Branch("ele2_es",          &vars.ele2_es,                   "ele2_es/F");
   
   vars.m_reducedTree -> Branch("ele2_e3x3", &vars.ele2_e3x3, "ele2_e3x3/F");
@@ -215,10 +223,14 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.ele1_scEt = -99.;
   vars.ele1_scEta = -99.;
   vars.ele1_scPhi = -99.;
+  vars.ele1_scLocalEta = -99.;
+  vars.ele1_scLocalPhi = -99.;
   vars.ele1_scEtaWidth = -99.;
   vars.ele1_scPhiWidth = -99.;
   vars.ele1_scLaserCorr = -99.;
   vars.ele1_scCrackCorr = -99.;
+  vars.ele1_scLocalContCorr = -99.;
+  vars.ele1_scLocalContCorr_DK = -99.;
   vars.ele1_es = -99.;
   
   vars.ele1_e3x3 = -99.;
@@ -269,10 +281,14 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.ele2_scEt = -99.;
   vars.ele2_scEta = -99.;
   vars.ele2_scPhi = -99.;
+  vars.ele2_scLocalEta = -99.;
+  vars.ele2_scLocalPhi = -99.;
   vars.ele2_scEtaWidth = -99.;
   vars.ele2_scPhiWidth = -99.;
   vars.ele2_scLaserCorr = -99.;
   vars.ele2_scCrackCorr = -99.;
+  vars.ele2_scLocalContCorr = -99.;
+  vars.ele2_scLocalContCorr_DK = -99.;
   vars.ele2_es = -99.;  
   
   vars.ele2_e3x3 = -99.;
@@ -366,10 +382,13 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_scEt = reader.GetFloat("electrons_scEt")->at(ele1It);
   vars.ele1_scEta = reader.GetFloat("electrons_scEta")->at(ele1It);
   vars.ele1_scPhi = reader.GetFloat("electrons_scPhi")->at(ele1It);
+  vars.ele1_scLocalEta = reader.GetFloat("electrons_scLocalPositionEtaCry")->at(ele1It);
+  vars.ele1_scLocalPhi = reader.GetFloat("electrons_scLocalPositionPhiCry")->at(ele1It);
   vars.ele1_scEtaWidth = reader.GetFloat("electrons_scEtaWidth")->at(ele1It);
   vars.ele1_scPhiWidth = reader.GetFloat("electrons_scPhiWidth")->at(ele1It);
   vars.ele1_scLaserCorr = reader.GetFloat("electrons_scAvgLaserCorrection")->at(ele1It);
   vars.ele1_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele1It);
+  vars.ele1_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele1It);
   vars.ele1_es = reader.GetFloat("electrons_ES")->at(ele1It);
   
   vars.ele1_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele1It);
@@ -424,10 +443,13 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele2_scEt = reader.GetFloat("electrons_scEt")->at(ele2It);
   vars.ele2_scEta = reader.GetFloat("electrons_scEta")->at(ele2It);
   vars.ele2_scPhi = reader.GetFloat("electrons_scPhi")->at(ele2It);
+  vars.ele2_scLocalEta = reader.GetFloat("electrons_scLocalPositionEtaCry")->at(ele2It);
+  vars.ele2_scLocalPhi = reader.GetFloat("electrons_scLocalPositionPhiCry")->at(ele2It);
   vars.ele2_scEtaWidth = reader.GetFloat("electrons_scEtaWidth")->at(ele2It);
   vars.ele2_scPhiWidth = reader.GetFloat("electrons_scPhiWidth")->at(ele2It);
   vars.ele2_scLaserCorr = reader.GetFloat("electrons_scAvgLaserCorrection")->at(ele2It);
   vars.ele2_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele2It);
+  vars.ele2_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele2It);
   vars.ele2_es = reader.GetFloat("electrons_ES")->at(ele2It);
   
   vars.ele2_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele2It);
