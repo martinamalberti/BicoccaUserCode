@@ -8,6 +8,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/PhotonFix.h"
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -128,12 +130,9 @@ int main(int argc, char** argv)
   std::map<int, int> stepEvents;
   std::map<int, std::string> stepNames;
   
-  
-  
   // define the reduced ntuple 
   WZAnalysisVariables vars;
   InitializeWZAnalysisTree(vars,outputRootFullFileName);
-  
   
   
   
@@ -192,10 +191,8 @@ int main(int argc, char** argv)
     if(entry == entryMAX) break;
     
     
-    
     // clear variables
     ClearWZAnalysisVariables(vars);
-    
     
     
     // event variables
@@ -213,9 +210,6 @@ int main(int argc, char** argv)
     
     
     
-    
-    
-    
     //**************************
     // STEP 6 - run/LS selection
     step = 6;
@@ -229,7 +223,6 @@ int main(int argc, char** argv)
     
     if( (jsonFlag == 1) && (skipEvent == true) ) continue;
     stepEvents[step] += 1;
-    
     
     
     
@@ -382,20 +375,29 @@ int main(int argc, char** argv)
     stepEvents[step] += 1;
     
     
-    
     // set electron variables
     std::map<float,int>::const_iterator mapIt = eleIts.begin();
-    
+
+    PhotonFix::initialise("4_2");
+
     if( nTightEle == 1 )
     {
       SetElectron1Variables(vars,reader,mapIt->second);
+      PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
+      vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
     }
     
     if( nTightEle == 2 )
     {
       SetElectron1Variables(vars,reader,mapIt->second);
+      PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
+      vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
+
       ++mapIt;
+
       SetElectron2Variables(vars,reader,mapIt->second);
+      PhotonFix Correction2 (vars.ele2_scE,vars.ele2_scEta,vars.ele2_scPhi,vars.ele2_e3x3/vars.ele2_scE);
+      vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_scE;
     }
     
     
