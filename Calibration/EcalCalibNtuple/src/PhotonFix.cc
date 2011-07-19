@@ -1573,7 +1573,7 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
 // Get the geometry of cracks and gaps from file
 bool PhotonFix::initialiseGeometry(const std::string &s) {
 
- std::ifstream fin("../data/PhotonFix.dat");
+ std::ifstream fin("./data/PhotonFix.dat");
  assert(fin);
 
  std::cout << "Reading in here" << std::endl;
