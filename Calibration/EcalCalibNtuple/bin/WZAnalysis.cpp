@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/PhotonFix.h"
+#include "Calibration/EcalCalibNtuple/interface/PhotonFix.h"
 
 #include <iostream>
 #include <vector>
