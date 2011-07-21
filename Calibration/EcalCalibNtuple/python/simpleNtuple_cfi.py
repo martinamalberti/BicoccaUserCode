@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 simpleNtuple = cms.EDAnalyzer(
     "SimpleNtuple",
+    MCPileupTag = cms.InputTag ("addPileupInfo"),
     L1Tag               = cms.InputTag("gtDigis"),
     TriggerEventTag     = cms.InputTag("hltTriggerSummaryAOD"),
     TriggerResultsTag   = cms.InputTag("TriggerResults::HLT"),
@@ -28,6 +29,7 @@ simpleNtuple = cms.EDAnalyzer(
     saveCALOMet   = cms.untracked.bool(True),
     saveTCMet     = cms.untracked.bool(True),
     savePFMet     = cms.untracked.bool(True),
+    saveMCPU      = cms.untracked.bool(False),
     verbosity_    = cms.untracked.bool(False),
     posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
                                   T0_endc      = cms.double(6.3),        
@@ -36,4 +38,5 @@ simpleNtuple = cms.EDAnalyzer(
                                   W0           = cms.double(4.2),
                                   X0           = cms.double(0.89)
                                   )
+
     )
