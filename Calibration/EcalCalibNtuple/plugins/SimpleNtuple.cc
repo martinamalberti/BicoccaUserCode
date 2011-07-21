@@ -16,7 +16,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   outTree_  =        fs -> make <TTree>("SimpleNtuple","SimpleNtuple"); 
   outTreeNameEleId = fs -> make <TTree>("NameEleId","NameEleId");
   outTreeNameEleId->Branch("eleId_names",&eleId_names_);
-  
+
+  MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
+
   L1Tag_ = iConfig.getParameter<edm::InputTag>("L1Tag");
   TriggerEventTag_ = iConfig.getParameter<edm::InputTag>("TriggerEventTag");
   TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
@@ -54,7 +56,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
   saveTCMet_    = iConfig.getUntrackedParameter<bool> ("saveTCMet", true);
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
-  
+  saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
+
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
   
   
@@ -272,7 +275,23 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("PFSumEt");
   }
   
-  
+  if(saveMCPU_)
+  {
+    NtupleFactory_ -> AddInt  ("mc_PUit_NumInteractions");
+    NtupleFactory_ -> AddFloat("mc_PUit_zpositions");
+    NtupleFactory_ -> AddFloat("mc_PUit_sumpT_lowpT");
+    NtupleFactory_ -> AddFloat("mc_PUit_sumpT_highpT");
+    NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_lowpT");
+    NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_highpT");
+    
+    NtupleFactory_ -> AddInt  ("mc_PUoot_NumInteractions");
+    NtupleFactory_ -> AddFloat("mc_PUoot_zpositions");
+    NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_lowpT");
+    NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_highpT");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_lowpT");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_highpT");
+  }
+
 }
 
 // --------------------------------------------------------------------
@@ -331,6 +350,10 @@ void SimpleNtuple::analyze (const edm::Event& iEvent, const edm::EventSetup& iSe
 
  ///---- fill PFMet ---- 
  if (savePFMet_) fillPFMetInfo (iEvent, iSetup);
+
+
+ ///---- fill MC Pileup information ---- 
+ if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
 
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
@@ -1103,6 +1126,77 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
 } // dumpMuonInfo 
 
 
+
+// --pileup---------------------------------------------------------------------------------------
+
+void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtuple::fillMCPUInfo" << std::endl;
+
+  edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+  iEvent.getByLabel(MCPileupTag_, PupInfo);
+  
+  // loop on BX
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI)
+  {
+    // in-time pileup
+    if( PVI->getBunchCrossing() == 0 )
+    {
+      NtupleFactory_->FillInt("mc_PUit_NumInteractions",PVI->getPU_NumInteractions());    
+      
+      std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
+      std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
+      std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
+      std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
+      std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+      
+     for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUit_sumpT_lowpT",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUit_sumpT_highpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUit_ntrks_lowpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUit_ntrks_highpT",*it);
+    }
+    
+    // out-of-time pileup
+    else
+    {
+      NtupleFactory_->FillInt("mc_PUoot_NumInteractions",PVI->getPU_NumInteractions());
+      
+      std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
+      std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
+      std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
+      std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
+      std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+      
+     for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUoot_zpositions",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUoot_sumpT_lowpT",*it);
+     
+     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+       NtupleFactory_->FillFloat("mc_PUoot_sumpT_highpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUoot_ntrks_lowpT",*it);
+     
+     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+       NtupleFactory_->FillInt("mc_PUoot_ntrks_highpT",*it);
+    }
+      
+  } // loop on BX
+  
+}// dump MC PU info
 
 
 // -----------------------------------------------------------------------------------------

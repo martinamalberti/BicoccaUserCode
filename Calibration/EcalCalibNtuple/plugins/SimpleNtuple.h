@@ -79,6 +79,9 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+// PU MC information
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
+
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 using namespace cms ;
@@ -114,6 +117,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  
 
   // ----------member data ---------------------------
   EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
@@ -141,6 +146,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag CALOMetTag_;
   edm::InputTag TCMetTag_;
   edm::InputTag PFMetTag_;
+  edm::InputTag MCPileupTag_;
 
   std::vector<std::string> eleId_names_;
   
@@ -158,6 +164,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveCALOMet_ ;
   bool saveTCMet_ ;
   bool savePFMet_ ;
+  bool saveMCPU_;
 
   bool verbosity_; //---- true = loquacious     false = silence  
   
