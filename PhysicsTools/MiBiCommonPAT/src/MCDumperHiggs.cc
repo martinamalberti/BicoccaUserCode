@@ -146,7 +146,7 @@ void MCDumperHiggs::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   // check if it is signal
   if(!mcH_p)
   {
-    if (verbosity_p) std::cerr << ">>> MCDumperHiggs::Analyze::Warning: no H in the event" << std::endl;
+    std::cerr << ">>> MCDumperHiggs::Analyze::Warning: no H in the event" << std::endl;
     
     isValid_p = false;
     return;

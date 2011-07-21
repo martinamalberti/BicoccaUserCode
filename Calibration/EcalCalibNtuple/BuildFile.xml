@@ -1,7 +1,0 @@
-<use   name="root"/>
-<use   name="rootcore"/>
-<use   name="PhysicsTools/NtupleUtils"/>
-
-<export>
-  <lib   name="CalibrationEcalCalibNtuple"/>
-</export>
