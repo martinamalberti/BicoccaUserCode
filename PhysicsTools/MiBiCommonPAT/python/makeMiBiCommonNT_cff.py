@@ -174,11 +174,11 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     #process.selectedPatElectrons.cut      = cms.string("pt > 35. & abs(eta) < 2.5")  #fede
     #process.selectedPatElectronsPFlow.cut = cms.string("pt > 35. & abs(eta) < 2.5")  #fede
     
-    process.selectedPatElectrons.cut      = cms.string("pt > 10. & abs(eta) < 2.5")
-    process.selectedPatElectronsPFlow.cut = cms.string("pt > 10. & abs(eta) < 2.5")
+    process.selectedPatElectrons.cut      = cms.string("pt > 17. & abs(eta) < 2.5")
+    process.selectedPatElectronsPFlow.cut = cms.string("pt > 17. & abs(eta) < 2.5")
     
-    process.selectedPatMuons.cut      = cms.string("pt > 10. & abs(eta) < 2.5")
-    process.selectedPatMuonsPFlow.cut = cms.string("pt > 10. & abs(eta) < 2.5")
+    process.selectedPatMuons.cut      = cms.string("pt > 17. & abs(eta) < 2.5")
+    process.selectedPatMuonsPFlow.cut = cms.string("pt > 17. & abs(eta) < 2.5")
     
     process.selectedPatJets.cut        = cms.string("pt > 15. & abs(eta) < 5")
     process.selectedPatJetsPFlow.cut   = cms.string("pt > 15. & abs(eta) < 5")    
@@ -226,19 +226,19 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # the MiBiPAT path
     process.MiBiCommonPAT = cms.Sequence(
-        process.PUDumper# * 
-        #process.AllEvents * # -> Counter
-        #process.scrapingFilter *
-        #process.NonScrapedEvents * # -> Counter
-        #process.goodOfflinePrimaryVertices *
-        #process.GoodVtxEvents * # -> Counter
-        #process.HBHENoiseFilterResultProducer *
-        #process.prePatSequence *
-        #getattr(process,"patPF2PATSequence"+postfix) *
-        #process.kt6PFJets *        
-        #process.kt6PFJetsForIsolation *
-        #process.ak5PFJets *
-        #process.patDefaultSequence
+        process.PUDumper * 
+        process.AllEvents * # -> Counter
+        process.scrapingFilter *
+        process.NonScrapedEvents * # -> Counter
+        process.goodOfflinePrimaryVertices *
+        process.GoodVtxEvents * # -> Counter
+        process.HBHENoiseFilterResultProducer *
+        process.prePatSequence *
+        getattr(process,"patPF2PATSequence"+postfix) *
+        process.kt6PFJets *        
+        process.kt6PFJetsForIsolation *
+        process.ak5PFJets *
+        process.patDefaultSequence
         )
     
     
@@ -381,7 +381,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
 
 
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF = process.MiBiCommonNT.clone()
-    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.JetTag    = cms.InputTag("patJetsAK5PF")
+    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.JetTag    = cms.InputTag("selectedPatJetsAK5PF")
     
     process.MiBiCommonNTTwoJetsAK5PF = process.MiBiCommonNT.clone()
     process.MiBiCommonNTTwoJetsAK5PF.JetTag    = cms.InputTag("patJetsAK5PF")
@@ -390,7 +390,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.TauTag    = cms.InputTag("patTausPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.MuTag     = cms.InputTag("patMuonsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.EleTag    = cms.InputTag("patElectronsPFlow")
-    process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag    = cms.InputTag("patJetsPFlow")
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag    = cms.InputTag("selectedPatJetsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.MetTag    = cms.InputTag("patMETsPFlow")
     
     process.MiBiCommonNTTwoJetsPFlow = process.MiBiCommonNT.clone()
@@ -415,11 +415,11 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     
     
-    # VBF paths
-    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT)
+    # paths
+    #process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT)
     
-    #process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
-    #process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)    
+    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
+    process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)    
     
     # GammaGamma paths
     #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)

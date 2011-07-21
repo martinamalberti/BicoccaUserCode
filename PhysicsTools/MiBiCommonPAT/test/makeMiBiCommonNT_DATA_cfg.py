@@ -8,10 +8,10 @@ process = cms.Process("MiBiCommonNT")
 makeMiBiCommonNT(process, GlobalTag="GR_R_42_V19::All", HLT='', MC=False, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
-    'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-May10ReReco-v1_AOD/SingleElectron_Run2011A-May10ReReco-v1_AOD.root'
+    'file:/data1/abenagli/DATA_ElectronHad_Run2011A-PromptReco-v4_AOD.root'
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 process.TFileService = cms.Service(
