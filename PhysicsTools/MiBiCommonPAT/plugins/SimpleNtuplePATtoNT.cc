@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuplePATtoNT.cc,v 1.1 2011/07/04 08:49:13 amassiro Exp $
+// $Id: SimpleNtuplePATtoNT.cc,v 1.2 2011/07/05 13:17:57 amassiro Exp $
 //
 //
 
@@ -432,8 +432,11 @@ SimpleNtuplePATtoNT::SimpleNtuplePATtoNT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("muons_numberOfValidMuonHits");
    NtupleFactory_ -> AddInt  ("muons_numberOfValidTrackerHits");
    NtupleFactory_ -> AddInt  ("muons_pixelLayersWithMeasurement");
+   NtupleFactory_ -> AddInt  ("muons_numberOfValidPixelHits");
 
    NtupleFactory_ -> AddFloat("muons_TMLastStationTight");
+   NtupleFactory_ -> AddFloat("muons_TMLastStationAngTight");
+
    // IP variables 
    NtupleFactory_->AddFloat("muons_tip");
    NtupleFactory_->AddFloat("muons_dzPV");
@@ -1475,7 +1478,7 @@ void SimpleNtuplePATtoNT::fillMuInfo (const edm::Event & iEvent, const edm::Even
   NtupleFactory_ -> FillInt  ("muons_innerTrack_found",innerTrackRef->found());
   NtupleFactory_ -> FillInt  ("muons_numberOfValidPixelHits",globalTrackRef->hitPattern().numberOfValidPixelHits());
   NtupleFactory_ -> FillInt  ("muons_TMLST",muon::isGoodMuon(muon, muon::TMLastStationTight));
-  
+
   NtupleFactory_ -> FillFloat("muons_trackPtErrorOverPt",globalTrackRef->ptError() / muon.pt());
 
   NtupleFactory_ -> FillInt  ("muons_tracker",muon.isTrackerMuon());
@@ -1487,8 +1490,11 @@ void SimpleNtuplePATtoNT::fillMuInfo (const edm::Event & iEvent, const edm::Even
   NtupleFactory_ -> FillInt  ("muons_numberOfValidMuonHits",globalTrackRef->hitPattern().numberOfValidMuonHits());
   NtupleFactory_ -> FillInt  ("muons_numberOfValidTrackerHits",innerTrackRef->numberOfValidHits());
   NtupleFactory_ -> FillInt  ("muons_pixelLayersWithMeasurement",innerTrackRef->hitPattern().pixelLayersWithMeasurement());
+  NtupleFactory_ -> FillInt  ("muons_numberOfValidPixelHits",globalTrackRef->hitPattern().numberOfValidPixelHits());
 
   NtupleFactory_ -> FillFloat("muons_TMLastStationTight",muon.muonID("TMLastStationTight"));
+  NtupleFactory_ -> FillFloat("muons_TMLastStationAngTight",muon.muonID("TMLastStationAngTight"));
+
   // IP variables 
   NtupleFactory_->FillFloat("muons_tip", muon.userFloat("tip"));
   NtupleFactory_->FillFloat("muons_dzPV", muon.userFloat("dzPV"));
