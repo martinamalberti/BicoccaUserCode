@@ -67,8 +67,20 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     
     # Jet energy corrections to use:
-    #inputJetCorrLabel = ('AK5PF', ['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
-    inputJetCorrLabel = ('AK5PF', ['L1Offset', 'L2Relative', 'L3Absolute'])    
+    inputJetCorrLabel = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+    #inputJetCorrLabel = ('AK5PF', ['L1Fastjet', 'L2Relative', 'L3Absolute'])
+    
+    process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    from RecoJets.JetProducers.kt4PFJets_cfi import *
+    
+    # compute FastJet rho to correct jets
+    process.kt6PFJets = kt4PFJets.clone(
+        rParam = cms.double(0.6),
+        doAreaFastjet = cms.bool(True),
+        doRhoFastjet = cms.bool(True)
+        )
+    process.patJetCorrFactors.rho = cms.InputTag("kt6PFJets","rho")
     
     # Add PF jets
     switchJetCollection(process,
@@ -179,6 +191,8 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.highetele *
         process.highetFilter *
         process.AllPassFilterElectronFilter *
+        process.kt6PFJets *
+        process.ak5PFJets *
         process.patDefaultSequence *
         process.simpleNtuple
         )
