@@ -254,7 +254,7 @@ int main(int argc, char** argv)
         skipEvent = false;
     }
     
-    if( skipEvent == true ) continue;
+    if( vars.dataFlag == 1 && skipEvent == true ) continue;
     stepEvents[step] += 1;    
     
     
