@@ -17,14 +17,15 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 # simpleNtuple
 ReReco=False
-makeSimpleNtuple(process,GlobalTag="GR_R_311_V2::All",ReReco=ReReco)
+makeSimpleNtuple(process,GlobalTag="START42_V11::All",ReReco=ReReco)
 #makeRecoTags(process)
 
 
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    'file:/data_CMS/cms/abenagli/MC_GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6_PU_S1_START311_V1G1-v1_AODSIM.root'
+    #'file:/data_CMS/cms/abenagli/MC_GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6_PU_S1_START311_V1G1-v1_AODSIM.root'
+    '/store/relval/CMSSW_4_2_3/RelValWE/GEN-SIM-RECO/START42_V12-v2/0062/04E6E6E3-747B-E011-A177-001A92971BA0.root'
     )
 
 process.maxEvents = cms.untracked.PSet(
@@ -38,11 +39,11 @@ if not ReReco:
         fileName = cms.string("simpleNtuple.root")
         )
 
-    process.out = cms.OutputModule(
-        "PoolOutputModule",
-        fileName = cms.untracked.string('file:SimplePATple.root'),
-        outputCommands = cms.untracked.vstring()
-        )
+    #process.out = cms.OutputModule(
+    #    "PoolOutputModule",
+    #    fileName = cms.untracked.string('file:SimplePATple.root'),
+    #    outputCommands = cms.untracked.vstring()
+    #    )
 
 if ReReco:
     process.TFileService = cms.Service(
@@ -50,12 +51,12 @@ if ReReco:
         fileName = cms.string("simpleNtupleReReco.root")
         )
 
-    process.out = cms.OutputModule(
-        "PoolOutputModule",
-        fileName = cms.untracked.string('simplePATpleReReco.root'),
-        outputCommands = cms.untracked.vstring('keep *_*_*_*')
-        )
-    process.e = cms.EndPath(process.out)
+    #process.out = cms.OutputModule(
+    #    "PoolOutputModule",
+    #    fileName = cms.untracked.string('simplePATpleReReco.root'),
+    #    outputCommands = cms.untracked.vstring('keep *_*_*_*')
+    #    )
+    #process.e = cms.EndPath(process.out)
 
 
 
@@ -72,6 +73,6 @@ if ReReco:
         process.L1Reco_step,
         process.reconstruction_step,
         process.endjob_step,
-        process.simpleNtuple_step,
-        process.e
+        process.simpleNtuple_step
+        #process.e
         )
