@@ -5,6 +5,9 @@
 //
 #include "Calibration/EcalCalibNtuple/plugins/SimpleNtuple.h"
 
+#include "Math/Vector4D.h"
+#include "Math/Vector3D.h"
+
 #define PI 3.141592654
 #define TWOPI 6.283185308
 
@@ -29,6 +32,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
   
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
+  PhotonTag_      = iConfig.getParameter<edm::InputTag>("PhotonTag");
   MuTag_ = iConfig.getParameter<edm::InputTag>("MuTag");
   
   JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
@@ -51,6 +55,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   saveL1_       = iConfig.getUntrackedParameter<bool> ("saveL1", true);
   saveHLT_      = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
   saveEle_      = iConfig.getUntrackedParameter<bool> ("saveEle", true);
+  savePho_      = iConfig.getUntrackedParameter<bool> ("savePho", true);
   saveMu_       = iConfig.getUntrackedParameter<bool> ("saveMu", true);
   saveJet_      = iConfig.getUntrackedParameter<bool> ("saveJet", true);
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
@@ -251,6 +256,39 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_dist");
     NtupleFactory_->AddFloat("electrons_dcot");
   }
+
+  if(savePho_)
+  {
+   NtupleFactory_ -> Add4V ("photons");
+   NtupleFactory_ -> AddInt  ("photons_isGap");
+   NtupleFactory_ -> AddFloat("photons_e1x5");           
+   NtupleFactory_ -> AddFloat("photons_e2x5");         
+   NtupleFactory_ -> AddFloat("photons_e3x3");         
+   NtupleFactory_ -> AddFloat("photons_e5x5");         
+   NtupleFactory_ -> AddFloat("photons_maxEnergyXtal");
+   NtupleFactory_ -> AddFloat("photons_sigmaEtaEta");  
+   NtupleFactory_ -> AddFloat("photons_sigmaIetaIeta");
+   NtupleFactory_ -> AddFloat("photons_r1x5");        
+   NtupleFactory_ -> AddFloat("photons_r2x5");        
+   NtupleFactory_ -> AddFloat("photons_r9");
+   NtupleFactory_ -> AddFloat("photons_ecalIso");   
+   NtupleFactory_ -> AddFloat("photons_hcalIso");   
+   NtupleFactory_ -> AddFloat("photons_hadronicOverEm");   
+   NtupleFactory_ -> AddFloat("photons_trkSumPtHollowConeDR04");   
+   NtupleFactory_ -> AddInt("photons_hasPixelSeed");   
+   NtupleFactory_ -> Add4V("photons_SC");   
+   NtupleFactory_ -> Add3V("photons_SCpos");   
+
+   NtupleFactory_ -> Add3V("photons_convVtx");
+   NtupleFactory_ -> AddInt("photons_convNtracks");
+   NtupleFactory_ -> AddInt("photons_convVtxIsValid");
+   NtupleFactory_ -> AddFloat("photons_convVtxChi2");
+   NtupleFactory_ -> AddFloat("photons_convVtxNDOF");
+   NtupleFactory_ -> AddFloat("photons_convEoverP");
+
+   NtupleFactory_ ->AddTMatrix("photons_rechitTime");
+   NtupleFactory_ ->AddTMatrix("photons_rechitE");
+  }
   
   if(saveJet_)
   {
@@ -335,6 +373,9 @@ void SimpleNtuple::analyze (const edm::Event& iEvent, const edm::EventSetup& iSe
   
  ///---- fill electrons ----
  if (saveEle_)  fillEleInfo (iEvent, iSetup);
+
+ ///---- fill photons ----
+ if (savePho_)  fillPhoInfo (iEvent, iSetup);
 
  ///---- fill muons ----
  if (saveMu_) fillMuInfo (iEvent, iSetup);
@@ -1025,7 +1066,140 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 
 }
 
-// -----------------------------------------------------------------------------------------
+// ---- PHOTONS ----
+void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtuple::fillPhotonInfo" << std::endl;
+ 
+ edm::Handle<edm::View<pat::Photon> > photonHandle;
+ iEvent.getByLabel(PhotonTag_,photonHandle);
+ edm::View<pat::Photon> photons = *photonHandle;
+ 
+ 
+ for ( unsigned int i=0; i<photons.size(); ++i )
+ {
+  pat::Photon photon = photons.at(i);
+  
+  NtupleFactory_ -> Fill4V   ("photons", photon.p4());
+  
+  NtupleFactory_ -> FillInt  ("photons_isGap",photon.isEBEtaGap() || photon.isEBPhiGap() || photon.isEERingGap() || photon.isEEDeeGap() || photon.isEBEEGap() );
+  NtupleFactory_ -> FillFloat("photons_e1x5",photon.e1x5());           
+  NtupleFactory_ -> FillFloat("photons_e2x5",photon.e2x5());         
+  NtupleFactory_ -> FillFloat("photons_e3x3",photon.e3x3());         
+  NtupleFactory_ -> FillFloat("photons_e5x5",photon.e5x5());         
+  NtupleFactory_ -> FillFloat("photons_maxEnergyXtal",photon.maxEnergyXtal());
+  NtupleFactory_ -> FillFloat("photons_sigmaEtaEta",photon.sigmaEtaEta());  
+  NtupleFactory_ -> FillFloat("photons_sigmaIetaIeta",photon.sigmaIetaIeta());
+  NtupleFactory_ -> FillFloat("photons_r1x5",photon.r1x5());        
+  NtupleFactory_ -> FillFloat("photons_r2x5",photon.r2x5());        
+  NtupleFactory_ -> FillFloat("photons_r9",photon.r9());   
+  NtupleFactory_ -> FillFloat("photons_ecalIso",photon.ecalIso());   
+  NtupleFactory_ -> FillFloat("photons_hcalIso",photon.hcalIso());   
+  NtupleFactory_ -> FillFloat("photons_hadronicOverEm",photon.hadronicOverEm());   
+  NtupleFactory_ -> FillFloat("photons_trkSumPtHollowConeDR04",photon.trkSumPtHollowConeDR04());   
+  NtupleFactory_ -> FillInt  ("photons_hasPixelSeed",photon.hasPixelSeed());  
+
+
+  //conversion info
+  reco::ConversionRefVector conversions = photon.conversions();
+  //if (conversions.size() > 0) std::cout << "conversions.size() = " << conversions.size() << std::endl;
+  
+  if ( conversions.size() == 1 )
+    {
+      reco::Conversion conversion = *( conversions.at(0) );
+
+      ROOT::Math::XYZVector conversionVertex(conversion.conversionVertex().x(), conversion.conversionVertex().y(), conversion.conversionVertex().z());
+      NtupleFactory_ -> Fill3V   ("photons_convVtx", conversionVertex);
+      NtupleFactory_ -> FillInt  ("photons_convVtxIsValid", conversion.conversionVertex().isValid() );
+      NtupleFactory_ -> FillFloat("photons_convVtxChi2", conversion.conversionVertex().chi2() );
+      NtupleFactory_ -> FillFloat("photons_convVtxNDOF", conversion.conversionVertex().ndof() );
+      NtupleFactory_ -> FillFloat("photons_convEoverP", conversion.EoverP() );
+      NtupleFactory_ -> FillInt  ("photons_convNtracks", conversion.nTracks());
+    }
+  else {
+  
+      ROOT::Math::XYZVector conversionVertex( -999 , -999 , -999);
+      NtupleFactory_ -> Fill3V   ("photons_convVtx", conversionVertex);
+      NtupleFactory_ -> FillInt  ("photons_convVtxIsValid", 0.);
+      NtupleFactory_ -> FillFloat("photons_convVtxChi2", -999 );
+      NtupleFactory_ -> FillFloat("photons_convVtxNDOF", -999 );
+      NtupleFactory_ -> FillFloat("photons_convEoverP", -999);
+      NtupleFactory_ -> FillInt  ("photons_convNtracks", 0);
+  }
+
+
+  //superCluster Info
+  reco::SuperClusterRef phoSC = photon.superCluster();
+  
+  double pos = sqrt(phoSC->x()*phoSC->x() + phoSC->y()*phoSC->y() + phoSC->z()*phoSC->z());
+  double ratio = phoSC->energy() / pos;
+  ROOT::Math::XYZTVector phoVec(phoSC->x()*ratio, phoSC->y()*ratio, phoSC->z()*ratio, phoSC->energy());
+  NtupleFactory_ -> Fill4V("photons_SC", phoVec);
+  ROOT::Math::XYZVector phoPos(phoSC->x(), phoSC->y(), phoSC->z());
+  NtupleFactory_ -> Fill3V("photons_SCpos", phoPos);
+
+
+  //recHit time and energy
+  TMatrix rechitTime(3,3);
+  TMatrix rechitE(3,3);
+  for (int i=0;i<3;i++){
+    for (int j=0; j< 3; j++){
+      rechitTime[i][j]=999;
+      rechitE[i][j]=-999;
+    }
+  }
+
+   // calo topology
+  edm::ESHandle<CaloTopology> pTopology;
+  iESetup.get<CaloTopologyRecord>().get(pTopology);
+  const CaloTopology *topology = pTopology.product();
+  // Ecal barrel RecHits 
+  edm::Handle<EcalRecHitCollection> pBarrelEcalRecHits ;
+  iEvent.getByLabel (recHitCollection_EB_, pBarrelEcalRecHits) ;
+  const EcalRecHitCollection* theBarrelEcalRecHits = pBarrelEcalRecHits.product () ;
+
+  edm::Handle<EcalRecHitCollection> pEndcapEcalRecHits ;
+  iEvent.getByLabel (recHitCollection_EE_, pEndcapEcalRecHits) ;
+  const EcalRecHitCollection* theEndcapEcalRecHits = pEndcapEcalRecHits.product () ;
+
+
+  if( photon.isEB() ){
+    EBDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theBarrelEcalRecHits )).first;
+    for(int xx = 0; xx < 3; ++xx)
+      for(int yy = 0; yy < 3; ++yy)
+	{
+	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-1, xx-1, yy-1, yy-1);
+	  if(vector.size() == 0) continue;
+	  EcalRecHitCollection::const_iterator iterator = theBarrelEcalRecHits->find (vector.at(0)) ;
+	  if(iterator == theBarrelEcalRecHits->end()) continue;
+	  rechitE[xx][yy]  = iterator -> energy();
+	  rechitTime[xx][yy]  = iterator -> time();
+	}
+    
+  }
+  else if (  photon.isEE() ){
+    EEDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theEndcapEcalRecHits )).first;
+    for(int xx = 0; xx < 3; ++xx)
+      for(int yy = 0; yy < 3; ++yy)
+	{
+	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-1, xx-1, yy-1, yy-1);
+	  if(vector.size() == 0) continue;
+	  EcalRecHitCollection::const_iterator iterator = theEndcapEcalRecHits->find (vector.at(0)) ;
+	  if(iterator == theEndcapEcalRecHits->end()) continue;
+	  rechitE[xx][yy]  = iterator -> energy();
+	  rechitTime[xx][yy]  = iterator -> time();
+	}
+  }
+  
+
+  NtupleFactory_ -> FillTMatrix("photons_rechitTime",rechitTime);
+  NtupleFactory_ -> FillTMatrix("photons_rechitE",rechitE);
+
+ }
+ 
+}
+
+
 
 
 

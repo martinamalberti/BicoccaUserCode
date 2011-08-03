@@ -16,9 +16,10 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 
 # simpleNtuple
-ReReco=False
-makeSimpleNtuple(process,GlobalTag="GR_R_42_V14::All",ReReco=ReReco)
-makeRecoTags(process)
+ReReco=True
+makeSimpleNtuple(process,GlobalTag="GR_R_42_V19::All",ReReco=ReReco)
+
+makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
 
 
@@ -30,7 +31,8 @@ process.source.fileNames = cms.untracked.vstring(
     #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_RECO.root'
     #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_AOD.root'
     #'/store/data/Run2011A/SingleElectron/AOD/May3ReReco-v1/0000/E8B7D65A-E075-E011-982B-00261894394D.root'
-    'file:/data2/abenagli/DATA_SingleElectron_Run2011A-WElectron-May10ReReco_RAW-RECO.root'
+    #'file:/data2/Datasets/DATA_SingleElectron_Run2011A-WElectron-May10ReReco_RAW-RECO.root'
+    'file:/data1/abenagli/DATA_SingleElectron_Run2011A-WElectron-May10ReReco_RAW-RECO.root'
     )
 
 process.maxEvents = cms.untracked.PSet(

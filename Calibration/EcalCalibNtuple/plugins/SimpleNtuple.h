@@ -57,6 +57,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Flags.h"
@@ -111,6 +113,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillBSInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPVInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillCALOMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillTCMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -141,6 +144,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
   edm::InputTag EleTag_;
+  edm::InputTag PhotonTag_;
   edm::InputTag MuTag_;
   edm::InputTag JetTag_;
   edm::InputTag CALOMetTag_;
@@ -158,6 +162,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveBS_ ;
   bool savePV_ ;
   bool saveEle_ ;
+  bool savePho_ ;
   bool saveEleShape_ ;
   bool saveMu_ ;
   bool saveJet_ ;

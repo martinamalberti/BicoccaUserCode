@@ -55,9 +55,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     process.load("PhysicsTools.PatAlgos.tools.pfTools")
     removeMCMatching(process, ['All'])
-    removeSpecificPATObjects( process, ['Photons'] )
     removeSpecificPATObjects( process, ['Taus'] )
-    process.patDefaultSequence.remove( process.patPhotons )
     process.patDefaultSequence.remove( process.patTaus )
     
     
@@ -98,6 +96,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     # PAT selection layer
     process.selectedPatElectrons.cut = cms.string("pt > 15.")
+    process.selectedPatPhotons.cut   = cms.string("pt > 15.")
     process.selectedPatMuons.cut     = cms.string("pt >  5.")
     process.selectedPatJets.cut      = cms.string("pt > 15.")
     
@@ -156,20 +155,29 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     process.AllPassFilterHBHENoiseFilter = process.AllPassFilter.clone()
     
     
-    # select events with at least one gsf electron
-    process.highetele = cms.EDFilter(
-        "GsfElectronSelector",
-        src = cms.InputTag("gsfElectrons"),
+    ## # select events with at least one gsf electron
+    ## process.highetele = cms.EDFilter(
+    ##     "GsfElectronSelector",
+    ##     src = cms.InputTag("gsfElectrons"),
+    ##     cut = cms.string("superCluster().get().energy()*sin(theta())> 15.")
+    ##     )
+    
+    # select events with at least one photon
+    process.highetpho = cms.EDFilter(
+        "PhotonSelector",
+        src = cms.InputTag("photons"),
         cut = cms.string("superCluster().get().energy()*sin(theta())> 15.")
         )
     
     process.highetFilter = cms.EDFilter(
         "CandViewCountFilter",
-        src = cms.InputTag("highetele"),
+        #src = cms.InputTag("highetele"),
+        src = cms.InputTag("highetpho"),
         minNumber = cms.uint32(1)
         )
     
-    process.AllPassFilterElectronFilter = process.AllPassFilter.clone()
+    #process.AllPassFilterElectronFilter = process.AllPassFilter.clone()
+    process.AllPassFilterPhotonFilter = process.AllPassFilter.clone()
     
     
     
@@ -188,9 +196,11 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.AllPassFilterNoScrapingFilter *
         process.HBHENoiseFilter *
         process.AllPassFilterHBHENoiseFilter *
-        process.highetele *
+        #process.highetele *
+        process.highetpho *
         process.highetFilter *
-        process.AllPassFilterElectronFilter *
+        #process.AllPassFilterElectronFilter *
+        process.AllPassFilterPhotonFilter *
         process.kt6PFJets *
         process.ak5PFJets *
         process.patDefaultSequence *
