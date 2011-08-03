@@ -259,6 +259,12 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
 
   if(savePho_)
   {
+    EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
+    EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
+    //SC coordinates wrt the ECAL local system
+    PositionCalc dummy(iConfig.getParameter<edm::ParameterSet>("posCalcParameters"));
+    positionCalculator = dummy;
+    
    NtupleFactory_ -> Add4V ("photons");
    NtupleFactory_ -> AddInt  ("photons_isGap");
    NtupleFactory_ -> AddFloat("photons_e1x5");           
@@ -288,6 +294,13 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
 
    NtupleFactory_ ->AddTMatrix("photons_rechitTime");
    NtupleFactory_ ->AddTMatrix("photons_rechitE");
+   NtupleFactory_ ->AddTMatrix("photons_rechitIC");
+   NtupleFactory_ ->AddTMatrix("photons_rechitLC");
+
+   NtupleFactory_ -> AddFloat("photons_scCrackCorrection");
+   NtupleFactory_ -> AddFloat("photons_scLocalContCorrection");
+   NtupleFactory_ -> AddFloat("photons_scLocalPositionEtaCry");
+   NtupleFactory_ -> AddFloat("photons_scLocalPositionPhiCry");
   }
   
   if(saveJet_)
@@ -694,8 +707,10 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
    float E3x3 = 0;
    float E2x2 = 0;
    math::XYZPoint SClocalPos(0.,0.,0.);
-   float EtaCry = 0.;
-   float PhiCry = 0.;
+
+   std::pair<double,double> localPosition;
+   localPosition.first = 0.;
+   localPosition.second = 0.;
 
    if ( electron.isEB() )
    {
@@ -703,69 +718,8 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theBarrelEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
 
-     //--------------if barrel calculate local position wrt xtal center -------------------
-     const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
-  
-     const math::XYZPoint position_ = seedCluster->position(); 
-     double Theta = -position_.theta()+0.5*TMath::Pi();
-     double Eta = position_.eta();
-     double Phi = TVector2::Phi_mpi_pi(position_.phi());
+     localPosition = getLocalPosition(caloGeometry, seedCluster);
      
-     //Calculate expected depth of the maximum shower from energy (like in PositionCalc::Calculate_Location()):
-     // The parameters X0 and T0 are hardcoded here because these values were used to calculate the corrections:
-     const float X0 = 0.89; const float T0 = 7.4;
-     double depth = X0 * (T0 + log(seedCluster->energy()));
-  
-  
-     //search which crystal is closest to the cluster position and call it crystalseed:
-     //std::vector<DetId> crystals_vector = *scRef.getHitsByDetId();   //deprecated
-     std::vector< std::pair<DetId, float> > crystals_vector = seedCluster->hitsAndFractions();
-     float dphimin=999.;
-     float detamin=999.;
-     int ietaclosest = 0;
-     int iphiclosest = 0;
-     for (unsigned int icry=0; icry!=crystals_vector.size(); ++icry) 
-       {    
-	 EBDetId crystal(crystals_vector[icry].first);
-	 const CaloCellGeometry* cell=geom->getGeometry(crystal);
-	 GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
-	 double EtaCentr = center_pos.eta();
-	 double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
-	 if (TMath::Abs(EtaCentr-Eta) < detamin) {
-	   detamin = TMath::Abs(EtaCentr-Eta); 
-	   ietaclosest = crystal.ieta();
-	 }
-	 if (TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr-Phi)) < dphimin) {
-	   dphimin = TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr-Phi)); 
-	   iphiclosest = crystal.iphi();
-	 }
-       }
-     EBDetId crystalseed(ietaclosest, iphiclosest);
-  
-     // Get center cell position from shower depth
-     const CaloCellGeometry* cell=geom->getGeometry(crystalseed);
-     GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
-     
-     //PHI
-     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
-     double PhiWidth = (TMath::Pi()/180.);
-     PhiCry = (TVector2::Phi_mpi_pi(Phi-PhiCentr))/PhiWidth;
-     if (PhiCry>0.5) PhiCry=0.5;
-     if (PhiCry<-0.5) PhiCry=-0.5;
-     //flip to take into account ECAL barrel symmetries:
-     if (ietaclosest<0) PhiCry *= -1.;
-   
-     //ETA
-      double ThetaCentr = -center_pos.theta()+0.5*TMath::Pi();
-      double ThetaWidth = (TMath::Pi()/180.)*TMath::Cos(ThetaCentr);
-      EtaCry = (Theta-ThetaCentr)/ThetaWidth;    
-      if (EtaCry>0.5) EtaCry=0.5;
-      if (EtaCry<-0.5) EtaCry=-0.5;
-      //flip to take into account ECAL barrel symmetries:
-      if (ietaclosest<0) EtaCry *= -1.;
-      
-      //-------------- end calculate local position -------------
-      //std::cout << "EtaCry = " << EtaCry << " PhiCry = " << PhiCry << std::endl;
    }
    if ( electron.isEE() )
    {
@@ -776,8 +730,10 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 
    
 
-   NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",EtaCry);
-   NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",PhiCry);
+   //NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",EtaCry);
+   //NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",PhiCry);
+   NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",localPosition.first);
+   NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",localPosition.second);
    NtupleFactory_->Fill3PV("electrons_scLocalPosition",SClocalPos);
    NtupleFactory_->FillInt("electrons_basicClustersSize",electron.basicClustersSize());
    NtupleFactory_->FillFloat("electrons_e1x5",electron.e1x5());
@@ -1067,15 +1023,53 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 }
 
 // ---- PHOTONS ----
-void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
  //std::cout << "SimpleNtuple::fillPhotonInfo" << std::endl;
+  //*********** CALO TOPOLOGY
+ edm::ESHandle<CaloTopology> pTopology;
+ iSetup.get<CaloTopologyRecord>().get(pTopology);
+ const CaloTopology *topology = pTopology.product();
  
+ //*********** CALO GEOM
+ edm::ESHandle<CaloGeometry> theCaloGeom;
+ iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+ const CaloGeometry *caloGeometry = theCaloGeom.product();
+
+ //*********** IC CONSTANTS
+ edm::ESHandle<EcalIntercalibConstants> theICConstants;
+ iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
+  
+ //*********** LASER ALPHAS
+ edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
+ iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
+ const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
+ 
+ //*********** ADCToGeV
+ edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
+ iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);
+ 
+ //*********** LASER CORRECTION
+ edm::ESHandle<EcalLaserDbService> theLaser;
+ iSetup.get<EcalLaserDbRecord>().get(theLaser);
+
+ //*********** PHOTONS
  edm::Handle<edm::View<pat::Photon> > photonHandle;
  iEvent.getByLabel(PhotonTag_,photonHandle);
  edm::View<pat::Photon> photons = *photonHandle;
+
+ //*********** Ecal barrel RecHits 
+ edm::Handle<EcalRecHitCollection> pBarrelEcalRecHits ;
+ iEvent.getByLabel (recHitCollection_EB_, pBarrelEcalRecHits) ;
+ const EcalRecHitCollection* theBarrelEcalRecHits = pBarrelEcalRecHits.product () ;
  
+ //*********** Ecal endcap RecHits 
+ edm::Handle<EcalRecHitCollection> pEndcapEcalRecHits ;
+ iEvent.getByLabel (recHitCollection_EE_, pEndcapEcalRecHits) ;
+ const EcalRecHitCollection* theEndcapEcalRecHits = pEndcapEcalRecHits.product () ;
+
  
+ bool printOut = false;
  for ( unsigned int i=0; i<photons.size(); ++i )
  {
   pat::Photon photon = photons.at(i);
@@ -1116,8 +1110,9 @@ void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup
       NtupleFactory_ -> FillFloat("photons_convEoverP", conversion.EoverP() );
       NtupleFactory_ -> FillInt  ("photons_convNtracks", conversion.nTracks());
     }
-  else {
-  
+  else 
+    {
+      
       ROOT::Math::XYZVector conversionVertex( -999 , -999 , -999);
       NtupleFactory_ -> Fill3V   ("photons_convVtx", conversionVertex);
       NtupleFactory_ -> FillInt  ("photons_convVtxIsValid", 0.);
@@ -1125,7 +1120,7 @@ void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup
       NtupleFactory_ -> FillFloat("photons_convVtxNDOF", -999 );
       NtupleFactory_ -> FillFloat("photons_convEoverP", -999);
       NtupleFactory_ -> FillInt  ("photons_convNtracks", 0);
-  }
+    }
 
 
   //superCluster Info
@@ -1138,63 +1133,116 @@ void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup
   ROOT::Math::XYZVector phoPos(phoSC->x(), phoSC->y(), phoSC->z());
   NtupleFactory_ -> Fill3V("photons_SCpos", phoPos);
 
-
   //recHit time and energy
-  TMatrix rechitTime(3,3);
-  TMatrix rechitE(3,3);
-  for (int i=0;i<3;i++){
-    for (int j=0; j< 3; j++){
+  TMatrix rechitTime(5,5);
+  TMatrix rechitE(5,5);
+  TMatrix rechitIC(5,5);
+  TMatrix rechitLC(5,5);
+  for (int i=0;i<5;i++){
+    for (int j=0; j< 5; j++){
       rechitTime[i][j]=999;
       rechitE[i][j]=-999;
+      rechitIC[i][j]=-999;
+      rechitLC[i][j]=-999;
     }
   }
 
-   // calo topology
-  edm::ESHandle<CaloTopology> pTopology;
-  iESetup.get<CaloTopologyRecord>().get(pTopology);
-  const CaloTopology *topology = pTopology.product();
-  // Ecal barrel RecHits 
-  edm::Handle<EcalRecHitCollection> pBarrelEcalRecHits ;
-  iEvent.getByLabel (recHitCollection_EB_, pBarrelEcalRecHits) ;
-  const EcalRecHitCollection* theBarrelEcalRecHits = pBarrelEcalRecHits.product () ;
+  //save LC and IC
+  float rhICConstant = -1.;
+  float rhLaserCorrection = -1.;
 
-  edm::Handle<EcalRecHitCollection> pEndcapEcalRecHits ;
-  iEvent.getByLabel (recHitCollection_EE_, pEndcapEcalRecHits) ;
-  const EcalRecHitCollection* theEndcapEcalRecHits = pEndcapEcalRecHits.product () ;
-
+  const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
 
   if( photon.isEB() ){
     EBDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theBarrelEcalRecHits )).first;
-    for(int xx = 0; xx < 3; ++xx)
-      for(int yy = 0; yy < 3; ++yy)
+    for(int xx = 0; xx < 5; ++xx)
+      for(int yy = 0; yy < 5; ++yy)
 	{
-	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-1, xx-1, yy-1, yy-1);
+	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-2, xx-2, yy-2, yy-2);
 	  if(vector.size() == 0) continue;
 	  EcalRecHitCollection::const_iterator iterator = theBarrelEcalRecHits->find (vector.at(0)) ;
 	  if(iterator == theBarrelEcalRecHits->end()) continue;
 	  rechitE[xx][yy]  = iterator -> energy();
 	  rechitTime[xx][yy]  = iterator -> time();
+
+	  // intercalib constants
+	  EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(vector.at(0));
+	  if( ICMapIt != ICMap.end() )
+	    rhICConstant = *ICMapIt;
+	  rechitIC[xx][yy]  = rhICConstant;
+
+	  // intercalib constants
+	  rhLaserCorrection = theLaser->getLaserCorrection(vector.at(0), iEvent.time());
+	  rechitLC[xx][yy]  = rhLaserCorrection;
+
+	  if( printOut && iterator->energy() > 1. )
+	    {
+	      std::cout << std::fixed
+			<< ">>> ix: "  << std::setprecision(0) << std::setw(4) << xx
+			<< "    iy: "  << std::setprecision(0) << std::setw(4) << yy
+			<< "    recHitE: "     << std::setprecision(2) << std::setw(6) << iterator -> energy()
+			<< "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhICConstant
+			<< "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
+			<< std::endl;
+	    }
 	}
-    
   }
   else if (  photon.isEE() ){
     EEDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theEndcapEcalRecHits )).first;
-    for(int xx = 0; xx < 3; ++xx)
-      for(int yy = 0; yy < 3; ++yy)
+    for(int xx = 0; xx < 5; ++xx)
+      for(int yy = 0; yy < 5; ++yy)
 	{
-	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-1, xx-1, yy-1, yy-1);
+	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-2, xx-2, yy-2, yy-2);
 	  if(vector.size() == 0) continue;
 	  EcalRecHitCollection::const_iterator iterator = theEndcapEcalRecHits->find (vector.at(0)) ;
 	  if(iterator == theEndcapEcalRecHits->end()) continue;
 	  rechitE[xx][yy]  = iterator -> energy();
 	  rechitTime[xx][yy]  = iterator -> time();
+
+	  // intercalib constants
+	  EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(vector.at(0));
+	  if( ICMapIt != ICMap.end() )
+	    rhICConstant = *ICMapIt;
+	  rechitIC[xx][yy]  = rhICConstant;
+
+	  // intercalib constants
+	  rhLaserCorrection = theLaser->getLaserCorrection(vector.at(0), iEvent.time());
+	  rechitLC[xx][yy]  = rhLaserCorrection;
 	}
   }
   
 
   NtupleFactory_ -> FillTMatrix("photons_rechitTime",rechitTime);
   NtupleFactory_ -> FillTMatrix("photons_rechitE",rechitE);
+  NtupleFactory_ -> FillTMatrix("photons_rechitIC",rechitIC);
+  NtupleFactory_ -> FillTMatrix("photons_rechitLC",rechitLC);
 
+  // crack correction variables and local containment corrections
+  EcalClusterCrackCorrection -> init(iSetup);
+  EcalClusterLocalContCorrection -> init(iSetup);
+  double crackcor = 1.;
+  double localContCorr = 1.;
+  
+  for(reco::CaloCluster_iterator cIt = photon.superCluster()->clustersBegin();
+      cIt != photon.superCluster()->clustersEnd(); ++cIt)
+     {
+       const reco::CaloClusterPtr cc = *cIt; 
+       crackcor *= ( (photon.superCluster()->rawEnergy() + (*cIt)->energy()*(EcalClusterCrackCorrection->getValue(*cc)-1.)) / photon.superCluster()->rawEnergy() );
+       
+     }
+   localContCorr = EcalClusterLocalContCorrection->getValue(*photon.superCluster(), 1) ;
+
+   const edm::Ptr<reco::CaloCluster>& seedCluster = phoSC->seed();
+   std::pair<double,double> localPosition;
+   localPosition.first = 0.;
+   localPosition.second = 0.;
+   if (photon.isEB()) localPosition = getLocalPosition(caloGeometry, seedCluster);
+
+
+   NtupleFactory_->FillFloat("photons_scCrackCorrection", crackcor);
+   NtupleFactory_->FillFloat("photons_scLocalContCorrection", localContCorr);
+   NtupleFactory_->FillFloat("photons_scLocalPositionEtaCry",localPosition.first);
+   NtupleFactory_->FillFloat("photons_scLocalPositionPhiCry",localPosition.second);
  }
  
 }
@@ -1371,6 +1419,76 @@ void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetu
   } // loop on BX
   
 }// dump MC PU info
+
+
+std::pair<double,double> SimpleNtuple::getLocalPosition(const CaloGeometry *caloGeometry, const edm::Ptr<reco::CaloCluster>& seedCluster)
+{
+  //--------------if barrel calculate local position wrt xtal center -------------------
+  const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
+  
+  const math::XYZPoint position_ = seedCluster->position(); 
+  double Theta = -position_.theta()+0.5*TMath::Pi();
+  double Eta = position_.eta();
+  double Phi = TVector2::Phi_mpi_pi(position_.phi());
+  
+     //Calculate expected depth of the maximum shower from energy (like in PositionCalc::Calculate_Location()):
+     // The parameters X0 and T0 are hardcoded here because these values were used to calculate the corrections:
+     const float X0 = 0.89; const float T0 = 7.4;
+     double depth = X0 * (T0 + log(seedCluster->energy()));
+  
+  
+     //search which crystal is closest to the cluster position and call it crystalseed:
+     //std::vector<DetId> crystals_vector = *scRef.getHitsByDetId();   //deprecated
+     std::vector< std::pair<DetId, float> > crystals_vector = seedCluster->hitsAndFractions();
+     float dphimin=999.;
+     float detamin=999.;
+     int ietaclosest = 0;
+     int iphiclosest = 0;
+     for (unsigned int icry=0; icry!=crystals_vector.size(); ++icry) 
+       {    
+	 EBDetId crystal(crystals_vector[icry].first);
+	 const CaloCellGeometry* cell=geom->getGeometry(crystal);
+	 GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+	 double EtaCentr = center_pos.eta();
+	 double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
+	 if (TMath::Abs(EtaCentr-Eta) < detamin) {
+	   detamin = TMath::Abs(EtaCentr-Eta); 
+	   ietaclosest = crystal.ieta();
+	 }
+	 if (TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr-Phi)) < dphimin) {
+	   dphimin = TMath::Abs(TVector2::Phi_mpi_pi(PhiCentr-Phi)); 
+	   iphiclosest = crystal.iphi();
+	 }
+       }
+     EBDetId crystalseed(ietaclosest, iphiclosest);
+  
+     // Get center cell position from shower depth
+     const CaloCellGeometry* cell=geom->getGeometry(crystalseed);
+     GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+     
+     //PHI
+     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
+     double PhiWidth = (TMath::Pi()/180.);
+     double PhiCry = (TVector2::Phi_mpi_pi(Phi-PhiCentr))/PhiWidth;
+     if (PhiCry>0.5) PhiCry=0.5;
+     if (PhiCry<-0.5) PhiCry=-0.5;
+     //flip to take into account ECAL barrel symmetries:
+     if (ietaclosest<0) PhiCry *= -1.;
+   
+     //ETA
+      double ThetaCentr = -center_pos.theta()+0.5*TMath::Pi();
+      double ThetaWidth = (TMath::Pi()/180.)*TMath::Cos(ThetaCentr);
+      double EtaCry = (Theta-ThetaCentr)/ThetaWidth;    
+      if (EtaCry>0.5) EtaCry=0.5;
+      if (EtaCry<-0.5) EtaCry=-0.5;
+      //flip to take into account ECAL barrel symmetries:
+      if (ietaclosest<0) EtaCry *= -1.;
+      
+      //-------------- end calculate local position -------------
+
+      std::pair<double,double> etaphi(EtaCry,PhiCry);
+      return etaphi;
+}
 
 
 // -----------------------------------------------------------------------------------------

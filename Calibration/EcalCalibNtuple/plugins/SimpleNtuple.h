@@ -107,6 +107,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
 
  protected:
+  std::pair<double,double> getLocalPosition(const CaloGeometry *caloGeometry, const edm::Ptr<reco::CaloCluster>& seedCluster) ;
 
   void fillL1Info (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
