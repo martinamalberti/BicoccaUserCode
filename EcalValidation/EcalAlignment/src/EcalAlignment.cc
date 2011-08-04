@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.10 2011/05/24 06:58:07 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.11 2011/06/20 15:09:02 amassiro Exp $
 //
 //
 
@@ -63,6 +63,8 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
      myTree_ -> Branch(iEleId->c_str(),&(eleId_[iEleId-eleId_names_.begin()]),nameBranch.Data());
    } 
   }
+
+  myTree_ -> Branch("time",            &time_,           "time/I");
 
   myTree_ -> Branch("numPUMC",            &numPUMC_,           "numPUMC/I");
 
@@ -170,6 +172,7 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  lumiId_ = iEvent.luminosityBlock();
  runId_ = iEvent.id ().run ();
  eventId_ = iEvent.id ().event ();
+ time_ = (int)(iEvent.time().value() >> 32);
 
  numPUMC_ = -1;
 /*
