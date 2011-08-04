@@ -86,6 +86,7 @@ double Chi2Func(const double *xx ){
 
 //  myList->Print(); 
  //==== bux fix in ROOT see https://savannah.cern.ch/bugs/?60569 ====
+ /*
  TIter next( myList->GetLists() ); 
 
 // std::cerr << " myList->GetLists() = " << (int) myList->GetLists() << std::endl;
@@ -106,6 +107,7 @@ double Chi2Func(const double *xx ){
  else {
   myList->SetTreeName(myTree->GetName());
  }
+ */
   //==== end bux fix in ROOT see https://savannah.cern.ch/bugs/?60569 ====
  
 // std::cerr << " NOME 2 = " << myList->GetTreeName() << std::endl;
@@ -404,12 +406,12 @@ int main(int argc, char** argv)
   
   ///==== end Chi2 minimization ====
   
-  std::cout << " iSM = " << iSM << " DX =     " << DX_SM_Mean[iSM]      << " +/- " << DX_SM_RMS[iSM]      << std::endl;
-  std::cout << " iSM = " << iSM << " DY =     " << DY_SM_Mean[iSM]      << " +/- " << DY_SM_RMS[iSM]      << std::endl;
-  std::cout << " iSM = " << iSM << " DZ =     " << DZ_SM_Mean[iSM]      << " +/- " << DZ_SM_RMS[iSM]      << std::endl;
   std::cout << " iSM = " << iSM << " DPhi   = " << DPHIe_SM_Mean[iSM]   << " +/- " << DPHIe_SM_RMS[iSM]   << std::endl;
   std::cout << " iSM = " << iSM << " DTheta = " << DTHETAe_SM_Mean[iSM] << " +/- " << DTHETAe_SM_RMS[iSM] << std::endl;
   std::cout << " iSM = " << iSM << " DPsi   = " << DPSIe_SM_Mean[iSM]   << " +/- " << DPSIe_SM_RMS[iSM]   << std::endl;
+  std::cout << " iSM = " << iSM << " DX =     " << DX_SM_Mean[iSM]      << " +/- " << DX_SM_RMS[iSM]      << std::endl;
+  std::cout << " iSM = " << iSM << " DY =     " << DY_SM_Mean[iSM]      << " +/- " << DY_SM_RMS[iSM]      << std::endl;
+  std::cout << " iSM = " << iSM << " DZ =     " << DZ_SM_Mean[iSM]      << " +/- " << DZ_SM_RMS[iSM]      << std::endl;
   std::cout << "============================================================================" << std::endl;
   std::cout << "============================================================================" << std::endl;
   std::cout << "============================================================================" << std::endl;

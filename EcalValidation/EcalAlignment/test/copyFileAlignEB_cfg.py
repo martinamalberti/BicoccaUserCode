@@ -2,11 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("EcalTrivialAlignment_cfi")
+#process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 #process.CondDBCommon.connect = 'sqlite_file:EBAlign_2010_GlobalAlignment.db'
-process.CondDBCommon.connect = 'sqlite_file:EBAlign_2010.db'
+process.CondDBCommon.connect = 'sqlite_file:EBAlign_2011.db'
 #process.CondDBCommon.connect = 'sqlite_file:EBAlign_2010_NoAlign.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -27,7 +28,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
        cms.PSet(
           record = cms.string('EBAlignmentRcd'),
-          tag = cms.string('EBAlignment_measured_v04_offline')
+          tag = cms.string('EBAlignment_measured_v05_offline')
        )
     )
 )

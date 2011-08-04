@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -33,10 +33,11 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('/store/data/Run2010B/Electron/RAW-RECO/v2/000/147/048/9EA6B756-24CF-DF11-A3D9-00261894387C.root')
-    #fileNames = cms.untracked.vstring('file:/tmp/amassiro/669A4128-43D0-DF11-AE93-001A92810ACE.root')
-    fileNames = cms.untracked.vstring('file:/tmp/amassiro/FADD5997-A711-E011-9C52-003048D436EA.root')   
-)
+fileNames = cms.untracked.vstring(
+        #'file:/data2/amassiro/CMSSWRoot/WElectron-May10ReReco-v1_SingleElectron_RAW-RECO/F26A57B7-6D7B-E011-A737-0025901D4C74.root'
+        'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-WElectron-PromptSkim-v4_RAW-RECO/9220C129-B886-E011-AA20-002481E94B4E.root'
+    )
+  )
 process.source.inputCommands = cms.untracked.vstring("drop *_*_*_RECO", "drop *_MEtoEDMConverter_*_*", "keep FEDRawDataCollection_*_*_*")
 
 # Output definition
@@ -69,10 +70,11 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 #process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
-process.GlobalTag.globaltag = 'GR_R_39X_V5::All'
+#process.GlobalTag.globaltag = 'GR_P_V20::All'
+process.GlobalTag.globaltag = 'GR_R_42_V18::All'
 
-# http://cms-conddb.cern.ch/gtlist/?GlobalTag=GR_R_39X_V5
   
+# http://cms-conddb.cern.ch/gtlist/?GlobalTag=GR_R_39X_V5
   
 process.GlobalTag.toGet = cms.VPSet(
       #cms.PSet(record = cms.string("EcalIntercalibConstantsRcd"),
@@ -84,12 +86,12 @@ process.GlobalTag.toGet = cms.VPSet(
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
              #),
     cms.PSet(record = cms.string("EBAlignmentRcd"),
-             tag = cms.string("EBAlignment_measured_v04_offline"),
-             connect = cms.untracked.string("sqlite_file:EBAlign_2010.db")   #### New ####
+             tag = cms.string("EBAlignment_measured_v05_offline"),
+             connect = cms.untracked.string("sqlite_file:EBAlign_2011.db")   #### New ####
              ),
     cms.PSet(record = cms.string("EEAlignmentRcd"),
-             tag = cms.string("EEAlignment_measured_v04_offline"),
-             connect = cms.untracked.string("sqlite_file:EEAlign_2010.db")  #### New ####
+             tag = cms.string("EEAlignment_measured_v05_offline"),
+             connect = cms.untracked.string("sqlite_file:EEAlign_2011.db")  #### New ####
              )
    #cms.PSet(record = cms.string("ESAlignmentRcd"),
              #tag = cms.string("ESAlignment_measured_v01_offline"),
@@ -166,9 +168,8 @@ process.endjob_step = cms.Path(process.endOfProcess)
 ################################################################################
 ################## create ntuple for ECAL alignment purposes ###################
 
-
 #--------------------------
-#Define PAT sequence
+# Define PAT sequence
 #--------------------------
 
 # Standard PAT Configuration File
@@ -178,62 +179,37 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 ## remove MC matching from the default sequence
 removeMCMatching(process, ['All'])
 
+# bugfix for DATA Run2011 (begin)
+removeSpecificPATObjects( process, ['Taus'] )
+process.patDefaultSequence.remove( process.patTaus )
+# bugfix for DATA Run2011 (end)
 
-# add cIc electron ID
-#process.load("EcalValidation.EcalAlignment.CiC_eIDSequence_cff")
-#process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
-#process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
+# not used! (begin)
+removeSpecificPATObjects( process, ['Jets'] )
+process.patDefaultSequence.remove( process.patJetCorrections )
+process.patDefaultSequence.remove( process.patJets )
+# not used (end)
 
-process.patElectrons.electronSource = cms.InputTag("gsfElectrons::EcalAlignment")
+# process.patElectrons.electronSource = cms.InputTag("gsfElectrons::EcalAlignment")
 
 process.patElectrons.addElectronID = cms.bool(False)
   
-### AM ### With promt reco eidRobustLoose, eidRobustTight, eidRobustHighEnergy shold be used
-### AM ### but has to be defined from scratch. In 
-### AM ### EcalValidation.EcalAlignment.CiC_eIDSequence_cff
-### AM ### ElectronIdentification.cutsInCategoriesElectronIdentification_cfi
-### AM ### they are not defined.
-### AM ### Since eleId is not used (in this way) for this analysis
-### AM ### but selection are applied "by hand"
-### AM ### no eleID is run here.
-
-#process.patElectrons.addElectronID = cms.bool(True)
-#process.patElectrons.electronIDSources = cms.PSet(
-    #eidRobustLoose      = cms.InputTag("eidRobustLoose"),
-    #eidRobustTight      = cms.InputTag("eidRobustTight"),
-    #eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
-    #eidVeryLoose  = cms.InputTag("eidVeryLoose"),
-    #eidLoose      = cms.InputTag("eidLoose"),
-    #eidMedium     = cms.InputTag("eidMedium"),
-    #eidTight      = cms.InputTag("eidTight"),
-    #eidSuperTight = cms.InputTag("eidSuperTight")
-    #)
-##
-#process.patElectrons.addGenMatch = cms.bool(False)
-#process.patElectrons.embedGenMatch = cms.bool(False)
-
-
 # Add tcMET and pfMET
 from PhysicsTools.PatAlgos.tools.metTools import *
 addTcMET(process, 'TC')
 addPfMET(process, 'PF')
 
-
-# get the jet corrections
-##from PhysicsTools.PatAlgos.tools.jetTools import *
-##switchJECSet( process, "Summer09_7TeV_ReReco332")
-
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
-## uncomment this line to run on an 35X input sample
-#run36xOn35xInput(process)
-
-
-
 #--------------------------
 # AllPassFilter
 #--------------------------
 
-process.AllEvents                      = cms.EDProducer("EventCountProducer")
+
+#process.AllEvents                      = cms.EDProducer("EventCountProducer")
+process.load("EcalValidation.EcalAlignment.AllPassFilter_cfi")
+#--------------------------
+# Counter1: All read events
+process.AllEvents = process.AllPassFilter.clone()
+
 process.FilterL1FilterEvents           = cms.EDProducer("EventCountProducer")
 process.FilterGoodVertexFilterEvents   = cms.EDProducer("EventCountProducer")
 process.FilterNoScrapingFilterEvents   = cms.EDProducer("EventCountProducer")
@@ -322,16 +298,16 @@ process.highetFilter = cms.EDFilter(
 
 process.pEcalAlignment = cms.Path(
     process.AllEvents   # |-> counter
-    *process.skimming
-    *process.FilterL1FilterEvents   # |-> counter
-    *process.hltLevel1GTSeed
+    #*process.skimming
+    #*process.FilterL1FilterEvents   # |-> counter
+    #*process.hltLevel1GTSeed
     *process.FilterGoodVertexFilterEvents   # |-> counter   
-    *process.primaryVertexFilter
+    #*process.primaryVertexFilter
     *process.FilterNoScrapingFilterEvents   # |-> counter    
-    *process.noscraping
+    #*process.noscraping
     *process.FilterElectronFilterEvents   # |-> counter   
-    *process.highetele
-    *process.highetFilter
+    #*process.highetele
+    #*process.highetFilter
     *process.FilterReRECOEvents   # |-> counter   
     *process.patDefaultSequence
     *process.FilterPatDefaultSequenceEvents   # |-> counter
@@ -340,8 +316,6 @@ process.pEcalAlignment = cms.Path(
 
 #process.outpath = cms.EndPath(process.out)
 
-  
-    
    #PERBACCO !!!! 
         #python encountered the error: <type 'exceptions.AttributeError'> 'Process' object has no attribute 'out'
 

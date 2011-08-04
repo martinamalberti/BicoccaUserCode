@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.h,v 1.5 2011/05/24 06:58:07 amassiro Exp $
+// $Id: EcalAlignment.h,v 1.6 2011/06/20 15:09:02 amassiro Exp $
 //
 //
 
@@ -101,6 +101,8 @@ class EcalAlignment : public edm::EDAnalyzer {
        TTree* myTree_;
 
        int numPUMC_;
+
+       int time_ ;
 
        int BX_;
        int lumiId_;

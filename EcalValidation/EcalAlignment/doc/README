@@ -6,7 +6,7 @@ constants backed up here
 
 ############################ Prepare environment ############################
 to install
-cvs co CalibCalorimetry/EcalTrivialCondModules
+cvs co -r V00-12-25 CalibCalorimetry/EcalTrivialCondModules
 cvs co CondTools/Ecal
 cvs co -d EcalValidation/EcalAlignment/ UserCode/Bicocca/EcalValidation/EcalAlignment/
 cmsenv
@@ -71,6 +71,13 @@ scramv1 b
    EB_Alignment_RotoTraslation AlignEB_EMinus_cfg.py
    EE_Alignment_RotoTraslation AlignEE_EPlus_cfg.py
    EE_Alignment_RotoTraslation AlignEE_EMinus_cfg.py
+
+
+2.a) combine alignment
+$CMSSW_RELEASE_BASE/python/CondTools/Ecal/EcalCondDB.py -c oracle://cms_orcoff_prod/CMS_COND_34X_ECAL   -t EEAlignment_measured_v04_offline --listiovs
+
+CombineRotoTraslations /afs/cern.ch/user/a/amassiro/public/ECAL_Alignment/1Mar2011/myEEAlignment_2010.txt   myEEAlignment_2011.txt    myEEAlignment_2011_combined.txt
+CombineRotoTraslations /afs/cern.ch/user/a/amassiro/public/ECAL_Alignment/1Mar2011/myEBAlignment_2010.txt   myEBAlignment_2011.txt    myEBAlignment_2011_combined.txt
 
 
 3) create new local DB with new alignment constants

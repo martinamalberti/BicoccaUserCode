@@ -84,6 +84,7 @@ double Chi2Func(const double *xx ){
  TEntryList *myList = (TEntryList*)gDirectory->Get("myList");
 
  //==== bux fix in ROOT see https://savannah.cern.ch/bugs/?60569 ====
+ /*
  TIter next( myList->GetLists() ); 
  if (myList->GetLists() != 0){
 // if ((int) myList->GetLists() != 0){
@@ -98,6 +99,7 @@ double Chi2Func(const double *xx ){
  else {
   myList->SetTreeName(myTree->GetName());
  }
+ */
   //==== end bux fix in ROOT see https://savannah.cern.ch/bugs/?60569 ==== 
  myTree->SetEntryList(myList); 
  
@@ -365,12 +367,12 @@ int main(int argc, char** argv)
   
   ///==== end Chi2 minimization ====
   
-  std::cout << " iSC = " << iSC << " DX =     " << DX_SC_Mean[iSC]      << " +/- " << DX_SC_RMS[iSC]      << std::endl;
-  std::cout << " iSC = " << iSC << " DY =     " << DY_SC_Mean[iSC]      << " +/- " << DY_SC_RMS[iSC]      << std::endl;
-  std::cout << " iSC = " << iSC << " DZ =     " << DZ_SC_Mean[iSC]      << " +/- " << DZ_SC_RMS[iSC]      << std::endl;
   std::cout << " iSC = " << iSC << " DPhi =   " << DPHIe_SC_Mean[iSC]   << " +/- " << DPHIe_SC_RMS[iSC]   << std::endl;
   std::cout << " iSC = " << iSC << " DTheta = " << DTHETAe_SC_Mean[iSC] << " +/- " << DTHETAe_SC_RMS[iSC] << std::endl;
   std::cout << " iSC = " << iSC << " DPsi =   " << DPSIe_SC_Mean[iSC]   << " +/- " << DPSIe_SC_RMS[iSC]   << std::endl;
+  std::cout << " iSC = " << iSC << " DX =     " << DX_SC_Mean[iSC]      << " +/- " << DX_SC_RMS[iSC]      << std::endl;
+  std::cout << " iSC = " << iSC << " DY =     " << DY_SC_Mean[iSC]      << " +/- " << DY_SC_RMS[iSC]      << std::endl;
+  std::cout << " iSC = " << iSC << " DZ =     " << DZ_SC_Mean[iSC]      << " +/- " << DZ_SC_RMS[iSC]      << std::endl;
   std::cout << "============================================================================" << std::endl;
   std::cout << "============================================================================" << std::endl;
   std::cout << "============================================================================" << std::endl;
