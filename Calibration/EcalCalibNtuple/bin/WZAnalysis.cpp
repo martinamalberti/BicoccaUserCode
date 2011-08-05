@@ -72,7 +72,7 @@ int main(int argc, char** argv)
   std::map<int, int> goodVertexEvents = GetTotalEvents("AllPassFilterGoodVertexFilter/passedEvents", inputFileList.c_str());
   std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/passedEvents", inputFileList.c_str());
   std::map<int, int> HBHENoiseEvents  = GetTotalEvents("AllPassFilterHBHENoiseFilter/passedEvents",  inputFileList.c_str());
-  std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/passedEvents",   inputFileList.c_str());
+  std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterPhotonFilter/passedEvents",   inputFileList.c_str()); // AllPassFilterPhotonFilter for the new ntuples
   
   
   
@@ -381,7 +381,7 @@ int main(int argc, char** argv)
     // set electron variables
     std::map<float,int>::const_iterator mapIt = eleIts.begin();
 
-    PhotonFix::initialise("4_2");
+    PhotonFix::initialise("4_2e");
 
     if( nTightEle == 1 )
     {
