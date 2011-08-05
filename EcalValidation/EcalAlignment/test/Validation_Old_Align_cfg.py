@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -33,10 +33,10 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('/store/data/Run2010B/Electron/RAW-RECO/v2/000/147/048/9EA6B756-24CF-DF11-A3D9-00261894387C.root')
-    #fileNames = cms.untracked.vstring('file:/tmp/amassiro/669A4128-43D0-DF11-AE93-001A92810ACE.root')
-    fileNames = cms.untracked.vstring('file:/tmp/amassiro/FADD5997-A711-E011-9C52-003048D436EA.root')   
-)
+fileNames = cms.untracked.vstring(
+        'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-WElectron-PromptSkim-v4_RAW-RECO/9220C129-B886-E011-AA20-002481E94B4E.root'
+    )
+  )
 process.source.inputCommands = cms.untracked.vstring("drop *_*_*_RECO", "drop *_MEtoEDMConverter_*_*", "keep FEDRawDataCollection_*_*_*")
 
 # Output definition
@@ -70,7 +70,10 @@ process.out = cms.OutputModule("PoolOutputModule",
 # Other statements
 #process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
 #process.GlobalTag.globaltag = 'GR_R_39X_V5::All'
-process.GlobalTag.globaltag = 'GR_R_311_V1::All'
+#process.GlobalTag.globaltag = 'GR_R_311_V1::All'
+#process.GlobalTag.globaltag = 'GR_R_42_V18::All'
+process.GlobalTag.globaltag = 'GR_R_44_V1::All'
+
 
 # http://cms-conddb.cern.ch/gtlist/?GlobalTag=GR_R_39X_V5
   
@@ -92,14 +95,14 @@ process.GlobalTag.toGet = cms.VPSet(
              #tag = cms.string("EEAlignment_measured_v02_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")  #### Old ####
              #),
-    cms.PSet(record = cms.string("EBAlignmentRcd"),
-             tag = cms.string("EBAlignment_measured_v04_offline"),
-             connect = cms.untracked.string("sqlite_file:EBAlign_2010_FUNZIONA_2Feb.db")   #### New ####
-             ),
-    cms.PSet(record = cms.string("EEAlignmentRcd"),
-             tag = cms.string("EEAlignment_measured_v04_offline"),
-             connect = cms.untracked.string("sqlite_file:EEAlign_2010_FUNZIONA_2Feb.db")  #### New ####
-             ),
+#    cms.PSet(record = cms.string("EBAlignmentRcd"),
+#             tag = cms.string("EBAlignment_measured_v04_offline"),
+#             connect = cms.untracked.string("sqlite_file:EBAlign_2010_FUNZIONA_2Feb.db")   #### New ####
+#             ),
+#    cms.PSet(record = cms.string("EEAlignmentRcd"),
+#             tag = cms.string("EEAlignment_measured_v04_offline"),
+#             connect = cms.untracked.string("sqlite_file:EEAlign_2010_FUNZIONA_2Feb.db")  #### New ####
+#             ),
    #cms.PSet(record = cms.string("ESAlignmentRcd"),
              #tag = cms.string("ESAlignment_measured_v01_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
@@ -112,12 +115,12 @@ process.GlobalTag.toGet = cms.VPSet(
              #tag = cms.string("EcalLaserAPDPNRatios_v0_online"),
              #connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
              #),
-    cms.PSet(record = cms.string("GlobalPositionRcd"),
-             tag = cms.string("GlobalAlignment_TkRotMuonFromLastIovV2_offline"),
-             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
-             ),
+#    cms.PSet(record = cms.string("GlobalPositionRcd"),
+#             tag = cms.string("GlobalAlignment_TkRotMuonFromLastIovV2_offline"),
+#             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
+#             ),
     cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-             tag = cms.string("TrackerAlignment_GR10_v4_offline"),
+             tag = cms.string("TrackerAlignment_GR10_v5_offline"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
              )
     #cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
@@ -125,6 +128,22 @@ process.GlobalTag.toGet = cms.VPSet(
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
              #)
     )
+
+
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.trackerBows = cms.ESSource(
+   "PoolDBESSource",
+   CondDBSetup,
+   connect = cms.string('frontier://FrontierProd/CMS_COND_310X_ALIGN'),
+   toGet = cms.VPSet(cms.PSet(
+           record = cms.string('TrackerSurfaceDeformationRcd'),
+           tag = cms.string('TrackerSurfaceDeformations_v1_offline')
+           ))
+   )
+process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
+
+
+
 
 #process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
    #BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -170,14 +189,14 @@ process.endjob_step = cms.Path(process.endOfProcess)
           
             
 
+
 ################################################################################
 ################################################################################
 ################################################################################
 ################## create ntuple for ECAL alignment purposes ###################
 
-
 #--------------------------
-#Define PAT sequence
+# Define PAT sequence
 #--------------------------
 
 # Standard PAT Configuration File
@@ -187,62 +206,37 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 ## remove MC matching from the default sequence
 removeMCMatching(process, ['All'])
 
+# bugfix for DATA Run2011 (begin)
+removeSpecificPATObjects( process, ['Taus'] )
+process.patDefaultSequence.remove( process.patTaus )
+# bugfix for DATA Run2011 (end)
 
-# add cIc electron ID
-#process.load("EcalValidation.EcalAlignment.CiC_eIDSequence_cff")
-#process.patElectronIDs   = cms.Sequence(process.CiC_eIDSequence)
-#process.makePatElectrons = cms.Sequence(process.patElectronIDs*process.patElectronIsolation*process.patElectrons)
+# not used! (begin)
+removeSpecificPATObjects( process, ['Jets'] )
+process.patDefaultSequence.remove( process.patJetCorrections )
+process.patDefaultSequence.remove( process.patJets )
+# not used (end)
 
 process.patElectrons.electronSource = cms.InputTag("gsfElectrons::EcalAlignment")
 
 process.patElectrons.addElectronID = cms.bool(False)
   
-### AM ### With promt reco eidRobustLoose, eidRobustTight, eidRobustHighEnergy shold be used
-### AM ### but has to be defined from scratch. In 
-### AM ### EcalValidation.EcalAlignment.CiC_eIDSequence_cff
-### AM ### ElectronIdentification.cutsInCategoriesElectronIdentification_cfi
-### AM ### they are not defined.
-### AM ### Since eleId is not used (in this way) for this analysis
-### AM ### but selection are applied "by hand"
-### AM ### no eleID is run here.
-
-#process.patElectrons.addElectronID = cms.bool(True)
-#process.patElectrons.electronIDSources = cms.PSet(
-    #eidRobustLoose      = cms.InputTag("eidRobustLoose"),
-    #eidRobustTight      = cms.InputTag("eidRobustTight"),
-    #eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
-    #eidVeryLoose  = cms.InputTag("eidVeryLoose"),
-    #eidLoose      = cms.InputTag("eidLoose"),
-    #eidMedium     = cms.InputTag("eidMedium"),
-    #eidTight      = cms.InputTag("eidTight"),
-    #eidSuperTight = cms.InputTag("eidSuperTight")
-    #)
-##
-#process.patElectrons.addGenMatch = cms.bool(False)
-#process.patElectrons.embedGenMatch = cms.bool(False)
-
-
 # Add tcMET and pfMET
 from PhysicsTools.PatAlgos.tools.metTools import *
 addTcMET(process, 'TC')
 addPfMET(process, 'PF')
 
-
-# get the jet corrections
-##from PhysicsTools.PatAlgos.tools.jetTools import *
-##switchJECSet( process, "Summer09_7TeV_ReReco332")
-
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
-## uncomment this line to run on an 35X input sample
-#run36xOn35xInput(process)
-
-
-
 #--------------------------
 # AllPassFilter
 #--------------------------
 
-process.AllEvents                      = cms.EDProducer("EventCountProducer")
+
+#process.AllEvents                      = cms.EDProducer("EventCountProducer")
+process.load("EcalValidation.EcalAlignment.AllPassFilter_cfi")
+#--------------------------
+# Counter1: All read events
+process.AllEvents = process.AllPassFilter.clone()
+
 process.FilterL1FilterEvents           = cms.EDProducer("EventCountProducer")
 process.FilterGoodVertexFilterEvents   = cms.EDProducer("EventCountProducer")
 process.FilterNoScrapingFilterEvents   = cms.EDProducer("EventCountProducer")
@@ -331,16 +325,16 @@ process.highetFilter = cms.EDFilter(
 
 process.pEcalAlignment = cms.Path(
     process.AllEvents   # |-> counter
-    *process.skimming
-    *process.FilterL1FilterEvents   # |-> counter
-    *process.hltLevel1GTSeed
+    #*process.skimming
+    #*process.FilterL1FilterEvents   # |-> counter
+    #*process.hltLevel1GTSeed
     *process.FilterGoodVertexFilterEvents   # |-> counter   
-    *process.primaryVertexFilter
+    #*process.primaryVertexFilter
     *process.FilterNoScrapingFilterEvents   # |-> counter    
-    *process.noscraping
+    #*process.noscraping
     *process.FilterElectronFilterEvents   # |-> counter   
-    *process.highetele
-    *process.highetFilter
+    #*process.highetele
+    #*process.highetFilter
     *process.FilterReRECOEvents   # |-> counter   
     *process.patDefaultSequence
     *process.FilterPatDefaultSequenceEvents   # |-> counter
@@ -349,8 +343,6 @@ process.pEcalAlignment = cms.Path(
 
 #process.outpath = cms.EndPath(process.out)
 
-  
-    
    #PERBACCO !!!! 
         #python encountered the error: <type 'exceptions.AttributeError'> 'Process' object has no attribute 'out'
 
@@ -372,121 +364,3 @@ process.schedule = cms.Schedule(
 ################################################################################
 ################################################################################
    
-
-# customisation of the process
-
-
-# Automatic addition of the customisation functionfrom Configuration.GlobalRuns.reco_TLR_38X
-
-####def customiseCommon(process):
-    
-    #########################################################################################################
-    ########
-    ########  Top level replaces for handling strange scenarios of early collisions
-    ########
-
-    ###### TRACKING:
-    ###### Skip events with HV off
-    ####process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    ####process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
-    ####process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    ####process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
-    ####process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
-    ####process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-    ####process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-
-    ########## FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
-
-    ####### prevent bias in pixel vertex
-    ####process.pixelVertices.useBeamConstraint = False
-    
-    ####### pixelTracks
-    #####---- new parameters ----
-    ####process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = 4.06
-    ####process.pixelTracks.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(40.6)
-
-    ####### 0th step of iterative tracking
-    #####---- new parameters ----
-    ####process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  
-    ####process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 40.6
-
-    ####### 2nd step of iterative tracking
-    #####---- new parameters ----
-    ####process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
-    ####process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
-
-    ###### ECAL 
-    ####process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-
-    #######
-    #######  end of top level replacements
-    #######
-    ###################################################################################################
-
-    ####return (process)
-
-
-##################################################################################
-####def customisePPData(process):
-    ####process= customiseCommon(process)
-
-    ###### particle flow HF cleaning
-    ####process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
-    ####process.particleFlowRecHitHCAL.ApplyPulseDPG = True
-
-    ###### HF cleaning for data only
-    ####process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
-    ####process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
-
-    ######beam-halo-id for data only
-    ####process.CSCHaloData.ExpectedBX = cms.int32(3)
-
-    ###### hcal hit flagging
-    ####process.hfreco.PETstat.flagsToSkip  = 2
-    ####process.hfreco.S8S1stat.flagsToSkip = 18
-    ####process.hfreco.S9S1stat.flagsToSkip = 26
-    
-    ####return process
-
-
-##################################################################################
-####def customisePPMC(process):
-    ####process=customiseCommon(process)
-    
-    ####return process
-
-##################################################################################
-####def customiseCosmicData(process):
-
-    ####return process
-
-##################################################################################
-####def customiseCosmicMC(process):
-    
-    ####return process
-        
-
-##################################################################################
-####def customiseExpress(process):
-    ####process= customisePPData(process)
-
-    ####import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    ####process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
-    ####return process
-
-##################################################################################
-####def customisePrompt(process):
-    ####process= customisePPData(process)
-
-    ####import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    ####process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
-    ####return process
-
-
-####process = customisePPData(process)
-
-# End of customisation functions
-
-

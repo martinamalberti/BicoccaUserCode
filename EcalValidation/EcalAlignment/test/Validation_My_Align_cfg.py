@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -34,7 +34,6 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        #'file:/data2/amassiro/CMSSWRoot/WElectron-May10ReReco-v1_SingleElectron_RAW-RECO/F26A57B7-6D7B-E011-A737-0025901D4C74.root'
         'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-WElectron-PromptSkim-v4_RAW-RECO/9220C129-B886-E011-AA20-002481E94B4E.root'
     )
   )
