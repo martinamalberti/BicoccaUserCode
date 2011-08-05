@@ -4,7 +4,9 @@
 constants backed up here
     /afs/cern.ch/cms/ECAL/ECAL_DB_BACKUP
 
+#############################################################################
 ############################ Prepare environment ############################
+
 to install
 cvs co -r V00-12-25 CalibCalorimetry/EcalTrivialCondModules
 cvs co CondTools/Ecal
@@ -14,40 +16,51 @@ scramv1 b
 
 
 
-
+###########################################################################
 ############################ Old alignment TAG ############################
-   crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_OldAlign.cfg
 
-   crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
+cd EcalValidation/EcalAlignment/test/crab/
+multicrab -create --cfg multicrab_old_tag.cfg
 
-   crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
+*** modify in multicrab_####_#### directory the file multicrab.cfg
+*** and run
+*** multicrab -status
+*** or
 
-   crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
+multicrab -getoutput
 
-   crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign
+multicrab -report
 
-   hadd EcalAlignmentOldJoin.root Run2010B-EGMWZFilter-v2_RAWRECO_OldAlign/res/EcalAlignment_*
+hadd EcalAlignmentOldJoin.root RawRecoRealign_Old_Align/*/res/EcalAlignment_*
 
+lumiCalc.py -c frontier://LumiProd/CMS_LUMI_PROD -i test/collision11.json recorded
+
+
+###############################################################
+#### not needed any more #### can be used as a cross check ####
 ############################ Default alignment 0 ############################
+### 
+### 1) create reconstruction with 0 alignment
+### 
+###     crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_NoAlign.cfg
+### 
+###     crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+### 
+###     That will store data (ROOT trees with electrons) (see [1.1] for Castor usage; default "getoutput" usage)
+### 
+###     crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+### 
+###     crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+### 
+###     crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
+### 
+###  and join output tree
+### 
+###     hadd EcalAlignmentJoin.root Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign/res/EcalAlignment_*
+### 
 
-1) create reconstruction with 0 alignment
 
-    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_NoAlign.cfg
-
-    crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
-
-    That will store data (ROOT trees with electrons) (see [1.1] for Castor usage; default "getoutput" usage)
-
-    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
-
-    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
-
-    crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
-
- and join output tree
-
-    hadd EcalAlignmentJoin.root Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign/res/EcalAlignment_*
-
+########################################################################################################
 ############################ Calculate alignment coefficients and create DB ############################
 
 2) Do Alignment:
@@ -55,7 +68,7 @@ scramv1 b
      EB_Alignment_RotoTraslation AlignEB_cfg.py
   NB: remember to modify output "txt" file in "Align_cfg.py" to deal with EE and EB 
       (or to use "AlignEE_cfg.py" and "AlignEB_cfg.py"
-  Time ~ 1 minute (it depends on the number of electrons)
+  Time ~ 10 minutes (it depends on the number of electrons)
 
   In "Align_cfg.py" enable/disable rotations and traslations
 
@@ -112,42 +125,31 @@ http://proj-clhep.web.cern.ch/proj-clhep/CLHEP_2_1_0_1/doxygen/html/classCLHEP_1
     select *from ALIGNME_M_ALIGN;
     .q
 
+
+########################################################################################
+############################ Rereco with new ECAL alignment ############################
+
 4) run Re-Reco with new DB
-    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_MyAlign.cfg
-    crab -create -cfg crab_validation_simpleNtpleDATA_WZ_Filter_MyAlign.cfg
 
-    crab -submit -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-    crab -submit -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
+cd EcalValidation/EcalAlignment/test/crab/
+multicrab -create --cfg multicrab_new_tag.cfg
+
+*** modify in multicrab_####_#### directory the file multicrab.cfg
+*** and run
+*** multicrab -status
+*** or
+
+multicrab -getoutput
+
+multicrab -report
+
+hadd EcalAlignmentNewJoin.root RawRecoRealign_New_Align/*/res/EcalAlignment_*
+
+lumiCalc.py -c frontier://LumiProd/CMS_LUMI_PROD -i test/collision11.json recorded
 
 
 
-5) remember to do crab -status and check that the GRID status is "done" (for Castor usage see [5.1])
-
-    crab -status -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-    crab -status -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
-
-    crab -getoutput -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-    crab -getoutput -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
-
-    crab -report -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-
-and join output tree
-
-    hadd EcalAlignmentJoinMyAlign_Temp.root Run2010B-WZEG-v2_RAWRECO_MyAlign/res/EcalAlignment_*
-    hadd EcalAlignmentJoinMyAlign.root EcalAlignmentJoinMyAlign_Temp.root Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign/res/EcalAlignment_*
-    rm EcalAlignmentJoinMyAlign_Temp.root
-
-    hadd EcalAlignmentJoinMyAlign.root Run2010B-WZEG-v2_RAWRECO_MyAlign/res/EcalAlignment_*
-
-and get luminosity information:
-    crab -report -c Run2010B-WZEG-v2_RAWRECO_MyAlign
-    crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_MyAlign
-
-    crab -report -c Run2010B-WZEG-v2_RAWRECO_NoAlign
-    crab -report -c Run2010B-EGMWZFilter-v2_RAWRECO_NoAlign
-
-    lumiCalc.py -c frontier://LumiProd/CMS_LUMI_PROD -i test/collision10.json recorded
-
+#####################################################################################
 ############################ Sanity check and validation ############################
 
 6) Sanity check
@@ -158,53 +160,11 @@ and get luminosity information:
 
 
 
-
-
 7) Compare different coefficients: draw dx, dy, dz, dpsi, dtheta, dphi for two different set of alignments coefficients
        r00t EB_Alignment_Draw.cxx
        r00t EE_Alignment_Draw.cxx
    For "EB" Survey comparison is hardcoded
    Useful before step (4) to test coefficients (not big changes from previous alignment!)
-
-
-
-
-
-#####################################################################################
-#####################################################################################
-#####################################################################################
-################################# steps with Castor #################################
-
-1.1) get the list of the trees to be used for alignment:
-   
-   rfdir /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign | awk '{print "@rfio:/castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign/"$9"@,"}' | tr "@" "'" &> text.txt
-
-   rfdir /castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_NoAlign | awk '{print "@rfio:/castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_NoAlign/"$9"@,"}' | tr "@" "'" &> text.txt
-   
-and copy in the file "Align_cfg.py"
-
-Or copy the ROOT files in local and hadd them
-   mkdir /tmp/amassiro/EcalAlignment/
-   rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_NoAlign /tmp/amassiro/EcalAlignment/
-   rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_NoAlign /tmp/amassiro/EcalAlignment/
-   
-   hadd /tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root /tmp/amassiro/EcalAlignment/EcalAlignment_*
-
-
-
-
-5.1) sanity check
-   copy in local
-
-       rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/Filter_RAWRECO_MyAlign /tmp/amassiro/EcalAlignmentMyAlign/
-       rfcpCastor /castor/cern.ch/user/a/amassiro/EcalAlignment/WZEG_RAWRECO_MyAlign /tmp/amassiro/EcalAlignmentMyAlign/
-       hadd /tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root /tmp/amassiro/EcalAlignmentMyAlign/EcalAlignment_*
-
-   and test EB and EE
-
-       r00t Alignment_Validation_EB.cxx\(\"/tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root\",\"/tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root\"\)
-
-       r00t Alignment_Validation_EE.cxx\(\"/tmp/amassiro/EcalAlignment/EcalAlignmentJoin.root\",\"/tmp/amassiro/EcalAlignmentMyAlign/EcalAlignmentJoinMyAlign.root\"\)
 
 
 
