@@ -70,8 +70,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 # Other statements
 #process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
 #process.GlobalTag.globaltag = 'GR_P_V20::All'
-process.GlobalTag.globaltag = 'GR_R_42_V18::All'
-
+#process.GlobalTag.globaltag = 'GR_R_42_V18::All'
+process.GlobalTag.globaltag = 'GR_R_44_V1::All'
   
 # http://cms-conddb.cern.ch/gtlist/?GlobalTag=GR_R_39X_V5
   
@@ -108,15 +108,32 @@ process.GlobalTag.toGet = cms.VPSet(
              #tag = cms.string("GlobalAlignment_v2_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
              #),
-    #cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-             #tag = cms.string("TrackerAlignment_GR10_v2_offline"),
-             #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
-             #),
+    cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+             tag = cms.string("TrackerAlignment_GR10_v5_offline"),
+             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
+             )
     #cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
              #tag = cms.string("TrackerAlignmentErrors_GR10_v2_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT")
              #)
     )
+
+
+
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.trackerBows = cms.ESSource(
+   "PoolDBESSource",
+   CondDBSetup,
+   connect = cms.string('frontier://FrontierProd/CMS_COND_310X_ALIGN'),
+   toGet = cms.VPSet(cms.PSet(
+           record = cms.string('TrackerSurfaceDeformationRcd'),
+           tag = cms.string('TrackerSurfaceDeformations_v1_offline')
+           ))
+   )
+process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
+
+
+
 
 #process.poolDBESSource2 = cms.ESSource("PoolDBESSource",
    #BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -189,7 +206,7 @@ process.patDefaultSequence.remove( process.patJetCorrections )
 process.patDefaultSequence.remove( process.patJets )
 # not used (end)
 
-# process.patElectrons.electronSource = cms.InputTag("gsfElectrons::EcalAlignment")
+process.patElectrons.electronSource = cms.InputTag("gsfElectrons::EcalAlignment")
 
 process.patElectrons.addElectronID = cms.bool(False)
   
@@ -336,121 +353,3 @@ process.schedule = cms.Schedule(
 ################################################################################
 ################################################################################
    
-
-# customisation of the process
-
-
-# Automatic addition of the customisation functionfrom Configuration.GlobalRuns.reco_TLR_38X
-
-####def customiseCommon(process):
-    
-    #########################################################################################################
-    ########
-    ########  Top level replaces for handling strange scenarios of early collisions
-    ########
-
-    ###### TRACKING:
-    ###### Skip events with HV off
-    ####process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    ####process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
-    ####process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-    ####process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
-    ####process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
-    ####process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-    ####process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-
-    ########## FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
-
-    ####### prevent bias in pixel vertex
-    ####process.pixelVertices.useBeamConstraint = False
-    
-    ####### pixelTracks
-    #####---- new parameters ----
-    ####process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = 4.06
-    ####process.pixelTracks.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(40.6)
-
-    ####### 0th step of iterative tracking
-    #####---- new parameters ----
-    ####process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  
-    ####process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 40.6
-
-    ####### 2nd step of iterative tracking
-    #####---- new parameters ----
-    ####process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
-    ####process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
-
-    ###### ECAL 
-    ####process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-
-    #######
-    #######  end of top level replacements
-    #######
-    ###################################################################################################
-
-    ####return (process)
-
-
-##################################################################################
-####def customisePPData(process):
-    ####process= customiseCommon(process)
-
-    ###### particle flow HF cleaning
-    ####process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
-    ####process.particleFlowRecHitHCAL.ApplyPulseDPG = True
-
-    ###### HF cleaning for data only
-    ####process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
-    ####process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
-
-    ######beam-halo-id for data only
-    ####process.CSCHaloData.ExpectedBX = cms.int32(3)
-
-    ###### hcal hit flagging
-    ####process.hfreco.PETstat.flagsToSkip  = 2
-    ####process.hfreco.S8S1stat.flagsToSkip = 18
-    ####process.hfreco.S9S1stat.flagsToSkip = 26
-    
-    ####return process
-
-
-##################################################################################
-####def customisePPMC(process):
-    ####process=customiseCommon(process)
-    
-    ####return process
-
-##################################################################################
-####def customiseCosmicData(process):
-
-    ####return process
-
-##################################################################################
-####def customiseCosmicMC(process):
-    
-    ####return process
-        
-
-##################################################################################
-####def customiseExpress(process):
-    ####process= customisePPData(process)
-
-    ####import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    ####process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
-    ####return process
-
-##################################################################################
-####def customisePrompt(process):
-    ####process= customisePPData(process)
-
-    ####import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    ####process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
-    ####return process
-
-
-####process = customisePPData(process)
-
-# End of customisation functions
-
-
