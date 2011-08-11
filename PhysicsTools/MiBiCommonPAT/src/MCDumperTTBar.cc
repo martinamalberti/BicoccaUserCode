@@ -131,7 +131,8 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   
   if(!mcT1_p || !mcT2_p)
   {
-   std::cerr << ">>> MCDumper::Analyze::Warning: no 2 top in the event" << std::endl;
+   if(verbosity_p)
+    std::cerr << ">>> MCDumper::Analyze::Warning: no 2 top in the event" << std::endl;
     
    isValid_p = false;
    return;
@@ -147,7 +148,8 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   
   if(VBuffer_1.size() < 2) //---- even if some gluons are produced
   {
-     std::cerr << "MCDumperTTBar::Analyze::Warning: not a top -> bW decay" << std::endl;
+     if(verbosity_p)  
+      std::cerr << "MCDumperTTBar::Analyze::Warning: not a top -> bW decay" << std::endl;
 
      isValid_p = false;
      return;
@@ -170,7 +172,8 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   
   if(VBuffer_2.size() < 2) //---- even if some gluons are produced
   {
-   std::cerr << "MCDumperTTBar::Analyze::Warning: not a top -> bW decay" << std::endl;
+   if(verbosity_p)
+     std::cerr << "MCDumperTTBar::Analyze::Warning: not a top -> bW decay" << std::endl;
 
    isValid_p = false;
    return;
@@ -193,7 +196,8 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   
   if(fFromV1Buffer.size() != 2)
   {
-     std::cerr << "MCDumperTTBar::Analyze::Warning: not a V1 -> ff decay" << std::endl;
+     if(verbosity_p) 
+       std::cerr << "MCDumperTTBar::Analyze::Warning: not a V1 -> ff decay" << std::endl;
 
      isValid_p = false;
      return;
@@ -238,7 +242,8 @@ void MCDumperTTBar::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
 
   if(fFromV2Buffer.size() != 2)
   {
-     std::cerr << "MCDumperTTBar::Analyze::Warning: not a V2 -> ff decay" << std::endl;
+     if(verbosity_p)
+      std::cerr << "MCDumperTTBar::Analyze::Warning: not a V2 -> ff decay" << std::endl;
 
      isValid_p = false;
      return;

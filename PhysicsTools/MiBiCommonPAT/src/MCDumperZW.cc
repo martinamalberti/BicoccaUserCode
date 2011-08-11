@@ -139,7 +139,8 @@ void MCDumperZW::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles)
   // check if it is signal
   if(!mcV_p)
   {
-    std::cerr << ">>> MCDumperZW::Analyze::Warning: no W in the event" << std::endl;
+    if(verbosity_p)
+      std::cerr << ">>> MCDumperZW::Analyze::Warning: no W in the event" << std::endl;
     
     isValid_p = false;
     return;
@@ -158,7 +159,8 @@ void MCDumperZW::Analyze(edm::Handle<reco::GenParticleCollection>& genParticles)
   
   if(fFromVBuffer.size() != 2)
   {
-     std::cerr << "MCDumperZW::Analyze::Warning: not a V -> ff decay" << std::endl;
+     if(verbosity_p) 
+       std::cerr << "MCDumperZW::Analyze::Warning: not a V -> ff decay" << std::endl;
 
      isValid_p = false;
      return;

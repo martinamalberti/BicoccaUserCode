@@ -168,7 +168,8 @@ void MCDumperHiggs::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   
   if(VBuffer.size() != 2)
   {
-     std::cerr << "MCDumperHiggs::Analyze::Warning: not a H -> VV decay" << std::endl;
+     if(verbosity_p)
+      std::cerr << "MCDumperHiggs::Analyze::Warning: not a H -> VV decay" << std::endl;
 
      isValid_p = false;
      return;
@@ -199,7 +200,8 @@ void MCDumperHiggs::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
   
   if(fFromV1Buffer.size() != 2)
   {
-     std::cerr << "MCDumperHiggs::Analyze::Warning: not a V1 -> ff decay" << std::endl;
+     if(verbosity_p)
+      std::cerr << "MCDumperHiggs::Analyze::Warning: not a V1 -> ff decay" << std::endl;
 
      isValid_p = false;
      return;
@@ -231,7 +233,8 @@ void MCDumperHiggs::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
 
   if(fFromV2Buffer.size() != 2)
   {
-     std::cerr << "MCDumperHiggs::Analyze::Warning: not a V2 -> ff decay" << std::endl;
+     if(verbosity_p) 
+      std::cerr << "MCDumperHiggs::Analyze::Warning: not a V2 -> ff decay" << std::endl;
 
      isValid_p = false;
      return;
