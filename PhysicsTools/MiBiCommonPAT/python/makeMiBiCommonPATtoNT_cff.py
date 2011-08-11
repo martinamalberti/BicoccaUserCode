@@ -143,13 +143,13 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveHCALNoise  = cms.untracked.bool (False)
     
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCPU              = cms.untracked.bool (MC)
-    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCPtHat           = cms.untracked.bool (MC)
-    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCTTBar           = cms.untracked.bool (False)    
+    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCPtHat           = cms.untracked.bool (False) # not needed
+#    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCTTBar           = cms.untracked.bool (False)    
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCHiggs           = cms.untracked.bool (MC)
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCHiggsWW         = cms.untracked.bool (MC)
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCHiggsGammaGamma = cms.untracked.bool (False)
-    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCZW              = cms.untracked.bool (False)
-    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveProcessId         = cms.untracked.bool (MC)
+#    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveMCZW              = cms.untracked.bool (False)
+    process.MiBiCommonNTOneLeptonTwoJetsAK5PF.saveProcessId         = cms.untracked.bool (False) # not needed
     process.MiBiCommonNTOneLeptonTwoJetsAK5PF.savePhotonsMother     = cms.untracked.bool (False)
 
     # VBF paths

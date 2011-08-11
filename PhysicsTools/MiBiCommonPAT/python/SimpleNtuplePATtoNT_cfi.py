@@ -11,7 +11,8 @@ SimpleNtuplePATtoNT = cms.EDAnalyzer(
     MCPileupTag = cms.InputTag ("addPileupInfo"),
     
     TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
-    TriggerResultsTag = cms.InputTag("TriggerResults","","REDIGI311X"),
+    TriggerResultsTag = cms.InputTag("TriggerResults","","RECO"),
+    #TriggerResultsTag = cms.InputTag("TriggerResults","","REDIGI311X"),
     
     PVTag = cms.InputTag("goodPrimaryVertices"),
 
