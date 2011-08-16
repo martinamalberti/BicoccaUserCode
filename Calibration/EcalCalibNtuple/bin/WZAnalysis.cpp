@@ -386,21 +386,27 @@ int main(int argc, char** argv)
     if( nTightEle == 1 )
     {
       SetElectron1Variables(vars,reader,mapIt->second);
-      PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
-      vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
+      //PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
+     //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
+     PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
+     vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
     }
     
     if( nTightEle == 2 )
     {
       SetElectron1Variables(vars,reader,mapIt->second);
-      PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
-      vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
+     PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
+     vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
+     // PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
+     // vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
 
       ++mapIt;
 
       SetElectron2Variables(vars,reader,mapIt->second);
-      PhotonFix Correction2 (vars.ele2_scE,vars.ele2_scEta,vars.ele2_scPhi,vars.ele2_e3x3/vars.ele2_scE);
-      vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_scE;
+     PhotonFix Correction2 (vars.ele2_ph_E,vars.ele2_ph_scEta,vars.ele2_ph_scPhi,vars.ele2_ph_R9);
+     vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_ph_E;
+     //      PhotonFix Correction2 (vars.ele2_scE,vars.ele2_scEta,vars.ele2_scPhi,vars.ele2_e3x3/vars.ele2_scE);
+     // vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_scE;
     }
     
     

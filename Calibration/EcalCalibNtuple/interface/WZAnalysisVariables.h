@@ -69,6 +69,12 @@ struct WZAnalysisVariables
   
   float ele1_e3x3;
   
+  int ele1_nPh;
+  float ele1_ph_E;
+  float ele1_ph_scEta;
+  float ele1_ph_scPhi;
+  float ele1_ph_R9;
+
   float ele1_seedE;
   int ele1_seedIeta;
   int ele1_seedIphi;
@@ -126,6 +132,12 @@ struct WZAnalysisVariables
   float ele2_es;
   
   float ele2_e3x3;
+
+  int ele2_nPh;
+  float ele2_ph_E;
+  float ele2_ph_scEta;
+  float ele2_ph_scPhi;
+  float ele2_ph_R9;
   
   float ele2_seedE;
   int ele2_seedIeta;
@@ -180,3 +192,5 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
 void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It);
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader);
 void SetDiElectronVariables(WZAnalysisVariables& vars, treeReader& reader);
+
+void SetPhotonMatchingElectron(float* const Vars, treeReader& reader, const int& eleIt);

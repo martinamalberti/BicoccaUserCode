@@ -76,7 +76,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_es",          &vars.ele1_es,                   "ele1_es/F");
   
   vars.m_reducedTree -> Branch("ele1_e3x3", &vars.ele1_e3x3, "ele1_e3x3/F");
-  
+
+  vars.m_reducedTree -> Branch("ele1_nPh", &vars.ele1_nPh, "ele1_nPh/I");
+  vars.m_reducedTree -> Branch("ele1_ph_E", &vars.ele1_ph_E, "ele1_ph_E/F");
+  vars.m_reducedTree -> Branch("ele1_ph_scEta", &vars.ele1_ph_scEta, "ele1_ph_scEta/F");
+  vars.m_reducedTree -> Branch("ele1_ph_scPhi", &vars.ele1_ph_scPhi, "ele1_ph_scPhi/F");
+  vars.m_reducedTree -> Branch("ele1_ph_R9", &vars.ele1_ph_R9, "ele1_ph_R9/F");
+ 
+
   vars.m_reducedTree -> Branch("ele1_seedE",          &vars.ele1_seedE,                   "ele1_seedE/F");
   vars.m_reducedTree -> Branch("ele1_seedIeta",       &vars.ele1_seedIeta,             "ele1_seedIeta/I");
   vars.m_reducedTree -> Branch("ele1_seedIphi",       &vars.ele1_seedIphi,             "ele1_seedIphi/I");
@@ -134,6 +141,12 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   
   vars.m_reducedTree -> Branch("ele2_e3x3", &vars.ele2_e3x3, "ele2_e3x3/F");
   
+  vars.m_reducedTree -> Branch("ele2_nPh", &vars.ele2_nPh, "ele2_nPh/I");
+  vars.m_reducedTree -> Branch("ele2_ph_E", &vars.ele2_ph_E, "ele2_ph_E/F");
+  vars.m_reducedTree -> Branch("ele2_ph_scEta", &vars.ele2_ph_scEta, "ele2_ph_scEta/F");
+  vars.m_reducedTree -> Branch("ele2_ph_scPhi", &vars.ele2_ph_scPhi, "ele2_ph_scPhi/F");
+  vars.m_reducedTree -> Branch("ele2_ph_R9", &vars.ele2_ph_R9, "ele2_ph_R9/F");
+
   vars.m_reducedTree -> Branch("ele2_seedE",          &vars.ele2_seedE,                   "ele2_seedE/F");
   vars.m_reducedTree -> Branch("ele2_seedIeta",       &vars.ele2_seedIeta,             "ele2_seedIeta/I");
   vars.m_reducedTree -> Branch("ele2_seedIphi",       &vars.ele2_seedIphi,             "ele2_seedIphi/I");
@@ -235,6 +248,12 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   
   vars.ele1_e3x3 = -99.;
 
+  vars.ele1_nPh = -99;
+  vars.ele1_ph_E = -99;
+  vars.ele1_ph_scEta = -99;
+  vars.ele1_ph_scPhi = -99;
+  vars.ele1_ph_R9 = -99;
+
   vars.ele1_seedE = -99.;
   vars.ele1_seedIeta = -99;
   vars.ele1_seedIphi = -99;
@@ -292,6 +311,12 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.ele2_es = -99.;  
   
   vars.ele2_e3x3 = -99.;
+
+  vars.ele2_nPh = -99;
+  vars.ele2_ph_E = -99;
+  vars.ele2_ph_scEta = -99;
+  vars.ele2_ph_scPhi = -99;
+  vars.ele2_ph_R9 = -99;
   
   vars.ele2_seedE = -99.;
   vars.ele2_seedIeta = -99;
@@ -390,8 +415,17 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele1It);
   vars.ele1_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele1It);
   vars.ele1_es = reader.GetFloat("electrons_ES")->at(ele1It);
-  
+    
   vars.ele1_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele1It);
+
+  float Vars[5];
+  SetPhotonMatchingElectron( Vars, reader, ele1It);
+  vars.ele1_nPh = (int) Vars[0];
+  vars.ele1_ph_E = Vars[1];
+  vars.ele1_ph_scEta = Vars[2];
+  vars.ele1_ph_scPhi = Vars[3];
+  vars.ele1_ph_R9 = Vars[4];
+  
 
   vars.ele1_seedE = reader.GetFloat("electrons_seedE")->at(ele1It);
   vars.ele1_seedIeta = reader.GetInt("electrons_seedIeta")->at(ele1It);
@@ -454,6 +488,14 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   
   vars.ele2_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele2It);
   
+  float Vars[5];
+  SetPhotonMatchingElectron( Vars, reader, ele2It);
+  vars.ele2_nPh = (int) Vars[0];
+  vars.ele2_ph_E = Vars[1];
+  vars.ele2_ph_scEta = Vars[2];
+  vars.ele2_ph_scPhi = Vars[3];
+  vars.ele2_ph_R9 = Vars[4];
+
   vars.ele2_seedE = reader.GetFloat("electrons_seedE")->at(ele2It);
   vars.ele2_seedIeta = reader.GetInt("electrons_seedIeta")->at(ele2It);
   vars.ele2_seedIphi = reader.GetInt("electrons_seedIphi")->at(ele2It);
@@ -499,4 +541,59 @@ void SetDiElectronVariables(WZAnalysisVariables& vars, treeReader& reader)
   ROOT::Math::PtEtaPhiEVector ele1_sc(vars.ele1_scE*sin(2*atan(exp(-1.*vars.ele1_eta))),vars.ele1_eta,vars.ele1_phi,vars.ele1_scE);
   ROOT::Math::PtEtaPhiEVector ele2_sc(vars.ele2_scE*sin(2*atan(exp(-1.*vars.ele2_eta))),vars.ele2_eta,vars.ele2_phi,vars.ele2_scE);
   vars.ele1ele2_scM = (ele1_sc + ele2_sc).mass();
+}
+
+
+//look for photons matching (delta R) the electron
+void SetPhotonMatchingElectron( float* const Vars, treeReader& reader, const int& eleIt){
+
+  int ele_nPh = 0;
+  float ele_ph_E=-999;
+  float ele_ph_scEta=-999;
+  float ele_ph_scPhi=-999;
+  float ele_ph_R9=-999;
+
+  float DrMin = 1000;
+  int pItMin = 0;
+
+  for(unsigned int phIt = 0; phIt < (reader.Get4V("photons")->size()); ++phIt)
+    {
+      ROOT::Math::XYZTVector photon = reader.Get4V("photons")->at(phIt);
+      ROOT::Math::XYZTVector photonSC = reader.Get4V("photons_SC")->at(phIt);
+      
+
+      float deltaeta = photonSC.eta() - reader.GetFloat("electrons_scEta")->at(eleIt);
+      double deltaphi = fabs(photonSC.phi() - reader.GetFloat("electrons_scPhi")->at(eleIt) );
+      if (deltaphi > 6.283185308) deltaphi -= 6.283185308;
+      if (deltaphi > 3.141592654) deltaphi = 6.283185308 - deltaphi;
+
+      float deltaR = sqrt(deltaeta*deltaeta + deltaphi*deltaphi);
+      float eratio = photon.E()/reader.GetFloat("electrons_scE")->at(eleIt);
+
+      if ( deltaR < 0.15 &&  eratio > 0.5 && eratio < 1.5 ){
+	ele_nPh += 1; 
+	if( deltaR < DrMin){
+	  DrMin = deltaR;
+	  pItMin = phIt;
+	}
+      }
+
+    }
+  
+  if( ele_nPh > 0 ){
+    ROOT::Math::XYZTVector thePhoton = reader.Get4V("photons")->at(pItMin);
+    ROOT::Math::XYZTVector thePhotonSC = reader.Get4V("photons_SC")->at(pItMin);
+    ele_ph_E = thePhoton.E(); 
+    ele_ph_scEta = thePhotonSC.eta();
+    ele_ph_scPhi = thePhotonSC.phi();
+    ele_ph_R9 = reader.GetFloat("photons_r9")->at(pItMin);
+  }
+
+  
+  Vars[0] = float (ele_nPh);
+  Vars[1]= ele_ph_E;
+  Vars[2]= ele_ph_scEta;
+  Vars[3]= ele_ph_scPhi;
+  Vars[4]= ele_ph_R9;
+
 }
