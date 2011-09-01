@@ -26,33 +26,43 @@ int templIndex(float eta){
 void LocalCorrectionEta()
 {
   gROOT->SetStyle("Plain");
-  
+  gStyle->SetTextFont(42);
+  gStyle->SetTextSize(0.04);
+  gStyle->SetTitleFont(42,"xyz");
+  gStyle->SetTitleSize(0.04);
+  gStyle->SetLabelFont(42,"xyz");
+  gStyle->SetLabelSize(0.04);
+  gStyle->SetStatFont(42);
+  gStyle->SetStatFontSize(0.04);
+  gROOT->ForceStyle();
+
   float xtalWidth = 0.01745329;
 
   //---- variables for selections
   float etaMax = 1.44;
   
-  float r9max = 999. ;
-  float r9min = 0.94 ;
+  float r9min = 0. ;
+  float r9max = 0.94 ;
+  
   
   bool useOddCry  = false;
   bool useEvenCry = false;
   
   //---- output file to save graphs
   char outfilename[100];
-  sprintf(outfilename,"GraphsLocalEtaDK_highR9.root");
+  sprintf(outfilename,"GraphsLocalEtaDK_lowR9.root");
 
  
   TChain *ntu_MC = new TChain("ntu");
   TChain *ntu_Data = new TChain("ntu");
   
   // MC summer 2011
-  ntu_MC->Add("/data2/ghezzi/Calib/PhotonMCDat/WZAnalysis_WToENu_ter.root");
+  ntu_MC->Add("./PhotonMCDat/WZAnalysis_WToENu_ter.root");
   
   //data
-  ntu_Data->Add("/data2/ghezzi/Calib/PhotonDataDat/WZAnalysis_PromptV4_ter.root");
-  ntu_Data->Add("/data2/ghezzi/Calib/PhotonDataDat/WZAnalysis_PromptV5_ter.root");
-  ntu_Data->Add("/data2/ghezzi/Calib/PhotonDataDat/WZAnalysis_May10ReReco_ter.root");
+  ntu_Data->Add("./PhotonDataDat/WZAnalysis_PromptV4_ter.root");
+  ntu_Data->Add("./PhotonDataDat/WZAnalysis_PromptV5_ter.root");
+  ntu_Data->Add("./PhotonDataDat/WZAnalysis_May10ReReco_ter.root");
   
   std::cout << "     MC  : " << ntu_MC->GetEntries() << " entries in  MC  sample" << std::endl;
   std::cout << "     Data  : " << ntu_Data->GetEntries() << " entries in  Data  sample" << std::endl;
@@ -178,20 +188,23 @@ void LocalCorrectionEta()
     
     int mod = templIndex(fetaCry);
     
+
     // fill template for each mod
     h_template[mod]-> Fill(EoP*1.001*scLocalCorr_DK);
-
+    
     // fill MC histos in eta bins
     //float locEta = scLocalEta+0.5; 
-    float locEta = etaC_DK/xtalWidth + 0.5;
-    if (locEta<0.) locEta+=1.;
-    if (locEta>=1.) locEta-=1.;
+    float locEta = etaC_DK/xtalWidth;
+    if ( fabs(locEta) > 0.5 ) continue; 
+    float locPhi = phiC_DK/xtalWidth;
+    //    if (fabs(locPhi)>0.2) continue;
 
-    int bin = nBins * locEta; 
+    int bin = nBins * (locEta+0.5); 
     if (bin>nBins-1 || bin < 0 ) {
       cout << "Error in bins: " << bin << " " << scLocalEta << endl;
       continue;
     }
+
 
     
     float correction = scLocalCorr_DK;
@@ -204,6 +217,7 @@ void LocalCorrectionEta()
 
   
 
+
   ////////////////////////////////////////    Data    ///////////////////////////////////////////////
   std::cout << "Loop on Data events ..." << endl; 
   // loop on data
@@ -215,7 +229,7 @@ void LocalCorrectionEta()
 
     // redefine E/p using Photn Energy (needed to work with DK corrections)
     EoP = EoP/scEne*phE;
-
+    
     // eta or R9 cuts
     if( fabs(scEta) > etaMax) continue;
     if ( phR9 < r9min || phR9 > r9max ) continue; 
@@ -237,18 +251,21 @@ void LocalCorrectionEta()
     
     // fill MC histos in eta bins
     //float locEta = scLocalEta+0.5; 
-    float locEta = etaC_DK/xtalWidth + 0.5;
-    if (locEta<0.) locEta+=1.;
-    if (locEta>=1.) locEta-=1.;
-    
-    int bin = nBins * locEta; 
+    float locEta = etaC_DK/xtalWidth;
+    if ( fabs(locEta) > 0.5 ) continue;
+
+    float locPhi = phiC_DK/xtalWidth;
+    //if (fabs(locPhi)>0.2) continue;
+
+
+    int bin = nBins * (locEta+0.5); 
     if (bin>nBins-1 || bin < 0 ) {
       cout << "Error in bins: " << bin << " " << scLocalEta << endl;
       continue;
     }
 
     
-    float correction = scLocalCorr_DK;
+    float correction = scLocalCorr_DK;    
     crackCorr = 1;
     
     (h_EoP_Data[bin][mod]) -> Fill(EoP/crackCorr);
@@ -259,7 +276,7 @@ void LocalCorrectionEta()
   //cout << "stat: "<< h_EoP_Data[10][0]->GetEntries()<< " " <<  h_EoC_Data[10][0]->GetEntries() << endl; 
 
   /////////////// Fit the histograms and fill the graphs ////////////////////////
-  int rebin = 8;
+  int rebin = 4;
 
   TGraphErrors* g_EoP_MC[Ntempl];
   TGraphErrors* g_EoC_MC[Ntempl];
@@ -269,6 +286,9 @@ void LocalCorrectionEta()
   TGraphErrors* g_EoC_Data[Ntempl];
   TGraphErrors* g_ratio_Data[Ntempl];
 
+  TGraphErrors* g_ratio_uncorr[Ntempl];
+  TGraphErrors* g_ratio_corr[Ntempl];
+ 
   for (int mod=0; mod<4; mod++){
     char histoName[100];
     
@@ -285,6 +305,12 @@ void LocalCorrectionEta()
     g_EoC_Data[mod]   = new TGraphErrors(); g_EoC_Data[mod]->SetName(histoName);
     sprintf(histoName, "gRatio_Data_mod%d", mod+1);
     g_ratio_Data[mod]   = new TGraphErrors(); g_ratio_Data[mod]->SetName(histoName);
+
+    sprintf(histoName, "gRatio_uncorr_mod%d", mod+1);
+    g_ratio_uncorr[mod]   = new TGraphErrors(); g_ratio_uncorr[mod]->SetName(histoName);
+
+    sprintf(histoName, "gRatio_corr_mod%d", mod+1);
+    g_ratio_corr[mod]   = new TGraphErrors(); g_ratio_corr[mod]->SetName(histoName);
     
     h_template[mod] -> Rebin(rebin);
 
@@ -311,6 +337,7 @@ void LocalCorrectionEta()
 	templateFunc -> SetNpx(10000);
 
 	////////////////     MC ///////////////////////
+	float xval = (i+0.5)*1/(float)nBins - 0.5;
 
 	// uncorrected MC   
 	double xNorm = h_EoP_MC[i][mod]->GetEntries()/h_template[mod]->GetEntries() *
@@ -321,15 +348,17 @@ void LocalCorrectionEta()
 	templateFunc -> FixParameter(2, 0.);
     
 
-	h_EoP_MC[i][mod] -> Fit("templateFunc", "MRQLN+");
-	g_EoP_MC[mod] -> SetPoint(i, (i+0.5)*1/(float)nBins , 1./templateFunc->GetParameter(1));
+	TFitResultPtr	r = h_EoP_MC[i][mod] -> Fit("templateFunc", "SMRQL+");
+	int fitStatus = r;
+	
+	g_EoP_MC[mod] -> SetPoint(i, xval , 1./templateFunc->GetParameter(1));
 	g_EoP_MC[mod] -> SetPointError(i, 0., templateFunc->GetParError(1));
 	//    if ( templateFunc->GetParError(1) < 0.003) g_EoP -> SetPointError(i, 0., 0.003);
 	//    cout  << " ***** " <<  1./templateFunc->GetParameter(1) << " " << templateFunc->GetParError(1) << endl; 
+	
+	float scaleMC  = 1./templateFunc->GetParameter(1);
+	float escaleMC = templateFunc->GetParError(1)/scaleMC/scaleMC;
 
-	//ratio preparation
-	float ratioMC  = templateFunc->GetParameter(1);
-	float eratioMC = templateFunc->GetParError(1); 
 
 	//corrected MC  
 	xNorm = h_EoC_MC[i][mod]->GetEntries()/h_template[mod]->GetEntries() *
@@ -340,22 +369,20 @@ void LocalCorrectionEta()
 	templateFunc -> FixParameter(2, 0.);
     
 
-	h_EoC_MC[i][mod] -> Fit("templateFunc", "MRQLN+");
-	g_EoC_MC[mod] -> SetPoint(i, (i+0.5)*1/(float)nBins , 1./templateFunc->GetParameter(1));
+	h_EoC_MC[i][mod] -> Fit("templateFunc", "MRQLS+");
+	g_EoC_MC[mod] -> SetPoint(i, xval , 1./templateFunc->GetParameter(1));
 	g_EoC_MC[mod] -> SetPointError(i, 0., templateFunc->GetParError(1));
     
-	//ratio finalization
-	ratioMC /= templateFunc->GetParameter(1);
-	eratioMC = ratioMC*sqrt(eratioMC*eratioMC + templateFunc->GetParError(1)*templateFunc->GetParError(1)); 
-	g_ratio_MC[mod] -> SetPoint(i, (i+0.5)*1/(float)nBins , ratioMC);
-	g_ratio_MC[mod] -> SetPointError(i, 0., eratioMC);
-    
+
+	float scaleMCcorr  = 1./templateFunc->GetParameter(1);
+	float escaleMCcorr = templateFunc->GetParError(1)/scaleMCcorr/scaleMCcorr;
+
 
 	/////////////////////////// data //////////////////////////////////////
 
 
 	// uncorrected Data   
-	double xNorm = h_EoP_Data[i][mod]->GetEntries()/h_template[mod]->GetEntries() *
+	xNorm = h_EoP_Data[i][mod]->GetEntries()/h_template[mod]->GetEntries() *
 	  h_EoP_Data[i][mod]->GetBinWidth(1)/h_template[mod]->GetBinWidth(1); 
 
 	templateFunc -> FixParameter(0, xNorm);
@@ -363,15 +390,14 @@ void LocalCorrectionEta()
 	templateFunc -> FixParameter(2, 0.);
     
 
-	h_EoP_Data[i][mod] -> Fit("templateFunc", "MRQLN+");
-	g_EoP_Data[mod] -> SetPoint(i, (i+0.5)*1/(float)nBins , 1./templateFunc->GetParameter(1));
+	h_EoP_Data[i][mod] -> Fit("templateFunc", "MRQLS+");
+	g_EoP_Data[mod] -> SetPoint(i, xval , 1./templateFunc->GetParameter(1));
 	g_EoP_Data[mod] -> SetPointError(i, 0., templateFunc->GetParError(1));
 	//    if ( templateFunc->GetParError(1) < 0.003) g_EoP -> SetPointError(i, 0., 0.003);
 	//    cout  << " ***** " <<  1./templateFunc->GetParameter(1) << " " << templateFunc->GetParError(1) << endl; 
 
-	//ratio preparation
-	float ratioDA = templateFunc->GetParameter(1);
-	float eratioDA = templateFunc->GetParError(1); 
+	float scaleDA  = 1./templateFunc->GetParameter(1);
+	float escaleDA = templateFunc->GetParError(1)/scaleDA/scaleDA;
 
 	//corrected Data  
 	xNorm = h_EoC_Data[i][mod]->GetEntries()/h_template[mod]->GetEntries() *
@@ -382,15 +408,37 @@ void LocalCorrectionEta()
 	templateFunc -> FixParameter(2, 0.);
     
 
-	h_EoC_Data[i][mod] -> Fit("templateFunc", "MRQLN+");
-	g_EoC_Data[mod] -> SetPoint(i, (i+0.5)*1/(float)nBins , 1./templateFunc->GetParameter(1));
+	h_EoC_Data[i][mod] -> Fit("templateFunc", "MRQLS+");
+	g_EoC_Data[mod] -> SetPoint(i, xval, 1./templateFunc->GetParameter(1));
 	g_EoC_Data[mod] -> SetPointError(i, 0., templateFunc->GetParError(1));
 
-	//ratio finalization
-	ratioDA /= templateFunc->GetParameter(1);
-	eratioDA = ratioDA*sqrt(eratioDA*eratioDA+ templateFunc->GetParError(1)*templateFunc->GetParError(1)); 
-	g_ratio_Data[mod] -> SetPoint(i, (i+0.5)*1/(float)nBins , ratioDA);
+	float scaleDAcorr  = 1./templateFunc->GetParameter(1);
+	float escaleDAcorr = templateFunc->GetParError(1)/scaleDAcorr/scaleDAcorr;
+
+	//ratio finalization MC corr/uncorr
+	float ratioMC = scaleMC/scaleMCcorr;
+	float eratioMC = ratioMC*sqrt(pow(escaleMC/scaleMC,2) + pow(escaleMCcorr/scaleMCcorr,2)); 
+	g_ratio_MC[mod] -> SetPoint(i, xval, ratioMC);
+	g_ratio_MC[mod] -> SetPointError(i, 0., eratioMC);
+
+	//ratio finalization DATA corr/uncorr
+	float ratioDA  = scaleDA/scaleDAcorr;
+	float eratioDA = ratioDA*sqrt(pow(escaleDA/scaleDA,2) + pow(escaleDAcorr/scaleDAcorr,2)); 
+	g_ratio_Data[mod] -> SetPoint(i, xval , ratioDA);
 	g_ratio_Data[mod] -> SetPointError(i, 0., eratioDA);
+
+
+	//ratio finalization data/MC uncorrected
+	float ratioU = scaleDA/scaleMC;
+	float eratioU = ratioU*sqrt(pow(escaleMC/scaleMC,2) + pow(escaleDA/scaleDA,2)); 
+	g_ratio_uncorr[mod] -> SetPoint(i, xval , ratioU);
+	g_ratio_uncorr[mod] -> SetPointError(i, 0., eratioU);
+
+	//ratio finalization data/MC corrected
+	float ratioC = scaleDAcorr/scaleMCcorr;
+	float eratioC = ratioC*sqrt(pow(escaleMCcorr/scaleMCcorr,2) + pow(escaleDAcorr/scaleDAcorr,2)); 
+	g_ratio_corr[mod] -> SetPoint(i, xval , ratioC);
+	g_ratio_corr[mod] -> SetPointError(i, 0., eratioC);
     
       }
 
@@ -398,57 +446,94 @@ void LocalCorrectionEta()
 
   TCanvas* c_g_fit[Ntempl];
   TLegend* tl[Ntempl];
+  TLegend* tlr[Ntempl];
 
   for(int mod=0;mod<4;mod++) {
     char padName[100];
     sprintf(padName, "g_fit_mod%d", mod+1);
-    c_g_fit[mod] = new TCanvas(padName,padName,100,100,700,500);
-    
+    c_g_fit[mod] = new TCanvas(padName,padName,100,100,700,600);
+    c_g_fit[mod]->Divide(1,2);
+
     c_g_fit[mod]->cd(1);
     gPad->SetGrid();
-    TH1F *hPad = (TH1F*)gPad->DrawFrame(-0.1,0.93,1.1,1.03);
+    TH1F *hPad = (TH1F*)gPad->DrawFrame(-0.55,0.96,0.55,1.03);
     hPad->GetXaxis()->SetTitle("#eta_{SC} (deg)");
     hPad->GetYaxis()->SetTitle("Relative E/p scale");
- 
+    hPad->GetXaxis()->SetTitleOffset(0.8);
+    hPad->GetYaxis()->SetTitleSize(0.05);
+    hPad->GetYaxis()->SetLabelSize(0.05);
+
+
     g_EoP_MC[mod] -> SetMarkerStyle(20);
-    g_EoP_MC[mod] -> SetMarkerSize(.7);
+    g_EoP_MC[mod] -> SetMarkerSize(1.);
     g_EoP_MC[mod] -> SetMarkerColor(kRed); 
     g_EoP_MC[mod] -> Draw("PL");
     g_EoC_MC[mod] -> SetMarkerStyle(20);
-    g_EoC_MC[mod] -> SetMarkerSize(.7);
+    g_EoC_MC[mod] -> SetMarkerSize(1.);
     g_EoC_MC[mod] -> SetMarkerColor(kRed+2); 
     g_EoC_MC[mod] -> Draw("PL");
   
     g_EoP_Data[mod] -> SetMarkerStyle(20);
-    g_EoP_Data[mod] -> SetMarkerSize(.7);
+    g_EoP_Data[mod] -> SetMarkerSize(1.);
     g_EoP_Data[mod] -> SetMarkerColor(kGreen); 
     g_EoP_Data[mod] -> Draw("PL");
     g_EoC_Data[mod] -> SetMarkerStyle(20);
-    g_EoC_Data[mod] -> SetMarkerSize(.7);
+    g_EoC_Data[mod] -> SetMarkerSize(1.);
     g_EoC_Data[mod] -> SetMarkerColor(kGreen+2); 
     g_EoC_Data[mod] -> Draw("PL");
   
-
-    g_ratio_MC[mod]->SetLineColor(kBlue+2);
-    g_ratio_MC[mod]->SetMarkerColor(kBlue+2);
-    g_ratio_MC[mod]->SetMarkerStyle(20);
-    g_ratio_MC[mod]->SetMarkerSize(0.5);
-    g_ratio_MC[mod]->Draw("PL");
-    
-    g_ratio_Data[mod]->SetLineColor(kBlue);
-    g_ratio_Data[mod]->SetMarkerColor(kBlue);
-    g_ratio_Data[mod]->SetMarkerStyle(20);
-    g_ratio_Data[mod]->SetMarkerSize(0.5);
-    g_ratio_Data[mod]->Draw("PL");
-
-    tl[mod] = new TLegend(0.80,0.85,1.01,1.01);
+    tl[mod] = new TLegend(0.60,0.15,0.89,0.45);
     tl[mod] -> SetFillColor(0);
     tl[mod] -> AddEntry(g_EoP_MC[mod],"MC uncorrected","PL");
     tl[mod] -> AddEntry(g_EoC_MC[mod],"MC corrected","PL");
     tl[mod] -> AddEntry(g_EoP_Data[mod],"Data uncorrected","PL");
     tl[mod] -> AddEntry(g_EoC_Data[mod],"Data corrected","PL");
     tl[mod] -> Draw();
+
+    c_g_fit[mod]->cd(2);
+    gPad->SetGrid();
+    TH1F *hPad2 = (TH1F*)gPad->DrawFrame(-0.55,0.99,0.55,1.01);
+    hPad2->GetXaxis()->SetTitle("#eta_{SC} (deg)");
+    hPad2->GetYaxis()->SetTitle("data/MC ratio");
+    hPad2->GetXaxis()->SetTitleOffset(0.8);
+    hPad2->GetYaxis()->SetTitleSize(0.05);
+    hPad2->GetYaxis()->SetLabelSize(0.05);
+  
+    g_ratio_uncorr[mod]->SetLineColor(kBlue);
+    g_ratio_uncorr[mod]->SetMarkerColor(kBlue);
+    g_ratio_uncorr[mod]->SetMarkerStyle(20);
+    g_ratio_uncorr[mod]->SetMarkerSize(0.7);
+    g_ratio_uncorr[mod]->Draw("PL");
     
+    g_ratio_corr[mod]->SetLineColor(kBlue+3);
+    g_ratio_corr[mod]->SetMarkerColor(kBlue+3);
+    g_ratio_corr[mod]->SetMarkerStyle(20);
+    g_ratio_corr[mod]->SetMarkerSize(0.7);
+    g_ratio_corr[mod]->Draw("PL");
+   
+    tlr[mod] = new TLegend(0.60,0.15,0.89,0.35);
+    tlr[mod] -> SetFillColor(0);
+    tlr[mod] -> AddEntry(g_ratio_uncorr[mod],"uncorrected","PL");
+    tlr[mod] -> AddEntry(g_ratio_corr[mod],"corrected","PL");
+    tlr[mod] -> Draw();
+
+//     g_ratio_MC[mod]->SetLineColor(kBlue);
+//     g_ratio_MC[mod]->SetMarkerColor(kBlue);
+//     g_ratio_MC[mod]->SetMarkerStyle(20);
+//     g_ratio_MC[mod]->SetMarkerSize(0.7);
+//     g_ratio_MC[mod]->Draw("PL");
+    
+//     g_ratio_Data[mod]->SetLineColor(kBlue+3);
+//     g_ratio_Data[mod]->SetMarkerColor(kBlue+3);
+//     g_ratio_Data[mod]->SetMarkerStyle(20);
+//     g_ratio_Data[mod]->SetMarkerSize(0.7);
+//     g_ratio_Data[mod]->Draw("PL");
+   
+//     tlr[mod] = new TLegend(0.60,0.15,0.89,0.45);
+//     tlr[mod] -> SetFillColor(0);
+//     tlr[mod] -> AddEntry(g_ratio_MC[mod],"MC","PL");
+//     tlr[mod] -> AddEntry(g_ratio_Data[mod],"DATA","PL");
+//     tlr[mod] -> Draw();
   }
 
   TFile fout(outfilename,"recreate");
@@ -459,6 +544,8 @@ void LocalCorrectionEta()
     g_EoC_Data[mod]->Write();
     g_ratio_MC[mod]->Write();
     g_ratio_Data[mod]->Write();
+    g_ratio_uncorr[mod]->Write();
+    g_ratio_corr[mod]->Write();
     
   }
   fout.Close();
