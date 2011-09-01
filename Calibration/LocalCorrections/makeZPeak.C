@@ -2,7 +2,103 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELor
 
 using namespace RooFit;
 
-double crystalBall(double* x, double* par);
+void evalEffectiveSigma( RooAddPdf* pdf , RooRealVar*  mass, double &ml, double &mh, double &sigmaeff){
+
+  double testmass = 90.;
+  double center = testmass-10.0;
+  
+  double cdfhi = 0;
+  double cdflo = 0;
+  double mlmin = 0.0;
+  double mhmin = 0.0;
+  double step  = 0.05;
+
+  double minwidth = 999.0;
+
+  RooAbsReal *cdf = 0;
+  double mlow = -999;
+  double mhigh = -999;
+  
+  for (int i=0; i<400; ++i) {
+    if (i%100==0) cout <<  i << endl;
+    mlow = center+i*step;
+    mass->setRange("signal",60,mlow); 
+    cdf = pdf->createIntegral(*mass, NormSet(*mass),Range("signal"));
+    cdflo = cdf->getVal();
+    for (int j=i; j<400; ++j) {
+      mhigh = center+j*step;
+      mass->setRange("signal",60,mhigh); 
+      cdf   = pdf->createIntegral(*mass, NormSet(*mass),Range("signal"));
+      cdfhi = cdf->getVal();
+      if ( (cdfhi-cdflo)>0.684 ) {
+	if ( (mhigh-mlow)<minwidth) {
+	  minwidth = mhigh-mlow;
+	  mlmin = mlow;
+	  mhmin = mhigh;
+	}
+	break;
+      }
+    }
+  }
+  
+
+  
+  sigmaeff = minwidth/2.0;
+  ml = mlmin;
+  mh = mhmin;
+  cout << "Mmin = " << mlmin << "  Mmax = " << mhmin << "  effective sigma = " << sigmaeff << endl;
+  
+  // return (sigmaeff);
+  return;
+}
+
+void evalEffectiveSigmaFromHisto( TH1F *h , double &ml, double &mh, double &sigmaeff){
+
+  double testmass = 90.;
+  double center = testmass-6.0;
+  
+  double cdfhi = 0;
+  double cdflo = 0;
+  double mlmin = 0.0;
+  double mhmin = 0.0;
+  double step  = 0.02;
+
+  double minwidth = 999.0;
+
+  double mlow = -999;
+  double mhigh = -999;
+  int binlow, binhigh;
+  int nbins = h->GetNbinsX();
+
+  for (int i=0; i<600; ++i) {
+    if (i%100==0) cout <<  i << endl;
+    mlow = center+i*step;
+    binlow = h ->FindBin(mlow);
+    cdflo = h->Integral(1, binlow)/h->Integral(1, nbins);
+    for (int j=i; j<600; ++j) {
+      mhigh = center+j*step;
+      binhigh = h ->FindBin(mhigh);
+      cdfhi = h->Integral(1, binhigh)/h->Integral(1, nbins);
+      if ( (cdfhi-cdflo)>0.684 ) {
+	if ( (mhigh-mlow)<minwidth) {
+	  minwidth = mhigh-mlow;
+	  mlmin = mlow;
+	  mhmin = mhigh;
+	}
+	break;
+      }
+    }
+  }
+  
+  sigmaeff = minwidth/2.0;
+  ml = mlmin;
+  mh = mhmin;
+  cout << "Mmin = " << mlmin << "  Mmax = " << mhmin << "  effective sigma = " << sigmaeff << endl;
+  
+  // return (sigmaeff);
+  return;
+}
+
 
 int modId(float eta){
   int ieta  = fabs(eta)/0.01745329;
@@ -27,7 +123,11 @@ bool IsEtaGap(float eta){
 
 void makeZPeak()
 {
+  RooMsgService::instance().Print() ;
+  RooMsgService::instance().setStreamStatus(1,0);
 
+
+  //
   gROOT->SetStyle("Plain");
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
@@ -49,27 +149,25 @@ void makeZPeak()
   float zmass = 91.187;
 
   //---- variables for selections
-  float etaMax = 1.44;
+  float etaMin = 0.;
+  float etaMax = 2.5;
   
   float r9min = 0. ;
-  float r9max = 999 ;
+  float r9max = 999.94;
   
   //---- output file to save graphs
   char outfilename[100];
-  sprintf(outfilename,"mcZpeak_DKcorr_all.root");
+  sprintf(outfilename,"mcZpeak_DKcorr_allR9_nophicracks.root");
 
   //----
 
   // Get trees
   TChain *ntu_DA = new TChain("ntu");
-  //ntu_DA->Add("/data2/ghezzi/Calib/PhotonDataDat/WZAnalysis_DoubleElectron_Run2011A-ZElectron-05Jul2011.root");
-  //ntu_DA->Add("/data2/ghezzi/Calib/PhotonDataDat/WZAnalysis_DoubleElectron_Run2011A-ZElectron-05Aug2011.root");
- 
+  
+  //ntu_DA->Add("./PhotonDataDat/WZAnalysis_ZElectron_05Jul2011ReReco_ter.root");
+  //ntu_DA->Add("./PhotonDataDat/WZAnalysis_ZElectron_05Aug2011_ter.root");
 
- //  ntu_DA->Add("/data2/ghezzi/Calib/PhotonDataDat/WZAnalysis_ZElectron_05Jul2011ReReco_ter.root");
-//   ntu_DA->Add("/data2/ghezzi/Calib/PhotonDataDat/WZAnalysis_ZElectron_05Aug2011_ter.root");
-
-  ntu_DA->Add("/data2/ghezzi/Calib/PhotonMCDat/WZAnalysis_DYToEE_ter.root");
+  ntu_DA->Add("./PhotonMCDat/WZAnalysis_DYToEE_ter.root");
  
    
   std::cout << "     Data  : " << ntu_DA->GetEntries() << " entries in  Data  sample" << std::endl;
@@ -78,7 +176,7 @@ void makeZPeak()
   // Set branch addresses  
   int runId,isZ;
   int PV_n;
-  int isEB,isEB2;
+  int isEB,isEB2, isEBEEGap,isEBEEGap2 ;
   float mZ, mZc;
   
   float p, p2;
@@ -104,6 +202,8 @@ void makeZPeak()
   ntu_DA->SetBranchAddress("isZ",              &isZ);
   ntu_DA->SetBranchAddress("ele1_isEB",        &isEB);
   ntu_DA->SetBranchAddress("ele2_isEB",        &isEB2);
+  ntu_DA->SetBranchAddress("ele1_isEBEEGap",        &isEBEEGap);
+  ntu_DA->SetBranchAddress("ele2_isEBEEGap",        &isEBEEGap2);
   ntu_DA->SetBranchAddress("ele1_scE",         &scE);
   ntu_DA->SetBranchAddress("ele2_scE",         &scE2);
   ntu_DA->SetBranchAddress("ele1_scEta",       &scEta);
@@ -137,13 +237,13 @@ void makeZPeak()
   
 
   // Define histograms
-  TH1F* h_mZ_EBEB = new TH1F("h_mZ_EBEB", "",200,65.,115.);
-  TH1F* h_mZ_EEEE = new TH1F("h_mZ_EEEE", "",200,65.,115.);
-  TH1F* h_mZ_EBEE = new TH1F("h_mZ_EBEE", "",200,65.,115.);
+  TH1F* h_mZ_EBEB = new TH1F("h_mZ_EBEB", "",2500,65.,115.);
+  TH1F* h_mZ_EEEE = new TH1F("h_mZ_EEEE", "",2500,65.,115.);
+  TH1F* h_mZ_EBEE = new TH1F("h_mZ_EBEE", "",2500,65.,115.);
 
-  TH1F* h_mZc_EBEB = new TH1F("h_mZc_EBEB", "",200,65.,115.);
-  TH1F* h_mZc_EEEE = new TH1F("h_mZc_EEEE", "",200,65.,115.);  
-  TH1F* h_mZc_EBEE = new TH1F("h_mZc_EBEE", "",200,65.,115.);
+  TH1F* h_mZc_EBEB = new TH1F("h_mZc_EBEB", "",2500,65.,115.);
+  TH1F* h_mZc_EEEE = new TH1F("h_mZc_EEEE", "",2500,65.,115.);  
+  TH1F* h_mZc_EBEE = new TH1F("h_mZc_EBEE", "",2500,65.,115.);
   
   TProfile *mZ_vs_localEta_EBEB = new TProfile("mZ_vs_localEta_EBEB", "",20,0,1,0.,2.);
   mZ_vs_localEta_EBEB->SetMarkerStyle(20);
@@ -173,19 +273,33 @@ void makeZPeak()
   mZc_vs_localPhi_EBEB-> GetXaxis()->SetTitle("#phi_{SC} (deg)");
   mZc_vs_localPhi_EBEB-> GetYaxis()->SetTitle("< M_{ee}> /M_{Z}");
 
-  TProfile *mZ_vs_Eta_EBEB = new TProfile("mZ_vs_Eta_EBEB", "",50,-1.5,1.5,0.,2.);
+  TProfile *mZ_vs_Eta_EBEB = new TProfile("mZ_vs_Eta_EBEB", "",50,-2.5,2.5,0.,2.);
   mZ_vs_Eta_EBEB->SetMarkerStyle(20);
   mZ_vs_Eta_EBEB->SetMarkerColor(kRed);
   mZ_vs_Eta_EBEB->SetLineColor(kRed);
   mZ_vs_Eta_EBEB-> GetXaxis()->SetTitle("#eta_{SC}");
   mZ_vs_Eta_EBEB-> GetYaxis()->SetTitle("< M_{ee} > / M_{Z}");
 
-  TProfile *mZc_vs_Eta_EBEB = new TProfile("mZc_vs_Eta_EBEB", "",50,-1.5,1.5,0.,2.);
+  TProfile *mZc_vs_Eta_EBEB = new TProfile("mZc_vs_Eta_EBEB", "",50,-2.5,2.5,0.,2.);
   mZc_vs_Eta_EBEB->SetMarkerStyle(20);
   mZc_vs_Eta_EBEB->SetMarkerColor(kGreen+2);
   mZc_vs_Eta_EBEB->SetLineColor(kGreen+2);
   mZc_vs_Eta_EBEB-> GetXaxis()->SetTitle("#eta_{SC}");
   mZc_vs_Eta_EBEB-> GetYaxis()->SetTitle("< M_{ee} > / M_{Z}");
+
+  TProfile *mZ_vs_Eta_EEEE = new TProfile("mZ_vs_Eta_EEEE", "",50,-2.5,2.5,0.,2.);
+  mZ_vs_Eta_EEEE->SetMarkerStyle(20);
+  mZ_vs_Eta_EEEE->SetMarkerColor(kRed);
+  mZ_vs_Eta_EEEE->SetLineColor(kRed);
+  mZ_vs_Eta_EEEE-> GetXaxis()->SetTitle("#eta_{SC}");
+  mZ_vs_Eta_EEEE-> GetYaxis()->SetTitle("< M_{ee} > / M_{Z}");
+
+  TProfile *mZc_vs_Eta_EEEE = new TProfile("mZc_vs_Eta_EEEE", "",50,-2.5,2.5,0.,2.);
+  mZc_vs_Eta_EEEE->SetMarkerStyle(20);
+  mZc_vs_Eta_EEEE->SetMarkerColor(kGreen+2);
+  mZc_vs_Eta_EEEE->SetLineColor(kGreen+2);
+  mZc_vs_Eta_EEEE-> GetXaxis()->SetTitle("#eta_{SC}");
+  mZc_vs_Eta_EEEE-> GetYaxis()->SetTitle("< M_{ee} > / M_{Z}");
 
   TH1F *hspread = new TH1F("hspread","spread",800,0.8,1.2);
   TH1F *hspreadc = new TH1F("hspreadc","spread",800,0.8,1.2);
@@ -238,20 +352,26 @@ void makeZPeak()
     if( isZ == 0 ) continue;
     
     // eta cut 
-    if (isEB==0 || isEB2==0) continue;
+    if ( isEBEEGap || isEBEEGap2) continue;
+    //if (isEB==0 || isEB2==0) continue;
+    if( fabs(scEta)  < etaMin ) continue;
+    if( fabs(scEta2) < etaMin ) continue;
+
     if( fabs(scEta) > etaMax ) continue;
     if( fabs(scEta2) > etaMax ) continue;
-   
+
+    
+
     // remove eta gaps
-    if ( IsEtaGap(scEta) || IsEtaGap(scEta2) ) continue;
+//     if ( IsEtaGap(scEta) || IsEtaGap(scEta2) ) continue;
        
-    // remove phi cracks
-    float myphi = (scPhi+3.1415926536)/xtalWidth;
-    float modphi = (int)myphi%20;
-    if (fabs(modphi-10)<2.) continue;
-    float myphi2 = (scPhi2+3.1415926536)/xtalWidth;
-    float modphi2 = (int)myphi2%20;
-    if (fabs(modphi2-10)<2.) continue;
+// //    remove phi cracks
+//     float myphi = (scPhi+3.1415926536)/xtalWidth;
+//     float modphi = (int)myphi%20;
+//     if (fabs(modphi-10)<2.) continue;
+//     float myphi2 = (scPhi2+3.1415926536)/xtalWidth;
+//     float modphi2 = (int)myphi2%20;
+//     if (fabs(modphi2-10)<2.) continue;
 
     // select on r9
     if ( phR9 < r9min || phR9 > r9max ) continue; 
@@ -287,42 +407,65 @@ void makeZPeak()
     PtEtaPhiELorentzVector sc2c(scE2c*sin(2*atan(exp(-1.*eta2))),eta2,phi2,scE2c);
     mZc = (sc1c+sc2c).mass();
 
-    scLocalEta = etaC_DK/xtalWidth;
-    scLocalEta2 = etaC_DK2/xtalWidth;
+
     
-    //float locPhi = scLocalPhi + 0.5;
-    float locPhi = phiC_DK/xtalWidth + 0.5;
-//     if (locPhi<0.) locPhi+=1.;
-//     if (locPhi>=1.) locPhi-=1.;
-        
-    //float locPhi2 = scLocalPhi2 + 0.5; 
-    float locPhi2 = phiC_DK2/xtalWidth + 0.5;
-//     if (locPhi2<0.) locPhi2+=1.;
-//     if (locPhi2>=1.) locPhi2-=1.;
-
     if( (isEB == 1) && (isEB2 == 1) )
-    {
-      h_mZ_EBEB -> Fill(mZ);
-      h_mZc_EBEB -> Fill(mZc);
+      {
+	h_mZ_EBEB -> Fill(mZ);
+	h_mZc_EBEB -> Fill(mZc);
+	
+	mZ_vs_Eta_EBEB->Fill(scEta, mZ/zmass);
+	mZ_vs_Eta_EBEB->Fill(scEta2, mZ/zmass);
 
-      mZ_vs_Eta_EBEB->Fill(scEta, mZ/zmass);
-      mZc_vs_Eta_EBEB->Fill(scEta, mZc/zmass);
-
-      mZ_vs_localEta_EBEB  -> Fill(scLocalEta+0.5,mZ/zmass);
-      mZc_vs_localEta_EBEB -> Fill(scLocalEta+0.5,mZc/zmass);
-      mZ_vs_localEta_EBEB  -> Fill(scLocalEta2+0.5,mZ/zmass);
-      mZc_vs_localEta_EBEB -> Fill(scLocalEta2+0.5,mZc/zmass);
-
-      if ( (scEta*charge) > 0  ){
-	mZ_vs_localPhi_EBEB  -> Fill(locPhi,mZ/zmass);
-	mZc_vs_localPhi_EBEB -> Fill(locPhi,mZc/zmass);
+	mZc_vs_Eta_EBEB->Fill(scEta, mZc/zmass);
+	mZc_vs_Eta_EBEB->Fill(scEta2, mZc/zmass);
+	
+	scLocalEta = etaC_DK/xtalWidth;
+	scLocalEta2 = etaC_DK2/xtalWidth;
+	
+	//float locPhi = scLocalPhi + 0.5;
+	float locPhi = phiC_DK/xtalWidth + 0.5;
+	
+	//float locPhi2 = scLocalPhi2 + 0.5; 
+	float locPhi2 = phiC_DK2/xtalWidth + 0.5;
+	
+	mZ_vs_localEta_EBEB  -> Fill(scLocalEta+0.5,mZ/zmass);
+	mZc_vs_localEta_EBEB -> Fill(scLocalEta+0.5,mZc/zmass);
+	mZ_vs_localEta_EBEB  -> Fill(scLocalEta2+0.5,mZ/zmass);
+	mZc_vs_localEta_EBEB -> Fill(scLocalEta2+0.5,mZc/zmass);
+	
+	if ( (scEta*charge) > 0  ){
+	  mZ_vs_localPhi_EBEB  -> Fill(locPhi,mZ/zmass);
+	  mZc_vs_localPhi_EBEB -> Fill(locPhi,mZc/zmass);
+	}
+	
+	if ( (scEta2*charge2) > 0){
+	  mZ_vs_localPhi_EBEB -> Fill(locPhi2,mZ/zmass);
+	  mZc_vs_localPhi_EBEB -> Fill(locPhi2,mZc/zmass);
+	}
       }
-      
-      if ( (scEta2*charge2) > 0){
-	mZ_vs_localPhi_EBEB -> Fill(locPhi2,mZ/zmass);
-	mZc_vs_localPhi_EBEB -> Fill(locPhi2,mZc/zmass);
-      }
-    }
+    
+    
+    if( ( isEB && !isEB2) ||  ( !isEB && isEB2 )  )
+      //if( !isEB || !isEB2 )// at least one in EE
+      {
+	h_mZ_EBEE  -> Fill(mZ);
+	h_mZc_EBEE -> Fill(mZc);
+      }      
+
+    if( ( !isEB && !isEB2)  )
+      {
+	h_mZ_EEEE  -> Fill(mZ);
+	h_mZc_EEEE -> Fill(mZc);
+
+	mZ_vs_Eta_EBEB->Fill(scEta, mZ/zmass);
+	mZ_vs_Eta_EBEB->Fill(scEta2, mZ/zmass);
+
+	mZc_vs_Eta_EBEB->Fill(scEta, mZc/zmass);
+	mZc_vs_Eta_EBEB->Fill(scEta2, mZc/zmass);
+
+      }      
+    
   }
   
   
@@ -332,18 +475,31 @@ void makeZPeak()
   }
 
 
-  TFile *fout = new TFile(outfilename,"recreate");
-  h_mZ_EBEB->Write();
-  h_mZc_EBEB->Write();
-  mZ_vs_localEta_EBEB->Write();
-  mZc_vs_localEta_EBEB->Write();
-  mZ_vs_localPhi_EBEB->Write();
-  mZc_vs_localPhi_EBEB->Write();
-  hspread->Write();
-  hspreadc->Write();
-  fout->Close();
 
-  int rebin = 1;
+  //COMPUTE EFFECTIVE SIGMA FROM HISTOS
+  double mlEBEB = 0, mhEBEB = 0, effsigmaEBEB = 0;
+  double mlcEBEB = 0, mhcEBEB = 0, effsigmacEBEB = 0;
+  double mlEBEE = 0, mhEBEE = 0, effsigmaEBEE = 0;
+  double mlcEBEE = 0, mhcEBEE = 0, effsigmacEBEE = 0;
+  double mlEEEE = 0, mhEEEE = 0, effsigmaEEEE = 0;
+  double mlcEEEE = 0, mhcEEEE = 0, effsigmacEEEE = 0;
+
+  evalEffectiveSigmaFromHisto(h_mZ_EBEB, mlEBEB, mhEBEB, effsigmaEBEB);
+  evalEffectiveSigmaFromHisto(h_mZc_EBEB, mlcEBEB, mhcEBEB, effsigmacEBEB);
+  evalEffectiveSigmaFromHisto(h_mZ_EBEE, mlEBEE, mhEBEE, effsigmaEBEE);
+  evalEffectiveSigmaFromHisto(h_mZc_EBEE, mlcEBEE, mhcEBEE, effsigmacEBEE);
+  evalEffectiveSigmaFromHisto(h_mZ_EEEE, mlEEEE, mhEEEE, effsigmaEEEE);
+  evalEffectiveSigmaFromHisto(h_mZc_EEEE, mlcEEEE, mhcEEEE, effsigmacEEEE);
+  
+
+  int nre = 25;
+  h_mZ_EBEB  -> Rebin(nre);
+  h_mZc_EBEB -> Rebin(nre);
+  h_mZ_EBEE  -> Rebin(nre);
+  h_mZc_EBEE -> Rebin(nre);
+  h_mZ_EEEE  -> Rebin(nre);
+  h_mZc_EEEE -> Rebin(nre);
+
 
   TLegend   *tl = new TLegend(0.60,0.15,0.89,0.35);
   tl-> SetFillColor(0);
@@ -368,27 +524,36 @@ void makeZPeak()
   mZc_vs_localPhi_EBEB->Draw("same");
   tl-> Draw("same");
 
-//   TCanvas* c3 = new TCanvas("c3","c3",100,100,700,500);
-//   c3->cd();
-//   c3->SetGridx();
-//   c3->SetGridy();
-//   mZ_vs_Eta_EBEB->GetYaxis()->SetRangeUser(0.96,1.02);
-//   mZ_vs_Eta_EBEB->Draw("");
-//   mZc_vs_Eta_EBEB->Draw("same");
-//   tl-> Draw("same");
+  TCanvas* c3 = new TCanvas("c3","c3",100,100,700,500);
+  c3->cd();
+  c3->SetGridx();
+  c3->SetGridy();
+  mZ_vs_Eta_EBEB->GetYaxis()->SetRangeUser(0.96,1.02);
+  mZ_vs_Eta_EBEB->Draw("");
+  mZc_vs_Eta_EBEB->Draw("same");
+  tl-> Draw("same");
+
+  TCanvas* c4 = new TCanvas("c4","c4",100,100,700,500);
+  c4->cd();
+  c4->SetGridx();
+  c4->SetGridy();
+  mZ_vs_Eta_EEEE->GetYaxis()->SetRangeUser(0.96,1.02);
+  mZ_vs_Eta_EEEE->Draw("");
+  mZc_vs_Eta_EEEE->Draw("same");
+  tl-> Draw("same");
 
   //------------------------
   //---------------- fitting
-
-  RooRealVar  mass("mass","M(e^{+}e^{-})", -120, 120.0,"GeV/c^{2}");
+  
+  RooRealVar  mass("mass","M(e^{+}e^{-})", 70.0, 110.0,"GeV/c^{2}");
   mass.setBins(10000) ;
 
 
   // Parameters for Crystal Ball Lineshape 
-  RooRealVar  dm("#Delta m", "offset", 0.0, -1.0, 1.0,"GeV/c^{2}"); 
-  RooRealVar  sigma("#sigma_{CB}","sigmaCB", 1.5,0.5,2.5,"GeV/c^{2}"); 
+  RooRealVar  dm("#Delta m", "offset", 0.0, -5.0, 5.0,"GeV/c^{2}"); 
+  RooRealVar  sigma("#sigma_{CB}","sigmaCB", 1.5,0.5,7.5,"GeV/c^{2}"); 
   RooRealVar  alpha("#alpha","alpha", 1.607,0.6,2.0); 
-  RooRealVar  n("n","n", 1.7, 0.5, 100.0); 
+  RooRealVar  n("n","n", 6., 0.5, 50.0); 
   //alpha.setConstant();
   //n.setConstant();
 
@@ -398,7 +563,7 @@ void makeZPeak()
   MZ.setConstant();
   Gamma.setConstant();
 
-  // Exponencial Background
+  // Exponential Background
   RooRealVar  bkgshape("bkgshape", "Backgroung Shape", -0.1,-1.0,0.0, "1/GeV/c^{2}");
   RooRealVar  frac("frac", "Signal Fraction", 1.0,0.0,1.0);
   frac.setConstant();
@@ -416,68 +581,219 @@ void makeZPeak()
   RooExponential bkg("bkg", "Backgroung Distribution", mass, bkgshape);
   
   
-  
-  RooDataHist hdata("hdata","hdata",RooArgSet(mass), h_mZ_EBEB);
-  RooAddPdf   model("model", "Signal + Background", bwcb, bkg, frac);  
-  model.fitTo(hdata, Range(70., 110.) );
-  TCanvas *c = new TCanvas("c","c",700,700);
-  c->SetLeftMargin(0.15);
-  RooPlot* plot = mass.frame(Range(70,110));
-  hdata.plotOn(plot);
-  model.plotOn(plot);
-  model.plotOn(plot, LineColor(kRed));
-  model.paramOn(plot);
-  model.plotOn(plot, LineColor(kRed));
-  plot->SetTitleOffset(1.7,"Y");
-  plot->Draw();
+  // --- EB-EB
+  TCanvas *cEBEB = new TCanvas("cEBEB","cEBEB",700,700);
+  cEBEB->SetLeftMargin(0.15);
 
-  
-  RooDataHist hdatac("hdatac","hdatac",RooArgSet(mass), h_mZc_EBEB);
-  RooAddPdf   modelc("modelc", "Signal + Background", bwcb, bkg, frac);  
-  modelc.fitTo(hdatac, Range(70., 110.));
-  // Plot the fit results
-  TCanvas *cc = new TCanvas("cc","cc",700,700);
-  cc->SetLeftMargin(0.15);
-  RooPlot* plotc = mass.frame(Range(70,110));
-  hdatac.plotOn(plotc);
-  modelc.plotOn(plotc, LineColor(kGreen+2));
-  modelc.paramOn(plotc, Layout(0.15,0.5,0.89));
-  modelc.plotOn(plotc, LineColor(kGreen+2));
-  plotc->SetTitleOffset(1.7,"Y");
-  plotc->Draw();
+  RooDataHist hdataEBEB("hdataEBEB","hdataEBEB",RooArgSet(mass), h_mZ_EBEB);
+  RooAddPdf   modelEBEB("modelEBEB", "Signal + Background", bwcb, bkg, frac);  
+  RooFitResult *rEBEB = modelEBEB.fitTo(hdataEBEB, Range(70., 110.), Save(),Verbose(0) );
+  RooPlot* plotEBEB = mass.frame(Range(70,110));
+  hdataEBEB.plotOn(plotEBEB);
+  modelEBEB.plotOn(plotEBEB);
+  modelEBEB.plotOn(plotEBEB, LineColor(kRed));
+  modelEBEB.paramOn(plotEBEB, Layout(0.16,0.46,0.89));
+  modelEBEB.plotOn(plotEBEB, LineColor(kRed));
+  modelEBEB.plotOn(plotEBEB, Range(mlEBEB,mhEBEB) , LineColor(kRed), DrawOption("F"), FillColor(kRed), FillStyle(3005) , VLines(), MoveToBack() );
+  plotEBEB->SetTitleOffset(1.7,"Y");
+  plotEBEB->Draw();
+  TPaveText *pEBEB = (TPaveText*)cEBEB->FindObject("modelEBEB_paramBox");
+  pEBEB->SetTextSize(0.025);
+  pEBEB->SetLineColor(kRed);
+
+  //evalEffectiveSigma(&modelEBEB, &mass, mlEBEB, mhEBEB, effsigmaEBEB);
+
+
+ 
+  RooDataHist hdatacEBEB("hdatacEBEB","hdatacEBEB",RooArgSet(mass), h_mZc_EBEB);
+  RooAddPdf   modelcEBEB("modelcEBEB", "Signal + Background", bwcb, bkg, frac);  
+  RooFitResult *rcEBEB = modelcEBEB.fitTo(hdatacEBEB, Range(70., 110.), Save(),Verbose(0));
+  RooPlot* plotcEBEB = mass.frame(Range(70,110));
+  hdatacEBEB.plotOn(plotcEBEB);
+  modelcEBEB.plotOn(plotcEBEB, LineColor(kGreen+2));
+  modelcEBEB.paramOn(plotcEBEB, Layout(0.16,0.46,0.63));
+  modelcEBEB.plotOn(plotcEBEB, LineColor(kGreen+2));
+  modelcEBEB.plotOn(plotcEBEB, Range(mlcEBEB,mhcEBEB) , LineColor(kGreen+2), DrawOption("F"), FillColor(kGreen+2), FillStyle(3004) , VLines(), MoveToBack() );
+  plotcEBEB->SetTitleOffset(1.7,"Y");
+  plotcEBEB->Draw("same");
+  TPaveText *pcEBEB = (TPaveText*)cEBEB->FindObject("modelcEBEB_paramBox");
+  pcEBEB->SetTextSize(0.025);
+  pcEBEB->SetLineColor(kGreen+2);
+  //evalEffectiveSigma(&modelcEBEB, &mass, mlcEBEB, mhcEBEB, effsigmacEBEB);
+
+
+  // --- EB-EE
+  TCanvas *cEBEE = new TCanvas("cEBEE","cEBEE",700,700);
+  cEBEE->SetLeftMargin(0.15);
+
+  RooDataHist hdataEBEE("hdataEBEE","hdataEBEE",RooArgSet(mass), h_mZ_EBEE);
+  RooAddPdf   modelEBEE("modelEBEE", "Signal + Background", bwcb, bkg, frac);  
+  RooFitResult *rEBEE = modelEBEE.fitTo(hdataEBEE, Range(70., 110.), Save() ,Verbose(0));
+  RooPlot* plotEBEE = mass.frame(Range(70,110));
+  hdataEBEE.plotOn(plotEBEE);
+  modelEBEE.plotOn(plotEBEE);
+  modelEBEE.plotOn(plotEBEE, LineColor(kRed));
+  modelEBEE.paramOn(plotEBEE, Layout(0.16,0.46,0.89));
+  modelEBEE.plotOn(plotEBEE, LineColor(kRed));
+  modelEBEE.plotOn(plotEBEE, Range(mlEBEE,mhEBEE) , LineColor(kRed), DrawOption("F"), FillColor(kRed), FillStyle(3005) , VLines(), MoveToBack() );
+  plotEBEE->SetTitleOffset(1.7,"Y");
+  plotEBEE->Draw();
+  TPaveText *pEBEE = (TPaveText*)cEBEE->FindObject("modelEBEE_paramBox");
+  pEBEE->SetTextSize(0.025);
+  pEBEE->SetLineColor(kRed);
+  //evalEffectiveSigma(&modelEBEE, &mass, mlEBEE, mhEBEE, effsigmaEBEE);
+
+  RooDataHist hdatacEBEE("hdatacEBEE","hdatacEBEE",RooArgSet(mass), h_mZc_EBEE);
+  RooAddPdf   modelcEBEE("modelcEBEE", "Signal + Background", bwcb, bkg, frac);
+  RooFitResult *rcEBEE = modelcEBEE.fitTo(hdatacEBEE, Range(70., 110.), Save(),Verbose(0));
+  RooPlot* plotcEBEE = mass.frame(Range(70,110));
+  hdatacEBEE.plotOn(plotcEBEE);
+  modelcEBEE.plotOn(plotcEBEE, LineColor(kGreen+2));
+  modelcEBEE.paramOn(plotcEBEE, Layout(0.16,0.46,0.63));
+  modelcEBEE.plotOn(plotcEBEE, LineColor(kGreen+2));
+  modelcEBEE.plotOn(plotcEBEE, Range(mlcEBEE,mhcEBEE) , LineColor(kGreen+2), DrawOption("F"), FillColor(kGreen+2), FillStyle(3004) , VLines(), MoveToBack() );  
+  plotcEBEE->SetTitleOffset(1.7,"Y");
+  plotcEBEE->Draw("same");
+  TPaveText *pcEBEE = (TPaveText*)cEBEE->FindObject("modelcEBEE_paramBox");
+  pcEBEE->SetTextSize(0.025);
+  pcEBEE->SetLineColor(kGreen+2);
+  //evalEffectiveSigma(&modelcEBEE, &mass, mlcEBEE, mhcEBEE, effsigmacEBEE);
+   
+  // --- EE-EE
+  TCanvas *cEEEE = new TCanvas("cEEEE","cEEEE",700,700);
+  cEEEE->SetLeftMargin(0.15);
+
+  RooDataHist hdataEEEE("hdataEEEE","hdataEEEE",RooArgSet(mass), h_mZ_EEEE);
+  RooAddPdf   modelEEEE("modelEEEE", "Signal + Background", bwcb, bkg, frac);  
+  RooFitResult *rEEEE = modelEEEE.fitTo(hdataEEEE, Range(70., 110.), Save() ,Verbose(0));
+  RooPlot* plotEEEE = mass.frame(Range(70,110));
+  hdataEEEE.plotOn(plotEEEE);
+  modelEEEE.plotOn(plotEEEE);
+  modelEEEE.plotOn(plotEEEE, LineColor(kRed));
+  modelEEEE.paramOn(plotEEEE, Layout(0.16,0.46,0.89));
+  modelEEEE.plotOn(plotEEEE, LineColor(kRed));
+  modelEEEE.plotOn(plotEEEE, Range(mlEEEE,mhEEEE) , LineColor(kRed), DrawOption("F"), FillColor(kRed), FillStyle(3005) , VLines(), MoveToBack() );
+  plotEEEE->SetTitleOffset(1.7,"Y");
+  plotEEEE->Draw();
+  TPaveText *pEEEE = (TPaveText*)cEEEE->FindObject("modelEEEE_paramBox");
+  pEEEE->SetTextSize(0.025);
+  pEEEE->SetLineColor(kRed);
+  //evalEffectiveSigma(&modelEEEE, &mass, mlEEEE, mhEEEE, effsigmaEEEE);
+
+  RooDataHist hdatacEEEE("hdatacEEEE","hdatacEEEE",RooArgSet(mass), h_mZc_EEEE);
+  RooAddPdf   modelcEEEE("modelcEEEE", "Signal + Background", bwcb, bkg, frac);  
+  RooFitResult *rcEEEE = modelcEEEE.fitTo(hdatacEEEE, Range(70., 110.), Save(),Verbose(0));
+  RooPlot* plotcEEEE = mass.frame(Range(70,110));
+  hdatacEEEE.plotOn(plotcEEEE);
+  modelcEEEE.plotOn(plotcEEEE, LineColor(kGreen+2));
+  modelcEEEE.paramOn(plotcEEEE, Layout(0.16,0.46,0.63));
+  modelcEEEE.plotOn(plotcEEEE, LineColor(kGreen+2));
+  modelcEEEE.plotOn(plotcEEEE, Range(mlcEEEE,mhcEEEE) , LineColor(kGreen+2), DrawOption("F"), FillColor(kGreen+2), FillStyle(3004) , VLines(), MoveToBack() );
+  plotcEEEE->SetTitleOffset(1.7,"Y");
+  plotcEEEE->Draw("same");
+  TPaveText *pcEEEE = (TPaveText*)cEEEE->FindObject("modelcEEEE_paramBox");
+  pcEEEE->SetTextSize(0.025);
+  pcEEEE->SetLineColor(kGreen+2);
+  //evalEffectiveSigma(&modelcEEEE, &mass, mlcEEEE, mhcEEEE, effsigmacEEEE);
+
+
+
+  cout << "EBEB uncorrected --> EffectiveSigma = " << effsigmaEBEB  << " GeV" << "  M_min = " << mlEBEB << "  M_max = " << mhEBEB<< endl;
+  cout << "EBEB corrected   --> EffectiveSigma = " << effsigmacEBEB << " GeV" << "  M_min = " << mlcEBEB << "  M_max = " << mhcEBEB<< endl;
+  if (effsigmaEBEB > effsigmacEBEB)  cout << "EBEB smearing    --> " << sqrt( effsigmaEBEB*effsigmaEBEB - effsigmacEBEB*effsigmacEBEB ) << endl;
+  else cout <<  "EBEB smearing    -->  sigma_corr > sigma_corr !!! " << endl;
+
+  cout << "EBEE uncorrected --> EffectiveSigma = " << effsigmaEBEE  << " GeV" << "  M_min = " << mlEBEE << "  M_max = " << mhEBEE<< endl;
+  cout << "EBEE corrected   --> EffectiveSigma = " << effsigmacEBEE << " GeV" << "  M_min = " << mlcEBEE << "  M_max = " << mhcEBEE<< endl;
+  if (effsigmaEBEE > effsigmacEBEE)  cout << "EBEE smearing    --> " << sqrt( effsigmaEBEE*effsigmaEBEE - effsigmacEBEE*effsigmacEBEE ) << endl;
+  else cout <<  "EBEE smearing    -->  sigma_corr > sigma_corr !!! " << endl;
+  cout << "EEEE uncorrected --> EffectiveSigma = " << effsigmaEEEE  << " GeV" << "  M_min = " << mlEEEE << "  M_max = " << mhEEEE<< endl;
+  cout << "EEEE corrected   --> EffectiveSigma = " << effsigmacEEEE << " GeV" << "  M_min = " << mlcEEEE << "  M_max = " << mhcEEEE<< endl;
+  if (effsigmaEEEE > effsigmacEEEE)  cout << "EEEE smearing    --> " << sqrt( effsigmaEEEE*effsigmaEEEE - effsigmacEEEE*effsigmacEEEE ) << endl;
+  else cout <<  "EEEE smearing    -->  sigma_corr > sigma_corr !!! " << endl;
+
+
+
+  // wring effectivesigma on canvas 
+  char title1[100], title2[100];
+  TLatex *latex1;
+  TLatex *latex2;
+
+  cEBEB->cd();
+  sprintf (title1, "#sigma_{eff} = %.2f GeV",effsigmaEBEB);
+  sprintf (title2, "#sigma_{eff} = %.2f GeV",effsigmacEBEB);
+  latex1 = new TLatex(0.65,0.8,title1);
+  latex1->SetNDC();
+  latex1->SetTextFont(42);
+  latex1->SetTextSize(0.03);
+  latex1->SetTextColor(kRed);
+  latex1->Draw("same");
+  latex2 = new TLatex(0.65,0.75,title2);
+  latex2->SetNDC();
+  latex2->SetTextFont(42);
+  latex2->SetTextSize(0.03);
+  latex2->SetTextColor(kGreen+2);
+  latex2->Draw("same");
+
+  cEBEE->cd();
+  sprintf (title1, "#sigma_{eff} = %.2f GeV",effsigmaEBEE);
+  sprintf (title2, "#sigma_{eff} = %.2f GeV",effsigmacEBEE);
+  latex1 = new TLatex(0.65,0.8,title1);
+  latex1->SetNDC();
+  latex1->SetTextFont(42);
+  latex1->SetTextSize(0.03);
+  latex1->SetTextColor(kRed);
+  latex1->Draw("same");
+  latex2 = new TLatex(0.65,0.75,title2);
+  latex2->SetNDC();
+  latex2->SetTextFont(42);
+  latex2->SetTextSize(0.03);
+  latex2->SetTextColor(kGreen+2);
+  latex2->Draw("same");
+
+  cEEEE->cd();
+  sprintf (title1, "#sigma_{eff} = %.2f GeV",effsigmaEEEE);
+  sprintf (title2, "#sigma_{eff} = %.2f GeV",effsigmacEEEE);
+  latex1 = new TLatex(0.65,0.8,title1);
+  latex1->SetNDC();
+  latex1->SetTextFont(42);
+  latex1->SetTextSize(0.03);
+  latex1->SetTextColor(kRed);
+  latex1->Draw("same");
+  latex2 = new TLatex(0.65,0.75,title2);
+  latex2->SetNDC();
+  latex2->SetTextFont(42);
+  latex2->SetTextSize(0.03);
+  latex2->SetTextColor(kGreen+2);
+  latex2->Draw("same");
+
+
+  // save in a file
+  TFile *fout = new TFile(outfilename,"recreate");
+  h_mZ_EBEB->Write();
+  h_mZc_EBEB->Write();
+  h_mZ_EBEE->Write();
+  h_mZc_EBEE->Write();
+  h_mZ_EEEE->Write();
+  h_mZc_EEEE->Write();
+  mZ_vs_localEta_EBEB->Write();
+  mZc_vs_localEta_EBEB->Write();
+  mZ_vs_localPhi_EBEB->Write();
+  mZc_vs_localPhi_EBEB->Write();
+  hspread->Write();
+  hspreadc->Write();
+
+  plotEBEB->Write("plotEBEB");
+  plotcEBEB->Write("plotcEBEB");
+  plotEBEE->Write("plotEBEE");
+  plotcEBEE->Write("plotcEBEE");
+  plotEEEE->Write("plotEEEE");
+  plotcEEEE->Write("plotcEEEE");
+
+  cout << "Closing file..." << endl;
+  fout->Close();
+
+
 
 }
 
-
-
-
-
-
-double crystalBall(double* x, double* par)
-{
-  //[0] = N
-  //[1] = mean
-  //[2] = sigma
-  //[3] = alpha
-  //[4] = n
-  
-  
-  double xx = x[0];
-  double mean = par[1];
-  double sigma = par[2];
-  double alpha = par[3];
-  double n = par[4];
-  
-  if( (xx-mean)/sigma > -alpha )
-  {
-    return par[0] * exp(-1. * (xx-mean)*(xx-mean) / (2*sigma*sigma) );
-  }
-  
-  else
-  {
-    double A = pow(n/fabs(alpha), n) * exp(-0.5 * alpha*alpha);
-    double B = n/fabs(alpha) - fabs(alpha);
-    
-    return par[0] * A * pow(B - (xx-mean)/sigma, -1.*n);
-  }
-}
