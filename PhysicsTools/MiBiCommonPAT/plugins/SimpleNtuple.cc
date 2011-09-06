@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.48 2011/07/04 15:36:01 amassiro Exp $
+// $Id: SimpleNtuple.cc,v 1.49 2011/08/11 12:55:09 amassiro Exp $
 //
 //
 
@@ -229,7 +229,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_charge"); 
    
    // isolation
-   NtupleFactory_ -> AddFloat("electrons_PFIso");
+   NtupleFactory_ -> AddFloat("electrons_chargedHadronIso");
+   NtupleFactory_ -> AddFloat("electrons_neutralHadronIso");
+   NtupleFactory_ -> AddFloat("electrons_photonIso");
+   NtupleFactory_ -> AddFloat("electrons_chargedHadronIsoPU");
+   
    NtupleFactory_ -> AddFloat("electrons_likelihood");
 
    // resolution variables
@@ -351,9 +355,11 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> Add4V   ("muons");
    NtupleFactory_ -> AddFloat("muons_charge");
    
-  // isolation 
-
-   NtupleFactory_ -> AddFloat("muons_PFIso");
+   // isolation 
+   NtupleFactory_ -> AddFloat("muons_chargedHadronIso");
+   NtupleFactory_ -> AddFloat("muons_neutralHadronIso");
+   NtupleFactory_ -> AddFloat("muons_photonIso");
+   NtupleFactory_ -> AddFloat("muons_chargedHadronIsoPU");
 
    // resolution variables
    NtupleFactory_ -> AddFloat("muons_resolP");
@@ -1375,7 +1381,10 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
   NtupleFactory_ -> FillFloat("muons_resolPhi",muon.resolPhi());*/
   
   //  mu isolation PF
-  NtupleFactory_ -> FillFloat("muons_PFIso",(muon.userFloat("muSmurfPF")));
+  NtupleFactory_ -> FillFloat("muons_chargedHadronIso",(muon.chargedHadronIso()));
+  NtupleFactory_ -> FillFloat("muons_neutralHadronIso",(muon.neutralHadronIso()));
+  NtupleFactory_ -> FillFloat("muons_photonIso",(muon.photonIso()));
+  NtupleFactory_ -> FillFloat("muons_chargedHadronIsoPU",(muon.userIso(0)));
 
   // track variables  
   NtupleFactory_ -> FillFloat("muons_z",muon.vertex().z());
@@ -1465,7 +1474,10 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
   NtupleFactory_ -> FillFloat("electrons_charge", electron.charge());
   
   //  ele isolation PF
-  NtupleFactory_ -> FillFloat("electrons_PFIso",(electron.userFloat("eleSmurfPF")));
+  NtupleFactory_ -> FillFloat("electrons_chargedHadronIso",(electron.chargedHadronIso()));
+  NtupleFactory_ -> FillFloat("electrons_neutralHadronIso",(electron.neutralHadronIso()));
+  NtupleFactory_ -> FillFloat("electrons_photonIso",(electron.photonIso()));
+  NtupleFactory_ -> FillFloat("electrons_chargedHadronIsoPU",(electron.userIso(0)));
   NtupleFactory_ -> FillFloat("electrons_likelihood",(electron.userFloat("egammaIDLikelihood")));
 
   // resolution variables

@@ -171,8 +171,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # -------------------
     # pat selection layer
-    #process.selectedPatElectrons.cut      = cms.string("pt > 35. & abs(eta) < 2.5")  #fede
-    #process.selectedPatElectronsPFlow.cut = cms.string("pt > 35. & abs(eta) < 2.5")  #fede
     
     process.selectedPatElectrons.cut      = cms.string("pt > 17. & abs(eta) < 2.5")
     process.selectedPatElectronsPFlow.cut = cms.string("pt > 17. & abs(eta) < 2.5")
@@ -192,32 +190,71 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
 
 
 
-    # PF isolation
-    process.load("PhysicsTools.MiBiCommonPAT.muonPFIsoMapProd_cfi")
-    process.muSmurfPF = process.muonPFIsoMapProd.clone()
-    process.preMuonSequence = cms.Sequence(process.muSmurfPF)
+    # PF isolation : for PF2PAT
+    process.load("CommonTools.ParticleFlow.pfPileUpCandidates_cff")
+    process.pfPileUpCandidates.bottomCollection = cms.InputTag("particleFlow")
+    process.load("CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff")
     
-    process.patMuons.userData.userFloats.src = cms.VInputTag(
-      cms.InputTag("muSmurfPF")
-    )
-    
-    process.load("PhysicsTools.MiBiCommonPAT.electronPFIsoMapProd_cfi")
-    process.eleSmurfPF = process.electronPFIsoMapProd.clone()
-    process.preElectronSequence = cms.Sequence(process.eleSmurfPF)
-    
-    process.load("RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi")
-    process.egammaIDLikelihood = process.eidLikelihoodExt.clone()
-    process.electronIDLH = cms.Sequence( process.egammaIDLikelihood )
-    
-    process.patElectrons.userData.userFloats.src = cms.VInputTag(
-      cms.InputTag("eleSmurfPF"),
-      cms.InputTag("egammaIDLikelihood")
+    process.load("PhysicsTools.MiBiCommonPAT.muonPFIsolation_cff")
+        
+    #embed the deposits and values to the pat muons
+    process.patMuonsPFlow.isoDeposits = cms.PSet(
+       pfAllParticles    = cms.InputTag("muPFIsoDepositChargedAll"),
+       pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged"),
+       pfNeutralHadrons = cms.InputTag("muPFIsoDepositNeutral"),
+       pfPhotons        = cms.InputTag("muPFIsoDepositGamma")
     )
 
-    process.prePatSequence = cms.Sequence( process.electronIDLH + process.preElectronSequence + process.preMuonSequence )
+    #as you can see the PU deposit will be accessed by muon.userIso(0)
+    process.patMuonsPFlow.isolationValues = cms.PSet(
+           pfAllParticles   = cms.InputTag("muPFIsoValueChargedAll04"),
+           pfChargedHadrons = cms.InputTag("muPFIsoValueCharged04"),
+           pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral04"),
+           pfPhotons        = cms.InputTag("muPFIsoValueGamma04"),
+           user = cms.VInputTag(
+                        cms.InputTag("muPFIsoValuePU04")
+         )
+    )
     
+    process.load("PhysicsTools.MiBiCommonPAT.elePFIsolation_cff")
+
+    #embed the deposits and values to the pat electrons
+    process.patElectronsPFlow.isoDeposits = cms.PSet(
+       pfAllParticles    = cms.InputTag("elePFIsoDepositChargedAll"),
+       pfChargedHadrons = cms.InputTag("elePFIsoDepositCharged"),
+       pfNeutralHadrons = cms.InputTag("elePFIsoDepositNeutral"),
+       pfPhotons        = cms.InputTag("elePFIsoDepositGamma")
+    )
+
+    #as you can see the PU deposit will be accessed by ele.userIso(0)
+    process.patElectronsPFlow.isolationValues = cms.PSet(
+           pfAllParticles   = cms.InputTag("elePFIsoValueChargedAll04"),
+           pfChargedHadrons = cms.InputTag("elePFIsoValueCharged04"),
+           pfNeutralHadrons = cms.InputTag("elePFIsoValueNeutral04"),
+           pfPhotons        = cms.InputTag("elePFIsoValueGamma04"),
+           user = cms.VInputTag(
+                        cms.InputTag("elePFIsoValuePU04")
+         )
+    )
+
+    # Add the pfCandsForIsolation producer to the sequence
+    getattr(process,"patPF2PATSequence"+postfix).replace(
+        getattr(process,"pfMET"+postfix),
+        getattr(process,"pfMET"+postfix)*process.pfCandsForIsolationSequence
+        )
+        
+    # Add the new PFmuon iso deposits to the sequence 
+    getattr(process,"patPF2PATSequence"+postfix).replace(
+        getattr(process,"patMuons"+postfix),
+        process.muonPFIsolationSequence*getattr(process,"patMuons"+postfix)
+        )
     
-    
+    # Add the new PFele iso deposits to the sequence 
+    getattr(process,"patPF2PATSequence"+postfix).replace(
+        getattr(process,"patElectrons"+postfix),
+        process.elePFIsolationSequence*getattr(process,"patElectrons"+postfix)
+        )
+
     # Add the KT6 producer to the sequence
     getattr(process,"patPF2PATSequence"+postfix).replace(
         getattr(process,"pfNoElectron"+postfix),
@@ -233,7 +270,6 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.goodOfflinePrimaryVertices *
         process.GoodVtxEvents * # -> Counter
         process.HBHENoiseFilterResultProducer *
-        process.prePatSequence *
         getattr(process,"patPF2PATSequence"+postfix) *
         process.kt6PFJets *        
         process.kt6PFJetsForIsolation *
@@ -418,7 +454,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     # paths
     #process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT)
     
-    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
+    #process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)    
     
     # GammaGamma paths
