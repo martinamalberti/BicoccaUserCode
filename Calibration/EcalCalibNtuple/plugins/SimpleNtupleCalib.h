@@ -1,5 +1,5 @@
-#ifndef SimpleNtuple_h
-#define SimpleNtuple_h
+#ifndef SimpleNtupleCalib_h
+#define SimpleNtupleCalib_h
 
 // system include files
 #include <memory>
@@ -86,6 +86,9 @@
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
+
+#include "PhysicsTools/MiBiCommonPAT/interface/MCDumperZW.h"
+
 using namespace cms ;
 using namespace edm ;
 using namespace std ;
@@ -93,14 +96,14 @@ using namespace reco;
 
 
 
-class SimpleNtuple : public edm::EDAnalyzer {
+class SimpleNtupleCalib : public edm::EDAnalyzer {
  
   typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > XYZVectorF; 
 
  public:
 
-  explicit SimpleNtuple (const edm::ParameterSet&) ;
-  ~SimpleNtuple () ;
+  explicit SimpleNtupleCalib (const edm::ParameterSet&) ;
+  ~SimpleNtupleCalib () ;
 
       
  private:  
@@ -122,7 +125,9 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  
+  void fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+
+
 
   // ----------member data ---------------------------
   EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
@@ -152,7 +157,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag TCMetTag_;
   edm::InputTag PFMetTag_;
   edm::InputTag MCPileupTag_;
-
+  edm::InputTag MCtruthTag_;
+  int eventType_;
   std::vector<std::string> eleId_names_;
   
   ///---- flags ----
@@ -171,6 +177,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveTCMet_ ;
   bool savePFMet_ ;
   bool saveMCPU_;
+  bool saveMCZW_ ;
 
   bool verbosity_; //---- true = loquacious     false = silence  
   
@@ -182,7 +189,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   TTree* outTreeNameEleId;
   TTree* outTree_;
   NtupleFactory* NtupleFactory_;
-  
+  MCDumperZW*    mcAnalysisZW_;
+
 } ;
 
 #endif

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 simpleNtuple = cms.EDAnalyzer(
-    "SimpleNtuple",
+    "SimpleNtupleCalib",
     MCPileupTag = cms.InputTag ("addPileupInfo"),
     L1Tag               = cms.InputTag("gtDigis"),
     TriggerEventTag     = cms.InputTag("hltTriggerSummaryAOD"),
@@ -18,6 +18,7 @@ simpleNtuple = cms.EDAnalyzer(
     CALOMetTag          = cms.InputTag("patMETs"),
     TCMetTag            = cms.InputTag("patMETsTC"),
     PFMetTag            = cms.InputTag("patMETsPF"),
+    MCtruthTag          = cms.InputTag("genParticles"),
     eleId_names         = cms.vstring('eidLoose','eidTight','eidRobustLoose','eidRobustTight'),
     useTriggerEvent = cms.untracked.bool(True),
     dataFlag      = cms.untracked.bool(True),

@@ -28,6 +28,7 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="CalibCalorimetry/EcalLaserCorrection"/>
 <use   name="PhysicsTools/NtupleUtils"/>
+<use   name="PhysicsTools/MiBiCommonPAT"/>
 <use   name="RecoVertex/PrimaryVertexProducer"/>
 <library   file="*.cc" name="CalibrationEcalCalibNtuplePlugins">
   <flags   EDM_PLUGIN="1"/>

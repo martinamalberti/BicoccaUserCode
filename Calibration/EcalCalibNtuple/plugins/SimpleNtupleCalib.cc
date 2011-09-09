@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:   SimpleNtuple
-// Class:     SimpleNtuple
+// Package:   SimpleNtupleCalib
+// Class:     SimpleNtupleCalib
 //
-#include "Calibration/EcalCalibNtuple/plugins/SimpleNtuple.h"
+#include "Calibration/EcalCalibNtuple/plugins/SimpleNtupleCalib.h"
 
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
@@ -13,10 +13,10 @@
 
 
 
-SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
+SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
 {
   edm::Service<TFileService> fs ;
-  outTree_  =        fs -> make <TTree>("SimpleNtuple","SimpleNtuple"); 
+  outTree_  =        fs -> make <TTree>("SimpleNtupleCalib","SimpleNtupleCalib"); 
   outTreeNameEleId = fs -> make <TTree>("NameEleId","NameEleId");
   outTreeNameEleId->Branch("eleId_names",&eleId_names_);
 
@@ -41,10 +41,14 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   TCMetTag_ = iConfig.getParameter<edm::InputTag>("TCMetTag");
   PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
   
+  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
+  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
+
   eleId_names_  = iConfig.getParameter< std::vector<std::string> >("eleId_names");
   outTreeNameEleId->Fill();
   
-  
+  mcAnalysisZW_ = NULL;
+
   
   //---- flags ----
   useTriggerEvent_ = iConfig.getUntrackedParameter<bool> ("useTriggerEvent_", true);
@@ -62,6 +66,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
   saveTCMet_    = iConfig.getUntrackedParameter<bool> ("saveTCMet", true);
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
   saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
+  saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
+  
 
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
   
@@ -343,13 +349,37 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
     NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_highpT");
   }
 
+  if(saveMCZW_)
+    {
+      NtupleFactory_->Add4V("mc_V");    
+      NtupleFactory_->AddFloat("mc_V_charge");    
+      NtupleFactory_->AddFloat("mcV_pdgId");    
+      NtupleFactory_->Add3V("mc_V_vertex");
+     
+      NtupleFactory_->Add4V("mcQ1_tag");    
+      NtupleFactory_->AddFloat("mcQ1_tag_charge");    
+      NtupleFactory_->AddFloat("mcQ1_tag_pdgId");  
+     
+      NtupleFactory_->Add4V("mcQ2_tag");         
+      NtupleFactory_->AddFloat("mcQ2_tag_charge");    
+      NtupleFactory_->AddFloat("mcQ2_tag_pdgId");  
+     
+      NtupleFactory_->Add4V("mcF1_fromV");   
+      NtupleFactory_->AddFloat("mcF1_fromV_charge");    
+      NtupleFactory_->AddFloat("mcF1_fromV_pdgId");  
+     
+      NtupleFactory_->Add4V("mcF2_fromV");         
+      NtupleFactory_->AddFloat("mcF2_fromV_charge");    
+      NtupleFactory_->AddFloat("mcF2_fromV_pdgId");       
+    }
+
 }
 
 // --------------------------------------------------------------------
 
 
 
-SimpleNtuple::~SimpleNtuple ()
+SimpleNtupleCalib::~SimpleNtupleCalib ()
 {
   cout<< "Analyzed " <<  eventNaiveId_ << " events" <<endl;
   NtupleFactory_->WriteNtuple();
@@ -360,7 +390,7 @@ SimpleNtuple::~SimpleNtuple ()
 
 
 
-void SimpleNtuple::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
  ++eventNaiveId_;
  
@@ -372,6 +402,8 @@ void SimpleNtuple::analyze (const edm::Event& iEvent, const edm::EventSetup& iSe
  NtupleFactory_->FillInt("timeStampLow", (int)(0xFFFFFFFF& iEvent.time().value()));
  NtupleFactory_->FillInt("timeStampHigh", (int)(iEvent.time().value() >> 32));
 
+
+ 
  ///---- fill L1 ----
  if (saveL1_) fillL1Info (iEvent, iSetup);
 
@@ -409,6 +441,16 @@ void SimpleNtuple::analyze (const edm::Event& iEvent, const edm::EventSetup& iSe
  ///---- fill MC Pileup information ---- 
  if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
 
+ //fill W/Z MC information
+ if(saveMCZW_)
+   {
+     edm::Handle<reco::GenParticleCollection> genParticles;
+     iEvent.getByLabel(MCtruthTag_, genParticles);
+     mcAnalysisZW_ = new MCDumperZW(genParticles, eventType_, verbosity_);
+     fillMCZWInfo (iEvent, iSetup);
+   }
+
+
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
 
@@ -420,7 +462,7 @@ void SimpleNtuple::analyze (const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
 //---- dump L1Info
-void SimpleNtuple::fillL1Info (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillL1Info (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
  edm::ESHandle<L1GtTriggerMenu> menuRcd;
  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
@@ -451,9 +493,9 @@ void SimpleNtuple::fillL1Info (const edm::Event & iEvent, const edm::EventSetup 
 
 
 
-void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
-  //std::cout << "SimpleNtuple::fillHLTInfo::begin" << std::endl;
+  //std::cout << "SimpleNtupleCalib::fillHLTInfo::begin" << std::endl;
   
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   iEvent.getByLabel(TriggerEventTag_, triggerEventHandle);
@@ -503,9 +545,9 @@ void SimpleNtuple::fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup
 
 
 
-void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup)
+void SimpleNtupleCalib::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup)
 {
-  //std::cout << "SimpleNtuple::fillBSInfo::begin" << std::endl;
+  //std::cout << "SimpleNtupleCalib::fillBSInfo::begin" << std::endl;
   
   edm::Handle<reco::BeamSpot> BSHandle;
   iEvent.getByType(BSHandle);
@@ -526,16 +568,16 @@ void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup &
   NtupleFactory_ -> FillFloat("BS_BeamWidthX", BS.BeamWidthX());
   NtupleFactory_ -> FillFloat("BS_BeamWidthY", BS.BeamWidthY());
 
-  //std::cout << "SimpleNtuple::fillBSInfo::end" << std::endl;
+  //std::cout << "SimpleNtupleCalib::fillBSInfo::end" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------
 
 
 
-void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup)
+void SimpleNtupleCalib::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup)
 {
-  //std::cout << "SimpleNtuple::fillPVInfo::begin" << std::endl;
+  //std::cout << "SimpleNtupleCalib::fillPVInfo::begin" << std::endl;
     
   edm::Handle<reco::VertexCollection> vertexes;
   iEvent.getByLabel(PVTag_, vertexes);
@@ -587,14 +629,14 @@ void SimpleNtuple::fillPVInfo(const edm::Event & iEvent, const edm::EventSetup &
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
   PVPoint_ = PVPoint;
   
-  //std::cout << "SimpleNtuple::fillPVInfo::end" << std::endl;
+  //std::cout << "SimpleNtupleCalib::fillPVInfo::end" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------
 
 
 
-void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 { 
  //*********** CALO TOPOLOGY
  edm::ESHandle<CaloTopology> pTopology;
@@ -628,7 +670,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  iEvent.getByLabel( recHitCollection_EB_, recHitsEB );
  const EcalRecHitCollection* theBarrelEcalRecHits = recHitsEB.product () ;
  if ( ! recHitsEB.isValid() ) {
-  std::cerr << "SimpleNtuple::analyze --> recHitsEB not found" << std::endl; 
+  std::cerr << "SimpleNtupleCalib::analyze --> recHitsEB not found" << std::endl; 
  }
   
  //*********** EE REC HITS
@@ -636,7 +678,7 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
  iEvent.getByLabel( recHitCollection_EE_, recHitsEE );
  const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
  if ( ! recHitsEE.isValid() ) {
-  std::cerr << "SimpleNtuple::analyze --> recHitsEE not found" << std::endl; 
+  std::cerr << "SimpleNtupleCalib::analyze --> recHitsEE not found" << std::endl; 
  }
 
  //************* ELECTRONS
@@ -1023,9 +1065,9 @@ void SimpleNtuple::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup
 }
 
 // ---- PHOTONS ----
-void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
+void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
- //std::cout << "SimpleNtuple::fillPhotonInfo" << std::endl;
+ //std::cout << "SimpleNtupleCalib::fillPhotonInfo" << std::endl;
   //*********** CALO TOPOLOGY
  edm::ESHandle<CaloTopology> pTopology;
  iSetup.get<CaloTopologyRecord>().get(pTopology);
@@ -1252,9 +1294,9 @@ void SimpleNtuple::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup
 
 
 // ---- MET ----
-void SimpleNtuple::fillCALOMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillCALOMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
- //std::cout << "SimpleNtuple::fillCALOMetInfo" << std::endl;
+ //std::cout << "SimpleNtupleCalib::fillCALOMetInfo" << std::endl;
  
  edm::Handle<edm::View<pat::MET> > calometHandle;
  iEvent.getByLabel(CALOMetTag_,calometHandle);
@@ -1266,9 +1308,9 @@ void SimpleNtuple::fillCALOMetInfo (const edm::Event & iEvent, const edm::EventS
  NtupleFactory_->FillFloat("CALOSumEt",met.sumEt());
 }
 
-void SimpleNtuple::fillTCMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillTCMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
- //std::cout << "SimpleNtuple::fillTCMetInfo" << std::endl;
+ //std::cout << "SimpleNtupleCalib::fillTCMetInfo" << std::endl;
  
  edm::Handle<edm::View<pat::MET> > tcmetHandle;
  iEvent.getByLabel(TCMetTag_,tcmetHandle);
@@ -1280,9 +1322,9 @@ void SimpleNtuple::fillTCMetInfo (const edm::Event & iEvent, const edm::EventSet
  NtupleFactory_->FillFloat("TCSumEt",met.sumEt());
 }
 
-void SimpleNtuple::fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
- //std::cout << "SimpleNtuple::fillPFMetInfo" << std::endl;
+ //std::cout << "SimpleNtupleCalib::fillPFMetInfo" << std::endl;
  
  edm::Handle<edm::View<pat::MET> > PFmetHandle;
  iEvent.getByLabel(PFMetTag_,PFmetHandle);
@@ -1298,9 +1340,9 @@ void SimpleNtuple::fillPFMetInfo (const edm::Event & iEvent, const edm::EventSet
 
 
 
-void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
- //std::cout << "SimpleNtuple::fillJetInfo" << std::endl;
+ //std::cout << "SimpleNtupleCalib::fillJetInfo" << std::endl;
  //************* JETS
  Handle<View<pat::Jet> > jetHandle;
  iEvent.getByLabel(JetTag_,jetHandle);
@@ -1318,9 +1360,9 @@ void SimpleNtuple::fillJetInfo (const edm::Event & iEvent, const edm::EventSetup
 
 
 ///---- muons ----
-void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
+void SimpleNtupleCalib::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
- //std::cout << "SimpleNtuple::fillMuInfo" << std::endl;
+ //std::cout << "SimpleNtupleCalib::fillMuInfo" << std::endl;
  //************* MUONS
  
  Handle<View<pat::Muon> > muonHandle;
@@ -1351,9 +1393,9 @@ void SimpleNtuple::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup 
 
 // --pileup---------------------------------------------------------------------------------------
 
-void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+void SimpleNtupleCalib::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
- //std::cout << "SimpleNtuple::fillMCPUInfo" << std::endl;
+ //std::cout << "SimpleNtupleCalib::fillMCPUInfo" << std::endl;
 
   edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
   iEvent.getByLabel(MCPileupTag_, PupInfo);
@@ -1421,7 +1463,45 @@ void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetu
 }// dump MC PU info
 
 
-std::pair<double,double> SimpleNtuple::getLocalPosition(const CaloGeometry *caloGeometry, const edm::Ptr<reco::CaloCluster>& seedCluster)
+
+void SimpleNtupleCalib::fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+ //std::cout << "SimpleNtupleCalib::fillMCZWDecayInfo" << std::endl; 
+
+ bool isValid = mcAnalysisZW_ -> isValid();
+  
+ if( (eventType_ == 0) && (isValid == true) )
+ {
+
+   NtupleFactory_->Fill4V("mc_V",mcAnalysisZW_ -> mcV()->p4());
+   NtupleFactory_->FillFloat("mc_V_charge",mcAnalysisZW_ -> mcV()->charge());
+   NtupleFactory_->FillFloat("mcV_pdgId",mcAnalysisZW_ -> mcV()->pdgId());
+
+   math::XYZPoint p(mcAnalysisZW_ -> mcV()->vertex());
+   ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> vertex(p.x(), p.y(), p.z());
+   NtupleFactory_->Fill3V("mc_V_vertex", vertex);   
+   
+   NtupleFactory_->Fill4V("mcQ1_tag",mcAnalysisZW_ -> mcQ1_tag()->p4());
+   NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysisZW_ -> mcQ1_tag()->charge());
+   NtupleFactory_->FillFloat("mcQ1_tag_pdgId",mcAnalysisZW_ -> mcQ1_tag()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcQ2_tag",mcAnalysisZW_ -> mcQ2_tag()->p4());
+   NtupleFactory_->FillFloat("mcQ2_tag_charge",mcAnalysisZW_ -> mcQ2_tag()->charge());
+   NtupleFactory_->FillFloat("mcQ2_tag_pdgId",mcAnalysisZW_ -> mcQ2_tag()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcF1_fromV",mcAnalysisZW_ -> mcF1_fromV()->p4());
+   NtupleFactory_->FillFloat("mcF1_fromV_charge",mcAnalysisZW_ -> mcF1_fromV()->charge());
+   NtupleFactory_->FillFloat("mcF1_fromV_pdgId",mcAnalysisZW_ -> mcF1_fromV()->pdgId());
+   
+   NtupleFactory_->Fill4V("mcF2_fromV",mcAnalysisZW_ -> mcF2_fromV()->p4());
+   NtupleFactory_->FillFloat("mcF2_fromV_charge",mcAnalysisZW_ -> mcF2_fromV()->charge());
+   NtupleFactory_->FillFloat("mcF2_fromV_pdgId",mcAnalysisZW_ -> mcF2_fromV()->pdgId());
+ } 
+ 
+} 
+
+
+std::pair<double,double> SimpleNtupleCalib::getLocalPosition(const CaloGeometry *caloGeometry, const edm::Ptr<reco::CaloCluster>& seedCluster)
 {
   //--------------if barrel calculate local position wrt xtal center -------------------
   const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
@@ -1493,4 +1573,4 @@ std::pair<double,double> SimpleNtuple::getLocalPosition(const CaloGeometry *calo
 
 // -----------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE(SimpleNtuple);
+DEFINE_FWK_MODULE(SimpleNtupleCalib);

@@ -20,12 +20,18 @@ ReReco=False
 makeSimpleNtuple(process,GlobalTag="START42_V11::All",ReReco=ReReco)
 #makeRecoTags(process)
 
+process.simpleNtuple.saveMCPU = cms.untracked.bool(False)
+process.simpleNtuple.saveMCZW = cms.untracked.bool(True)
+
+process.simpleNtuple.eventType = cms.untracked.int32(0)
+##---- 0 = signal    1 = background 
+
 
 
 # source
 process.source.fileNames = cms.untracked.vstring(
     #'file:/data_CMS/cms/abenagli/MC_GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6_PU_S1_START311_V1G1-v1_AODSIM.root'
-    '/store/relval/CMSSW_4_2_3/RelValWE/GEN-SIM-RECO/START42_V12-v2/0062/04E6E6E3-747B-E011-A177-001A92971BA0.root'
+    'file:/data2/WenuRelVal_428.root'
     )
 
 process.maxEvents = cms.untracked.PSet(
