@@ -69,7 +69,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
   
 
-  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity","False");
+  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   
   
   
