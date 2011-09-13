@@ -13,3 +13,12 @@
   <use   name="PhysicsTools/NtupleUtils"/>
   <flags   LCGDICT_ARGS="--deep"/>
 </bin>
+
+<bin   name="WZAnalysisNoLC.cpp" file="WZAnalysisNoLC.cpp">
+  <use   name="root"/>
+  <use   name="rootmath"/>
+  <use   name="Calibration/EcalCalibNtuple"/>
+  <use   name="PhysicsTools/NtupleUtils"/>
+  <flags   LCGDICT_ARGS="--deep"/>
+</bin>
+
