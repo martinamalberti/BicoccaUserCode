@@ -38,10 +38,17 @@ def makeRecoTags(process):
         #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
         #    ),
         
+        #cms.PSet(
+        #    record = cms.string("EcalLaserAPDPNRatiosRcd"),
+        #    tag = cms.string("EcalLaserAPDPNRatios_data_110831"),
+        #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+        #    ),
+        
+
         cms.PSet(
             record = cms.string("EcalLaserAPDPNRatiosRcd"),
-            tag = cms.string("EcalLaserAPDPNRatios_2011V3_online"),
-            connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
+            tag = cms.string("EcalLaserAPDPNRatios_p1p2p3_v2_mc"),
+            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
             ),
         
 
@@ -62,20 +69,20 @@ def makeRecoTags(process):
         #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
         #    )
         
-        cms.PSet(
-            record = cms.string("EcalIntercalibConstantsRcd"),
-            tag = cms.string("EcalIntercalibConstants_v10_offline"),
-            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
-            ),
+        #cms.PSet(
+        #    record = cms.string("EcalIntercalibConstantsRcd"),
+        #    tag = cms.string("EcalIntercalibConstants_v10_offline"),
+        #    connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
+        #    ),
         
         
         
         # new ADCToGeV
-        cms.PSet(
-            record = cms.string("EcalADCToGeVConstantRcd"),
-            tag = cms.string("EcalADCToGeVConstant_v10_offline"),
-            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
-            )
+        #cms.PSet(
+        #    record = cms.string("EcalADCToGeVConstantRcd"),
+        #    tag = cms.string("EcalADCToGeVConstant_v10_offline"),
+        #    connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
+        #    )
 )
 
 
