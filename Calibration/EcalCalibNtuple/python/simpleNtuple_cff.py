@@ -15,14 +15,14 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         fileNames = cms.untracked.vstring()
         )
     
-    if ReReco:
-        process.source.inputCommands = cms.untracked.vstring(
-            "drop *_*_*_RECO",
-            "drop *_MEtoEDMConverter_*_*",
-            "keep FEDRawDataCollection_*_*_*",
-            "keep triggerTriggerEvent_*_*_*",
-            "keep *_TriggerResults_*_*"            
-            )
+    #if ReReco:
+        #process.source.inputCommands = cms.untracked.vstring(
+            #"drop *_*_*_RECO",
+            #"drop *_MEtoEDMConverter_*_*",
+            #"keep FEDRawDataCollection_*_*_*",
+            #"keep triggerTriggerEvent_*_*_*",
+            #"keep *_TriggerResults_*_*"            
+         #   )
     
     # Out
     process.out = cms.OutputModule(
@@ -194,8 +194,8 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.AllPassFilterGoodVertexFilter *
         process.noScrapingFilter *
         process.AllPassFilterNoScrapingFilter *
-        process.HBHENoiseFilter *
-        process.AllPassFilterHBHENoiseFilter *
+        #process.HBHENoiseFilter *
+        #process.AllPassFilterHBHENoiseFilter *
         #process.highetele *
         process.highetpho *
         process.highetFilter *
@@ -206,7 +206,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.patDefaultSequence *
         process.simpleNtuple
         )
-    
+
     process.raw2digi_step = cms.Path(process.RawToDigi)
     process.L1Reco_step = cms.Path(process.L1Reco)
     process.reconstruction_step = cms.Path(process.reconstruction)
