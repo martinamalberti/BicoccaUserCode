@@ -123,7 +123,11 @@ SimpleNtupleEoverP::~SimpleNtupleEoverP ()
 void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   ++eventNaiveId_;
- 
+  
+  bool isGoodEvent = false;
+  
+  NtupleFactory_->ClearNtuple();
+
   NtupleFactory_->FillInt("runId", iEvent.id().run());
   NtupleFactory_->FillInt("lumiId", iEvent.luminosityBlock());
   NtupleFactory_->FillInt("BXId", iEvent.bunchCrossing());
@@ -131,11 +135,6 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   NtupleFactory_->FillInt("eventNaiveId", eventNaiveId_);
   NtupleFactory_->FillInt("timeStampLow", (int)(0xFFFFFFFF& iEvent.time().value()));
   NtupleFactory_->FillInt("timeStampHigh", (int)(iEvent.time().value() >> 32));
-
-  
-  bool isGoodEvent = false;
-  
-  NtupleFactory_->ClearNtuple();
 
   ///---- fill electrons and check if the event is good----
   isGoodEvent = fillEleInfo (iEvent, iSetup);
