@@ -92,8 +92,12 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > HLTPathName4("HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3",runRanges4);
   std::pair<int,int> runRanges5(165970,166967);
   std::pair<std::string,std::pair<int,int> > HLTPathName5("HLT_Ele25_WP80_PFMT40_v1",runRanges5);
-  std::pair<int,int> runRanges6(167039,999999);
+  std::pair<int,int> runRanges6(167039,167913);
   std::pair<std::string,std::pair<int,int> > HLTPathName6("HLT_Ele27_WP80_PFMT50_v1",runRanges6);
+  std::pair<int,int> runRanges7(170249,173198);
+  std::pair<std::string,std::pair<int,int> > HLTPathName7("HLT_Ele32_WP70_PFMT50_v3",runRanges7);
+  std::pair<int,int> runRanges8(173236,999999);
+  std::pair<std::string,std::pair<int,int> > HLTPathName8("HLT_Ele32_WP70_PFMT50_v4",runRanges8);
   
   HLTPathNames.push_back(HLTPathName1);
   HLTPathNames.push_back(HLTPathName2);
@@ -101,6 +105,8 @@ int main(int argc, char** argv)
   HLTPathNames.push_back(HLTPathName4);
   HLTPathNames.push_back(HLTPathName5);
   HLTPathNames.push_back(HLTPathName6);
+  HLTPathNames.push_back(HLTPathName7);
+  HLTPathNames.push_back(HLTPathName8);
   
   
   
