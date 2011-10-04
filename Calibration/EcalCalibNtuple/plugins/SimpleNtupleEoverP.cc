@@ -23,7 +23,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
     
-  CALOMetTag_ = iConfig.getParameter<edm::InputTag>("CALOMetTag");
+  PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
   
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
     
@@ -156,10 +156,10 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   bool eventIsBad  = false;
   
   //*********** MET
-  edm::Handle<edm::View<reco::MET> > calometHandle;
-  iEvent.getByLabel(CALOMetTag_,calometHandle);
-  View<reco::MET>  mets = *calometHandle;
-  pat::MET met = mets.at(0);
+  edm::Handle<edm::View<reco::MET> > PFmetHandle;
+  iEvent.getByLabel(PFMetTag_,PFmetHandle);
+  View<reco::MET>  mets = *PFmetHandle;
+  reco::MET met = mets.at(0);
 
   //*********** LASER CORRECTION
   edm::ESHandle<EcalLaserDbService> theLaser;

@@ -138,9 +138,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   edm::InputTag PhotonTag_;
   edm::InputTag MuTag_;
   edm::InputTag JetTag_;
-  edm::InputTag CALOMetTag_;
-  edm::InputTag TCMetTag_;
   edm::InputTag PFMetTag_;
+  edm::InputTag TCMetTag_;
   edm::InputTag MCPileupTag_;
   edm::InputTag MCtruthTag_;
   int eventType_;
