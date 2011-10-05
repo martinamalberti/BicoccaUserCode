@@ -169,11 +169,39 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
 
   ///---- output ----
-  TTree* outTreeNameHLT;
-  TTree* outTreeNameEleId;
   TTree* outTree_;
-  NtupleFactory* NtupleFactory_;
-  MCDumperZW*    mcAnalysisZW_;
+  // event variables
+  int runId;
+  int timeStampHigh;
+  int isW;
+  int isZ;
+  float ele1_ele2_mass;
+  float ele1_ele2_scMass;
+  
+  // electron variables  
+  float ele1_scE;
+  float ele1_scEta;
+  float ele1_scPhi;
+  float ele1_scLaserCorr;
+  float ele1_es;
+  int ele1_seedIeta;
+  int ele1_seedIphi;
+  int ele1_seedIx;
+  int ele1_seedIy;
+  int ele1_seedZside;
+  float ele1_EOverP;
+  
+  float ele2_scE;
+  float ele2_scEta;
+  float ele2_scPhi;
+  float ele2_scLaserCorr;
+  float ele2_es;
+  int ele2_seedIeta;
+  int ele2_seedIphi;
+  int ele2_seedIx;
+  int ele2_seedIy;
+  int ele2_seedZside;
+  float ele2_EOverP;
 
 } ;
 

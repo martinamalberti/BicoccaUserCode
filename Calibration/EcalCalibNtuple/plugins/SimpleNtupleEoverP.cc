@@ -30,78 +30,42 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   //---- flags ----
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   
-  NtupleFactory_ = new NtupleFactory(outTree_);
-  
-  NtupleFactory_->AddInt("runId"); 
-  NtupleFactory_->AddInt("lumiId"); 
-  NtupleFactory_->AddInt("BXId"); 
-  NtupleFactory_->AddInt("eventId"); 
-  NtupleFactory_->AddInt("eventNaiveId"); 
-  NtupleFactory_->AddInt("timeStampLow"); 
-  NtupleFactory_->AddInt("timeStampHigh"); 
-  NtupleFactory_->AddInt("isZ"); 
   eventNaiveId_ = 0;
+  //---- Initialize tree branches ----
   
-  // general variables
-  NtupleFactory_->AddFloat("ele1_charge"); 
-  NtupleFactory_->AddFloat("ele1_eta"); 
-  NtupleFactory_->AddFloat("ele1_phi"); 
-  
-  // track variables
-  NtupleFactory_->AddFloat("ele1_p_atVtx");
-  
-  // supercluster variables
-  NtupleFactory_->AddFloat("ele1_scE");
-  NtupleFactory_->AddFloat("ele1_scEt");
-  NtupleFactory_->AddFloat("ele1_scEta");
-  NtupleFactory_->AddFloat("ele1_scPhi");
-  NtupleFactory_->AddFloat("ele1_scAvgLaserCorrection");
-      
-  // seed variables
-  NtupleFactory_->AddInt("ele1_seedIeta");
-  NtupleFactory_->AddInt("ele1_seedIphi");
-  NtupleFactory_->AddInt("ele1_seedIx");
-  NtupleFactory_->AddInt("ele1_seedIy");
-  NtupleFactory_->AddInt("ele1_seedZside");
-  
-  // preshower variables
-  NtupleFactory_->AddFloat("ele1_ES");
-  
-  // id variables
-  NtupleFactory_->AddFloat("ele1_eOverP");
-  
- 
-  // general variables
-  NtupleFactory_->AddFloat("ele2_charge"); 
-  NtupleFactory_->AddFloat("ele2_eta"); 
-  NtupleFactory_->AddFloat("ele2_phi"); 
-  
-  // track variables
-  NtupleFactory_->AddFloat("ele2_p_atVtx");
-  
-  // supercluster variables
-  NtupleFactory_->AddFloat("ele2_scE");
-  NtupleFactory_->AddFloat("ele2_scEt");
-  NtupleFactory_->AddFloat("ele2_scEta");
-  NtupleFactory_->AddFloat("ele2_scPhi");
-  NtupleFactory_->AddFloat("ele2_scAvgLaserCorrection");
-      
-  // seed variables
-  NtupleFactory_->AddInt("ele2_seedIeta");
-  NtupleFactory_->AddInt("ele2_seedIphi");
-  NtupleFactory_->AddInt("ele2_seedIx");
-  NtupleFactory_->AddInt("ele2_seedIy");
-  NtupleFactory_->AddInt("ele2_seedZside");
-  
-  // preshower variables
-  NtupleFactory_->AddFloat("ele2_ES");
-  
-  // id variables
-  NtupleFactory_->AddFloat("ele2_eOverP");
+  // event variables
+  outTree_ -> Branch("runId",         &runId,                 "runId/I");
+  outTree_ -> Branch("timeStampHigh", &timeStampHigh, "timeStampHigh/I");
+  outTree_ -> Branch("isW", &isW, "isW/I");
+  outTree_ -> Branch("isZ", &isZ, "isZ/I");  
+  outTree_ -> Branch("ele1_ele2_mass", &ele1_ele2_mass, "ele1_ele2_mass/F");
+  outTree_ -> Branch("ele1_ele2_scMass", &ele1_ele2_scMass, "ele1_ele2_scMass/F");
 
-  // invariant mass
-  NtupleFactory_->AddFloat("ele1_ele2_mass");
-  NtupleFactory_->AddFloat("ele1_ele2_scMass");
+  // electron variables
+  outTree_ -> Branch("ele1_scE",         &ele1_scE,                 "ele1_scE/F");
+  outTree_ -> Branch("ele1_scEta",       &ele1_scEta,             "ele1_scEta/F");
+  outTree_ -> Branch("ele1_scPhi",       &ele1_scPhi,             "ele1_scPhi/F");
+  outTree_ -> Branch("ele1_scLaserCorr", &ele1_scLaserCorr, "ele1_scLaserCorr/F");
+  outTree_ -> Branch("ele1_es",          &ele1_es,                   "ele1_es/F");
+  outTree_ -> Branch("ele1_seedIeta",    &ele1_seedIeta,             "ele1_seedIeta/I");
+  outTree_ -> Branch("ele1_seedIphi",    &ele1_seedIphi,             "ele1_seedIphi/I");
+  outTree_ -> Branch("ele1_seedIx",      &ele1_seedIx,                 "ele1_seedIx/I");
+  outTree_ -> Branch("ele1_seedIy",      &ele1_seedIy,                 "ele1_seedIy/I");
+  outTree_ -> Branch("ele1_seedZside",   &ele1_seedZside,           "ele1_seedZside/I");
+  outTree_ -> Branch("ele1_EOverP",      &ele1_EOverP,           "ele1_EOverP/F");
+
+  outTree_ -> Branch("ele2_scE",         &ele2_scE,                 "ele2_scE/F");
+  outTree_ -> Branch("ele2_scEta",       &ele2_scEta,             "ele2_scEta/F");
+  outTree_ -> Branch("ele2_scPhi",       &ele2_scPhi,             "ele2_scPhi/F");
+  outTree_ -> Branch("ele2_scLaserCorr", &ele2_scLaserCorr, "ele2_scLaserCorr/F");
+  outTree_ -> Branch("ele2_es",          &ele2_es,                   "ele2_es/F");
+  outTree_ -> Branch("ele2_seedIeta",    &ele2_seedIeta,             "ele2_seedIeta/I");
+  outTree_ -> Branch("ele2_seedIphi",    &ele2_seedIphi,             "ele2_seedIphi/I");
+  outTree_ -> Branch("ele2_seedIx",      &ele2_seedIx,                 "ele2_seedIx/I");
+  outTree_ -> Branch("ele2_seedIy",      &ele2_seedIy,                 "ele2_seedIy/I");
+  outTree_ -> Branch("ele2_seedZside",   &ele2_seedZside,           "ele2_seedZside/I");
+  outTree_ -> Branch("ele2_EOverP",      &ele2_EOverP,           "ele2_EOverP/F");
+
 
 }
 
@@ -112,8 +76,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 SimpleNtupleEoverP::~SimpleNtupleEoverP ()
 {
   cout<< "Analyzed " <<  eventNaiveId_ << " events" <<endl;
-  NtupleFactory_->WriteNtuple();
-  delete NtupleFactory_;
+  // save tree
+  outTree_ -> Write();
 }
 
 // -----------------------------------------------------------------------------------------
@@ -126,21 +90,45 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   
   bool isGoodEvent = false;
   
-  NtupleFactory_->ClearNtuple();
+  // event variables  
+  runId = iEvent.id().run();
+  timeStampHigh = (int)(iEvent.time().value() >> 32);
+  
+  isW = -1;
+  isZ = -1;
+  ele1_ele2_mass = -1;
+  ele1_ele2_scMass = -1;
 
-  NtupleFactory_->FillInt("runId", iEvent.id().run());
-  NtupleFactory_->FillInt("lumiId", iEvent.luminosityBlock());
-  NtupleFactory_->FillInt("BXId", iEvent.bunchCrossing());
-  NtupleFactory_->FillInt("eventId", iEvent.id().event());
-  NtupleFactory_->FillInt("eventNaiveId", eventNaiveId_);
-  NtupleFactory_->FillInt("timeStampLow", (int)(0xFFFFFFFF& iEvent.time().value()));
-  NtupleFactory_->FillInt("timeStampHigh", (int)(iEvent.time().value() >> 32));
+  // electron variables  
+  ele1_scE = -99.;
+  ele1_scEta = -99.;
+  ele1_scPhi = -99.;
+  ele1_scLaserCorr = -99.;
+  ele1_es = -99.;
+  ele1_seedIeta = -9999;
+  ele1_seedIphi = -9999;
+  ele1_seedIx = -9999;
+  ele1_seedIy = -9999;
+  ele1_seedZside = -9999;
+  ele1_EOverP = -99.;
+
+  ele2_scE = -99.;
+  ele2_scEta = -99.;
+  ele2_scPhi = -99.;
+  ele2_scLaserCorr = -99.;
+  ele2_es = -99.;
+  ele2_seedIeta = -9999;
+  ele2_seedIphi = -9999;
+  ele2_seedIx = -9999;
+  ele2_seedIy = -9999;
+  ele2_seedZside = -9999;
+  ele2_EOverP = -99.;
 
   ///---- fill electrons and check if the event is good----
   isGoodEvent = fillEleInfo (iEvent, iSetup);
 
   ///---- save the entry of the tree only if W/Z event ----
-  if ( isGoodEvent ) NtupleFactory_->FillNtuple();
+  if ( isGoodEvent )   outTree_ -> Fill();
   
 }
 
@@ -252,7 +240,7 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     goodElectronIndex.push_back(i);
     
   } // end loop over electron candidates
-    
+  
   if ( nGoodEle == 1 ) {
     
     reco::GsfElectron electron = electrons.at(goodElectronIndex[0]);
@@ -293,30 +281,17 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       eventIsGood = true; 
 
       // vector boson event type
-      NtupleFactory_->FillInt("isZ",0);
-
-      // basic variables
-      NtupleFactory_->FillFloat("ele1_charge",(electron.charge()));
-      NtupleFactory_->FillFloat("ele1_eta",(electron.eta()));
-      NtupleFactory_->FillFloat("ele1_phi",(electron.phi()));
-      
-      // track variables
-      NtupleFactory_->FillFloat("ele1_p_atVtx",(electron.trackMomentumAtVtx().R()));
-      
+      isW = 1;
+      isZ = 0;
       
       // supercluster variables
       reco::SuperClusterRef scRef = electron.superCluster();
       
-      double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
-      double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
-      
-      NtupleFactory_->FillFloat("ele1_scE",scRef->energy());
-      NtupleFactory_->FillFloat("ele1_scEt",scRef->energy()*(Rt/R));
-      NtupleFactory_->FillFloat("ele1_scEta",scRef->eta());
-      NtupleFactory_->FillFloat("ele1_scPhi",scRef->phi());   
+      ele1_scE = scRef->energy();
+      ele1_scEta = scRef->eta();
+      ele1_scPhi = scRef->phi();
       
       const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
-      
       
       // rechit variables
       int numRecHit = 0;
@@ -345,7 +320,7 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           EBDetId barrelId (itrechit->id ()); 
           ++numRecHit;
                         
-            // laser correction
+          // laser correction
           rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
           sumRecHitE += itrechit->energy();
           sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
@@ -380,16 +355,15 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
       }
       
-      NtupleFactory_->FillFloat("ele1_scAvgLaserCorrection", sumLaserCorrectionRecHitE/sumRecHitE);
-      
-      
+      ele1_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
+              
       // seed variables
       int ieta = -999;
       int iphi = -999;
       int ix = -999;
       int iy = -999;
       int zside = -999;
-        
+
       if(electron.isEB())
       {
         std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
@@ -412,7 +386,7 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       {
         std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
           
-          // flag - OutOfTime
+        // flag - OutOfTime
         EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
           
         if( it != theEndcapEcalRecHits->end() )
@@ -434,17 +408,18 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
             << electron.isEE() << "\n"
             << "\n" << "\n"
             << std::endl;
-      NtupleFactory_->FillInt("ele1_seedIeta", ieta);
-      NtupleFactory_->FillInt("ele1_seedIphi", iphi);
-      NtupleFactory_->FillInt("ele1_seedIx", ix);
-      NtupleFactory_->FillInt("ele1_seedIy", iy);
-      NtupleFactory_->FillInt("ele1_seedZside", zside);
+      
+      ele1_seedIeta = ieta;
+      ele1_seedIphi = iphi;
+      ele1_seedIx = ix;
+      ele1_seedIy = iy;
+      ele1_seedZside = zside;
     
-        // preshower variables 
-      NtupleFactory_->FillFloat("ele1_ES",scRef->preshowerEnergy());
-    
-        // eleid variables
-      NtupleFactory_->FillFloat("ele1_eOverP",electron.eSuperClusterOverP());
+      // preshower variables 
+      ele1_es = scRef->preshowerEnergy();
+
+      // EsuP variables
+      ele1_EOverP = electron.eSuperClusterOverP()*ele1_scLaserCorr;
       }
   }
   /// ------------------ Z events: second electron --------------------------------
@@ -464,20 +439,12 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     {
       
       eventIsGood = true; 
-
+      
       // vector boson event type
-      NtupleFactory_->FillInt("isZ",1);
-
+      isW = 0;
+      isZ = 1;
+      
       ///First electron
-      // basic variables
-      NtupleFactory_->FillFloat("ele1_charge",(electron1.charge()));
-      NtupleFactory_->FillFloat("ele1_eta",(electron1.eta()));
-      NtupleFactory_->FillFloat("ele1_phi",(electron1.phi()));
-      
-      // track variables
-      NtupleFactory_->FillFloat("ele1_p_atVtx",(electron1.trackMomentumAtVtx().R()));
-      
-      
       // supercluster variables
       reco::SuperClusterRef scRef = electron1.superCluster();
       
@@ -485,10 +452,9 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
       ROOT::Math::PtEtaPhiEVector ele1_sc(scRef->energy()*sin(2*atan(exp(-1.*scRef->eta()))),scRef->eta(),scRef->phi(),scRef->energy());
 
-      NtupleFactory_->FillFloat("ele1_scE",scRef->energy());
-      NtupleFactory_->FillFloat("ele1_scEt",scRef->energy()*(Rt/R));
-      NtupleFactory_->FillFloat("ele1_scEta",scRef->eta());
-      NtupleFactory_->FillFloat("ele1_scPhi",scRef->phi());   
+      ele1_scE = scRef->energy();
+      ele1_scEta = scRef->eta();
+      ele1_scPhi = scRef->phi();
       
       const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
       
@@ -555,8 +521,7 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
       }
       
-      NtupleFactory_->FillFloat("ele1_scAvgLaserCorrection", sumLaserCorrectionRecHitE/sumRecHitE);
-      
+      ele1_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
       
       // seed variables
       int ieta = -999;
@@ -564,7 +529,7 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       int ix = -999;
       int iy = -999;
       int zside = -999;
-        
+
       if(electron1.isEB())
       {
         std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
@@ -602,29 +567,20 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       }
     
         
-      NtupleFactory_->FillInt("ele1_seedIeta", ieta);
-      NtupleFactory_->FillInt("ele1_seedIphi", iphi);
-      NtupleFactory_->FillInt("ele1_seedIx", ix);
-      NtupleFactory_->FillInt("ele1_seedIy", iy);
-      NtupleFactory_->FillInt("ele1_seedZside", zside);
+      ele1_seedIeta = ieta;
+      ele1_seedIphi = iphi;
+      ele1_seedIx = ix;
+      ele1_seedIy = iy;
+      ele1_seedZside = zside;
     
-        // preshower variables 
-      NtupleFactory_->FillFloat("ele1_ES",scRef->preshowerEnergy());
-    
-        // eleid variables
-      NtupleFactory_->FillFloat("ele1_eOverP",electron1.eSuperClusterOverP());
+      // preshower variables 
+      ele1_es = scRef->preshowerEnergy();
+
+      // EsuP variables
+      ele1_EOverP = electron1.eSuperClusterOverP()*ele1_scLaserCorr;
       
     
       /// second electron
-      // basic variables
-      NtupleFactory_->FillFloat("ele2_charge",(electron2.charge()));
-      NtupleFactory_->FillFloat("ele2_eta",(electron2.eta()));
-      NtupleFactory_->FillFloat("ele2_phi",(electron2.phi()));
-      
-      // track variables
-      NtupleFactory_->FillFloat("ele2_p_atVtx",(electron2.trackMomentumAtVtx().R()));
-      
-      
       // supercluster variables
       scRef = electron2.superCluster();
       
@@ -632,10 +588,9 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
       ROOT::Math::PtEtaPhiEVector ele2_sc(scRef->energy()*sin(2*atan(exp(-1.*scRef->eta()))),scRef->eta(),scRef->phi(),scRef->energy());
 
-      NtupleFactory_->FillFloat("ele2_scE",scRef->energy());
-      NtupleFactory_->FillFloat("ele2_scEt",scRef->energy()*(Rt/R));
-      NtupleFactory_->FillFloat("ele2_scEta",scRef->eta());
-      NtupleFactory_->FillFloat("ele2_scPhi",scRef->phi());   
+      ele2_scE = scRef->energy();
+      ele2_scEta = scRef->eta();
+      ele2_scPhi = scRef->phi();
       
       const std::vector<std::pair<DetId,float> >& hits_ele2 = scRef->hitsAndFractions();
       
@@ -702,7 +657,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
       }
       
-      NtupleFactory_->FillFloat("ele2_scAvgLaserCorrection", sumLaserCorrectionRecHitE/sumRecHitE);
+      ele2_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
+      
       
       // seed variables
       ieta = -999;
@@ -748,23 +704,21 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       }
     
         
-      NtupleFactory_->FillInt("ele2_seedIeta", ieta);
-      NtupleFactory_->FillInt("ele2_seedIphi", iphi);
-      NtupleFactory_->FillInt("ele2_seedIx", ix);
-      NtupleFactory_->FillInt("ele2_seedIy", iy);
-      NtupleFactory_->FillInt("ele2_seedZside", zside);
+      ele2_seedIeta = ieta;
+      ele2_seedIphi = iphi;
+      ele2_seedIx = ix;
+      ele2_seedIy = iy;
+      ele2_seedZside = zside;
     
       // preshower variables 
-      NtupleFactory_->FillFloat("ele2_ES",scRef->preshowerEnergy());
-    
-      // eleid variables
-      NtupleFactory_->FillFloat("ele2_eOverP",electron2.eSuperClusterOverP());
+      ele2_es = scRef->preshowerEnergy();
+
+      // EsuP variables
+      ele2_EOverP = electron2.eSuperClusterOverP()*ele2_scLaserCorr;
       
       // Invariant mass
-      NtupleFactory_->FillFloat("ele1_ele2_mass",(ele1_4V+ele2_4V).M());
-      NtupleFactory_->FillFloat("ele1_ele2_scMass",(ele1_sc+ele2_sc).M());
-  
-        
+      ele1_ele2_mass = (ele1_4V+ele2_4V).M();
+      ele1_ele2_scMass = (ele1_sc+ele2_sc).M()*sqrt(ele1_scLaserCorr*ele2_scLaserCorr);
     }
   }
       
