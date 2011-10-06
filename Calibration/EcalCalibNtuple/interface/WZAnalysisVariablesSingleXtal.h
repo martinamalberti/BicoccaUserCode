@@ -41,12 +41,15 @@ struct WZAnalysisVariablesSingleXtal
   std::vector<int> ele1_recHit_ieta;
   std::vector<int> ele1_recHit_iphi;
   std::vector<int> ele1_recHit_zside;
+  std::vector<float> ele1_recHit_laserCorrection;
+
     
   float ele1_scERaw;
   float ele1_scE;
   float ele1_es;
   
   float ele1_e3x3;
+  float ele1_e5x5;
     
   float ele1_tkP;
   
@@ -83,12 +86,14 @@ struct WZAnalysisVariablesSingleXtal
   std::vector<int> ele2_recHit_ieta;
   std::vector<int> ele2_recHit_iphi;
   std::vector<int> ele2_recHit_zside;
-    
+  std::vector<float> ele2_recHit_laserCorrection;
+
   float ele2_scERaw;
   float ele2_scE;
   float ele2_es;
   
   float ele2_e3x3;
+  float ele2_e5x5;
     
   float ele2_tkP;
   

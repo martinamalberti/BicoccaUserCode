@@ -32,12 +32,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::st
   vars.m_reducedTree -> Branch("ele1_recHit_ietaORix", "std::vector<int>",   &vars.ele1_recHit_ieta);
   vars.m_reducedTree -> Branch("ele1_recHit_iphiORiy", "std::vector<int>",   &vars.ele1_recHit_iphi);
   vars.m_reducedTree -> Branch("ele1_recHit_zside", "std::vector<int>",   &vars.ele1_recHit_zside);
+  vars.m_reducedTree -> Branch("ele1_recHit_laserCorrection", "std::vector<float>",   &vars.ele1_recHit_laserCorrection);
   
   vars.m_reducedTree -> Branch("ele1_scERaw",      &vars.ele1_scERaw,           "ele1_scERaw/F");
   vars.m_reducedTree -> Branch("ele1_scE",         &vars.ele1_scE,                 "ele1_scE/F");
   vars.m_reducedTree -> Branch("ele1_es",          &vars.ele1_es,                   "ele1_es/F");
   
   vars.m_reducedTree -> Branch("ele1_e3x3", &vars.ele1_e3x3, "ele1_e3x3/F");
+  vars.m_reducedTree -> Branch("ele1_e5x5", &vars.ele1_e5x5, "ele1_e5x5/F");
   
   vars.m_reducedTree -> Branch("ele1_tkP",  &vars.ele1_tkP,   "ele1_tkP/F");
   
@@ -58,13 +60,15 @@ void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::st
   vars.m_reducedTree -> Branch("ele2_recHit_ietaORix", "std::vector<int>",   &vars.ele2_recHit_ieta);
   vars.m_reducedTree -> Branch("ele2_recHit_iphiORiy", "std::vector<int>",   &vars.ele2_recHit_iphi);
   vars.m_reducedTree -> Branch("ele2_recHit_zside", "std::vector<int>",   &vars.ele2_recHit_zside);
+  vars.m_reducedTree -> Branch("ele2_recHit_laserCorrection", "std::vector<float>",   &vars.ele2_recHit_laserCorrection);
 
   vars.m_reducedTree -> Branch("ele2_scERaw",      &vars.ele2_scERaw,           "ele2_scERaw/F");
   vars.m_reducedTree -> Branch("ele2_scE",         &vars.ele2_scE,                 "ele2_scE/F");
   vars.m_reducedTree -> Branch("ele2_es",          &vars.ele2_es,                   "ele2_es/F");
   
   vars.m_reducedTree -> Branch("ele2_e3x3", &vars.ele2_e3x3, "ele2_e3x3/F");
-  
+  vars.m_reducedTree -> Branch("ele2_e5x5", &vars.ele2_e5x5, "ele2_e5x5/F");
+
   vars.m_reducedTree -> Branch("ele2_tkP",  &vars.ele2_tkP,   "ele2_tkP/F");
   
   vars.m_reducedTree -> Branch("ele2_fbrem",  &vars.ele2_fbrem,   "ele2_fbrem/F");
@@ -122,6 +126,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars)
   vars.ele1_recHit_ieta.clear();
   vars.ele1_recHit_iphi.clear();
   vars.ele1_recHit_zside.clear();
+  vars.ele1_recHit_laserCorrection.clear();
 
   
   vars.ele1_scERaw = -99.;
@@ -129,6 +134,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars)
   vars.ele1_es = -99.;
   
   vars.ele1_e3x3 = -99.;
+  vars.ele1_e5x5 = -99.;
   
   vars.ele1_tkP = -99.;
   
@@ -165,12 +171,14 @@ void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars)
   vars.ele2_recHit_ieta.clear();
   vars.ele2_recHit_iphi.clear();
   vars.ele2_recHit_zside.clear();
+  vars.ele2_recHit_laserCorrection.clear();
   
   vars.ele2_scERaw = -99.;
   vars.ele2_scE = -99.;
   vars.ele2_es = -99.;
   
   vars.ele2_e3x3 = -99.;
+  vars.ele2_e5x5 = -99.;
   
   vars.ele2_tkP = -99.;
   
@@ -252,6 +260,7 @@ void SetElectron1Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
     vars.ele1_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
     vars.ele1_recHit_ieta.push_back(iRecHit_ietaORix);
     vars.ele1_recHit_iphi.push_back(iRecHit_iphiORiy);
+    vars.ele1_recHit_laserCorrection.push_back(reader.GetFloat("recHit_laserCorrection")->at(iRecHit));
 
   }  
 
@@ -260,6 +269,7 @@ void SetElectron1Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
   vars.ele1_es = reader.GetFloat("electrons_ES")->at(ele1It);
   
   vars.ele1_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele1It);
+  vars.ele1_e5x5 = reader.GetFloat("electrons_e5x5")->at(ele1It);
 
   vars.ele1_tkP = (reader.Get3V("electrons_p_atVtx")->at(ele1It)).R();
   
@@ -319,6 +329,7 @@ void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
     vars.ele2_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
     vars.ele2_recHit_ieta.push_back(iRecHit_ietaORix);
     vars.ele2_recHit_iphi.push_back(iRecHit_iphiORiy);
+    vars.ele2_recHit_laserCorrection.push_back(reader.GetFloat("recHit_laserCorrection")->at(iRecHit));
   
   }
 
@@ -327,6 +338,7 @@ void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
   vars.ele2_es = reader.GetFloat("electrons_ES")->at(ele2It);
   
   vars.ele2_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele2It);
+  vars.ele2_e5x5 = reader.GetFloat("electrons_e5x5")->at(ele2It);
 
   vars.ele2_tkP = (reader.Get3V("electrons_p_atVtx")->at(ele2It)).R();
   
