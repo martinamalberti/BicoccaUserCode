@@ -163,6 +163,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_dxy_PV");
     NtupleFactory_->AddFloat("electrons_dz_PV");
     NtupleFactory_->Add3V("electrons_p_atVtx");
+    NtupleFactory_->AddFloat("electrons_sigmaP");
+    NtupleFactory_->Add3V("electrons_p_kf");
+
     NtupleFactory_->Add3V("electrons_p_out");
     NtupleFactory_->Add3V("electrons_p_atCalo");
     NtupleFactory_->Add3PV("electrons_position_atVtx");
@@ -687,6 +690,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  View<pat::Electron> electrons = *electronHandle;
  
  
+
  
  // Loop over electrons
  for ( unsigned int i=0; i<electrons.size(); ++i )
@@ -725,7 +729,58 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_deltaPhiSuperClusterAtVtx",electron.deltaPhiSuperClusterTrackAtVtx());
    NtupleFactory_->FillFloat("electrons_deltaPhiSeedClusterAtCalo",electron.deltaPhiSeedClusterTrackAtCalo());
    
+
+
+   if( (electron.closestCtfTrack().ctfTrack).isNonnull()){
+     NtupleFactory_ -> Fill3V   ("electrons_p_kf",(electron.closestCtfTrack().ctfTrack)->momentum() );
+     }
+   else {
+     //fill the ntple with a dummy momentum !! needed to keep the vector aligned
+     math::XYZVectorD dummy(0,0,0);
+     NtupleFactory_ -> Fill3V   ("electrons_p_kf",dummy);
+   }
+
+
+   NtupleFactory_->FillFloat("electrons_sigmaP",electron.corrections().trackMomentumError); 
+
+   /*
+
+ edm::Handle<TrackCollection> theTracks;
+ iEvent.getByLabel( "generalTracks", theTracks );
+ if ( ! theTracks.isValid() ) {
+  std::cerr << "SimpleNtupleCalib::analyze, FillEleInfo --> generalTracks not found" << std::endl; 
+ }
+
+   //find the closest kf track
+   float drMin = 100;
+   float tr_eta = electron.trackMomentumAtVtx().eta();
+   float tr_phi = electron.trackMomentumAtVtx().phi();
+
+   reco::TrackCollection::const_iterator ClosestTK =theTracks->end();   
+   for (reco::TrackCollection::const_iterator TKitr = theTracks->begin(); TKitr != theTracks->end(); ++TKitr)
+     {
+       if (TKitr->pt() < 6){continue;}
+       float deta = fabs(tr_eta - TKitr->eta());
+       float dphi = fabs(tr_phi -TKitr->phi());
+       //fix dphi !!!!
+       float dR = sqrt(deta*deta + dphi*dphi);
+       if(dR < drMin){
+	 drMin = dR;
+	 ClosestTK = TKitr;
+       }
+     }
+
+   if(ClosestTK != theTracks->end()){
+     NtupleFactory_ -> Fill3V   ("electrons_p_kf", ClosestTK->momentum());
+   }
+   else {
+     //fill the ntple with a dummy momentum !! needed to keep the vector aligned
+     math::XYZVectorD dummy(0,0,0);
+     NtupleFactory_ -> Fill3V   ("electrons_p_kf",dummy);
+   }
    
+
+*/
    // supercluster variables
    reco::SuperClusterRef scRef = electron.superCluster();
    const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
