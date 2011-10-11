@@ -34,6 +34,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   //---- Initialize tree branches ----
   
   // event variables
+  outTree_ -> Branch("eventId",       &eventId,                 "eventId/I");
+  outTree_ -> Branch("lumiId",        &lumiId,                 "lumiId/I");
   outTree_ -> Branch("runId",         &runId,                 "runId/I");
   outTree_ -> Branch("timeStampHigh", &timeStampHigh, "timeStampHigh/I");
   outTree_ -> Branch("isW", &isW, "isW/I");
@@ -42,11 +44,17 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_ele2_scMass", &ele1_ele2_scMass, "ele1_ele2_scMass/F");
 
   // electron variables
+  outTree_ -> Branch("ele1_tkP",         &ele1_tkP,             "ele1_tkP/F");
+  outTree_ -> Branch("ele1_e5x5",        &ele1_e5x5,             "ele1_e5x5/F");
+  outTree_ -> Branch("ele1_scNxtal",     &ele1_scNxtal,          "ele1_scNxtal/F");
   outTree_ -> Branch("ele1_scE",         &ele1_scE,                 "ele1_scE/F");
   outTree_ -> Branch("ele1_scEta",       &ele1_scEta,             "ele1_scEta/F");
   outTree_ -> Branch("ele1_scPhi",       &ele1_scPhi,             "ele1_scPhi/F");
+  outTree_ -> Branch("ele1_5x5LaserCorr", &ele1_scLaserCorr, "ele1_scLaserCorr/F");
   outTree_ -> Branch("ele1_scLaserCorr", &ele1_scLaserCorr, "ele1_scLaserCorr/F");
   outTree_ -> Branch("ele1_es",          &ele1_es,                   "ele1_es/F");
+  outTree_ -> Branch("ele1_seedE",       &ele1_seedE,             "ele1_seedE/F");
+  outTree_ -> Branch("ele1_seedLaserCorr", &ele1_seedLaserCorr,             "ele1_seedLaserCorr/F");
   outTree_ -> Branch("ele1_seedIeta",    &ele1_seedIeta,             "ele1_seedIeta/I");
   outTree_ -> Branch("ele1_seedIphi",    &ele1_seedIphi,             "ele1_seedIphi/I");
   outTree_ -> Branch("ele1_seedIx",      &ele1_seedIx,                 "ele1_seedIx/I");
@@ -54,11 +62,17 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_seedZside",   &ele1_seedZside,           "ele1_seedZside/I");
   outTree_ -> Branch("ele1_EOverP",      &ele1_EOverP,           "ele1_EOverP/F");
 
+  outTree_ -> Branch("ele2_tkP",     &ele2_tkP,             "ele2_tkP/F");
+  outTree_ -> Branch("ele2_e5x5",        &ele2_e5x5,             "ele2_e5x5/F");
+  outTree_ -> Branch("ele2_scNxtal",     &ele2_scNxtal,          "ele2_scNxtal/F");
   outTree_ -> Branch("ele2_scE",         &ele2_scE,                 "ele2_scE/F");
   outTree_ -> Branch("ele2_scEta",       &ele2_scEta,             "ele2_scEta/F");
   outTree_ -> Branch("ele2_scPhi",       &ele2_scPhi,             "ele2_scPhi/F");
   outTree_ -> Branch("ele2_scLaserCorr", &ele2_scLaserCorr, "ele2_scLaserCorr/F");
+  outTree_ -> Branch("ele2_5x5LaserCorr", &ele2_scLaserCorr, "ele2_scLaserCorr/F");
   outTree_ -> Branch("ele2_es",          &ele2_es,                   "ele2_es/F");
+  outTree_ -> Branch("ele2_seedE",       &ele2_seedE,             "ele2_seedE/F");
+  outTree_ -> Branch("ele2_seedLaserCorr", &ele2_seedLaserCorr,             "ele2_seedLaserCorr/F");
   outTree_ -> Branch("ele2_seedIeta",    &ele2_seedIeta,             "ele2_seedIeta/I");
   outTree_ -> Branch("ele2_seedIphi",    &ele2_seedIphi,             "ele2_seedIphi/I");
   outTree_ -> Branch("ele2_seedIx",      &ele2_seedIx,                 "ele2_seedIx/I");
@@ -90,8 +104,10 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   
   bool isGoodEvent = false;
   
-  // event variables  
+  // event variables 
   runId = iEvent.id().run();
+  lumiId = iEvent.luminosityBlock();
+  eventId = iEvent.id().event();
   timeStampHigh = (int)(iEvent.time().value() >> 32);
   
   isW = -1;
@@ -100,11 +116,17 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_ele2_scMass = -1;
 
   // electron variables  
+  ele1_tkP = -99.;
+  ele1_e5x5 = -99.;
+  ele1_scNxtal = -99.;
   ele1_scE = -99.;
   ele1_scEta = -99.;
   ele1_scPhi = -99.;
   ele1_scLaserCorr = -99.;
+  ele1_5x5LaserCorr = -99.;
   ele1_es = -99.;
+  ele1_seedE = -99.;
+  ele1_seedLaserCorr = -99.;
   ele1_seedIeta = -9999;
   ele1_seedIphi = -9999;
   ele1_seedIx = -9999;
@@ -112,11 +134,17 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_seedZside = -9999;
   ele1_EOverP = -99.;
 
+  ele2_tkP = -99.;
+  ele2_e5x5 = -99.;
+  ele2_scNxtal = -99.;
   ele2_scE = -99.;
   ele2_scEta = -99.;
   ele2_scPhi = -99.;
   ele2_scLaserCorr = -99.;
+  ele2_5x5LaserCorr = -99.;
   ele2_es = -99.;
+  ele2_seedE = -99.;
+  ele2_seedLaserCorr = -99.;
   ele2_seedIeta = -9999;
   ele2_seedIphi = -9999;
   ele2_seedIx = -9999;
@@ -182,60 +210,60 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   {
     reco::GsfElectron electron = electrons.at(i);
       
-    //Get variables used for the selection
-    float pt = electron.pt();
-    float eta = electron.eta();
-      
-    float tkIso  = electron.dr03TkSumPt();
-    float emIso  = electron.dr03EcalRecHitSumEt();
-    float hadIso = electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
-    float combIso = tkIso + emIso + hadIso;
-      
-    int isEB = electron.isEB();
-    int isEE = electron.isEE();
-      
-    float sigmaIetaIeta = electron.sigmaIetaIeta();
-    float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
-    float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
-    float HOverE        = electron.hadronicOverEm();
-      
-    int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-    int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
-    float dist = electron.convDist();
-    float dcot = electron.convDcot();
-      
-    bool isLooseElectron = false;
-    if( 
-        (isEB == 1 || isEE == 1) &&
-        (pt > 10.) &&
-        (fabs(eta) < 2.5) &&
-        ( ( (isEB == 1) && (combIso/pt    < 0.150) ) || ( (isEB == 0) && (combIso/pt    < 0.100) ) ) &&
-        ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-        ( ( (isEB == 1) && (fabs(DphiIn)  < 0.800) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.700) ) ) &&
-        ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.010) ) ) &&
-        ( ( (isEB == 1) && (HOverE        < 0.150) ) || ( (isEB == 0) && (HOverE        < 0.070) ) )
-      ) isLooseElectron = true;
-
-    bool isTightElectron = false;
-    if(
-       (isEB == 1 || isEE == 1) &&
-       (pt > 20.) &&
-       (fabs(eta) < 2.5) &&
-       ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
-       ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-       ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
-       ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
-       ( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
-       ( mishits == 0 ) &&
-       ( nAmbiguousGsfTracks == 0 ) &&
-       ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
-      ) isTightElectron = true;
-    
-    // Discard the event if ther are loose electrons
-    if ( isLooseElectron == true && isTightElectron == false ) eventIsBad = true;
-    
-    // Count events with a tight ele
-    if ( !isTightElectron ) continue;
+//     //Get variables used for the selection
+//     float pt = electron.pt();
+//     float eta = electron.eta();
+//       
+//     float tkIso  = electron.dr03TkSumPt();
+//     float emIso  = electron.dr03EcalRecHitSumEt();
+//     float hadIso = electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
+//     float combIso = tkIso + emIso + hadIso;
+//       
+//     int isEB = electron.isEB();
+//     int isEE = electron.isEE();
+//       
+//     float sigmaIetaIeta = electron.sigmaIetaIeta();
+//     float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
+//     float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
+//     float HOverE        = electron.hadronicOverEm();
+//       
+//     int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+//     int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
+//     float dist = electron.convDist();
+//     float dcot = electron.convDcot();
+//       
+//     bool isLooseElectron = false;
+//     if( 
+//         (isEB == 1 || isEE == 1) &&
+//         (pt > 10.) &&
+//         (fabs(eta) < 2.5) &&
+//         ( ( (isEB == 1) && (combIso/pt    < 0.150) ) || ( (isEB == 0) && (combIso/pt    < 0.100) ) ) &&
+//         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+//         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.800) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.700) ) ) &&
+//         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.010) ) ) &&
+//         ( ( (isEB == 1) && (HOverE        < 0.150) ) || ( (isEB == 0) && (HOverE        < 0.070) ) )
+//       ) isLooseElectron = true;
+// 
+//     bool isTightElectron = false;
+//     if(
+//        (isEB == 1 || isEE == 1) &&
+//        (pt > 20.) &&
+//        (fabs(eta) < 2.5) &&
+//        ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
+//        ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+//        ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+//        ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
+//        ( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
+//        ( mishits == 0 ) &&
+//        ( nAmbiguousGsfTracks == 0 ) &&
+//        ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
+//       ) isTightElectron = true;
+//     
+//     // Discard the event if ther are loose electrons
+//     if ( isLooseElectron == true && isTightElectron == false ) eventIsBad = true;
+//     
+//     // Count events with a tight ele
+//     if ( !isTightElectron ) continue;
     nGoodEle++;
     goodElectronIndex.push_back(i);
     
@@ -264,19 +292,19 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     float lepMetDphi = fmod ((ele4V.Phi()-met4V.Phi()),2*3.14159265);
     float lepMetMt  = sqrt( 2* ele4V.Pt() * met4V.Et() * ( 1-cos(lepMetDphi)) );
 
-    // Now perform W selection
-    if(
-       (met4V.Et() > 25.) &&
-       (lepMetMt > 50.) &&
-       (fabs(lepMetDphi) > 1.57) &&
-       (pt > 30.) &&
-       (fabs(eta) < 2.5) &&
-       ( ( (isEB == 1) && (combIso/pt    < 0.040) ) || ( (isEB == 0) && (combIso/pt    < 0.030) ) ) &&
-       ( ( (isEB == 1) && (fabs(DphiIn)  < 0.030) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.020) ) ) &&
-       ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.005) ) ) &&
-       ( ( (isEB == 1) && (HOverE        < 0.025) ) || ( (isEB == 0) && (HOverE        < 0.025) ) )
-      ) 
-    { 
+//     // Now perform W selection
+//     if(
+//        (met4V.Et() > 25.) &&
+//        (lepMetMt > 50.) &&
+//        (fabs(lepMetDphi) > 1.57) &&
+//        (pt > 30.) &&
+//        (fabs(eta) < 2.5) &&
+//        ( ( (isEB == 1) && (combIso/pt    < 0.040) ) || ( (isEB == 0) && (combIso/pt    < 0.030) ) ) &&
+//        ( ( (isEB == 1) && (fabs(DphiIn)  < 0.030) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.020) ) ) &&
+//        ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.005) ) ) &&
+//        ( ( (isEB == 1) && (HOverE        < 0.025) ) || ( (isEB == 0) && (HOverE        < 0.025) ) )
+//       ) 
+//     { 
     
       eventIsGood = true; 
 
@@ -284,19 +312,88 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       isW = 1;
       isZ = 0;
       
+      ele1_tkP = electron.trackMomentumAtVtx().R();
+          
       // supercluster variables
       reco::SuperClusterRef scRef = electron.superCluster();
       
+      ele1_e5x5 = electron.e5x5();
+      ele1_scNxtal = scRef->hitsAndFractions().size();
       ele1_scE = scRef->energy();
       ele1_scEta = scRef->eta();
       ele1_scPhi = scRef->phi();
       
       const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
       
+      // seed variables
+      int ieta = -999;
+      int iphi = -999;
+      int ix = -999;
+      int iy = -999;
+      int zside = -999;
+
+      if(electron.isEB())
+      {
+        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
+          
+        // flag
+        EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+          
+        if( it != theBarrelEcalRecHits->end() ) 
+        {
+          ele1_seedE = it->energy();
+          ele1_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+          ieta = (EBDetId(id.first)).ieta();
+          iphi = (EBDetId(id.first)).iphi();
+          ix = -999;
+          iy = -999;	
+          zside = 0;
+        }
+          
+      }
+        
+      else if (electron.isEE())
+      {
+        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
+          
+        // flag - OutOfTime
+        EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+
+          
+        if( it != theEndcapEcalRecHits->end() )
+        {
+          ele1_seedE = it->energy();
+          ele1_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+          ix = (EEDetId(id.first)).ix();
+          iy = (EEDetId(id.first)).iy();
+          ieta = -999;
+          iphi = -999;
+          zside = (EEDetId(id.first)).zside();
+        }
+          
+      }
+    
+        
+      if (ieta > 1000) std::cout 
+            << ieta << "\n"
+            << goodElectronIndex[0] << "\n"
+            << electron.isEB() << "\n"
+            << electron.isEE() << "\n"
+            << "\n" << "\n"
+            << std::endl;
+      
+      ele1_seedIeta = ieta;
+      ele1_seedIphi = iphi;
+      ele1_seedIx = ix;
+      ele1_seedIy = iy;
+      ele1_seedZside = zside;
+
       // rechit variables
       int numRecHit = 0;
       float sumRecHitE = 0.;
       float sumLaserCorrectionRecHitE = 0.;
+      float sumRecHitE5x5 = 0.;
+      float sumLaserCorrectionRecHitE5x5 = 0.;
       
       bool printOut = false;
       if( printOut )
@@ -324,7 +421,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
           sumRecHitE += itrechit->energy();
           sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
-          
+          // check if rh is inside the 5x5 matrix
+          if ( fabs(barrelId.ieta() - ele1_seedIeta) < 3 && fabs(barrelId.iphi() - ele1_seedIphi) < 3 ) {
+            sumRecHitE5x5 += itrechit->energy();
+            sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
+          }
           if( printOut && itrechit->energy() > 1. )
           {
             std::cout << std::fixed
@@ -341,11 +442,16 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           ++numRecHit;
             
                   
-            // laser correction
+          // laser correction
           rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
           sumRecHitE += itrechit->energy();
           sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
-          
+          // check if rh is inside the 5x5 matrix
+          if ( fabs(endcapId.ix() - ele1_seedIx) < 3 && fabs(endcapId.iy() - ele1_seedIy) < 3 ) {
+            sumRecHitE5x5 += itrechit->energy();
+            sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
+          }
+
           if( printOut && itrechit->energy() > 1. )
           {
             std::cout << std::fixed
@@ -356,71 +462,17 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       }
       
       ele1_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
-              
-      // seed variables
-      int ieta = -999;
-      int iphi = -999;
-      int ix = -999;
-      int iy = -999;
-      int zside = -999;
-
-      if(electron.isEB())
-      {
-        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
-          
-          // flag
-        EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
-          
-        if( it != theBarrelEcalRecHits->end() ) 
-         {
-          ieta = (EBDetId(id.first)).ieta();
-          iphi = (EBDetId(id.first)).iphi();
-          ix = -999;
-          iy = -999;	
-          zside = 0;
-         }
-          
-      }
-        
-      else if (electron.isEE())
-      {
-        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
-          
-        // flag - OutOfTime
-        EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-          
-        if( it != theEndcapEcalRecHits->end() )
-        {
-          ix = (EEDetId(id.first)).ix();
-          iy = (EEDetId(id.first)).iy();
-          ieta = -999;
-          iphi = -999;
-          zside = (EEDetId(id.first)).zside();
-        }
-          
-      }
-    
-        
-      if (ieta > 1000) std::cout 
-            << ieta << "\n"
-            << goodElectronIndex[0] << "\n"
-            << electron.isEB() << "\n"
-            << electron.isEE() << "\n"
-            << "\n" << "\n"
-            << std::endl;
+      ele1_scE *= ele1_scLaserCorr;
       
-      ele1_seedIeta = ieta;
-      ele1_seedIphi = iphi;
-      ele1_seedIx = ix;
-      ele1_seedIy = iy;
-      ele1_seedZside = zside;
+      ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
+      ele1_e5x5 *= ele1_5x5LaserCorr;
     
       // preshower variables 
       ele1_es = scRef->preshowerEnergy();
 
       // EsuP variables
       ele1_EOverP = electron.eSuperClusterOverP()*ele1_scLaserCorr;
-      }
+//       }
   }
   /// ------------------ Z events: second electron --------------------------------
   else if ( nGoodEle == 2 ) {
@@ -431,12 +483,12 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     math::XYZTLorentzVector  ele2_4V = electron2.p4();
     math::XYZTLorentzVector met4V = met.p4();
 
-    if(
-       ( met4V.Et() < 30.) &&
-       ( (ele1_4V+ele2_4V).M() > 70. && (ele1_4V+ele2_4V).M() < 110. ) &&
-       ( electron1.charge()*electron2.charge() < 0. )
-      ) 
-    {
+//     if(
+//        ( met4V.Et() < 30.) &&
+//        ( (ele1_4V+ele2_4V).M() > 70. && (ele1_4V+ele2_4V).M() < 110. ) &&
+//        ( electron1.charge()*electron2.charge() < 0. )
+//       ) 
+//     {
       
       eventIsGood = true; 
       
@@ -445,6 +497,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       isZ = 1;
       
       ///First electron
+      ele1_tkP = electron1.trackMomentumAtVtx().R();
+
       // supercluster variables
       reco::SuperClusterRef scRef = electron1.superCluster();
       
@@ -452,17 +506,77 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
       ROOT::Math::PtEtaPhiEVector ele1_sc(scRef->energy()*sin(2*atan(exp(-1.*scRef->eta()))),scRef->eta(),scRef->phi(),scRef->energy());
 
+      ele1_e5x5 = electron1.e5x5();
+      ele1_scNxtal = scRef->hitsAndFractions().size();
       ele1_scE = scRef->energy();
       ele1_scEta = scRef->eta();
       ele1_scPhi = scRef->phi();
       
       const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
       
+      // seed variables
+      int ieta = -999;
+      int iphi = -999;
+      int ix = -999;
+      int iy = -999;
+      int zside = -999;
+
+      if(electron1.isEB())
+      {
+        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
+          
+        // flag
+        EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+
+          
+        if( it != theBarrelEcalRecHits->end() )
+        {
+          ele1_seedE = it->energy();
+          ele1_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+          ieta = (EBDetId(id.first)).ieta();
+          iphi = (EBDetId(id.first)).iphi();
+          ix = -999;
+          iy = -999;
+          zside = 0;
+        }
+          
+      }
+        
+      else if (electron1.isEE())
+      {
+        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
+          
+          // flag - OutOfTime
+        EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+          
+        if( it != theEndcapEcalRecHits->end() )
+        {
+          ele1_seedE = it->energy();
+          ele1_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+          ix = (EEDetId(id.first)).ix();
+          iy = (EEDetId(id.first)).iy();
+          ieta = -999;
+          iphi = -999;
+          zside = (EEDetId(id.first)).zside();
+        }
+          
+      }
+    
+        
+      ele1_seedIeta = ieta;
+      ele1_seedIphi = iphi;
+      ele1_seedIx = ix;
+      ele1_seedIy = iy;
+      ele1_seedZside = zside;
+
       
       // rechit variables
       int numRecHit = 0;
       float sumRecHitE = 0.;
       float sumLaserCorrectionRecHitE = 0.;
+      float sumRecHitE5x5 = 0.;
+      float sumLaserCorrectionRecHitE5x5 = 0.;
+
       
       bool printOut = false;
       if( printOut )
@@ -486,10 +600,16 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           EBDetId barrelId (itrechit->id ()); 
           ++numRecHit;
                         
-            // laser correction
+          // laser correction
           rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
           sumRecHitE += itrechit->energy();
           sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+          // check if rh is inside the 5x5 matrix
+          if ( fabs(barrelId.ieta() - ele1_seedIeta) < 3 && fabs(barrelId.iphi() - ele1_seedIphi) < 3 ) {
+            sumRecHitE5x5 += itrechit->energy();
+            sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
+          }
+
           
           if( printOut && itrechit->energy() > 1. )
           {
@@ -507,10 +627,16 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           ++numRecHit;
             
                   
-            // laser correction
+          // laser correction
           rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
           sumRecHitE += itrechit->energy();
           sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+          // check if rh is inside the 5x5 matrix
+          if ( fabs(endcapId.ix() - ele1_seedIx) < 3 && fabs(endcapId.iy() - ele1_seedIy) < 3 ) {
+            sumRecHitE5x5 += itrechit->energy();
+            sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
+          }
+
           
           if( printOut && itrechit->energy() > 1. )
           {
@@ -522,23 +648,55 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       }
       
       ele1_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
+      ele1_scE *= ele1_scLaserCorr;
+      
+      ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
+      ele1_e5x5 *= ele1_5x5LaserCorr;
+
+      // preshower variables 
+      ele1_es = scRef->preshowerEnergy();
+
+      // EsuP variables
+      ele1_EOverP = electron1.eSuperClusterOverP()*ele1_scLaserCorr;
+      
+    
+      /// second electron
+      ele2_tkP = electron1.trackMomentumAtVtx().R();
+
+      // supercluster variables
+      scRef = electron2.superCluster();
+      
+      R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
+      Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
+      ROOT::Math::PtEtaPhiEVector ele2_sc(scRef->energy()*sin(2*atan(exp(-1.*scRef->eta()))),scRef->eta(),scRef->phi(),scRef->energy());
+
+      ele2_e5x5 = electron2.e5x5();
+      ele2_scNxtal = scRef->hitsAndFractions().size();
+      ele2_scE = scRef->energy();
+      ele2_scEta = scRef->eta();
+      ele2_scPhi = scRef->phi();
+      
+      const std::vector<std::pair<DetId,float> >& hits_ele2 = scRef->hitsAndFractions();
       
       // seed variables
-      int ieta = -999;
-      int iphi = -999;
-      int ix = -999;
-      int iy = -999;
-      int zside = -999;
+      ieta = -999;
+      iphi = -999;
+      ix = -999;
+      iy = -999;
+      zside = -999;
 
-      if(electron1.isEB())
+      if(electron2.isEB())
       {
         std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
           
-          // flag
+        // flag
         EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+
           
         if( it != theBarrelEcalRecHits->end() )
         {
+          ele2_seedE = it->energy();
+          ele2_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
           ieta = (EBDetId(id.first)).ieta();
           iphi = (EBDetId(id.first)).iphi();
           ix = -999;
@@ -548,15 +706,18 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
       }
         
-      else if (electron1.isEE())
+      else if(electron2.isEE())
       {
         std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
           
-          // flag - OutOfTime
+        // flag - OutOfTime
         EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+
           
         if( it != theEndcapEcalRecHits->end() )
         {
+          ele2_seedE = it->energy();
+          ele2_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
           ix = (EEDetId(id.first)).ix();
           iy = (EEDetId(id.first)).iy();
           ieta = -999;
@@ -567,38 +728,20 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       }
     
         
-      ele1_seedIeta = ieta;
-      ele1_seedIphi = iphi;
-      ele1_seedIx = ix;
-      ele1_seedIy = iy;
-      ele1_seedZside = zside;
-    
-      // preshower variables 
-      ele1_es = scRef->preshowerEnergy();
+      ele2_seedIeta = ieta;
+      ele2_seedIphi = iphi;
+      ele2_seedIx = ix;
+      ele2_seedIy = iy;
+      ele2_seedZside = zside;
 
-      // EsuP variables
-      ele1_EOverP = electron1.eSuperClusterOverP()*ele1_scLaserCorr;
-      
-    
-      /// second electron
-      // supercluster variables
-      scRef = electron2.superCluster();
-      
-      R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
-      Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
-      ROOT::Math::PtEtaPhiEVector ele2_sc(scRef->energy()*sin(2*atan(exp(-1.*scRef->eta()))),scRef->eta(),scRef->phi(),scRef->energy());
-
-      ele2_scE = scRef->energy();
-      ele2_scEta = scRef->eta();
-      ele2_scPhi = scRef->phi();
-      
-      const std::vector<std::pair<DetId,float> >& hits_ele2 = scRef->hitsAndFractions();
-      
       
       // rechit variables
       numRecHit = 0;
       sumRecHitE = 0.;
       sumLaserCorrectionRecHitE = 0.;
+      sumRecHitE5x5 = 0.;
+      sumLaserCorrectionRecHitE5x5 = 0.;
+
       
       printOut = false;
       if( printOut )
@@ -622,11 +765,16 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           EBDetId barrelId (itrechit->id ()); 
           ++numRecHit;
                         
-            // laser correction
+          // laser correction
           rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
           sumRecHitE += itrechit->energy();
           sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
-          
+          // check if rh is inside the 5x5 matrix
+          if ( fabs(barrelId.ieta() - ele2_seedIeta) < 3 && fabs(barrelId.iphi() - ele2_seedIphi) < 3 ) {
+            sumRecHitE5x5 += itrechit->energy();
+            sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
+          }
+
           if( printOut && itrechit->energy() > 1. )
           {
             std::cout << std::fixed
@@ -647,6 +795,12 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
           sumRecHitE += itrechit->energy();
           sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+          // check if rh is inside the 5x5 matrix
+          if ( fabs(endcapId.ix() - ele2_seedIx) < 3 && fabs(endcapId.iy() - ele2_seedIy) < 3 ) {
+            sumRecHitE5x5 += itrechit->energy();
+            sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
+          }
+
           
           if( printOut && itrechit->energy() > 1. )
           {
@@ -658,58 +812,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       }
       
       ele2_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
+      ele2_scE *= ele2_scLaserCorr;
       
-      
-      // seed variables
-      ieta = -999;
-      iphi = -999;
-      ix = -999;
-      iy = -999;
-      zside = -999;
+      ele2_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
+      ele2_e5x5 *= ele1_5x5LaserCorr;
 
-      if(electron2.isEB())
-      {
-        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theBarrelEcalRecHits);
-          
-          // flag
-        EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
-          
-        if( it != theBarrelEcalRecHits->end() )
-        {
-          ieta = (EBDetId(id.first)).ieta();
-          iphi = (EBDetId(id.first)).iphi();
-          ix = -999;
-          iy = -999;
-          zside = 0;
-        }
-          
-      }
-        
-      else if(electron2.isEE())
-      {
-        std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
-          
-          // flag - OutOfTime
-        EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-          
-        if( it != theEndcapEcalRecHits->end() )
-        {
-          ix = (EEDetId(id.first)).ix();
-          iy = (EEDetId(id.first)).iy();
-          ieta = -999;
-          iphi = -999;
-          zside = (EEDetId(id.first)).zside();
-        }
-          
-      }
-    
-        
-      ele2_seedIeta = ieta;
-      ele2_seedIphi = iphi;
-      ele2_seedIx = ix;
-      ele2_seedIy = iy;
-      ele2_seedZside = zside;
-    
       // preshower variables 
       ele2_es = scRef->preshowerEnergy();
 
@@ -719,7 +826,7 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       // Invariant mass
       ele1_ele2_mass = (ele1_4V+ele2_4V).M();
       ele1_ele2_scMass = (ele1_sc+ele2_sc).M()*sqrt(ele1_scLaserCorr*ele2_scLaserCorr);
-    }
+//     }
   }
       
   
