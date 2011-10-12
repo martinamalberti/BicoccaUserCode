@@ -14,16 +14,18 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 
 # simpleNtuple
+#makeSimpleNtuple(process,GlobalTag="GR_R_42_V21::All")
+#makeSimpleNtuple(process,GlobalTag="GR_R_42_V20::All")
 makeSimpleNtuple(process,GlobalTag="GR_P_V22::All")
 
-makeRecoTags(process)  #commented for 05Jul ReReco
+#makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
 
 
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    'file:/tmp/dimatteo/run172868_AlcaReco_SingleEle.root'
+    'file:/tmp/dimatteo/ALCARECO_meridian.root'
     )
 
 process.maxEvents = cms.untracked.PSet(

@@ -109,6 +109,13 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   lumiId = iEvent.luminosityBlock();
   eventId = iEvent.id().event();
   timeStampHigh = (int)(iEvent.time().value() >> 32);
+  //Leo
+  std::cout << "---------------------------------- " << std::endl;
+  std::cout << "run " << runId
+      << " lumiId " << lumiId
+      << " eventId" << eventId
+      << std::endl;
+  
   
   isW = -1;
   isZ = -1;
@@ -171,6 +178,17 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   bool eventIsGood = false;
   bool eventIsBad  = false;
   
+  //*********** IC CONSTANTS
+  edm::ESHandle<EcalIntercalibConstants> theICConstants;
+  iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
+  const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
+  
+   
+ //*********** ADCToGeV
+  edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
+  iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);
+
+
   //*********** MET
   edm::Handle<edm::View<reco::MET> > PFmetHandle;
   iEvent.getByLabel(PFMetTag_,PFmetHandle);
@@ -341,8 +359,15 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theBarrelEcalRecHits->end() ) 
         {
-          ele1_seedE = it->energy();
+          // intercalib constant
+          EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
+//          if( ICMapIt != ICMap.end() )
+//           std::cout << "rhICConstant " << *ICMapIt << std::endl;
+//          std::cout << "theADCToGeV EB " << theADCToGeV->getEBValue() << std::endl;
+//          std::cout << "theADCToGeV EE " << theADCToGeV->getEEValue() << std::endl;
+
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+          ele1_seedE = ele1_seedLaserCorr*it->energy();
           ieta = (EBDetId(id.first)).ieta();
           iphi = (EBDetId(id.first)).iphi();
           ix = -999;
@@ -362,8 +387,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theEndcapEcalRecHits->end() )
         {
-          ele1_seedE = it->energy();
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+          ele1_seedE = ele1_seedLaserCorr*it->energy();
           ix = (EEDetId(id.first)).ix();
           iy = (EEDetId(id.first)).iy();
           ieta = -999;
@@ -531,8 +556,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theBarrelEcalRecHits->end() )
         {
-          ele1_seedE = it->energy();
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+          ele1_seedE = ele1_seedLaserCorr*it->energy();
           ieta = (EBDetId(id.first)).ieta();
           iphi = (EBDetId(id.first)).iphi();
           ix = -999;
@@ -546,13 +571,13 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       {
         std::pair<DetId, float> id = EcalClusterTools::getMaximum(scRef->hitsAndFractions(), theEndcapEcalRecHits);
           
-          // flag - OutOfTime
+        // flag - OutOfTime
         EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
           
         if( it != theEndcapEcalRecHits->end() )
         {
-          ele1_seedE = it->energy();
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+          ele1_seedE = ele1_seedLaserCorr*it->energy();
           ix = (EEDetId(id.first)).ix();
           iy = (EEDetId(id.first)).iy();
           ieta = -999;
@@ -661,7 +686,7 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       
     
       /// second electron
-      ele2_tkP = electron1.trackMomentumAtVtx().R();
+      ele2_tkP = electron2.trackMomentumAtVtx().R();
 
       // supercluster variables
       scRef = electron2.superCluster();
@@ -695,8 +720,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theBarrelEcalRecHits->end() )
         {
-          ele2_seedE = it->energy();
           ele2_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+          ele2_seedE = ele2_seedLaserCorr*it->energy();
           ieta = (EBDetId(id.first)).ieta();
           iphi = (EBDetId(id.first)).iphi();
           ix = -999;
@@ -716,8 +741,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theEndcapEcalRecHits->end() )
         {
-          ele2_seedE = it->energy();
           ele2_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+          ele2_seedE = ele2_seedLaserCorr*it->energy();
           ix = (EEDetId(id.first)).ix();
           iy = (EEDetId(id.first)).iy();
           ieta = -999;
