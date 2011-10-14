@@ -730,7 +730,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_deltaPhiSeedClusterAtCalo",electron.deltaPhiSeedClusterTrackAtCalo());
    
 
-
+   /*
    if( (electron.closestCtfTrack().ctfTrack).isNonnull()){
      NtupleFactory_ -> Fill3V   ("electrons_p_kf",(electron.closestCtfTrack().ctfTrack)->momentum() );
      }
@@ -740,31 +740,38 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      NtupleFactory_ -> Fill3V   ("electrons_p_kf",dummy);
    }
 
+   */
 
    NtupleFactory_->FillFloat("electrons_sigmaP",electron.corrections().trackMomentumError); 
 
-   /*
-
- edm::Handle<TrackCollection> theTracks;
- iEvent.getByLabel( "generalTracks", theTracks );
- if ( ! theTracks.isValid() ) {
-  std::cerr << "SimpleNtupleCalib::analyze, FillEleInfo --> generalTracks not found" << std::endl; 
- }
-
+   
+   //
+   float ene =  (electron.superCluster())->energy();
+   //float ene =  scRef->energy();
+   edm::Handle<TrackCollection> theTracks;
+   iEvent.getByLabel( "generalTracks", theTracks );
+   if ( ! theTracks.isValid() ) {
+     std::cerr << "SimpleNtupleCalib::analyze, FillEleInfo --> generalTracks not found" << std::endl; 
+   }
+   
    //find the closest kf track
-   float drMin = 100;
+   float drMin = 0.1;
    float tr_eta = electron.trackMomentumAtVtx().eta();
    float tr_phi = electron.trackMomentumAtVtx().phi();
-
+   
    reco::TrackCollection::const_iterator ClosestTK =theTracks->end();   
    for (reco::TrackCollection::const_iterator TKitr = theTracks->begin(); TKitr != theTracks->end(); ++TKitr)
      {
-       if (TKitr->pt() < 6){continue;}
+       if (TKitr->pt() < 5){continue;}
        float deta = fabs(tr_eta - TKitr->eta());
        float dphi = fabs(tr_phi -TKitr->phi());
-       //fix dphi !!!!
+       if (dphi > 6.283185308) dphi -= 6.283185308;
+       if (dphi > 3.141592654) dphi = 6.283185308 - dphi;
+
        float dR = sqrt(deta*deta + dphi*dphi);
-       if(dR < drMin){
+       float pp= (TKitr->momentum()).R();
+       if(dR < drMin && pp/ene > 0.5 && pp/ene < 2 ){
+	 //if(dR < drMin ){
 	 drMin = dR;
 	 ClosestTK = TKitr;
        }
@@ -780,9 +787,9 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    }
    
 
-*/
+
    // supercluster variables
-   reco::SuperClusterRef scRef = electron.superCluster();
+   reco::SuperClusterRef scRef = electron.superCluster();   
    const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
    
    double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
