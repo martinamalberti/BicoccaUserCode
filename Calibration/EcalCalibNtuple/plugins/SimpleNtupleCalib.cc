@@ -58,6 +58,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   savePV_       = iConfig.getUntrackedParameter<bool> ("savePV", true);
   saveL1_       = iConfig.getUntrackedParameter<bool> ("saveL1", true);
   saveHLT_      = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
+  saveRho_      = iConfig.getUntrackedParameter<bool> ("saveRho", true);
   saveEle_      = iConfig.getUntrackedParameter<bool> ("saveEle", true);
   savePho_      = iConfig.getUntrackedParameter<bool> ("savePho", true);
   saveMu_       = iConfig.getUntrackedParameter<bool> ("saveMu", true);
@@ -68,7 +69,6 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
   saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
   
-
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   
   
@@ -118,6 +118,12 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_ -> AddFloat("PV_z");
     NtupleFactory_ -> AddFloat("PV_d0");
     NtupleFactory_ -> AddFloat("PV_SumPt");
+  }
+  
+  if(saveRho_)
+  {
+    NtupleFactory_ -> AddFloat("rho_isolation"); 
+    NtupleFactory_ -> AddFloat("rho_jets"); 
   }
   
   if(saveMu_)
@@ -418,7 +424,10 @@ void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup
 
  ///---- fill PV ----
  if(savePV_) fillPVInfo (iEvent, iSetup);
-  
+ 
+ ///---- fill Rho ----
+ if(saveRho_) fillRhoInfo (iEvent, iSetup);
+ 
  ///---- fill electrons ----
  if (saveEle_)  fillEleInfo (iEvent, iSetup);
 
@@ -637,6 +646,23 @@ void SimpleNtupleCalib::fillPVInfo(const edm::Event & iEvent, const edm::EventSe
 
 // -----------------------------------------------------------------------------------------
 
+void SimpleNtupleCalib::fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+  //std::cout << "SimpleNtupleCalib::fillRhoInfo::begin" << std::endl;
+  
+  edm::Handle<double> rhoForIsolation;
+  iEvent.getByLabel("kt6PFJetsForIsolation", "rho", rhoForIsolation);
+  
+  edm::Handle<double> rhoForJets;
+  iEvent.getByLabel("kt6PFJets", "rho", rhoForJets);
+  
+  NtupleFactory_ -> FillFloat("rho_isolation", *(rhoForIsolation.product()));
+  NtupleFactory_ -> FillFloat("rho_jets", *(rhoForJets.product()));
+  
+  //std::cout << "SimpleNtupleCalib::fillRhoInfo::end" << std::endl;
+}
+
+// -----------------------------------------------------------------------------------------
 
 
 void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
@@ -1144,11 +1170,6 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
  edm::ESHandle<EcalIntercalibConstants> theICConstants;
  iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
   
- //*********** LASER ALPHAS
- edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
- iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
- const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
- 
  //*********** ADCToGeV
  edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
  iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);

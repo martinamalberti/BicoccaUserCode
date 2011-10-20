@@ -116,6 +116,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   void fillHLTInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillBSInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPVInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillRhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -168,6 +169,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   bool saveHLT_ ;
   bool saveBS_ ;
   bool savePV_ ;
+  bool saveRho_ ;
   bool saveEle_ ;
   bool savePho_ ;
   bool saveEleShape_ ;

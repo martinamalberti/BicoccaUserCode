@@ -24,6 +24,7 @@ simpleNtuple = cms.EDAnalyzer(
     dataFlag      = cms.untracked.bool(True),
     saveL1        = cms.untracked.bool(True),
     saveHLT       = cms.untracked.bool(True),
+   saveRho        = cms.untracked.bool(True),
     saveEle       = cms.untracked.bool(True),
     savePho       = cms.untracked.bool(True),
     saveEleShape  = cms.untracked.bool(True),
