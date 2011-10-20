@@ -80,6 +80,13 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         )
     process.patJetCorrFactors.rho = cms.InputTag("kt6PFJets","rho")
     
+    # compute FastJet rho to correct isolation
+    process.kt6PFJetsForIsolation = kt4PFJets.clone(
+        rParam = 0.6,
+        doRhoFastjet = True
+        )
+    process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
+    
     # Add PF jets
     switchJetCollection(process,
                         cms.InputTag('ak5PFJets'),
@@ -155,12 +162,12 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     process.AllPassFilterHBHENoiseFilter = process.AllPassFilter.clone()
     
     
-    ## # select events with at least one gsf electron
-    ## process.highetele = cms.EDFilter(
-    ##     "GsfElectronSelector",
-    ##     src = cms.InputTag("gsfElectrons"),
-    ##     cut = cms.string("superCluster().get().energy()*sin(theta())> 15.")
-    ##     )
+    # select events with at least one gsf electron
+    process.highetele = cms.EDFilter(
+        "GsfElectronSelector",
+        src = cms.InputTag("gsfElectrons"),
+        cut = cms.string("superCluster().get().energy()*sin(theta())> 15.")
+        )
     
     # select events with at least one photon
     process.highetpho = cms.EDFilter(
@@ -171,12 +178,12 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     process.highetFilter = cms.EDFilter(
         "CandViewCountFilter",
-        #src = cms.InputTag("highetele"),
-        src = cms.InputTag("highetpho"),
+        src = cms.InputTag("highetele"),
+        #src = cms.InputTag("highetpho"),
         minNumber = cms.uint32(1)
         )
     
-    #process.AllPassFilterElectronFilter = process.AllPassFilter.clone()
+    process.AllPassFilterElectronFilter = process.AllPassFilter.clone()
     process.AllPassFilterPhotonFilter = process.AllPassFilter.clone()
     
     
@@ -196,13 +203,14 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.AllPassFilterNoScrapingFilter *
         #process.HBHENoiseFilter *
         #process.AllPassFilterHBHENoiseFilter *
-        #process.highetele *
+        process.highetele *
         process.highetpho *
         process.highetFilter *
-        #process.AllPassFilterElectronFilter *
+        process.AllPassFilterElectronFilter *
         process.AllPassFilterPhotonFilter *
         process.kt6PFJets *
         process.ak5PFJets *
+        process.kt6PFJetsForIsolation *
         process.patDefaultSequence *
         process.simpleNtuple
         )
