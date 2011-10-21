@@ -27,6 +27,13 @@ struct WZAnalysisVariables
   int isZ;
   
   
+  // PU variables
+  int PUit_n;
+  int PUoot_n;
+  float rhoForIsolation;
+  float rhoForJets;
+  
+  
   // PV variables
   int PV_n;
   float PV_z;
@@ -187,6 +194,7 @@ void FillWZAnalysisTree(WZAnalysisVariables& vars);
 void ClearWZAnalysisVariables(WZAnalysisVariables&);
 void DeleteWZAnalysisVariables(WZAnalysisVariables&);
 
+void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag);
 void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader);
 void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It);
 void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It);

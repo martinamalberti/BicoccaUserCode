@@ -36,6 +36,13 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("isZ", &vars.isZ, "isZ/I");
   
   
+  // PU variables
+  vars.m_reducedTree -> Branch("PUit_n",          &vars.PUit_n,                   "PUit_n/I");
+  vars.m_reducedTree -> Branch("PUoot_n",         &vars.PUoot_n,                 "PUoot_n/I");
+  vars.m_reducedTree -> Branch("rhoForIsolation", &vars.rhoForIsolation, "rhoForIsolation/F");
+  vars.m_reducedTree -> Branch("rhoForJets",      &vars.rhoForJets,           "rhoForJets/F");
+  
+  
   // PV variables
   vars.m_reducedTree -> Branch("PV_n",     &vars.PV_n,         "PV_n/I");
   vars.m_reducedTree -> Branch("PV_z",     &vars.PV_z,         "PV_z/F");
@@ -213,6 +220,13 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars)
   vars.isZ = -1;
   
   
+  // PU variables
+  vars.PUit_n = -1;
+  vars.PUoot_n = -1;
+  vars.rhoForIsolation = -99.;
+  vars.rhoForJets = -99.;
+  
+  
   // 1st electron variables
   vars.ele1 = ROOT::Math::XYZTVector(0., 0., 0., 0.);
   vars.p_ele1 = &vars.ele1;
@@ -368,6 +382,20 @@ void DeleteWZAnalysisVariables(WZAnalysisVariables& vars)
 
 
 
+
+
+
+void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag)
+{
+  if( dataFlag == 0 )
+  {
+    vars.PUit_n = (int)(reader.GetInt("mc_PUit_NumInteractions")->at(0));
+    vars.PUoot_n = (int)(reader.GetInt("mc_PUoot_NumInteractions")->at(0)+reader.GetInt("mc_PUoot_NumInteractions")->at(1));
+  }
+  
+  vars.rhoForIsolation = reader.GetFloat("rho_isolation")->at(0);
+  vars.rhoForJets = reader.GetFloat("rho_jets")->at(0);
+}
 
 
 
