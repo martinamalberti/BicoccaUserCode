@@ -71,7 +71,6 @@ int main(int argc, char** argv)
   std::map<int, int> beginEvents      = GetTotalEvents("AllPassFilterBegin/passedEvents",            inputFileList.c_str());
   std::map<int, int> goodVertexEvents = GetTotalEvents("AllPassFilterGoodVertexFilter/passedEvents", inputFileList.c_str());
   std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/passedEvents", inputFileList.c_str());
-  std::map<int, int> HBHENoiseEvents  = GetTotalEvents("AllPassFilterHBHENoiseFilter/passedEvents",  inputFileList.c_str());
   std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/passedEvents",   inputFileList.c_str());
   //std::map<int, int> photonEvents     = GetTotalEvents("AllPassFilterPhotonFilter/passedEvents",     inputFileList.c_str());
   
@@ -168,7 +167,7 @@ int main(int argc, char** argv)
   // define histograms
   std::cout << ">>> WZAnalysis::Define histograms" << std::endl;
   
-  int nStep = 10;
+  int nStep = 9;
   TH1F* events = new TH1F("events", "events", nStep, 0., 1.*nStep);
   std::map<int, int> stepEvents;
   std::map<int, std::string> stepNames;
@@ -205,17 +204,9 @@ int main(int argc, char** argv)
   
   
   
-  //*********************
-  // STEP 4 - HBHE Noise
-  step = 4;
-  SetStepNames(stepNames, "HBHE Noise", step, verbosity);
-  stepEvents[step] = HBHENoiseEvents[1];
-  
-  
-  
   //******************
-  // STEP 5 - Electron
-  step = 5;
+  // STEP 4 - Electron
+  step = 4;
   SetStepNames(stepNames, "Electron", step, verbosity);
   stepEvents[step] = electronEvents[1];
   //stepEvents[step] = photonEvents[1];
@@ -256,8 +247,8 @@ int main(int argc, char** argv)
     
     
     //**************************
-    // STEP 6 - run/LS selection
-    step = 6;
+    // STEP 5 - run/LS selection
+    step = 5;
     SetStepNames(stepNames, "run/LS", step, verbosity);
     
     
@@ -274,7 +265,7 @@ int main(int argc, char** argv)
     
     
     //***********************
-    // STEP 7 - HLT selection
+    // STEP 6 - HLT selection
     step += 1;
     SetStepNames(stepNames, "HLT", step, verbosity);
     
@@ -316,7 +307,7 @@ int main(int argc, char** argv)
     
     
     //**************************
-    // STEP 8 - cut on electrons
+    // STEP 7 - cut on electrons
     step += 1;
     SetStepNames(stepNames, "1/2 ele", step, verbosity);
     
@@ -508,7 +499,7 @@ int main(int argc, char** argv)
     
     
     //***********************
-    // STEP 9 - W selection
+    // STEP 8 - W selection
     step += 1;
     SetStepNames(stepNames, "W selection", step, verbosity);
     
@@ -547,7 +538,7 @@ int main(int argc, char** argv)
     
     
     //***********************
-    // STEP 10 - Z selection
+    // STEP 9 - Z selection
     step += 1;
     SetStepNames(stepNames, "Z selection", step, verbosity);
     
