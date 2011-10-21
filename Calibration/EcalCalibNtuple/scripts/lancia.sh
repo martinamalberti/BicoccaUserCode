@@ -1,7 +1,7 @@
 #! /bin/sh
 
 
-ls -lrh /data2/calibrator/NTUPLES/Run2011A/SingleElectron_Run2011A-PromptReco-v5/ | awk '{print $9}' | grep "run1" | tr "_" " " | tr "." " " | tr "n" " " | awk '{print $3}' > ./list.txt
+ls -lrh /data2/calibrator/NTUPLES/Run2011B/SingleElectron_Run2011B-PromptReco-v1/ | awk '{print $9}' | grep "run1" | tr "_" " " | tr "." " " | tr "n" " " | awk '{print $3}' > ./list.txt
 chmod a+rw ./list.txt
 
 
@@ -18,5 +18,6 @@ perl launchJobs_local.pl params_local.CFG
 mv ./list.txt ./list_old.txt
 
 
-
-
+# make the history plots
+cd /data2/calibrator/PLOTS/testAndrea/
+source ./lancia.sh
