@@ -19,5 +19,5 @@ mv ./list.txt ./list_old.txt
 
 
 # make the history plots
-cd /data2/calibrator/PLOTS/testAndrea/
+cd /data2/calibrator/PLOTS/testAndrea/new/
 source ./lancia.sh

@@ -12,7 +12,7 @@ process.Input = cms.PSet(
 
 process.Output = cms.PSet(
     outputRootFilePath = cms.string("OUTPUTSAVEPATH/OUTPUTSAVEFOLDER"),
-    outputRootFileName = cms.string("OUTPUTFILENAME_runRUN_newSelection")
+    outputRootFileName = cms.string("OUTPUTFILENAME_runRUN")
     )
 
 process.Options = cms.PSet(
