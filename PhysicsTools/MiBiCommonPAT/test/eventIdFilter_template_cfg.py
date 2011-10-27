@@ -163,6 +163,9 @@ getattr(process,"patPF2PATSequence"+postfix).replace(
     )
 
 
+process.out.outputCommands = cms.untracked.vstring('keep *_*_*_*')
+
+
 # Paths
 process.p = cms.Path(process.myEventIdFilter*
                      process.goodOfflinePrimaryVertices *

@@ -44,7 +44,7 @@ process.maxEvents = cms.untracked.PSet(
 process.out = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *_*_*_*'),
-    fileName = cms.untracked.string('run172791_ev865120985.root'),
+    fileName = cms.untracked.string('run172791_evt865120985.root'),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p')
         )
