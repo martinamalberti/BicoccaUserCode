@@ -37,7 +37,7 @@ while (<USERCONFIG>)
   
   
   my $BASEDir = getcwd;
-  my $JOBDir = $BASEDir."/run".$RUNId."_evt".$EVTId."_POLUI";
+  my $JOBDir = $BASEDir."/run".$RUNId."_evt".$EVTId;
   
   my $command = "mkdir ".$JOBDir;
   system($command);
