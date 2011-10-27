@@ -11,6 +11,7 @@
 <use name="PhysicsTools/PatUtils"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="JetMETCorrections/Objects"/>
 <use name="root"/>
 
 <library file="*.cc" name="PhysicsToolsMiBiCommonPATPlugins">

@@ -78,7 +78,7 @@ SimpleNtuple = cms.EDAnalyzer(
     saveEle        = cms.untracked.bool (True),
     saveMet        = cms.untracked.bool (True),
     saveJet        = cms.untracked.bool (True),
-    savePhoton     = cms.untracked.bool (True),
+    savePhoton     = cms.untracked.bool (False),
     saveHCALNoise  = cms.untracked.bool (True),
     
     saveMCPU              = cms.untracked.bool (False),
