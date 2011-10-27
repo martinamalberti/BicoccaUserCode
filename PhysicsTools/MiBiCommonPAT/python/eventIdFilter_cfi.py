@@ -5,4 +5,3 @@ eventIdFilter = cms.EDFilter(
     runId   = cms.int32(132959),
     eventId = cms.int32(346686)
 )
-

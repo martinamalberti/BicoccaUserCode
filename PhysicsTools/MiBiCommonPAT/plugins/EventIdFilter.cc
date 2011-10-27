@@ -37,3 +37,11 @@ bool EventIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   return true;
 }
+
+
+
+
+
+
+///===================================                                                                                                                                             
+DEFINE_FWK_MODULE(EventIdFilter);
