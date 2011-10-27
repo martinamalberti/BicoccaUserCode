@@ -52,7 +52,10 @@ class NtupleFactory{
 
   void AddInt(const TString &name);
   void FillInt(const TString &name,const int &vect);
-
+  
+  void AddLongLongInt(const TString &name);
+  void FillLongLongInt(const TString &name,const int &vect);
+  
   void AddString(const TString &name);
   void FillString(const TString &name,const std::string& vect);
 
@@ -81,6 +84,7 @@ class NtupleFactory{
   std::map <TString,std::vector<float>* > ArrayContentFloat_ ;
   std::map <TString,std::vector<double>* > ArrayContentDouble_ ;
   std::map <TString,std::vector<int>* > ArrayContentInt_ ;
+  std::map <TString,std::vector<long long int>* > ArrayContentLongLongInt_ ;
   std::map <TString,std::vector<std::string>* > ArrayContentString_ ;
   std::map <TString,TClonesArray*> ArrayContent_TMatrix_ ;
   std::map <TString,int> ArrayContent_TMatrix_num_;

@@ -151,6 +151,17 @@ void NtupleFactory::AddInt(const TString &name){
  outTree_->Branch(name,"std::vector<int>",&(ArrayContentInt_[name]));
 }
 
+void NtupleFactory::AddLongLongInt(const TString &name){
+ if (ArrayContentLongLongInt_.find (name) != ArrayContentLongLongInt_.end ())
+ {
+  std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
+  return ;                
+ }
+ std::vector<long long int>* dummy = new std::vector<long long int> ;
+ ArrayContentLongLongInt_[name] = dummy ;
+ outTree_->Branch(name,"std::vector<long long int>",&(ArrayContentLongLongInt_[name]));
+}
+
 void NtupleFactory::AddString(const TString &name){
  if (ArrayContentString_.find (name) != ArrayContentString_.end ())
  {
@@ -265,6 +276,16 @@ void NtupleFactory::FillInt(const TString &name,const int &vect){
  }
 }
 
+void NtupleFactory::FillLongLongInt(const TString &name,const int &vect){
+ if (ArrayContentLongLongInt_.find (name) != ArrayContentLongLongInt_.end ()){
+  ArrayContentLongLongInt_[name]->push_back(vect);
+ }
+ else {
+  std::cerr << "ERROR : Array series " << name << " not existing. Nothing done." << std::endl ;
+  return ;        
+ }
+}
+
 void NtupleFactory::FillString(const TString &name,const std::string& vect){
  if (ArrayContentString_.find (name) != ArrayContentString_.end ()){
   ArrayContentString_[name]->push_back(vect);
@@ -319,6 +340,9 @@ void NtupleFactory::ClearNtuple(){
     ((*it).second)->clear();  
   }
   for (std::map<TString,std::vector<int>* >::iterator it=ArrayContentInt_.begin() ; it != ArrayContentInt_.end(); it++ ){
+    ((*it).second)->clear();  
+  }
+  for (std::map<TString,std::vector<long long int>* >::iterator it=ArrayContentLongLongInt_.begin() ; it != ArrayContentLongLongInt_.end(); it++ ){
     ((*it).second)->clear();  
   }
   for (std::map<TString,std::vector<std::string>* >::iterator it=ArrayContentString_.begin() ; it != ArrayContentString_.end(); it++ ){
