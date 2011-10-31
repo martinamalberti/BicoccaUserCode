@@ -14,15 +14,15 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
-process.GlobalTag.globaltag = 'GR_R_38X_V15::All'
+process.GlobalTag.globaltag = 'GR_R_42_V21::All'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
 
-           'file:/media/amassiro/deguio/Datasets/Electron_Run2010B-WZEG-Nov4Skim_v1_RAW-RECO.root'
+    'file:/data2/deguio/172802_434_363736152.root'
 
         ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F8EAC093-42EF-DF11-95E5-001A92971BB4.root',
         ## '/store/data/Run2010B/Electron/RAW-RECO/WZEG-Nov4Skim_v1/0167/F4A18D82-42EF-DF11-BE24-001A92810AE6.root',

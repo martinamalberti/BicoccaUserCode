@@ -21,6 +21,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
@@ -293,8 +294,8 @@ bool EcalTree::dumpBarrelInfo (	const CaloTopology * topology,
 	    }
       
 
-      S1oS9 = EcalSeverityLevelAlgo::E1OverE9( ebid, *theBarrelEcalRecHits, 0. );
-      S4oS1 = EcalSeverityLevelAlgo::swissCross( ebid, *theBarrelEcalRecHits, 0. );
+      //S1oS9 = EcalTools::E1OverE9( ebid, *theBarrelEcalRecHits, 0. );
+      S4oS1 = EcalTools::swissCross( ebid, *theBarrelEcalRecHits, 0. );
       
       
       myTreeVariables_.ecalRecHitType     [ myTreeVariables_.nEcalRecHits ] = 0;
@@ -385,8 +386,8 @@ bool EcalTree::dumpEndcapInfo (	const CaloTopology * topology,
 	    }
       
 
-      S1oS9 = EcalSeverityLevelAlgo::E1OverE9( eeid, *theEndcapEcalRecHits, 0. );
-      S4oS1 = EcalSeverityLevelAlgo::swissCross( eeid, *theEndcapEcalRecHits, 0. );
+      //S1oS9 = EcalTools::E1OverE9( eeid, *theEndcapEcalRecHits, 0. );
+      S4oS1 = EcalTools::swissCross( eeid, *theEndcapEcalRecHits, 0. );
       
       
       myTreeVariables_.ecalRecHitType     [ myTreeVariables_.nEcalRecHits ] = eeid.zside();
