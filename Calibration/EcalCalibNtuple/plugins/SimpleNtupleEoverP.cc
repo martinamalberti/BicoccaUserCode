@@ -54,6 +54,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_scLaserCorr", &ele1_scLaserCorr, "ele1_scLaserCorr/F");
   outTree_ -> Branch("ele1_es",          &ele1_es,                   "ele1_es/F");
   outTree_ -> Branch("ele1_seedE",       &ele1_seedE,             "ele1_seedE/F");
+  outTree_ -> Branch("ele1_seedLaserAlpha", &ele1_seedLaserAlpha, "ele1_seedLaserAlpha/F");
   outTree_ -> Branch("ele1_seedLaserCorr", &ele1_seedLaserCorr,             "ele1_seedLaserCorr/F");
   outTree_ -> Branch("ele1_seedIeta",    &ele1_seedIeta,             "ele1_seedIeta/I");
   outTree_ -> Branch("ele1_seedIphi",    &ele1_seedIphi,             "ele1_seedIphi/I");
@@ -72,6 +73,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_5x5LaserCorr", &ele2_scLaserCorr, "ele2_scLaserCorr/F");
   outTree_ -> Branch("ele2_es",          &ele2_es,                   "ele2_es/F");
   outTree_ -> Branch("ele2_seedE",       &ele2_seedE,             "ele2_seedE/F");
+  outTree_ -> Branch("ele2_seedLaserAlpha", &ele2_seedLaserAlpha, "ele2_seedLaserAlpha/F");
   outTree_ -> Branch("ele2_seedLaserCorr", &ele2_seedLaserCorr,             "ele2_seedLaserCorr/F");
   outTree_ -> Branch("ele2_seedIeta",    &ele2_seedIeta,             "ele2_seedIeta/I");
   outTree_ -> Branch("ele2_seedIphi",    &ele2_seedIphi,             "ele2_seedIphi/I");
@@ -109,13 +111,6 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   lumiId = iEvent.luminosityBlock();
   eventId = iEvent.id().event();
   timeStampHigh = (int)(iEvent.time().value() >> 32);
-  //Leo
-  std::cout << "---------------------------------- " << std::endl;
-  std::cout << "run " << runId
-      << " lumiId " << lumiId
-      << " eventId" << eventId
-      << std::endl;
-  
   
   isW = -1;
   isZ = -1;
@@ -133,6 +128,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_5x5LaserCorr = -99.;
   ele1_es = -99.;
   ele1_seedE = -99.;
+  ele1_seedLaserAlpha = -99.;
   ele1_seedLaserCorr = -99.;
   ele1_seedIeta = -9999;
   ele1_seedIphi = -9999;
@@ -151,6 +147,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_5x5LaserCorr = -99.;
   ele2_es = -99.;
   ele2_seedE = -99.;
+  ele2_seedLaserAlpha = -99.;
   ele2_seedLaserCorr = -99.;
   ele2_seedIeta = -9999;
   ele2_seedIphi = -9999;
@@ -187,6 +184,12 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
  //*********** ADCToGeV
   edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
   iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);
+
+   
+  //*********** LASER ALPHAS
+  edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
+  iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
+  const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
 
 
   //*********** MET
@@ -366,6 +369,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 //          std::cout << "theADCToGeV EB " << theADCToGeV->getEBValue() << std::endl;
 //          std::cout << "theADCToGeV EE " << theADCToGeV->getEEValue() << std::endl;
 
+          // laser alphas
+          EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+          if( italpha != theEcalLaserAlphaMap->end() )
+            ele1_seedLaserAlpha = (*italpha);
+
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
           ele1_seedE = ele1_seedLaserCorr*it->energy();
           ieta = (EBDetId(id.first)).ieta();
@@ -387,6 +395,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theEndcapEcalRecHits->end() )
         {
+          // laser alphas
+          EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+          if( italpha != theEcalLaserAlphaMap->end() )
+            ele1_seedLaserAlpha = (*italpha);
+
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
           ele1_seedE = ele1_seedLaserCorr*it->energy();
           ix = (EEDetId(id.first)).ix();
@@ -556,6 +569,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theBarrelEcalRecHits->end() )
         {
+          // laser alphas
+          EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+          if( italpha != theEcalLaserAlphaMap->end() )
+            ele1_seedLaserAlpha = (*italpha);
+
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
           ele1_seedE = ele1_seedLaserCorr*it->energy();
           ieta = (EBDetId(id.first)).ieta();
@@ -576,6 +594,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theEndcapEcalRecHits->end() )
         {
+          // laser alphas
+          EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+          if( italpha != theEcalLaserAlphaMap->end() )
+            ele1_seedLaserAlpha = (*italpha);
+
           ele1_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
           ele1_seedE = ele1_seedLaserCorr*it->energy();
           ix = (EEDetId(id.first)).ix();
@@ -720,6 +743,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theBarrelEcalRecHits->end() )
         {
+          // laser alphas
+          EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+          if( italpha != theEcalLaserAlphaMap->end() )
+            ele2_seedLaserAlpha = (*italpha);
+
           ele2_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
           ele2_seedE = ele2_seedLaserCorr*it->energy();
           ieta = (EBDetId(id.first)).ieta();
@@ -741,6 +769,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           
         if( it != theEndcapEcalRecHits->end() )
         {
+          // laser alphas
+          EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+          if( italpha != theEcalLaserAlphaMap->end() )
+            ele2_seedLaserAlpha = (*italpha);
+
           ele2_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
           ele2_seedE = ele2_seedLaserCorr*it->energy();
           ix = (EEDetId(id.first)).ix();

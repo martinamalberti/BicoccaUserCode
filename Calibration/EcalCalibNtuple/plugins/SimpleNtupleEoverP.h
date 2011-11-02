@@ -191,6 +191,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_5x5LaserCorr;
   float ele1_es;
   float ele1_seedE;
+  float ele1_seedLaserAlpha;
   float ele1_seedLaserCorr;
   int ele1_seedIeta;
   int ele1_seedIphi;
@@ -209,6 +210,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_5x5LaserCorr;
   float ele2_es;
   float ele2_seedE;
+  float ele2_seedLaserAlpha;
   float ele2_seedLaserCorr;
   int ele2_seedIeta;
   int ele2_seedIphi;
