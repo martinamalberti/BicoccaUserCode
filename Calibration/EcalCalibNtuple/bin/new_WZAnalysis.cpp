@@ -73,7 +73,7 @@ int main(int argc, char** argv)
   std::map<int, int> beginEvents      = GetTotalEvents("AllPassFilterBegin/passedEvents",            inputFileList.c_str());
   std::map<int, int> goodVertexEvents = GetTotalEvents("AllPassFilterGoodVertexFilter/passedEvents", inputFileList.c_str());
   std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/passedEvents", inputFileList.c_str());
-  std::map<int, int> HBHENoiseEvents  = GetTotalEvents("AllPassFilterHBHENoiseFilter/passedEvents",  inputFileList.c_str());
+//   std::map<int, int> HBHENoiseEvents  = GetTotalEvents("AllPassFilterHBHENoiseFilter/passedEvents",  inputFileList.c_str());
   std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/passedEvents",   inputFileList.c_str());
   
   
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
   
   // Open tree
   std::cout << ">>> WZAnalysis::Open old tree" << std::endl;
-  std::string treeName = "simpleNtuple/SimpleNtuple";
+  std::string treeName = "simpleNtuple/SimpleNtupleCalib";
   TChain* chain = new TChain(treeName.c_str());
   if(!FillChain(*chain, inputFileList.c_str())) return 1;
   treeReader reader((TTree*)(chain), false);
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
   // define histograms
   std::cout << ">>> WZAnalysis::Define histograms" << std::endl;
   
-  int nStep = 10;
+  int nStep = 9;
   TH1F* events = new TH1F("events", "events", nStep, 0., 1.*nStep);
   std::map<int, int> stepEvents;
   std::map<int, std::string> stepNames;
@@ -203,17 +203,9 @@ int main(int argc, char** argv)
   
   
   
-  //*********************
-  // STEP 4 - HBHE Noise
-  step = 4;
-  SetStepNames(stepNames, "HBHE Noise", step, verbosity);
-  stepEvents[step] = HBHENoiseEvents[1];
-  
-  
-  
   //******************
-  // STEP 5 - Electron
-  step = 5;
+  // STEP 4 - Electron
+  step = 4;
   SetStepNames(stepNames, "Electron", step, verbosity);
   stepEvents[step] = electronEvents[1];
    
@@ -229,6 +221,7 @@ int main(int argc, char** argv)
     if(entry == entryMAX) break;
       
     // clear variables
+    
     ClearWZAnalysisVariables(vars,inputFlag_isCalib);    
 
     vars.runId   = reader.GetInt("runId")->at(0);
@@ -245,16 +238,17 @@ int main(int argc, char** argv)
      vars.eventId = reader.GetInt("eventId")->at(0);
      vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
      vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
+    }
+    
 
      SetPUVariables(vars,reader,dataFlag);
      SetPVVariables(vars,reader);
 
-    }
     
     //**************************
-    // STEP 6 - run/LS selection
+    // STEP 5 - run/LS selection
      step = 5;
-    SetStepNames(stepNames, "run/LS", step, verbosity);
+     SetStepNames(stepNames, "run/LS", step, verbosity);
     
     
     bool skipEvent = false;
@@ -266,7 +260,7 @@ int main(int argc, char** argv)
     stepEvents[step] += 1;
    
     //***********************
-    // STEP 7 - HLT selection
+    // STEP 6 - HLT selection
     step += 1;
     SetStepNames(stepNames, "HLT", step, verbosity);
     
@@ -307,7 +301,7 @@ int main(int argc, char** argv)
     
     
     //**************************
-    // STEP 8 - cut on electrons
+    // STEP 7 - cut on electrons
     step += 1;
     SetStepNames(stepNames, "1/2 ele", step, verbosity);
     
@@ -324,10 +318,7 @@ int main(int argc, char** argv)
       float pt = ele.pt();
       float eta = ele.eta();
       
-      if(!isCalib) 
-      {
-        float rho    = vars.rhoForIsolation; 
-      }
+      float rho    = vars.rhoForIsolation; 
       float tkIso  = reader.GetFloat("electrons_tkIso03")->at(eleIt);
       float emIso  = reader.GetFloat("electrons_emIso03")->at(eleIt);
       float hadIso = reader.GetFloat("electrons_hadIso03_1")->at(eleIt) + 
@@ -511,7 +502,7 @@ int main(int argc, char** argv)
     
     
     //***********************
-    // STEP 9 - W selection
+    // STEP 8 - W selection
     step += 1;
     SetStepNames(stepNames, "W selection", step, verbosity);
     
@@ -558,7 +549,7 @@ int main(int argc, char** argv)
     
     
     //***********************
-    // STEP 10 - Z selection
+    // STEP 9 - Z selection
     step += 1;
     SetStepNames(stepNames, "Z selection", step, verbosity);
     
@@ -578,11 +569,11 @@ int main(int argc, char** argv)
       
       
       // fill the reduced tree
-      FillWZAnalysisTree(vars);
+       FillWZAnalysisTree(vars);
     }
     
     
-    
+   
   } // loop over the events
   
   

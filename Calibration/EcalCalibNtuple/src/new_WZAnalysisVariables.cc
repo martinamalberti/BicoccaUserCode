@@ -250,57 +250,53 @@ void ClearWZAnalysisVariables(new_WZAnalysisVariables& vars, bool isCalib)
   vars.ele1 = ROOT::Math::XYZTVector(0., 0., 0., 0.);
   vars.p_ele1 = &vars.ele1;
   
-  if(!isCalib)
-  {
-   vars.ele1_charge = -1.;
-   vars.ele1_p = -99.;
-   vars.ele1_pt = -99.;
-   vars.ele1_eta = -99.;
-   vars.ele1_phi = -99.;
+  vars.ele1_charge = -1.;
+  vars.ele1_p = -99.;
+  vars.ele1_pt = -99.;
+  vars.ele1_eta = -99.;
+  vars.ele1_phi = -99.;
   
-   vars.ele1_sigmaIetaIeta = -99.;
-   vars.ele1_DphiIn = -99.;
-   vars.ele1_DetaIn = -99.;
-   vars.ele1_HOverE = -99.;
-   vars.ele1_tkIso = -99.;
-   vars.ele1_emIso = -99.;
-   vars.ele1_hadIso = -99.;
+  vars.ele1_sigmaIetaIeta = -99.;
+  vars.ele1_DphiIn = -99.;
+  vars.ele1_DetaIn = -99.;
+  vars.ele1_HOverE = -99.;
+  vars.ele1_tkIso = -99.;
+  vars.ele1_emIso = -99.;
+  vars.ele1_hadIso = -99.;
    
      // PU variables
-   vars.PUit_n = -1;
-   vars.PUoot_n = -1;
-   vars.rhoForIsolation = -99.;
-   vars.rhoForJets = -99.;
+  vars.PUit_n = -1;
+  vars.PUoot_n = -1;
+  vars.rhoForIsolation = -99.;
+  vars.rhoForJets = -99.;
   
-   vars.ele1_scEtRaw = -99.;
-   vars.ele1_scEt = -99.;
-   vars.ele1_scEta = -99.;
-   vars.ele1_scPhi = -99.;
-   vars.ele1_scLocalEta = -99.;
-   vars.ele1_scLocalPhi = -99.;
-   vars.ele1_scEtaWidth = -99.;
-   vars.ele1_scPhiWidth = -99.;
-   vars.ele1_scLaserCorr = -99.;
-   vars.ele1_scCrackCorr = -99.;
-   vars.ele1_scLocalContCorr = -99.;
-   vars.ele1_scLocalContCorr_DK = -99.;
+  vars.ele1_scEtRaw = -99.;
+  vars.ele1_scEt = -99.;
+  vars.ele1_scEta = -99.;
+  vars.ele1_scPhi = -99.;
+  vars.ele1_scLocalEta = -99.;
+  vars.ele1_scLocalPhi = -99.;
+  vars.ele1_scEtaWidth = -99.;
+  vars.ele1_scPhiWidth = -99.;
+  vars.ele1_scLaserCorr = -99.;
+  vars.ele1_scCrackCorr = -99.;
+  vars.ele1_scLocalContCorr = -99.;
+  vars.ele1_scLocalContCorr_DK = -99.;
   
-   vars.ele1_nPh = -99;
-   vars.ele1_ph_E = -99;
-   vars.ele1_ph_scEta = -99;
-   vars.ele1_ph_scPhi = -99;
-   vars.ele1_ph_R9 = -99;
+  vars.ele1_nPh = -99;
+  vars.ele1_ph_E = -99;
+  vars.ele1_ph_scEta = -99;
+  vars.ele1_ph_scPhi = -99;
+  vars.ele1_ph_R9 = -99;
 
-   vars.ele1_seedE = -99.;
-   vars.ele1_seedIeta = -99;
-   vars.ele1_seedIphi = -99;
-   vars.ele1_seedIx = -99;
-   vars.ele1_seedIy = -99;
-   vars.ele1_seedZside = -99;
-   vars.ele1_seedLaserAlpha = -99.;
-   vars.ele1_seedLaserCorr = -99.;
-
-  }
+  vars.ele1_seedE = -99.;
+  vars.ele1_seedIeta = -99;
+  vars.ele1_seedIphi = -99;
+  vars.ele1_seedIx = -99;
+  vars.ele1_seedIy = -99;
+  vars.ele1_seedZside = -99;
+  vars.ele1_seedLaserAlpha = -99.;
+  vars.ele1_seedLaserCorr = -99.;
 
   if(isCalib)
   {
@@ -344,7 +340,7 @@ void ClearWZAnalysisVariables(new_WZAnalysisVariables& vars, bool isCalib)
    vars.ele2_pt = -99.;
    vars.ele2_eta = -99.;
    vars.ele2_phi = -99.;
-  
+  }
    vars.ele2_sigmaIetaIeta = -99.;
    vars.ele2_DphiIn = -99.;
    vars.ele2_DetaIn = -99.;
@@ -381,8 +377,7 @@ void ClearWZAnalysisVariables(new_WZAnalysisVariables& vars, bool isCalib)
    vars.ele2_seedLaserAlpha = -99.;
    vars.ele2_seedLaserCorr = -99.;
    
-  }
- 
+  
   if(isCalib)
   {
    vars.ele2_recHit_E.clear();
@@ -461,69 +456,65 @@ void SetPVVariables(new_WZAnalysisVariables& vars, treeReader& reader)
 
 
 
-void SetElectron1Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele1It,bool isCalib)
+void SetElectron1Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib)
 {  
   
   vars.p_ele1 = &vars.ele1;
    
-  if(!isCalib)
-  {
-   vars.ele1 = reader.Get4V("electrons")->at(ele1It);
-   vars.ele1_charge = reader.GetFloat("electrons_charge")->at(ele1It);
-   vars.ele1_p = vars.ele1.P();
-   vars.ele1_pt = vars.ele1.pt();
-   vars.ele1_eta = vars.ele1.eta();
-   vars.ele1_phi = vars.ele1.phi();
+  vars.ele1 = reader.Get4V("electrons")->at(ele1It);
+  vars.ele1_charge = reader.GetFloat("electrons_charge")->at(ele1It);
+  vars.ele1_p = vars.ele1.P();
+  vars.ele1_pt = vars.ele1.pt();
+  vars.ele1_eta = vars.ele1.eta();
+  vars.ele1_phi = vars.ele1.phi();
   
-   vars.ele1_sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(ele1It);
-   vars.ele1_DphiIn = reader.GetFloat("electrons_deltaPhiIn")->at(ele1It);
-   vars.ele1_DetaIn = reader.GetFloat("electrons_deltaEtaIn")->at(ele1It);
-   vars.ele1_HOverE = reader.GetFloat("electrons_hOverE")->at(ele1It);
-   vars.ele1_tkIso = reader.GetFloat("electrons_tkIso03")->at(ele1It);
-   vars.ele1_emIso = reader.GetFloat("electrons_emIso03")->at(ele1It);
-   vars.ele1_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele1It) +
-      reader.GetFloat("electrons_hadIso03_2")->at(ele1It);
+  vars.ele1_sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(ele1It);
+  vars.ele1_DphiIn = reader.GetFloat("electrons_deltaPhiIn")->at(ele1It);
+  vars.ele1_DetaIn = reader.GetFloat("electrons_deltaEtaIn")->at(ele1It);
+  vars.ele1_HOverE = reader.GetFloat("electrons_hOverE")->at(ele1It);
+  vars.ele1_tkIso = reader.GetFloat("electrons_tkIso03")->at(ele1It);
+  vars.ele1_emIso = reader.GetFloat("electrons_emIso03")->at(ele1It);
+  vars.ele1_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele1It) +
+                     reader.GetFloat("electrons_hadIso03_2")->at(ele1It);
  
-   vars.ele1_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele1It);
-   vars.ele1_scEt = reader.GetFloat("electrons_scEt")->at(ele1It);
-   vars.ele1_scEta = reader.GetFloat("electrons_scEta")->at(ele1It);
-   vars.ele1_scPhi = reader.GetFloat("electrons_scPhi")->at(ele1It);
-   vars.ele1_scLocalEta = reader.GetFloat("electrons_scLocalPositionEtaCry")->at(ele1It);
-   vars.ele1_scLocalPhi = reader.GetFloat("electrons_scLocalPositionPhiCry")->at(ele1It);
-   vars.ele1_scEtaWidth = reader.GetFloat("electrons_scEtaWidth")->at(ele1It);
-   vars.ele1_scPhiWidth = reader.GetFloat("electrons_scPhiWidth")->at(ele1It);
-   vars.ele1_scLaserCorr = reader.GetFloat("electrons_scAvgLaserCorrection")->at(ele1It);
-   vars.ele1_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele1It);
-   vars.ele1_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele1It);
+  vars.ele1_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele1It);
+  vars.ele1_scEt = reader.GetFloat("electrons_scEt")->at(ele1It);
+  vars.ele1_scEta = reader.GetFloat("electrons_scEta")->at(ele1It);
+  vars.ele1_scPhi = reader.GetFloat("electrons_scPhi")->at(ele1It);
+  vars.ele1_scLocalEta = reader.GetFloat("electrons_scLocalPositionEtaCry")->at(ele1It);
+  vars.ele1_scLocalPhi = reader.GetFloat("electrons_scLocalPositionPhiCry")->at(ele1It);
+  vars.ele1_scEtaWidth = reader.GetFloat("electrons_scEtaWidth")->at(ele1It);
+  vars.ele1_scPhiWidth = reader.GetFloat("electrons_scPhiWidth")->at(ele1It);
+  vars.ele1_scLaserCorr = reader.GetFloat("electrons_scAvgLaserCorrection")->at(ele1It);
+  vars.ele1_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele1It);
+  vars.ele1_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele1It);
 
-   float var[5];
-   SetPhotonMatchingEle( var, reader, ele1It);
-   vars.ele1_nPh = (int) var[0];
-   vars.ele1_ph_E = var[1];
-   vars.ele1_ph_scEta = var[2];
-   vars.ele1_ph_scPhi = var[3];
-   vars.ele1_ph_R9 = var[4];
+  float var[5];
+  SetPhotonMatchingEle( var, reader, ele1It);
+  vars.ele1_nPh = (int) var[0];
+  vars.ele1_ph_E = var[1];
+  vars.ele1_ph_scEta = var[2];
+  vars.ele1_ph_scPhi = var[3];
+  vars.ele1_ph_R9 = var[4];
   
 
-   vars.ele1_seedE = reader.GetFloat("electrons_seedE")->at(ele1It);
-   vars.ele1_seedIeta = reader.GetInt("electrons_seedIeta")->at(ele1It);
-   vars.ele1_seedIphi = reader.GetInt("electrons_seedIphi")->at(ele1It);
-   vars.ele1_seedIx = reader.GetInt("electrons_seedIx")->at(ele1It);
-   vars.ele1_seedIy = reader.GetInt("electrons_seedIy")->at(ele1It);
-   vars.ele1_seedZside = reader.GetInt("electrons_seedZside")->at(ele1It);
-   vars.ele1_seedLaserAlpha = reader.GetFloat("electrons_seedLaserAlpha")->at(ele1It);
-   vars.ele1_seedLaserCorr = reader.GetFloat("electrons_seedLaserCorrection")->at(ele1It);
+  vars.ele1_seedE = reader.GetFloat("electrons_seedE")->at(ele1It);
+  vars.ele1_seedIeta = reader.GetInt("electrons_seedIeta")->at(ele1It);
+  vars.ele1_seedIphi = reader.GetInt("electrons_seedIphi")->at(ele1It);
+  vars.ele1_seedIx = reader.GetInt("electrons_seedIx")->at(ele1It);
+  vars.ele1_seedIy = reader.GetInt("electrons_seedIy")->at(ele1It);
+  vars.ele1_seedZside = reader.GetInt("electrons_seedZside")->at(ele1It);
+  vars.ele1_seedLaserAlpha = reader.GetFloat("electrons_seedLaserAlpha")->at(ele1It);
+  vars.ele1_seedLaserCorr = reader.GetFloat("electrons_seedLaserCorrection")->at(ele1It);
   
-   vars.ele1_tkPt = (reader.Get3V("electrons_p_atVtx")->at(ele1It)).Rho();
+  vars.ele1_tkPt = (reader.Get3V("electrons_p_atVtx")->at(ele1It)).Rho();
   
-  }
-
   if(isCalib)
   {
    int theRecHitBeginIndex = 0;
    if ( ele1It == 0 ) theRecHitBeginIndex = 0;
    else 
-    for ( int iEle = 0; iEle < ele1It; iEle++ ) theRecHitBeginIndex += reader.GetInt("recHit_n")->at(iEle);
+   for ( int iEle = 0; iEle < ele1It; iEle++ ) theRecHitBeginIndex += reader.GetInt("recHit_n")->at(iEle);
   
    for ( int iRecHit = theRecHitBeginIndex; iRecHit < theRecHitBeginIndex + reader.GetInt("recHit_n")->at(ele1It); iRecHit++ ){
     
@@ -544,8 +535,7 @@ void SetElectron1Variables(new_WZAnalysisVariables& vars, treeReader& reader, co
     vars.ele1_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
     vars.ele1_recHit_ieta.push_back(iRecHit_ietaORix);
     vars.ele1_recHit_iphi.push_back(iRecHit_iphiORiy);
-    vars.ele1_recHit_laserCorrection.push_back(reader.GetFloat("recHit_laserCorrection")->at(iRecHit));
-
+  
    }  
   }
   
@@ -571,40 +561,38 @@ void SetElectron1Variables(new_WZAnalysisVariables& vars, treeReader& reader, co
 }
 
 
-void SetElectron2Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele2It,bool isCalib)
+void SetElectron2Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib)
 {
   vars.p_ele2 = &vars.ele2;
 
-  if(!isCalib)
-  {
-   vars.ele2 = reader.Get4V("electrons")->at(ele2It);
+  vars.ele2 = reader.Get4V("electrons")->at(ele2It);
   
-   vars.ele2_charge = reader.GetFloat("electrons_charge")->at(ele2It);
-   vars.ele2_p = vars.ele2.P();
-   vars.ele2_pt = vars.ele2.pt();
-   vars.ele2_eta = vars.ele2.eta();
-   vars.ele2_phi = vars.ele2.phi();
+  vars.ele2_charge = reader.GetFloat("electrons_charge")->at(ele2It);
+  vars.ele2_p = vars.ele2.P();
+  vars.ele2_pt = vars.ele2.pt();
+  vars.ele2_eta = vars.ele2.eta();
+  vars.ele2_phi = vars.ele2.phi();
   
-   vars.ele2_sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(ele2It);
-   vars.ele2_DphiIn = reader.GetFloat("electrons_deltaPhiIn")->at(ele2It);
-   vars.ele2_DetaIn = reader.GetFloat("electrons_deltaEtaIn")->at(ele2It);
-   vars.ele2_HOverE = reader.GetFloat("electrons_hOverE")->at(ele2It);
-   vars.ele2_tkIso = reader.GetFloat("electrons_tkIso03")->at(ele2It);
-   vars.ele2_emIso = reader.GetFloat("electrons_emIso03")->at(ele2It);
-   vars.ele2_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele2It) +
-      reader.GetFloat("electrons_hadIso03_2")->at(ele2It);
+  vars.ele2_sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(ele2It);
+  vars.ele2_DphiIn = reader.GetFloat("electrons_deltaPhiIn")->at(ele2It);
+  vars.ele2_DetaIn = reader.GetFloat("electrons_deltaEtaIn")->at(ele2It);
+  vars.ele2_HOverE = reader.GetFloat("electrons_hOverE")->at(ele2It);
+  vars.ele2_tkIso = reader.GetFloat("electrons_tkIso03")->at(ele2It);
+  vars.ele2_emIso = reader.GetFloat("electrons_emIso03")->at(ele2It);
+  vars.ele2_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele2It) +
+                     reader.GetFloat("electrons_hadIso03_2")->at(ele2It);
 
-   vars.ele2_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele2It);
-   vars.ele2_scEt = reader.GetFloat("electrons_scEt")->at(ele2It);
-   vars.ele2_scEta = reader.GetFloat("electrons_scEta")->at(ele2It);
-   vars.ele2_scPhi = reader.GetFloat("electrons_scPhi")->at(ele2It);
-   vars.ele2_scLocalEta = reader.GetFloat("electrons_scLocalPositionEtaCry")->at(ele2It);
-   vars.ele2_scLocalPhi = reader.GetFloat("electrons_scLocalPositionPhiCry")->at(ele2It);
-   vars.ele2_scEtaWidth = reader.GetFloat("electrons_scEtaWidth")->at(ele2It);
-   vars.ele2_scPhiWidth = reader.GetFloat("electrons_scPhiWidth")->at(ele2It);
-   vars.ele2_scLaserCorr = reader.GetFloat("electrons_scAvgLaserCorrection")->at(ele2It);
-   vars.ele2_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele2It);
-   vars.ele2_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele2It);
+  vars.ele2_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele2It);
+  vars.ele2_scEt = reader.GetFloat("electrons_scEt")->at(ele2It);
+  vars.ele2_scEta = reader.GetFloat("electrons_scEta")->at(ele2It);
+  vars.ele2_scPhi = reader.GetFloat("electrons_scPhi")->at(ele2It);
+  vars.ele2_scLocalEta = reader.GetFloat("electrons_scLocalPositionEtaCry")->at(ele2It);
+  vars.ele2_scLocalPhi = reader.GetFloat("electrons_scLocalPositionPhiCry")->at(ele2It);
+  vars.ele2_scEtaWidth = reader.GetFloat("electrons_scEtaWidth")->at(ele2It);
+  vars.ele2_scPhiWidth = reader.GetFloat("electrons_scPhiWidth")->at(ele2It);
+  vars.ele2_scLaserCorr = reader.GetFloat("electrons_scAvgLaserCorrection")->at(ele2It);
+  vars.ele2_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele2It);
+  vars.ele2_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele2It);
    
   
    float var[5];
@@ -625,8 +613,7 @@ void SetElectron2Variables(new_WZAnalysisVariables& vars, treeReader& reader, co
    vars.ele2_seedLaserCorr = reader.GetFloat("electrons_seedLaserCorrection")->at(ele2It);
 
    vars.ele2_tkPt = (reader.Get3V("electrons_p_atVtx")->at(ele2It)).Rho();
- }
-
+ 
  if(isCalib)
  {
   int theRecHitBeginIndex = 0;
@@ -653,11 +640,9 @@ void SetElectron2Variables(new_WZAnalysisVariables& vars, treeReader& reader, co
     vars.ele2_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
     vars.ele2_recHit_ieta.push_back(iRecHit_ietaORix);
     vars.ele2_recHit_iphi.push_back(iRecHit_iphiORiy);
-    vars.ele2_recHit_laserCorrection.push_back(reader.GetFloat("recHit_laserCorrection")->at(iRecHit));
-  
-   }
+    }
  }
-
+ 
  vars.ele2_scERaw = reader.GetFloat("electrons_scERaw")->at(ele2It);
  vars.ele2_scE = reader.GetFloat("electrons_scE")->at(ele2It);
  vars.ele2_es = reader.GetFloat("electrons_ES")->at(ele2It);
