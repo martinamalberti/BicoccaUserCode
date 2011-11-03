@@ -1,13 +1,13 @@
-#include "Calibration/EcalCalibNtuple/interface/WZAnalysisVariablesSingleXtal.h"
+#include "Calibration/EcalCalibNtuple/interface/new_WZAnalysisVariables.h"
 
-TFile* GetOutputRootFile(WZAnalysisVariablesSingleXtal& vars)
+TFile* GetOutputRootFile(new_WZAnalysisVariables& vars)
 {
   return vars.m_outputRootFile;
 }
 
 
 
-void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::string& outputRootFileName, bool isCalib)
+void InitializeWZAnalysisTree(new_WZAnalysisVariables& vars, const std::string& outputRootFileName, bool isCalib)
 {
   //-------------
   // Reduced tree
@@ -214,7 +214,7 @@ void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::st
 
 
 
-void FillWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars)
+void FillWZAnalysisTree(new_WZAnalysisVariables& vars)
 {
   vars.m_reducedTree -> Fill();
 }
@@ -224,7 +224,7 @@ void FillWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars)
 
 
 
-void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars, bool isCalib)
+void ClearWZAnalysisVariables(new_WZAnalysisVariables& vars, bool isCalib)
 {
   // event variables
   vars.runId = -1;
@@ -430,7 +430,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars, bool isCalib)
 
 
 
-void DeleteWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars)
+void DeleteWZAnalysisVariables(new_WZAnalysisVariables& vars)
 {
   // save tree
   vars.m_outputRootFile -> cd();
@@ -438,7 +438,7 @@ void DeleteWZAnalysisVariables(WZAnalysisVariablesSingleXtal& vars)
   vars.m_outputRootFile -> Close();
 }
 
-void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag)
+void SetPUVariables(new_WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag)
 {
   if( dataFlag == 0 )
   {
@@ -450,7 +450,7 @@ void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& da
   vars.rhoForJets = reader.GetFloat("rho_jets")->at(0);
 }
 
-void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader)
+void SetPVVariables(new_WZAnalysisVariables& vars, treeReader& reader)
 {
   vars.PV_n = reader.GetFloat("PV_z")->size();
   
@@ -461,7 +461,7 @@ void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader)
 
 
 
-void SetElectron1Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader, const int& ele1It,bool isCalib)
+void SetElectron1Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele1It,bool isCalib)
 {  
   
   vars.p_ele1 = &vars.ele1;
@@ -496,13 +496,13 @@ void SetElectron1Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
    vars.ele1_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele1It);
    vars.ele1_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele1It);
 
-   float Vars[5];
-   SetPhotonMatchingElectron( Vars, reader, ele1It);
-   vars.ele1_nPh = (int) Vars[0];
-   vars.ele1_ph_E = Vars[1];
-   vars.ele1_ph_scEta = Vars[2];
-   vars.ele1_ph_scPhi = Vars[3];
-   vars.ele1_ph_R9 = Vars[4];
+   float var[5];
+   SetPhotonMatchingEle( var, reader, ele1It);
+   vars.ele1_nPh = (int) var[0];
+   vars.ele1_ph_E = var[1];
+   vars.ele1_ph_scEta = var[2];
+   vars.ele1_ph_scPhi = var[3];
+   vars.ele1_ph_R9 = var[4];
   
 
    vars.ele1_seedE = reader.GetFloat("electrons_seedE")->at(ele1It);
@@ -571,7 +571,7 @@ void SetElectron1Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
 }
 
 
-void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader, const int& ele2It,bool isCalib)
+void SetElectron2Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele2It,bool isCalib)
 {
   vars.p_ele2 = &vars.ele2;
 
@@ -607,13 +607,13 @@ void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
    vars.ele2_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele2It);
    
   
-   float Vars[5];
-   SetPhotonMatchingElectron( Vars, reader, ele2It);
-   vars.ele2_nPh = (int) Vars[0];
-   vars.ele2_ph_E = Vars[1];
-   vars.ele2_ph_scEta = Vars[2];
-   vars.ele2_ph_scPhi = Vars[3];
-   vars.ele2_ph_R9 = Vars[4];
+   float var[5];
+   SetPhotonMatchingEle( var, reader, ele2It);
+   vars.ele2_nPh = (int) var[0];
+   vars.ele2_ph_E = var[1];
+   vars.ele2_ph_scEta = var[2];
+   vars.ele2_ph_scPhi = var[3];
+   vars.ele2_ph_R9 = var[4];
 
    vars.ele2_seedE = reader.GetFloat("electrons_seedE")->at(ele2It);
    vars.ele2_seedIeta = reader.GetInt("electrons_seedIeta")->at(ele2It);
@@ -678,7 +678,7 @@ void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& read
  vars.ele2_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele2It);
 }
 
-void SetMetVariables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader)
+void SetMetVariables(new_WZAnalysisVariables& vars, treeReader& reader)
 {
   vars.met = reader.Get4V("PFMet")->at(0);
   vars.p_met = &vars.met;
@@ -691,7 +691,7 @@ void SetMetVariables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader)
 
 
 
-void SetDiElectronVariables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader)
+void SetDiElectronVariables(new_WZAnalysisVariables& vars, treeReader& reader)
 {
   vars.ele1ele2_m = (vars.ele1 + vars.ele2).mass();
   
@@ -701,7 +701,7 @@ void SetDiElectronVariables(WZAnalysisVariablesSingleXtal& vars, treeReader& rea
 }
 
 
-void SetPhotonMatchingElectron( float* const Vars, treeReader& reader, const int& eleIt){
+void SetPhotonMatchingEle( float* const var, treeReader& reader, const int& eleIt){
 
   int ele_nPh = 0;
   float ele_ph_E=-999;
@@ -746,10 +746,10 @@ void SetPhotonMatchingElectron( float* const Vars, treeReader& reader, const int
   }
 
   
-  Vars[0] = float (ele_nPh);
-  Vars[1]= ele_ph_E;
-  Vars[2]= ele_ph_scEta;
-  Vars[3]= ele_ph_scPhi;
-  Vars[4]= ele_ph_R9;
+  var[0] = float (ele_nPh);
+  var[1]= ele_ph_E;
+  var[2]= ele_ph_scEta;
+  var[3]= ele_ph_scPhi;
+  var[4]= ele_ph_R9;
 
 }

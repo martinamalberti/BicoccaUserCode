@@ -5,7 +5,7 @@
 
 
 
-struct WZAnalysisVariablesSingleXtal
+struct new_WZAnalysisVariables
 {
   // tree definition
   TFile* m_outputRootFile;
@@ -63,6 +63,7 @@ struct WZAnalysisVariablesSingleXtal
   std::vector<int> ele1_recHit_ieta;
   std::vector<int> ele1_recHit_iphi;
   std::vector<int> ele1_recHit_zside;
+  std::vector<float> ele1_recHit_laserCorrection;
 
   float ele1_scERaw;
   float ele1_scEtRaw;
@@ -182,6 +183,7 @@ struct WZAnalysisVariablesSingleXtal
   std::vector<int> ele2_recHit_ieta;
   std::vector<int> ele2_recHit_iphi;
   std::vector<int> ele2_recHit_zside;
+  std::vector<float> ele2_recHit_laserCorrection;
  
   
   // met variables
@@ -201,20 +203,20 @@ struct WZAnalysisVariablesSingleXtal
 
 
 
-TFile* GetOutputRootFile(WZAnalysisVariablesSingleXtal& vars);
+TFile* GetOutputRootFile(new_WZAnalysisVariables& vars);
 
-void InitializeWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars, const std::string& outputRootFileName, bool isCalib);
-void FillWZAnalysisTree(WZAnalysisVariablesSingleXtal& vars);
+void InitializeWZAnalysisTree(new_WZAnalysisVariables& vars, const std::string& outputRootFileName, bool isCalib);
+void FillWZAnalysisTree(new_WZAnalysisVariables& vars);
 
-void ClearWZAnalysisVariables(WZAnalysisVariablesSingleXtal&, bool isCalib);
-void DeleteWZAnalysisVariables(WZAnalysisVariablesSingleXtal&);
+void ClearWZAnalysisVariables(new_WZAnalysisVariables&, bool isCalib);
+void DeleteWZAnalysisVariables(new_WZAnalysisVariables&);
 
-void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag);
-void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader);
+void SetPUVariables(new_WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag);
+void SetPVVariables(new_WZAnalysisVariables& vars, treeReader& reader);
 
-void SetElectron1Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader, const int& ele1It, bool isCalib);
-void SetElectron2Variables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader, const int& ele2It, bool isCalib);
-void SetMetVariables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader);
-void SetDiElectronVariables(WZAnalysisVariablesSingleXtal& vars, treeReader& reader);
+void SetElectron1Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib);
+void SetElectron2Variables(new_WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib);
+void SetMetVariables(new_WZAnalysisVariables& vars, treeReader& reader);
+void SetDiElectronVariables(new_WZAnalysisVariables& vars, treeReader& reader);
 
-void SetPhotonMatchingElectron(float* const Vars, treeReader& reader, const int& eleIt);
+void SetPhotonMatchingEle(float* const var, treeReader& reader, const int& eleIt);

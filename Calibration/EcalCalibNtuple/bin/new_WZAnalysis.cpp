@@ -2,7 +2,7 @@
 #include "PhysicsTools/NtupleUtils/interface/ntpleUtils.h"
 #include "PhysicsTools/NtupleUtils/interface/readJSONFile.h"
 
-#include "Calibration/EcalCalibNtuple/interface/new_WZAnalysis.h"
+#include "Calibration/EcalCalibNtuple/interface/new_WZAnalysisVariables.h"
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
