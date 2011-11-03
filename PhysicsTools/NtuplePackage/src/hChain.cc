@@ -64,8 +64,18 @@ hChain::Fill (int i, double val)
   }
 
 
-//PG --------------------------------------------------------   
+//FC --------------------------------------------------------
 
+void 
+hChain::FillWeight (int i, double val, double weight) 
+  {
+    m_histos.at (i)->Fill (val, weight) ;
+//    m_ntuples.at (i)->Fill (val) ;
+    return ;
+  }
+  
+  
+//PG --------------------------------------------------------   
 
 
 void 
