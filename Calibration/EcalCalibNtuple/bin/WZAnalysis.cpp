@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
-#include "Calibration/EcalCalibNtuple/interface/PhotonFix.h"
+//#include "Calibration/EcalCalibNtuple/interface/PhotonFix.h"
 
 #include <iostream>
 #include <vector>
@@ -102,6 +102,8 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > WHLTPathName7("HLT_Ele32_WP70_PFMT50_v3",WRunRanges7);
   std::pair<int,int> WRunRanges8(173236,999999);
   std::pair<std::string,std::pair<int,int> > WHLTPathName8("HLT_Ele32_WP70_PFMT50_v4",WRunRanges8);
+  std::pair<int,int> WRunRanges9(178420,999999);
+  std::pair<std::string,std::pair<int,int> > WHLTPathName9("HLT_Ele32_WP70_PFMT50_v8",WRunRanges9);
   
   WHLTPathNames.push_back(WHLTPathName1);
   WHLTPathNames.push_back(WHLTPathName2);
@@ -111,6 +113,7 @@ int main(int argc, char** argv)
   WHLTPathNames.push_back(WHLTPathName6);
   WHLTPathNames.push_back(WHLTPathName7);
   WHLTPathNames.push_back(WHLTPathName8);
+  WHLTPathNames.push_back(WHLTPathName9);
   
   
   
@@ -134,6 +137,8 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > ZHLTPathName8("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7",ZRunRanges8);
   std::pair<int,int> ZRunRanges9(173236,999999);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName9("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8",ZRunRanges9);
+  std::pair<int,int> ZRunRanges10(178420,999999);
+  std::pair<std::string,std::pair<int,int> > ZHLTPathName10("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9",ZRunRanges10);
   
   ZHLTPathNames.push_back(ZHLTPathName1);
   ZHLTPathNames.push_back(ZHLTPathName2);
@@ -144,6 +149,7 @@ int main(int argc, char** argv)
   ZHLTPathNames.push_back(ZHLTPathName7);
   ZHLTPathNames.push_back(ZHLTPathName8);
   ZHLTPathNames.push_back(ZHLTPathName9);
+  ZHLTPathNames.push_back(ZHLTPathName10);
   
   
   
@@ -454,13 +460,13 @@ int main(int argc, char** argv)
     // set electron variables
     std::map<float,int>::const_iterator mapIt = eleIts.begin();
 
-    PhotonFix::initialise("4_2e");
+    //PhotonFix::initialise("4_2e");
 
     if( (nTightEle == 1) && (nMediumEle == 0) )
     {
       SetElectron1Variables(vars,reader,mapIt->second);
-      PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
-      vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
+      //PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
+      //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
       //PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
       //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
     }
@@ -469,16 +475,16 @@ int main(int argc, char** argv)
     if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) )
     {
       SetElectron1Variables(vars,reader,mapIt->second);
-      PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
-      vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
+      //PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
+      //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
       //PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
       //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
       
       ++mapIt;
       
       SetElectron2Variables(vars,reader,mapIt->second);
-      PhotonFix Correction2 (vars.ele2_ph_E,vars.ele2_ph_scEta,vars.ele2_ph_scPhi,vars.ele2_ph_R9);
-      vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_ph_E;
+      //PhotonFix Correction2 (vars.ele2_ph_E,vars.ele2_ph_scEta,vars.ele2_ph_scPhi,vars.ele2_ph_R9);
+      //vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_ph_E;
       //PhotonFix Correction2 (vars.ele2_scE,vars.ele2_scEta,vars.ele2_scPhi,vars.ele2_e3x3/vars.ele2_scE);
       //vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_scE;
     }
@@ -506,14 +512,20 @@ int main(int argc, char** argv)
     
     if( (nTightEle == 1) && (nMediumEle == 0) )
     {
+      float rho    = vars.rhoForIsolation;
+      float combIso = (vars.ele1_tkIso + vars.ele1_emIso + vars.ele1_hadIso) - rho*0.3*0.3*3.14159;
+      
+
+ 
       if( isWHLT == false ) continue;
       if( vars.ele1_pt < 30. ) continue;
+      
       // EleID WP70 - 2010
-      if( ( vars.ele1_isEB == 1 ) && ( (vars.ele1_tkIso+vars.ele1_emIso+vars.ele1_hadIso)/vars.ele1_pt > 0.04 ) ) continue;
+      if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.04 ) ) continue;
       if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) continue;
       if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DetaIn) > 0.004 ) ) continue;
       if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
-      if( ( vars.ele1_isEB == 0 ) && ( (vars.ele1_tkIso+vars.ele1_emIso+vars.ele1_hadIso)/vars.ele1_pt > 0.03 ) ) continue;
+      if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.03 ) ) continue;
       if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) continue;
       if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DetaIn) > 0.005 ) ) continue;
       if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
