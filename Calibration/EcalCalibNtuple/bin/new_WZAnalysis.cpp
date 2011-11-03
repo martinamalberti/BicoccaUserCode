@@ -245,6 +245,10 @@ int main(int argc, char** argv)
      vars.eventId = reader.GetInt("eventId")->at(0);
      vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
      vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
+
+     SetPUVariables(vars,reader,dataFlag);
+     SetPVVariables(vars,reader);
+
     }
     
     //**************************
@@ -320,7 +324,10 @@ int main(int argc, char** argv)
       float pt = ele.pt();
       float eta = ele.eta();
       
-      float rho    = vars.rhoForIsolation; 
+      if(!isCalib) 
+      {
+        float rho    = vars.rhoForIsolation; 
+      }
       float tkIso  = reader.GetFloat("electrons_tkIso03")->at(eleIt);
       float emIso  = reader.GetFloat("electrons_emIso03")->at(eleIt);
       float hadIso = reader.GetFloat("electrons_hadIso03_1")->at(eleIt) + 
