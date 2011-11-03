@@ -518,14 +518,20 @@ int main(int argc, char** argv)
     
     if( (nTightEle == 1) && (nMediumEle == 0) )
     {
+
+      float rho    = vars.rhoForIsolation;
+      float combIso = (vars.ele1_tkIso + vars.ele1_emIso + vars.ele1_hadIso) - rho*0.3*0.3*3.14159;
+
+
       if( isWHLT == false ) continue;
       if( vars.ele1_pt < 30. ) continue;
+
       // EleID WP70 - 2010
-      if( ( vars.ele1_isEB == 1 ) && ( (vars.ele1_tkIso+vars.ele1_emIso+vars.ele1_hadIso)/vars.ele1_pt > 0.04 ) ) continue;
+      if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.04 ) ) continue;
       if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) continue;
       if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DetaIn) > 0.004 ) ) continue;
       if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
-      if( ( vars.ele1_isEB == 0 ) && ( (vars.ele1_tkIso+vars.ele1_emIso+vars.ele1_hadIso)/vars.ele1_pt > 0.03 ) ) continue;
+      if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.03 ) ) continue;
       if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) continue;
       if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DetaIn) > 0.005 ) ) continue;
       if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
@@ -536,12 +542,14 @@ int main(int argc, char** argv)
       stepEvents[step] += 1;
       
       
+      
       vars.isW = 1;
       vars.isZ = 0;
       
       
       // fill the reduced tree
       FillWZAnalysisTree(vars);
+
     }
     
     
