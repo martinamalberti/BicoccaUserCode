@@ -73,7 +73,6 @@ int main(int argc, char** argv)
   std::map<int, int> beginEvents      = GetTotalEvents("AllPassFilterBegin/passedEvents",            inputFileList.c_str());
   std::map<int, int> goodVertexEvents = GetTotalEvents("AllPassFilterGoodVertexFilter/passedEvents", inputFileList.c_str());
   std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/passedEvents", inputFileList.c_str());
-//   std::map<int, int> HBHENoiseEvents  = GetTotalEvents("AllPassFilterHBHENoiseFilter/passedEvents",  inputFileList.c_str());
   std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/passedEvents",   inputFileList.c_str());
   
   
@@ -102,8 +101,11 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > WHLTPathName6("HLT_Ele27_WP80_PFMT50_v1",WRunRanges6);
   std::pair<int,int> WRunRanges7(170249,173198);
   std::pair<std::string,std::pair<int,int> > WHLTPathName7("HLT_Ele32_WP70_PFMT50_v3",WRunRanges7);
-  std::pair<int,int> WRunRanges8(173236,999999);
+  std::pair<int,int> WRunRanges8(173236,178419);
   std::pair<std::string,std::pair<int,int> > WHLTPathName8("HLT_Ele32_WP70_PFMT50_v4",WRunRanges8);
+  std::pair<int,int> WRunRanges9(178420,999999);
+  std::pair<std::string,std::pair<int,int> > WHLTPathName9("HLT_Ele32_WP70_PFMT50_v8",WRunRanges9);
+
   
   WHLTPathNames.push_back(WHLTPathName1);
   WHLTPathNames.push_back(WHLTPathName2);
@@ -113,6 +115,7 @@ int main(int argc, char** argv)
   WHLTPathNames.push_back(WHLTPathName6);
   WHLTPathNames.push_back(WHLTPathName7);
   WHLTPathNames.push_back(WHLTPathName8);
+  WHLTPathNames.push_back(WHLTPathName9);
   
   
   
@@ -134,8 +137,11 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > ZHLTPathName7("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6",ZRunRanges7);
   std::pair<int,int> ZRunRanges8(170826,173198);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName8("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7",ZRunRanges8);
-  std::pair<int,int> ZRunRanges9(173236,999999);
+  std::pair<int,int> ZRunRanges9(173236,178419);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName9("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8",ZRunRanges9);
+  std::pair<int,int> ZRunRanges10(178420,999999);
+  std::pair<std::string,std::pair<int,int> > ZHLTPathName10("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9",ZRunRanges10);
+
   
   ZHLTPathNames.push_back(ZHLTPathName1);
   ZHLTPathNames.push_back(ZHLTPathName2);
@@ -146,7 +152,7 @@ int main(int argc, char** argv)
   ZHLTPathNames.push_back(ZHLTPathName7);
   ZHLTPathNames.push_back(ZHLTPathName8);
   ZHLTPathNames.push_back(ZHLTPathName9);
-  
+  ZHLTPathNames.push_back(ZHLTPathName10);
   
   
   // Open tree
@@ -229,26 +235,23 @@ int main(int argc, char** argv)
     
     
     // event variables
-    if(!inputFlag_isCalib)
-    {
-     vars.dataFlag = dataFlag;
-     vars.totEvents = beginEvents[1];
-     vars.crossSection = crossSection;
-     vars.eventNaiveId += 1;
-     vars.eventId = reader.GetInt("eventId")->at(0);
-     vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
-     vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
-    }
+    vars.dataFlag = dataFlag;
+    vars.totEvents = beginEvents[1];
+    vars.crossSection = crossSection;
+    vars.eventNaiveId += 1;
+    vars.eventId = reader.GetInt("eventId")->at(0);
+    vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
+    vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
     
 
-     SetPUVariables(vars,reader,dataFlag);
-     SetPVVariables(vars,reader);
+    SetPUVariables(vars,reader,dataFlag);
+    SetPVVariables(vars,reader);
 
     
     //**************************
     // STEP 5 - run/LS selection
-     step = 5;
-     SetStepNames(stepNames, "run/LS", step, verbosity);
+    step = 5;
+    SetStepNames(stepNames, "run/LS", step, verbosity);
     
     
     bool skipEvent = false;
@@ -259,9 +262,10 @@ int main(int argc, char** argv)
     if( (jsonFlag == 1) && (skipEvent == true) ) continue;
     stepEvents[step] += 1;
    
+
     //***********************
     // STEP 6 - HLT selection
-    step += 1;
+    step = 6;
     SetStepNames(stepNames, "HLT", step, verbosity);
     
     
@@ -302,7 +306,7 @@ int main(int argc, char** argv)
     
     //**************************
     // STEP 7 - cut on electrons
-    step += 1;
+    step = 7;
     SetStepNames(stepNames, "1/2 ele", step, verbosity);
     
     
@@ -503,7 +507,7 @@ int main(int argc, char** argv)
     
     //***********************
     // STEP 8 - W selection
-    step += 1;
+    step = 8;
     SetStepNames(stepNames, "W selection", step, verbosity);
     
     
@@ -550,7 +554,7 @@ int main(int argc, char** argv)
     
     //***********************
     // STEP 9 - Z selection
-    step += 1;
+    step = 9;
     SetStepNames(stepNames, "Z selection", step, verbosity);
     
     
