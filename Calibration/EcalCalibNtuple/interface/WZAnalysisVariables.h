@@ -12,7 +12,7 @@ struct WZAnalysisVariables
   TTree* m_reducedTree;
   
 
-  // event variables
+   // event variables
   int dataFlag;
   int totEvents;
   float crossSection;
@@ -22,11 +22,11 @@ struct WZAnalysisVariables
   int eventNaiveId;
   int timeStampLow;
   int timeStampHigh;
-  
+ 
   int isW;
   int isZ;
-  
-  
+
+
   // PU variables
   int PUit_n;
   int PUoot_n;
@@ -57,7 +57,14 @@ struct WZAnalysisVariables
   float ele1_tkIso;
   float ele1_emIso;
   float ele1_hadIso;
-  
+
+  std::vector<float> ele1_recHit_E;
+  std::vector<int> ele1_recHit_hashedIndex;
+  std::vector<int> ele1_recHit_ieta;
+  std::vector<int> ele1_recHit_iphi;
+  std::vector<int> ele1_recHit_zside;
+  std::vector<float> ele1_recHit_laserCorrection;
+
   float ele1_scERaw;
   float ele1_scEtRaw;
   float ele1_scE;
@@ -75,6 +82,8 @@ struct WZAnalysisVariables
   float ele1_es;
   
   float ele1_e3x3;
+  float ele1_e5x5;
+   
   
   int ele1_nPh;
   float ele1_ph_E;
@@ -104,7 +113,7 @@ struct WZAnalysisVariables
   int ele1_isEEDeeGap;
   int ele1_isEERingGap;
   
-  
+
   // 2nd electron variables
   ROOT::Math::XYZTVector ele2;
   ROOT::Math::XYZTVector* p_ele2;
@@ -139,6 +148,7 @@ struct WZAnalysisVariables
   float ele2_es;
   
   float ele2_e3x3;
+  float ele2_e5x5;
 
   int ele2_nPh;
   float ele2_ph_E;
@@ -168,6 +178,13 @@ struct WZAnalysisVariables
   int ele2_isEEDeeGap;
   int ele2_isEERingGap;
   
+  std::vector<float> ele2_recHit_E;
+  std::vector<int> ele2_recHit_hashedIndex;
+  std::vector<int> ele2_recHit_ieta;
+  std::vector<int> ele2_recHit_iphi;
+  std::vector<int> ele2_recHit_zside;
+  std::vector<float> ele2_recHit_laserCorrection;
+ 
   
   // met variables
   ROOT::Math::XYZTVector met;
@@ -188,17 +205,18 @@ struct WZAnalysisVariables
 
 TFile* GetOutputRootFile(WZAnalysisVariables& vars);
 
-void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outputRootFileName);
+void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outputRootFileName, bool isCalib);
 void FillWZAnalysisTree(WZAnalysisVariables& vars);
 
-void ClearWZAnalysisVariables(WZAnalysisVariables&);
+void ClearWZAnalysisVariables(WZAnalysisVariables&, bool isCalib);
 void DeleteWZAnalysisVariables(WZAnalysisVariables&);
 
 void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag);
 void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader);
-void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It);
-void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It);
+
+void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib);
+void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib);
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader);
 void SetDiElectronVariables(WZAnalysisVariables& vars, treeReader& reader);
 
-void SetPhotonMatchingElectron(float* const Vars, treeReader& reader, const int& eleIt);
+void SetPhotonMatchingEle(float* const var, treeReader& reader, const int& eleIt);

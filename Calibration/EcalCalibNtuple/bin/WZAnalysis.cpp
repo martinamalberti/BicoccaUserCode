@@ -8,7 +8,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
-//#include "Calibration/EcalCalibNtuple/interface/PhotonFix.h"
+#include "Calibration/EcalCalibNtuple/interface/PhotonFix.h"
+
 
 #include <iostream>
 #include <vector>
@@ -46,6 +47,7 @@ int main(int argc, char** argv)
   edm::ParameterSet Input =  parameterSet -> getParameter<edm::ParameterSet>("Input");
   std::string inputFileList = Input.getParameter<std::string>("inputFileList");
   std::string jsonFileName  = Input.getParameter<std::string>("jsonFileName");
+  bool inputFlag_isCalib = Input.getParameter<bool>("inputFlag_isCalib");
   
   
   // "Output"
@@ -60,8 +62,8 @@ int main(int argc, char** argv)
   int entryMIN       = Options.getParameter<int>("entryMIN");
   int entryMAX       = Options.getParameter<int>("entryMAX");
   int entryMODULO    = Options.getParameter<int>("entryMODULO");
-  int dataFlag       = Options.getParameter<int>("dataFlag");
   int jsonFlag       = Options.getParameter<int>("jsonFlag");
+  int dataFlag       = Options.getParameter<int>("dataFlag");
   float crossSection = Options.getParameter<double>("crossSection");
   int verbosity      = Options.getParameter<int>("verbosity");
   
@@ -72,7 +74,6 @@ int main(int argc, char** argv)
   std::map<int, int> goodVertexEvents = GetTotalEvents("AllPassFilterGoodVertexFilter/passedEvents", inputFileList.c_str());
   std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/passedEvents", inputFileList.c_str());
   std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/passedEvents",   inputFileList.c_str());
-  //std::map<int, int> photonEvents     = GetTotalEvents("AllPassFilterPhotonFilter/passedEvents",     inputFileList.c_str());
   
   
   
@@ -104,6 +105,7 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > WHLTPathName8("HLT_Ele32_WP70_PFMT50_v4",WRunRanges8);
   std::pair<int,int> WRunRanges9(178420,999999);
   std::pair<std::string,std::pair<int,int> > WHLTPathName9("HLT_Ele32_WP70_PFMT50_v8",WRunRanges9);
+
   
   WHLTPathNames.push_back(WHLTPathName1);
   WHLTPathNames.push_back(WHLTPathName2);
@@ -139,6 +141,7 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > ZHLTPathName9("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8",ZRunRanges9);
   std::pair<int,int> ZRunRanges10(178420,999999);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName10("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9",ZRunRanges10);
+
   
   ZHLTPathNames.push_back(ZHLTPathName1);
   ZHLTPathNames.push_back(ZHLTPathName2);
@@ -150,10 +153,6 @@ int main(int argc, char** argv)
   ZHLTPathNames.push_back(ZHLTPathName8);
   ZHLTPathNames.push_back(ZHLTPathName9);
   ZHLTPathNames.push_back(ZHLTPathName10);
-  
-  
-  
-  
   
   
   // Open tree
@@ -178,14 +177,14 @@ int main(int argc, char** argv)
   std::map<int, int> stepEvents;
   std::map<int, std::string> stepNames;
   
+  
+  
   // define the reduced ntuple 
   WZAnalysisVariables vars;
-  InitializeWZAnalysisTree(vars,outputRootFullFileName);
+  InitializeWZAnalysisTree(vars,outputRootFullFileName,inputFlag_isCalib);
   
   
-  
-  
-  
+   
   //**********************
   // STEP 1 - Begin events
   int step = 1;
@@ -215,11 +214,7 @@ int main(int argc, char** argv)
   step = 4;
   SetStepNames(stepNames, "Electron", step, verbosity);
   stepEvents[step] = electronEvents[1];
-  //stepEvents[step] = photonEvents[1];
-  
-  
-  
-  
+   
   
   
   //*********************
@@ -230,10 +225,13 @@ int main(int argc, char** argv)
     reader.GetEntry(entry);
     if((entry%entryMODULO) == 0) std::cout << ">>>>> WZAnalysis::GetEntry " << entry << std::endl;   
     if(entry == entryMAX) break;
-    
-    
+      
     // clear variables
-    ClearWZAnalysisVariables(vars);
+    
+    ClearWZAnalysisVariables(vars,inputFlag_isCalib);    
+
+    vars.runId   = reader.GetInt("runId")->at(0);
+    vars.lumiId  = reader.GetInt("lumiId")->at(0);
     
     
     // event variables
@@ -241,16 +239,14 @@ int main(int argc, char** argv)
     vars.totEvents = beginEvents[1];
     vars.crossSection = crossSection;
     vars.eventNaiveId += 1;
-    vars.runId   = reader.GetInt("runId")->at(0);
-    vars.lumiId  = reader.GetInt("lumiId")->at(0);
     vars.eventId = reader.GetInt("eventId")->at(0);
     vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
     vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
     
+
     SetPUVariables(vars,reader,dataFlag);
     SetPVVariables(vars,reader);
-    
-    
+
     
     //**************************
     // STEP 5 - run/LS selection
@@ -265,14 +261,11 @@ int main(int argc, char** argv)
     
     if( (jsonFlag == 1) && (skipEvent == true) ) continue;
     stepEvents[step] += 1;
-    
-    
-    
-    
-    
+   
+
     //***********************
     // STEP 6 - HLT selection
-    step += 1;
+    step = 6;
     SetStepNames(stepNames, "HLT", step, verbosity);
     
     
@@ -284,9 +277,9 @@ int main(int argc, char** argv)
     {
       std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
       for(unsigned int HLTIt = 0; HLTIt < HLT_names.size(); ++HLTIt)
-	std::cout << "HLT bit " << HLTIt 
-                  << ":   "     << HLT_names.at(HLTIt)
-                  << std::endl;
+        std::cout << "HLT bit " << HLTIt 
+            << ":   "     << HLT_names.at(HLTIt)
+            << std::endl;
     }
     
     // W triggers
@@ -304,17 +297,16 @@ int main(int argc, char** argv)
       isZHLT = true; 
     }
     
-    if( vars.dataFlag == 1 && skipEvent == true ) continue;
+   if( vars.dataFlag == 1 && skipEvent == true ) continue;
     stepEvents[step] += 1;    
-    
-    
+     
     
     
     
     
     //**************************
     // STEP 7 - cut on electrons
-    step += 1;
+    step = 7;
     SetStepNames(stepNames, "1/2 ele", step, verbosity);
     
     
@@ -329,13 +321,13 @@ int main(int argc, char** argv)
       ROOT::Math::XYZTVector ele = reader.Get4V("electrons")->at(eleIt);
       float pt = ele.pt();
       float eta = ele.eta();
-
-      float rho    = vars.rhoForIsolation;      
+      
+      float rho    = vars.rhoForIsolation; 
       float tkIso  = reader.GetFloat("electrons_tkIso03")->at(eleIt);
       float emIso  = reader.GetFloat("electrons_emIso03")->at(eleIt);
       float hadIso = reader.GetFloat("electrons_hadIso03_1")->at(eleIt) + 
                      reader.GetFloat("electrons_hadIso03_2")->at(eleIt);
-      float combIso = (tkIso + emIso + hadIso) - rho*0.3*0.3*3.14159;
+      float combIso = tkIso + emIso + hadIso - rho*0.3*0.3*3.14159;
       
       int isEB = reader.GetInt("electrons_isEB")->at(eleIt);
       
@@ -353,17 +345,17 @@ int main(int argc, char** argv)
       // tight electrons
       bool isTightElectron = false;
       if(
-          (pt > 20.) &&
-          (fabs(eta) < 2.5) &&
+         (pt > 20.) &&
+         (fabs(eta) < 2.5) &&
           // EleID WP80 - 2010
-          ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
-          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
-          ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
+         ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
+         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
           //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
-          ( mishits == 0 ) &&
-          ( nAmbiguousGsfTracks == 0 ) &&
-          ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
+         ( mishits == 0 ) &&
+         ( nAmbiguousGsfTracks == 0 ) &&
+         ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
         )
       {
         isTightElectron = true;
@@ -376,17 +368,17 @@ int main(int argc, char** argv)
       if( isTightElectron == true ) continue;
       bool isMediumElectron = false;
       if(
-          (pt > 12.) &&
-          (fabs(eta) < 2.5) &&
+         (pt > 12.) &&
+         (fabs(eta) < 2.5) &&
           // EleID WP80 - 2010
-          ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
-          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
-          ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
+         ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
+         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
           //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
-          ( mishits == 0 ) &&
-          ( nAmbiguousGsfTracks == 0 ) &&
-          ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
+         ( mishits == 0 ) &&
+         ( nAmbiguousGsfTracks == 0 ) &&
+         ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
         )
       {
         isMediumElectron = true;
@@ -423,8 +415,8 @@ int main(int argc, char** argv)
       ROOT::Math::XYZTVector mu = reader.Get4V("muons")->at(muIt);
       float pt = mu.pt();
       float eta = mu.eta();
-
-      float rho    = vars.rhoForIsolation;      
+      
+      float rho    = vars.rhoForIsolation;
       float tkIso  = reader.GetFloat("muons_tkIso03")->at(muIt);
       float emIso  = reader.GetFloat("muons_emIso03")->at(muIt);
       float hadIso = reader.GetFloat("muons_hadIso03")->at(muIt);
@@ -433,9 +425,9 @@ int main(int argc, char** argv)
       int global = reader.GetInt("muons_global")->at(muIt);
 
       if( (pt > 10.) &&
-          (fabs(eta) < 2.5) &&
-          (combIso/pt < 0.20) &&
-          (global == 1) )
+           (fabs(eta) < 2.5) &&
+           (combIso/pt < 0.20) &&
+           (global == 1) )
       {
         ++nLooseMu;
       }
@@ -445,10 +437,10 @@ int main(int argc, char** argv)
     // cuts
     if( verbosity == 1 )
       std::cout << " nTightEle = "  << nTightEle
-                << " nMediumEle = " << nMediumEle
-                << " nLooseEle = "  << nLooseEle
-                << " nLooseMu = "   << nLooseMu
-                << std::endl;
+          << " nMediumEle = " << nMediumEle
+          << " nLooseEle = "  << nLooseEle
+          << " nLooseMu = "   << nLooseMu
+          << std::endl;
     if( nTightEle < 1 ) continue;
     if( nTightEle > 2 ) continue;
     if( nMediumEle > 1 ) continue;
@@ -460,33 +452,37 @@ int main(int argc, char** argv)
     // set electron variables
     std::map<float,int>::const_iterator mapIt = eleIts.begin();
 
-    //PhotonFix::initialise("4_2e");
+    PhotonFix::initialise("4_2");
 
     if( (nTightEle == 1) && (nMediumEle == 0) )
     {
-      SetElectron1Variables(vars,reader,mapIt->second);
-      //PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
-      //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
-      //PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
-      //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
+      SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
+      if(!inputFlag_isCalib)
+      {
+//        PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
+//        vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
+      }
+     
     }
     
     mapIt = eleIts.begin();
     if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) )
     {
-      SetElectron1Variables(vars,reader,mapIt->second);
-      //PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
-      //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
-      //PhotonFix Correction1 (vars.ele1_scE,vars.ele1_scEta,vars.ele1_scPhi,vars.ele1_e3x3/vars.ele1_scE);
-      //vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_scE;
+      SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
+      if(!inputFlag_isCalib)
+      {
+//        PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
+//        vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
+       }
       
       ++mapIt;
       
-      SetElectron2Variables(vars,reader,mapIt->second);
-      //PhotonFix Correction2 (vars.ele2_ph_E,vars.ele2_ph_scEta,vars.ele2_ph_scPhi,vars.ele2_ph_R9);
-      //vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_ph_E;
-      //PhotonFix Correction2 (vars.ele2_scE,vars.ele2_scEta,vars.ele2_scPhi,vars.ele2_e3x3/vars.ele2_scE);
-      //vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_scE;
+      SetElectron2Variables(vars,reader,mapIt->second,inputFlag_isCalib);
+      if(!inputFlag_isCalib)
+      {
+//        PhotonFix Correction2 (vars.ele2_ph_E,vars.ele2_ph_scEta,vars.ele2_ph_scPhi,vars.ele2_ph_R9);
+//        vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_ph_E;
+      }
     }
     
     
@@ -506,20 +502,20 @@ int main(int argc, char** argv)
     
     //***********************
     // STEP 8 - W selection
-    step += 1;
+    step = 8;
     SetStepNames(stepNames, "W selection", step, verbosity);
     
     
     if( (nTightEle == 1) && (nMediumEle == 0) )
     {
+
       float rho    = vars.rhoForIsolation;
       float combIso = (vars.ele1_tkIso + vars.ele1_emIso + vars.ele1_hadIso) - rho*0.3*0.3*3.14159;
-      
 
- 
+
       if( isWHLT == false ) continue;
       if( vars.ele1_pt < 30. ) continue;
-      
+
       // EleID WP70 - 2010
       if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.04 ) ) continue;
       if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) continue;
@@ -536,12 +532,14 @@ int main(int argc, char** argv)
       stepEvents[step] += 1;
       
       
+      
       vars.isW = 1;
       vars.isZ = 0;
       
       
       // fill the reduced tree
       FillWZAnalysisTree(vars);
+
     }
     
     
@@ -551,7 +549,7 @@ int main(int argc, char** argv)
     
     //***********************
     // STEP 9 - Z selection
-    step += 1;
+    step = 9;
     SetStepNames(stepNames, "Z selection", step, verbosity);
     
     
@@ -570,11 +568,11 @@ int main(int argc, char** argv)
       
       
       // fill the reduced tree
-      FillWZAnalysisTree(vars);
+       FillWZAnalysisTree(vars);
     }
     
     
-    
+   
   } // loop over the events
   
   
@@ -632,7 +630,7 @@ bool AcceptHLTPath(treeReader& reader, const std::pair<std::string,std::pair<int
   std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
   for(unsigned int HLTIt = 0; HLTIt < HLT_names.size(); ++HLTIt)
     if( (reader.GetString("HLT_Names")->at(HLTIt) == HLTPathName.first) &&
-        (reader.GetFloat("HLT_Accept")->at(HLTIt) == 1) )
+         (reader.GetFloat("HLT_Accept")->at(HLTIt) == 1) )
       acceptEvent = true;
 
   return acceptEvent;
