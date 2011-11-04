@@ -388,7 +388,7 @@ int main(int argc, char** argv)
       
       
       // loose electrons
-      if( isTightElectron == true ) continue;
+      if( isMediumElectron == true ) continue;
       if( 
           (pt > 10.) &&
           (fabs(eta) < 2.5) &&
