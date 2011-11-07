@@ -20,7 +20,7 @@ ReReco=False
 makeSimpleNtuple(process,GlobalTag="START42_V11::All",ReReco=ReReco)
 #makeRecoTags(process)
 
-process.simpleNtuple.saveMCPU = cms.untracked.bool(False)
+process.simpleNtuple.saveMCPU = cms.untracked.bool(True)
 process.simpleNtuple.saveMCZW = cms.untracked.bool(True)
 
 process.simpleNtuple.eventType = cms.untracked.int32(0)
