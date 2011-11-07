@@ -46,11 +46,13 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   // electron variables
   outTree_ -> Branch("ele1_tkP",         &ele1_tkP,             "ele1_tkP/F");
   outTree_ -> Branch("ele1_e5x5",        &ele1_e5x5,             "ele1_e5x5/F");
+  outTree_ -> Branch("ele1_e3x3",        &ele1_e3x3,             "ele1_e3x3/F");
   outTree_ -> Branch("ele1_scNxtal",     &ele1_scNxtal,          "ele1_scNxtal/F");
   outTree_ -> Branch("ele1_scE",         &ele1_scE,                 "ele1_scE/F");
   outTree_ -> Branch("ele1_scEta",       &ele1_scEta,             "ele1_scEta/F");
   outTree_ -> Branch("ele1_scPhi",       &ele1_scPhi,             "ele1_scPhi/F");
-  outTree_ -> Branch("ele1_5x5LaserCorr", &ele1_scLaserCorr, "ele1_scLaserCorr/F");
+  outTree_ -> Branch("ele1_5x5LaserCorr", &ele1_5x5LaserCorr, "ele1_5x5LaserCorr/F");
+  outTree_ -> Branch("ele1_3x3LaserCorr", &ele1_3x3LaserCorr, "ele1_3x3LaserCorr/F");
   outTree_ -> Branch("ele1_scLaserCorr", &ele1_scLaserCorr, "ele1_scLaserCorr/F");
   outTree_ -> Branch("ele1_es",          &ele1_es,                   "ele1_es/F");
   outTree_ -> Branch("ele1_seedE",       &ele1_seedE,             "ele1_seedE/F");
@@ -65,12 +67,14 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   outTree_ -> Branch("ele2_tkP",     &ele2_tkP,             "ele2_tkP/F");
   outTree_ -> Branch("ele2_e5x5",        &ele2_e5x5,             "ele2_e5x5/F");
+  outTree_ -> Branch("ele2_e3x3",        &ele2_e3x3,             "ele2_e3x3/F");
   outTree_ -> Branch("ele2_scNxtal",     &ele2_scNxtal,          "ele2_scNxtal/F");
   outTree_ -> Branch("ele2_scE",         &ele2_scE,                 "ele2_scE/F");
   outTree_ -> Branch("ele2_scEta",       &ele2_scEta,             "ele2_scEta/F");
   outTree_ -> Branch("ele2_scPhi",       &ele2_scPhi,             "ele2_scPhi/F");
   outTree_ -> Branch("ele2_scLaserCorr", &ele2_scLaserCorr, "ele2_scLaserCorr/F");
-  outTree_ -> Branch("ele2_5x5LaserCorr", &ele2_scLaserCorr, "ele2_scLaserCorr/F");
+  outTree_ -> Branch("ele2_5x5LaserCorr", &ele2_5x5LaserCorr, "ele2_5x5LaserCorr/F");
+  outTree_ -> Branch("ele2_3x3LaserCorr", &ele2_3x3LaserCorr, "ele2_3x3LaserCorr/F");
   outTree_ -> Branch("ele2_es",          &ele2_es,                   "ele2_es/F");
   outTree_ -> Branch("ele2_seedE",       &ele2_seedE,             "ele2_seedE/F");
   outTree_ -> Branch("ele2_seedLaserAlpha", &ele2_seedLaserAlpha, "ele2_seedLaserAlpha/F");
@@ -120,12 +124,14 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   // electron variables  
   ele1_tkP = -99.;
   ele1_e5x5 = -99.;
+  ele1_e3x3 = -99.;
   ele1_scNxtal = -99.;
   ele1_scE = -99.;
   ele1_scEta = -99.;
   ele1_scPhi = -99.;
   ele1_scLaserCorr = -99.;
   ele1_5x5LaserCorr = -99.;
+  ele1_3x3LaserCorr = -99.;
   ele1_es = -99.;
   ele1_seedE = -99.;
   ele1_seedLaserAlpha = -99.;
@@ -139,12 +145,14 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
 
   ele2_tkP = -99.;
   ele2_e5x5 = -99.;
+  ele2_e3x3 = -99.;
   ele2_scNxtal = -99.;
   ele2_scE = -99.;
   ele2_scEta = -99.;
   ele2_scPhi = -99.;
   ele2_scLaserCorr = -99.;
   ele2_5x5LaserCorr = -99.;
+  ele2_3x3LaserCorr = -99.;
   ele2_es = -99.;
   ele2_seedE = -99.;
   ele2_seedLaserAlpha = -99.;
@@ -432,6 +440,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       float sumLaserCorrectionRecHitE = 0.;
       float sumRecHitE5x5 = 0.;
       float sumLaserCorrectionRecHitE5x5 = 0.;
+      float sumRecHitE3x3 = 0.;
+      float sumLaserCorrectionRecHitE3x3 = 0.;
       
       bool printOut = false;
       if( printOut )
@@ -464,6 +474,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
             sumRecHitE5x5 += itrechit->energy();
             sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
           }
+          // check if rh is inside the 3x3 matrix
+          if ( fabs(barrelId.ieta() - ele1_seedIeta) < 1 && fabs(barrelId.iphi() - ele1_seedIphi) < 1 ) {
+            sumRecHitE3x3 += itrechit->energy();
+            sumLaserCorrectionRecHitE3x3 += itrechit->energy() * rhLaserCorrection;
+          }
           if( printOut && itrechit->energy() > 1. )
           {
             std::cout << std::fixed
@@ -489,6 +504,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
             sumRecHitE5x5 += itrechit->energy();
             sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
           }
+          // check if rh is inside the 3x3 matrix
+          if ( fabs(endcapId.ix() - ele1_seedIx) < 1 && fabs(endcapId.iy() - ele1_seedIy) < 1 ) {
+            sumRecHitE3x3 += itrechit->energy();
+            sumLaserCorrectionRecHitE3x3 += itrechit->energy() * rhLaserCorrection;
+          }
 
           if( printOut && itrechit->energy() > 1. )
           {
@@ -505,6 +525,9 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
       ele1_e5x5 *= ele1_5x5LaserCorr;
     
+      ele1_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
+      ele1_e3x3 = sumLaserCorrectionRecHitE3x3;
+
       // preshower variables 
       ele1_es = scRef->preshowerEnergy();
 
@@ -624,6 +647,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       float sumLaserCorrectionRecHitE = 0.;
       float sumRecHitE5x5 = 0.;
       float sumLaserCorrectionRecHitE5x5 = 0.;
+      float sumRecHitE3x3 = 0.;
+      float sumLaserCorrectionRecHitE3x3 = 0.;
 
       
       bool printOut = false;
@@ -657,6 +682,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
             sumRecHitE5x5 += itrechit->energy();
             sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
           }
+          // check if rh is inside the 3x3 matrix
+          if ( fabs(barrelId.ieta() - ele1_seedIeta) < 1 && fabs(barrelId.iphi() - ele1_seedIphi) < 1 ) {
+            sumRecHitE3x3 += itrechit->energy();
+            sumLaserCorrectionRecHitE3x3 += itrechit->energy() * rhLaserCorrection;
+          }
 
           
           if( printOut && itrechit->energy() > 1. )
@@ -684,6 +714,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
             sumRecHitE5x5 += itrechit->energy();
             sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
           }
+          // check if rh is inside the 3x3 matrix
+          if ( fabs(endcapId.ix() - ele1_seedIx) < 1 && fabs(endcapId.iy() - ele1_seedIy) < 1 ) {
+            sumRecHitE3x3 += itrechit->energy();
+            sumLaserCorrectionRecHitE3x3 += itrechit->energy() * rhLaserCorrection;
+          }
 
           
           if( printOut && itrechit->energy() > 1. )
@@ -700,6 +735,9 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       
       ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
       ele1_e5x5 *= ele1_5x5LaserCorr;
+
+      ele1_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
+      ele1_e3x3 = sumLaserCorrectionRecHitE3x3;
 
       // preshower variables 
       ele1_es = scRef->preshowerEnergy();
@@ -799,6 +837,8 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       sumLaserCorrectionRecHitE = 0.;
       sumRecHitE5x5 = 0.;
       sumLaserCorrectionRecHitE5x5 = 0.;
+      sumRecHitE3x3 = 0.;
+      sumLaserCorrectionRecHitE3x3 = 0.;
 
       
       printOut = false;
@@ -832,6 +872,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
             sumRecHitE5x5 += itrechit->energy();
             sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
           }
+          // check if rh is inside the 3x3 matrix
+          if ( fabs(barrelId.ieta() - ele2_seedIeta) < 1 && fabs(barrelId.iphi() - ele2_seedIphi) < 1 ) {
+            sumRecHitE3x3 += itrechit->energy();
+            sumLaserCorrectionRecHitE3x3 += itrechit->energy() * rhLaserCorrection;
+          }
 
           if( printOut && itrechit->energy() > 1. )
           {
@@ -858,6 +903,11 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
             sumRecHitE5x5 += itrechit->energy();
             sumLaserCorrectionRecHitE5x5 += itrechit->energy() * rhLaserCorrection;
           }
+          // check if rh is inside the 3x3 matrix
+          if ( fabs(endcapId.ix() - ele2_seedIx) < 1 && fabs(endcapId.iy() - ele2_seedIy) < 1 ) {
+            sumRecHitE3x3 += itrechit->energy();
+            sumLaserCorrectionRecHitE3x3 += itrechit->energy() * rhLaserCorrection;
+          }
 
           
           if( printOut && itrechit->energy() > 1. )
@@ -874,6 +924,9 @@ bool SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       
       ele2_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
       ele2_e5x5 *= ele1_5x5LaserCorr;
+      
+      ele2_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
+      ele2_e3x3 = sumLaserCorrectionRecHitE3x3;
 
       // preshower variables 
       ele2_es = scRef->preshowerEnergy();

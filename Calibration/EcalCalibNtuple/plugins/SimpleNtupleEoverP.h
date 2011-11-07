@@ -183,12 +183,14 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   // electron variables  
   float ele1_tkP;
   float ele1_e5x5;
+  float ele1_e3x3;
   float ele1_scNxtal;
   float ele1_scE;
   float ele1_scEta;
   float ele1_scPhi;
   float ele1_scLaserCorr;
   float ele1_5x5LaserCorr;
+  float ele1_3x3LaserCorr;
   float ele1_es;
   float ele1_seedE;
   float ele1_seedLaserAlpha;
@@ -202,12 +204,14 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   
   float ele2_tkP;
   float ele2_e5x5;
+  float ele2_e3x3;
   float ele2_scNxtal;
   float ele2_scE;
   float ele2_scEta;
   float ele2_scPhi;
   float ele2_scLaserCorr;
   float ele2_5x5LaserCorr;
+  float ele2_3x3LaserCorr;
   float ele2_es;
   float ele2_seedE;
   float ele2_seedLaserAlpha;
