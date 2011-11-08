@@ -343,6 +343,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   
   if(saveMCPU_)
   {
+    NtupleFactory_ -> AddFloat("mc_PUit_TrueNumInteractions");
     NtupleFactory_ -> AddInt  ("mc_PUit_NumInteractions");
     NtupleFactory_ -> AddFloat("mc_PUit_zpositions");
     NtupleFactory_ -> AddFloat("mc_PUit_sumpT_lowpT");
@@ -350,12 +351,21 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_lowpT");
     NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_highpT");
     
-    NtupleFactory_ -> AddInt  ("mc_PUoot_NumInteractions");
-    NtupleFactory_ -> AddFloat("mc_PUoot_zpositions");
-    NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_lowpT");
-    NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_highpT");
-    NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_lowpT");
-    NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_highpT");
+    NtupleFactory_ -> AddFloat("mc_PUoot_early_TrueNumInteractions");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_early_NumInteractions");
+    NtupleFactory_ -> AddFloat("mc_PUoot_early_zpositions");
+    NtupleFactory_ -> AddFloat("mc_PUoot_early_sumpT_lowpT");
+    NtupleFactory_ -> AddFloat("mc_PUoot_early_sumpT_highpT");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_early_ntrks_lowpT");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_early_ntrks_highpT");
+    
+    NtupleFactory_ -> AddFloat("mc_PUoot_late_TrueNumInteractions");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_late_NumInteractions");
+    NtupleFactory_ -> AddFloat("mc_PUoot_late_zpositions");
+    NtupleFactory_ -> AddFloat("mc_PUoot_late_sumpT_lowpT");
+    NtupleFactory_ -> AddFloat("mc_PUoot_late_sumpT_highpT");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_late_ntrks_lowpT");
+    NtupleFactory_ -> AddInt  ("mc_PUoot_late_ntrks_highpT");
   }
 
   if(saveMCZW_)
@@ -1483,64 +1493,83 @@ void SimpleNtupleCalib::fillMCPUInfo (const edm::Event & iEvent, const edm::Even
   edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
   iEvent.getByLabel(MCPileupTag_, PupInfo);
   
+  
   // loop on BX
   std::vector<PileupSummaryInfo>::const_iterator PVI;
   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI)
   {
+    std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
+    std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
+    std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
+    std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
+    std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+    
     // in-time pileup
     if( PVI->getBunchCrossing() == 0 )
     {
+      NtupleFactory_->FillFloat("mc_PUit_TrueNumInteractions",PVI->getTrueNumInteractions());
       NtupleFactory_->FillInt("mc_PUit_NumInteractions",PVI->getPU_NumInteractions());    
       
-      std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
-      std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
-      std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
-      std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
-      std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+      for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+        NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
       
-     for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
-     
-     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUit_sumpT_lowpT",*it);
-     
-     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUit_sumpT_highpT",*it);
-     
-     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
-       NtupleFactory_->FillInt("mc_PUit_ntrks_lowpT",*it);
-     
-     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
-       NtupleFactory_->FillInt("mc_PUit_ntrks_highpT",*it);
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+        NtupleFactory_->FillFloat("mc_PUit_sumpT_lowpT",*it);
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+        NtupleFactory_->FillFloat("mc_PUit_sumpT_highpT",*it);
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+        NtupleFactory_->FillInt("mc_PUit_ntrks_lowpT",*it);
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+      NtupleFactory_->FillInt("mc_PUit_ntrks_highpT",*it);
     }
     
     // out-of-time pileup
     else
     {
-      NtupleFactory_->FillInt("mc_PUoot_NumInteractions",PVI->getPU_NumInteractions());
-      
-      std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
-      std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
-      std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
-      std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
-      std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
-      
-     for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUoot_zpositions",*it);
-     
-     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUoot_sumpT_lowpT",*it);
-     
-     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUoot_sumpT_highpT",*it);
-     
-     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
-       NtupleFactory_->FillInt("mc_PUoot_ntrks_lowpT",*it);
-     
-     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
-       NtupleFactory_->FillInt("mc_PUoot_ntrks_highpT",*it);
+      if (PVI->getBunchCrossing() < 0)
+      {
+        NtupleFactory_->FillFloat("mc_PUoot_early_TrueNumInteractions",PVI->getTrueNumInteractions());
+        NtupleFactory_->FillInt("mc_PUoot_early_NumInteractions",PVI->getPU_NumInteractions());
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+          NtupleFactory_->FillFloat("mc_PUoot_early_zpositions",*it);
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+          NtupleFactory_->FillFloat("mc_PUoot_early_sumpT_lowpT",*it);
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+          NtupleFactory_->FillFloat("mc_PUoot_early_sumpT_highpT",*it);
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+          NtupleFactory_->FillInt("mc_PUoot_early_ntrks_lowpT",*it);
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+          NtupleFactory_->FillInt("mc_PUoot_early_ntrks_highpT",*it);
+      }
+      else
+      {
+        NtupleFactory_->FillFloat("mc_PUoot_late_TrueNumInteractions",PVI->getTrueNumInteractions());
+        NtupleFactory_->FillInt("mc_PUoot_early_NumInteractions",PVI->getPU_NumInteractions());
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+          NtupleFactory_->FillFloat("mc_PUoot_early_zpositions",*it);
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+          NtupleFactory_->FillFloat("mc_PUoot_early_sumpT_lowpT",*it);
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+          NtupleFactory_->FillFloat("mc_PUoot_early_sumpT_highpT",*it);
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+          NtupleFactory_->FillInt("mc_PUoot_early_ntrks_lowpT",*it);
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+          NtupleFactory_->FillInt("mc_PUoot_early_ntrks_highpT",*it);          
+      }
     }
-      
   } // loop on BX
   
 }// dump MC PU info
