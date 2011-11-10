@@ -40,8 +40,6 @@ class AllPassFilter : public edm::EDFilter
  private:
   
   TH1F* m_totalEvents;
-  TH1F* m_passedEvents;
-  TH1F* m_filterEfficiency;
   
 };
 
