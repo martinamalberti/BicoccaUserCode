@@ -66,8 +66,8 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
   saveTCMet_    = iConfig.getUntrackedParameter<bool> ("saveTCMet", true);
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
-  saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
-  saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
+  saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", true);
+  saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", true);
   
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   
@@ -1552,22 +1552,22 @@ void SimpleNtupleCalib::fillMCPUInfo (const edm::Event & iEvent, const edm::Even
       else
       {
         NtupleFactory_->FillFloat("mc_PUoot_late_TrueNumInteractions",PVI->getTrueNumInteractions());
-        NtupleFactory_->FillInt("mc_PUoot_early_NumInteractions",PVI->getPU_NumInteractions());
+        NtupleFactory_->FillInt("mc_PUoot_late_NumInteractions",PVI->getPU_NumInteractions());
         
         for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
-          NtupleFactory_->FillFloat("mc_PUoot_early_zpositions",*it);
+          NtupleFactory_->FillFloat("mc_PUoot_late_zpositions",*it);
         
         for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
-          NtupleFactory_->FillFloat("mc_PUoot_early_sumpT_lowpT",*it);
+          NtupleFactory_->FillFloat("mc_PUoot_late_sumpT_lowpT",*it);
         
         for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
-          NtupleFactory_->FillFloat("mc_PUoot_early_sumpT_highpT",*it);
+          NtupleFactory_->FillFloat("mc_PUoot_late_sumpT_highpT",*it);
         
         for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
-          NtupleFactory_->FillInt("mc_PUoot_early_ntrks_lowpT",*it);
+          NtupleFactory_->FillInt("mc_PUoot_late_ntrks_lowpT",*it);
         
         for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
-          NtupleFactory_->FillInt("mc_PUoot_early_ntrks_highpT",*it);          
+          NtupleFactory_->FillInt("mc_PUoot_late_ntrks_highpT",*it);          
       }
     }
   } // loop on BX
