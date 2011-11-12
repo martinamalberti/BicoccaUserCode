@@ -28,8 +28,12 @@ struct WZAnalysisVariables
 
 
   // PU variables
-  int PUit_n;
-  int PUoot_n;
+
+  float PUit_TrueNumInteraction;
+  int PUit_NumInteraction;
+  int PUoot_early;
+  int PUoot_late;
+
   float rhoForIsolation;
   float rhoForJets;
   

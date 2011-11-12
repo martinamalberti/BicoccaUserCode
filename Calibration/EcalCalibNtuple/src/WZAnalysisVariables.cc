@@ -41,11 +41,13 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   if(!isCalib)
   {
     // PU variables
-    vars.m_reducedTree -> Branch("PUit_n",          &vars.PUit_n,                   "PUit_n/I");
-    vars.m_reducedTree -> Branch("PUoot_n",         &vars.PUoot_n,                 "PUoot_n/I");
+    vars.m_reducedTree -> Branch("PUit_TrueNumInteraction",  &vars.PUit_TrueNumInteraction,    "PUit_TrueNumInteraction/F");
+    vars.m_reducedTree -> Branch("PUit_NumInteractions", &vars.PUit_NumInteraction,   "PUit_NumInteraction/I");
+    vars.m_reducedTree -> Branch("PUoot_early",  &vars.PUoot_early, "PUoot_early/I");
+    vars.m_reducedTree -> Branch("PUoot_late", &vars.PUoot_late,   "PUoot_late/I");
+  
     vars.m_reducedTree -> Branch("rhoForIsolation", &vars.rhoForIsolation, "rhoForIsolation/F");
     vars.m_reducedTree -> Branch("rhoForJets",      &vars.rhoForJets,           "rhoForJets/F");
-  
   
       // PV variables
     vars.m_reducedTree -> Branch("PV_n",     &vars.PV_n,         "PV_n/I");
@@ -265,8 +267,11 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele1_hadIso = -99.;
    
      // PU variables
-  vars.PUit_n = -1;
-  vars.PUoot_n = -1;
+  vars.PUit_TrueNumInteraction = -1;
+  vars.PUit_NumInteraction = -1;
+  vars.PUoot_early = -1;
+  vars.PUoot_late = -1;
+
   vars.rhoForIsolation = -99.;
   vars.rhoForJets = -99.;
   
@@ -437,12 +442,14 @@ void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& da
 {
   if( dataFlag == 0 )
   {
-    vars.PUit_n = (int)(reader.GetInt("mc_PUit_NumInteractions")->at(0));
-    vars.PUoot_n = (int)(reader.GetInt("mc_PUoot_NumInteractions")->at(0)+reader.GetInt("mc_PUoot_NumInteractions")->at(1));
+    vars.PUit_TrueNumInteraction = reader.GetFloat("mc_PUit_TrueNumInteractions")->at(0);
+    vars.PUit_NumInteraction = int (reader.GetInt("mc_PUit_NumInteractions")->at(0));
+    vars.PUoot_early = (int)(reader.GetInt("mc_PUoot_early_NumInteractions")->at(0));
+//     vars.PUoot_late = (int)(reader.GetInt("mc_PUoot_late_NumInteractions")->at(0));
   }
   
-  vars.rhoForIsolation = reader.GetFloat("rho_isolation")->at(0);
-  vars.rhoForJets = reader.GetFloat("rho_jets")->at(0);
+   vars.rhoForIsolation = reader.GetFloat("rho_isolation")->at(0);
+   vars.rhoForJets = reader.GetFloat("rho_jets")->at(0);
 }
 
 void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader)
