@@ -54,6 +54,7 @@ opendir(DIR, $INPUTSAVEFolder);
 $count = @count ;  
 
 $ifed=2; 
+$jobNumber =0;
 
 $command = "mkdir ".$OUTPUTSAVEPath."/".$OUTPUTSAVEFolder;
 #print $command."\n" ;
@@ -65,7 +66,7 @@ while($ifed< $count)
   
   $currDir = `pwd` ;
   chomp ($currDir) ;
-  $jobDir = $currDir."/job".$ifed ;
+  $jobDir = $currDir."/job".$jobNumber ;
   #print "JobDir= ".$jobDir ;
   system ("mkdir ".$jobDir) ;
   
@@ -78,7 +79,7 @@ while($ifed< $count)
   system ("cat ".$CFGTemplate."   | sed -e s%OUTPUTSAVEPATH%".$OUTPUTSAVEPath. 
                               "%g | sed -e s%OUTPUTSAVEFOLDER%".$OUTPUTSAVEFolder. 
                               "%g | sed -e s%OUTPUTFILENAME%".$OUTPUTFileName. 
-                              "%g | sed -e s%RUN%".$ifed.
+                              "%g | sed -e s%RUN%".$jobNumber.
                               "%g | sed -e s%LISTFILES%".$LISTFiles.
                               "%g | sed -e s%ISCAlib%".$Calibration_Flag.
                               "%g > ".$tempo1) ;
@@ -96,24 +97,26 @@ while($ifed< $count)
   }
   
   
-  $CFGFile = $jobDir."/".$ifed."_cfg.py" ;
+  $CFGFile = $jobDir."/".$jobNumber."_cfg.py" ;
   print "CFG File generated ".$command."\n" ; 
   system ("mv ".$tempo1." ".$CFGFile) ;
   
-  $tempBjob = $jobDir."/bjob_".$ifed.".sh" ;
-  #print ".sh file ".$tempBjob."\n" ;
+  $tempBjob = $jobDir."/bjob_".$jobNumber.".sh" ;
+  print ".sh file ".$tempBjob."\n" ;
   
   $command = "WZAnalysis.cpp ".$CFGFile ; system ("echo ".$command." >> ".$tempBjob);
-  #print($command."\n");
+  print($command."\n");
  
   ############
   # submit job."
   ############
-  $command = "qsub -V -d ".$jobDir." -q longcms ".$tempBjob."\n" ;      
+  $command = "qsub -V -d ".$jobDir." -q shortcms ".$tempBjob."\n" ;      
   print ($command."\n");
   system ($command);
-  $ifed=$ifed+$NUMBERGEDNtuple ;
-    
+ 
+  $ifed = $ifed+$NUMBERGEDNtuple ;
+  $jobNumber = $jobNumber +1 ; 
+
   print "\n" ;
 } 
   
