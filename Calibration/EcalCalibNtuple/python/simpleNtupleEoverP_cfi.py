@@ -6,5 +6,7 @@ simpleNtupleEoverP = cms.EDAnalyzer(
     recHitCollection_EE = cms.InputTag("alCaIsolatedElectrons","alcaEndcapHits"),
     EleTag              = cms.InputTag("electronRecalibSCAssociator"),
     PFMetTag          = cms.InputTag("pfMet"),
-    verbosity_    = cms.untracked.bool(True)
+    rhoTag          = cms.InputTag("kt6PFJetsForRhoCorrection","rho"),
+    verbosity    = cms.untracked.bool(True),
+    doTighterSel    = cms.untracked.bool(True)
     )

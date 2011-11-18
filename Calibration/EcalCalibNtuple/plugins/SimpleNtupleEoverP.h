@@ -98,8 +98,6 @@ using namespace reco;
 
 class SimpleNtupleEoverP : public edm::EDAnalyzer {
  
-  typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<float> > XYZVectorF; 
-
  public:
 
   explicit SimpleNtupleEoverP (const edm::ParameterSet&) ;
@@ -110,23 +108,16 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
 
  protected:
-  std::pair<double,double> getLocalPosition(const CaloGeometry *caloGeometry, const edm::Ptr<reco::CaloCluster>& seedCluster) ;
-
-  bool fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-
+   
+  bool myWselection (const edm::Event & iEvent, const edm::EventSetup & iSetup, const bool doTighterSel);
+  bool myZselection (const edm::Event & iEvent, const edm::EventSetup & iSetup, const bool doTighterSel);
+  void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int iEle, const std::string eleName) ;
+  
   // ----------member data ---------------------------
-  EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
-  EcalClusterFunctionBaseClass* EcalClusterLocalContCorrection;
-  PositionCalc                  positionCalculator;
-  
-
-  HLTConfigProvider hltConfig_;
-  
-  math::XYZPoint BSPoint_;
-  math::XYZPoint PVPoint_;
   
   
   ///---- input tag ----
+  edm::InputTag rhoTag_;
   edm::InputTag DCSTag_;
   edm::InputTag PVTag_;
   edm::InputTag L1Tag_;
@@ -164,7 +155,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   bool saveMCZW_ ;
 
   bool verbosity_; //---- true = loquacious     false = silence  
-  
+  bool doTighterSel_; //---- true = tighten the selection wrt to meridani's
+        
   int eventNaiveId_;
 
 
@@ -177,8 +169,6 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int timeStampHigh;
   int isW;
   int isZ;
-  float ele1_ele2_mass;
-  float ele1_ele2_scMass;
   
   // electron variables  
   float ele1_tkP;
@@ -201,7 +191,12 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int ele1_seedIy;
   int ele1_seedZside;
   float ele1_EOverP;
-  
+  std::vector<float> ele1_recHit_E;
+  std::vector<int> ele1_recHit_hashedIndex;
+  std::vector<int> ele1_recHit_ietaORix;
+  std::vector<int> ele1_recHit_iphiORiy;
+  std::vector<int> ele1_recHit_zside;
+
   float ele2_tkP;
   float ele2_e5x5;
   float ele2_e3x3;
@@ -222,6 +217,11 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int ele2_seedIy;
   int ele2_seedZside;
   float ele2_EOverP;
+  std::vector<float> ele2_recHit_E;
+  std::vector<int> ele2_recHit_hashedIndex;
+  std::vector<int> ele2_recHit_ietaORix;
+  std::vector<int> ele2_recHit_iphiORiy;
+  std::vector<int> ele2_recHit_zside;
 
 } ;
 
