@@ -34,8 +34,8 @@ SimpleNtupleGen::SimpleNtupleGen(const edm::ParameterSet& iConfig)
   saveGenMet_     = iConfig.getUntrackedParameter<bool>("saveGenMet", true);
   saveGenJet_     = iConfig.getUntrackedParameter<bool>("saveGenJet", true);
   saveGenTTBar_   = iConfig.getUntrackedParameter<bool>("saveGenTTBar", false);
-  saveGenHiggs_   = iConfig.getUntrackedParameter<bool>("saveGenHiggs", false);
-  saveGenHiggsWW_ = iConfig.getUntrackedParameter<bool>("saveGenHiggsWW", false);
+  saveGenHiggs_   = iConfig.getUntrackedParameter<bool>("saveGenHiggs", true);
+  saveGenHiggsWW_ = iConfig.getUntrackedParameter<bool>("saveGenHiggsWW", true);
   
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -463,6 +463,8 @@ void SimpleNtupleGen::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if(saveGenTau_)   fillGenTauInfo(iEvent, iSetup);
   if(saveGenTauJ_)  fillGenTauJInfo(iEvent, iSetup);
   if(saveGenJet_)   fillGenJetInfo(iEvent, iSetup);
+  if(saveGenMet_)   fillGenMetInfo(iEvent, iSetup);
+  
   
   ///---- fill Higgs/TTBar ----
   if(saveGenTTBar_) fillGenTTBarInfo(iEvent, iSetup);

@@ -23,8 +23,10 @@ SimpleNtupleGen = cms.EDAnalyzer(
     saveGenMet     = cms.untracked.bool(True),
     saveGenJet     = cms.untracked.bool(True),
     saveMCTTBar    = cms.untracked.bool(False),    
-    saveMCHiggs    = cms.untracked.bool(False),
-    saveMCHiggsWW  = cms.untracked.bool(False),
+    saveMCHiggs    = cms.untracked.bool(True),
+    saveMCHiggsWW  = cms.untracked.bool(True),
+	    
+    eventType      = cms.untracked.int32(0),
     
     verbosity = cms.untracked.bool(False)
 )
