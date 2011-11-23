@@ -157,9 +157,9 @@ void NtupleFactory::AddLongLongInt(const TString &name){
   std::cerr << "ERROR : Array series " << name << " already existing, NOT replaced" << std::endl ;
   return ;                
  }
- std::vector<long long int>* dummy = new std::vector<long long int> ;
+ std::vector<Long64_t>* dummy = new std::vector<Long64_t> ;
  ArrayContentLongLongInt_[name] = dummy ;
- outTree_->Branch(name,"std::vector<long long int>",&(ArrayContentLongLongInt_[name]));
+ outTree_->Branch(name,"std::vector<Long64_t>",&(ArrayContentLongLongInt_[name]));
 }
 
 void NtupleFactory::AddString(const TString &name){
@@ -342,7 +342,7 @@ void NtupleFactory::ClearNtuple(){
   for (std::map<TString,std::vector<int>* >::iterator it=ArrayContentInt_.begin() ; it != ArrayContentInt_.end(); it++ ){
     ((*it).second)->clear();  
   }
-  for (std::map<TString,std::vector<long long int>* >::iterator it=ArrayContentLongLongInt_.begin() ; it != ArrayContentLongLongInt_.end(); it++ ){
+  for (std::map<TString,std::vector<Long64_t>* >::iterator it=ArrayContentLongLongInt_.begin() ; it != ArrayContentLongLongInt_.end(); it++ ){
     ((*it).second)->clear();  
   }
   for (std::map<TString,std::vector<std::string>* >::iterator it=ArrayContentString_.begin() ; it != ArrayContentString_.end(); it++ ){

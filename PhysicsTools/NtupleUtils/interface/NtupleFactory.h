@@ -12,7 +12,7 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TMatrix.h"
-// #include "DataFormats/Math/interface/LorentzVector.h"
+#include "TParameter.h"
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"
 #include "Math/LorentzVector.h"
@@ -84,7 +84,7 @@ class NtupleFactory{
   std::map <TString,std::vector<float>* > ArrayContentFloat_ ;
   std::map <TString,std::vector<double>* > ArrayContentDouble_ ;
   std::map <TString,std::vector<int>* > ArrayContentInt_ ;
-  std::map <TString,std::vector<long long int>* > ArrayContentLongLongInt_ ;
+  std::map <TString,std::vector<Long64_t>* > ArrayContentLongLongInt_ ;
   std::map <TString,std::vector<std::string>* > ArrayContentString_ ;
   std::map <TString,TClonesArray*> ArrayContent_TMatrix_ ;
   std::map <TString,int> ArrayContent_TMatrix_num_;
