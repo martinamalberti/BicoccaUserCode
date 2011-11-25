@@ -30,6 +30,7 @@
 <use   name="PhysicsTools/NtupleUtils"/>
 <use   name="PhysicsTools/MiBiCommonPAT"/>
 <use   name="RecoVertex/PrimaryVertexProducer"/>
+<use   name="Calibration/EcalCalibNtuple"/>
 <library   file="*.cc" name="CalibrationEcalCalibNtuplePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
