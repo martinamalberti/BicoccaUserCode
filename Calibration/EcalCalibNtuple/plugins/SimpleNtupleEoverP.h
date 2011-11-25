@@ -86,15 +86,15 @@
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
-
 #include "PhysicsTools/MiBiCommonPAT/interface/MCDumperZW.h"
+
+// Cluster correction functions
+#include "Calibration/EcalCalibNtuple/interface/EnergyCorrectionFunctions.h"
 
 using namespace cms ;
 using namespace edm ;
 using namespace std ;
 using namespace reco;
-
-
 
 class SimpleNtupleEoverP : public edm::EDAnalyzer {
  
@@ -108,6 +108,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   virtual void analyze (const edm::Event&, const edm::EventSetup&) ;
 
  protected:
+   
+  float params[42];
    
   bool myWselection (const edm::Event & iEvent, const edm::EventSetup & iSetup, const bool doTighterSel);
   bool myZselection (const edm::Event & iEvent, const edm::EventSetup & iSetup, const bool doTighterSel);
@@ -167,10 +169,13 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int lumiId;
   int runId;
   int timeStampHigh;
+  int PV_n;
   int isW;
   int isZ;
   
   // electron variables  
+  float ele1_fEta;
+  float ele1_fEtaCorr;
   float ele1_tkP;
   float ele1_e5x5;
   float ele1_e3x3;
@@ -185,6 +190,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_seedE;
   float ele1_seedLaserAlpha;
   float ele1_seedLaserCorr;
+  float ele1_seedICConstant;
   int ele1_seedIeta;
   int ele1_seedIphi;
   int ele1_seedIx;
@@ -196,7 +202,11 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele1_recHit_ietaORix;
   std::vector<int> ele1_recHit_iphiORiy;
   std::vector<int> ele1_recHit_zside;
+  std::vector<float> ele1_recHit_laserCorrection;
+  std::vector<float> ele1_recHit_ICConstant;
 
+  float ele2_fEta;
+  float ele2_fEtaCorr;
   float ele2_tkP;
   float ele2_e5x5;
   float ele2_e3x3;
@@ -211,6 +221,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_seedE;
   float ele2_seedLaserAlpha;
   float ele2_seedLaserCorr;
+  float ele2_seedICConstant;
   int ele2_seedIeta;
   int ele2_seedIphi;
   int ele2_seedIx;
@@ -222,6 +233,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele2_recHit_ietaORix;
   std::vector<int> ele2_recHit_iphiORiy;
   std::vector<int> ele2_recHit_zside;
+  std::vector<float> ele2_recHit_laserCorrection;
+  std::vector<float> ele2_recHit_ICConstant;
 
 } ;
 
