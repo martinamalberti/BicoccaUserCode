@@ -87,11 +87,10 @@ int main(int argc, char** argv)
   kTeal,//(EColor) (kTeal+1),
   kRed,
   kBlack,
-  kGray,
+  kViolet,
   kOrange,(EColor) (kOrange+1),
   kBlue,//(EColor)(kBlue+1),(EColor) (kBlue+2),
   (EColor) (kPink+2),//(EColor) (kPink+1),(EColor) (kPink+2),
-  kViolet,
   kYellow,
   kGray,(EColor) (kGray+1),(EColor) (kViolet),(EColor) (kYellow),(EColor) (kGray),
   (EColor) (kPink+1),(EColor) (kPink+2),(EColor) (kPink+3),(EColor) (kPink+4),(EColor) (kPink+5), (EColor) (kPink+6),(EColor) (kPink+7),(EColor) (kPink+8),(EColor) (kPink+9),(EColor) (kPink+10),(EColor) (kPink+11), (EColor) (kPink+12),(EColor) (kPink+13),(EColor) (kPink+14),(EColor) (kPink+15),(EColor) (kPink+16),(EColor) (kPink+17),(EColor) (kPink+18),(EColor) (kPink+19),(EColor) (kPink+20),
@@ -299,6 +298,8 @@ int main(int argc, char** argv)
   
   char nameFile[20000];
   sprintf(nameFile,"%s/%s_%s.root",inputDirectory.c_str(),inputRootName.c_str(),nameSample[iSample]);  
+  if (debug) std::cout << " nameFile = " << std::endl;
+  
   TFile* f = new TFile(nameFile, "READ");
   
   MyHistoCounterMC[iSample] = (TH1F*) f->Get("AllEvents/totalEvents");
