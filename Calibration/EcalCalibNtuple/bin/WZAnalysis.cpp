@@ -70,10 +70,10 @@ int main(int argc, char** argv)
   
   // Get total number of events
   std::cout << ">>> WZAnalysis::Get number of events" << std::endl;
-  std::map<int, int> beginEvents      = GetTotalEvents("AllPassFilterBegin/passedEvents",            inputFileList.c_str());
-  std::map<int, int> goodVertexEvents = GetTotalEvents("AllPassFilterGoodVertexFilter/passedEvents", inputFileList.c_str());
-  std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/passedEvents", inputFileList.c_str());
-  std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/passedEvents",   inputFileList.c_str());
+  std::map<int, int> beginEvents      = GetTotalEvents("AllPassFilterBegin/totalEvents",            inputFileList.c_str());
+  std::map<int, int> goodVertexEvents = GetTotalEvents("AllPassFilterGoodVertexFilter/totalEvents", inputFileList.c_str());
+  std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/totalEvents", inputFileList.c_str());
+  std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/totalEvents",   inputFileList.c_str());
   
   
   
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > WHLTPathName6("HLT_Ele27_WP80_PFMT50_v1",WRunRanges6);
   std::pair<int,int> WRunRanges7(170249,173198);
   std::pair<std::string,std::pair<int,int> > WHLTPathName7("HLT_Ele32_WP70_PFMT50_v3",WRunRanges7);
-  std::pair<int,int> WRunRanges8(173236,999999);
+  std::pair<int,int> WRunRanges8(173236,173692);
   std::pair<std::string,std::pair<int,int> > WHLTPathName8("HLT_Ele32_WP70_PFMT50_v4",WRunRanges8);
   std::pair<int,int> WRunRanges9(178420,999999);
   std::pair<std::string,std::pair<int,int> > WHLTPathName9("HLT_Ele32_WP70_PFMT50_v8",WRunRanges9);
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
   std::pair<std::string,std::pair<int,int> > ZHLTPathName7("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6",ZRunRanges7);
   std::pair<int,int> ZRunRanges8(170826,173198);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName8("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7",ZRunRanges8);
-  std::pair<int,int> ZRunRanges9(173236,999999);
+  std::pair<int,int> ZRunRanges9(173236,173692);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName9("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8",ZRunRanges9);
   std::pair<int,int> ZRunRanges10(178420,999999);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName10("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9",ZRunRanges10);
@@ -223,7 +223,7 @@ int main(int argc, char** argv)
   for(int entry = entryMIN ; entry < chain -> GetEntries() ; ++entry)
   {
     reader.GetEntry(entry);
-    if((entry%entryMODULO) == 0) std::cout << ">>>>> WZAnalysis::GetEntry " << entry << std::endl;   
+    if((entry%entryMODULO) == 0) std::cout << ">>>>> WZAnalysis::GetEntry " << entry << "\r" << std::flush;
     if(entry == entryMAX) break;
       
     // clear variables
@@ -297,7 +297,7 @@ int main(int argc, char** argv)
       isZHLT = true; 
     }
     
-   if( vars.dataFlag == 1 && skipEvent == true ) continue;
+    //if( vars.dataFlag == 1 && skipEvent == true ) continue;
     stepEvents[step] += 1;    
      
     
