@@ -158,7 +158,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   bool verbosity_; //---- true = loquacious     false = silence  
   bool doTighterSel_; //---- true = tighten the selection wrt to meridani's
-        
+  bool applyCorrections_;  //---- true = correct the recHit and SC energy IN the analyzer
+  
   int eventNaiveId_;
 
 

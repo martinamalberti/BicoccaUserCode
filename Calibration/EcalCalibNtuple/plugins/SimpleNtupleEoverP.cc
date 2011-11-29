@@ -36,6 +36,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   //---- flags ----
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   doTighterSel_ = iConfig.getUntrackedParameter<bool>("doTighterSel", false);
+  applyCorrections_ = iConfig.getUntrackedParameter<bool>("applyCorrections", false);
   
   eventNaiveId_ = 0;
   //---- Initialize tree branches ----
@@ -514,7 +515,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           ele1_seedLaserAlpha = (*italpha);
 
         ele1_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
-        ele1_seedE = ele1_seedICConstant * ele1_seedLaserCorr * it->energy();
+        if ( applyCorrections_ ) ele1_seedE = ele1_seedICConstant * ele1_seedLaserCorr * it->energy();
+        else ele1_seedE = it->energy();
         ieta = (EBDetId(id.first)).ieta();
         iphi = (EBDetId(id.first)).iphi();
         ix = -999;
@@ -549,7 +551,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           ele1_seedLaserAlpha = (*italpha);
 
         ele1_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
-        ele1_seedE = ele1_seedLaserCorr*it->energy();
+        if ( applyCorrections_ ) ele1_seedE = ele1_seedLaserCorr*it->energy();
+        else ele1_seedE = it->energy();
         ix = (EEDetId(id.first)).ix();
         iy = (EEDetId(id.first)).iy();
         ieta = -999;
@@ -587,8 +590,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         
     for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
     {
-      float rhLaserCorrection = -1.;
-      float rhIcCorrection = -1.;
+      float rhLaserCorrection = 1.;
+      float rhICCorrection = 1.;
+      float theLaserCorrection = -1.;
+      float theICCorrection = -1.;
       
       if ((*rh).first.subdetId()== EcalBarrel)
       {
@@ -597,22 +602,25 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         EBDetId barrelId (itrechit->id ()); 
         ++numRecHit;
                       
+        // laser correction
+        theLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+        if ( applyCorrections_ ) rhLaserCorrection = theLaserCorrection;
         // IC correction
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
-        rhIcCorrection = *ICMapIt;
-        // laser correction
-        rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
-        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-        sumLaserCorrectionRecHitE += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+        theICCorrection = *ICMapIt;
+        if ( applyCorrections_ ) rhICCorrection = theICCorrection;
+        
+        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+        sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
         if ( fabs(barrelId.ieta() - ele1_seedIeta) < 3 && fabs(barrelId.iphi() - ele1_seedIphi) < 3 ) {
-          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE5x5 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE5x5 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         }
         // check if rh is inside the 3x3 matrix
         if ( fabs(barrelId.ieta() - ele1_seedIeta) < 1 && fabs(barrelId.iphi() - ele1_seedIphi) < 1 ) {
-          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE3x3 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
+          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE3x3 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         }
         // fill recHit variables
         ele1_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
@@ -620,14 +628,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         ele1_recHit_ietaORix.push_back(barrelId.ieta());
         ele1_recHit_iphiORiy.push_back(barrelId.iphi());
         ele1_recHit_zside.push_back(0);
-        ele1_recHit_laserCorrection.push_back(rhLaserCorrection);
-        ele1_recHit_ICConstant.push_back(rhIcCorrection);
+        ele1_recHit_laserCorrection.push_back(theLaserCorrection);
+        ele1_recHit_ICConstant.push_back(theICCorrection);
  
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
-              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
-              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhIcCorrection
+              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << theLaserCorrection
+              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << theICCorrection
               << std::endl;
         }
       }
@@ -639,22 +647,25 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         EEDetId endcapId (itrechit->id ()); 
         ++numRecHit;
           
+        // laser correction
+        theLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+        if ( applyCorrections_ ) rhLaserCorrection = theLaserCorrection;
         // IC correction
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
-        rhIcCorrection = *ICMapIt;
-        // laser correction
-        rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
-        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-        sumLaserCorrectionRecHitE += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+        theICCorrection = *ICMapIt;
+        if ( applyCorrections_ ) rhICCorrection = theICCorrection;
+        
+        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+        sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
         if ( fabs(endcapId.ix() - ele1_seedIx) < 3 && fabs(endcapId.iy() - ele1_seedIy) < 3 ) {
-          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE5x5 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE5x5 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         }
         // check if rh is inside the 3x3 matrix
         if ( fabs(endcapId.ix() - ele1_seedIx) < 1 && fabs(endcapId.iy() - ele1_seedIy) < 1 ) {
-          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE3x3 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
+          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE3x3 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         }
         // fill recHit variables
         ele1_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
@@ -662,14 +673,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         ele1_recHit_ietaORix.push_back(endcapId.ix());
         ele1_recHit_iphiORiy.push_back(endcapId.iy());
         ele1_recHit_zside.push_back(endcapId.zside());
-        ele1_recHit_laserCorrection.push_back(rhLaserCorrection);
-        ele1_recHit_ICConstant.push_back(rhIcCorrection);
+        ele1_recHit_laserCorrection.push_back(theLaserCorrection);
+        ele1_recHit_ICConstant.push_back(theICCorrection);
 
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
-              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
-              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhIcCorrection
+              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << theLaserCorrection
+              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << theICCorrection
               << std::endl;
         }
       }
@@ -678,7 +689,9 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_es = scRef->preshowerEnergy();
     
     ele1_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
-    ele1_scE = ele1_fEta*sumRecHitE;
+    if ( applyCorrections_ ) ele1_scE = scRef->energy()*ele1_fEta*sumRecHitE;
+    else ele1_scE = scRef->energy();
+    
     ele1_fEtaCorr = fClusterCorrections(sumRecHitE+ele1_es,ele1_scEta,scRef->phiWidth()/scRef->etaWidth(),params)/fClusterCorrections(scRef->rawEnergy()+ele1_es,ele1_scEta,scRef->phiWidth()/scRef->etaWidth(),params);
         
     ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
@@ -735,7 +748,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           ele2_seedLaserAlpha = (*italpha);
 
         ele2_seedLaserCorr = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
-        ele2_seedE = ele2_seedICConstant * ele2_seedLaserCorr * it->energy();
+        if ( applyCorrections_ ) ele2_seedE = ele2_seedICConstant * ele2_seedLaserCorr * it->energy();
+        else ele2_seedE = it->energy();
         ieta = (EBDetId(id.first)).ieta();
         iphi = (EBDetId(id.first)).iphi();
         ix = -999;
@@ -770,7 +784,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           ele2_seedLaserAlpha = (*italpha);
 
         ele2_seedLaserCorr = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
-        ele2_seedE = ele2_seedLaserCorr*it->energy();
+        if ( applyCorrections_ ) ele2_seedE = ele2_seedLaserCorr*it->energy();
+        else ele2_seedE = it->energy();
         ix = (EEDetId(id.first)).ix();
         iy = (EEDetId(id.first)).iy();
         ieta = -999;
@@ -808,8 +823,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         
     for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
     {
-      float rhLaserCorrection = -1.;
-      float rhIcCorrection = -1.;
+      float rhLaserCorrection = 1.;
+      float rhICCorrection = 1.;
+      float theLaserCorrection = -1.;
+      float theICCorrection = -1.;
       
       if ((*rh).first.subdetId()== EcalBarrel)
       {
@@ -818,37 +835,40 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         EBDetId barrelId (itrechit->id ()); 
         ++numRecHit;
                       
+        // laser correction
+        theLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+        if ( applyCorrections_ ) rhLaserCorrection = theLaserCorrection;
         // IC correction
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
-        rhIcCorrection = *ICMapIt;
-        // laser correction
-        rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
-        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-        sumLaserCorrectionRecHitE += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+        theICCorrection = *ICMapIt;
+        if ( applyCorrections_ ) rhICCorrection = theICCorrection;
+        
+        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+        sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
         if ( fabs(barrelId.ieta() - ele2_seedIeta) < 3 && fabs(barrelId.iphi() - ele2_seedIphi) < 3 ) {
-          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE5x5 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE5x5 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         }
         // check if rh is inside the 3x3 matrix
         if ( fabs(barrelId.ieta() - ele2_seedIeta) < 1 && fabs(barrelId.iphi() - ele2_seedIphi) < 1 ) {
-          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE3x3 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
+          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE3x3 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         }
         // fill recHit variables
-        ele2_recHit_E.push_back(itrechit->energy() * rhLaserCorrection * rhIcCorrection);
+        ele2_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
         ele2_recHit_hashedIndex.push_back(barrelId.hashedIndex());
         ele2_recHit_ietaORix.push_back(barrelId.ieta());
         ele2_recHit_iphiORiy.push_back(barrelId.iphi());
         ele2_recHit_zside.push_back(0);
-        ele2_recHit_laserCorrection.push_back(rhLaserCorrection);
-        ele2_recHit_ICConstant.push_back(rhIcCorrection);
+        ele2_recHit_laserCorrection.push_back(theLaserCorrection);
+        ele2_recHit_ICConstant.push_back(theICCorrection);
  
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
-              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
-              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhIcCorrection
+              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << theLaserCorrection
+              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << theICCorrection
               << std::endl;
         }
       }
@@ -860,47 +880,51 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         EEDetId endcapId (itrechit->id ()); 
         ++numRecHit;
           
+        // laser correction
+        theLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+        if ( applyCorrections_ ) rhLaserCorrection = theLaserCorrection;
         // IC correction
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
-        rhIcCorrection = *ICMapIt;
-        // laser correction
-        rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
-        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-        sumLaserCorrectionRecHitE += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+        theICCorrection = *ICMapIt;
+        if ( applyCorrections_ ) rhICCorrection = theICCorrection;
+        
+        sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+        sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
         if ( fabs(endcapId.ix() - ele2_seedIx) < 3 && fabs(endcapId.iy() - ele2_seedIy) < 3 ) {
-          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE5x5 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection;
+          sumRecHitE5x5 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE5x5 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         }
         // check if rh is inside the 3x3 matrix
         if ( fabs(endcapId.ix() - ele2_seedIx) < 1 && fabs(endcapId.iy() - ele2_seedIy) < 1 ) {
-          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
-          sumLaserCorrectionRecHitE3x3 += rhLaserCorrection * itrechit->energy() * rhLaserCorrection * rhIcCorrection ;
+          sumRecHitE3x3 += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
+          sumLaserCorrectionRecHitE3x3 += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         }
         // fill recHit variables
-        ele2_recHit_E.push_back(itrechit->energy() * rhLaserCorrection * rhIcCorrection);
+        ele2_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
         ele2_recHit_hashedIndex.push_back(endcapId.hashedIndex());
         ele2_recHit_ietaORix.push_back(endcapId.ix());
         ele2_recHit_iphiORiy.push_back(endcapId.iy());
         ele2_recHit_zside.push_back(endcapId.zside());
-        ele2_recHit_laserCorrection.push_back(rhLaserCorrection);
-        ele2_recHit_ICConstant.push_back(rhIcCorrection);
+        ele2_recHit_laserCorrection.push_back(theLaserCorrection);
+        ele2_recHit_ICConstant.push_back(theICCorrection);
 
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
-              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
-              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhIcCorrection
+              << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << theLaserCorrection
+              << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << theICCorrection
               << std::endl;
         }
       }
     }
-    
     // preshower variables 
     ele2_es = scRef->preshowerEnergy();
     
     ele2_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
-    ele2_scE = ele2_fEta*sumRecHitE;
+    if ( applyCorrections_ ) ele2_scE = scRef->energy()*ele2_fEta*sumRecHitE;
+    else ele2_scE = scRef->energy();
+    
     ele2_fEtaCorr = fClusterCorrections(sumRecHitE+ele2_es,ele2_scEta,scRef->phiWidth()/scRef->etaWidth(),params)/fClusterCorrections(scRef->rawEnergy()+ele2_es,ele2_scEta,scRef->phiWidth()/scRef->etaWidth(),params);
         
     ele2_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
