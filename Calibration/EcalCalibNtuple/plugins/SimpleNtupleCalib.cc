@@ -199,6 +199,12 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scAvgLaserCorrection");
     NtupleFactory_->AddFloat("electrons_scCrackCorrection");
     NtupleFactory_->AddFloat("electrons_scLocalContCorrection");
+    NtupleFactory_->AddFloat("electrons_sc_fCorrection");
+    
+    NtupleFactory_->AddFloat("electrons_scERaw_PUcleaned");
+    NtupleFactory_->AddFloat("electrons_scEtaWidth_PUcleaned");
+    NtupleFactory_->AddFloat("electrons_scPhiWidth_PUcleaned");
+    NtupleFactory_->AddFloat("electrons_sc_fCorrection_PUcleaned");
     
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
@@ -677,6 +683,9 @@ void SimpleNtupleCalib::fillRhoInfo(const edm::Event & iEvent, const edm::EventS
 
 void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 { 
+ // Initialize parameters for cluster corrections
+ InitializeParams(params);
+
  //*********** CALO TOPOLOGY
  edm::ESHandle<CaloTopology> pTopology;
  iSetup.get<CaloTopologyRecord>().get(pTopology);
@@ -725,8 +734,9 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  iEvent.getByLabel(EleTag_,electronHandle);
  View<pat::Electron> electrons = *electronHandle;
  
- 
-
+ //************* CLUSTER PU CLEANING TOOLS
+ EcalClusterPUCleaningTools cleaningTools(iEvent, iSetup, recHitCollection_EB_, recHitCollection_EE_); 
+ float xi = 0.02;   
  
  // Loop over electrons
  for ( unsigned int i=0; i<electrons.size(); ++i )
@@ -881,8 +891,39 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_e2x2",E2x2);
    NtupleFactory_->FillFloat("electrons_e3x3",E3x3);
    NtupleFactory_->FillFloat("electrons_e5x5",electron.e5x5());
+
+
+
    
-   
+   float fCorr = fClusterCorrections(scRef->energy() + scRef->preshowerEnergy(), scRef->eta(),scRef->phiWidth()/scRef->etaWidth(),params)/(scRef->energy()+ scRef->preshowerEnergy());
+   NtupleFactory_->FillFloat("electrons_sc_fCorrection",fCorr);
+
+
+   // supercluster variables after PU cleaning
+   reco::SuperCluster cleanedSC = cleaningTools.CleanedSuperCluster(xi, *scRef, iEvent );
+  
+   // -- check if invalid detId
+   reco::CaloClusterPtr myseed = (*scRef).seed();
+   if ( (myseed->seed()).rawId()==0 ) {
+ 
+     NtupleFactory_->FillFloat("electrons_scERaw_PUcleaned",-9999.);
+     NtupleFactory_->FillFloat("electrons_scEtaWidth_PUcleaned",-9999.);
+     NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned",-9999.);   
+     NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned",-9999);
+   }
+
+   else {
+     
+     NtupleFactory_->FillFloat("electrons_scERaw_PUcleaned", cleanedSC.energy());
+     NtupleFactory_->FillFloat("electrons_scEtaWidth_PUcleaned", cleanedSC.etaWidth());
+     NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned", cleanedSC.phiWidth());   
+     float fCorrCleaned = fClusterCorrections(cleanedSC.energy() + scRef->preshowerEnergy(), cleanedSC.eta(),cleanedSC.phiWidth()/cleanedSC.etaWidth(),params)/(cleanedSC.energy()+ scRef->preshowerEnergy());
+     NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned",fCorrCleaned);
+
+   }
+
+
+
    // rechit variables
    int numRecHit = 0;
    float sumRecHitE = 0.;

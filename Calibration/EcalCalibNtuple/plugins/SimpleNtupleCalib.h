@@ -84,6 +84,12 @@
 // PU MC information
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
+
+// Cluster PU cleaning
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterPUCleaningTools.h"
+// Cluster correction functions
+#include "Calibration/EcalCalibNtuple/interface/EnergyCorrectionFunctions.h"
+
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 
@@ -129,6 +135,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   void fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
 
+  float params[42];
 
   // ----------member data ---------------------------
   EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
