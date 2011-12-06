@@ -34,7 +34,7 @@ simpleNtuple = cms.EDAnalyzer(
     saveCALOMet   = cms.untracked.bool(True),
     saveTCMet     = cms.untracked.bool(True),
     savePFMet     = cms.untracked.bool(True),
-    saveMCPU      = cms.untracked.bool(True),
+    saveMCPU      = cms.untracked.bool(False),
     verbosity_    = cms.untracked.bool(False),
     posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
                                   T0_endc      = cms.double(6.3),        
