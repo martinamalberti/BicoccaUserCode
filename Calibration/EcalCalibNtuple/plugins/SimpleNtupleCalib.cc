@@ -66,8 +66,8 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
   saveTCMet_    = iConfig.getUntrackedParameter<bool> ("saveTCMet", true);
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
-  saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", true);
-  saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", true);
+  saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
+  saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
   
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   
@@ -147,6 +147,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   {
     EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
     EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
+    
     //SC coordinates wrt the ECAL local system
     PositionCalc dummy(iConfig.getParameter<edm::ParameterSet>("posCalcParameters"));
     positionCalculator = dummy;
@@ -196,6 +197,8 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scPhi");
     NtupleFactory_->AddFloat("electrons_scPhiWidth");
     NtupleFactory_->AddFloat("electrons_scEtaWidth");
+    NtupleFactory_->AddFloat("electrons_scE_regression");
+    NtupleFactory_->AddFloat("electrons_scEerr_regression");
     NtupleFactory_->AddFloat("electrons_scAvgLaserCorrection");
     NtupleFactory_->AddFloat("electrons_scCrackCorrection");
     NtupleFactory_->AddFloat("electrons_scLocalContCorrection");
@@ -730,13 +733,23 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  }
 
  //************* ELECTRONS
- Handle<View<pat::Electron> > electronHandle;
+ edm::Handle<View<pat::Electron> > electronHandle;
  iEvent.getByLabel(EleTag_,electronHandle);
  View<pat::Electron> electrons = *electronHandle;
+ 
+ //************* VERTEX COLLECTION
+ edm::Handle<reco::VertexCollection> hVertexProduct;
+ iEvent.getByLabel("offlinePrimaryVerticesWithBS",hVertexProduct);
  
  //************* CLUSTER PU CLEANING TOOLS
  EcalClusterPUCleaningTools cleaningTools(iEvent, iSetup, recHitCollection_EB_, recHitCollection_EE_); 
  float xi = 0.02;   
+ 
+ //************* CLUSTER LAZY TOOLS
+ if( !ecorr_.IsInitialized() ) ecorr_.Initialize(iSetup,"gbrv2ele.root");
+ EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
+ 
+ 
  
  // Loop over electrons
  for ( unsigned int i=0; i<electrons.size(); ++i )
@@ -835,11 +848,15 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
 
 
    // supercluster variables
-   reco::SuperClusterRef scRef = electron.superCluster();   
+   reco::SuperClusterRef scRef = electron.superCluster();
    const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
    
    double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
    double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
+   
+   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(electron,*hVertexProduct,lazyTools,iSetup);
+   double scE_regression = cor.first;
+   double scEerr_regression = cor.second;
    
    NtupleFactory_->Fill3PV("electrons_scPosition",electron.superClusterPosition());
    NtupleFactory_->FillFloat("electrons_scE",scRef->energy());
@@ -850,7 +867,9 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_scPhi",scRef->phi());   
    NtupleFactory_->FillFloat("electrons_scPhiWidth",scRef->phiWidth());
    NtupleFactory_->FillFloat("electrons_scEtaWidth",scRef->etaWidth());
-   
+   NtupleFactory_->FillFloat("electrons_scE_regression",scE_regression);
+   NtupleFactory_->FillFloat("electrons_scEerr_regression",scEerr_regression);
+      
    const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
    
    // cluster variables

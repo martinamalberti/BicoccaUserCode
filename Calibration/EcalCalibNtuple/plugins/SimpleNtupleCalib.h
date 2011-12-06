@@ -89,6 +89,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterPUCleaningTools.h"
 // Cluster correction functions
 #include "Calibration/EcalCalibNtuple/interface/EnergyCorrectionFunctions.h"
+// Cluster correction functions - regression
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
@@ -141,8 +144,8 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
   EcalClusterFunctionBaseClass* EcalClusterLocalContCorrection;
   PositionCalc                  positionCalculator;
+  EGEnergyCorrector             ecorr_;  
   
-
   HLTConfigProvider hltConfig_;
   
   math::XYZPoint BSPoint_;
