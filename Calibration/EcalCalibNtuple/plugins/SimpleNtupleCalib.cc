@@ -61,6 +61,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveRho_      = iConfig.getUntrackedParameter<bool> ("saveRho", true);
   saveEle_      = iConfig.getUntrackedParameter<bool> ("saveEle", true);
   savePho_      = iConfig.getUntrackedParameter<bool> ("savePho", true);
+  saveSC_       = iConfig.getUntrackedParameter<bool> ("saveSC", true);
   saveMu_       = iConfig.getUntrackedParameter<bool> ("saveMu", true);
   saveJet_      = iConfig.getUntrackedParameter<bool> ("saveJet", true);
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
@@ -315,16 +316,110 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("photons_convVtxChi2");
    NtupleFactory_ -> AddFloat("photons_convVtxNDOF");
    NtupleFactory_ -> AddFloat("photons_convEoverP");
-
-   NtupleFactory_ ->AddTMatrix("photons_rechitTime");
-   NtupleFactory_ ->AddTMatrix("photons_rechitE");
-   NtupleFactory_ ->AddTMatrix("photons_rechitIC");
-   NtupleFactory_ ->AddTMatrix("photons_rechitLC");
-
+   
+   NtupleFactory_->AddFloat("photons_seedE");
+   NtupleFactory_->AddInt("photons_seedIsm");
+   NtupleFactory_->AddInt("photons_seedIeta");
+   NtupleFactory_->AddInt("photons_seedIphi");
+   NtupleFactory_->AddInt("photons_seedIx");
+   NtupleFactory_->AddInt("photons_seedIy");
+   NtupleFactory_->AddInt("photons_seedZside");
+   NtupleFactory_->AddInt("photons_seedHashedIndex");
+   NtupleFactory_->AddFloat("photons_seedTime");
+   NtupleFactory_->AddInt("photons_seedFlag");
+   NtupleFactory_->AddFloat("photons_seedICConstant");
+   NtupleFactory_->AddFloat("photons_seedLaserAlpha");
+   NtupleFactory_->AddFloat("photons_seedLaserCorrection");
+   NtupleFactory_->AddFloat("photons_scAvgLaserCorrection");
+   NtupleFactory_->AddFloat("photons_seedSwissCross");
+   
+   NtupleFactory_->AddFloat("photons_recHit_E"); 
+   NtupleFactory_->AddFloat("photons_recHit_time");
+   NtupleFactory_->AddFloat("photons_recHit_ICConstant");
+   NtupleFactory_->AddFloat("photons_recHit_laserCorrection");
+   NtupleFactory_->AddInt("photons_recHit_ism");
+   NtupleFactory_->AddInt("photons_recHit_ieta");
+   NtupleFactory_->AddInt("photons_recHit_iphi");
+   NtupleFactory_->AddInt("photons_recHit_ix");
+   NtupleFactory_->AddInt("photons_recHit_iy");
+   NtupleFactory_->AddInt("photons_recHit_zside");
+   NtupleFactory_->AddInt("photons_recHit_hashedIndex");
+   NtupleFactory_->AddInt("photons_recHit_flag");
+   NtupleFactory_->AddInt("photons_recHit_n");
+  
    NtupleFactory_ -> AddFloat("photons_scCrackCorrection");
    NtupleFactory_ -> AddFloat("photons_scLocalContCorrection");
    NtupleFactory_ -> AddFloat("photons_scLocalPositionEtaCry");
    NtupleFactory_ -> AddFloat("photons_scLocalPositionPhiCry");
+  }
+  
+  if(saveSC_)
+  {
+    EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
+    EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
+    //SC coordinates wrt the ECAL local system
+    PositionCalc dummy(iConfig.getParameter<edm::ParameterSet>("posCalcParameters"));
+    positionCalculator = dummy;
+    
+   NtupleFactory_ -> Add4V ("SCs");
+   NtupleFactory_->Add3PV("SCs_scPosition");    
+   NtupleFactory_->Add3PV("SCs_scLocalPosition");    
+   NtupleFactory_->AddFloat("SCs_scLocalPositionEtaCry");
+   NtupleFactory_->AddFloat("SCs_scLocalPositionPhiCry");
+   NtupleFactory_->AddFloat("SCs_scE");
+   NtupleFactory_->AddFloat("SCs_scEt");
+   NtupleFactory_->AddFloat("SCs_scERaw");
+   NtupleFactory_->AddFloat("SCs_scEtRaw");
+   NtupleFactory_->AddFloat("SCs_scEta");
+   NtupleFactory_->AddFloat("SCs_scPhi");
+   NtupleFactory_->AddFloat("SCs_scPhiWidth");
+   NtupleFactory_->AddFloat("SCs_scEtaWidth");
+   NtupleFactory_->AddFloat("SCs_scAvgLaserCorrection");
+   NtupleFactory_->AddFloat("SCs_scCrackCorrection");
+   NtupleFactory_->AddFloat("SCs_scLocalContCorrection");
+   NtupleFactory_ -> AddFloat("SCs_e1x5");           
+   NtupleFactory_ -> AddFloat("SCs_e2x5");         
+   NtupleFactory_ -> AddFloat("SCs_e3x3");         
+   NtupleFactory_ -> AddFloat("SCs_e5x5");         
+   NtupleFactory_ -> AddFloat("SCs_maxEnergyXtal");
+   NtupleFactory_ -> AddFloat("SCs_sigmaEtaEta");  
+   NtupleFactory_ -> AddFloat("SCs_sigmaIetaIeta");
+   NtupleFactory_ -> AddFloat("SCs_r1x5");        
+   NtupleFactory_ -> AddFloat("SCs_r2x5");        
+   NtupleFactory_ -> AddFloat("SCs_r9");
+   NtupleFactory_ -> AddFloat("SCs_ecalIso");   
+   NtupleFactory_ -> AddFloat("SCs_hcalIso");   
+   NtupleFactory_ -> AddFloat("SCs_hadronicOverEm");   
+   NtupleFactory_ -> AddFloat("SCs_trkSumPtHollowConeDR04");   
+   NtupleFactory_ -> AddInt("SCs_hasPixelSeed");   
+   NtupleFactory_ -> Add4V("SCs_SC");   
+   NtupleFactory_ -> Add3V("SCs_SCpos");   
+
+   NtupleFactory_ -> Add3V("SCs_convVtx");
+   NtupleFactory_ -> AddInt("SCs_convNtracks");
+   NtupleFactory_ -> AddInt("SCs_convVtxIsValid");
+   NtupleFactory_ -> AddFloat("SCs_convVtxChi2");
+   NtupleFactory_ -> AddFloat("SCs_convVtxNDOF");
+   NtupleFactory_ -> AddFloat("SCs_convEoverP");
+   
+   NtupleFactory_->AddFloat("SCs_recHit_E"); 
+   NtupleFactory_->AddFloat("SCs_recHit_time");
+   NtupleFactory_->AddFloat("SCs_recHit_ICConstant");
+   NtupleFactory_->AddFloat("SCs_recHit_laserCorrection");
+   NtupleFactory_->AddInt("SCs_recHit_ism");
+   NtupleFactory_->AddInt("SCs_recHit_ieta");
+   NtupleFactory_->AddInt("SCs_recHit_iphi");
+   NtupleFactory_->AddInt("SCs_recHit_ix");
+   NtupleFactory_->AddInt("SCs_recHit_iy");
+   NtupleFactory_->AddInt("SCs_recHit_zside");
+   NtupleFactory_->AddInt("SCs_recHit_hashedIndex");
+   NtupleFactory_->AddInt("SCs_recHit_flag");
+   NtupleFactory_->AddInt("SCs_recHit_n");
+  
+   NtupleFactory_ -> AddFloat("SCs_scCrackCorrection");
+   NtupleFactory_ -> AddFloat("SCs_scLocalContCorrection");
+   NtupleFactory_ -> AddFloat("SCs_scLocalPositionEtaCry");
+   NtupleFactory_ -> AddFloat("SCs_scLocalPositionPhiCry");
   }
   
   if(saveJet_)
@@ -452,6 +547,9 @@ void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup
 
  ///---- fill photons ----
  if (savePho_)  fillPhoInfo (iEvent, iSetup);
+
+ ///---- fill superclusters ----
+ if (saveSC_)  fillSCInfo (iEvent, iSetup);
 
  ///---- fill muons ----
  if (saveMu_) fillMuInfo (iEvent, iSetup);
@@ -1236,6 +1334,11 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
  iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
  const CaloGeometry *caloGeometry = theCaloGeom.product();
 
+ //*********** LASER ALPHAS
+ edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
+ iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
+ const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
+
  //*********** IC CONSTANTS
  edm::ESHandle<EcalIntercalibConstants> theICConstants;
  iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
@@ -1319,98 +1422,227 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
 
 
   //superCluster Info
-  reco::SuperClusterRef phoSC = photon.superCluster();
+  reco::SuperClusterRef scRef = photon.superCluster();
+  const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
   
-  double pos = sqrt(phoSC->x()*phoSC->x() + phoSC->y()*phoSC->y() + phoSC->z()*phoSC->z());
-  double ratio = phoSC->energy() / pos;
-  ROOT::Math::XYZTVector phoVec(phoSC->x()*ratio, phoSC->y()*ratio, phoSC->z()*ratio, phoSC->energy());
+  double pos = sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() + scRef->z()*scRef->z());
+  double ratio = scRef->energy() / pos;
+  ROOT::Math::XYZTVector phoVec(scRef->x()*ratio, scRef->y()*ratio, scRef->z()*ratio, scRef->energy());
   NtupleFactory_ -> Fill4V("photons_SC", phoVec);
-  ROOT::Math::XYZVector phoPos(phoSC->x(), phoSC->y(), phoSC->z());
+  ROOT::Math::XYZVector phoPos(scRef->x(), scRef->y(), scRef->z());
   NtupleFactory_ -> Fill3V("photons_SCpos", phoPos);
-
-  //recHit time and energy
-  TMatrix rechitTime(5,5);
-  TMatrix rechitE(5,5);
-  TMatrix rechitIC(5,5);
-  TMatrix rechitLC(5,5);
-  for (int i=0;i<5;i++){
-    for (int j=0; j< 5; j++){
-      rechitTime[i][j]=999;
-      rechitE[i][j]=-999;
-      rechitIC[i][j]=-999;
-      rechitLC[i][j]=-999;
-    }
-  }
-
-  //save LC and IC
-  float rhICConstant = -1.;
-  float rhLaserCorrection = -1.;
-
-  const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
-
-  if( photon.isEB() ){
-    EBDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theBarrelEcalRecHits )).first;
-    for(int xx = 0; xx < 5; ++xx)
-      for(int yy = 0; yy < 5; ++yy)
-	{
-	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-2, xx-2, yy-2, yy-2);
-	  if(vector.size() == 0) continue;
-	  EcalRecHitCollection::const_iterator iterator = theBarrelEcalRecHits->find (vector.at(0)) ;
-	  if(iterator == theBarrelEcalRecHits->end()) continue;
-	  rechitE[xx][yy]  = iterator -> energy();
-	  rechitTime[xx][yy]  = iterator -> time();
-
-	  // intercalib constants
-	  EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(vector.at(0));
-	  if( ICMapIt != ICMap.end() )
-	    rhICConstant = *ICMapIt;
-	  rechitIC[xx][yy]  = rhICConstant;
-
-	  // intercalib constants
-	  rhLaserCorrection = theLaser->getLaserCorrection(vector.at(0), iEvent.time());
-	  rechitLC[xx][yy]  = rhLaserCorrection;
-
-	  if( printOut && iterator->energy() > 1. )
-	    {
-	      std::cout << std::fixed
-			<< ">>> ix: "  << std::setprecision(0) << std::setw(4) << xx
-			<< "    iy: "  << std::setprecision(0) << std::setw(4) << yy
-			<< "    recHitE: "     << std::setprecision(2) << std::setw(6) << iterator -> energy()
-			<< "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhICConstant
-			<< "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
-			<< std::endl;
-	    }
-	}
-  }
-  else if (  photon.isEE() ){
-    EEDetId ebid = (EcalClusterTools::getMaximum( photon.superCluster()->hitsAndFractions(), theEndcapEcalRecHits )).first;
-    for(int xx = 0; xx < 5; ++xx)
-      for(int yy = 0; yy < 5; ++yy)
-	{
-	  std::vector<DetId> vector =  EcalClusterTools::matrixDetId(topology, ebid, xx-2, xx-2, yy-2, yy-2);
-	  if(vector.size() == 0) continue;
-	  EcalRecHitCollection::const_iterator iterator = theEndcapEcalRecHits->find (vector.at(0)) ;
-	  if(iterator == theEndcapEcalRecHits->end()) continue;
-	  rechitE[xx][yy]  = iterator -> energy();
-	  rechitTime[xx][yy]  = iterator -> time();
-
-	  // intercalib constants
-	  EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(vector.at(0));
-	  if( ICMapIt != ICMap.end() )
-	    rhICConstant = *ICMapIt;
-	  rechitIC[xx][yy]  = rhICConstant;
-
-	  // intercalib constants
-	  rhLaserCorrection = theLaser->getLaserCorrection(vector.at(0), iEvent.time());
-	  rechitLC[xx][yy]  = rhLaserCorrection;
-	}
-  }
   
+  const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
+  
+  
+   // rechit variables
+   int numRecHit = 0;
+   float sumRecHitE = 0.;
+   float sumLaserCorrectionRecHitE = 0.;
+   
+   const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
+   
+   for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
+   {
+     float rhICConstant = -1.;
+     float rhLaserCorrection = -1.;
+     
+     if ((*rh).first.subdetId()== EcalBarrel)
+     {
+       EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
+       if (itrechit==theBarrelEcalRecHits->end()) continue;
+       EBDetId barrelId (itrechit->id ()); 
+       NtupleFactory_->FillFloat("photons_recHit_E",itrechit->energy());
+       NtupleFactory_->FillFloat("photons_recHit_time",itrechit->time());
+       NtupleFactory_->FillInt("photons_recHit_ism",int(barrelId.ism()-1));
+       NtupleFactory_->FillInt("photons_recHit_ieta",barrelId.ieta());
+       NtupleFactory_->FillInt("photons_recHit_iphi",barrelId.iphi());
+       NtupleFactory_->FillInt("photons_recHit_ix",-999);
+       NtupleFactory_->FillInt("photons_recHit_iy",-999);
+       NtupleFactory_->FillInt("photons_recHit_zside",0);
+       NtupleFactory_->FillInt("photons_recHit_hashedIndex",barrelId.hashedIndex());
+       NtupleFactory_->FillInt("photons_recHit_flag",itrechit->recoFlag());
+       ++numRecHit;
+       
+       // intercalib constant
+       EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
+       if( ICMapIt != ICMap.end() )
+	 rhICConstant = *ICMapIt;
+       NtupleFactory_->FillFloat("photons_recHit_ICConstant",rhICConstant);
+              
+       // laser correction
+       rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+       NtupleFactory_->FillFloat("photons_recHit_laserCorrection",rhLaserCorrection);
+       
+       sumRecHitE += itrechit->energy();
+       sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+       
+       if( printOut && itrechit->energy() > 1. )
+       {
+         std::cout << std::fixed
+		   << ">>> recHitIeta: "  << std::setprecision(0) << std::setw(4) << barrelId.ieta()
+		   << "    recHitIphi: "  << std::setprecision(0) << std::setw(4) << barrelId.iphi()
+		   << "    recHitE: "     << std::setprecision(2) << std::setw(6) << itrechit->energy()
+		   << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhICConstant
+		   << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
+		   << std::endl;
+       }
+     }
+       
+     if ((*rh).first.subdetId()== EcalEndcap)
+     {
+       EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
+       if (itrechit==theEndcapEcalRecHits->end()) continue;
+       EEDetId endcapId (itrechit->id ()); 
+       NtupleFactory_->FillFloat("photons_recHit_E",itrechit->energy());
+       NtupleFactory_->FillFloat("photons_recHit_time",itrechit->time());
+       NtupleFactory_->FillInt("photons_recHit_ism",int(endcapId.ix()/51+(endcapId.zside()<0 ? 0 : 2 )));
+       NtupleFactory_->FillInt("photons_recHit_ix",endcapId.ix());
+       NtupleFactory_->FillInt("photons_recHit_iy",endcapId.iy());
+       NtupleFactory_->FillInt("photons_recHit_ieta",-999);
+       NtupleFactory_->FillInt("photons_recHit_iphi",-999);
+       NtupleFactory_->FillInt("photons_recHit_zside",endcapId.zside());
+       NtupleFactory_->FillInt("photons_recHit_hashedIndex",endcapId.hashedIndex());
+       NtupleFactory_->FillInt("photons_recHit_flag",itrechit->recoFlag());
+       ++numRecHit;
+       
+       // intercalib constant
+       EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
+       if( ICMapIt != ICMap.end() )
+	 rhICConstant = *ICMapIt;
+       NtupleFactory_->FillFloat("photons_recHit_ICConstant",rhICConstant);
+       
+       // laser correction
+       rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+       NtupleFactory_->FillFloat("photons_recHit_laserCorrection",rhLaserCorrection);
+       
+       sumRecHitE += itrechit->energy();
+       sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+       
+       if( printOut && itrechit->energy() > 1. )
+       {
+         std::cout << std::fixed
+		   << ">>> recHitIx: "    << std::setprecision(0) << std::setw(4) << endcapId.ix()
+		   << "    recHitIy: "    << std::setprecision(0) << std::setw(4) << endcapId.iy()
+		   << "    recHitZside: " << std::setprecision(0) << std::setw(4) << endcapId.zside()
+		   << "    recHitE: "     << std::setprecision(2) << std::setw(6) << itrechit->energy()
+		   << "    recHitIC: "    << std::setprecision(6) << std::setw(8) << rhICConstant
+		   << "    recHitLC: "    << std::setprecision(6) << std::setw(8) << rhLaserCorrection
+		   << std::endl;
+       }
+     }
+   }
+   
+   NtupleFactory_->FillInt("photons_recHit_n",numRecHit);
+   NtupleFactory_->FillFloat("photons_scAvgLaserCorrection", sumLaserCorrectionRecHitE/sumRecHitE);
+   
+   
+   // seed variables
+   float energy;
+   int ism;
+   int ieta;
+   int iphi;
+   int ix;
+   int iy;
+   int zside;
+   int hashedIndex;
+   float time; 
+   int flag = -1;
+   float swissCross;
+   float seedICConstant = -1.;
+   float seedLaserAlpha = -1.;
+   float seedLaserCorrection = -1.;
+   
+   if(photon.isEB())
+   {
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
+     
+     // flag
+     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+     
+     if( it != theBarrelEcalRecHits->end() )
+     {
+       const EcalRecHit& rh = (*it);
+       energy = rh.energy();
+       ism = int((EBDetId(id.first)).ism() - 1);
+       ieta = (EBDetId(id.first)).ieta();
+       iphi = (EBDetId(id.first)).iphi();
+       ix = -999;
+       iy = -999;
+       zside = 0;
+       hashedIndex = (EBDetId(id.first)).hashedIndex();
+       time = rh.time();
+       flag = rh.recoFlag();
+       swissCross = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
+     }
+     
+     // intercalib constant
+     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
+     if( ICMapIt != ICMap.end() )
+       seedICConstant = *ICMapIt;
+     
+     // laser alphas
+     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+     if( italpha != theEcalLaserAlphaMap->end() )
+       seedLaserAlpha = (*italpha);
+     
+     // laser correction
+     seedLaserCorrection = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+   }
+   
+   else
+   {
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
+     
+     // flag - OutOfTime
+     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+     
+     if( it != theEndcapEcalRecHits->end() )
+     {
+       const EcalRecHit& rh = (*it);
+       energy = rh.energy();
+       ism = int((EEDetId(id.first)).ix()/51 + ( (EEDetId(id.first)).zside()<0 ? 0 : 2 ));
+       ix = (EEDetId(id.first)).ix();
+       iy = (EEDetId(id.first)).iy();
+       ieta = -999;
+       iphi = -999;
+       zside = (EEDetId(id.first)).zside();
+       hashedIndex = (EEDetId(id.first)).hashedIndex();
+       time = rh.time();
+       flag = rh.recoFlag();
+       swissCross = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
+     }
+     
+     // intercalib constant
+     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EEDetId(id.first));
+     if( ICMapIt != ICMap.end() )
+       seedICConstant = *ICMapIt;
+     
+     // laser alphas
+     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+     if( italpha != theEcalLaserAlphaMap->end() )
+       seedLaserAlpha = (*italpha);
+     
+     // laser correction
+     seedLaserCorrection = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+   }
 
-  NtupleFactory_ -> FillTMatrix("photons_rechitTime",rechitTime);
-  NtupleFactory_ -> FillTMatrix("photons_rechitE",rechitE);
-  NtupleFactory_ -> FillTMatrix("photons_rechitIC",rechitIC);
-  NtupleFactory_ -> FillTMatrix("photons_rechitLC",rechitLC);
+   NtupleFactory_->FillFloat("photons_seedE", energy);
+   NtupleFactory_->FillInt("photons_seedIsm", ism);
+   NtupleFactory_->FillInt("photons_seedIeta", ieta);
+   NtupleFactory_->FillInt("photons_seedIphi", iphi);
+   NtupleFactory_->FillInt("photons_seedIx", ix);
+   NtupleFactory_->FillInt("photons_seedIy", iy);
+   NtupleFactory_->FillInt("photons_seedZside", zside);
+   NtupleFactory_->FillInt("photons_seedHashedIndex", hashedIndex);
+   NtupleFactory_->FillFloat("photons_seedTime", time);
+   NtupleFactory_->FillInt("photons_seedFlag", flag);
+   NtupleFactory_->FillFloat("photons_seedSwissCross", swissCross);
+   NtupleFactory_->FillFloat("photons_seedICConstant", seedICConstant);
+   NtupleFactory_->FillFloat("photons_seedLaserAlpha", seedLaserAlpha);
+   NtupleFactory_->FillFloat("photons_seedLaserCorrection", seedLaserCorrection);
+
+
 
   // crack correction variables and local containment corrections
   EcalClusterCrackCorrection -> init(iSetup);
@@ -1427,7 +1659,6 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
      }
    localContCorr = EcalClusterLocalContCorrection->getValue(*photon.superCluster(), 1) ;
 
-   const edm::Ptr<reco::CaloCluster>& seedCluster = phoSC->seed();
    std::pair<double,double> localPosition;
    localPosition.first = 0.;
    localPosition.second = 0.;
@@ -1438,6 +1669,278 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("photons_scLocalContCorrection", localContCorr);
    NtupleFactory_->FillFloat("photons_scLocalPositionEtaCry",localPosition.first);
    NtupleFactory_->FillFloat("photons_scLocalPositionPhiCry",localPosition.second);
+ }
+ 
+}
+
+
+
+// ---- SuperClusters ----
+void SimpleNtupleCalib::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
+ //std::cout << "SimpleNtupleCalib::fillSCInfo" << std::endl;
+  //*********** CALO TOPOLOGY
+ edm::ESHandle<CaloTopology> pTopology;
+ iSetup.get<CaloTopologyRecord>().get(pTopology);
+ const CaloTopology *topology = pTopology.product();
+ 
+ //*********** CALO GEOM
+ edm::ESHandle<CaloGeometry> theCaloGeom;
+ iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+ const CaloGeometry *caloGeometry = theCaloGeom.product();
+
+ //*********** LASER ALPHAS
+ edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
+ iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
+ const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
+
+ //*********** IC CONSTANTS
+ edm::ESHandle<EcalIntercalibConstants> theICConstants;
+ iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
+  
+ //*********** ADCToGeV
+ edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
+ iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);
+ 
+ //*********** LASER CORRECTION
+ edm::ESHandle<EcalLaserDbService> theLaser;
+ iSetup.get<EcalLaserDbRecord>().get(theLaser);
+
+ //*********** SUPERCLUSTERS
+ edm::Handle<edm::View<reco::SuperCluster> > SCHandle;
+ iEvent.getByLabel(SCTag_,SCHandle);
+ edm::View<reco::SuperCluster> SCs = *SCHandle;
+
+ //*********** Ecal barrel RecHits 
+ edm::Handle<EcalRecHitCollection> pBarrelEcalRecHits ;
+ iEvent.getByLabel (recHitCollection_EB_, pBarrelEcalRecHits) ;
+ const EcalRecHitCollection* theBarrelEcalRecHits = pBarrelEcalRecHits.product () ;
+ 
+ //*********** Ecal endcap RecHits 
+ edm::Handle<EcalRecHitCollection> pEndcapEcalRecHits ;
+ iEvent.getByLabel (recHitCollection_EE_, pEndcapEcalRecHits) ;
+ const EcalRecHitCollection* theEndcapEcalRecHits = pEndcapEcalRecHits.product () ;
+ 
+ 
+ for ( unsigned int i=0; i<SCs.size(); ++i )
+ {
+  reco::SuperCluster scRef = SCs.at(i);
+  const edm::Ptr<reco::CaloCluster>& seedCluster = scRef.seed();
+  
+  const std::vector<std::pair<DetId,float> >& hits = scRef.hitsAndFractions();
+  
+  
+   // rechit variables
+   int numRecHit = 0;
+   float sumRecHitE = 0.;
+   float sumLaserCorrectionRecHitE = 0.;
+   
+   const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
+   
+   for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
+   {
+     float rhICConstant = -1.;
+     float rhLaserCorrection = -1.;
+     
+     if ((*rh).first.subdetId()== EcalBarrel)
+     {
+       EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
+       if (itrechit==theBarrelEcalRecHits->end()) continue;
+       EBDetId barrelId (itrechit->id ()); 
+       NtupleFactory_->FillFloat("SCs_recHit_E",itrechit->energy());
+       NtupleFactory_->FillFloat("SCs_recHit_time",itrechit->time());
+       NtupleFactory_->FillInt("SCs_recHit_ism",int(barrelId.ism()-1));
+       NtupleFactory_->FillInt("SCs_recHit_ieta",barrelId.ieta());
+       NtupleFactory_->FillInt("SCs_recHit_iphi",barrelId.iphi());
+       NtupleFactory_->FillInt("SCs_recHit_ix",-999);
+       NtupleFactory_->FillInt("SCs_recHit_iy",-999);
+       NtupleFactory_->FillInt("SCs_recHit_zside",0);
+       NtupleFactory_->FillInt("SCs_recHit_hashedIndex",barrelId.hashedIndex());
+       NtupleFactory_->FillInt("SCs_recHit_flag",itrechit->recoFlag());
+       ++numRecHit;
+       
+       // intercalib constant
+       EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
+       if( ICMapIt != ICMap.end() )
+	 rhICConstant = *ICMapIt;
+       NtupleFactory_->FillFloat("SCs_recHit_ICConstant",rhICConstant);
+              
+       // laser correction
+       rhLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+       NtupleFactory_->FillFloat("SCs_recHit_laserCorrection",rhLaserCorrection);
+       
+       sumRecHitE += itrechit->energy();
+       sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+     }
+       
+     if ((*rh).first.subdetId()== EcalEndcap)
+     {
+       EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
+       if (itrechit==theEndcapEcalRecHits->end()) continue;
+       EEDetId endcapId (itrechit->id ()); 
+       NtupleFactory_->FillFloat("SCs_recHit_E",itrechit->energy());
+       NtupleFactory_->FillFloat("SCs_recHit_time",itrechit->time());
+       NtupleFactory_->FillInt("SCs_recHit_ism",int(endcapId.ix()/51+(endcapId.zside()<0 ? 0 : 2 )));
+       NtupleFactory_->FillInt("SCs_recHit_ix",endcapId.ix());
+       NtupleFactory_->FillInt("SCs_recHit_iy",endcapId.iy());
+       NtupleFactory_->FillInt("SCs_recHit_ieta",-999);
+       NtupleFactory_->FillInt("SCs_recHit_iphi",-999);
+       NtupleFactory_->FillInt("SCs_recHit_zside",endcapId.zside());
+       NtupleFactory_->FillInt("SCs_recHit_hashedIndex",endcapId.hashedIndex());
+       NtupleFactory_->FillInt("SCs_recHit_flag",itrechit->recoFlag());
+       ++numRecHit;
+       
+       // intercalib constant
+       EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
+       if( ICMapIt != ICMap.end() )
+	 rhICConstant = *ICMapIt;
+       NtupleFactory_->FillFloat("SCs_recHit_ICConstant",rhICConstant);
+       
+       // laser correction
+       rhLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+       NtupleFactory_->FillFloat("SCs_recHit_laserCorrection",rhLaserCorrection);
+       
+       sumRecHitE += itrechit->energy();
+       sumLaserCorrectionRecHitE += itrechit->energy() * rhLaserCorrection;
+     }
+   }
+   
+   NtupleFactory_->FillInt("SCs_recHit_n",numRecHit);
+   NtupleFactory_->FillFloat("SCs__scAvgLaserCorrection", sumLaserCorrectionRecHitE/sumRecHitE);
+   
+   
+   // seed variables
+   float energy;
+   int ism;
+   int ieta;
+   int iphi;
+   int ix;
+   int iy;
+   int zside;
+   int hashedIndex;
+   float time; 
+   int flag = -1;
+   float swissCross;
+   float seedICConstant = -1.;
+   float seedLaserAlpha = -1.;
+   float seedLaserCorrection = -1.;
+   
+   if( fabs(scRef.eta()) < 1.479 )
+   {
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
+     
+     // flag
+     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+     
+     if( it != theBarrelEcalRecHits->end() )
+     {
+       const EcalRecHit& rh = (*it);
+       energy = rh.energy();
+       ism = int((EBDetId(id.first)).ism() - 1);
+       ieta = (EBDetId(id.first)).ieta();
+       iphi = (EBDetId(id.first)).iphi();
+       ix = -999;
+       iy = -999;
+       zside = 0;
+       hashedIndex = (EBDetId(id.first)).hashedIndex();
+       time = rh.time();
+       flag = rh.recoFlag();
+       swissCross = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
+     }
+     
+     // intercalib constant
+     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
+     if( ICMapIt != ICMap.end() )
+       seedICConstant = *ICMapIt;
+     
+     // laser alphas
+     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+     if( italpha != theEcalLaserAlphaMap->end() )
+       seedLaserAlpha = (*italpha);
+     
+     // laser correction
+     seedLaserCorrection = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+   }
+   
+   else
+   {
+     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
+     
+     // flag - OutOfTime
+     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+     
+     if( it != theEndcapEcalRecHits->end() )
+     {
+       const EcalRecHit& rh = (*it);
+       energy = rh.energy();
+       ism = int((EEDetId(id.first)).ix()/51 + ( (EEDetId(id.first)).zside()<0 ? 0 : 2 ));
+       ix = (EEDetId(id.first)).ix();
+       iy = (EEDetId(id.first)).iy();
+       ieta = -999;
+       iphi = -999;
+       zside = (EEDetId(id.first)).zside();
+       hashedIndex = (EEDetId(id.first)).hashedIndex();
+       time = rh.time();
+       flag = rh.recoFlag();
+       swissCross = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
+     }
+     
+     // intercalib constant
+     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EEDetId(id.first));
+     if( ICMapIt != ICMap.end() )
+       seedICConstant = *ICMapIt;
+     
+     // laser alphas
+     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+     if( italpha != theEcalLaserAlphaMap->end() )
+       seedLaserAlpha = (*italpha);
+     
+     // laser correction
+     seedLaserCorrection = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+   }
+
+   NtupleFactory_->FillFloat("SCs_seedE", energy);
+   NtupleFactory_->FillInt("SCs_seedIsm", ism);
+   NtupleFactory_->FillInt("SCs_seedIeta", ieta);
+   NtupleFactory_->FillInt("SCs_seedIphi", iphi);
+   NtupleFactory_->FillInt("SCs_seedIx", ix);
+   NtupleFactory_->FillInt("SCs_seedIy", iy);
+   NtupleFactory_->FillInt("SCs_seedZside", zside);
+   NtupleFactory_->FillInt("SCs_seedHashedIndex", hashedIndex);
+   NtupleFactory_->FillFloat("SCs_seedTime", time);
+   NtupleFactory_->FillInt("SCs_seedFlag", flag);
+   NtupleFactory_->FillFloat("SCs_seedSwissCross", swissCross);
+   NtupleFactory_->FillFloat("SCs_seedICConstant", seedICConstant);
+   NtupleFactory_->FillFloat("SCs_seedLaserAlpha", seedLaserAlpha);
+   NtupleFactory_->FillFloat("SCs_seedLaserCorrection", seedLaserCorrection);
+
+
+
+  // crack correction variables and local containment corrections
+  EcalClusterCrackCorrection -> init(iSetup);
+  EcalClusterLocalContCorrection -> init(iSetup);
+  double crackcor = 1.;
+  double localContCorr = 1.;
+  
+  for(reco::CaloCluster_iterator cIt = scRef.clustersBegin();
+      cIt != scRef.clustersEnd(); ++cIt)
+     {
+       const reco::CaloClusterPtr cc = *cIt; 
+       crackcor *= ( (scRef.rawEnergy() + (*cIt)->energy()*(EcalClusterCrackCorrection->getValue(*cc)-1.)) / scRef.rawEnergy() );
+       
+     }
+   localContCorr = EcalClusterLocalContCorrection->getValue(scRef, 1) ;
+
+   std::pair<double,double> localPosition;
+   localPosition.first = 0.;
+   localPosition.second = 0.;
+   if (fabs(scRef.eta()) < 1.479) localPosition = getLocalPosition(caloGeometry, seedCluster);
+
+
+   NtupleFactory_->FillFloat("SCs_scCrackCorrection", crackcor);
+   NtupleFactory_->FillFloat("SCs_scLocalContCorrection", localContCorr);
+   NtupleFactory_->FillFloat("SCs_scLocalPositionEtaCry",localPosition.first);
+   NtupleFactory_->FillFloat("SCs_scLocalPositionPhiCry",localPosition.second);
  }
  
 }
