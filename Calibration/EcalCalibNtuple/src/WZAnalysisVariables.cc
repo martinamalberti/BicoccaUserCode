@@ -609,10 +609,10 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
    vars.mc_V_charge = reader.GetInt("mc_V_charge")->at(0);
    vars.mc_V_pdgId = reader.GetInt("mcV_pdgId")->at(0);
   
-   vars.mc_F1_E = reader.Get4V("mc_F1_fromV")->at(ele1It).E();
-   vars.mc_F1_P = reader.Get4V("mc_F1_fromV")->at(ele1It).P();
-   vars.mc_F1_charge = reader.GetInt("mc_F1_fromV_charge")->at(ele1It) ;
-   vars.mc_F1_pdgId = reader.GetInt("mc_F1_fromV_pdgId")->at(ele1It) ;
+   vars.mc_F1_E = reader.Get4V("mc_F1_fromV")->at(0).E();
+   vars.mc_F1_P = reader.Get4V("mc_F1_fromV")->at(0).P();
+   vars.mc_F1_charge = reader.GetInt("mc_F1_fromV_charge")->at(0) ;
+   vars.mc_F1_pdgId = reader.GetInt("mc_F1_fromV_pdgId")->at(0) ;
   }
 }
 
@@ -722,10 +722,10 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  
  if(dataFlag ==0)
  {
-  vars.mc_F2_E = reader.Get4V("mc_F2_fromV")->at(ele2It).E();
-  vars.mc_F2_P = reader.Get4V("mc_F2_fromV")->at(ele2It).P();
-  vars.mc_F2_charge = reader.GetInt("mc_F2_fromV_charge")->at(ele2It) ;
-  vars.mc_F2_pdgId = reader.GetInt("mc_F2_fromV_pdgId")->at(ele2It) ;
+  vars.mc_F2_E = reader.Get4V("mc_F2_fromV")->at(0).E();
+  vars.mc_F2_P = reader.Get4V("mc_F2_fromV")->at(0).P();
+  vars.mc_F2_charge = reader.GetInt("mc_F2_fromV_charge")->at(0) ;
+  vars.mc_F2_pdgId = reader.GetInt("mc_F2_fromV_pdgId")->at(0) ;
  }
 }
 
