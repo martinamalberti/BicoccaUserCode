@@ -214,20 +214,10 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   
  }
 
- vars.m_reducedTree -> Branch("mc_V_E", &vars.mc_V_E, "mc_V_E/F");
- vars.m_reducedTree -> Branch("mc_V_P", &vars.mc_V_P, "mc_V_P/F");
- vars.m_reducedTree -> Branch("mc_V_charge", &vars.mc_V_charge, "mc_V_charge/I");
- vars.m_reducedTree -> Branch("mc_V_pdgId", &vars.mc_V_pdgId, "mc_V_pdgId/I");
- 
- vars.m_reducedTree -> Branch("mc_F1_E", &vars.mc_F1_E, "mc_F1_E/F");
- vars.m_reducedTree -> Branch("mc_F1_P", &vars.mc_F1_P, "mc_F1_P/F");
- vars.m_reducedTree -> Branch("mc_F1_charge", &vars.mc_F1_charge, "mc_F1_charge/I");
- vars.m_reducedTree -> Branch("mc_F1_pdgId", &vars.mc_F1_pdgId, "mc_F1_pdgId/I");
- 
- vars.m_reducedTree -> Branch("mc_F2_E", &vars.mc_F2_E, "mc_F2_E/F");
- vars.m_reducedTree -> Branch("mc_F2_P", &vars.mc_F2_P, "mc_F2_P/F");
- vars.m_reducedTree -> Branch("mc_F2_charge", &vars.mc_F2_charge, "mc_F2_charge/I");
- vars.m_reducedTree -> Branch("mc_F2_pdgId", &vars.mc_F2_pdgId, "mc_F2_pdgId/I");
+ vars.m_reducedTree -> Branch("ele1_E_true", &vars.ele1_E_true, "ele1_E_true/F");
+ vars.m_reducedTree -> Branch("ele1_DR", &vars.ele1_DR, "ele1_DR/F");
+ vars.m_reducedTree -> Branch("ele2_E_true", &vars.ele2_E_true, "ele2_E_true/F");
+ vars.m_reducedTree -> Branch("ele2_DR", &vars.ele2_DR, "ele2_DR/F");
  
  
 }
@@ -446,22 +436,10 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele1ele2_m = -99.;
   vars.ele1ele2_scM = -99.;
 
-  vars.mc_V_E = -99;
-  vars.mc_V_P = -99 ;
-  vars.mc_V_charge = -99;
-  vars.mc_V_pdgId = -99;
- 
-  vars.mc_F1_E = -99;
-  vars.mc_F1_P = -99;
-  vars.mc_F1_charge = -99;
-  vars.mc_F1_pdgId = -99;
- 
-  vars.mc_F2_E = -99;
-  vars.mc_F2_P = -99;
-  vars.mc_F2_charge = -99;
-  vars.mc_F2_pdgId = -99;
- 
-
+  vars.ele1_E_true = -99 ;
+  vars.ele1_DR = -99 ;
+  vars.ele2_E_true = -99 ; 
+  vars.ele2_DR = -99 ;
 }
 
 
@@ -499,7 +477,7 @@ void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader)
 
 
 
-void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib, const int& dataFlag)
+void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib)
 {  
   
   vars.p_ele1 = &vars.ele1;
@@ -602,22 +580,10 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_isEEDeeGap = reader.GetInt("electrons_isEEDeeGap")->at(ele1It);
   vars.ele1_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele1It);
   
-  if(dataFlag ==0)
-  {
-   vars.mc_V_E = reader.Get4V("mc_V")->at(0).E();
-   vars.mc_V_P = reader.Get4V("mc_V")->at(0).P();
-   vars.mc_V_charge = reader.GetInt("mc_V_charge")->at(0);
-   vars.mc_V_pdgId = reader.GetInt("mcV_pdgId")->at(0);
-  
-   vars.mc_F1_E = reader.Get4V("mc_F1_fromV")->at(0).E();
-   vars.mc_F1_P = reader.Get4V("mc_F1_fromV")->at(0).P();
-   vars.mc_F1_charge = reader.GetInt("mc_F1_fromV_charge")->at(0) ;
-   vars.mc_F1_pdgId = reader.GetInt("mc_F1_fromV_pdgId")->at(0) ;
-  }
-}
+ }
 
 
-void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib,const int& dataFlag)
+void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib)
 {
   vars.p_ele2 = &vars.ele2;
 
@@ -719,15 +685,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_isEBPhiGap = reader.GetInt("electrons_isEBPhiGap")->at(ele2It);
  vars.ele2_isEEDeeGap = reader.GetInt("electrons_isEEDeeGap")->at(ele2It);
  vars.ele2_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele2It);
- 
- if(dataFlag ==0)
- {
-  vars.mc_F2_E = reader.Get4V("mc_F2_fromV")->at(0).E();
-  vars.mc_F2_P = reader.Get4V("mc_F2_fromV")->at(0).P();
-  vars.mc_F2_charge = reader.GetInt("mc_F2_fromV_charge")->at(0) ;
-  vars.mc_F2_pdgId = reader.GetInt("mc_F2_fromV_pdgId")->at(0) ;
  }
-}
 
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader)
 {
@@ -802,5 +760,61 @@ void SetPhotonMatchingEle( float* const var, treeReader& reader, const int& eleI
   var[2]= ele_ph_scEta;
   var[3]= ele_ph_scPhi;
   var[4]= ele_ph_R9;
+
+}
+
+void SetGenLeptonInformation (WZAnalysisVariables& vars, treeReader& reader, const int & dataFlag, int isWZ)
+{
+  
+ if(dataFlag!=0) return;
+
+ if(isWZ==0)
+ {
+  if(reader.Get4V("mcF1_fromV")->size() == 1)
+  {
+   vars.ele1_E_true = reader.Get4V("mcF1_fromV")->at(0).E();
+   float Deta = fabs (reader.Get4V("mcF1_fromV")->at(0).Eta()-vars.ele1_eta);
+   float Dphi = fabs (reader.Get4V("mcF1_fromV")->at(0).Phi()-vars.ele1_phi);
+   if(Dphi>3.141592) Dphi=Dphi-3.141592;
+   vars.ele1_DR = sqrt(Deta*Deta+Dphi*Dphi);
+  }
+ 
+ }
+
+ if(isWZ==1)
+ {
+   if(reader.Get4V("mcF1_fromV")->size() == 1 && reader.Get4V("mcF2_fromV")->size() == 1)
+   {
+     if(vars.ele1_pt>vars.ele2_pt)
+     {
+          vars.ele1_E_true = reader.Get4V("mcF1_fromV")->at(0).E();
+          float Deta = fabs (reader.Get4V("mcF1_fromV")->at(0).Eta()-vars.ele1_eta);
+          float Dphi = fabs (reader.Get4V("mcF1_fromV")->at(0).Phi()-vars.ele1_phi);
+          if(Dphi>3.141592) Dphi=Dphi-3.141592;
+          vars.ele1_DR = sqrt(Deta*Deta+Dphi*Dphi);
+          
+          vars.ele2_E_true = reader.Get4V("mcF2_fromV")->at(0).E();
+          Deta = fabs (reader.Get4V("mcF2_fromV")->at(0).Eta()-vars.ele2_eta);
+          Dphi = fabs (reader.Get4V("mcF2_fromV")->at(0).Phi()-vars.ele2_phi);
+          if(Dphi>3.141592) Dphi=Dphi-3.141592;
+          vars.ele2_DR = sqrt(Deta*Deta+Dphi*Dphi);
+     }
+     else{
+          vars.ele2_E_true = reader.Get4V("mcF1_fromV")->at(0).E();
+          float Deta = fabs (reader.Get4V("mcF1_fromV")->at(0).Eta()-vars.ele2_eta);
+          float Dphi = fabs (reader.Get4V("mcF1_fromV")->at(0).Phi()-vars.ele2_phi);
+          if(Dphi>3.141592) Dphi=Dphi-3.141592;
+          vars.ele2_DR = sqrt(Deta*Deta+Dphi*Dphi);
+          
+          vars.ele1_E_true = reader.Get4V("mcF2_fromV")->at(0).E();
+          Deta = fabs (reader.Get4V("mcF2_fromV")->at(0).Eta()-vars.ele1_eta);
+          Dphi = fabs (reader.Get4V("mcF2_fromV")->at(0).Phi()-vars.ele1_phi);
+          if(Dphi>3.141592) Dphi=Dphi-3.141592;
+          vars.ele1_DR = sqrt(Deta*Deta+Dphi*Dphi);
+
+         }
+
+    }
+  }
 
 }
