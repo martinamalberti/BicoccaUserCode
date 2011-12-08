@@ -204,6 +204,23 @@ struct WZAnalysisVariables
   // di-electron variables
   float ele1ele2_m;
   float ele1ele2_scM;
+
+  float mc_V_E ;
+  float mc_V_P ;
+  int mc_V_charge ;
+  int mc_V_pdgId ;
+ 
+  float mc_F1_E ;
+  float mc_F1_P ;
+  int mc_F1_charge ;
+  int mc_F1_pdgId ;
+ 
+  float mc_F2_E ;
+  float mc_F2_P ;
+  int mc_F2_charge ;
+  int mc_F2_pdgId ;
+ 
+
 };
 
 
@@ -219,8 +236,8 @@ void DeleteWZAnalysisVariables(WZAnalysisVariables&);
 void SetPUVariables(WZAnalysisVariables& vars, treeReader& reader, const int& dataFlag);
 void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader);
 
-void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib);
-void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib);
+void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib, const int& dataFlag);
+void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib, const int& dataFlag);
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader);
 void SetDiElectronVariables(WZAnalysisVariables& vars, treeReader& reader);
 

@@ -212,8 +212,24 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   
    vars.m_reducedTree -> Branch("ele2_tkPt", &vars.ele2_tkPt, "ele2_tkPt/F");
   
- } 
-  
+ }
+
+ vars.m_reducedTree -> Branch("mc_V_E", &vars.mc_V_E, "mc_V_E/F");
+ vars.m_reducedTree -> Branch("mc_V_P", &vars.mc_V_P, "mc_V_P/F");
+ vars.m_reducedTree -> Branch("mc_V_charge", &vars.mc_V_charge, "mc_V_charge/I");
+ vars.m_reducedTree -> Branch("mc_V_pdgId", &vars.mc_V_pdgId, "mc_V_pdgId/I");
+ 
+ vars.m_reducedTree -> Branch("mc_F1_E", &vars.mc_F1_E, "mc_F1_E/F");
+ vars.m_reducedTree -> Branch("mc_F1_P", &vars.mc_F1_P, "mc_F1_P/F");
+ vars.m_reducedTree -> Branch("mc_F1_charge", &vars.mc_F1_charge, "mc_F1_charge/I");
+ vars.m_reducedTree -> Branch("mc_F1_pdgId", &vars.mc_F1_pdgId, "mc_F1_pdgId/I");
+ 
+ vars.m_reducedTree -> Branch("mc_F2_E", &vars.mc_F2_E, "mc_F2_E/F");
+ vars.m_reducedTree -> Branch("mc_F2_P", &vars.mc_F2_P, "mc_F2_P/F");
+ vars.m_reducedTree -> Branch("mc_F2_charge", &vars.mc_F2_charge, "mc_F2_charge/I");
+ vars.m_reducedTree -> Branch("mc_F2_pdgId", &vars.mc_F2_pdgId, "mc_F2_pdgId/I");
+ 
+ 
 }
 
 
@@ -430,6 +446,22 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele1ele2_m = -99.;
   vars.ele1ele2_scM = -99.;
 
+  vars.mc_V_E = -99;
+  vars.mc_V_P = -99 ;
+  vars.mc_V_charge = -99;
+  vars.mc_V_pdgId = -99;
+ 
+  vars.mc_F1_E = -99;
+  vars.mc_F1_P = -99;
+  vars.mc_F1_charge = -99;
+  vars.mc_F1_pdgId = -99;
+ 
+  vars.mc_F2_E = -99;
+  vars.mc_F2_P = -99;
+  vars.mc_F2_charge = -99;
+  vars.mc_F2_pdgId = -99;
+ 
+
 }
 
 
@@ -467,7 +499,7 @@ void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader)
 
 
 
-void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib)
+void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib, const int& dataFlag)
 {  
   
   vars.p_ele1 = &vars.ele1;
@@ -569,11 +601,23 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_isEBPhiGap = reader.GetInt("electrons_isEBPhiGap")->at(ele1It);
   vars.ele1_isEEDeeGap = reader.GetInt("electrons_isEEDeeGap")->at(ele1It);
   vars.ele1_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele1It);
-
+  
+  if(dataFlag ==0)
+  {
+   vars.mc_V_E = reader.Get4V("mc_V")->at(0).E();
+   vars.mc_V_P = reader.Get4V("mc_V")->at(0).P();
+   vars.mc_V_charge = reader.GetInt("mc_V_charge")->at(0);
+   vars.mc_V_pdgId = reader.GetInt("mcV_pdgId")->at(0);
+  
+   vars.mc_F1_E = reader.Get4V("mc_F1_fromV")->at(ele1It).E();
+   vars.mc_F1_P = reader.Get4V("mc_F1_fromV")->at(ele1It).P();
+   vars.mc_F1_charge = reader.GetInt("mc_F1_fromV_charge")->at(ele1It) ;
+   vars.mc_F1_pdgId = reader.GetInt("mc_F1_fromV_pdgId")->at(ele1It) ;
+  }
 }
 
 
-void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib)
+void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib,const int& dataFlag)
 {
   vars.p_ele2 = &vars.ele2;
 
@@ -675,6 +719,14 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_isEBPhiGap = reader.GetInt("electrons_isEBPhiGap")->at(ele2It);
  vars.ele2_isEEDeeGap = reader.GetInt("electrons_isEEDeeGap")->at(ele2It);
  vars.ele2_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele2It);
+ 
+ if(dataFlag ==0)
+ {
+  vars.mc_F2_E = reader.Get4V("mc_F2_fromV")->at(ele2It).E();
+  vars.mc_F2_P = reader.Get4V("mc_F2_fromV")->at(ele2It).P();
+  vars.mc_F2_charge = reader.GetInt("mc_F2_fromV_charge")->at(ele2It) ;
+  vars.mc_F2_pdgId = reader.GetInt("mc_F2_fromV_pdgId")->at(ele2It) ;
+ }
 }
 
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader)
