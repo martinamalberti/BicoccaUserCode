@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.1 2011/11/21 18:30:32 abenagli Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.2 2011/12/09 08:31:02 abenagli Exp $
 //
 //
 
@@ -545,7 +545,8 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  ///==== Gen level ====  
  if(saveMCPtHat_)
  {
-   NtupleFactory_->AddFloat("mc_ptHat");    
+   NtupleFactory_->AddFloat("mc_ptHat");
+   NtupleFactory_->AddFloat("mc_weight");
  }
  
  if(saveMCTTBar_)
