@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.51 2011/11/21 17:01:21 abenagli Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.1 2011/11/21 18:30:32 abenagli Exp $
 //
 //
 
@@ -139,6 +139,16 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_->AddString("HLT_Names"); 
    NtupleFactory_->AddInt("HLT_L1Prescale");
    NtupleFactory_->AddInt("HLT_Prescale");
+   
+   NtupleFactory_->AddString("goodHLT_Names"); 
+   NtupleFactory_ -> Add4V("goodHLT_electrons");
+   NtupleFactory_ -> Add4V("goodHLT_muons");
+   NtupleFactory_ -> Add4V("goodHLT_jets");
+   NtupleFactory_ -> Add4V("goodHLT_MET_ele");
+   NtupleFactory_ -> Add4V("goodHLT_MET_mu");
+   NtupleFactory_ -> AddInt("goodHLT_electrons_pass");
+   NtupleFactory_ -> AddInt("goodHLT_muons_pass");
+   NtupleFactory_ -> AddInt("goodHLT_jets_pass");
  }
  
  if(saveBS_)
@@ -653,6 +663,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
 
  if(saveMCPU_)
  {
+   NtupleFactory_ -> AddFloat("mc_PUit_TrueNumInteractions");
    NtupleFactory_ -> AddInt  ("mc_PUit_NumInteractions");
    NtupleFactory_ -> AddFloat("mc_PUit_zpositions");
    NtupleFactory_ -> AddFloat("mc_PUit_sumpT_lowpT");
@@ -660,13 +671,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_lowpT");
    NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_highpT");
    
-   NtupleFactory_ -> AddInt  ("mc_PUoot_NumInteractions");
-   NtupleFactory_ -> AddFloat("mc_PUoot_zpositions");
-   NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_lowpT");
-   NtupleFactory_ -> AddFloat("mc_PUoot_sumpT_highpT");
-   NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_lowpT");
-   NtupleFactory_ -> AddInt  ("mc_PUoot_ntrks_highpT");
-   
+   NtupleFactory_ -> AddFloat("mc_PUoot_early_TrueNumInteractions");
    NtupleFactory_ -> AddInt  ("mc_PUoot_early_NumInteractions");
    NtupleFactory_ -> AddFloat("mc_PUoot_early_zpositions");
    NtupleFactory_ -> AddFloat("mc_PUoot_early_sumpT_lowpT");
@@ -674,6 +679,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt  ("mc_PUoot_early_ntrks_lowpT");
    NtupleFactory_ -> AddInt  ("mc_PUoot_early_ntrks_highpT");
 
+   NtupleFactory_ -> AddFloat("mc_PUoot_late_TrueNumInteractions");
    NtupleFactory_ -> AddInt  ("mc_PUoot_late_NumInteractions");
    NtupleFactory_ -> AddFloat("mc_PUoot_late_zpositions");
    NtupleFactory_ -> AddFloat("mc_PUoot_late_sumpT_lowpT");
@@ -733,16 +739,23 @@ void SimpleNtuple_noPAT::fillHLTInfo (const edm::Event & iEvent, const edm::Even
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResultsHandle);
   for(unsigned int iHLT = 0; iHLT < triggerResultsHandle->size(); ++iHLT)
   {
-    //std::cout << ">>> bit: "        << std::fixed << std::setw(3) << iHLT
-    //          << "   name: "        << triggerNames.triggerName(iHLT)
-    //          << "   L1Prescale: "  << (hltConfig_.prescaleValues(iEvent, iESetup, triggerNames.triggerName(iHLT))).first
-    //          << "   HLTprescale: " << (hltConfig_.prescaleValues(iEvent, iESetup, triggerNames.triggerName(iHLT))).second
-    //          << std::endl;
+    /*
+    if( triggerResultsHandle -> wasrun(iHLT) == 1 )
+    {
+      std::cout << ">>> bit: "        << std::fixed << std::setw(3) << iHLT
+                << "   name: "        << triggerNames.triggerName(iHLT)
+                << "   accept: "      << triggerResultsHandle -> accept(iHLT)
+                << std::endl;
+      //          << "   L1Prescale: "  << (hltConfig_.prescaleValues(iEvent, iESetup, triggerNames.triggerName(iHLT))).first
+      //          << "   HLTprescale: " << (hltConfig_.prescaleValues(iEvent, iESetup, triggerNames.triggerName(iHLT))).second
+      //          << std::endl;
+    }
+    */
     
     // prescale
-    std::pair<int,int> prescales = hltConfig_.prescaleValues(iEvent, iESetup, triggerNames.triggerName(iHLT));
-    NtupleFactory_ -> FillInt("HLT_L1Prescale", prescales.first);
-    NtupleFactory_ -> FillInt("HLT_Prescale", prescales.second);
+    //std::pair<int,int> prescales = hltConfig_.prescaleValues(iEvent, iESetup, triggerNames.triggerName(iHLT));
+    //NtupleFactory_ -> FillInt("HLT_L1Prescale", prescales.first);
+    //NtupleFactory_ -> FillInt("HLT_Prescale", prescales.second);
     
     if( triggerResultsHandle -> wasrun(iHLT) )
       NtupleFactory_ -> FillFloat("HLT_WasRun", 1);
@@ -800,9 +813,12 @@ void SimpleNtuple_noPAT::fillHLTInfo (const edm::Event & iEvent, const edm::Even
   
   // Muons:
   const pat::TriggerObjectRefVector triggerMuons( patTriggerEventHandle->objects( trigger::TriggerMuon ) );
+  //std::cout << "nMuons: " << triggerMuons.size() << std::endl;
+  int muIt = 0;
   for(pat::TriggerObjectRefVector::const_iterator it = triggerMuons.begin(); it != triggerMuons.end(); ++it )
   {
     const pat::TriggerObjectRef objRef( *it );
+    //std::cout << ">>> muIt: " << muIt << "   pt: " << objRef->pt() << std::endl;
     
     int thePassWord = 0;
     int exp = 0;
@@ -811,7 +827,10 @@ void SimpleNtuple_noPAT::fillHLTInfo (const edm::Event & iEvent, const edm::Even
       bool isMatched = 0;
       // Make the OR of different HLT versions
       for(int ivers = 0; ivers < nHLTversions; ++ivers)
+      {
         isMatched += patTriggerEventHandle->objectInPath( objRef, *ipath + "_" + theVersioning[ivers] );
+	//std::cout << *ipath + "_" + theVersioning[ivers] << "   isMatched: " << isMatched << std::endl;
+      }
       thePassWord += (int) isMatched * pow(2, exp);
       ++exp;
     }
@@ -820,6 +839,8 @@ void SimpleNtuple_noPAT::fillHLTInfo (const edm::Event & iEvent, const edm::Even
     if ( thePassWord == 0 ) continue;
     NtupleFactory_->Fill4V("goodHLT_muons", objRef->p4());
     NtupleFactory_->FillInt("goodHLT_muons_pass", thePassWord);
+    
+    ++muIt;
   }
   
   
@@ -1991,9 +2012,9 @@ void SimpleNtuple_noPAT::fillJetInfo (const edm::Event & iEvent, const edm::Even
     for(std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); ++iBTag)
       NtupleFactory_ -> FillFloat(*iBTag,jet.bDiscriminator(*iBTag));
     
-    NtupleFactory_ -> FillFloat("jets_etaetaMoment",jet.etaetaMoment());
-    NtupleFactory_ -> FillFloat("jets_phiphiMoment",jet.phiphiMoment());
-    NtupleFactory_ -> FillFloat("jets_etaphiMoment",jet.etaphiMoment());
+    //NtupleFactory_ -> FillFloat("jets_etaetaMoment",jet.etaetaMoment());
+    //NtupleFactory_ -> FillFloat("jets_phiphiMoment",jet.phiphiMoment());
+    //NtupleFactory_ -> FillFloat("jets_etaphiMoment",jet.etaphiMoment());
     
     NtupleFactory_->FillFloat("jets_fHPD",jet.jetID().fHPD);
     NtupleFactory_->FillFloat("jets_fRBX",jet.jetID().fRBX);
@@ -2158,8 +2179,10 @@ void SimpleNtuple_noPAT::fillMCPtHatInfo (const edm::Event & iEvent, const edm::
   edm::Handle< GenEventInfoProduct > GenInfoHandle;
   iEvent.getByLabel( "generator", GenInfoHandle );
   float ptHat = ( GenInfoHandle->hasBinningValues() ? (GenInfoHandle->binningValues())[0] : 0.0);
+  float weight = GenInfoHandle -> weight();
   
   NtupleFactory_->FillFloat("mc_ptHat", ptHat);
+  NtupleFactory_->FillFloat("mc_weight", weight);
   
   //std::cout << "SimpleNtuple_noPAT::fillPtHatInfo::end" << std::endl; 
 }
@@ -2342,28 +2365,32 @@ void SimpleNtuple_noPAT::fillMCPUInfo (const edm::Event & iEvent, const edm::Eve
     // in-time pileup
     if( PVI->getBunchCrossing() == 0 )
     {
+      NtupleFactory_->FillFloat("mc_PUit_TrueNumInteractions",PVI->getTrueNumInteractions());    
       NtupleFactory_->FillInt("mc_PUit_NumInteractions",PVI->getPU_NumInteractions());    
+      std::cout << "numTrue: " << PVI->getTrueNumInteractions() << std::endl;
+      std::cout << "num: "     << PVI->getPU_NumInteractions() << std::endl;
       
-     for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
-     
-     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUit_sumpT_lowpT",*it);
-     
-     for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
-       NtupleFactory_->FillFloat("mc_PUit_sumpT_highpT",*it);
-     
-     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
-       NtupleFactory_->FillInt("mc_PUit_ntrks_lowpT",*it);
-     
-     for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
-       NtupleFactory_->FillInt("mc_PUit_ntrks_highpT",*it);
+      for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+        NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+        NtupleFactory_->FillFloat("mc_PUit_sumpT_lowpT",*it);
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+        NtupleFactory_->FillFloat("mc_PUit_sumpT_highpT",*it);
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+        NtupleFactory_->FillInt("mc_PUit_ntrks_lowpT",*it);
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+        NtupleFactory_->FillInt("mc_PUit_ntrks_highpT",*it);
     }
     
     // out-of-time pileup
     else if( PVI->getBunchCrossing() < 0 )
     {
-      NtupleFactory_->FillInt("mc_PUoot_early_NumInteractions",PVI->getPU_NumInteractions());
+      NtupleFactory_->FillFloat("mc_PUoot_early_TrueNumInteractions",PVI->getTrueNumInteractions());
+      NtupleFactory_->FillInt("mc_PUoot_early_NumInteractions",    PVI->getPU_NumInteractions());
       
       for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
         NtupleFactory_->FillFloat("mc_PUoot_early_zpositions",*it);
@@ -2384,7 +2411,8 @@ void SimpleNtuple_noPAT::fillMCPUInfo (const edm::Event & iEvent, const edm::Eve
     // out-of-time pileup
     else
     {
-      NtupleFactory_->FillInt("mc_PUoot_late_NumInteractions",PVI->getPU_NumInteractions());
+      NtupleFactory_->FillFloat("mc_PUoot_late_TrueNumInteractions",PVI->getTrueNumInteractions());
+      NtupleFactory_->FillInt("mc_PUoot_late_NumInteractions",    PVI->getPU_NumInteractions());
       
       for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
         NtupleFactory_->FillFloat("mc_PUoot_late_zpositions",*it);

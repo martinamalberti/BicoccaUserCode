@@ -12,6 +12,7 @@ SimpleNtuple_noPAT = cms.EDAnalyzer(
     
     TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+    PatTriggerEventTag = cms.InputTag("patTriggerEvent","","PAT"),
     
     PVTag = cms.InputTag("goodOfflinePrimaryVertices"),
 
