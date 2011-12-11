@@ -584,17 +584,11 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_scERaw = reader.GetFloat("electrons_scERaw")->at(ele1It);
   vars.ele1_scE = reader.GetFloat("electrons_scE")->at(ele1It);
   vars.ele1_es = reader.GetFloat("electrons_ES")->at(ele1It);
-  std::cout << "ciao1" << std::endl;
   vars.ele1_fCorrection = reader.GetFloat("electrons_sc_fCorrection")->at(ele1It);
-  std::cout << "ciao2" << std::endl;
   vars.ele1_scE_regression = reader.GetFloat("electrons_scE_regression")->at(ele1It);
-  std::cout << "ciao3" << std::endl;
   vars.ele1_scERaw_PUcleaned = reader.GetFloat("electrons_scERaw_PUcleaned")->at(ele1It);
-  std::cout << "ciao4" << std::endl;
   vars.ele1_scEtaWidth_PUcleaned = reader.GetFloat("electrons_scEtaWidth_PUcleaned")->at(ele1It);
-  std::cout << "ciao5" << std::endl;
   vars.ele1_scPhiWidth_PUcleaned = reader.GetFloat("electrons_scPhiWidth_PUcleaned")->at(ele1It);
-  std::cout << "ciao6" << std::endl;
   
   vars.ele1_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele1It);
   vars.ele1_e5x5 = reader.GetFloat("electrons_e5x5")->at(ele1It);
@@ -701,7 +695,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_scERaw = reader.GetFloat("electrons_scERaw")->at(ele2It);
  vars.ele2_scE = reader.GetFloat("electrons_scE")->at(ele2It);
  vars.ele2_es = reader.GetFloat("electrons_ES")->at(ele2It);
- vars.ele2_fCorrection = reader.GetFloat("electrons_fCorrection")->at(ele2It);
+ vars.ele2_fCorrection = reader.GetFloat("electrons_sc_fCorrection")->at(ele2It);
  vars.ele2_scE_regression = reader.GetFloat("electrons_scE_regression")->at(ele2It);
  vars.ele2_scERaw_PUcleaned = reader.GetFloat("electrons_scERaw_PUcleaned")->at(ele2It);
  vars.ele2_scEtaWidth_PUcleaned = reader.GetFloat("electrons_scEtaWidth_PUcleaned")->at(ele2It);
