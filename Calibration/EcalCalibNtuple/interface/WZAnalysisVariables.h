@@ -85,6 +85,11 @@ struct WZAnalysisVariables
   float ele1_scLocalContCorr;
   float ele1_scLocalContCorr_DK;
   float ele1_es;
+  float ele1_fCorrection;
+  float ele1_scE_regression;
+  float ele1_scERaw_PUcleaned;
+  float ele1_scEtaWidth_PUcleaned;
+  float ele1_scPhiWidth_PUcleaned;
   
   float ele1_e3x3;
   float ele1_e5x5;
@@ -151,6 +156,11 @@ struct WZAnalysisVariables
   float ele2_scLocalContCorr;
   float ele2_scLocalContCorr_DK;
   float ele2_es;
+  float ele2_fCorrection;
+  float ele2_scE_regression;
+  float ele2_scERaw_PUcleaned;
+  float ele2_scEtaWidth_PUcleaned;
+  float ele2_scPhiWidth_PUcleaned;
   
   float ele2_e3x3;
   float ele2_e5x5;
