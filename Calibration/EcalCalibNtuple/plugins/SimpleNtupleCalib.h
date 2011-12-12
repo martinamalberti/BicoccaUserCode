@@ -128,6 +128,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   void fillRhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillCALOMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillTCMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -162,6 +163,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag recHitCollection_EE_;
   edm::InputTag EleTag_;
   edm::InputTag PhotonTag_;
+  edm::InputTag SCTag_;
   edm::InputTag MuTag_;
   edm::InputTag JetTag_;
   edm::InputTag CALOMetTag_;
@@ -182,6 +184,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   bool saveRho_ ;
   bool saveEle_ ;
   bool savePho_ ;
+  bool saveSC_ ;
   bool saveEleShape_ ;
   bool saveMu_ ;
   bool saveJet_ ;
