@@ -6,10 +6,10 @@ process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT: Choose the MC type!!!
 # Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, ZW, Other
-makeMiBiCommonNT(process, GlobalTag="START42_V13::All", HLT='', MC=True, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="START42_V14B::All", HLT='', MC=True, MCType='Other')
   
 process.source.fileNames = cms.untracked.vstring(
-    'file:/data2/amassiro/CMSSWRoot/WZTo3LNu_TuneZ2_7TeV_pythia6_tauola_U_S4_START42_V11-v1_AODSIM.root'
+    'file:/gwteraz/users/benaglia/pat_42x_fall11_SQWaT_PAT_42X_2011A_May10ReReco-v1_v1.root'
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

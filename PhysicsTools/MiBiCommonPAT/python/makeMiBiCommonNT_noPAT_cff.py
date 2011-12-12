@@ -82,8 +82,7 @@ def makeMiBiCommonNT_noPAT(process, GlobalTag, HLT='HLT', MC=False, MCType='Othe
     )
     
     process.JetFilterPFlow = countPatJets.clone(
-      #src = cms.InputTag("selectedPatJetsPFlow"),
-      src = cms.InputTag("goodPatJetsPFlow"),      
+      src = cms.InputTag("selectedPatJetsPFlow"),
       minNumber      = cms.uint32(2)
     )
     
@@ -118,31 +117,17 @@ def makeMiBiCommonNT_noPAT(process, GlobalTag, HLT='HLT', MC=False, MCType='Othe
     # the MiBiNTUPLE
     process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_noPAT_cfi")
     process.MiBiCommonNT = process.SimpleNtuple_noPAT.clone()
-
+    
     
     if MC:
-        eleHLT_names       = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20')
-        muHLT_names        = cms.vstring('HLT_IsoMu24_v9','HLT_Mu40_v6'),
-        jetFilterHLT_names = cms.vstring('hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned')
-    
-    else:
-        eleHLT_names      = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT',
-                                        'HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT15',
-                                        'HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20',
-                                        'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20',
-                                        'HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25')
-        muHLT_names       = cms.vstring('HLT_IsoMu17',
-                                        'HLT_IsoMu24',
-                                        'HLT_IsoMu24_eta2p1',
-                                        'HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT15')
-       jetFilterHLT_names = cms.vstring('hltEle17CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned',
-                                        'hltEle17CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned',
-                                        'hltEle22CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned',
-                                        'hltEle22CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned',
-                                        'hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned',
-                                        'hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned',
-                                        'hltEle27WP80CentralDiPFJet25Cleaned',
-                                        'hltIsoMu172p1DiCentralPFJet25Filter')         
+        process.MiBiCommonNT.eleHLT_names       = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20')
+        process.MiBiCommonNT.muHLT_names        = cms.vstring('HLT_IsoMu24','HLT_Mu40')
+        process.MiBiCommonNT.jetFilterHLT_names = cms.vstring('hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned')
+        
+    if not MC:
+        process.MiBiCommonNT.eleHLT_names      = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT','HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT15','HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20','HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25')
+        process.MiBiCommonNT.muHLT_names       = cms.vstring('HLT_IsoMu17','HLT_IsoMu24','HLT_IsoMu24_eta2p1','HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT15')
+        process.MiBiCommonNT.jetFilterHLT_names = cms.vstring('hltEle17CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle17CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned','hltEle22CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle22CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned','hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned','hltEle27WP80CentralDiPFJet25Cleaned','hltIsoMu172p1DiCentralPFJet25Filter')
     
     
     process.MiBiCommonNT.saveMCPU              = cms.untracked.bool (MC)
@@ -170,11 +155,10 @@ def makeMiBiCommonNT_noPAT(process, GlobalTag, HLT='HLT', MC=False, MCType='Othe
     process.MiBiCommonNTOneLeptonTwoJetsPFlow = process.MiBiCommonNT.clone()
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.MuTag         = cms.InputTag("selectedPatMuonsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.EleTag        = cms.InputTag("selectedPatElectronsPFlow")
-    #process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag        = cms.InputTag("selectedPatJetsPFlow")
-    process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag        = cms.InputTag("goodPatJetsPFlow")
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.JetTag        = cms.InputTag("selectedPatJetsPFlow")
     process.MiBiCommonNTOneLeptonTwoJetsPFlow.MetTag        = cms.InputTag("patMETsPFlow")
-    process.MiBiCommonNTOneLeptonTwoJetsPFlow.saveBS        = cms.untracked.bool(False)
-    process.MiBiCommonNTOneLeptonTwoJetsPFlow.saveRho       = cms.untracked.bool(False)
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.saveBS        = cms.untracked.bool(True)
+    process.MiBiCommonNTOneLeptonTwoJetsPFlow.saveRho       = cms.untracked.bool(True)
     
     
     
@@ -182,7 +166,7 @@ def makeMiBiCommonNT_noPAT(process, GlobalTag, HLT='HLT', MC=False, MCType='Othe
     
     
     # paths
-    #process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
+    process.MiBiPathAK5PF = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsAK5PFSeq*process.MiBiCommonNTOneLeptonTwoJetsAK5PF)
     process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)    
     
     #process.out.outputCommands = cms.untracked.vstring('keep *')
