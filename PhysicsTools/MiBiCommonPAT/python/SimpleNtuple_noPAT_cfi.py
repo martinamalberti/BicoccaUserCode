@@ -19,6 +19,10 @@ SimpleNtuple_noPAT = cms.EDAnalyzer(
     #### tracks ####
     TracksTag = cms.InputTag("generalTracks"),
 
+    #### SCs ####
+    EBSCTag = cms.InputTag ("correctedHybridSuperClusters") ,
+    EESCTag = cms.InputTag ("correctedMulti5x5SuperClustersWithPreshower") ,
+
     #### muons ####
     TauTag = cms.InputTag("patTaus"),
     
@@ -74,6 +78,7 @@ SimpleNtuple_noPAT = cms.EDAnalyzer(
     saveEleLessPV  = cms.untracked.bool (False), # default no revertex
     saveMuonLessPV = cms.untracked.bool (False), # default no revertex
     saveTrack      = cms.untracked.bool (False), # default no tracks
+    saveSC         = cms.untracked.bool (False), #default no superclusters
     saveTau        = cms.untracked.bool (False), # default no tau saved
     saveMu         = cms.untracked.bool (True),
     saveEle        = cms.untracked.bool (True),
