@@ -27,6 +27,9 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -91,6 +94,7 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   void fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
 
   void fillMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -139,6 +143,8 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   
   edm::InputTag EleTag_;
   edm::InputTag TracksTag_;
+  edm::InputTag EBSCTag_ ;
+  edm::InputTag EESCTag_ ;
   edm::InputTag EBRecHitCollectionTag_;
   edm::InputTag EERecHitCollectionTag_;
   std::vector<std::string> EleID_names_;
@@ -173,6 +179,7 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   bool saveEleLessPV_;
   bool saveMuonLessPV_;
   bool saveTrack_;
+  bool saveSC_ ;
   bool saveTau_ ;
   bool saveMu_ ;
   bool saveEle_ ;

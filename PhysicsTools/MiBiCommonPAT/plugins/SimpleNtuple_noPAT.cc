@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.2 2011/12/09 08:31:02 abenagli Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.3 2011/12/09 08:43:01 abenagli Exp $
 //
 //
 
@@ -66,6 +66,8 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
  TracksTag_      = iConfig.getParameter<edm::InputTag>("TracksTag");
+ EBSCTag_          = iConfig.getParameter<edm::InputTag>("EBSCTag");
+ EESCTag_          = iConfig.getParameter<edm::InputTag>("EESCTag");
 
  EleTag_      = iConfig.getParameter<edm::InputTag>("EleTag");
  EleID_names_ = iConfig.getParameter< std::vector<std::string> >("EleID_names");
@@ -100,6 +102,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  saveEleLessPV_ = iConfig.getUntrackedParameter<bool> ("saveEleLessPV", true);
  saveMuonLessPV_ = iConfig.getUntrackedParameter<bool> ("saveMuonLessPV", true);
  saveTrack_     = iConfig.getUntrackedParameter<bool> ("saveTrack", false);
+ saveSC_        = iConfig.getUntrackedParameter<bool> ("saveSC", false);
  saveEle_       = iConfig.getUntrackedParameter<bool> ("saveEle", true);
  saveTau_        = iConfig.getUntrackedParameter<bool> ("saveTau", true);
  saveMu_        = iConfig.getUntrackedParameter<bool> ("saveMu", true);
@@ -238,6 +241,13 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
      NtupleFactory_ -> AddInt  ("PVEleLessTracks_numberOfValidHits");
    }
  }
+
+ if (saveSC_)
+  {
+    NtupleFactory_ -> Add3PV ("SCPosition") ; 
+    NtupleFactory_ -> AddFloat ("SCEnergy") ; 
+    NtupleFactory_ -> AddInt ("isEB") ; 
+  }
 
  if(saveEle_)
  {
@@ -1445,6 +1455,34 @@ void SimpleNtuple_noPAT::fillTrackInfo(const edm::Event & iEvent, const edm::Eve
 }
 
 
+///---------------
+///--- SC info ---
+
+void
+SimpleNtuple_noPAT::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup)
+{
+  edm::Handle<reco::SuperClusterCollection> EBSCHandle;
+  iEvent.getByLabel(EBSCTag_,EBSCHandle);
+  for (unsigned int iSC = 0 ; iSC < EBSCHandle->size () ; ++iSC)
+    {
+      NtupleFactory_->Fill3PV ("SCPosition", EBSCHandle->at (iSC).position ()) ;
+      NtupleFactory_->FillFloat ("SCEnergy", EBSCHandle->at (iSC).energy ()) ;
+      NtupleFactory_->FillInt ("isEB", 1) ;
+    }
+
+  edm::Handle<reco::SuperClusterCollection> EESCHandle;
+  iEvent.getByLabel(EESCTag_,EESCHandle);
+  std::cerr << "PIETRO " << EESCHandle->size () << std::endl ;
+  for (unsigned int iSC = 0 ; iSC < EESCHandle->size () ; ++iSC)
+    {
+      NtupleFactory_->Fill3PV ("SCPosition", EESCHandle->at (iSC).position ()) ;
+      NtupleFactory_->FillFloat ("SCEnergy", EESCHandle->at (iSC).energy ()) ;
+      NtupleFactory_->FillInt ("isEB", 0) ;
+    }
+
+
+}
+
 
 ///---------------
 ///---- Taus ----
@@ -2518,6 +2556,9 @@ void SimpleNtuple_noPAT::analyze(const edm::Event& iEvent, const edm::EventSetup
 
  ///---- fill trackInfo ----
  if(saveTrack_) fillTrackInfo (iEvent, iSetup);
+ 
+ ///---- fill trackInfo ----
+ if(saveSC_) fillSCInfo (iEvent, iSetup);
  
  ///---- fill taus ----
  if (saveTau_) fillTauInfo (iEvent, iSetup);
