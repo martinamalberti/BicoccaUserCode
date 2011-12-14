@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.4 2011/12/13 18:08:30 govoni Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.5 2011/12/14 09:27:37 govoni Exp $
 //
 //
 
@@ -2405,8 +2405,8 @@ void SimpleNtuple_noPAT::fillMCPUInfo (const edm::Event & iEvent, const edm::Eve
     {
       NtupleFactory_->FillFloat("mc_PUit_TrueNumInteractions",PVI->getTrueNumInteractions());    
       NtupleFactory_->FillInt("mc_PUit_NumInteractions",PVI->getPU_NumInteractions());    
-      std::cout << "numTrue: " << PVI->getTrueNumInteractions() << std::endl;
-      std::cout << "num: "     << PVI->getPU_NumInteractions() << std::endl;
+      // std::cout << "numTrue: " << PVI->getTrueNumInteractions() << std::endl;
+      // std::cout << "num: "     << PVI->getPU_NumInteractions() << std::endl;
       
       for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
         NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
