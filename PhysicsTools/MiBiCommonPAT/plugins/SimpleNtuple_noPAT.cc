@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.3 2011/12/09 08:43:01 abenagli Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.4 2011/12/13 18:08:30 govoni Exp $
 //
 //
 
@@ -1472,7 +1472,6 @@ SimpleNtuple_noPAT::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup
 
   edm::Handle<reco::SuperClusterCollection> EESCHandle;
   iEvent.getByLabel(EESCTag_,EESCHandle);
-  std::cerr << "PIETRO " << EESCHandle->size () << std::endl ;
   for (unsigned int iSC = 0 ; iSC < EESCHandle->size () ; ++iSC)
     {
       NtupleFactory_->Fill3PV ("SCPosition", EESCHandle->at (iSC).position ()) ;
