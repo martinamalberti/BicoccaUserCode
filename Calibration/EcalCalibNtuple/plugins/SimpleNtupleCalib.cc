@@ -1012,7 +1012,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
 
 
    
-   float fCorr = fClusterCorrections(scRef->energy() + scRef->preshowerEnergy(), scRef->eta(),scRef->phiWidth()/scRef->etaWidth(),params)/(scRef->energy()+ scRef->preshowerEnergy());
+   float fCorr = fClusterCorrections(scRef->rawEnergy() + scRef->preshowerEnergy(), scRef->eta(),scRef->phiWidth()/scRef->etaWidth(),params)/(scRef->rawEnergy()+ scRef->preshowerEnergy());
    NtupleFactory_->FillFloat("electrons_sc_fCorrection",fCorr);
 
 
