@@ -75,7 +75,8 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_scERaw_PUcleaned",     &vars.ele1_scERaw_PUcleaned,         "ele1_scERaw_PUcleaned/F");
   vars.m_reducedTree -> Branch("ele1_scEtaWidth_PUcleaned", &vars.ele1_scEtaWidth_PUcleaned, "ele1_scEtaWidth_PUcleaned/F");
   vars.m_reducedTree -> Branch("ele1_scPhiWidth_PUcleaned", &vars.ele1_scPhiWidth_PUcleaned, "ele1_scPhiWidth_PUcleaned/F");
-  
+  vars.m_reducedTree -> Branch("ele1_fCorrection_PUcleaned",&vars.ele1_fCorrection_PUcleaned,"ele1_fCorrection_PUcleaned/F");
+
   vars.m_reducedTree -> Branch("ele1_e3x3", &vars.ele1_e3x3, "ele1_e3x3/F");
   vars.m_reducedTree -> Branch("ele1_e5x5", &vars.ele1_e5x5, "ele1_e5x5/F");
   
@@ -159,6 +160,8 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_scERaw_PUcleaned",     &vars.ele2_scERaw_PUcleaned,         "ele2_scERaw_PUcleaned/F");
   vars.m_reducedTree -> Branch("ele2_scEtaWidth_PUcleaned", &vars.ele2_scEtaWidth_PUcleaned, "ele2_scEtaWidth_PUcleaned/F");
   vars.m_reducedTree -> Branch("ele2_scPhiWidth_PUcleaned", &vars.ele2_scPhiWidth_PUcleaned, "ele2_scPhiWidth_PUcleaned/F");
+  vars.m_reducedTree -> Branch("ele2_fCorrection_PUcleaned",&vars.ele2_fCorrection_PUcleaned,"ele2_fCorrection_PUcleaned/F");
+
   
   vars.m_reducedTree -> Branch("ele2_e3x3", &vars.ele2_e3x3, "ele2_e3x3/F");
   vars.m_reducedTree -> Branch("ele2_e5x5", &vars.ele2_e5x5, "ele2_e5x5/F");
@@ -337,6 +340,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele1_scE = -99.;
   vars.ele1_es = -99.;
   vars.ele1_fCorrection = -1.;
+  vars.ele1_fCorrection_PUcleaned = -1.;
   vars.ele1_scE_regression = -99.;
   vars.ele1_scERaw_PUcleaned = -99.;
   vars.ele1_scEtaWidth_PUcleaned = -99.;
@@ -422,6 +426,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele2_scE = -99.;
   vars.ele2_es = -99.;
   vars.ele2_fCorrection = -1.;
+  vars.ele2_fCorrection_PUcleaned = -1.;
   vars.ele2_scE_regression = -99.;
   vars.ele2_scERaw_PUcleaned = -99.;
   vars.ele2_scEtaWidth_PUcleaned = -99.;
@@ -589,7 +594,8 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_scERaw_PUcleaned = reader.GetFloat("electrons_scERaw_PUcleaned")->at(ele1It);
   vars.ele1_scEtaWidth_PUcleaned = reader.GetFloat("electrons_scEtaWidth_PUcleaned")->at(ele1It);
   vars.ele1_scPhiWidth_PUcleaned = reader.GetFloat("electrons_scPhiWidth_PUcleaned")->at(ele1It);
-  
+  vars.ele1_fCorrection_PUcleaned = reader.GetFloat("electrons_sc_fCorrection_PUcleaned")->at(ele1It);
+
   vars.ele1_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele1It);
   vars.ele1_e5x5 = reader.GetFloat("electrons_e5x5")->at(ele1It);
 
@@ -700,6 +706,8 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_scERaw_PUcleaned = reader.GetFloat("electrons_scERaw_PUcleaned")->at(ele2It);
  vars.ele2_scEtaWidth_PUcleaned = reader.GetFloat("electrons_scEtaWidth_PUcleaned")->at(ele2It);
  vars.ele2_scPhiWidth_PUcleaned = reader.GetFloat("electrons_scPhiWidth_PUcleaned")->at(ele2It);
+ vars.ele2_fCorrection_PUcleaned = reader.GetFloat("electrons_sc_fCorrection_PUcleaned")->at(ele2It);
+
  
  vars.ele2_e3x3 = reader.GetFloat("electrons_e3x3")->at(ele2It);
  vars.ele2_e5x5 = reader.GetFloat("electrons_e5x5")->at(ele2It);
