@@ -112,6 +112,7 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   void fillProcessIdInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhotonsMotherInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
+  void fillPDFWeightsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   
   HLTConfigProvider hltConfig_;
   TTree* outTree_;
@@ -166,6 +167,8 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   
   edm::InputTag MCPileupTag_;
 
+  edm::InputTag PDFWeightsTag_ ;
+
   double ConeTh_ ;
   double ElePtTh_  ;
   double MuPtTh_  ;
@@ -199,6 +202,7 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   bool saveMCPU_;
   bool saveProcessId_ ;
   bool savePhotonsMother_ ;
+  bool savePDFWeights_ ;
 
   int eventType_; //---- 0 = signal    1 = background 
   bool verbosity_; //---- true = loquacious    false = silence  

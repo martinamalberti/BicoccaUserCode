@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.5 2011/12/14 09:27:37 govoni Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.6 2011/12/14 09:54:52 govoni Exp $
 //
 //
 
@@ -93,6 +93,8 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  ElePtTh_  = iConfig.getParameter<double>("ElectronPtCut");
  MuPtTh_  = iConfig.getParameter<double>("MuonPtCut");
 
+ PDFWeightsTag_ = iConfig.getParameter<edm::InputTag>("PDFWeightsTag") ;
+
  //---- flags ----
  dataFlag_      = iConfig.getUntrackedParameter<bool> ("dataFlag", true);
  saveHLT_       = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
@@ -119,6 +121,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  saveMCPU_              = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
  saveProcessId_         = iConfig.getUntrackedParameter<bool> ("saveProcessId", false);
  savePhotonsMother_     = iConfig.getUntrackedParameter<bool> ("savePhotonsMother", false);
+ savePDFWeights_        = iConfig.getUntrackedParameter<bool> ("savePDFWeights", false);
 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -710,6 +713,11 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
      NtupleFactory_->AddFloat("mcPhotonsMotherId");
      NtupleFactory_->AddFloat("mcPhotonsMotherStatus");
    }
+
+ if( savePDFWeights_ ) { 
+   NtupleFactory_->AddFloat ("PDFWeights") ; 
+ }
+
    
 }
 
@@ -2503,6 +2511,27 @@ void SimpleNtuple_noPAT::fillPhotonsMotherInfo (const edm::Event & iEvent, const
 }
 
 
+///---------------------
+///---- PDF Weights ----
+
+void 
+SimpleNtuple_noPAT::fillPDFWeightsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
+{
+//  std::cerr << "SimpleNtuple_noPAT::fillPDFWeightsInfo::begin" << std::endl;
+  
+  edm::Handle<std::vector<double> > weightHandle ;
+  iEvent.getByType (weightHandle) ;
+  
+  for (unsigned int iWeight = 0 ; iWeight < weightHandle->size () ; ++iWeight) 
+    {
+      NtupleFactory_->FillFloat ("PDFWeights", weightHandle->at (iWeight)) ;
+    }
+
+//  std::cerr << "SimpleNtuple_noPAT::fillPDFWeightsInfo::end" << std::endl;
+}
+
+
+
 // ------------ method called to for each event  ------------
 void SimpleNtuple_noPAT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -2595,6 +2624,8 @@ void SimpleNtuple_noPAT::analyze(const edm::Event& iEvent, const edm::EventSetup
  if (saveProcessId_) fillProcessIdInfo (iEvent, iSetup);
  if (savePhotonsMother_) fillPhotonsMotherInfo (iEvent, iSetup);
 
+ ///---- fill PDFWeights info ----
+ if (savePDFWeights_) fillPDFWeightsInfo (iEvent, iSetup) ;
  
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
