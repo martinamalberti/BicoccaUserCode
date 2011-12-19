@@ -121,12 +121,17 @@ def makeMiBiCommonNT_noPAT(process, GlobalTag, HLT='HLT', MC=False, MCType='Othe
     
     if MC:
         process.MiBiCommonNT.eleHLT_names       = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20')
-        process.MiBiCommonNT.muHLT_names        = cms.vstring('HLT_IsoMu24','HLT_Mu40')
+        process.MiBiCommonNT.muHLT_names        = cms.vstring('HLT_IsoMu24','HLT_IsoMu24_eta2p1','HLT_Mu40')
+        process.MiBiCommonNT.eleFilterHLT_names = cms.vstring('')
+        process.MiBiCommonNT.muFilterHLT_names  = cms.vstring('hltSingleMuL2QualIsoL3IsoFiltered24','hltL3IsoL1sMu14Eta2p1L1f0L2f14QL2IsoL3f24L3IsoFiltered','hltSingleMu40L2QualL3Filtered40')
         process.MiBiCommonNT.jetFilterHLT_names = cms.vstring('hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned')
         
     if not MC:
         process.MiBiCommonNT.eleHLT_names      = cms.vstring('HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT','HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT15','HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20','HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25')
-        process.MiBiCommonNT.muHLT_names       = cms.vstring('HLT_IsoMu17','HLT_IsoMu24','HLT_IsoMu24_eta2p1','HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT15')
+        process.MiBiCommonNT.muHLT_names       = cms.vstring('HLT_IsoMu24','HLT_IsoMu24_eta2p1','HLT_Mu40')
+
+        process.MiBiCommonNT.eleFilterHLT_names = cms.vstring()
+        process.MiBiCommonNT.muFilterHLT_names  = cms.vstring('hltSingleMuL2QualIsoL3IsoFiltered24','hltL3IsoL1sMu14Eta2p1L1f0L2f14QL2IsoL3f24L3IsoFiltered','hltSingleMu40L2QualL3Filtered40')        
         process.MiBiCommonNT.jetFilterHLT_names = cms.vstring('hltEle17CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle17CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned','hltEle22CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle22CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned','hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralDiJet25Cleaned','hltEle27CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralJet30Cleaned','hltEle27WP80CentralDiPFJet25Cleaned','hltIsoMu172p1DiCentralPFJet25Filter')
     
     

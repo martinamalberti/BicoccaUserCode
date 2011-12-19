@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.6 2011/12/14 09:54:52 govoni Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.4 2011/12/13 18:08:30 govoni Exp $
 //
 //
 
@@ -60,8 +60,10 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
  
  PatTriggerEventTag_ = iConfig.getParameter<edm::InputTag>("PatTriggerEventTag");
- eleHLT_names_       = iConfig.getParameter< std::vector<std::string> >("eleHLT_names");
- muHLT_names_        = iConfig.getParameter< std::vector<std::string> >("muHLT_names");
+ eleHLT_names_ = iConfig.getParameter< std::vector<std::string> >("eleHLT_names");
+ muHLT_names_  = iConfig.getParameter< std::vector<std::string> >("muHLT_names");
+ eleFilterHLT_names_ = iConfig.getParameter< std::vector<std::string> >("eleFilterHLT_names");
+ muFilterHLT_names_  = iConfig.getParameter< std::vector<std::string> >("muFilterHLT_names");
  jetFilterHLT_names_ = iConfig.getParameter< std::vector<std::string> >("jetFilterHLT_names");
  
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
@@ -93,8 +95,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  ElePtTh_  = iConfig.getParameter<double>("ElectronPtCut");
  MuPtTh_  = iConfig.getParameter<double>("MuonPtCut");
 
- PDFWeightsTag_ = iConfig.getParameter<edm::InputTag>("PDFWeightsTag") ;
-
  //---- flags ----
  dataFlag_      = iConfig.getUntrackedParameter<bool> ("dataFlag", true);
  saveHLT_       = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
@@ -121,7 +121,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  saveMCPU_              = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
  saveProcessId_         = iConfig.getUntrackedParameter<bool> ("saveProcessId", false);
  savePhotonsMother_     = iConfig.getUntrackedParameter<bool> ("savePhotonsMother", false);
- savePDFWeights_        = iConfig.getUntrackedParameter<bool> ("savePDFWeights", false);
 
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -713,11 +712,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
      NtupleFactory_->AddFloat("mcPhotonsMotherId");
      NtupleFactory_->AddFloat("mcPhotonsMotherStatus");
    }
-
- if( savePDFWeights_ ) { 
-   NtupleFactory_->AddFloat ("PDFWeights") ; 
- }
-
    
 }
 
@@ -813,12 +807,9 @@ void SimpleNtuple_noPAT::fillHLTInfo (const edm::Event & iEvent, const edm::Even
     
     int thePassWord = 0;
     int exp = 0;
-    for(std::vector<std::string>::const_iterator ipath = eleHLT_names_.begin(); ipath != eleHLT_names_.end(); ++ipath)
+    for(std::vector<std::string>::const_iterator ifilter = eleFilterHLT_names_.begin(); ifilter != eleFilterHLT_names_.end(); ++ifilter)
     {
-      bool isMatched = 0;
-      // Make the OR of different HLT versions
-      for(int ivers = 0; ivers < nHLTversions; ++ivers)
-	isMatched += patTriggerEventHandle->objectInPath( objRef, *ipath + "_" + theVersioning[ivers] );
+      bool isMatched = patTriggerEventHandle->objectInFilter( objRef, *ifilter );
       thePassWord += (int) isMatched * pow(2, exp);
       ++exp;
     }
@@ -841,15 +832,9 @@ void SimpleNtuple_noPAT::fillHLTInfo (const edm::Event & iEvent, const edm::Even
     
     int thePassWord = 0;
     int exp = 0;
-    for( std::vector<std::string>::const_iterator ipath = muHLT_names_.begin(); ipath != muHLT_names_.end(); ipath++ )
+    for(std::vector<std::string>::const_iterator ifilter = muFilterHLT_names_.begin(); ifilter != muFilterHLT_names_.end(); ++ifilter)
     {
-      bool isMatched = 0;
-      // Make the OR of different HLT versions
-      for(int ivers = 0; ivers < nHLTversions; ++ivers)
-      {
-        isMatched += patTriggerEventHandle->objectInPath( objRef, *ipath + "_" + theVersioning[ivers] );
-	//std::cout << *ipath + "_" + theVersioning[ivers] << "   isMatched: " << isMatched << std::endl;
-      }
+      bool isMatched = patTriggerEventHandle->objectInFilter( objRef, *ifilter );
       thePassWord += (int) isMatched * pow(2, exp);
       ++exp;
     }
@@ -1480,6 +1465,7 @@ SimpleNtuple_noPAT::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup
 
   edm::Handle<reco::SuperClusterCollection> EESCHandle;
   iEvent.getByLabel(EESCTag_,EESCHandle);
+  std::cerr << "PIETRO " << EESCHandle->size () << std::endl ;
   for (unsigned int iSC = 0 ; iSC < EESCHandle->size () ; ++iSC)
     {
       NtupleFactory_->Fill3PV ("SCPosition", EESCHandle->at (iSC).position ()) ;
@@ -2413,8 +2399,8 @@ void SimpleNtuple_noPAT::fillMCPUInfo (const edm::Event & iEvent, const edm::Eve
     {
       NtupleFactory_->FillFloat("mc_PUit_TrueNumInteractions",PVI->getTrueNumInteractions());    
       NtupleFactory_->FillInt("mc_PUit_NumInteractions",PVI->getPU_NumInteractions());    
-      // std::cout << "numTrue: " << PVI->getTrueNumInteractions() << std::endl;
-      // std::cout << "num: "     << PVI->getPU_NumInteractions() << std::endl;
+      //std::cout << "numTrue: " << PVI->getTrueNumInteractions() << std::endl;
+      //std::cout << "num: "     << PVI->getPU_NumInteractions() << std::endl;
       
       for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
         NtupleFactory_->FillFloat("mc_PUit_zpositions",*it);
@@ -2511,27 +2497,6 @@ void SimpleNtuple_noPAT::fillPhotonsMotherInfo (const edm::Event & iEvent, const
 }
 
 
-///---------------------
-///---- PDF Weights ----
-
-void 
-SimpleNtuple_noPAT::fillPDFWeightsInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) 
-{
-//  std::cerr << "SimpleNtuple_noPAT::fillPDFWeightsInfo::begin" << std::endl;
-  
-  edm::Handle<std::vector<double> > weightHandle ;
-  iEvent.getByType (weightHandle) ;
-  
-  for (unsigned int iWeight = 0 ; iWeight < weightHandle->size () ; ++iWeight) 
-    {
-      NtupleFactory_->FillFloat ("PDFWeights", weightHandle->at (iWeight)) ;
-    }
-
-//  std::cerr << "SimpleNtuple_noPAT::fillPDFWeightsInfo::end" << std::endl;
-}
-
-
-
 // ------------ method called to for each event  ------------
 void SimpleNtuple_noPAT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -2624,8 +2589,6 @@ void SimpleNtuple_noPAT::analyze(const edm::Event& iEvent, const edm::EventSetup
  if (saveProcessId_) fillProcessIdInfo (iEvent, iSetup);
  if (savePhotonsMother_) fillPhotonsMotherInfo (iEvent, iSetup);
 
- ///---- fill PDFWeights info ----
- if (savePDFWeights_) fillPDFWeightsInfo (iEvent, iSetup) ;
  
  ///---- save the entry of the tree ----
  NtupleFactory_->FillNtuple();
