@@ -233,6 +233,18 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
  vars.m_reducedTree -> Branch("ele2_DR", &vars.ele2_DR, "ele2_DR/F");
  
  
+ // met variables
+ //vars.m_reducedTree -> Branch("met", "ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >", &vars.p_met);
+ vars.m_reducedTree -> Branch("met_et",  &vars.met_et,   "met_et/F");
+ vars.m_reducedTree -> Branch("met_phi", &vars.met_phi, "met_phi/F");
+  
+ vars.m_reducedTree -> Branch("ele1Met_mt",   &vars.ele1Met_mt,      "lepMet_mt/F");
+ vars.m_reducedTree -> Branch("ele1Met_Dphi", &vars.ele1Met_Dphi, "ele1Met_Dphi/F");
+  
+  
+ // di-electron variables
+ vars.m_reducedTree -> Branch("ele1ele2_m",   &vars.ele1ele2_m,     "ele1ele2_m/F");
+ vars.m_reducedTree -> Branch("ele1ele2_scM", &vars.ele1ele2_scM, "ele1ele2_scM/F");
 }
 
 
