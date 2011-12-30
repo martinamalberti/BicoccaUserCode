@@ -168,7 +168,7 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   edm::InputTag MCtruthTag_;
   
   edm::InputTag MCPileupTag_;
-  edm::InputTag PDFWeightsTag_ ;
+  std::vector<edm::InputTag> PDFWeightsTag_ ;
 
   double ConeTh_ ;
   double ElePtTh_  ;

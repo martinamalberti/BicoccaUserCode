@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.8 2011/12/19 16:20:13 abenagli Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.9 2011/12/21 15:46:53 govoni Exp $
 //
 //
 
@@ -94,8 +94,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  ConeTh_  = iConfig.getParameter<double>("MatchingConeTreshold");
  ElePtTh_  = iConfig.getParameter<double>("ElectronPtCut");
  MuPtTh_  = iConfig.getParameter<double>("MuonPtCut");
- PDFWeightsTag_ = iConfig.getParameter<edm::InputTag>("PDFWeightsTag") ;
-
+ PDFWeightsTag_ = iConfig.getParameter<std::vector<edm::InputTag> >("PDFWeightsTag") ;
 
  //---- flags ----
  dataFlag_      = iConfig.getUntrackedParameter<bool> ("dataFlag", true);
@@ -717,7 +716,11 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    }
 
  if( savePDFWeights_ ) { 
-   NtupleFactory_->AddFloat ("PDFWeights") ; 
+   for (unsigned int i = 0 ; i < PDFWeightsTag_.size () ; ++i)
+     {
+       std::string name = PDFWeightsTag_.at (i).instance () + PDFWeightsTag_.at (i).label () ;
+       NtupleFactory_->AddFloat (name.c_str ()) ;
+     } 
  }
 
    
@@ -2512,12 +2515,15 @@ SimpleNtuple_noPAT::fillPDFWeightsInfo (const edm::Event & iEvent, const edm::Ev
 {
 //  std::cerr << "SimpleNtuple_noPAT::fillPDFWeightsInfo::begin" << std::endl;
   
-  edm::Handle<std::vector<double> > weightHandle ;
-  iEvent.getByType (weightHandle) ;
-  
-  for (unsigned int iWeight = 0 ; iWeight < weightHandle->size () ; ++iWeight) 
+  for (unsigned int i = 0 ; i < PDFWeightsTag_.size () ; ++i)
     {
-      NtupleFactory_->FillFloat ("PDFWeights", weightHandle->at (iWeight)) ;
+      edm::Handle<std::vector<double> > weightHandle ;
+      iEvent.getByLabel (PDFWeightsTag_.at (i), weightHandle) ;
+      std::string name = PDFWeightsTag_.at (i).instance () + PDFWeightsTag_.at (i).label () ;
+      for (unsigned int iWeight = 0 ; iWeight < weightHandle->size () ; ++iWeight)
+	{
+	  NtupleFactory_->FillFloat (name.c_str (), weightHandle->at (iWeight)) ;
+	}
     }
 
 //  std::cerr << "SimpleNtuple_noPAT::fillPDFWeightsInfo::end" << std::endl;

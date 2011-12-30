@@ -68,7 +68,12 @@ SimpleNtuple_noPAT = cms.EDAnalyzer(
     MuonPtCut        = cms.double(8.0),     
 
 
-    PDFWeightsTag = cms.InputTag ("pdfWeights:CT10") ,
+#    PDFWeightsTag = cms.InputTag ("pdfWeights:CT10") ,
+    PDFWeightsTag = cms.VInputTag(
+         cms.InputTag("pdfWeights:CT10"),
+         cms.InputTag("pdfWeights:MSTW2008nlo68cl"),
+         cms.InputTag("pdfWeights:NNPDF20"),
+       ),
 
     
     #--------------
