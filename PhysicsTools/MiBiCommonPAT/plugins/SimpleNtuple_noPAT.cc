@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.9 2011/12/21 15:46:53 govoni Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.10 2011/12/30 13:32:53 govoni Exp $
 //
 //
 
@@ -559,6 +559,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  ///==== Gen level ====  
  if(saveMCPtHat_)
  {
+   NtupleFactory_->AddFloat("mc_NUP");
    NtupleFactory_->AddFloat("mc_ptHat");
    NtupleFactory_->AddFloat("mc_weight");
  }
@@ -2219,11 +2220,18 @@ void SimpleNtuple_noPAT::fillMCPtHatInfo (const edm::Event & iEvent, const edm::
 {
   //std::cout << "SimpleNtuple_noPAT::fillPtHatInfo::begin" << std::endl; 
   
+  edm::Handle<LHEEventProduct> LHEEventHandle;
+  iEvent.getByLabel("source",LHEEventHandle);
+  int NUP = 0.;
+  if( !LHEEventHandle.failedToGet() )
+    int NUP = LHEEventHandle->hepeup().NUP;
+
   edm::Handle< GenEventInfoProduct > GenInfoHandle;
   iEvent.getByLabel( "generator", GenInfoHandle );
   float ptHat = ( GenInfoHandle->hasBinningValues() ? (GenInfoHandle->binningValues())[0] : 0.0);
   float weight = GenInfoHandle -> weight();
-  
+
+  NtupleFactory_->FillFloat("mc_NUP", NUP);
   NtupleFactory_->FillFloat("mc_ptHat", ptHat);
   NtupleFactory_->FillFloat("mc_weight", weight);
   

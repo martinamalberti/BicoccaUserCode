@@ -66,14 +66,16 @@ SimpleNtuple_noPAT = cms.EDAnalyzer(
     MatchingConeTreshold = cms.double(0.05),
     ElectronPtCut        = cms.double(8.0),     
     MuonPtCut        = cms.double(8.0),     
+    
 
-
-#    PDFWeightsTag = cms.InputTag ("pdfWeights:CT10") ,
+    ### PDF ### 
+    #PDFWeightsTag = cms.InputTag ("pdfWeights:CT10"),
     PDFWeightsTag = cms.VInputTag(
          cms.InputTag("pdfWeights:CT10"),
          cms.InputTag("pdfWeights:MSTW2008nlo68cl"),
          cms.InputTag("pdfWeights:NNPDF20"),
        ),
+    
 
     
     #--------------
@@ -106,11 +108,10 @@ SimpleNtuple_noPAT = cms.EDAnalyzer(
     saveGenJet            = cms.untracked.bool (False),
     saveProcessId         = cms.untracked.bool (False),
     savePhotonsMother     = cms.untracked.bool (False),
+    savePDFWeights        = cms.untracked.bool (False), #default no 
     
-    savePDFWeights  = cms.untracked.bool (False), #default no 
-   
-
-   
+    
+    
     verbosity = cms.untracked.bool(False),
     eventType = cms.untracked.int32(0) 
 )
