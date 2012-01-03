@@ -1,4 +1,4 @@
-all
+ECAL
 EB
 EE
 EB+

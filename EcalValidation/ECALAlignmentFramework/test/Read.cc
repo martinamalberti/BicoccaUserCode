@@ -89,3 +89,32 @@ int ReadFileVar(std::string VarFile, std::vector<double>& vMin, std::vector<doub
  }
  return vVarName.size();
 }
+
+
+
+///==== read list of samples with PU scenarios ====
+
+int ReadFileWeight(char nameFile[1000],char* nameSample[1000], int PUScenarioIndex[1000]){
+ int numberOfSamples = 0;
+ std::ifstream inFile(nameFile);
+ std::string buffer; 
+ while(!inFile.eof()){
+  getline(inFile,buffer);
+  if (buffer != ""){ ///---> save from empty line at the end!
+   if (buffer.at(0) != '#'){ 
+    std::stringstream line( buffer );       
+    nameSample[numberOfSamples] = new char [10000];
+    line >> nameSample[numberOfSamples]; 
+    std::cout << nameSample[numberOfSamples] << " ";
+    
+    line >> PUScenarioIndex[numberOfSamples]; 
+    std::cout << PUScenarioIndex[numberOfSamples] << " ";
+    
+    std::cout << std::endl;
+    numberOfSamples++;
+   } 
+  }
+ }
+ 
+ return numberOfSamples;
+}
