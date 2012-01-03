@@ -1,5 +1,15 @@
 ///==== ECAL Alignment framework ====
 
+///==== to install ====
+Code:
+http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/Bicocca/EcalValidation/ECALAlignmentFramework/
+
+export CVS_RSH=ssh
+export CVSROOT=:ext:amassiro@cmscvs.cern.ch:/cvs_server/repositories/CMSSW
+cvs co -d ECALAlignmentFramework UserCode/Bicocca/EcalValidation/ECALAlignmentFramework
+
+
+///==== what there is inside ====
 
 1) PU : MC studies on dependence on PU of Deta and Dphi
 
@@ -49,10 +59,18 @@ r00t test/draw.cxx\(\"out_talk.root\",\"After\",\"After\"\)
 ///==== analyse difference between Data and MC for a given "run" ====
 r00t test/draw_evolution.cxx\(\"test/list.txt\",\"evolution\"\)
     void draw_evolution(TString nameInFileList, TString nameOutputDir)
+
+    
+///==== analyse difference between Data and MC for each module ====    
+See 
+    test/Modules/README
     
     
     
-    
+///==== plot for note ====     
+./bin/MCDATAComparisonPLOTTool.exe test/testMCDATAComparisonPLOTTool_forNote.cfg 
+
+r00t test/DrawForNote.cxx
 
     
     
