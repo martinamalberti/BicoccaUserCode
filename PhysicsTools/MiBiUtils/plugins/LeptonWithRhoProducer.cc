@@ -35,7 +35,7 @@ LeptonWithRhoProducer<object>::produce (edm::Event & iEvent, const edm::EventSet
   //const obejct * leptons = leptonsHandle.product () ;
 
   edm::Handle<double> rhoForJetsPFlow ;
-  iEvent.getByLabel ("kt6PFJetsChsPFlow", "rho", rhoForJetsPFlow) ;
+//  iEvent.getByLabel ("kt6PFJetsChsPFlow", "rho", rhoForJetsPFlow) ;
   iEvent.getByLabel (rhoTag_, rhoForJetsPFlow) ;
 
   double rho = *rhoForJetsPFlow.product () ;
