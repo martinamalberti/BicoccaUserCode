@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+#process.MessageLogger.cerr.threshold = ''
+#process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring(
@@ -11,10 +14,26 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )    
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
-process.EleWithRhoProducer = cms.EDProducer("ElectronWithRhoProducer",
+process.EleWithRho = cms.EDProducer("ElectronWithRhoProducer",
   leptonTag = cms.InputTag ("selectedPatElectronsPFlow") ,
   rhoTag = cms.InputTag ("kt6PFJetsForIsolation:rho:PAT") 
   )
 
-process.p = cms.Path (process.EleWithRhoProducer)
+process.MuWithRho = cms.EDProducer("MuonWithRhoProducer",
+  leptonTag = cms.InputTag ("selectedPatMuonsPFlow") ,
+  rhoTag = cms.InputTag ("kt6PFJetsForIsolation:rho:PAT")
+  )
+
+process.out = cms.OutputModule("PoolOutputModule", 
+       fileName = cms.untracked.string("testLeptonWithRhoProducer.root"),
+       outputCommands = cms.untracked.vstring(
+          'drop *', 
+          'keep *_EleWithRho_*_*', 
+          'keep *_MuWithRho_*_*'
+        )
+    )
+
+process.p = cms.Path (process.EleWithRho + process.MuWithRho)
+process.outpath = cms.EndPath(process.out)
+
 
