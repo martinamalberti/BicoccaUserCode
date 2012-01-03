@@ -30,23 +30,23 @@ void
 LeptonWithRhoProducer<object>::produce (edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
 
-  edm::Handle<object> leptonsHandle ;
+  Handle<vector<object> > leptonsHandle ;
   iEvent.getByLabel(leptonTag_, leptonsHandle) ;
-  const obejct * leptons = leptonsHandle.product () ;
+  //const obejct * leptons = leptonsHandle.product () ;
 
   edm::Handle<double> rhoForJetsPFlow ;
   iEvent.getByLabel ("kt6PFJetsChsPFlow", "rho", rhoForJetsPFlow) ;
   iEvent.getByLabel (rhoTag_, rhoForJetsPFlow) ;
 
-  double rho = rhoForJetsPFlow.product () ;
+  double rho = *rhoForJetsPFlow.product () ;
 
-  auto_ptr<object> outputCollection ( new vector<object> () ) ;
+  auto_ptr<vector<object> > outputCollection ( new vector<object> () ) ;
 
   for (unsigned int i = 0; i < leptonsHandle->size () ; ++i)
     {
       object aLepton (leptonsHandle->at (i)) ;
       aLepton.addUserFloat ("rho", rho) ;
-      outputCollection->push_back (aElectron) ;
+      outputCollection->push_back (aLepton) ;
     }
 
   iEvent.put (outputCollection) ;
