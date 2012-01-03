@@ -9,17 +9,9 @@ add the PU rho to pat:Electron or pat::Muon collection, to be usable in the EleI
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DataFormats/VertexReco/interface/Vertex.h"
-//#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
-//#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
-//#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-//#include "DataFormats/PatCandidates/interface/Isolation.h"
-
 
 template<class object>
 class LeptonWithRhoProducer : public edm::EDProducer
