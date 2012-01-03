@@ -7,6 +7,7 @@ PUclass::PUclass(){};
 PUclass::~PUclass(){};
 
 double PUclass::getPUWeight(int it){
+ if (it > (PUWeight.size()-1)) return PUWeight.at(PUWeight.size()-1);
  return PUWeight.at(it);
 };
 
