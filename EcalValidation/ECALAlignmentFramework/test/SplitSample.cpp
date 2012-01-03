@@ -71,8 +71,7 @@ int main(int argc, char** argv)
  
  
  //Check if all nedeed arguments to parse are there                                                                                                                               
- if(argc != 2)
- {
+ if(argc != 2) {
   std::cerr << ">>>>> analysis.cpp::usage: " << argv[0] << " configFileName" << std::endl ;
   return 1;
  }
@@ -86,6 +85,17 @@ int main(int argc, char** argv)
 
  int numEventsPerSample = gConfigParser -> readIntOption("Options::numEventsPerSample");
 
+ ///==== dumpAll flag (begin) ==== 
+ bool  dumpAll = false; 
+ try {
+  dumpAll = gConfigParser -> readBoolOption("Options::dumpAll");
+ }
+ catch (char const* exceptionString){
+  std::cerr << " exception = " << exceptionString << std::endl;
+ }
+ std::cout << ">>>>> Options::dumpAll  " << dumpAll  << std::endl;  
+ ///==== dumpAll flag (end) ==== 
+ 
  TTree *treeJetLepVect; 
  
  std::string CutFile = gConfigParser -> readStringOption("Selections::CutFile"); 
@@ -117,11 +127,16 @@ int main(int argc, char** argv)
   
  int totNumEvents = treeJetLepVect->GetEntries(vCut.at(0).c_str());
  int numOutputFiles = totNumEvents / numEventsPerSample;
+ 
+ std::cout << " totNumEvents = " <<  treeJetLepVect->GetEntries(vCut.at(0).c_str()) << std::endl;
+ 
+ if (dumpAll) numOutputFiles = 1;
+ 
  std::cout << " numOutputFiles = " << numOutputFiles << std::endl;
  
  treeJetLepVect->SetEntryList(0); 
  treeJetLepVect->Draw(">> myList",vCut.at(0).c_str(),"entrylist");
- TEntryList *myList = (TEntryList*)gDirectory->Get("myList");
+ TEntryList *myList = (TEntryList*) gDirectory->Get("myList");
  treeJetLepVect->SetEntryList(myList); 
  
  std::cout << " tot = " << myList->GetN() << " = " << totNumEvents << " =? " << treeJetLepVect -> GetEntries () << std::endl;
@@ -146,7 +161,7 @@ int main(int argc, char** argv)
    countiEntry++;
    treeJetLepVect -> GetEntry (myList->Next());
    cloneTree -> Fill () ;
-   if (countiEntry > numEventsPerSample) break;
+   if (!dumpAll && countiEntry > numEventsPerSample) break;
   }
   cloneTree -> AutoSave () ;
 
