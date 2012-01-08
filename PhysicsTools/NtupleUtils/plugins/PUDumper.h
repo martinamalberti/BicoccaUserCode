@@ -44,9 +44,10 @@ class PUDumper : public edm::EDAnalyzer
   edm::InputTag MCPileupTag_;
   bool mcFlag_;
   
-  TH1F* h_nPU;
+  TH1F* h_nPUtrue;
   TH1F* h_nPUit;
-  TH1F* h_nPUoot;
+  TH1F* h_nPUoot_early;
+  TH1F* h_nPUoot_late;
   
 };
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.10 2011/12/30 13:32:53 govoni Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.11 2012/01/02 10:12:45 abenagli Exp $
 //
 //
 
@@ -102,8 +102,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  saveBS_        = iConfig.getUntrackedParameter<bool> ("saveBS", true);
  savePV_        = iConfig.getUntrackedParameter<bool> ("savePV", true);
  saveRho_       = iConfig.getUntrackedParameter<bool> ("saveRho", true);
- saveEleLessPV_ = iConfig.getUntrackedParameter<bool> ("saveEleLessPV", true);
- saveMuonLessPV_ = iConfig.getUntrackedParameter<bool> ("saveMuonLessPV", true);
  saveTrack_     = iConfig.getUntrackedParameter<bool> ("saveTrack", false);
  saveSC_        = iConfig.getUntrackedParameter<bool> ("saveSC", false);
  saveEle_       = iConfig.getUntrackedParameter<bool> ("saveEle", true);
@@ -187,28 +185,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("rho_jetsPFlow"); 
  }
  
- if(saveEleLessPV_)
- {
-   NtupleFactory_ -> AddFloat("PV_noEle_normalizedChi2"); 
-   NtupleFactory_ -> AddInt  ("PV_noEle_ndof"); 
-   NtupleFactory_ -> AddInt  ("PV_noEle_nTracks"); 
-   NtupleFactory_ -> AddFloat("PV_noEle_z"); 
-   NtupleFactory_ -> AddFloat("PV_noEle_d0"); 
-   NtupleFactory_ -> AddFloat("PV_noEle_SumPt"); 
-   NtupleFactory_ -> AddFloat("PV_noEle_SumPt2"); 
- }
-
- if(saveMuonLessPV_)
- {
-   NtupleFactory_ -> AddFloat("PV_noMuon_normalizedChi2"); 
-   NtupleFactory_ -> AddInt  ("PV_noMuon_ndof"); 
-   NtupleFactory_ -> AddInt  ("PV_noMuon_nTracks"); 
-   NtupleFactory_ -> AddFloat("PV_noMuon_z"); 
-   NtupleFactory_ -> AddFloat("PV_noMuon_d0"); 
-   NtupleFactory_ -> AddFloat("PV_noMuon_SumPt"); 
-   NtupleFactory_ -> AddFloat("PV_noMuon_SumPt2"); 
- }
-
  if(saveTrack_)
  {
    NtupleFactory_ -> AddInt  ("tracks_PVindex");
@@ -229,30 +205,15 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> Add3V   ("PVtracks");
    NtupleFactory_ -> AddFloat("PVtracks_normalizedChi2");
    NtupleFactory_ -> AddInt  ("PVtracks_numberOfValidHits");
-
-   if ( saveMuonLessPV_ ){
-     NtupleFactory_ -> AddFloat  ("PVMuonLessTracks_sumPt");
-     NtupleFactory_ -> AddInt  ("PVMuonLessTracks_PVindex");
-     NtupleFactory_ -> Add3V   ("PVMuonLessTracks");
-     NtupleFactory_ -> AddFloat("PVMuonLessTracks_normalizedChi2");
-     NtupleFactory_ -> AddInt  ("PVMuonLessTracks_numberOfValidHits");
-   }
-   if ( saveEleLessPV_ ){
-     NtupleFactory_ -> AddFloat  ("PVEleLessTracks_sumPt");
-     NtupleFactory_ -> AddInt  ("PVEleLessTracks_PVindex");
-     NtupleFactory_ -> Add3V   ("PVEleLessTracks");
-     NtupleFactory_ -> AddFloat("PVEleLessTracks_normalizedChi2");
-     NtupleFactory_ -> AddInt  ("PVEleLessTracks_numberOfValidHits");
-   }
+ } 
+ 
+ if(saveSC_)
+ {
+   NtupleFactory_ -> Add3PV  ("SCPosition");
+   NtupleFactory_ -> AddFloat("SCEnergy");
+   NtupleFactory_ -> AddInt  ("isEB");
  }
-
- if (saveSC_)
-  {
-    NtupleFactory_ -> Add3PV ("SCPosition") ; 
-    NtupleFactory_ -> AddFloat ("SCEnergy") ; 
-    NtupleFactory_ -> AddInt ("isEB") ; 
-  }
-
+ 
  if(saveEle_)
  {
    NtupleFactory_ -> Add4V   ("electrons");
@@ -267,12 +228,12 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_likelihood");
    
    // resolution variables
-   NtupleFactory_ -> AddFloat("electrons_resolP");
-   NtupleFactory_ -> AddFloat("electrons_resolPt");
-   NtupleFactory_ -> AddFloat("electrons_resolE");
-   NtupleFactory_ -> AddFloat("electrons_resolEt");
-   NtupleFactory_ -> AddFloat("electrons_resolEta");
-   NtupleFactory_ -> AddFloat("electrons_resolPhi");
+   //NtupleFactory_ -> AddFloat("electrons_resolP");
+   //NtupleFactory_ -> AddFloat("electrons_resolPt");
+   //NtupleFactory_ -> AddFloat("electrons_resolE");
+   //NtupleFactory_ -> AddFloat("electrons_resolEt");
+   //NtupleFactory_ -> AddFloat("electrons_resolEta");
+   //NtupleFactory_ -> AddFloat("electrons_resolPhi");
    
    // track variables
    NtupleFactory_ -> AddFloat("electrons_z");
@@ -280,8 +241,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_edB");
    NtupleFactory_ -> AddFloat("electrons_dxy_BS");
    NtupleFactory_ -> AddFloat("electrons_dz_BS");
-   NtupleFactory_ -> AddFloat("electrons_dxy_PV");
-   NtupleFactory_ -> AddFloat("electrons_edxy_PV");
    NtupleFactory_ -> AddFloat("electrons_dz_PV");
    NtupleFactory_ -> Add3V   ("electrons_p_atVtx");
    NtupleFactory_ -> Add3V   ("electrons_p_out");
@@ -289,11 +248,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("electrons_pin");
    NtupleFactory_ -> AddFloat("electrons_pout");
    NtupleFactory_ -> AddFloat("electrons_pcalo");
-   
-   if( saveEleLessPV_ ){	 
-     NtupleFactory_ -> AddFloat("electrons_dxy_PV_noEle");	 
-     NtupleFactory_ -> AddFloat("electrons_dz_PV_noEle");	 
-   }
    
    // supercluster variables 
    NtupleFactory_ -> Add3PV  ("electrons_positionSC");
@@ -392,12 +346,12 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("muons_chargedHadronIsoPU");
    
    // resolution variables
-   NtupleFactory_ -> AddFloat("muons_resolP");
-   NtupleFactory_ -> AddFloat("muons_resolPt");
-   NtupleFactory_ -> AddFloat("muons_resolE");
-   NtupleFactory_ -> AddFloat("muons_resolEt");
-   NtupleFactory_ -> AddFloat("muons_resolEta");
-   NtupleFactory_ -> AddFloat("muons_resolPhi");
+   //NtupleFactory_ -> AddFloat("muons_resolP");
+   //NtupleFactory_ -> AddFloat("muons_resolPt");
+   //NtupleFactory_ -> AddFloat("muons_resolE");
+   //NtupleFactory_ -> AddFloat("muons_resolEt");
+   //NtupleFactory_ -> AddFloat("muons_resolEta");
+   //NtupleFactory_ -> AddFloat("muons_resolPhi");
    
    // track variables
    NtupleFactory_ -> AddFloat("muons_z");
@@ -405,30 +359,23 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("muons_edB"); 
    NtupleFactory_ -> AddFloat("muons_dxy_BS");
    NtupleFactory_ -> AddFloat("muons_dz_BS");
-   NtupleFactory_ -> AddFloat("muons_dxy_PV");
-   NtupleFactory_ -> AddFloat("muons_edxy_PV");
    NtupleFactory_ -> AddFloat("muons_dz_PV");
    
-   if( saveMuonLessPV_ ){	 
-     NtupleFactory_ -> AddFloat("muons_dxy_PV_noMuon");	 
-     NtupleFactory_ -> AddFloat("muons_dz_PV_noMuon");	 
-   }
-   
    // isolation variables
-   NtupleFactory_ -> AddFloat("muons_nTkIsoR03"); 
-   NtupleFactory_ -> AddFloat("muons_nTkIsoR05"); 
-   NtupleFactory_ -> AddFloat("muons_tkIsoR03"); 
-   NtupleFactory_ -> AddFloat("muons_tkIsoR05"); 
-   NtupleFactory_ -> AddFloat("muons_emIsoR03"); 
-   NtupleFactory_ -> AddFloat("muons_emIsoR05"); 
-   NtupleFactory_ -> AddFloat("muons_hadIsoR03"); 
-   NtupleFactory_ -> AddFloat("muons_hadIsoR05"); 
+   NtupleFactory_ -> AddFloat("muons_nTkIsoR03");
+   NtupleFactory_ -> AddFloat("muons_nTkIsoR05");
+   NtupleFactory_ -> AddFloat("muons_tkIsoR03");
+   NtupleFactory_ -> AddFloat("muons_tkIsoR05");
+   NtupleFactory_ -> AddFloat("muons_emIsoR03");
+   NtupleFactory_ -> AddFloat("muons_emIsoR05");
+   NtupleFactory_ -> AddFloat("muons_hadIsoR03");
+   NtupleFactory_ -> AddFloat("muons_hadIsoR05");
    
    NtupleFactory_ -> AddInt  ("muons_TMLST");
    NtupleFactory_ -> AddInt  ("muons_innerTrack_found");
    NtupleFactory_ -> AddInt  ("muons_numberOfValidPixelHits");
    NtupleFactory_ -> AddFloat("muons_trackPtErrorOverPt");
-
+   
    NtupleFactory_ -> AddInt  ("muons_tracker");
    NtupleFactory_ -> AddInt  ("muons_standalone");
    NtupleFactory_ -> AddInt  ("muons_global");
@@ -461,61 +408,59 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddInt("photons_hasPixelSeed");   
    NtupleFactory_ -> Add4V("photons_SC");   
    NtupleFactory_ -> Add3V("photons_SCpos");   
-
+   
    NtupleFactory_ -> Add3V("photons_convVtx");
    NtupleFactory_ -> AddInt("photons_convNtracks");
    NtupleFactory_ -> AddInt("photons_convVtxIsValid");
    NtupleFactory_ -> AddFloat("photons_convVtxChi2");
    NtupleFactory_ -> AddFloat("photons_convVtxNDOF");
    NtupleFactory_ -> AddFloat("photons_convEoverP");
-
+   
    NtupleFactory_ ->AddTMatrix("photons_rechitTime");
    NtupleFactory_ ->AddTMatrix("photons_rechitE");
-
  }
-
+ 
  if(saveMet_)
  {
    NtupleFactory_->Add4V("Met");         
-   NtupleFactory_ -> AddFloat("Met_resolP");
-   NtupleFactory_ -> AddFloat("Met_resolPt");
-   NtupleFactory_ -> AddFloat("Met_resolE");
-   NtupleFactory_ -> AddFloat("Met_resolEt");
-   NtupleFactory_ -> AddFloat("Met_resolEta");
-   NtupleFactory_ -> AddFloat("Met_resolPhi");
-
+   //NtupleFactory_ -> AddFloat("Met_resolP");
+   //NtupleFactory_ -> AddFloat("Met_resolPt");
+   //NtupleFactory_ -> AddFloat("Met_resolE");
+   //NtupleFactory_ -> AddFloat("Met_resolEt");
+   //NtupleFactory_ -> AddFloat("Met_resolEta");
+   //NtupleFactory_ -> AddFloat("Met_resolPhi");
+   
    NtupleFactory_->Add4V("TCMet");         
-   NtupleFactory_ -> AddFloat("TCMet_resolP");
-   NtupleFactory_ -> AddFloat("TCMet_resolPt");
-   NtupleFactory_ -> AddFloat("TCMet_resolE");
-   NtupleFactory_ -> AddFloat("TCMet_resolEt");
-   NtupleFactory_ -> AddFloat("TCMet_resolEta");
-   NtupleFactory_ -> AddFloat("TCMet_resolPhi");
+   //NtupleFactory_ -> AddFloat("TCMet_resolP");
+   //NtupleFactory_ -> AddFloat("TCMet_resolPt");
+   //NtupleFactory_ -> AddFloat("TCMet_resolE");
+   //NtupleFactory_ -> AddFloat("TCMet_resolEt");
+   //NtupleFactory_ -> AddFloat("TCMet_resolEta");
+   //NtupleFactory_ -> AddFloat("TCMet_resolPhi");
    
    NtupleFactory_->Add4V("PFMet");        
-   NtupleFactory_ -> AddFloat("PFMet_resolP");
-   NtupleFactory_ -> AddFloat("PFMet_resolPt");
-   NtupleFactory_ -> AddFloat("PFMet_resolE");
-   NtupleFactory_ -> AddFloat("PFMet_resolEt");
-   NtupleFactory_ -> AddFloat("PFMet_resolEta");
-   NtupleFactory_ -> AddFloat("PFMet_resolPhi");
+   //NtupleFactory_ -> AddFloat("PFMet_resolP");
+   //NtupleFactory_ -> AddFloat("PFMet_resolPt");
+   //NtupleFactory_ -> AddFloat("PFMet_resolE");
+   //NtupleFactory_ -> AddFloat("PFMet_resolEt");
+   //NtupleFactory_ -> AddFloat("PFMet_resolEta");
+   //NtupleFactory_ -> AddFloat("PFMet_resolPhi");
  }
  
  if(saveJet_)
  {
    NtupleFactory_->Add4V("jets");
    
-   NtupleFactory_ -> AddFloat("jets_resolP");
-   NtupleFactory_ -> AddFloat("jets_resolPt");
-   NtupleFactory_ -> AddFloat("jets_resolE");
-   NtupleFactory_ -> AddFloat("jets_resolEt");
-   NtupleFactory_ -> AddFloat("jets_resolEta");
-   NtupleFactory_ -> AddFloat("jets_resolPhi");
+   //NtupleFactory_ -> AddFloat("jets_resolP");
+   //NtupleFactory_ -> AddFloat("jets_resolPt");
+   //NtupleFactory_ -> AddFloat("jets_resolE");
+   //NtupleFactory_ -> AddFloat("jets_resolEt");
+   //NtupleFactory_ -> AddFloat("jets_resolEta");
+   //NtupleFactory_ -> AddFloat("jets_resolPhi");
    
    NtupleFactory_->AddFloat("jets_charge");
    NtupleFactory_->AddFloat("jets_ptD");
-   NtupleFactory_->AddFloat("jets_dzAvg");
-   NtupleFactory_->AddFloat("jets_dzAvgCut");
+   //NtupleFactory_->AddFloat("jets_dz");
    
    NtupleFactory_->AddFloat("jets_corrFactor_raw");   
    NtupleFactory_->AddFloat("jets_corrFactor_off");   
@@ -702,7 +647,6 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("mc_PUoot_late_sumpT_highpT");
    NtupleFactory_ -> AddInt  ("mc_PUoot_late_ntrks_lowpT");
    NtupleFactory_ -> AddInt  ("mc_PUoot_late_ntrks_highpT");
-
  }
 
  if(saveProcessId_)
@@ -1056,239 +1000,6 @@ void SimpleNtuple_noPAT::fillRhoInfo(const edm::Event & iEvent, const edm::Event
 
 
 ///------------------------
-///---- Primary vertex without Electrons ----
-
-void SimpleNtuple_noPAT::fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
-{
-  //std::cout << "SimpleNtuple_noPAT::fillEleLessPVInfo::begin" << std::endl;
-  
-  //  using namespace edm;
-  edm::Handle<reco::VertexCollection> vertexes;
-  iEvent.getByLabel(PVTag_, vertexes);
-
-  VertexReProducer revertex(vertexes, iEvent);
-
-  edm::Handle<reco::TrackCollection> pvtracks;
-  iEvent.getByLabel(revertex.inputTracks(),   pvtracks);
-  edm::Handle<reco::BeamSpot>        pvbeamspot;
-  iEvent.getByLabel(revertex.inputBeamSpot(), pvbeamspot);
-  
-  // edm::Handle<reco::GsfElectronCollection> eleHandle;
-  // iEvent.getByLabel(GsfEleTag_,eleHandle);
-  // const reco::GsfElectronCollection * electrons =  eleHandle.product();
-
-  edm::Handle<edm::View<pat::Electron> > eleHandle;
-  iEvent.getByLabel(EleTag_,eleHandle);
-  edm::View<pat::Electron> electrons = *eleHandle;
-
-  //remove the electrons from the vertex tracks.
-  reco::TrackCollection ElectronLess;
-  ElectronLess.reserve( pvtracks->size() );
-
-  for (size_t i = 0, n = pvtracks->size(); i < n; ++i) {
-    //check the dR with the colsest electron
-    //float drmin = 1000;
-
-    unsigned int eleIndex = -1;
-    for ( unsigned int el=0; el<electrons.size(); ++el )
-      {
-
-	pat::Electron electron = electrons.at(el);
-
-	reco::TrackRef tkRef_ele = electron.closestCtfTrackRef();
-	reco::TrackRef tkRef_tk(pvtracks, i); 
-
-	
-	if(electron.pt() < ElePtTh_){continue;}
-	//calculate dr between the two tracks;
-	//float dr = reco::deltaR(electron.trackMomentumAtVtx().eta(), electron.trackMomentumAtVtx().phi(),  (*pvtracks)[i].momentum().eta(), (*pvtracks)[i].momentum().phi() );
-
-	if (tkRef_tk == tkRef_ele) eleIndex = i;
-
-	//if( dr < drmin) { drmin=dr;}
-      }
-
-    if (i != eleIndex ){ ElectronLess.push_back( (*pvtracks)[i]);}
-    //if (drmin > ConeTh_ ){ ElectronLess.push_back( (*pvtracks)[i]);}
-
-
-  }
-
-  //std::vector<TransientVertex> EleLessPvs;
-  EleLessPvs = revertex.makeVertices(ElectronLess, *pvbeamspot, iESetup) ;
-
-  reco::Vertex PV;
-  bool PVfound = (EleLessPvs.size() != 0);
-
-  if(PVfound)
-  {
-  
-    for( unsigned int u = 0 ; u < EleLessPvs.size(); u++ ){
-
-      PV =  EleLessPvs[u];
-      
-      NtupleFactory_ -> FillFloat("PV_noEle_normalizedChi2", PV.normalizedChi2());
-      NtupleFactory_ -> FillInt  ("PV_noEle_ndof", PV.ndof());
-      NtupleFactory_ -> FillInt  ("PV_noEle_nTracks", PV.tracksSize());
-      NtupleFactory_ -> FillFloat("PV_noEle_z", PV.z());
-      NtupleFactory_ -> FillFloat("PV_noEle_d0", PV.position().Rho());
-      
-      float myptsum = 0;
-      float myptsum2 = 0;
-      for (unsigned int tr=0; tr < EleLessPvs[u].originalTracks().size(); tr++){ 
-	float pt = EleLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().transverse();
-	myptsum  += pt;
-	myptsum2 += pt*pt;
-      }
-
-      NtupleFactory_ -> FillFloat("PV_noEle_SumPt" ,myptsum );
-      NtupleFactory_ -> FillFloat("PV_noEle_SumPt2",myptsum2 );
-    }
-    PV = EleLessPvs[0];
-  }
-  else
-    {
-    //creating a dummy PV
-    reco::Vertex::Point p(BSPoint_.x(),BSPoint_.y(),BSPoint_.z());
-    reco::Vertex::Error e;
-    e(0,0) = 0.0015*0.0015;
-    e(1,1) = 0.0015*0.0015;
-    e(2,2) = 15.*15.;
-    PV = reco::Vertex(p, e, 1, 1, 1);
-    
-    NtupleFactory_ -> FillFloat("PV_noEle_normalizedChi2", -1.);
-    NtupleFactory_ -> FillInt  ("PV_noEle_ndof", -1);
-    NtupleFactory_ -> FillInt  ("PV_noEle_nTracks", -1);
-    NtupleFactory_ -> FillFloat("PV_noEle_z", -9999.);
-    NtupleFactory_ -> FillFloat("PV_noEle_d0", -9999.);
-    NtupleFactory_ -> FillFloat("PV_noEle_SumPt",-9999.);
-    NtupleFactory_ -> FillFloat("PV_noEle_SumPt2",-9999.);
-  }
-  
-  math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
-  EleLessPVPoint_ = PVPoint;
-  
-  //std::cout << "SimpleNtuple_noPAT::fillEleLessPVInfo::end" << std::endl;
-}
-
-
-///------------------------
-///---- Primary vertex without Muons ----
-
-void SimpleNtuple_noPAT::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
-{
-  //std::cout << "SimpleNtuple_noPAT::fillMuonLessPVInfo::begin" << std::endl;
-  
-  //  using namespace edm;
-  edm::Handle<reco::VertexCollection> vertexes;
-  iEvent.getByLabel(PVTag_, vertexes);
-
-  VertexReProducer revertex(vertexes, iEvent);
-
-  edm::Handle<reco::TrackCollection> pvtracks;
-  iEvent.getByLabel(revertex.inputTracks(),   pvtracks);
-  edm::Handle<reco::BeamSpot>        pvbeamspot;
-  iEvent.getByLabel(revertex.inputBeamSpot(), pvbeamspot);
-  
-  edm::Handle<edm::View<pat::Muon> > muHandle;
-  iEvent.getByLabel(MuTag_,muHandle);
-  edm::View<pat::Muon> muons = *muHandle;
- 
-  //remove the muon from the vertex tracks.
-  reco::TrackCollection MuonLess;
-  MuonLess.reserve( pvtracks->size() );
-
-  for (size_t i = 0, n = pvtracks->size(); i < n; ++i) {
-
-    //check the dR with the colsest muon
-    //float drmin = 1000;
-    unsigned int muIndex = -1;
-
-    for ( unsigned int mu=0; mu < muons.size(); ++mu )
-      {
-  	reco::Muon muon = muons.at(mu);
-	
-	reco::TrackRef tkRef_tk(pvtracks, i); 
-	reco::TrackRef tkRef_mu; 
-	if( muon.isTrackerMuon() )
-	  tkRef_mu = muon.innerTrack();
-	else continue;  
-
-  	if(muon.pt() < MuPtTh_){continue;}
-
-	// //calculate dr between the two tracks;
-	// float dr = reco::deltaR(tkRef_mu->eta(), tkRef_mu->phi(),  (*pvtracks)[i].momentum().eta(), (*pvtracks)[i].momentum().phi() );
-	// if( dr < drmin) 
-	//   {
-	//     drmin = dr;
-	//   }
-	
-	//exact matching betweek muon track and pv track. here is possible (not possible for electrons).
-	if (tkRef_tk == tkRef_mu) muIndex = i;
-    
-      }
-    if (i != muIndex ){ MuonLess.push_back( (*pvtracks)[i]);}
-    
-  }
-
-  //std::vector<TransientVertex> MuonLessPvs;
-  MuonLessPvs = revertex.makeVertices(MuonLess, *pvbeamspot, iESetup) ;
-
-  reco::Vertex PV;
-  bool PVfound = (MuonLessPvs.size() != 0);
-
-  if(PVfound)
-  {
-  
-    for( unsigned int u = 0 ; u < MuonLessPvs.size(); u++ ){
-
-      PV =  MuonLessPvs[u];
-      
-      NtupleFactory_ -> FillFloat("PV_noMuon_normalizedChi2", PV.normalizedChi2());
-      NtupleFactory_ -> FillInt  ("PV_noMuon_ndof", PV.ndof());
-      NtupleFactory_ -> FillInt  ("PV_noMuon_nTracks", PV.tracksSize());
-      NtupleFactory_ -> FillFloat("PV_noMuon_z", PV.z());
-      NtupleFactory_ -> FillFloat("PV_noMuon_d0", PV.position().Rho());
-      
-      float myptsum = 0;
-      float myptsum2 = 0;
-      for (unsigned int tr=0; tr < MuonLessPvs[u].originalTracks().size(); tr++){ 
-  	float pt = MuonLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().transverse();
-  	myptsum  += pt;
-  	myptsum2 += pt*pt;
-      }
-
-      NtupleFactory_ -> FillFloat("PV_noMuon_SumPt" ,myptsum );
-      NtupleFactory_ -> FillFloat("PV_noMuon_SumPt2",myptsum2 );
-    }
-    PV = MuonLessPvs[0];
-  }
-  else
-  {
-    //creating a dummy PV
-    reco::Vertex::Point p(BSPoint_.x(),BSPoint_.y(),BSPoint_.z());
-    reco::Vertex::Error e;
-    e(0,0) = 0.0015*0.0015;
-    e(1,1) = 0.0015*0.0015;
-    e(2,2) = 15.*15.;
-    PV = reco::Vertex(p, e, 1, 1, 1);
-    
-    NtupleFactory_ -> FillFloat("PV_noMuon_normalizedChi2", -1.);
-    NtupleFactory_ -> FillInt  ("PV_noMuon_ndof", -1);
-    NtupleFactory_ -> FillInt  ("PV_noMuon_nTracks", -1);
-    NtupleFactory_ -> FillFloat("PV_noMuon_z", -9999.);
-    NtupleFactory_ -> FillFloat("PV_noMuon_d0", -9999.);
-    NtupleFactory_ -> FillFloat("PV_noMuon_SumPt",-9999.);
-    NtupleFactory_ -> FillFloat("PV_noMuon_SumPt2",-9999.);
-  }
-  
-  math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
-  MuonLessPVPoint_ = PVPoint;
-  
-  //std::cout << "SimpleNtuple_noPAT::fillMuonLessPVInfo::end" << std::endl;
-}
-
-///------------------------
 ///---- Tracks infos ----
 
 void SimpleNtuple_noPAT::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
@@ -1398,66 +1109,8 @@ void SimpleNtuple_noPAT::fillTrackInfo(const edm::Event & iEvent, const edm::Eve
 
       NtupleFactory_ -> FillFloat("PVtracks_sumPt", myptsum);
     }
-
-
-  //save tracks associated to PVeleLess and PVmuonLess
-  //electrons
-  if (saveEleLessPV_)
-    {
-      for( unsigned int u = 0 ; u < EleLessPvs.size(); u++ )
-  	{	      
-  	  float myptsum = 0;
-	  for (unsigned int tr=0; tr < EleLessPvs[u].originalTracks().size(); tr++)
-	    { 
-	      float px = EleLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().x();
-	      float py = EleLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().y();
-	      float pz = EleLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().z();
-
-	      float pt = EleLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().transverse();
-	      myptsum  += pt;
-	      
-	      ROOT::Math::XYZVector momentum(px, py, pz);
-	      NtupleFactory_ -> Fill3V("PVEleLessTracks", momentum);
-	      NtupleFactory_ -> FillInt("PVEleLessTracks_PVindex", u);
-	      NtupleFactory_ -> FillFloat("PVEleLessTracks_normalizedChi2", EleLessPvs[u].originalTracks().at(tr).normalizedChi2());
-	      NtupleFactory_ -> FillInt("PVEleLessTracks_numberOfValidHits", EleLessPvs[u].originalTracks().at(tr).numberOfValidHits());
-	      
-  	    }
-	  
-  	  NtupleFactory_ -> FillFloat("PVEleLessTracks_sumPt", myptsum);
-  	}
-    }
-
-
-
-  // //muons
-  if (saveMuonLessPV_)
-    {
-      for( unsigned int u = 0 ; u < MuonLessPvs.size(); u++ )
-  	{	      
-  	  float myptsum = 0;
-	  for (unsigned int tr=0; tr < MuonLessPvs[u].originalTracks().size(); tr++)
-	    { 
-	      float px = MuonLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().x();
-	      float py = MuonLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().y();
-	      float pz = MuonLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().z();
-
-	      float pt = MuonLessPvs[u].originalTracks().at(tr).impactPointState().globalMomentum().transverse();
-	      myptsum  += pt;
-	      
-	      ROOT::Math::XYZVector momentum(px, py, pz);
-	      NtupleFactory_ -> Fill3V("PVMuonLessTracks", momentum);
-	      NtupleFactory_ -> FillInt("PVMuonLessTracks_PVindex", u);
-	      NtupleFactory_ -> FillFloat("PVMuonLessTracks_normalizedChi2", MuonLessPvs[u].originalTracks().at(tr).normalizedChi2());
-	      NtupleFactory_ -> FillInt("PVMuonLessTracks_numberOfValidHits", MuonLessPvs[u].originalTracks().at(tr).numberOfValidHits());
-	      
-  	    }
-	  
-  	  NtupleFactory_ -> FillFloat("PVMuonLessTracks_sumPt", myptsum);
-  	}
-    }
-
 }
+
 
 
 ///---------------
@@ -1578,12 +1231,12 @@ void SimpleNtuple_noPAT::fillMuInfo (const edm::Event & iEvent, const edm::Event
   NtupleFactory_ -> FillFloat("muons_charge",(muon.charge()));
 
   // resolution variables
-  /*NtupleFactory_ -> FillFloat("muons_resolP",muon.resolP());
-  NtupleFactory_ -> FillFloat("muons_resolPt",muon.resolPt());
-  NtupleFactory_ -> FillFloat("muons_resolE",muon.resolE());
-  NtupleFactory_ -> FillFloat("muons_resolEt",muon.resolEt());
-  NtupleFactory_ -> FillFloat("muons_resolEta",muon.resolEta());
-  NtupleFactory_ -> FillFloat("muons_resolPhi",muon.resolPhi());*/
+  //NtupleFactory_ -> FillFloat("muons_resolP",muon.resolP());
+  //NtupleFactory_ -> FillFloat("muons_resolPt",muon.resolPt());
+  //NtupleFactory_ -> FillFloat("muons_resolE",muon.resolE());
+  //NtupleFactory_ -> FillFloat("muons_resolEt",muon.resolEt());
+  //NtupleFactory_ -> FillFloat("muons_resolEta",muon.resolEta());
+  //NtupleFactory_ -> FillFloat("muons_resolPhi",muon.resolPhi());
   
   //  mu isolation PF
   NtupleFactory_ -> FillFloat("muons_chargedHadronIso",(muon.chargedHadronIso()));
@@ -1597,15 +1250,8 @@ void SimpleNtuple_noPAT::fillMuInfo (const edm::Event & iEvent, const edm::Event
   NtupleFactory_ -> FillFloat("muons_edB",muon.edB());
   NtupleFactory_ -> FillFloat("muons_dxy_BS",innerTrackRef->dxy(BSPoint_));
   NtupleFactory_ -> FillFloat("muons_dz_BS",innerTrackRef->dz(BSPoint_));
-  //NtupleFactory_ -> FillFloat("muons_dxy_PV",dxy.second.value());
-  //NtupleFactory_ -> FillFloat("muons_edxy_PV",dxy.second.error());
   NtupleFactory_ -> FillFloat("muons_dz_PV",innerTrackRef->dz(PVPoint_));
   
-  if (saveMuonLessPV_) {	 
-    NtupleFactory_ -> FillFloat("muons_dxy_PV_noMuon", innerTrackRef->dxy(MuonLessPVPoint_));	 
-    NtupleFactory_ -> FillFloat("muons_dz_PV_noMuon", innerTrackRef->dz(MuonLessPVPoint_));	 
-  }
-
   NtupleFactory_ -> FillFloat("muons_tkIsoR03",(muon.isolationR03()).sumPt);
   NtupleFactory_ -> FillFloat("muons_nTkIsoR03",(muon.isolationR03()).nTracks);    
   NtupleFactory_ -> FillFloat("muons_emIsoR03",(muon.isolationR03()).emEt);
@@ -1686,12 +1332,12 @@ void SimpleNtuple_noPAT::fillEleInfo (const edm::Event & iEvent, const edm::Even
   NtupleFactory_ -> FillFloat("electrons_likelihood",(electron.userFloat("egammaIDLikelihood")));
   
   // resolution variables
-  /*NtupleFactory_ -> FillFloat("electrons_resolP",electron.resolP());
-  NtupleFactory_ -> FillFloat("electrons_resolPt",electron.resolPt());
-  NtupleFactory_ -> FillFloat("electrons_resolE",electron.resolE());
-  NtupleFactory_ -> FillFloat("electrons_resolEt",electron.resolEt());
-  NtupleFactory_ -> FillFloat("electrons_resolEta",electron.resolEta());
-  NtupleFactory_ -> FillFloat("electrons_resolPhi",electron.resolPhi());*/
+  //NtupleFactory_ -> FillFloat("electrons_resolP",electron.resolP());
+  //NtupleFactory_ -> FillFloat("electrons_resolPt",electron.resolPt());
+  //NtupleFactory_ -> FillFloat("electrons_resolE",electron.resolE());
+  //NtupleFactory_ -> FillFloat("electrons_resolEt",electron.resolEt());
+  //NtupleFactory_ -> FillFloat("electrons_resolEta",electron.resolEta());
+  //NtupleFactory_ -> FillFloat("electrons_resolPhi",electron.resolPhi());
   
   // track variables
   NtupleFactory_ -> FillFloat("electrons_z", electron.vertex().z());
@@ -1699,8 +1345,6 @@ void SimpleNtuple_noPAT::fillEleInfo (const edm::Event & iEvent, const edm::Even
   NtupleFactory_ -> FillFloat("electrons_edB", electron.edB());
   NtupleFactory_ -> FillFloat("electrons_dxy_BS", tkRef->dxy(BSPoint_));
   NtupleFactory_ -> FillFloat("electrons_dz_BS", tkRef->dz(BSPoint_));
-  //NtupleFactory_ -> FillFloat("electrons_dxy_PV", dxy.second.value());
-  //NtupleFactory_ -> FillFloat("electrons_edxy_PV", dxy.second.error());
   NtupleFactory_ -> FillFloat("electrons_dz_PV", tkRef->dz(PVPoint_));
   NtupleFactory_ -> Fill3V   ("electrons_p_atVtx", (math::XYZVectorD)electron.trackMomentumAtVtx());
   NtupleFactory_ -> Fill3V   ("electrons_p_out",(math::XYZVectorD)electron.trackMomentumOut());
@@ -1708,12 +1352,6 @@ void SimpleNtuple_noPAT::fillEleInfo (const edm::Event & iEvent, const edm::Even
   NtupleFactory_ -> FillFloat("electrons_pin",electron.trackMomentumAtVtx().R());
   NtupleFactory_ -> FillFloat("electrons_pout",electron.trackMomentumOut().R());
   NtupleFactory_ -> FillFloat("electrons_pcalo",electron.trackMomentumAtCalo().R());
-  
-  if (saveEleLessPV_) {	 
-    NtupleFactory_ -> FillFloat("electrons_dxy_PV_noEle", tkRef->dxy(EleLessPVPoint_));	 
-    NtupleFactory_ -> FillFloat("electrons_dz_PV_noEle", tkRef->dz(EleLessPVPoint_));	 
-  }
-  
   
   // supercluster variables
   NtupleFactory_ -> Fill3PV  ("electrons_positionSC",electron.superClusterPosition());
@@ -1990,12 +1628,12 @@ void SimpleNtuple_noPAT::fillJetInfo (const edm::Event & iEvent, const edm::Even
     NtupleFactory_ -> FillFloat("jets_charge",jet.charge());
     
     // resolution variables
-    /*NtupleFactory_ -> FillFloat("jets_resolP",jet.resolP());
-    NtupleFactory_ -> FillFloat("jets_resolPt",jet.resolPt());
-    NtupleFactory_ -> FillFloat("jets_resolE",jet.resolE());
-    NtupleFactory_ -> FillFloat("jets_resolEt",jet.resolEt());
-    NtupleFactory_ -> FillFloat("jets_resolEta",jet.resolEta());
-    NtupleFactory_ -> FillFloat("jets_resolPhi",jet.resolPhi());*/
+    //NtupleFactory_ -> FillFloat("jets_resolP",jet.resolP());
+    //NtupleFactory_ -> FillFloat("jets_resolPt",jet.resolPt());
+    //NtupleFactory_ -> FillFloat("jets_resolE",jet.resolE());
+    //NtupleFactory_ -> FillFloat("jets_resolEt",jet.resolEt());
+    //NtupleFactory_ -> FillFloat("jets_resolEta",jet.resolEta());
+    //NtupleFactory_ -> FillFloat("jets_resolPhi",jet.resolPhi());
     
     // jet energy corrections
     bool isUncorrectedLevelFound = false;
@@ -2056,9 +1694,9 @@ void SimpleNtuple_noPAT::fillJetInfo (const edm::Event & iEvent, const edm::Even
     for(std::vector<std::string>::const_iterator iBTag = BTag_names_.begin(); iBTag != BTag_names_.end(); ++iBTag)
       NtupleFactory_ -> FillFloat(*iBTag,jet.bDiscriminator(*iBTag));
     
-    //NtupleFactory_ -> FillFloat("jets_etaetaMoment",jet.etaetaMoment());
-    //NtupleFactory_ -> FillFloat("jets_phiphiMoment",jet.phiphiMoment());
-    //NtupleFactory_ -> FillFloat("jets_etaphiMoment",jet.etaphiMoment());
+    NtupleFactory_ -> FillFloat("jets_etaetaMoment",jet.etaetaMoment());
+    NtupleFactory_ -> FillFloat("jets_phiphiMoment",jet.phiphiMoment());
+    NtupleFactory_ -> FillFloat("jets_etaphiMoment",jet.etaphiMoment());
     
     NtupleFactory_->FillFloat("jets_fHPD",jet.jetID().fHPD);
     NtupleFactory_->FillFloat("jets_fRBX",jet.jetID().fRBX);
@@ -2085,56 +1723,31 @@ void SimpleNtuple_noPAT::fillJetInfo (const edm::Event & iEvent, const edm::Even
       NtupleFactory_ -> FillInt  ("jets_muonMultiplicity",jet.muonMultiplicity()); 
       
       // loop on charged constituents to get avg z and ptD
-      /*
       std::vector<reco::PFCandidatePtr> jetConstituents =  jet.getPFConstituents();
       float sumPt = 0.;
       float sumPt2 = 0.;
-      float dzAvg = 0.;
-      int nChargedConstituents = 0;
+      //float num = 0.;
+      //float den = 0.;
       for(unsigned int jj = 0; jj < jetConstituents.size(); ++jj)
       {
-        sumPt += jetConstituents.at(jj)->pt();
-        sumPt2 += jetConstituents.at(jj)->pt()*jetConstituents.at(jj)->pt();
+        float tempPt = jetConstituents.at(jj)->pt();
+        sumPt += tempPt;
+        sumPt2 += tempPt*tempPt;
         
-       if( jetConstituents.at(jj)->trackRef().isNonnull() )
-       {
-         dzAvg += jetConstituents.at(jj)->trackRef()->dz();
-         ++nChargedConstituents;
-       }
-     }
-     
-     NtupleFactory_ -> FillFloat("jets_ptD", sqrt(sumPt2/(sumPt*sumPt)));
-     
-     
-     if(nChargedConstituents > 0) dzAvg /= nChargedConstituents;
-     else dzAvg = -9999.;
-     
-     NtupleFactory_ -> FillFloat("jets_dzAvg", dzAvg);
-     
-     
-     if( dzAvg > -9999.)
-     {
-       float dzAvgCut = 0.;
-       int nChargedConstituentsCut = 0;
-       for(unsigned int jj = 0; jj < jetConstituents.size(); ++jj)
-       {
-         if( jetConstituents.at(jj)->trackRef().isNonnull() )
-         {
-           if( fabs(jetConstituents.at(jj)->trackRef()->dz() - dzAvg) > 0.5 ) continue;
-           
-           dzAvgCut += jetConstituents.at(jj)->trackRef()->dz();
-           ++nChargedConstituentsCut;
-         }
-       }
-       
-       if(nChargedConstituentsCut > 0) dzAvgCut /= nChargedConstituentsCut;
-       else dzAvgCut = -9999.;
-       
-       NtupleFactory_ -> FillFloat("jets_dzAvgCut", dzAvgCut);
-     }
-     */
+        //if( jetConstituents.at(jj)->charge() != 0. )
+        //{
+          //num += (jetConstituents.at(jj)->vz()-PV_.position().z()) * tempPt*tempPt;
+          //  den += tempPt*tempPt;
+        //}
+      }
+      
+      NtupleFactory_ -> FillFloat("jets_ptD", sqrt(sumPt2/(sumPt*sumPt)));
+      
+      //if( den > 0. )
+      //  NtupleFactory_ -> FillFloat("jets_dz", fabs(num)/den);
+      //else
+      //  NtupleFactory_ -> FillFloat("jets_dz", -99.);        
     }
-    
   } // loop on jets
   
   //std::cout << "SimpleNtuple_noPAT::fillJetInfo::end" << std::endl;
@@ -2184,28 +1797,28 @@ void SimpleNtuple_noPAT::fillMetInfo (const edm::Event & iEvent, const edm::Even
   edm::View<pat::MET> PFMet = *PFMetHandle;
  
   NtupleFactory_->Fill4V("Met", Met.at(0).p4());
-  /*NtupleFactory_ -> FillFloat("Met_resolP",Met.at(0).resolP());
-  NtupleFactory_ -> FillFloat("Met_resolPt",Met.at(0).resolPt());
-  NtupleFactory_ -> FillFloat("Met_resolE",Met.at(0).resolE());
-  NtupleFactory_ -> FillFloat("Met_resolEt",Met.at(0).resolEt());
-  NtupleFactory_ -> FillFloat("Met_resolEta",Met.at(0).resolEta());
-  NtupleFactory_ -> FillFloat("Met_resolPhi",Met.at(0).resolPhi());*/
+  //NtupleFactory_ -> FillFloat("Met_resolP",Met.at(0).resolP());
+  //NtupleFactory_ -> FillFloat("Met_resolPt",Met.at(0).resolPt());
+  //NtupleFactory_ -> FillFloat("Met_resolE",Met.at(0).resolE());
+  //NtupleFactory_ -> FillFloat("Met_resolEt",Met.at(0).resolEt());
+  //NtupleFactory_ -> FillFloat("Met_resolEta",Met.at(0).resolEta());
+  //NtupleFactory_ -> FillFloat("Met_resolPhi",Met.at(0).resolPhi());
   
   NtupleFactory_->Fill4V("TCMet", TCMet.at(0).p4());
-  /*NtupleFactory_ -> FillFloat("TCMet_resolP",TCMet.at(0).resolP());
-  NtupleFactory_ -> FillFloat("TCMet_resolPt",TCMet.at(0).resolPt());
-  NtupleFactory_ -> FillFloat("TCMet_resolE",TCMet.at(0).resolE());
-  NtupleFactory_ -> FillFloat("TCMet_resolEt",TCMet.at(0).resolEt());
-  NtupleFactory_ -> FillFloat("TCMet_resolEta",TCMet.at(0).resolEta());
-  NtupleFactory_ -> FillFloat("TCMet_resolPhi",TCMet.at(0).resolPhi());*/
+  //NtupleFactory_ -> FillFloat("TCMet_resolP",TCMet.at(0).resolP());
+  //NtupleFactory_ -> FillFloat("TCMet_resolPt",TCMet.at(0).resolPt());
+  //NtupleFactory_ -> FillFloat("TCMet_resolE",TCMet.at(0).resolE());
+  //NtupleFactory_ -> FillFloat("TCMet_resolEt",TCMet.at(0).resolEt());
+  //NtupleFactory_ -> FillFloat("TCMet_resolEta",TCMet.at(0).resolEta());
+  //NtupleFactory_ -> FillFloat("TCMet_resolPhi",TCMet.at(0).resolPhi());
   
   NtupleFactory_->Fill4V("PFMet", PFMet.at(0).p4());
-  /*NtupleFactory_ -> FillFloat("PFMet_resolP",PFMet.at(0).resolP());
-  NtupleFactory_ -> FillFloat("PFMet_resolPt",PFMet.at(0).resolPt());
-  NtupleFactory_ -> FillFloat("PFMet_resolE",PFMet.at(0).resolE());
-  NtupleFactory_ -> FillFloat("PFMet_resolEt",PFMet.at(0).resolEt());
-  NtupleFactory_ -> FillFloat("PFMet_resolEta",PFMet.at(0).resolEta());
-  NtupleFactory_ -> FillFloat("PFMet_resolPhi",PFMet.at(0).resolPhi());*/
+  //NtupleFactory_ -> FillFloat("PFMet_resolP",PFMet.at(0).resolP());
+  //NtupleFactory_ -> FillFloat("PFMet_resolPt",PFMet.at(0).resolPt());
+  //NtupleFactory_ -> FillFloat("PFMet_resolE",PFMet.at(0).resolE());
+  //NtupleFactory_ -> FillFloat("PFMet_resolEt",PFMet.at(0).resolEt());
+  //NtupleFactory_ -> FillFloat("PFMet_resolEta",PFMet.at(0).resolEta());
+  //NtupleFactory_ -> FillFloat("PFMet_resolPhi",PFMet.at(0).resolPhi());
 }
 
 
@@ -2224,7 +1837,7 @@ void SimpleNtuple_noPAT::fillMCPtHatInfo (const edm::Event & iEvent, const edm::
   iEvent.getByLabel("source",LHEEventHandle);
   int NUP = 0.;
   if( !LHEEventHandle.failedToGet() )
-    int NUP = LHEEventHandle->hepeup().NUP;
+    NUP = LHEEventHandle->hepeup().NUP;
 
   edm::Handle< GenEventInfoProduct > GenInfoHandle;
   iEvent.getByLabel( "generator", GenInfoHandle );
@@ -2580,12 +2193,6 @@ void SimpleNtuple_noPAT::analyze(const edm::Event& iEvent, const edm::EventSetup
  
  ///---- fill Rho ----
  if(saveRho_) fillRhoInfo (iEvent, iSetup);
-
- ///---- fill EleLessPV ----
- if(saveEleLessPV_) fillEleLessPVInfo (iEvent, iSetup);
- 
- ///---- fill MuonLessPV ----
- if(saveMuonLessPV_) fillMuonLessPVInfo (iEvent, iSetup);
 
  ///---- fill trackInfo ----
  if(saveTrack_) fillTrackInfo (iEvent, iSetup);

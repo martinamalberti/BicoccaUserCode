@@ -14,9 +14,10 @@ PUDumper::PUDumper(const edm::ParameterSet& iConfig)
   // create histograms
   edm::Service<TFileService> fs;
   
-  h_nPU    = fs -> make<TH1F>("nPU",   "nPU",   50,-0.5,49.5);
-  h_nPUit  = fs -> make<TH1F>("nPUit", "nPUit", 50,-0.5,49.5);
-  h_nPUoot = fs -> make<TH1F>("nPUoot","nPUoot",50,-0.5,49.5);
+  h_nPUtrue      = fs -> make<TH1F>("nPUtrue",     "nPUtrue",     50,-0.5,49.5);
+  h_nPUit        = fs -> make<TH1F>("nPUit",       "nPUit",       50,-0.5,49.5);
+  h_nPUoot_early = fs -> make<TH1F>("nPUoot_early","nPUoot_early",50,-0.5,49.5);
+  h_nPUoot_late  = fs -> make<TH1F>("nPUoot_late"," nPUoot_late", 50,-0.5,49.5);
 }
 
 // ----------------------------------------------------------------
@@ -50,9 +51,10 @@ void PUDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   
   // nPU
-  int nPU = 0;
+  int nPUtrue = 0;
   int nPUit = 0;
-  int nPUoot = 0;
+  int nPUoot_early = 0;
+  int nPUoot_late = 0;
   
   
   // loop on BX
@@ -64,23 +66,29 @@ void PUDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // in-time pileup
     if( PVI->getBunchCrossing() == 0 )
     {
-      nPU    += PVI->getPU_NumInteractions();
-      nPUit  += PVI->getPU_NumInteractions();
+      nPUtrue += PVI->getTrueNumInteractions();
+      nPUit   += PVI->getPU_NumInteractions();
+    }
+    
+    // out-of-time pileup
+    else if( PVI->getBunchCrossing() < 0 )
+    {
+      nPUoot_early += PVI->getPU_NumInteractions();
     }
     
     // out-of-time pileup
     else
     {
-      nPU    += PVI->getPU_NumInteractions();
-      nPUoot += PVI->getPU_NumInteractions();
+      nPUoot_late += PVI->getPU_NumInteractions();
     }
-  } // loop on BX                      
+  } // loop on BX
   
   
   // fill histograms
-  h_nPU    -> Fill(nPU);
-  h_nPUit  -> Fill(nPUit);
-  h_nPUoot -> Fill(nPUoot);
+  h_nPUtrue      -> Fill(nPUtrue);
+  h_nPUit        -> Fill(nPUit);
+  h_nPUoot_early -> Fill(nPUoot_early);
+  h_nPUoot_late  -> Fill(nPUoot_late);
 }
 
 DEFINE_FWK_MODULE(PUDumper);
