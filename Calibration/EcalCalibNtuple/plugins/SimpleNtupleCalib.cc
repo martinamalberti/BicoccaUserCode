@@ -209,6 +209,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scEtaWidth_PUcleaned");
     NtupleFactory_->AddFloat("electrons_scPhiWidth_PUcleaned");
     NtupleFactory_->AddFloat("electrons_sc_fCorrection_PUcleaned");
+    NtupleFactory_->AddFloat("electrons_basicClustersSize_PUcleaned");
     
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
@@ -217,6 +218,14 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_e5x5");
     NtupleFactory_->AddFloat("electrons_e3x3");
     NtupleFactory_->AddFloat("electrons_e2x2");
+
+    NtupleFactory_->AddFloat("electrons_bcE");
+    NtupleFactory_->AddFloat("electrons_bcEta");
+    NtupleFactory_->AddFloat("electrons_bcPhi");
+    NtupleFactory_->AddFloat("electrons_bcLocalEta");
+    NtupleFactory_->AddFloat("electrons_bcLocalPhi");
+    
+
     
     // rechit variables
     NtupleFactory_->AddFloat("recHit_E"); 
@@ -985,6 +994,16 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theBarrelEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
 
+     for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
+       {
+	 localPosition = getLocalPosition(caloGeometry, (*bcIt));
+	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
+	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
+	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
+	 NtupleFactory_->FillFloat("electrons_bcLocalEta", localPosition.first);
+	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", localPosition.second);
+       }
+     
      localPosition = getLocalPosition(caloGeometry, seedCluster);
      
    }
@@ -993,6 +1012,15 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theEndcapEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
+        
+     for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
+       {
+	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
+	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
+	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
+	 NtupleFactory_->FillFloat("electrons_bcLocalEta", 0.);
+	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", 0.);
+       }
    }
 
    
@@ -1027,6 +1055,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      NtupleFactory_->FillFloat("electrons_scEtaWidth_PUcleaned",-9999.);
      NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned",-9999.);   
      NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned",-9999);
+     NtupleFactory_->FillFloat("electrons_basicClustersSize_PUcleaned",-9999);
    }
 
    else {
@@ -1036,6 +1065,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned", cleanedSC.phiWidth());   
      float fCorrCleaned = fClusterCorrections(cleanedSC.energy() + scRef->preshowerEnergy(), cleanedSC.eta(),cleanedSC.phiWidth()/cleanedSC.etaWidth(),params)/(cleanedSC.energy()+ scRef->preshowerEnergy());
      NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned",fCorrCleaned);
+     NtupleFactory_->FillFloat("electrons_basicClustersSize_PUcleaned",cleanedSC.clustersSize());
 
    }
 
