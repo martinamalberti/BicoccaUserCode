@@ -209,7 +209,13 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_scEtaWidth_PUcleaned");
     NtupleFactory_->AddFloat("electrons_scPhiWidth_PUcleaned");
     NtupleFactory_->AddFloat("electrons_sc_fCorrection_PUcleaned");
-    NtupleFactory_->AddFloat("electrons_basicClustersSize_PUcleaned");
+    NtupleFactory_->AddInt("electrons_basicClustersSize_PUcleaned");
+
+    NtupleFactory_->AddFloat("electrons_scERaw_PUcleaned_Xi03");
+    NtupleFactory_->AddFloat("electrons_scEtaWidth_PUcleaned_Xi03");
+    NtupleFactory_->AddFloat("electrons_scPhiWidth_PUcleaned_Xi03");
+    NtupleFactory_->AddFloat("electrons_sc_fCorrection_PUcleaned_Xi03");
+    NtupleFactory_->AddInt("electrons_basicClustersSize_PUcleaned_Xi03");
     
     // cluster variables
     NtupleFactory_->AddInt("electrons_basicClustersSize");    
@@ -1044,28 +1050,43 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_sc_fCorrection",fCorr);
 
 
-   // supercluster variables after PU cleaning
-   reco::SuperCluster cleanedSC = cleaningTools.CleanedSuperCluster(xi, *scRef, iEvent );
+   // supercluster variables after PU cleaning - Xi = 0.02
+   reco::SuperCluster cleanedSC   = cleaningTools.CleanedSuperCluster(0.02, *scRef, iEvent );
+   reco::SuperCluster cleanedSC03 = cleaningTools.CleanedSuperCluster(0.03, *scRef, iEvent );
   
    // -- check if invalid detId
    reco::CaloClusterPtr myseed = (*scRef).seed();
-   if ( (myseed->seed()).rawId()==0 ) {
+   if (  !((myseed->seed()).rawId()) || (myseed->seed()).rawId()==0 ) {
  
      NtupleFactory_->FillFloat("electrons_scERaw_PUcleaned",-9999.);
      NtupleFactory_->FillFloat("electrons_scEtaWidth_PUcleaned",-9999.);
      NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned",-9999.);   
      NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned",-9999);
-     NtupleFactory_->FillFloat("electrons_basicClustersSize_PUcleaned",-9999);
+     NtupleFactory_->FillInt("electrons_basicClustersSize_PUcleaned",-9999);
+
+     NtupleFactory_->FillFloat("electrons_scERaw_PUcleaned_Xi03",-9999.);
+     NtupleFactory_->FillFloat("electrons_scEtaWidth_PUcleaned_Xi03",-9999.);
+     NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned_Xi03",-9999.);   
+     NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned_Xi03",-9999);
+     NtupleFactory_->FillInt("electrons_basicClustersSize_PUcleaned_Xi03",-9999);
    }
 
    else {
-     
+     // xi = 0.02
      NtupleFactory_->FillFloat("electrons_scERaw_PUcleaned", cleanedSC.energy());
      NtupleFactory_->FillFloat("electrons_scEtaWidth_PUcleaned", cleanedSC.etaWidth());
      NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned", cleanedSC.phiWidth());   
      float fCorrCleaned = fClusterCorrections(cleanedSC.energy() + scRef->preshowerEnergy(), cleanedSC.eta(),cleanedSC.phiWidth()/cleanedSC.etaWidth(),params)/(cleanedSC.energy()+ scRef->preshowerEnergy());
      NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned",fCorrCleaned);
-     NtupleFactory_->FillFloat("electrons_basicClustersSize_PUcleaned",cleanedSC.clustersSize());
+     NtupleFactory_->FillInt("electrons_basicClustersSize_PUcleaned",cleanedSC.clustersSize());
+    
+     // xi = 0.03
+     NtupleFactory_->FillFloat("electrons_scERaw_PUcleaned_Xi03", cleanedSC03.energy());
+     NtupleFactory_->FillFloat("electrons_scEtaWidth_PUcleaned_Xi03", cleanedSC03.etaWidth());
+     NtupleFactory_->FillFloat("electrons_scPhiWidth_PUcleaned_Xi03", cleanedSC03.phiWidth());   
+     float fCorrCleaned03 = fClusterCorrections(cleanedSC03.energy() + scRef->preshowerEnergy(), cleanedSC03.eta(),cleanedSC03.phiWidth()/cleanedSC03.etaWidth(),params)/(cleanedSC03.energy()+ scRef->preshowerEnergy());
+     NtupleFactory_->FillFloat("electrons_sc_fCorrection_PUcleaned_Xi03",fCorrCleaned03);
+     NtupleFactory_->FillInt("electrons_basicClustersSize_PUcleaned_Xi03",cleanedSC03.clustersSize());
 
    }
 
