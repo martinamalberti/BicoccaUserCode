@@ -958,7 +958,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      NtupleFactory_ -> Fill3V   ("electrons_p_kf",dummy);
    }
    
-
+   
 
    // supercluster variables
    reco::SuperClusterRef scRef = electron.superCluster();
@@ -985,6 +985,8 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
       
    const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
    
+   
+   
    // cluster variables
    float E3x3 = 0;
    float E2x2 = 0;
@@ -994,15 +996,18 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    localPosition.first = 0.;
    localPosition.second = 0.;
 
-   if ( electron.isEB() )
-   {
+
+   
+   if ( electron.isEB() ) {
      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theBarrelEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-
+       
+     //  basic clusters variables
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
-	 localPosition = getLocalPosition(caloGeometry, (*bcIt));
+	 if ( (*bcIt)->seed().rawId() )
+	   localPosition = getLocalPosition(caloGeometry, (*bcIt));// questa fa casino --> controllo che detId sia valido
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
@@ -1013,6 +1018,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      localPosition = getLocalPosition(caloGeometry, seedCluster);
      
    }
+
    if ( electron.isEE() )
    {
      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
@@ -1030,7 +1036,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    }
 
    
-
+   
    //NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",EtaCry);
    //NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",PhiCry);
    NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",localPosition.first);
@@ -1049,11 +1055,14 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    float fCorr = fClusterCorrections(scRef->rawEnergy() + scRef->preshowerEnergy(), scRef->eta(),scRef->phiWidth()/scRef->etaWidth(),params)/(scRef->rawEnergy()+ scRef->preshowerEnergy());
    NtupleFactory_->FillFloat("electrons_sc_fCorrection",fCorr);
 
+   
 
    // supercluster variables after PU cleaning - Xi = 0.02
+   
    reco::SuperCluster cleanedSC   = cleaningTools.CleanedSuperCluster(0.02, *scRef, iEvent );
    reco::SuperCluster cleanedSC03 = cleaningTools.CleanedSuperCluster(0.03, *scRef, iEvent );
   
+   
    // -- check if invalid detId
    reco::CaloClusterPtr myseed = (*scRef).seed();
    if (  !((myseed->seed()).rawId()) || (myseed->seed()).rawId()==0 ) {
@@ -1089,8 +1098,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      NtupleFactory_->FillInt("electrons_basicClustersSize_PUcleaned_Xi03",cleanedSC03.clustersSize());
 
    }
-
-
+   
 
    // rechit variables
    int numRecHit = 0;
