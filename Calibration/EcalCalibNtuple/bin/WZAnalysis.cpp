@@ -536,6 +536,7 @@ int main(int argc, char** argv)
       vars.isW = 1;
       vars.isZ = 0;
       
+      SetGenLeptonInformation(vars,reader,dataFlag,1);
       
       // fill the reduced tree
       FillWZAnalysisTree(vars);
@@ -565,10 +566,11 @@ int main(int argc, char** argv)
       
       vars.isW = 0;
       vars.isZ = 1;
-      
+     
+      SetGenLeptonInformation(vars,reader,dataFlag,1);
       
       // fill the reduced tree
-       FillWZAnalysisTree(vars);
+      FillWZAnalysisTree(vars);
     }
     
     
