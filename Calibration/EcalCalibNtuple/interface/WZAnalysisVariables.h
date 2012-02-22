@@ -111,6 +111,7 @@ struct WZAnalysisVariables
   int ele1_seedZside;
   float ele1_seedLaserAlpha;
   float ele1_seedLaserCorr;
+  int   ele1_nRecHits;
   
   float ele1_tkP;
   float ele1_tkPt;
@@ -183,6 +184,7 @@ struct WZAnalysisVariables
   int ele2_seedZside;
   float ele2_seedLaserAlpha;
   float ele2_seedLaserCorr;
+  int   ele2_nRecHits;
   
   float ele2_tkP;
   float ele2_tkPt;

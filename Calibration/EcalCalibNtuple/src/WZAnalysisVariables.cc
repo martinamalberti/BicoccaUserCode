@@ -92,6 +92,8 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_isEBPhiGap",  &vars.ele1_isEBPhiGap,   "ele1_isEBPhiGap/I");
   vars.m_reducedTree -> Branch("ele1_isEEDeeGap",  &vars.ele1_isEEDeeGap,   "ele1_isEEDeeGap/I");
   vars.m_reducedTree -> Branch("ele1_isEERingGap", &vars.ele1_isEERingGap, "ele1_isEERingGap/I");
+
+  vars.m_reducedTree -> Branch("ele1_nRecHits",    &vars.ele1_nRecHits,       "ele1_nRecHits/I");
   
   if(!isCalib)
   {
@@ -179,6 +181,8 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_isEBPhiGap",  &vars.ele2_isEBPhiGap,   "ele2_isEBPhiGap/I");
   vars.m_reducedTree -> Branch("ele2_isEEDeeGap",  &vars.ele2_isEEDeeGap,   "ele2_isEEDeeGap/I");
   vars.m_reducedTree -> Branch("ele2_isEERingGap", &vars.ele2_isEERingGap, "ele2_isEERingGap/I");
+
+  vars.m_reducedTree -> Branch("ele2_nRecHits",    &vars.ele2_nRecHits,       "ele2_nRecHits/I");
 
   if(!isCalib)
   {
@@ -376,7 +380,8 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele1_isEEDeeGap = -1;
   vars.ele1_isEERingGap = -1;
   
-  
+  vars.ele1_nRecHits = -1;
+
   // 2nd electron variables
   vars.ele2 = ROOT::Math::XYZTVector(0., 0., 0., 0.);
   vars.p_ele2 = &vars.ele2;
@@ -462,7 +467,9 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele2_isEBPhiGap = -1;
   vars.ele2_isEEDeeGap = -1;
   vars.ele2_isEERingGap = -1;
-  
+
+  vars.ele2_nRecHits = -1;
+
   // met variables
   vars.met = ROOT::Math::XYZTVector(0., 0., 0., 0.);
   vars.p_met = NULL;
@@ -627,7 +634,10 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_isEBPhiGap = reader.GetInt("electrons_isEBPhiGap")->at(ele1It);
   vars.ele1_isEEDeeGap = reader.GetInt("electrons_isEEDeeGap")->at(ele1It);
   vars.ele1_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele1It);
+
+  vars.ele1_nRecHits = reader.GetInt("recHit_n")->at(ele1It);
   
+
  }
 
 
@@ -740,6 +750,9 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_isEBPhiGap = reader.GetInt("electrons_isEBPhiGap")->at(ele2It);
  vars.ele2_isEEDeeGap = reader.GetInt("electrons_isEEDeeGap")->at(ele2It);
  vars.ele2_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele2It);
+
+ vars.ele2_nRecHits = reader.GetInt("recHit_n")->at(ele2It);
+
  }
 
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader)
