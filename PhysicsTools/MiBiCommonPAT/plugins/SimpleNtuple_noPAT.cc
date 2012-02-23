@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.11 2012/01/02 10:12:45 abenagli Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.12 2012/01/08 09:35:55 abenagli Exp $
 //
 //
 
@@ -182,6 +182,7 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  {
    NtupleFactory_ -> AddFloat("rho_isolation"); 
    NtupleFactory_ -> AddFloat("rho_jets"); 
+   NtupleFactory_ -> AddFloat("rho_isolationPFlow"); 
    NtupleFactory_ -> AddFloat("rho_jetsPFlow"); 
  }
  
@@ -984,6 +985,8 @@ void SimpleNtuple_noPAT::fillRhoInfo(const edm::Event & iEvent, const edm::Event
   
   edm::Handle<double> rhoForIsolation;
   iEvent.getByLabel("kt6PFJetsForIsolation", "rho", rhoForIsolation);
+  edm::Handle<double> rhoForIsolationPFlow;
+  iEvent.getByLabel("kt6PFJetsChsForIsolationPFlow", "rho", rhoForIsolationPFlow);
   
   edm::Handle<double> rhoForJets;
   iEvent.getByLabel("kt6PFJets", "rho", rhoForJets);
@@ -991,6 +994,7 @@ void SimpleNtuple_noPAT::fillRhoInfo(const edm::Event & iEvent, const edm::Event
   iEvent.getByLabel("kt6PFJetsChsPFlow", "rho", rhoForJetsPFlow);
   
   NtupleFactory_ -> FillFloat("rho_isolation", *(rhoForIsolation.product()));
+  NtupleFactory_ -> FillFloat("rho_isolationPFlow", *(rhoForIsolationPFlow.product()));
   NtupleFactory_ -> FillFloat("rho_jets", *(rhoForJets.product()));
   NtupleFactory_ -> FillFloat("rho_jetsPFlow", *(rhoForJetsPFlow.product()));
   
