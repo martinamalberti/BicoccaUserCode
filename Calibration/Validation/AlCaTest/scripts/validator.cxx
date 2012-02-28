@@ -19,4 +19,6 @@
   ESCoP.Write();
   HitsOe.Write();
   file.Close();
+
+  gApplication->Terminate(0);
 }

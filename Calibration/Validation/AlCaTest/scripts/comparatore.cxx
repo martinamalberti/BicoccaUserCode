@@ -86,4 +86,7 @@
  HitsOeOld.DrawNormalized("same");
  cc6.SetLogy();
  cc6.BuildLegend();
+
+ gApplication->Terminate(0);
+
 }
