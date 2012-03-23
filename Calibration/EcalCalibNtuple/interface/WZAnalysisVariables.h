@@ -87,6 +87,7 @@ struct WZAnalysisVariables
   float ele1_es;
   float ele1_fCorrection;
   float ele1_scE_regression;
+  float ele1_scEerr_regression;
   float ele1_scERaw_PUcleaned;
   float ele1_scEtaWidth_PUcleaned;
   float ele1_scPhiWidth_PUcleaned;
@@ -161,6 +162,7 @@ struct WZAnalysisVariables
   float ele2_es;
   float ele2_fCorrection;
   float ele2_scE_regression;
+  float ele2_scEerr_regression;
   float ele2_scERaw_PUcleaned;
   float ele2_scEtaWidth_PUcleaned;
   float ele2_scPhiWidth_PUcleaned;
