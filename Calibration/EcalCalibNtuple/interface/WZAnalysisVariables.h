@@ -222,6 +222,7 @@ struct WZAnalysisVariables
   // di-electron variables
   float ele1ele2_m;
   float ele1ele2_scM;
+  float ele1ele2_scM_regression;
 
   // gen particle information
 

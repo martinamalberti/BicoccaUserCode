@@ -253,6 +253,7 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
  // di-electron variables
  vars.m_reducedTree -> Branch("ele1ele2_m",   &vars.ele1ele2_m,     "ele1ele2_m/F");
  vars.m_reducedTree -> Branch("ele1ele2_scM", &vars.ele1ele2_scM, "ele1ele2_scM/F");
+ vars.m_reducedTree -> Branch("ele1ele2_scM_regression", &vars.ele1ele2_scM_regression, "ele1ele2_scM_regression/F");
 }
 
 
@@ -487,6 +488,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   // di-electron variables
   vars.ele1ele2_m = -99.;
   vars.ele1ele2_scM = -99.;
+  vars.ele1ele2_scM_regression = -99.;
 
   vars.ele1_E_true = -99 ;
   vars.ele1_DR = -99 ;
@@ -781,6 +783,10 @@ void SetDiElectronVariables(WZAnalysisVariables& vars, treeReader& reader)
   ROOT::Math::PtEtaPhiEVector ele1_sc(vars.ele1_scE*sin(2*atan(exp(-1.*vars.ele1_eta))),vars.ele1_eta,vars.ele1_phi,vars.ele1_scE);
   ROOT::Math::PtEtaPhiEVector ele2_sc(vars.ele2_scE*sin(2*atan(exp(-1.*vars.ele2_eta))),vars.ele2_eta,vars.ele2_phi,vars.ele2_scE);
   vars.ele1ele2_scM = (ele1_sc + ele2_sc).mass();
+
+  ROOT::Math::PtEtaPhiEVector ele1_sc_regression(vars.ele1_scE_regression*sin(2*atan(exp(-1.*vars.ele1_eta))),vars.ele1_eta,vars.ele1_phi,vars.ele1_scE_regression);
+  ROOT::Math::PtEtaPhiEVector ele2_sc_regression(vars.ele2_scE_regression*sin(2*atan(exp(-1.*vars.ele2_eta))),vars.ele2_eta,vars.ele2_phi,vars.ele2_scE_regression);
+  vars.ele1ele2_scM_regression = (ele1_sc_regression + ele2_sc_regression).mass();
 }
 
 
