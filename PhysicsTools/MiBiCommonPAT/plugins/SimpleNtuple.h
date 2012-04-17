@@ -154,6 +154,9 @@ class SimpleNtuple : public edm::EDAnalyzer {
   
   edm::InputTag MCPileupTag_;
 
+
+  edm::ParameterSet vertexPset_;
+
   double ConeTh_ ;
   double ElePtTh_  ;
   double MuPtTh_  ;

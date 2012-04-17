@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.47 2011/06/28 15:09:04 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.51 2011/11/21 17:01:21 abenagli Exp $
 //
 //
 
@@ -115,7 +115,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
  
- 
+ vertexPset_= iConfig.getParameter<edm::ParameterSet>("vertexParameters") ;
  
  
  //---- Add branches to ntuple ----  
@@ -890,7 +890,9 @@ void SimpleNtuple::fillEleLessPVInfo(const edm::Event & iEvent, const edm::Event
   edm::Handle<reco::VertexCollection> vertexes;
   iEvent.getByLabel(PVTag_, vertexes);
 
-  VertexReProducer revertex(vertexes, iEvent);
+  //  VertexReProducer revertex(vertexes, iEvent);
+  VertexReProducer revertex(vertexPset_);
+
 
   edm::Handle<reco::TrackCollection> pvtracks;
   iEvent.getByLabel(revertex.inputTracks(),   pvtracks);
