@@ -5,6 +5,8 @@
 //
 #include "Calibration/EcalCalibNtuple/plugins/SimpleNtupleCalib.h"
 
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
 
@@ -995,12 +997,16 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    float E2x2 = 0;
    math::XYZPoint SClocalPos(0.,0.,0.);
 
-   std::pair<double,double> localPosition;
-   localPosition.first = 0.;
-   localPosition.second = 0.;
 
-
+   // local coordinates
+   // N.B. localEta, localPhi --> sono riempite con localIx, localIy in EE
+   EcalClusterLocal ecalLocalCoord;
+   float bcLocalEta, bcLocalPhi, bcThetatilt, bcPhitilt;  
+   int bcIeta, bcIphi, bcIx, bcIy;
    
+   bcLocalEta = 0;
+   bcLocalPhi = 0;
+
    if ( electron.isEB() ) {
      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
@@ -1010,16 +1016,14 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
 	 if ( (*bcIt)->seed().rawId() )
-	   localPosition = getLocalPosition(caloGeometry, (*bcIt));// questa fa casino --> controllo che detId sia valido
+	   ecalLocalCoord.localCoordsEB( (**bcIt) ,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
-	 NtupleFactory_->FillFloat("electrons_bcLocalEta", localPosition.first);
-	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", localPosition.second);
+	 NtupleFactory_->FillFloat("electrons_bcLocalEta", bcLocalEta);
+	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", bcLocalPhi);
        }
-     
-     localPosition = getLocalPosition(caloGeometry, seedCluster);
-     
+     ecalLocalCoord.localCoordsEB(*seedCluster,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
    }
 
    if ( electron.isEE() )
@@ -1030,20 +1034,24 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
         
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
+	 ecalLocalCoord.localCoordsEE( (**bcIt),iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
-	 NtupleFactory_->FillFloat("electrons_bcLocalEta", 0.);
-	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", 0.);
+	 NtupleFactory_->FillFloat("electrons_bcLocalEta", bcLocalEta);
+	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", bcLocalPhi);
        }
+     ecalLocalCoord.localCoordsEE(*seedCluster,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
    }
 
    
    
    //NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",EtaCry);
    //NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",PhiCry);
-   NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",localPosition.first);
-   NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",localPosition.second);
+   //NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",localPosition.first);
+   //NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",localPosition.second);
+   NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",bcLocalEta);
+   NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",bcLocalPhi);
    NtupleFactory_->Fill3PV("electrons_scLocalPosition",SClocalPos);
    NtupleFactory_->FillInt("electrons_basicClustersSize",electron.basicClustersSize());
    NtupleFactory_->FillFloat("electrons_e1x5",electron.e1x5());
@@ -1051,8 +1059,6 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_e2x2",E2x2);
    NtupleFactory_->FillFloat("electrons_e3x3",E3x3);
    NtupleFactory_->FillFloat("electrons_e5x5",electron.e5x5());
-
-
 
    
    float fCorr = fClusterCorrections(scRef->rawEnergy() + scRef->preshowerEnergy(), scRef->eta(),scRef->phiWidth()/scRef->etaWidth(),params)/(scRef->rawEnergy()+ scRef->preshowerEnergy());
