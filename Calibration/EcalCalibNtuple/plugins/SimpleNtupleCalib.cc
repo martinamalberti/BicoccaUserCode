@@ -1015,8 +1015,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      //  basic clusters variables
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
-	 if ( (*bcIt)->seed().rawId() )
-	   ecalLocalCoord.localCoordsEB( (**bcIt) ,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
+	 ecalLocalCoord.localCoordsEB( (**bcIt) ,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
@@ -1031,7 +1030,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theEndcapEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-        
+     
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
 	 ecalLocalCoord.localCoordsEE( (**bcIt),iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
