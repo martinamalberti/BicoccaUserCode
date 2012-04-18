@@ -44,12 +44,11 @@ def makeRecoTags(process):
         #    connect =cms.untracked.string("frontier://FrontierPrep/CMS_COND_ECAL")
         #    ),
         
-
-        cms.PSet(
-            record = cms.string("EcalLaserAPDPNRatiosRcd"),
-            tag = cms.string("EcalLaserAPDPNRatios_p1p2p3_v2_mc"),
-            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
-            ),
+        #cms.PSet(
+        #    record = cms.string("EcalLaserAPDPNRatiosRcd"),
+        #    tag = cms.string("EcalLaserAPDPNRatios_p1p2p3_v2_mc"),
+        #    connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
+        #    ),
         
 
         
