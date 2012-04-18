@@ -859,7 +859,10 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  float xi = 0.02;   
  
  //************* CLUSTER LAZY TOOLS
- if( !ecorr_.IsInitialized() ) ecorr_.Initialize(iSetup,"gbrv2ele.root");
+ if( !ecorr_.IsInitialized() ){
+   //ecorr_.Initialize(iSetup,"gbrv2ele.root");
+   ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!!
+ }
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
  
  
@@ -967,7 +970,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
    double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
    
-   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(electron,*hVertexProduct,lazyTools,iSetup);
+   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(electron,*hVertexProduct,lazyTools,iSetup);
    double scE_regression = cor.first;
    double scEerr_regression = cor.second;
    
