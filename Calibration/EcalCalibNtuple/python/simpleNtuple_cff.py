@@ -69,7 +69,6 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     #inputJetCorrLabel = ('AK5PF', ['L1Fastjet', 'L2Relative', 'L3Absolute'])
     
     process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-    process.load('RecoJets.Configuration.RecoPFJets_cff')
     from RecoJets.JetProducers.kt4PFJets_cfi import *
     
     # compute FastJet rho to correct jets
