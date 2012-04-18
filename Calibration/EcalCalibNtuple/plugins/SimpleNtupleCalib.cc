@@ -1015,7 +1015,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      //  basic clusters variables
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
-	 ecalLocalCoord.localCoordsEB( (**bcIt) ,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
+	 //ecalLocalCoord.localCoordsEB( (**bcIt) ,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt); // FIXME: this doesn't work, in some cases can't find the detId 
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
@@ -1033,7 +1033,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
-	 ecalLocalCoord.localCoordsEE( (**bcIt),iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
+	 //ecalLocalCoord.localCoordsEE( (**bcIt),iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);// FIXME: this doesn't work, in some cases can't find the detId 
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
