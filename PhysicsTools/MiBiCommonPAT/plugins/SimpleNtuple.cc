@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.51 2011/11/21 17:01:21 abenagli Exp $
+// $Id: SimpleNtuple.cc,v 1.52 2012/04/17 16:49:16 malberti Exp $
 //
 //
 
@@ -1009,7 +1009,8 @@ void SimpleNtuple::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::Even
   edm::Handle<reco::VertexCollection> vertexes;
   iEvent.getByLabel(PVTag_, vertexes);
 
-  VertexReProducer revertex(vertexes, iEvent);
+  //VertexReProducer revertex(vertexes, iEvent);
+  VertexReProducer revertex(vertexPset_);
 
   edm::Handle<reco::TrackCollection> pvtracks;
   iEvent.getByLabel(revertex.inputTracks(),   pvtracks);
