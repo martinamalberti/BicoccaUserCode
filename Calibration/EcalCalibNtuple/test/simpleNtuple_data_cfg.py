@@ -13,11 +13,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
 process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
-
-
 # simpleNtuple
 ReReco=False
-makeSimpleNtuple(process,GlobalTag="GR_R_42_V21::All",ReReco=ReReco)
+#makeSimpleNtuple(process,GlobalTag="GR_P_V32::All",ReReco=ReReco)
+makeSimpleNtuple(process,GlobalTag="GR_R_52_V7::All",ReReco=ReReco)
 #makeRecoTags(process)
 #makeSqliteTags(process)
 
@@ -25,26 +24,39 @@ makeSimpleNtuple(process,GlobalTag="GR_R_42_V21::All",ReReco=ReReco)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    #Run2011A - /SingleElectron/Run2011A-PromptReco-v1/*
-    #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_RAW.root'
-    #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_RECO.root'
-    #'file:/data_CMS/cms/abenagli/DATA_SingleElectron_412_AOD.root'
-    #'/store/data/Run2011A/SingleElectron/AOD/May3ReReco-v1/0000/E8B7D65A-E075-E011-982B-00261894394D.root'
-    #'file:/data2/Datasets/DATA_SingleElectron_Run2011A-WElectron-May10ReReco_RAW-RECO.root'
-    'file:/data1/abenagli/DATA_SingleElectron_Run2011A-WElectron-May10ReReco_RAW-RECO.root'
+    #'rfio:/castor/cern.ch/cms/store/data/Run2012A/SingleElectron/AOD/PromptReco-v1/000/190/703/1C7611B0-6383-E111-B61A-001D09F2447F.root'
+    'file:/tmp/malberti/1C7611B0-6383-E111-B61A-001D09F2447F.root'
     )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
 process.GlobalTag.toGet = cms.VPSet(
+    #laser corrections
     cms.PSet(
         record = cms.string("EcalLaserAPDPNRatiosRcd"),
         tag = cms.string("EcalLaserAPDPNRatios_prompt"),
         connect =cms.untracked.string("frontier://PromptProd/CMS_COND_42X_ECAL_LAS")
+        ),
+
+    #alpha
+    cms.PSet(
+        record = cms.string("EcalLaserAlphasRcd"),
+        tag = cms.string("EcalLaserAlphas_v2_prompt"),
+        connect =cms.untracked.string("frontier://PromptProd/CMS_COND_43X_ECAL")
+        ),
+    
+    # intercalibration constants
+    cms.PSet(
+        record = cms.string("EcalIntercalibConstantsRcd"),
+        tag = cms.string("EcalIntercalibConstants_V1_express"),
+        connect =cms.untracked.string("frontier://PromptProd/CMS_COND_31X_ECAL")
         )
+
+
     )
 
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(1000)
+   input = cms.untracked.int32(100)
 )
 
 # out
