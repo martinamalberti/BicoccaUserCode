@@ -65,6 +65,7 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
     vars.m_reducedTree -> Branch("ele1_recHit_iphiORiy", "std::vector<int>",   &vars.ele1_recHit_iphi);
     vars.m_reducedTree -> Branch("ele1_recHit_zside", "std::vector<int>",   &vars.ele1_recHit_zside);
     vars.m_reducedTree -> Branch("ele1_recHit_flag", "std::vector<int>",   &vars.ele1_recHit_flag);
+    vars.m_reducedTree -> Branch("ele1_recHit_alpha", "std::vector<int>",   &vars.ele1_recHit_alpha);
   }
   
   vars.m_reducedTree -> Branch("ele1_scERaw",               &vars.ele1_scERaw,                             "ele1_scERaw/F");
@@ -152,8 +153,9 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
     vars.m_reducedTree -> Branch("ele2_recHit_hashedIndex", "std::vector<int>",   &vars.ele2_recHit_hashedIndex);
     vars.m_reducedTree -> Branch("ele2_recHit_ietaORix", "std::vector<int>",   &vars.ele2_recHit_ieta);
     vars.m_reducedTree -> Branch("ele2_recHit_iphiORiy", "std::vector<int>",   &vars.ele2_recHit_iphi);
-    vars.m_reducedTree -> Branch("ele2_recHit_zside", "std::vector<int>",   &vars.ele2_recHit_zside);
-    vars.m_reducedTree -> Branch("ele2_recHit_flag", "std::vector<int>",   &vars.ele2_recHit_flag);
+    vars.m_reducedTree -> Branch("ele2_recHit_zside"   , "std::vector<int>",   &vars.ele2_recHit_zside);
+    vars.m_reducedTree -> Branch("ele2_recHit_flag"    , "std::vector<int>",   &vars.ele2_recHit_flag);
+    vars.m_reducedTree -> Branch("ele2_recHit_alpha"   , "std::vector<int>",   &vars.ele2_recHit_alpha);
   }
   
   vars.m_reducedTree -> Branch("ele2_scERaw",               &vars.ele2_scERaw,                             "ele2_scERaw/F");
@@ -354,6 +356,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
    vars.ele1_recHit_zside.clear();
    vars.ele1_recHit_laserCorrection.clear();
    vars.ele1_recHit_flag.clear();
+   vars.ele1_recHit_alpha.clear();
   }
 
   
@@ -444,6 +447,7 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
    vars.ele2_recHit_zside.clear();
    vars.ele2_recHit_laserCorrection.clear();
    vars.ele2_recHit_flag.clear();
+   vars.ele2_recHit_alpha.clear();
   }
   
   vars.ele2_scERaw = -99.;
@@ -595,6 +599,7 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
     
     int iRecHit_zside = reader.GetInt("recHit_zside")->at(iRecHit);
     float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
+    float iRecHit_alpha = reader.GetFloat("recHit_alpha")->at(iRecHit);
     int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
     int iRecHit_flag = reader.GetInt("recHit_flag")->at(iRecHit);
     int iRecHit_ietaORix, iRecHit_iphiORiy;
@@ -612,6 +617,7 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
     vars.ele1_recHit_ieta.push_back(iRecHit_ietaORix);
     vars.ele1_recHit_iphi.push_back(iRecHit_iphiORiy);
     vars.ele1_recHit_flag.push_back(iRecHit_flag);
+    vars.ele1_recHit_alpha.push_back(iRecHit_alpha);
    }  
   }
   
@@ -712,6 +718,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
     
     int iRecHit_zside = reader.GetInt("recHit_zside")->at(iRecHit);
     float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
+    float iRecHit_alpha = reader.GetFloat("recHit_alpha")->at(iRecHit);
     int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
     int iRecHit_flag = reader.GetInt("recHit_flag")->at(iRecHit);
     int iRecHit_ietaORix, iRecHit_iphiORiy;
@@ -729,6 +736,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
     vars.ele2_recHit_ieta.push_back(iRecHit_ietaORix);
     vars.ele2_recHit_iphi.push_back(iRecHit_iphiORiy);
     vars.ele2_recHit_flag.push_back(iRecHit_flag);
+    vars.ele2_recHit_flag.push_back(iRecHit_alpha);
     }
  }
  
@@ -843,58 +851,46 @@ void SetPhotonMatchingEle( float* const var, treeReader& reader, const int& eleI
 
 }
 
+
+#include <TLorentzVector.h>
+TLorentzVector GetTLorentzV( const ROOT::Math::XYZTVector &vin ) {
+  return TLorentzVector( vin.px(), vin.py(), vin.pz(), vin.E() );
+}
 void SetGenLeptonInformation (WZAnalysisVariables& vars, treeReader& reader, const int & dataFlag, int isWZ)
 {
   
  if(dataFlag!=0) return;
 
- if(isWZ==0)
- {
-  if(reader.Get4V("mcF1_fromV")->size() == 1)
-  {
-   vars.ele1_E_true = reader.Get4V("mcF1_fromV")->at(0).E();
-   float Deta = fabs (reader.Get4V("mcF1_fromV")->at(0).Eta()-vars.ele1_eta);
-   float Dphi = fabs (reader.Get4V("mcF1_fromV")->at(0).Phi()-vars.ele1_phi);
-   if(Dphi>3.141592) Dphi=Dphi-3.141592;
-   vars.ele1_DR = sqrt(Deta*Deta+Dphi*Dphi);
+ if(isWZ==0) {
+  if(reader.Get4V("mcF1_fromV")->size() == 1) {
+    TLorentzVector  mcp =  GetTLorentzV( reader.Get4V("mcF1_fromV")->at(0) );
+    TLorentzVector  ereco;
+    ereco.SetPtEtaPhiM(vars.ele1_pt,vars.ele1_eta,vars.ele1_phi,0);
+    vars.ele1_DR = mcp.DeltaR(ereco);    
   }
- 
  }
-
- if(isWZ==1)
- {
-   if(reader.Get4V("mcF1_fromV")->size() == 1 && reader.Get4V("mcF2_fromV")->size() == 1)
-   {
-     if(vars.ele1_pt>vars.ele2_pt)
-     {
-          vars.ele1_E_true = reader.Get4V("mcF1_fromV")->at(0).E();
-          float Deta = fabs (reader.Get4V("mcF1_fromV")->at(0).Eta()-vars.ele1_eta);
-          float Dphi = fabs (reader.Get4V("mcF1_fromV")->at(0).Phi()-vars.ele1_phi);
-          if(Dphi>3.141592) Dphi=Dphi-3.141592;
-          vars.ele1_DR = sqrt(Deta*Deta+Dphi*Dphi);
-          
-          vars.ele2_E_true = reader.Get4V("mcF2_fromV")->at(0).E();
-          Deta = fabs (reader.Get4V("mcF2_fromV")->at(0).Eta()-vars.ele2_eta);
-          Dphi = fabs (reader.Get4V("mcF2_fromV")->at(0).Phi()-vars.ele2_phi);
-          if(Dphi>3.141592) Dphi=Dphi-3.141592;
-          vars.ele2_DR = sqrt(Deta*Deta+Dphi*Dphi);
+ 
+ if(isWZ==1) {
+   if(reader.Get4V("mcF1_fromV")->size() == 1 && reader.Get4V("mcF2_fromV")->size() == 1) {
+     TLorentzVector mcp[2] = { GetTLorentzV( reader.Get4V("mcF1_fromV")->at(0) ), 
+			       GetTLorentzV( reader.Get4V("mcF2_fromV")->at(1) ) };
+     TLorentzVector ereco[2];
+     ereco[0].SetPtEtaPhiM(vars.ele1_pt,vars.ele1_eta,vars.ele1_phi,0);
+     ereco[1].SetPtEtaPhiM(vars.ele2_pt,vars.ele2_eta,vars.ele2_phi,0);
+     float drmin[2];
+     for( int iEleReco = 0 ; iEleReco < 2; iEleReco++ ) {
+       float dr[2];
+       for( int iEleMC = 0 ; iEleMC < 2; iEleMC++ ) 
+	 dr[iEleMC] = mcp[iEleMC].DeltaR(ereco[iEleReco]);
+       
+       if( dr[0] < dr[1] ) drmin[iEleReco] = dr[0];
+       else                drmin[iEleReco] = dr[1];
      }
-     else{
-          vars.ele2_E_true = reader.Get4V("mcF1_fromV")->at(0).E();
-          float Deta = fabs (reader.Get4V("mcF1_fromV")->at(0).Eta()-vars.ele2_eta);
-          float Dphi = fabs (reader.Get4V("mcF1_fromV")->at(0).Phi()-vars.ele2_phi);
-          if(Dphi>3.141592) Dphi=Dphi-3.141592;
-          vars.ele2_DR = sqrt(Deta*Deta+Dphi*Dphi);
-          
-          vars.ele1_E_true = reader.Get4V("mcF2_fromV")->at(0).E();
-          Deta = fabs (reader.Get4V("mcF2_fromV")->at(0).Eta()-vars.ele1_eta);
-          Dphi = fabs (reader.Get4V("mcF2_fromV")->at(0).Phi()-vars.ele1_phi);
-          if(Dphi>3.141592) Dphi=Dphi-3.141592;
-          vars.ele1_DR = sqrt(Deta*Deta+Dphi*Dphi);
-
-         }
-
-    }
-  }
+     
+     //// match to the closest MC truth electron
+     vars.ele1_DR = drmin[0];
+     vars.ele2_DR = drmin[1];
+   }
+ }
 
 }

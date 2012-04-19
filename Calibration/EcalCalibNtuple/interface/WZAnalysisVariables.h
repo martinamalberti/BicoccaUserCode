@@ -69,6 +69,7 @@ struct WZAnalysisVariables
   std::vector<int> ele1_recHit_zside;
   std::vector<float> ele1_recHit_laserCorrection;
   std::vector<int> ele1_recHit_flag ;
+  std::vector<int> ele1_recHit_alpha;
 
   float ele1_scERaw;
   float ele1_scEtRaw;
@@ -208,6 +209,7 @@ struct WZAnalysisVariables
   std::vector<int> ele2_recHit_zside;
   std::vector<float> ele2_recHit_laserCorrection;
   std::vector<int> ele2_recHit_flag ;
+  std::vector<int> ele2_recHit_alpha ;
   
   // met variables
   ROOT::Math::XYZTVector met;
