@@ -5,8 +5,6 @@
 //
 #include "Calibration/EcalCalibNtuple/plugins/SimpleNtupleCalib.h"
 
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
-
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
 
@@ -861,10 +859,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  float xi = 0.02;   
  
  //************* CLUSTER LAZY TOOLS
- if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"gbrv2ele_52x.root");
-   //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
- }
+ if( !ecorr_.IsInitialized() ) ecorr_.Initialize(iSetup,"gbrv2ele.root");
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
  
  
@@ -972,7 +967,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
    double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
    
-   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(electron,*hVertexProduct,lazyTools,iSetup);
+   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(electron,*hVertexProduct,lazyTools,iSetup);
    double scE_regression = cor.first;
    double scEerr_regression = cor.second;
    
@@ -997,16 +992,12 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    float E2x2 = 0;
    math::XYZPoint SClocalPos(0.,0.,0.);
 
+   std::pair<double,double> localPosition;
+   localPosition.first = 0.;
+   localPosition.second = 0.;
 
-   // local coordinates
-   // N.B. localEta, localPhi --> sono riempite con localIx, localIy in EE
-   EcalClusterLocal ecalLocalCoord;
-   float bcLocalEta, bcLocalPhi, bcThetatilt, bcPhitilt;  
-   int bcIeta, bcIphi, bcIx, bcIy;
+
    
-   bcLocalEta = 0;
-   bcLocalPhi = 0;
-
    if ( electron.isEB() ) {
      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
@@ -1015,14 +1006,17 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      //  basic clusters variables
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
-	 //ecalLocalCoord.localCoordsEB( (**bcIt) ,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt); // FIXME: this doesn't work, in some cases can't find the detId 
+	 if ( (*bcIt)->seed().rawId() )
+	   localPosition = getLocalPosition(caloGeometry, (*bcIt));// questa fa casino --> controllo che detId sia valido
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
-	 NtupleFactory_->FillFloat("electrons_bcLocalEta", bcLocalEta);
-	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", bcLocalPhi);
+	 NtupleFactory_->FillFloat("electrons_bcLocalEta", localPosition.first);
+	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", localPosition.second);
        }
-     ecalLocalCoord.localCoordsEB(*seedCluster,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
+     
+     localPosition = getLocalPosition(caloGeometry, seedCluster);
+     
    }
 
    if ( electron.isEE() )
@@ -1030,27 +1024,23 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
      E2x2 = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
      SClocalPos = positionCalculator.Calculate_Location(hits, theEndcapEcalRecHits, caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-     
+        
      for(reco::CaloCluster_iterator bcIt = scRef->clustersBegin(); bcIt!=scRef->clustersEnd(); bcIt++)
        {
-	 //ecalLocalCoord.localCoordsEE( (**bcIt),iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);// FIXME: this doesn't work, in some cases can't find the detId 
 	 NtupleFactory_->FillFloat("electrons_bcE", (*bcIt)->energy());
 	 NtupleFactory_->FillFloat("electrons_bcEta", (*bcIt)->eta());
 	 NtupleFactory_->FillFloat("electrons_bcPhi", (*bcIt)->phi());
-	 NtupleFactory_->FillFloat("electrons_bcLocalEta", bcLocalEta);
-	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", bcLocalPhi);
+	 NtupleFactory_->FillFloat("electrons_bcLocalEta", 0.);
+	 NtupleFactory_->FillFloat("electrons_bcLocalPhi", 0.);
        }
-     ecalLocalCoord.localCoordsEE(*seedCluster,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
    }
 
    
    
    //NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",EtaCry);
    //NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",PhiCry);
-   //NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",localPosition.first);
-   //NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",localPosition.second);
-   NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",bcLocalEta);
-   NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",bcLocalPhi);
+   NtupleFactory_->FillFloat("electrons_scLocalPositionEtaCry",localPosition.first);
+   NtupleFactory_->FillFloat("electrons_scLocalPositionPhiCry",localPosition.second);
    NtupleFactory_->Fill3PV("electrons_scLocalPosition",SClocalPos);
    NtupleFactory_->FillInt("electrons_basicClustersSize",electron.basicClustersSize());
    NtupleFactory_->FillFloat("electrons_e1x5",electron.e1x5());
@@ -1058,6 +1048,8 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_e2x2",E2x2);
    NtupleFactory_->FillFloat("electrons_e3x3",E3x3);
    NtupleFactory_->FillFloat("electrons_e5x5",electron.e5x5());
+
+
 
    
    float fCorr = fClusterCorrections(scRef->rawEnergy() + scRef->preshowerEnergy(), scRef->eta(),scRef->phiWidth()/scRef->etaWidth(),params)/(scRef->rawEnergy()+ scRef->preshowerEnergy());
