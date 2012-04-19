@@ -862,8 +862,8 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  
  //************* CLUSTER LAZY TOOLS
  if( !ecorr_.IsInitialized() ){
-   //ecorr_.Initialize(iSetup,"gbrv2ele.root");
-   ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!!
+   ecorr_.Initialize(iSetup,"gbrv2ele_52x.root");
+   //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
  }
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
  
