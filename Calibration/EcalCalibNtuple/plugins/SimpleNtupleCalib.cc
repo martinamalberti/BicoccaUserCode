@@ -246,6 +246,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddInt("recHit_zside");
     NtupleFactory_->AddInt("recHit_hashedIndex");
     NtupleFactory_->AddInt("recHit_flag");
+    NtupleFactory_->AddFloat("recHit_alpha");
     NtupleFactory_->AddInt("recHit_n");
     
     // seed variables
@@ -983,6 +984,49 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_scE_regression",scE_regression);
    NtupleFactory_->FillFloat("electrons_scEerr_regression",scEerr_regression);
       
+   // /// add regression input variables
+   // const SuperCluster &s = electron->superCluster();
+   // const BasicCluster &b = s->seed();
+   // PhotonFix phfix(s.eta(),s.phi()); 
+   // Bool_t isbarrel = (std::abs(s.eta())<1.48);
+   // NtupleFactory_->FillFloat("eRegrInput_rawE",s.rawEnergy());
+   // NtupleFactory_->FillFloat("eRegrInput_r9"  ,clustertools.e3x3(b)/s.rawEnergy());
+   // NtupleFactory_->FillFloat("eRegrInput_eta" ,s.eta());
+   // NtupleFactory_->FillFloat("eRegrInput_phi" ,s.phi());
+   // NtupleFactory_->FillFloat("eRegrInput_r25" ,clustertools.e5x5(b)/s.rawEnergy());
+   // NtupleFactory_->FillFloat("eRegrInput_etaC",phfix.etaC() );
+   // NtupleFactory_->FillFloat("eRegrInput_etaS",phfix.etaS() );
+   // NtupleFactory_->FillFloat("eRegrInput_etaM",phfix.etaM() );
+   // NtupleFactory_->FillFloat("eRegrInput_phiC",phfix.phiC() );
+   // NtupleFactory_->FillFloat("eRegrInput_phiS",phfix.phiS() );
+   // NtupleFactory_->FillFloat("eRegrInput_phiM",phfix.phiM() );
+   // NtupleFactory_->FillFloat("eRegrInput_hoe" ,electron.hcalOverEcal() );
+   // NtupleFactory_->FillFloat("eRegrInput_etaW",s.etaWidth() );
+   // NtupleFactory_->FillFloat("eRegrInput_phiW",s.phiWidth() );
+   // NtupleFactory_->FillFloat("eRegrInput_sieie",electron.sigmaIetaIeta() );
+
+   // if( isbarrel ) {
+   //   NtupleFactory_->FillFloat("eRegrInput_esoe" ,-1 );
+   //   NtupleFactory_->FillFloat("eRegrInput_posxZ",-1 );
+   //   NtupleFactory_->FillFloat("eRegrInput_posxC",phfix.etaC() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posxS",phfix.etaS() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posxM",phfix.etaM() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyZ",-1 );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyC",phfix.phiC() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyS",phfix.phiS() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyM",phfix.phiM() );
+   // } else {
+   //   NtupleFactory_->FillFloat("eRegrInput_esoe" ,s.preshowerEnergy()/s.rawEnergy() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posxZ",phfix.xZ());
+   //   NtupleFactory_->FillFloat("eRegrInput_posxC",phfix.xC() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posxS",phfix.xS() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posxM",phfix.xM() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyZ",phfix.yZ() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyC",phfix.yC() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyS",phfix.yS() );
+   //   NtupleFactory_->FillFloat("eRegrInput_posyM",phfix.yM() );
+   // }
+
    const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
    
    
@@ -1138,6 +1182,11 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
        NtupleFactory_->FillInt("recHit_zside",0);
        NtupleFactory_->FillInt("recHit_hashedIndex",barrelId.hashedIndex());
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
+       float alpha = -1;
+       EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find( itrechit->id () );
+       if( italpha != theEcalLaserAlphaMap->end() )  alpha = (*italpha);
+       NtupleFactory_->FillFloat("recHit_alpha",alpha);
+
        ++numRecHit;
        
        // intercalib constant
@@ -1180,6 +1229,11 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
        NtupleFactory_->FillInt("recHit_zside",endcapId.zside());
        NtupleFactory_->FillInt("recHit_hashedIndex",endcapId.hashedIndex());
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
+       float alpha = -1;
+       EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find( itrechit->id () );
+       if( italpha != theEcalLaserAlphaMap->end() )  alpha = (*italpha);
+       NtupleFactory_->FillFloat("recHit_alpha",alpha);
+
        ++numRecHit;
        
        // intercalib constant
