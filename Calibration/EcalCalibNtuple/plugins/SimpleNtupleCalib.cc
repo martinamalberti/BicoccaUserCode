@@ -1183,7 +1183,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
        NtupleFactory_->FillInt("recHit_hashedIndex",barrelId.hashedIndex());
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        float alpha = -1;
-       EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find( itrechit->id () );
+       EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find( rh->first );
        if( italpha != theEcalLaserAlphaMap->end() )  alpha = (*italpha);
        NtupleFactory_->FillFloat("recHit_alpha",alpha);
 
@@ -1230,7 +1230,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
        NtupleFactory_->FillInt("recHit_hashedIndex",endcapId.hashedIndex());
        NtupleFactory_->FillInt("recHit_flag",itrechit->recoFlag());
        float alpha = -1;
-       EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find( itrechit->id () );
+       EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(rh->first );
        if( italpha != theEcalLaserAlphaMap->end() )  alpha = (*italpha);
        NtupleFactory_->FillFloat("recHit_alpha",alpha);
 
