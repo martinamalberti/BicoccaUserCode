@@ -6,14 +6,15 @@ process = cms.Process("MiBiCommonNT")
 
 # the MiBiNT: Choose the MC type!!!
 # Possible choices: TTBar, Higgs, HiggsWW, HiggsGammaGamma, ZW, Other
-makeMiBiCommonNT(process, GlobalTag="START42_V14B::All", HLT='', MC=True, MCType='Other')
+makeMiBiCommonNT(process, GlobalTag="START52_V9::All", HLT='', MC=True, MCType='ZW')
   
 process.source.fileNames = cms.untracked.vstring(
-    'file:/gwteraz/users/benaglia/pat_42x_fall11_SQWaT_PAT_42X_2011A_May10ReReco-v1_v1.root'
-)
+    #'file:/data2/amassiro/CMSSWRoot/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_AODSIM/AODSIM.root'
+     'file:/tmp/malberti/AODSIM.root'
+        )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 process.TFileService = cms.Service(
     "TFileService", 
