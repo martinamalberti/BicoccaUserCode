@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.GeometryDB_cff import *
 
+#from PhysicsTools.MiBiCommonPAT.offlinePrimaryVerticesParameters_cfi import *
+
 SimpleNtuple = cms.EDAnalyzer(
     "SimpleNtuple",
     
@@ -12,11 +14,14 @@ SimpleNtuple = cms.EDAnalyzer(
     
     TriggerEventTag = cms.InputTag("hltTriggerSummaryAOD"),
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-    
-    PVTag = cms.InputTag("offlinePrimaryVertices"),
+
+    #### primary vertices
+    PVTag = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    NoMuonPVTag = cms.InputTag("offlinePrimaryVerticesNoMu","WithBS"),
 
     #### tracks ####
     TracksTag = cms.InputTag("generalTracks"),
+    NoMuonTracksTag = cms.InputTag("NoMuonTrackProducer"),
 
     #### muons ####
     TauTag = cms.InputTag("patTaus"),
@@ -70,15 +75,15 @@ SimpleNtuple = cms.EDAnalyzer(
     saveBS         = cms.untracked.bool (True),
     savePV         = cms.untracked.bool (True),
     saveRho        = cms.untracked.bool (True),
-    saveEleLessPV  = cms.untracked.bool (True), # default no revertex
+    saveEleLessPV  = cms.untracked.bool (False), # default no revertex
     saveMuonLessPV = cms.untracked.bool (True), # default no revertex
     saveTrack      = cms.untracked.bool (True), # default no tracks
     saveTau        = cms.untracked.bool (False), # default no tau saved
     saveMu         = cms.untracked.bool (True),
-    saveEle        = cms.untracked.bool (True),
+    saveEle        = cms.untracked.bool (False),
     saveMet        = cms.untracked.bool (False),
     saveJet        = cms.untracked.bool (False),
-    savePhoton     = cms.untracked.bool (True),
+    savePhoton     = cms.untracked.bool (False),
     saveHCALNoise  = cms.untracked.bool (False),
     
     saveMCPU              = cms.untracked.bool (False),
@@ -97,16 +102,6 @@ SimpleNtuple = cms.EDAnalyzer(
 
 
     #check that these parameters correspond to what is used in the actual RECO
-    vertexParameters = cms.PSet(
-     verbose = cms.untracked.bool(False),
-     algorithm = cms.string('AdaptiveVertexFitter'),
-     TrackLabel = cms.InputTag("generalTracks"),
-     useBeamConstraint = cms.bool(False),
-     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-     minNdof  = cms.double(0.0),
-     PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(1.0)
-        )
-     )
+    #vertexParameters = offlinePrimaryVerticesParameters
         
 )
