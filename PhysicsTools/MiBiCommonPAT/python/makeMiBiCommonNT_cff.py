@@ -76,6 +76,20 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     process.GoodVtxEvents = process.AllPassFilter.clone()
 
+    #-------------------------------------
+    # build muonless vertices
+    #add track no muon producer
+    process.load("PhysicsTools.MiBiCommonPAT.NoMuonTrackProducer_cfi")
+
+    # re-do vertices
+    process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+    from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+
+    process.offlinePrimaryVerticesNoMu=offlinePrimaryVertices.clone()
+    process.offlinePrimaryVerticesNoMu.TrackLabel = cms.InputTag("NoMuonTrackProducer")
+
+    process.noMuonVertexReco = cms.Sequence(process.NoMuonTrackProducer*process.offlinePrimaryVerticesNoMu)
+    
     
     #------------------
     #Load PAT sequences
@@ -95,43 +109,40 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     if not MC:
      removeMCMatching(process, ['All'])
-        
+    
+    # remove taus from the sequence       
     removeSpecificPATObjects( process, ['Taus'] )
     process.patDefaultSequence.remove( process.patTaus )
-        
-    # Compute the mean pt per unit area (rho) from the
-    # PFchs inputs
-    from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+    
+    #### jets ####    
+    process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+    from RecoJets.JetProducers.kt4PFJets_cfi import *
+    
+    # compute FastJet rho to correct jets
     process.kt6PFJets = kt4PFJets.clone(
         rParam = cms.double(0.6),
         doAreaFastjet = cms.bool(True),
         doRhoFastjet = cms.bool(True)
         )
-    process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJets", "rho")
+    process.patJetCorrFactors.rho = cms.InputTag("kt6PFJets","rho")
     
-    # Compute the jet for the isolation correction
-    process.kt6PFJetsForIsolation = kt4PFJets.clone(
+    # compute CHS rho to correct jets
+    process.kt6PFJetsPFlow = kt4PFJets.clone(
         rParam = cms.double(0.6),
+        src = cms.InputTag('pfNoElectron'+postfix),
+        doAreaFastjet = cms.bool(True),
         doRhoFastjet = cms.bool(True)
         )
+    process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJetsPFlow", "rho")
+    
+    # compute FastJet rho to correct isolation
+    process.kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
     process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
-
+    
     # compute area for ak5PFJets
     process.ak5PFJets.doAreaFastjet = True
-
-
-    # Add the PV selector, KT6 producer and KT4 to the sequence
-    getattr(process,"patPF2PATSequence"+postfix).replace(
-        getattr(process,"pfNoElectron"+postfix),
-        getattr(process,"pfNoElectron"+postfix)*process.kt6PFJets*process.kt6PFJetsForIsolation )
+        
     
-    process.patseq = cms.Sequence(    
-        #process.goodOfflinePrimaryVertices*
-        getattr(process,"patPF2PATSequence"+postfix)
-        )
-
-
-  
     # ---------------
     # add collections
     addTcMET(process, 'TC')
@@ -170,9 +181,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
             doJetID      = True,
             jetIdLabel   = "ak5"
             )        
-
-  
-
+    
     # -------------------
     # pat selection layer
     
@@ -193,9 +202,11 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 
 
-
-
-
+    # Add the KT6 producer to the sequence
+    getattr(process,"patPF2PATSequence"+postfix).replace(
+        getattr(process,"pfNoElectron"+postfix),
+        getattr(process,"pfNoElectron"+postfix)*process.kt6PFJetsPFlow
+        )
     
     # the MiBiPAT path
     process.MiBiCommonPAT = cms.Sequence(
@@ -206,7 +217,10 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.goodOfflinePrimaryVertices *
         process.GoodVtxEvents * # -> Counter
         process.HBHENoiseFilterResultProducer *
-        process.patseq*
+        getattr(process,"patPF2PATSequence"+postfix) *
+        process.kt6PFJets *        
+        process.kt6PFJetsForIsolation *
+        process.ak5PFJets *
         process.patDefaultSequence
         )
     
@@ -248,8 +262,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
       src       = cms.InputTag("selectedPatElectronsPFlow"),
       minNumber = cms.uint32(1)
      )
-    
-    
+
 
     process.load('PhysicsTools.PatAlgos.selectionLayer1.muonCountFilter_cfi')
 
@@ -258,7 +271,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
       minNumber = cms.uint32(2)
     )
 
-
+    
+    
     #------------
     # Jet Filters
     process.load('PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi')    
@@ -285,7 +299,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.JetFilterPFlowEvents = process.AllPassFilter.clone()
     process.PhotonsFilterEvents = process.AllPassFilter.clone()
     process.MuonsFilterEvents = process.AllPassFilter.clone()
-
+     
     process.OneLeptonTwoJetsAK5PFSeq = cms.Sequence(
         process.LeptonsFilter*
         process.LeptonsFilterEvents*
@@ -321,8 +335,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         process.MuonsFilter*
         process.MuonsFilterEvents
     )
-
-
+   
     process.TwoJetsPFlowSeq = cms.Sequence(
         process.JetFilterPFlow*
         process.JetFilterPFlowEvents
@@ -334,8 +347,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
         )
         
     
-    #
-    
+
     
     # the MiBiNTUPLE
     process.load("PhysicsTools.MiBiCommonPAT.SimpleNtuple_cfi")
@@ -408,8 +420,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # GammaGamma paths
     #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
-    process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoMuonsSeq*process.MiBiCommonNTTwoPhotons)
+    process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.MiBiCommonPAT*process.TwoMuonsSeq*process.MiBiCommonNTTwoPhotons)
    
+  
     # Di-jet paths
     #process.MiBiPathTwoJetsAK5PF = cms.Path(process.MiBiCommonPAT*process.TwoJetsAK5PFSeq*process.MiBiCommonNTTwoJetsAK5PF)
     #process.MiBiPathTwoJetsPFlow = cms.Path(process.MiBiCommonPAT*process.TwoJetsPFlowSeq*process.MiBiCommonNTTwoJetsPFlow)
