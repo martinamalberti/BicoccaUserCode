@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.52 2012/04/17 16:49:16 malberti Exp $
+// $Id: SimpleNtuple.cc,v 1.53 2012/04/18 14:33:31 malberti Exp $
 //
 //
 
@@ -60,7 +60,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
   
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
+ NoMuonPVTag_ = iConfig.getParameter<edm::InputTag>("NoMuonPVTag");
  TracksTag_      = iConfig.getParameter<edm::InputTag>("TracksTag");
+ NoMuonTracksTag_      = iConfig.getParameter<edm::InputTag>("NoMuonTracksTag");
 
  EleTag_      = iConfig.getParameter<edm::InputTag>("EleTag");
  EleID_names_ = iConfig.getParameter< std::vector<std::string> >("EleID_names");
@@ -115,7 +117,7 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
  eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
  
- vertexPset_= iConfig.getParameter<edm::ParameterSet>("vertexParameters") ;
+ //vertexPset_= iConfig.getParameter<edm::ParameterSet>("vertexParameters") ;
  
  
  //---- Add branches to ntuple ----  
@@ -647,6 +649,8 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
 
  if(saveMCPU_)
  {
+   NtupleFactory_ -> AddFloat("mc_PUit_TrueNumInteractions");
+
    NtupleFactory_ -> AddInt  ("mc_PUit_NumInteractions");
    NtupleFactory_ -> AddFloat("mc_PUit_zpositions");
    NtupleFactory_ -> AddFloat("mc_PUit_sumpT_lowpT");
@@ -884,6 +888,7 @@ void SimpleNtuple::fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup 
 
 void SimpleNtuple::fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+  //!!!!   OLD : SHOULD BE UPDATED AS MUON LESS VERTEX
   //std::cout << "SimpleNtuple::fillEleLessPVInfo::begin" << std::endl;
   
   //  using namespace edm;
@@ -1005,6 +1010,55 @@ void SimpleNtuple::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::Even
 {
   //std::cout << "SimpleNtuple::fillMuonLessPVInfo::begin" << std::endl;
   
+  edm::Handle<reco::VertexCollection> vertexes;
+  iEvent.getByLabel(NoMuonPVTag_, vertexes);
+  
+  // select the primary vertex    
+  reco::Vertex PV;
+  bool PVfound = (vertexes -> size() != 0);
+
+  if(PVfound)
+    {
+      VertexHigherPtSquared vertexTool;
+      // sort the primary vertices according to sum of (pt)^2 of tracks (first one -> highest  sum of (pt)^2 )        
+      PrimaryVertexSorter PVSorter;
+      std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
+      for( unsigned int u = 0 ; u < sortedVertices.size(); u++ ){
+	PV = sortedVertices[u];
+      
+	NtupleFactory_ -> FillFloat("PV_noMuon_normalizedChi2", PV.normalizedChi2());
+	NtupleFactory_ -> FillInt  ("PV_noMuon_ndof", PV.ndof());
+	NtupleFactory_ -> FillInt  ("PV_noMuon_nTracks", PV.tracksSize());
+	NtupleFactory_ -> FillFloat("PV_noMuon_z", PV.z());
+	NtupleFactory_ -> FillFloat("PV_noMuon_d0", PV.position().Rho());
+	NtupleFactory_ -> FillFloat("PV_noMuon_SumPt",vertexTool.sumPtSquared(PV));
+      }
+      PV = sortedVertices[0];
+    }
+  
+  else
+    {
+      //creating a dummy PV
+      reco::Vertex::Point p(BSPoint_.x(),BSPoint_.y(),BSPoint_.z());
+      reco::Vertex::Error e;
+      e(0,0) = 0.0015*0.0015;
+      e(1,1) = 0.0015*0.0015;
+      e(2,2) = 15.*15.;
+      PV = reco::Vertex(p, e, 1, 1, 1);
+    
+      NtupleFactory_ -> FillFloat("PV_noMuon_normalizedChi2", -1.);
+      NtupleFactory_ -> FillInt  ("PV_noMuon_ndof", -1);
+      NtupleFactory_ -> FillInt  ("PV_noMuon_nTracks", -1);
+      NtupleFactory_ -> FillFloat("PV_noMuon_z", -9999.);
+      NtupleFactory_ -> FillFloat("PV_noMuon_d0", -9999.);
+      NtupleFactory_ -> FillFloat("PV_noMuon_SumPt",-9999.);
+    }
+  
+  math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
+  MuonLessPVPoint_ = PVPoint; 
+
+  /*
+  // THIS THE OLD VERSION WORKING IN 42X
   //  using namespace edm;
   edm::Handle<reco::VertexCollection> vertexes;
   iEvent.getByLabel(PVTag_, vertexes);
@@ -1111,7 +1165,8 @@ void SimpleNtuple::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::Even
   
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
   MuonLessPVPoint_ = PVPoint;
-  
+  */
+
   //std::cout << "SimpleNtuple::fillMuonLessPVInfo::end" << std::endl;
 }
 
@@ -1120,6 +1175,7 @@ void SimpleNtuple::fillMuonLessPVInfo(const edm::Event & iEvent, const edm::Even
 
 void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) 
 {
+  // --- generalTracks collection
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel(TracksTag_, tracks);
   const reco::TrackCollection* theTracks = tracks.product () ;
@@ -1137,7 +1193,6 @@ void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetu
     sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
   
   double distmin = 10000;
-  //double dRmin = 10000;
   int vertexIndex = -1;
   for (reco::TrackCollection::const_iterator TKitr = theTracks->begin(); TKitr != theTracks->end(); ++TKitr)
     {
@@ -1258,6 +1313,41 @@ void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetu
 
 
   // //muons
+  edm::Handle<reco::TrackCollection> noMuontracks;
+  iEvent.getByLabel(TracksTag_, noMuontracks);
+  const reco::TrackCollection* theNoMuonTracks = noMuontracks.product () ;
+  
+  edm::Handle<reco::VertexCollection> MuonLessVertexes;
+  iEvent.getByLabel(NoMuonPVTag_, MuonLessVertexes);
+  
+  // select the primary vertex    
+  reco::Vertex MuonLessPV;
+  bool MuonLessPVfound = (MuonLessVertexes -> size() != 0);
+
+  PrimaryVertexSorter MuonLessPVSorter;
+  std::vector<reco::Vertex> sortedMuonLessVertices;
+  if(MuonLessPVfound)
+    sortedMuonLessVertices = MuonLessPVSorter.sortedList( *(MuonLessVertexes.product()) );
+ 
+  for( unsigned int u = 0 ; u < sortedMuonLessVertices.size(); u++ )
+    {      
+      float myptsum = 0;
+      MuonLessPV = sortedMuonLessVertices[u];
+      for ( Vertex::trackRef_iterator MuonLessPVitr = MuonLessPV.tracks_begin(); MuonLessPVitr != MuonLessPV.tracks_end(); ++MuonLessPVitr)
+	{
+	  float pt = sqrt( (**MuonLessPVitr).momentum().perp2() );
+	  myptsum  += pt;
+	    
+	  NtupleFactory_ -> Fill3V("PVMuonLessTracks", (**MuonLessPVitr).momentum());
+	  NtupleFactory_ -> FillInt("PVMuonLessTracks_PVindex", u);
+	  NtupleFactory_ -> FillFloat("PVMuonLessTracks_normalizedChi2", (**MuonLessPVitr).normalizedChi2());
+	  NtupleFactory_ -> FillInt("PVMuonLessTracks_numberOfValidHits", (**MuonLessPVitr).numberOfValidHits());
+
+	}
+
+      NtupleFactory_ -> FillFloat("PVMuonLessTracks_sumPt", myptsum);
+    }
+  /*
   if (saveMuonLessPV_)
     {
       for( unsigned int u = 0 ; u < MuonLessPvs.size(); u++ )
@@ -1283,7 +1373,7 @@ void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetu
   	  NtupleFactory_ -> FillFloat("PVMuonLessTracks_sumPt", myptsum);
   	}
     }
-
+  */
 }
 
 
@@ -2203,6 +2293,9 @@ void SimpleNtuple::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetu
     // in-time pileup
     if( PVI->getBunchCrossing() == 0 )
     {
+
+      NtupleFactory_->FillFloat("mc_PUit_TrueNumInteractions",PVI->getTrueNumInteractions());    
+
       NtupleFactory_->FillInt("mc_PUit_NumInteractions",PVI->getPU_NumInteractions());    
       
      for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
