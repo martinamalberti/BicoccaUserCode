@@ -13,7 +13,7 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   // Reduced tree
   //-------------
   
-  vars.m_outputRootFile = new TFile(outputRootFileName.c_str(), "RECREATE");  
+  vars.m_outputRootFile = new TFile(outputRootFileName.c_str(), "CREATE");  
   
   vars.m_reducedTree = new TTree("ntu", "ntu");
   vars.m_reducedTree -> SetDirectory(vars.m_outputRootFile);
@@ -24,37 +24,31 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("lumiId",        &vars.lumiId,               "lumiId/I");
   vars.m_reducedTree -> Branch("eventId",       &vars.eventId,             "eventId/I");
 
-  if(!isCalib)
-  {
-    vars.m_reducedTree -> Branch("dataFlag",      &vars.dataFlag,           "dataFlag/I");
-    vars.m_reducedTree -> Branch("totEvents",     &vars.totEvents,         "totEvents/I");
-    vars.m_reducedTree -> Branch("crossSection",  &vars.crossSection,   "crossSection/F");
+  vars.m_reducedTree -> Branch("dataFlag",      &vars.dataFlag,           "dataFlag/I");
+  vars.m_reducedTree -> Branch("totEvents",     &vars.totEvents,         "totEvents/I");
+  vars.m_reducedTree -> Branch("crossSection",  &vars.crossSection,   "crossSection/F");
 
-    vars.m_reducedTree -> Branch("eventNaiveId",  &vars.eventNaiveId,   "eventNaiveId/I");
-    vars.m_reducedTree -> Branch("timeStampLow",  &vars.timeStampLow,   "timeStampLow/I");
-    vars.m_reducedTree -> Branch("timeStampHigh", &vars.timeStampHigh, "timeStampHigh/I");
-  }
+  vars.m_reducedTree -> Branch("eventNaiveId",  &vars.eventNaiveId,   "eventNaiveId/I");
+  vars.m_reducedTree -> Branch("timeStampLow",  &vars.timeStampLow,   "timeStampLow/I");
+  vars.m_reducedTree -> Branch("timeStampHigh", &vars.timeStampHigh, "timeStampHigh/I");
   
   vars.m_reducedTree -> Branch("isW", &vars.isW, "isW/I");
   vars.m_reducedTree -> Branch("isZ", &vars.isZ, "isZ/I");
   
-  if(!isCalib)
-  {
-    // PU variables
-    vars.m_reducedTree -> Branch("PUit_TrueNumInteraction",  &vars.PUit_TrueNumInteraction,    "PUit_TrueNumInteraction/F");
-    vars.m_reducedTree -> Branch("PUit_NumInteractions", &vars.PUit_NumInteraction,   "PUit_NumInteraction/I");
-    vars.m_reducedTree -> Branch("PUoot_early",  &vars.PUoot_early, "PUoot_early/I");
-    vars.m_reducedTree -> Branch("PUoot_late", &vars.PUoot_late,   "PUoot_late/I");
+  // PU variables
+  vars.m_reducedTree -> Branch("PUit_TrueNumInteraction",  &vars.PUit_TrueNumInteraction,    "PUit_TrueNumInteraction/F");
+  vars.m_reducedTree -> Branch("PUit_NumInteractions", &vars.PUit_NumInteraction,   "PUit_NumInteraction/I");
+  vars.m_reducedTree -> Branch("PUoot_early",  &vars.PUoot_early, "PUoot_early/I");
+  vars.m_reducedTree -> Branch("PUoot_late", &vars.PUoot_late,   "PUoot_late/I");
   
-    vars.m_reducedTree -> Branch("rhoForIsolation", &vars.rhoForIsolation, "rhoForIsolation/F");
-    vars.m_reducedTree -> Branch("rhoForJets",      &vars.rhoForJets,           "rhoForJets/F");
+  vars.m_reducedTree -> Branch("rhoForIsolation", &vars.rhoForIsolation, "rhoForIsolation/F");
+  vars.m_reducedTree -> Branch("rhoForJets",      &vars.rhoForJets,           "rhoForJets/F");
   
       // PV variables
-    vars.m_reducedTree -> Branch("PV_n",     &vars.PV_n,         "PV_n/I");
-    vars.m_reducedTree -> Branch("PV_z",     &vars.PV_z,         "PV_z/F");
-    vars.m_reducedTree -> Branch("PV_d0",    &vars.PV_d0,       "PV_d0/F");
-    vars.m_reducedTree -> Branch("PV_SumPt", &vars.PV_SumPt, "PV_SumPt/F");
-  }
+  vars.m_reducedTree -> Branch("PV_n",     &vars.PV_n,         "PV_n/I");
+  vars.m_reducedTree -> Branch("PV_z",     &vars.PV_z,         "PV_z/F");
+  vars.m_reducedTree -> Branch("PV_d0",    &vars.PV_d0,       "PV_d0/F");
+  vars.m_reducedTree -> Branch("PV_SumPt", &vars.PV_SumPt, "PV_SumPt/F");
     
   // 1st electron variables
   if(isCalib)
@@ -94,58 +88,53 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_isEBPhiGap",  &vars.ele1_isEBPhiGap,   "ele1_isEBPhiGap/I");
   vars.m_reducedTree -> Branch("ele1_isEEDeeGap",  &vars.ele1_isEEDeeGap,   "ele1_isEEDeeGap/I");
   vars.m_reducedTree -> Branch("ele1_isEERingGap", &vars.ele1_isEERingGap, "ele1_isEERingGap/I");
+  vars.m_reducedTree -> Branch("ele1_charge", &vars.ele1_charge, "ele1_charge/F");
 
   vars.m_reducedTree -> Branch("ele1_nRecHits",    &vars.ele1_nRecHits,       "ele1_nRecHits/I");
   
-  if(!isCalib)
-  {
-    vars.m_reducedTree -> Branch("ele1_charge", &vars.ele1_charge, "ele1_charge/F");
-
-    vars.m_reducedTree -> Branch("ele1_p",      &vars.ele1_p,           "ele1_p/F");
-    vars.m_reducedTree -> Branch("ele1_pt",     &vars.ele1_pt,         "ele1_pt/F");
-    vars.m_reducedTree -> Branch("ele1_eta",    &vars.ele1_eta,       "ele1_eta/F");
-    vars.m_reducedTree -> Branch("ele1_phi",    &vars.ele1_phi,       "ele1_phi/F");
+  vars.m_reducedTree -> Branch("ele1_p",      &vars.ele1_p,           "ele1_p/F");
+  vars.m_reducedTree -> Branch("ele1_pt",     &vars.ele1_pt,         "ele1_pt/F");
+  vars.m_reducedTree -> Branch("ele1_eta",    &vars.ele1_eta,       "ele1_eta/F");
+  vars.m_reducedTree -> Branch("ele1_phi",    &vars.ele1_phi,       "ele1_phi/F");
   
-    vars.m_reducedTree -> Branch("ele1_sigmaIetaIeta", &vars.ele1_sigmaIetaIeta, "ele1_sigmaIetaIeta/F");
-    vars.m_reducedTree -> Branch("ele1_DphiIn",        &vars.ele1_DphiIn,               "ele1_DphiIn/F");
-    vars.m_reducedTree -> Branch("ele1_DetaIn",        &vars.ele1_DetaIn,               "ele1_DetaIn/F");
-    vars.m_reducedTree -> Branch("ele1_HOverE",        &vars.ele1_HOverE,               "ele1_HOverE/F");
-    vars.m_reducedTree -> Branch("ele1_tkIso",         &vars.ele1_tkIso,                 "ele1_tkIso/F");
-    vars.m_reducedTree -> Branch("ele1_emIso",         &vars.ele1_emIso,                 "ele1_emIso/F");
-    vars.m_reducedTree -> Branch("ele1_hadIso",        &vars.ele1_hadIso,               "ele1_hadIso/F");
+  vars.m_reducedTree -> Branch("ele1_sigmaIetaIeta", &vars.ele1_sigmaIetaIeta, "ele1_sigmaIetaIeta/F");
+  vars.m_reducedTree -> Branch("ele1_DphiIn",        &vars.ele1_DphiIn,               "ele1_DphiIn/F");
+  vars.m_reducedTree -> Branch("ele1_DetaIn",        &vars.ele1_DetaIn,               "ele1_DetaIn/F");
+  vars.m_reducedTree -> Branch("ele1_HOverE",        &vars.ele1_HOverE,               "ele1_HOverE/F");
+  vars.m_reducedTree -> Branch("ele1_tkIso",         &vars.ele1_tkIso,                 "ele1_tkIso/F");
+  vars.m_reducedTree -> Branch("ele1_emIso",         &vars.ele1_emIso,                 "ele1_emIso/F");
+  vars.m_reducedTree -> Branch("ele1_hadIso",        &vars.ele1_hadIso,               "ele1_hadIso/F");
   
-    vars.m_reducedTree -> Branch("ele1_scEtRaw",     &vars.ele1_scEtRaw,         "ele1_scEtRaw/F");
-    vars.m_reducedTree -> Branch("ele1_scEt",        &vars.ele1_scEt,               "ele1_scEt/F");
-    vars.m_reducedTree -> Branch("ele1_scEta",       &vars.ele1_scEta,             "ele1_scEta/F");
-    vars.m_reducedTree -> Branch("ele1_scPhi",       &vars.ele1_scPhi,             "ele1_scPhi/F");
-    vars.m_reducedTree -> Branch("ele1_scLocalPhi",       &vars.ele1_scLocalPhi,             "ele1_scLocalPhi/F");
-    vars.m_reducedTree -> Branch("ele1_scLocalEta",       &vars.ele1_scLocalEta,             "ele1_scLocalEta/F");
-    vars.m_reducedTree -> Branch("ele1_scEtaWidth",  &vars.ele1_scEtaWidth,   "ele1_scEtaWidth/F");
-    vars.m_reducedTree -> Branch("ele1_scPhiWidth",  &vars.ele1_scPhiWidth,   "ele1_scPhiWidth/F");
-    vars.m_reducedTree -> Branch("ele1_scLaserCorr", &vars.ele1_scLaserCorr, "ele1_scLaserCorr/F");
-    vars.m_reducedTree -> Branch("ele1_scCrackCorr", &vars.ele1_scCrackCorr, "ele1_scCrackCorr/F");
-    vars.m_reducedTree -> Branch("ele1_scLocalContCorr", &vars.ele1_scLocalContCorr, "ele1_scLocalContCorr/F");
-    vars.m_reducedTree -> Branch("ele1_scLocalContCorr_DK", &vars.ele1_scLocalContCorr_DK, "ele1_scLocalContCorr_DK/F");
+  vars.m_reducedTree -> Branch("ele1_scEtRaw",     &vars.ele1_scEtRaw,         "ele1_scEtRaw/F");
+  vars.m_reducedTree -> Branch("ele1_scEt",        &vars.ele1_scEt,               "ele1_scEt/F");
+  vars.m_reducedTree -> Branch("ele1_scEta",       &vars.ele1_scEta,             "ele1_scEta/F");
+  vars.m_reducedTree -> Branch("ele1_scPhi",       &vars.ele1_scPhi,             "ele1_scPhi/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalPhi",       &vars.ele1_scLocalPhi,             "ele1_scLocalPhi/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalEta",       &vars.ele1_scLocalEta,             "ele1_scLocalEta/F");
+  vars.m_reducedTree -> Branch("ele1_scEtaWidth",  &vars.ele1_scEtaWidth,   "ele1_scEtaWidth/F");
+  vars.m_reducedTree -> Branch("ele1_scPhiWidth",  &vars.ele1_scPhiWidth,   "ele1_scPhiWidth/F");
+  vars.m_reducedTree -> Branch("ele1_scLaserCorr", &vars.ele1_scLaserCorr, "ele1_scLaserCorr/F");
+  vars.m_reducedTree -> Branch("ele1_scCrackCorr", &vars.ele1_scCrackCorr, "ele1_scCrackCorr/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalContCorr", &vars.ele1_scLocalContCorr, "ele1_scLocalContCorr/F");
+  vars.m_reducedTree -> Branch("ele1_scLocalContCorr_DK", &vars.ele1_scLocalContCorr_DK, "ele1_scLocalContCorr_DK/F");
   
-    vars.m_reducedTree -> Branch("ele1_nPh", &vars.ele1_nPh, "ele1_nPh/I");
-    vars.m_reducedTree -> Branch("ele1_ph_E", &vars.ele1_ph_E, "ele1_ph_E/F");
-    vars.m_reducedTree -> Branch("ele1_ph_scEta", &vars.ele1_ph_scEta, "ele1_ph_scEta/F");
-    vars.m_reducedTree -> Branch("ele1_ph_scPhi", &vars.ele1_ph_scPhi, "ele1_ph_scPhi/F");
-    vars.m_reducedTree -> Branch("ele1_ph_R9", &vars.ele1_ph_R9, "ele1_ph_R9/F");
+  vars.m_reducedTree -> Branch("ele1_nPh", &vars.ele1_nPh, "ele1_nPh/I");
+  vars.m_reducedTree -> Branch("ele1_ph_E", &vars.ele1_ph_E, "ele1_ph_E/F");
+  vars.m_reducedTree -> Branch("ele1_ph_scEta", &vars.ele1_ph_scEta, "ele1_ph_scEta/F");
+  vars.m_reducedTree -> Branch("ele1_ph_scPhi", &vars.ele1_ph_scPhi, "ele1_ph_scPhi/F");
+  vars.m_reducedTree -> Branch("ele1_ph_R9", &vars.ele1_ph_R9, "ele1_ph_R9/F");
  
-    vars.m_reducedTree -> Branch("ele1_seedE",          &vars.ele1_seedE,                   "ele1_seedE/F");
-    vars.m_reducedTree -> Branch("ele1_seedIeta",       &vars.ele1_seedIeta,             "ele1_seedIeta/I");
-    vars.m_reducedTree -> Branch("ele1_seedIphi",       &vars.ele1_seedIphi,             "ele1_seedIphi/I");
-    vars.m_reducedTree -> Branch("ele1_seedIx",         &vars.ele1_seedIx,                 "ele1_seedIx/I");
-    vars.m_reducedTree -> Branch("ele1_seedIy",         &vars.ele1_seedIy,                 "ele1_seedIy/I");
-    vars.m_reducedTree -> Branch("ele1_seedZside",      &vars.ele1_seedZside,           "ele1_seedZside/I");
-    vars.m_reducedTree -> Branch("ele1_seedLaserAlpha", &vars.ele1_seedLaserAlpha, "ele1_seedLaserAlpha/F");
-    vars.m_reducedTree -> Branch("ele1_seedLaserCorr",  &vars.ele1_seedLaserCorr,   "ele1_seedLaserCorr/F");
+  vars.m_reducedTree -> Branch("ele1_seedE",          &vars.ele1_seedE,                   "ele1_seedE/F");
+  vars.m_reducedTree -> Branch("ele1_seedIeta",       &vars.ele1_seedIeta,             "ele1_seedIeta/I");
+  vars.m_reducedTree -> Branch("ele1_seedIphi",       &vars.ele1_seedIphi,             "ele1_seedIphi/I");
+  vars.m_reducedTree -> Branch("ele1_seedIx",         &vars.ele1_seedIx,                 "ele1_seedIx/I");
+  vars.m_reducedTree -> Branch("ele1_seedIy",         &vars.ele1_seedIy,                 "ele1_seedIy/I");
+  vars.m_reducedTree -> Branch("ele1_seedZside",      &vars.ele1_seedZside,           "ele1_seedZside/I");
+  vars.m_reducedTree -> Branch("ele1_seedLaserAlpha", &vars.ele1_seedLaserAlpha, "ele1_seedLaserAlpha/F");
+  vars.m_reducedTree -> Branch("ele1_seedLaserCorr",  &vars.ele1_seedLaserCorr,   "ele1_seedLaserCorr/F");
   
-    vars.m_reducedTree -> Branch("ele1_tkPt", &vars.ele1_tkPt, "ele1_tkPt/F");
-  
-   }
-  
+  vars.m_reducedTree -> Branch("ele1_tkPt", &vars.ele1_tkPt, "ele1_tkPt/F");
+   
   // 2nd electron variables  
   if(isCalib)
   {
@@ -185,57 +174,54 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_isEBPhiGap",  &vars.ele2_isEBPhiGap,   "ele2_isEBPhiGap/I");
   vars.m_reducedTree -> Branch("ele2_isEEDeeGap",  &vars.ele2_isEEDeeGap,   "ele2_isEEDeeGap/I");
   vars.m_reducedTree -> Branch("ele2_isEERingGap", &vars.ele2_isEERingGap, "ele2_isEERingGap/I");
-
+  vars.m_reducedTree -> Branch("ele2_charge", &vars.ele2_charge, "ele2_charge/F");
+  
   vars.m_reducedTree -> Branch("ele2_nRecHits",    &vars.ele2_nRecHits,       "ele2_nRecHits/I");
 
-  if(!isCalib)
-  {
-   vars.m_reducedTree -> Branch("ele2_charge", &vars.ele2_charge, "ele2_charge/F");
-   vars.m_reducedTree -> Branch("ele2_p",      &vars.ele2_p,           "ele2_p/F");
-   vars.m_reducedTree -> Branch("ele2_pt",     &vars.ele2_pt,         "ele2_pt/F");
-   vars.m_reducedTree -> Branch("ele2_eta",    &vars.ele2_eta,       "ele2_eta/F");
-   vars.m_reducedTree -> Branch("ele2_phi",    &vars.ele2_phi,       "ele2_phi/F");
+  vars.m_reducedTree -> Branch("ele2_p",      &vars.ele2_p,           "ele2_p/F");
+  vars.m_reducedTree -> Branch("ele2_pt",     &vars.ele2_pt,         "ele2_pt/F");
+  vars.m_reducedTree -> Branch("ele2_eta",    &vars.ele2_eta,       "ele2_eta/F");
+  vars.m_reducedTree -> Branch("ele2_phi",    &vars.ele2_phi,       "ele2_phi/F");
   
-   vars.m_reducedTree -> Branch("ele2_sigmaIetaIeta", &vars.ele2_sigmaIetaIeta, "ele2_sigmaIetaIeta/F");
-   vars.m_reducedTree -> Branch("ele2_DphiIn",        &vars.ele2_DphiIn,               "ele2_DphiIn/F");
-   vars.m_reducedTree -> Branch("ele2_DetaIn",        &vars.ele2_DetaIn,               "ele2_DetaIn/F");
-   vars.m_reducedTree -> Branch("ele2_HOverE",        &vars.ele2_HOverE,               "ele2_HOverE/F");
-   vars.m_reducedTree -> Branch("ele2_tkIso",         &vars.ele2_tkIso,                 "ele2_tkIso/F");
-   vars.m_reducedTree -> Branch("ele2_emIso",         &vars.ele2_emIso,                 "ele2_emIso/F");
-   vars.m_reducedTree -> Branch("ele2_hadIso",        &vars.ele2_hadIso,               "ele2_hadIso/F");
+  vars.m_reducedTree -> Branch("ele2_sigmaIetaIeta", &vars.ele2_sigmaIetaIeta, "ele2_sigmaIetaIeta/F");
+  vars.m_reducedTree -> Branch("ele2_DphiIn",        &vars.ele2_DphiIn,               "ele2_DphiIn/F");
+  vars.m_reducedTree -> Branch("ele2_DetaIn",        &vars.ele2_DetaIn,               "ele2_DetaIn/F");
+  vars.m_reducedTree -> Branch("ele2_HOverE",        &vars.ele2_HOverE,               "ele2_HOverE/F");
+  vars.m_reducedTree -> Branch("ele2_tkIso",         &vars.ele2_tkIso,                 "ele2_tkIso/F");
+  vars.m_reducedTree -> Branch("ele2_emIso",         &vars.ele2_emIso,                 "ele2_emIso/F");
+  vars.m_reducedTree -> Branch("ele2_hadIso",        &vars.ele2_hadIso,               "ele2_hadIso/F");
   
-   vars.m_reducedTree -> Branch("ele2_scEtRaw",     &vars.ele2_scEtRaw,         "ele2_scEtRaw/F");
-   vars.m_reducedTree -> Branch("ele2_scEt",        &vars.ele2_scEt,               "ele2_scEt/F");
-   vars.m_reducedTree -> Branch("ele2_scEta",       &vars.ele2_scEta,             "ele2_scEta/F");
-   vars.m_reducedTree -> Branch("ele2_scPhi",       &vars.ele2_scPhi,             "ele2_scPhi/F");
-   vars.m_reducedTree -> Branch("ele2_scLocalPhi",       &vars.ele2_scLocalPhi,             "ele2_scLocalPhi/F");
-   vars.m_reducedTree -> Branch("ele2_scLocalEta",       &vars.ele2_scLocalEta,             "ele2_scLocalEta/F");
-   vars.m_reducedTree -> Branch("ele2_scEtaWidth",  &vars.ele2_scEtaWidth,   "ele2_scEtaWidth/F");
-   vars.m_reducedTree -> Branch("ele2_scPhiWidth",  &vars.ele2_scPhiWidth,   "ele2_scPhiWidth/F");
-   vars.m_reducedTree -> Branch("ele2_scLaserCorr", &vars.ele2_scLaserCorr, "ele2_scLaserCorr/F");
-   vars.m_reducedTree -> Branch("ele2_scCrackCorr", &vars.ele2_scCrackCorr, "ele2_scCrackCorr/F");
-   vars.m_reducedTree -> Branch("ele2_scLocalContCorr", &vars.ele2_scLocalContCorr, "ele2_scLocalContCorr/F");
-   vars.m_reducedTree -> Branch("ele2_scLocalContCorr_DK", &vars.ele2_scLocalContCorr_DK, "ele2_scLocalContCorr_DK/F");
+  vars.m_reducedTree -> Branch("ele2_scEtRaw",     &vars.ele2_scEtRaw,         "ele2_scEtRaw/F");
+  vars.m_reducedTree -> Branch("ele2_scEt",        &vars.ele2_scEt,               "ele2_scEt/F");
+  vars.m_reducedTree -> Branch("ele2_scEta",       &vars.ele2_scEta,             "ele2_scEta/F");
+  vars.m_reducedTree -> Branch("ele2_scPhi",       &vars.ele2_scPhi,             "ele2_scPhi/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalPhi",       &vars.ele2_scLocalPhi,             "ele2_scLocalPhi/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalEta",       &vars.ele2_scLocalEta,             "ele2_scLocalEta/F");
+  vars.m_reducedTree -> Branch("ele2_scEtaWidth",  &vars.ele2_scEtaWidth,   "ele2_scEtaWidth/F");
+  vars.m_reducedTree -> Branch("ele2_scPhiWidth",  &vars.ele2_scPhiWidth,   "ele2_scPhiWidth/F");
+  vars.m_reducedTree -> Branch("ele2_scLaserCorr", &vars.ele2_scLaserCorr, "ele2_scLaserCorr/F");
+  vars.m_reducedTree -> Branch("ele2_scCrackCorr", &vars.ele2_scCrackCorr, "ele2_scCrackCorr/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalContCorr", &vars.ele2_scLocalContCorr, "ele2_scLocalContCorr/F");
+  vars.m_reducedTree -> Branch("ele2_scLocalContCorr_DK", &vars.ele2_scLocalContCorr_DK, "ele2_scLocalContCorr_DK/F");
   
   
-   vars.m_reducedTree -> Branch("ele2_nPh", &vars.ele2_nPh, "ele2_nPh/I");
-   vars.m_reducedTree -> Branch("ele2_ph_E", &vars.ele2_ph_E, "ele2_ph_E/F");
-   vars.m_reducedTree -> Branch("ele2_ph_scEta", &vars.ele2_ph_scEta, "ele2_ph_scEta/F");
-   vars.m_reducedTree -> Branch("ele2_ph_scPhi", &vars.ele2_ph_scPhi, "ele2_ph_scPhi/F");
-   vars.m_reducedTree -> Branch("ele2_ph_R9", &vars.ele2_ph_R9, "ele2_ph_R9/F");
+  vars.m_reducedTree -> Branch("ele2_nPh", &vars.ele2_nPh, "ele2_nPh/I");
+  vars.m_reducedTree -> Branch("ele2_ph_E", &vars.ele2_ph_E, "ele2_ph_E/F");
+  vars.m_reducedTree -> Branch("ele2_ph_scEta", &vars.ele2_ph_scEta, "ele2_ph_scEta/F");
+  vars.m_reducedTree -> Branch("ele2_ph_scPhi", &vars.ele2_ph_scPhi, "ele2_ph_scPhi/F");
+  vars.m_reducedTree -> Branch("ele2_ph_R9", &vars.ele2_ph_R9, "ele2_ph_R9/F");
 
-   vars.m_reducedTree -> Branch("ele2_seedE",          &vars.ele2_seedE,                   "ele2_seedE/F");
-   vars.m_reducedTree -> Branch("ele2_seedIeta",       &vars.ele2_seedIeta,             "ele2_seedIeta/I");
-   vars.m_reducedTree -> Branch("ele2_seedIphi",       &vars.ele2_seedIphi,             "ele2_seedIphi/I");
-   vars.m_reducedTree -> Branch("ele2_seedIx",         &vars.ele2_seedIx,                 "ele2_seedIx/I");
-   vars.m_reducedTree -> Branch("ele2_seedIy",         &vars.ele2_seedIy,                 "ele2_seedIy/I");
-   vars.m_reducedTree -> Branch("ele2_seedZside",      &vars.ele2_seedZside,           "ele2_seedZside/I");
-   vars.m_reducedTree -> Branch("ele2_seedLaserAlpha", &vars.ele2_seedLaserAlpha, "ele2_seedLaserAlpha/F");
-   vars.m_reducedTree -> Branch("ele2_seedLaserCorr",  &vars.ele2_seedLaserCorr,   "ele2_seedLaserCorr/F");
+  vars.m_reducedTree -> Branch("ele2_seedE",          &vars.ele2_seedE,                   "ele2_seedE/F");
+  vars.m_reducedTree -> Branch("ele2_seedIeta",       &vars.ele2_seedIeta,             "ele2_seedIeta/I");
+  vars.m_reducedTree -> Branch("ele2_seedIphi",       &vars.ele2_seedIphi,             "ele2_seedIphi/I");
+  vars.m_reducedTree -> Branch("ele2_seedIx",         &vars.ele2_seedIx,                 "ele2_seedIx/I");
+  vars.m_reducedTree -> Branch("ele2_seedIy",         &vars.ele2_seedIy,                 "ele2_seedIy/I");
+  vars.m_reducedTree -> Branch("ele2_seedZside",      &vars.ele2_seedZside,           "ele2_seedZside/I");
+  vars.m_reducedTree -> Branch("ele2_seedLaserAlpha", &vars.ele2_seedLaserAlpha, "ele2_seedLaserAlpha/F");
+  vars.m_reducedTree -> Branch("ele2_seedLaserCorr",  &vars.ele2_seedLaserCorr,   "ele2_seedLaserCorr/F");
   
-   vars.m_reducedTree -> Branch("ele2_tkPt", &vars.ele2_tkPt, "ele2_tkPt/F");
+  vars.m_reducedTree -> Branch("ele2_tkPt", &vars.ele2_tkPt, "ele2_tkPt/F");
   
- }
 
  vars.m_reducedTree -> Branch("ele1_E_true", &vars.ele1_E_true, "ele1_E_true/F");
  vars.m_reducedTree -> Branch("ele1_DR", &vars.ele1_DR, "ele1_DR/F");
@@ -277,15 +263,12 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.lumiId = -1;
   vars.eventId = -1;
   
-  if(!isCalib)
-  {
-    vars.dataFlag = -1;
-    vars.totEvents = -1;
-    vars.crossSection = -1.;
-    vars.eventNaiveId = -1;
-    vars.timeStampLow = -1;
-    vars.timeStampHigh = -1;
-  }
+  vars.dataFlag = -1;
+  vars.totEvents = -1;
+  vars.crossSection = -1.;
+  vars.eventNaiveId = -1;
+  vars.timeStampLow = -1;
+  vars.timeStampHigh = -1;
   
   
   vars.isW = -1;
@@ -393,49 +376,47 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele2 = ROOT::Math::XYZTVector(0., 0., 0., 0.);
   vars.p_ele2 = &vars.ele2;
   
-  if(!isCalib)
-  {
-   vars.ele2_charge = -1.;
-   vars.ele2_p = -99.;
-   vars.ele2_pt = -99.;
-   vars.ele2_eta = -99.;
-   vars.ele2_phi = -99.;
-  }
-   vars.ele2_sigmaIetaIeta = -99.;
-   vars.ele2_DphiIn = -99.;
-   vars.ele2_DetaIn = -99.;
-   vars.ele2_HOverE = -99.;
-   vars.ele2_tkIso = -99.;
-   vars.ele2_emIso = -99.;
-   vars.ele2_hadIso = -99.;
+  vars.ele2_charge = -1.;
+  vars.ele2_p = -99.;
+  vars.ele2_pt = -99.;
+  vars.ele2_eta = -99.;
+  vars.ele2_phi = -99.;
+ 
+  vars.ele2_sigmaIetaIeta = -99.;
+  vars.ele2_DphiIn = -99.;
+  vars.ele2_DetaIn = -99.;
+  vars.ele2_HOverE = -99.;
+  vars.ele2_tkIso = -99.;
+  vars.ele2_emIso = -99.;
+  vars.ele2_hadIso = -99.;
 
-   vars.ele2_scEtRaw = -99.;
-   vars.ele2_scEt = -99.;
-   vars.ele2_scEta = -99.;
-   vars.ele2_scPhi = -99.;
-   vars.ele2_scLocalEta = -99.;
-   vars.ele2_scLocalPhi = -99.;
-   vars.ele2_scEtaWidth = -99.;
-   vars.ele2_scPhiWidth = -99.;
-   vars.ele2_scLaserCorr = -99.;
-   vars.ele2_scCrackCorr = -99.;
-   vars.ele2_scLocalContCorr = -99.;
-   vars.ele2_scLocalContCorr_DK = -99.;
-   
-   vars.ele2_nPh = -99;
-   vars.ele2_ph_E = -99;
-   vars.ele2_ph_scEta = -99;
-   vars.ele2_ph_scPhi = -99;
-   vars.ele2_ph_R9 = -99;
+  vars.ele2_scEtRaw = -99.;
+  vars.ele2_scEt = -99.;
+  vars.ele2_scEta = -99.;
+  vars.ele2_scPhi = -99.;
+  vars.ele2_scLocalEta = -99.;
+  vars.ele2_scLocalPhi = -99.;
+  vars.ele2_scEtaWidth = -99.;
+  vars.ele2_scPhiWidth = -99.;
+  vars.ele2_scLaserCorr = -99.;
+  vars.ele2_scCrackCorr = -99.;
+  vars.ele2_scLocalContCorr = -99.;
+  vars.ele2_scLocalContCorr_DK = -99.;
   
-   vars.ele2_seedE = -99.;
-   vars.ele2_seedIeta = -99;
-   vars.ele2_seedIphi = -99;
-   vars.ele2_seedIx = -99;
-   vars.ele2_seedIy = -99;
-   vars.ele2_seedZside = -99;
-   vars.ele2_seedLaserAlpha = -99.;
-   vars.ele2_seedLaserCorr = -99.;
+  vars.ele2_nPh = -99;
+  vars.ele2_ph_E = -99;
+  vars.ele2_ph_scEta = -99;
+  vars.ele2_ph_scPhi = -99;
+  vars.ele2_ph_R9 = -99;
+  
+  vars.ele2_seedE = -99.;
+  vars.ele2_seedIeta = -99;
+  vars.ele2_seedIphi = -99;
+  vars.ele2_seedIx = -99;
+  vars.ele2_seedIy = -99;
+  vars.ele2_seedZside = -99;
+  vars.ele2_seedLaserAlpha = -99.;
+  vars.ele2_seedLaserCorr = -99.;
    
   
   if(isCalib)
