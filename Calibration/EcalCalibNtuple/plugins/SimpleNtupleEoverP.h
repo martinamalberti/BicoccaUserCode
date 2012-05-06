@@ -87,9 +87,15 @@
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
 #include "PhysicsTools/MiBiCommonPAT/interface/MCDumperZW.h"
-
+#include "PhysicsTools/NtupleUtils/interface/treeReader.h"
+#include "PhysicsTools/NtupleUtils/interface/ntpleUtils.h"
+// Cluster PU cleaning
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterPUCleaningTools.h"
 // Cluster correction functions
 #include "Calibration/EcalCalibNtuple/interface/EnergyCorrectionFunctions.h"
+// Cluster correction functions - regression
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
 using namespace cms ;
 using namespace edm ;
@@ -111,56 +117,42 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
    
   float params[42];
    
-  bool myWselection (const edm::Event & iEvent, const edm::EventSetup & iSetup, const bool doTighterSel);
-  bool myZselection (const edm::Event & iEvent, const edm::EventSetup & iSetup, const bool doTighterSel);
+  bool myWselection (const edm::Event & iEvent, const edm::EventSetup & iSetup);
+  bool myZselection (const edm::Event & iEvent, const edm::EventSetup & iSetup);
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int iEle, const std::string eleName) ;
-  
+  void fillPVInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  void fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  void fillMetInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  void fillDoubleEleInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  bool  TightEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
+  bool  MediumEle  (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
+  bool  LooseEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup,const int &iEle) ;
   // ----------member data ---------------------------
   
+  EGEnergyCorrector             ecorr_;  
+  EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
+  EcalClusterFunctionBaseClass* EcalClusterLocalContCorrection;
+ 
   
   ///---- input tag ----
-  edm::InputTag rhoTag_;
-  edm::InputTag DCSTag_;
   edm::InputTag PVTag_;
-  edm::InputTag L1Tag_;
-  edm::InputTag TriggerEventTag_;
-  edm::InputTag TriggerResultsTag_;
+  edm::InputTag rhoTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
   edm::InputTag EleTag_;
-  edm::InputTag PhotonTag_;
-  edm::InputTag MuTag_;
-  edm::InputTag JetTag_;
   edm::InputTag PFMetTag_;
-  edm::InputTag TCMetTag_;
-  edm::InputTag MCPileupTag_;
-  edm::InputTag MCtruthTag_;
+
   int eventType_;
   std::vector<std::string> eleId_names_;
   
-  ///---- flags ----
-  bool useTriggerEvent_ ;
-  bool dataFlag_ ;
-  bool saveL1_ ;
-  bool saveHLT_ ;
-  bool saveBS_ ;
-  bool savePV_ ;
-  bool saveEle_ ;
-  bool savePho_ ;
-  bool saveEleShape_ ;
-  bool saveMu_ ;
-  bool saveJet_ ;
-  bool saveCALOMet_ ;
-  bool saveTCMet_ ;
-  bool savePFMet_ ;
-  bool saveMCPU_;
-  bool saveMCZW_ ;
 
   bool verbosity_; //---- true = loquacious     false = silence  
-  bool doTighterSel_; //---- true = tighten the selection wrt to meridani's
   bool applyCorrections_;  //---- true = correct the recHit and SC energy IN the analyzer
-  
+  bool doWZSelection_;
+
   int eventNaiveId_;
+  std::map<float,int> eleIts_;
+ 
 
 
   ///---- output ----
@@ -170,24 +162,70 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int lumiId;
   int runId;
   int timeStampHigh;
-  int PV_n;
   int isW;
   int isZ;
+
+  // PU variables
+
+   float rho;
   
-  // electron variables  
-  float ele1_fEta;
-  float ele1_fEtaCorr;
-  float ele1_tkP;
-  float ele1_e5x5;
-  float ele1_e3x3;
-  float ele1_scNxtal;
+  // PV variables
+  int PV_n;
+  float PV_z;
+  float PV_d0;
+  float PV_SumPt;
+  
+  
+  
+  // ele1 variables  
+  ROOT::Math::XYZTVector ele1;
+  float ele1_charge;
+  float ele1_p;
+  float ele1_pt;
+  float ele1_eta;
+  float ele1_phi;
+
+  float ele1_sigmaIetaIeta;
+  float ele1_DphiIn;
+  float ele1_DetaIn;
+  float ele1_HOverE;
+  float ele1_tkIso;
+  float ele1_emIso;
+  float ele1_hadIso;
+
+  float ele1_scERaw;
+  float ele1_scEtRaw;
+  float ele1_scEt;
+  float ele1_scLocalEta;
+  float ele1_scLocalPhi;
+  float ele1_scEtaWidth;
+  float ele1_scPhiWidth;
+  float ele1_scCrackCorr;
+  float ele1_scLocalContCorr;
   float ele1_scE;
   float ele1_scEta;
   float ele1_scPhi;
   float ele1_scLaserCorr;
+  float ele1_scE_regression;
+  float ele1_scEerr_regression;
+  float ele1_scERaw_PUcleaned;
+  float ele1_scEtaWidth_PUcleaned;
+  float ele1_scPhiWidth_PUcleaned;
+  float ele1_fCorrection_PUcleaned;
+
+  float ele1_fEta;
+  float ele1_fEtaCorr;
+  float ele1_tkP;
+  float ele1_tkPt;
+  float ele1_fbrem;
+ 
+  float ele1_e5x5;
+  float ele1_e3x3;
+  float ele1_scNxtal;
   float ele1_5x5LaserCorr;
   float ele1_3x3LaserCorr;
   float ele1_es;
+
   float ele1_seedE;
   float ele1_seedLaserAlpha;
   float ele1_seedLaserCorr;
@@ -198,6 +236,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int ele1_seedIy;
   int ele1_seedZside;
   float ele1_EOverP;
+
   std::vector<float> ele1_recHit_E;
   std::vector<int> ele1_recHit_hashedIndex;
   std::vector<int> ele1_recHit_ietaORix;
@@ -205,20 +244,64 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele1_recHit_zside;
   std::vector<float> ele1_recHit_laserCorrection;
   std::vector<float> ele1_recHit_ICConstant;
+  int   ele1_nRecHits;
+ 
+  int ele1_isEB;
+  int ele1_isEBEEGap;
+  int ele1_isEBEtaGap;
+  int ele1_isEBPhiGap;
+  int ele1_isEEDeeGap;
+  int ele1_isEERingGap;
+ 
+ // ele2 variables  
+  ROOT::Math::XYZTVector ele2;
+  float ele2_charge;
+  float ele2_p;
+  float ele2_pt;
+  float ele2_eta;
+  float ele2_phi;
 
-  float ele2_fEta;
-  float ele2_fEtaCorr;
-  float ele2_tkP;
-  float ele2_e5x5;
-  float ele2_e3x3;
-  float ele2_scNxtal;
+  float ele2_sigmaIetaIeta;
+  float ele2_DphiIn;
+  float ele2_DetaIn;
+  float ele2_HOverE;
+  float ele2_tkIso;
+  float ele2_emIso;
+  float ele2_hadIso;
+
+  float ele2_scERaw;
+  float ele2_scEtRaw;
+  float ele2_scEt;
+  float ele2_scLocalEta;
+  float ele2_scLocalPhi;
+  float ele2_scEtaWidth;
+  float ele2_scPhiWidth;
+  float ele2_scCrackCorr;
+  float ele2_scLocalContCorr;
   float ele2_scE;
   float ele2_scEta;
   float ele2_scPhi;
   float ele2_scLaserCorr;
+  float ele2_scE_regression;
+  float ele2_scEerr_regression;
+  float ele2_scERaw_PUcleaned;
+  float ele2_scEtaWidth_PUcleaned;
+  float ele2_scPhiWidth_PUcleaned;
+  float ele2_fCorrection_PUcleaned;
+
+  float ele2_fEta;
+  float ele2_fEtaCorr;
+  float ele2_tkP;
+  float ele2_tkPt;
+  float ele2_fbrem;
+ 
+  float ele2_e5x5;
+  float ele2_e3x3;
+  float ele2_scNxtal;
   float ele2_5x5LaserCorr;
   float ele2_3x3LaserCorr;
   float ele2_es;
+
   float ele2_seedE;
   float ele2_seedLaserAlpha;
   float ele2_seedLaserCorr;
@@ -229,6 +312,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int ele2_seedIy;
   int ele2_seedZside;
   float ele2_EOverP;
+
   std::vector<float> ele2_recHit_E;
   std::vector<int> ele2_recHit_hashedIndex;
   std::vector<int> ele2_recHit_ietaORix;
@@ -236,7 +320,32 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele2_recHit_zside;
   std::vector<float> ele2_recHit_laserCorrection;
   std::vector<float> ele2_recHit_ICConstant;
+  int   ele2_nRecHits;
+ 
+  int ele2_isEB;
+  int ele2_isEBEEGap;
+  int ele2_isEBEtaGap;
+  int ele2_isEBPhiGap;
+  int ele2_isEEDeeGap;
+  int ele2_isEERingGap;
+ 
+  // met variables
+  ROOT::Math::XYZTVector met;
+  ROOT::Math::XYZTVector* p_met;
+  float met_et;
+  float met_phi;
 
+  float ele1Met_mt;
+  float ele1Met_Dphi;
+  
+  
+  // di-electron variables
+  float ele1ele2_m;
+  float ele1ele2_scM;
+  float ele1ele2_scM_regression;
+  float ele1ele2_scMZS;
+
+ 
 } ;
 
 #endif
