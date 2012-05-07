@@ -484,8 +484,8 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
 
     fillMetInfo (iEvent, iSetup);
     
-    if( (nEleTight == 1) && (nEleMedium == 0) ) isGoodEvent = myWselection ( iEvent, iSetup); // true = WP70, false = WP90 (already applied by Meridiani)
-    if( (nEleTight == 2) || (nEleTight == 1 && nEleMedium == 1) ) isGoodEvent = myZselection ( iEvent, iSetup); // true = >1 WP80, false = 2 WP90 (already applied by Meridiani)
+    if( (nEleTight == 1) && (nEleMedium == 0) ) isGoodEvent = myWselection ( iEvent, iSetup); 
+    if( (nEleTight == 2) || (nEleTight == 1 && nEleMedium == 1) ) isGoodEvent = myZselection ( iEvent, iSetup); 
    
     ///---- save the entry of the tree only if W/Z event ----
     if ( isGoodEvent )   outTree_ -> Fill();
@@ -495,12 +495,17 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
          int nEle = electrons.size();
          if ( nEle == 1 ) { isW = 1; isZ = 0; }
          if ( nEle == 2 ) { isW = 0; isZ = 1; }
+         fillMetInfo (iEvent, iSetup);
   
          if ( isW == 1 ) fillEleInfo ( iEvent, iSetup, 0, "ele1" ); 
+                      
     
          if ( isZ == 1 ) { 
            fillEleInfo ( iEvent, iSetup, 0, "ele1" ); 
-           fillEleInfo ( iEvent, iSetup, 1, "ele2" ); 
+           fillEleInfo ( iEvent, iSetup, 1, "ele2" );
+           fillDoubleEleInfo (iEvent, iSetup);
+
+          if (isW==1 || isZ==1) outTree_ -> Fill();
          }
    }
 }
