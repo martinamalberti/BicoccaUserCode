@@ -34,13 +34,13 @@ def makeSimpleNtuple(process,GlobalTag):
     # HLT
     #--------------------------
 
-    process.load("HLTrigger.HLTfilters.hltHighLevel_cfi")
-    process.hltfilter = process.hltHighLevel.clone(
-    # Single Ele
-      HLTPaths = ['HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*','HLT_Ele25_WP80_PFMT40_v1','HLT_Ele27_WP80_PFMT50_v1','HLT_Ele32_WP70_PFMT50_v*'],
-        andOr = True,  # False = and, True=or
-        throw = False
-    )
+    #process.load("HLTrigger.HLTfilters.hltHighLevel_cfi")
+    #process.hltfilter = process.hltHighLevel.clone(
+     #Single Ele
+     # HLTPaths = ['HLT_Ele*'],
+      #  andOr = True,  # False = and, True=or
+       # throw = False
+   # )
 
     
     #--------------------------
@@ -55,6 +55,6 @@ def makeSimpleNtuple(process,GlobalTag):
     #--------------------------
     
     process.simpleNtuple_step = cms.Path(
-        process.hltfilter*
-        process.simpleNtupleEoverP
+    #    process.hltfilter
+	process.simpleNtupleEoverP
         )
