@@ -504,10 +504,10 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
            fillEleInfo ( iEvent, iSetup, 0, "ele1" ); 
            fillEleInfo ( iEvent, iSetup, 1, "ele2" );
            fillDoubleEleInfo (iEvent, iSetup);
+          }
 
           if (isW==1 || isZ==1) outTree_ -> Fill();
          }
-   }
 }
 
 
