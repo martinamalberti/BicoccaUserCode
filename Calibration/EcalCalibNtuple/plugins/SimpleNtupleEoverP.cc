@@ -495,7 +495,6 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
          int nEle = electrons.size();
          if ( nEle == 1 ) { isW = 1; isZ = 0; }
          if ( nEle == 2 ) { isW = 0; isZ = 1; }
-         fillMetInfo (iEvent, iSetup);
   
          if ( isW == 1 ) fillEleInfo ( iEvent, iSetup, 0, "ele1" ); 
                       
@@ -506,7 +505,9 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
            fillDoubleEleInfo (iEvent, iSetup);
           }
 
-          if (isW==1 || isZ==1) outTree_ -> Fill();
+         fillMetInfo (iEvent, iSetup);
+ 
+         if (isW==1 || isZ==1) outTree_ -> Fill();
          }
 }
 
