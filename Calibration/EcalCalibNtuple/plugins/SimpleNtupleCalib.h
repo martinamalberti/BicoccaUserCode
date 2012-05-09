@@ -92,6 +92,7 @@
 // Cluster correction functions - regression
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
