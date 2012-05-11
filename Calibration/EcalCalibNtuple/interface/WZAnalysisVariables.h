@@ -73,6 +73,7 @@ struct WZAnalysisVariables
   float ele1_scERaw;
   float ele1_scEtRaw;
   float ele1_scE;
+  float ele1_scE_forZS;
   float ele1_scEt;
   float ele1_scEta;
   float ele1_scPhi;
@@ -126,7 +127,83 @@ struct WZAnalysisVariables
   int ele1_isEBPhiGap;
   int ele1_isEEDeeGap;
   int ele1_isEERingGap;
-  
+
+  // regression variables
+  float ele1_eRegrInput_rawE;
+  float ele1_eRegrInput_r9;
+  float ele1_eRegrInput_eta;
+  float ele1_eRegrInput_phi;
+  float ele1_eRegrInput_r25;
+  float ele1_eRegrInput_hoe;
+  float ele1_eRegrInput_etaW;
+  float ele1_eRegrInput_phiW;
+
+  float ele1_eRegrInput_Deta_bC_sC;
+  float ele1_eRegrInput_Dphi_bC_sC;
+  float ele1_eRegrInput_bCE_Over_sCE;
+  float ele1_eRegrInput_e3x3_Over_bCE;
+  float ele1_eRegrInput_e5x5_Over_bCE;
+  float ele1_eRegrInput_sigietaieta_bC1;
+  float ele1_eRegrInput_sigiphiiphi_bC1;
+  float ele1_eRegrInput_sigietaiphi_bC1;
+  float ele1_eRegrInput_bEMax_Over_bCE;
+  float ele1_eRegrInput_log_bE2nd_Over_bEMax;
+  float ele1_eRegrInput_log_bEtop_Over_bEMax;
+  float ele1_eRegrInput_log_bEbot_Over_bEMax;
+  float ele1_eRegrInput_log_bEleft_Over_bEMax;
+  float ele1_eRegrInput_log_bEright_Over_bEMax;
+  float ele1_eRegrInput_asym_top_bottom;
+  float ele1_eRegrInput_asym_left_right;
+  float ele1_eRegrInput_Deta_bC2_sC;
+  float ele1_eRegrInput_Dphi_bC2_sC;
+  float ele1_eRegrInput_bCE2_Over_sCE;
+  float ele1_eRegrInput_e3x3_Over_bCE2;
+  float ele1_eRegrInput_e5x5_Over_bCE2;
+  float ele1_eRegrInput_sigietaieta_bC2;
+  float ele1_eRegrInput_sigiphiiphi_bC2;
+  float ele1_eRegrInput_sigietaiphi_bC2;
+  float ele1_eRegrInput_bEMax_Over_bCE2;
+  float ele1_eRegrInput_log_bE2nd_Over_bEMax2;
+  float ele1_eRegrInput_log_bEtop_Over_bEMax2;
+  float ele1_eRegrInput_log_bEbot_Over_bEMax2;
+  float ele1_eRegrInput_log_bEleft_Over_bEMax2;
+  float ele1_eRegrInput_log_bEright_Over_bEMax2;
+  float ele1_eRegrInput_asym_top2_bottom2;
+  float ele1_eRegrInput_asym_left2_right2;
+  float ele1_eRegrInput_Deta_bCLow_sC;
+  float ele1_eRegrInput_Dphi_bCLow_sC;
+  float ele1_eRegrInput_bCELow_Over_sCE;
+  float ele1_eRegrInput_e3x3_Over_bCELow;
+  float ele1_eRegrInput_e5x5_Over_bCELow;
+  float ele1_eRegrInput_sigietaieta_bCLow;
+  float ele1_eRegrInput_sigiphiiphi_bCLow;
+  float ele1_eRegrInput_sigietaiphi_bCLow;
+  float ele1_eRegrInput_Deta_bCLow2_sC;
+  float ele1_eRegrInput_Dphi_bCLow2_sC;
+  float ele1_eRegrInput_bCELow2_Over_sCE;
+  float ele1_eRegrInput_e3x3_Over_bCELow2;
+  float ele1_eRegrInput_e5x5_Over_bCELow2;
+  float ele1_eRegrInput_sigietaieta_bCLow2;
+  float ele1_eRegrInput_sigiphiiphi_bCLow2;
+  float ele1_eRegrInput_sigietaiphi_bCLow2;
+  float ele1_eRegrInput_seedbC_eta;
+  float ele1_eRegrInput_seedbC_phi;
+  float ele1_eRegrInput_seedbC_eta_p5;
+  float ele1_eRegrInput_seedbC_phi_p2;
+  float ele1_eRegrInput_seedbC_bieta;
+  float ele1_eRegrInput_seedbC_phi_p20;
+  float ele1_eRegrInput_seedbC_etacry;
+  float ele1_eRegrInput_seedbC_phicry;
+  float ele1_eRegrInput_bC2_eta;
+  float ele1_eRegrInput_bC2_phi;
+  float ele1_eRegrInput_bC2_eta_p5;
+  float ele1_eRegrInput_bC2_phi_p2;
+  float ele1_eRegrInput_bC2_bieta;
+  float ele1_eRegrInput_bC2_phi_p20;
+  float ele1_eRegrInput_bC2_etacry;
+  float ele1_eRegrInput_bC2_phicry;
+  float ele1_eRegrInput_nPV;
+   
 
   // 2nd electron variables
   ROOT::Math::XYZTVector ele2;
@@ -148,6 +225,7 @@ struct WZAnalysisVariables
   float ele2_scERaw;
   float ele2_scEtRaw;
   float ele2_scE;
+  float ele2_scE_forZS;
   float ele2_scEt;
   float ele2_scEta;
   float ele2_scPhi;
@@ -200,6 +278,82 @@ struct WZAnalysisVariables
   int ele2_isEBPhiGap;
   int ele2_isEEDeeGap;
   int ele2_isEERingGap;
+
+  // Regression
+  float ele2_eRegrInput_rawE;
+  float ele2_eRegrInput_r9;
+  float ele2_eRegrInput_eta;
+  float ele2_eRegrInput_phi;
+  float ele2_eRegrInput_r25;
+  float ele2_eRegrInput_hoe;
+  float ele2_eRegrInput_etaW;
+  float ele2_eRegrInput_phiW;
+
+  float ele2_eRegrInput_Deta_bC_sC;
+  float ele2_eRegrInput_Dphi_bC_sC;
+  float ele2_eRegrInput_bCE_Over_sCE;
+  float ele2_eRegrInput_e3x3_Over_bCE;
+  float ele2_eRegrInput_e5x5_Over_bCE;
+  float ele2_eRegrInput_sigietaieta_bC1;
+  float ele2_eRegrInput_sigiphiiphi_bC1;
+  float ele2_eRegrInput_sigietaiphi_bC1;
+  float ele2_eRegrInput_bEMax_Over_bCE;
+  float ele2_eRegrInput_log_bE2nd_Over_bEMax;
+  float ele2_eRegrInput_log_bEtop_Over_bEMax;
+  float ele2_eRegrInput_log_bEbot_Over_bEMax;
+  float ele2_eRegrInput_log_bEleft_Over_bEMax;
+  float ele2_eRegrInput_log_bEright_Over_bEMax;
+  float ele2_eRegrInput_asym_top_bottom;
+  float ele2_eRegrInput_asym_left_right;
+  float ele2_eRegrInput_Deta_bC2_sC;
+  float ele2_eRegrInput_Dphi_bC2_sC;
+  float ele2_eRegrInput_bCE2_Over_sCE;
+  float ele2_eRegrInput_e3x3_Over_bCE2;
+  float ele2_eRegrInput_e5x5_Over_bCE2;
+  float ele2_eRegrInput_sigietaieta_bC2;
+  float ele2_eRegrInput_sigiphiiphi_bC2;
+  float ele2_eRegrInput_sigietaiphi_bC2;
+  float ele2_eRegrInput_bEMax_Over_bCE2;
+  float ele2_eRegrInput_log_bE2nd_Over_bEMax2;
+  float ele2_eRegrInput_log_bEtop_Over_bEMax2;
+  float ele2_eRegrInput_log_bEbot_Over_bEMax2;
+  float ele2_eRegrInput_log_bEleft_Over_bEMax2;
+  float ele2_eRegrInput_log_bEright_Over_bEMax2;
+  float ele2_eRegrInput_asym_top2_bottom2;
+  float ele2_eRegrInput_asym_left2_right2;
+  float ele2_eRegrInput_Deta_bCLow_sC;
+  float ele2_eRegrInput_Dphi_bCLow_sC;
+  float ele2_eRegrInput_bCELow_Over_sCE;
+  float ele2_eRegrInput_e3x3_Over_bCELow;
+  float ele2_eRegrInput_e5x5_Over_bCELow;
+  float ele2_eRegrInput_sigietaieta_bCLow;
+  float ele2_eRegrInput_sigiphiiphi_bCLow;
+  float ele2_eRegrInput_sigietaiphi_bCLow;
+  float ele2_eRegrInput_Deta_bCLow2_sC;
+  float ele2_eRegrInput_Dphi_bCLow2_sC;
+  float ele2_eRegrInput_bCELow2_Over_sCE;
+  float ele2_eRegrInput_e3x3_Over_bCELow2;
+  float ele2_eRegrInput_e5x5_Over_bCELow2;
+  float ele2_eRegrInput_sigietaieta_bCLow2;
+  float ele2_eRegrInput_sigiphiiphi_bCLow2;
+  float ele2_eRegrInput_sigietaiphi_bCLow2;
+  float ele2_eRegrInput_seedbC_eta;
+  float ele2_eRegrInput_seedbC_phi;
+  float ele2_eRegrInput_seedbC_eta_p5;
+  float ele2_eRegrInput_seedbC_phi_p2;
+  float ele2_eRegrInput_seedbC_bieta;
+  float ele2_eRegrInput_seedbC_phi_p20;
+  float ele2_eRegrInput_seedbC_etacry;
+  float ele2_eRegrInput_seedbC_phicry;
+  float ele2_eRegrInput_bC2_eta;
+  float ele2_eRegrInput_bC2_phi;
+  float ele2_eRegrInput_bC2_eta_p5;
+  float ele2_eRegrInput_bC2_phi_p2;
+  float ele2_eRegrInput_bC2_bieta;
+  float ele2_eRegrInput_bC2_phi_p20;
+  float ele2_eRegrInput_bC2_etacry;
+  float ele2_eRegrInput_bC2_phicry;
+  float ele2_eRegrInput_nPV;
   
   std::vector<float> ele2_recHit_E;
   std::vector<int> ele2_recHit_hashedIndex;
@@ -223,6 +377,8 @@ struct WZAnalysisVariables
   float ele1ele2_m;
   float ele1ele2_scM;
   float ele1ele2_scM_regression;
+  float ele1ele2_scMZS;
+  
 
   // gen particle information
 
