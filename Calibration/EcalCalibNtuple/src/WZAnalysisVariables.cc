@@ -949,7 +949,7 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
 
   vars.ele1_nRecHits = reader.GetInt("recHit_n")->at(ele1It);
 
-/*
+
   vars.ele1_eRegrInput_rawE = reader.GetFloat("eRegrInput_rawE")->at(ele1It);
   vars.ele1_eRegrInput_r9 = reader.GetFloat("eRegrInput_r9")->at(ele1It);
   vars.ele1_eRegrInput_eta = reader.GetFloat("eRegrInput_eta")->at(ele1It);
@@ -1028,7 +1028,7 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_eRegrInput_bC2_phi_p20= reader.GetFloat("eRegrInput_bC2_phi_p20")->at(ele1It);
   vars.ele1_eRegrInput_bC2_etacry= reader.GetFloat("eRegrInput_bC2_etacry")->at(ele1It);
   vars.ele1_eRegrInput_bC2_phicry= reader.GetFloat("eRegrInput_bC2_phicry")->at(ele1It);
-  vars.ele1_eRegrInput_nPV= reader.GetFloat("eRegrInput_nPV")->at(ele1It);*/
+  vars.ele1_eRegrInput_nPV= reader.GetFloat("eRegrInput_nPV")->at(ele1It);
 }
 
 
@@ -1144,7 +1144,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_isEERingGap = reader.GetInt("electrons_isEERingGap")->at(ele2It);
 
  vars.ele2_nRecHits = reader.GetInt("recHit_n")->at(ele2It);
- /*
+ 
  vars.ele2_eRegrInput_rawE = reader.GetFloat("eRegrInput_rawE")->at(ele2It);
  vars.ele2_eRegrInput_r9 = reader.GetFloat("eRegrInput_r9")->at(ele2It);
  vars.ele2_eRegrInput_eta = reader.GetFloat("eRegrInput_eta")->at(ele2It);
@@ -1221,7 +1221,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_eRegrInput_bC2_phi_p20= reader.GetFloat("eRegrInput_bC2_phi_p20")->at(ele2It);
  vars.ele2_eRegrInput_bC2_etacry= reader.GetFloat("eRegrInput_bC2_etacry")->at(ele2It);
  vars.ele2_eRegrInput_bC2_phicry= reader.GetFloat("eRegrInput_bC2_phicry")->at(ele2It);
- vars.ele2_eRegrInput_nPV= reader.GetFloat("eRegrInput_nPV")->at(ele2It);*/
+ vars.ele2_eRegrInput_nPV= reader.GetFloat("eRegrInput_nPV")->at(ele2It);
  }
 
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader)
