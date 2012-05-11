@@ -88,7 +88,6 @@
 
 #include "PhysicsTools/MiBiCommonPAT/interface/MCDumperZW.h"
 #include "PhysicsTools/NtupleUtils/interface/treeReader.h"
-#include "PhysicsTools/NtupleUtils/interface/ntpleUtils.h"
 // Cluster PU cleaning
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterPUCleaningTools.h"
 // Cluster correction functions
@@ -127,6 +126,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   bool  TightEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
   bool  MediumEle  (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
   bool  LooseEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup,const int &iEle) ;
+  double deltaPhi(const double& phi1, const double& phi2);
   // ----------member data ---------------------------
   
   EGEnergyCorrector             ecorr_;  
@@ -158,7 +158,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   ///---- output ----
   TTree* outTree_;
   // event variables
-  int eventId;
+  long int eventId;
   int lumiId;
   int runId;
   int timeStampHigh;
