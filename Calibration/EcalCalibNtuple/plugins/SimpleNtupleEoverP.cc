@@ -5,6 +5,7 @@
 //
 #include "Calibration/EcalCalibNtuple/plugins/SimpleNtupleEoverP.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+#include "PhysicsTools/NtupleUtils/interface/readJSONFile.h"
 
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
@@ -33,8 +34,12 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   rhoTag_ = iConfig.getParameter<edm::InputTag>("rhoTag");
       
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
+
+  jsonFileName_  = iConfig.getParameter<std::string>("jsonFileName");
+    
     
   //---- flags ----
+  jsonFlag_ = iConfig.getUntrackedParameter<bool>("jsonFlag", false);
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   doWZSelection_= iConfig.getUntrackedParameter<bool>("doWZSelection", false);
   applyCorrections_ = iConfig.getUntrackedParameter<bool>("applyCorrections", false);
@@ -230,6 +235,9 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
   EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
  
+  // JSON file map 
+  jsonMap_ = readJSONFile(jsonFileName_);
+
 }
 
 // --------------------------------------------------------------------
@@ -422,6 +430,11 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1ele2_m=-99.;
   ele1ele2_scM=-99.;
   ele1ele2_scM_regression=-99.;
+ 
+  // Accept event from json file
+  bool skipEvent = false;
+  if(AcceptEventByRunAndLumiSection(runId,lumiId,jsonMap_) == false) skipEvent = true;
+  if( (jsonFlag_ == true) && (skipEvent == true) ) return;
  
   //************* VERTEXES
   fillPVInfo (iEvent,iSetup) ;

@@ -144,6 +144,10 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   int eventType_;
   std::vector<std::string> eleId_names_;
+
+  std::string jsonFileName_;
+  std::map<int, std::vector<std::pair<int, int> > > jsonMap_;  
+  bool jsonFlag_;
   
 
   bool verbosity_; //---- true = loquacious     false = silence  
