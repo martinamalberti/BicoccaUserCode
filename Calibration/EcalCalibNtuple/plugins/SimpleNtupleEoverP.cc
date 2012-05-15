@@ -5,6 +5,7 @@
 //
 #include "Calibration/EcalCalibNtuple/plugins/SimpleNtupleEoverP.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+#include "PhysicsTools/NtupleUtils/interface/readJSONFile.h"
 
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
@@ -33,7 +34,10 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   rhoTag_ = iConfig.getParameter<edm::InputTag>("rhoTag");
       
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
+
+  jsonFileName_  = iConfig.getParameter<std::string>("jsonFileName");
     
+  jsonFlag_ = iConfig.getUntrackedParameter<bool>("jsonFlag", false);
   //---- flags ----
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   doWZSelection_= iConfig.getUntrackedParameter<bool>("doWZSelection", false);
@@ -43,7 +47,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   //---- Initialize tree branches ----
   
   // event variables
-  outTree_ -> Branch("eventId",       &eventId,                 "eventId/I");
+  outTree_ -> Branch("eventId",       &eventId,                 "eventId/L");
   outTree_ -> Branch("lumiId",        &lumiId,                 "lumiId/I");
   outTree_ -> Branch("runId",         &runId,                 "runId/I");
   outTree_ -> Branch("timeStampHigh", &timeStampHigh, "timeStampHigh/I");
@@ -73,7 +77,6 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_DetaIn",     &ele1_DetaIn,         "ele1_DetaIn/F");
   outTree_ -> Branch("ele1_HOverE",     &ele1_HOverE,         "ele1_HOverE/F");
   outTree_ -> Branch("ele1_tkIso",     &ele1_tkIso,         "ele1_tkIso/F");
-  outTree_ -> Branch("ele1_HOverE",     &ele1_HOverE,         "ele1_HOverE/F");
   outTree_ -> Branch("ele1_emIso",     &ele1_emIso,         "ele1_emIso/F");
   outTree_ -> Branch("ele1_hadIso",     &ele1_hadIso,         "ele1_hadIso/F");
    
@@ -152,7 +155,6 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_DetaIn",     &ele2_DetaIn,         "ele2_DetaIn/F");
   outTree_ -> Branch("ele2_HOverE",     &ele2_HOverE,         "ele2_HOverE/F");
   outTree_ -> Branch("ele2_tkIso",     &ele2_tkIso,         "ele2_tkIso/F");
-  outTree_ -> Branch("ele2_HOverE",     &ele2_HOverE,         "ele2_HOverE/F");
   outTree_ -> Branch("ele2_emIso",     &ele2_emIso,         "ele2_emIso/F");
   outTree_ -> Branch("ele2_hadIso",     &ele2_hadIso,         "ele2_hadIso/F");
    
@@ -231,6 +233,10 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
   EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
+ 
+ // JSON file map 
+  jsonMap_ = readJSONFile(jsonFileName_);
+
  
 }
 
@@ -424,7 +430,13 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1ele2_m=-99.;
   ele1ele2_scM=-99.;
   ele1ele2_scM_regression=-99.;
- 
+
+  // Accept event from json file
+
+  bool skipEvent = false;
+  if(AcceptEventByRunAndLumiSection(runId,lumiId,jsonMap_) == false) skipEvent = true;
+  if( (jsonFlag_ == true) && (skipEvent == true) ) return;
+  
   //************* VERTEXES
   fillPVInfo (iEvent,iSetup) ;
 
@@ -438,6 +450,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
  
   ///---- get the number of the electron in the event to know if it's a W or a Z ----
   if(doWZSelection_){
+
    int nEleTight=0,nEleMedium=0,nEleLoose=0;
    eleIts_.clear();
 
@@ -466,11 +479,13 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
    if( nEleLoose > 0 ) return ;
   
    ///---- check if the event is good----
-
+   
    if( (nEleTight == 1) && (nEleMedium == 0) ){
       isW=1;isZ=0;
       std::map<float,int>::const_iterator mapIt = eleIts_.begin();
       fillEleInfo ( iEvent, iSetup, mapIt->second, "ele1" ); 
+      fillMetInfo (iEvent, iSetup);
+ 
     }
 
     if( (nEleTight == 2) || (nEleTight == 1 && nEleMedium == 1) ){
@@ -480,13 +495,13 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
      mapIt++;
      fillEleInfo ( iEvent, iSetup, mapIt->second, "ele2" ); 
      fillDoubleEleInfo (iEvent, iSetup);
+     fillMetInfo (iEvent, iSetup);
+ 
     }
 
-    fillMetInfo (iEvent, iSetup);
     
-    if( (nEleTight == 1) && (nEleMedium == 0) ) isGoodEvent = myWselection ( iEvent, iSetup); // true = WP70, false = WP90 (already applied by Meridiani)
-    if( (nEleTight == 2) || (nEleTight == 1 && nEleMedium == 1) ) isGoodEvent = myZselection ( iEvent, iSetup); // true = >1 WP80, false = 2 WP90 (already applied by Meridiani)
-   
+    if( (nEleTight == 1) && (nEleMedium == 0) ) isGoodEvent = myWselection ( iEvent, iSetup); 
+    if( (nEleTight == 2) || (nEleTight == 1 && nEleMedium == 1) ) isGoodEvent = myZselection ( iEvent, iSetup); 
     ///---- save the entry of the tree only if W/Z event ----
     if ( isGoodEvent )   outTree_ -> Fill();
     
@@ -497,12 +512,18 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
          if ( nEle == 2 ) { isW = 0; isZ = 1; }
   
          if ( isW == 1 ) fillEleInfo ( iEvent, iSetup, 0, "ele1" ); 
+                      
     
          if ( isZ == 1 ) { 
            fillEleInfo ( iEvent, iSetup, 0, "ele1" ); 
-           fillEleInfo ( iEvent, iSetup, 1, "ele2" ); 
+           fillEleInfo ( iEvent, iSetup, 1, "ele2" );
+           fillDoubleEleInfo (iEvent, iSetup);
+          }
+
+         fillMetInfo (iEvent, iSetup);
+ 
+         if (isW==1 || isZ==1) outTree_ -> Fill();
          }
-   }
 }
 
 
@@ -659,7 +680,7 @@ bool SimpleNtupleEoverP::myWselection (const edm::Event & iEvent, const edm::Eve
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DphiIn) > 0.020 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DetaIn) > 0.005 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( ele1_HOverE > 0.025 ) ) return false;
-      
+       
   if( met_et       < 25.00 ) return false;
   if( ele1Met_mt   < 50.00 ) return false;
   if( ele1Met_Dphi <  1.57 ) return false;
@@ -769,7 +790,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
   //************* CLUSTER LAZY TOOLS
   if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"crab/gbrv2ele.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/r/rgerosa/scratch0/CMSSW_4_2_8_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
   }
  
@@ -781,8 +802,9 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   // Take the correct ele
   reco::GsfElectron electron = electrons.at(iEle);
       
-  if ( eleName == "ele1" ) {
-
+  if ( eleName == "ele1") {
+ 
+    
     ele1=electron.p4();
     ele1_charge=electron.charge();
     ele1_p=ele1.P();
@@ -811,7 +833,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
     double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
    
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(electron,*hVertexProduct,lazyTools,iSetup);
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(electron,*hVertexProduct,lazyTools,iSetup);
 
 
     ele1_scERaw=scRef->rawEnergy();
@@ -1125,6 +1147,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_eta=ele2.eta();
     ele2_phi=ele2.phi();
 
+
+    ele2_isEB=electron.isEB();
+    ele2_isEBEEGap=electron.isEBEEGap();
+    ele2_isEBEtaGap=electron.isEBEtaGap();
+    ele2_isEBPhiGap=electron.isEBPhiGap();
+    ele2_isEEDeeGap=electron.isEEDeeGap();
+    ele2_isEERingGap=electron.isEERingGap();
+
     ele2_sigmaIetaIeta=electron.sigmaIetaIeta();
     ele2_DphiIn=electron.deltaPhiSuperClusterTrackAtVtx();
     ele2_DetaIn=electron.deltaEtaSuperClusterTrackAtVtx();
@@ -1139,7 +1169,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
     double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
    
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(electron,*hVertexProduct,lazyTools,iSetup);
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(electron,*hVertexProduct,lazyTools,iSetup);
 
 
     ele2_scERaw=scRef->rawEnergy();
@@ -1450,7 +1480,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
  void SimpleNtupleEoverP::fillMetInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup){
  //std::cout << "SimpleNtupleCalib::fillPFMetInfo" << std::endl;
- 
+  
  //*********** MET
   edm::Handle<edm::View<reco::MET> > PFmetHandle;
   iEvent.getByLabel(PFMetTag_,PFmetHandle);
@@ -1462,8 +1492,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   met_et = p_met->Et();
   met_phi = p_met->phi();
   
-  ele1Met_mt = sqrt( 2. * ele1_pt * met_et * ( 1 - cos( deltaPhi(ele1_phi,met_phi) ) ) );
+  ele1Met_mt = sqrt( 2. * ele1_pt * met_et * ( 1. - cos( deltaPhi(ele1_phi,met_phi) ) ) );
   ele1Met_Dphi = deltaPhi(ele1_phi,met_phi);
+
+
 }
 
 //----------------------------------------------------------------------------------------------
@@ -1480,6 +1512,13 @@ void SimpleNtupleEoverP::fillDoubleEleInfo(const edm::Event & iEvent, const edm:
   ROOT::Math::PtEtaPhiEVector ele2_sc_regression(ele2_scE_regression*sin(2*atan(exp(-1.*ele2_eta))),ele2_eta,ele2_phi,ele2_scE_regression);
   ele1ele2_scM_regression = (ele1_sc_regression + ele2_sc_regression).mass();
 
+}
+
+
+double SimpleNtupleEoverP::deltaPhi(const double& phi1, const double& phi2){ 
+  double deltaphi = fabs(phi1 - phi2);
+  if (deltaphi > 3.141592654) deltaphi = 6.283185308 - deltaphi;
+  return deltaphi;
 }
 
 //----------------------------------------------------------------------------------------------
