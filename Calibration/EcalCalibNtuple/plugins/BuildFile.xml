@@ -13,6 +13,9 @@
 <use   name="PhysicsTools/RecoAlgos"/>
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="HLTrigger/HLTcore"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="DataFormats/SiPixelCluster"/>
+<use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/Math"/>

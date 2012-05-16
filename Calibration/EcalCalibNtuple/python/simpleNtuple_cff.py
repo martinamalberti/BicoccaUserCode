@@ -35,7 +35,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     process.load('Configuration.StandardSequences.Services_cff')
     process.load('Configuration.StandardSequences.GeometryDB_cff')
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.load('Configuration.StandardSequences.RawToDigi_Data_cff')    
+    process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
     process.load('Configuration.StandardSequences.L1Reco_cff')
     process.load('Configuration.StandardSequences.Reconstruction_cff')
     process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -119,6 +119,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
 
     if ReReco:
         process.simpleNtuple.useTriggerEvent = cms.untracked.bool(True)
+        process.simpleNtuple.isRerecoOn = cms.untracked.bool(True)
         #process.simpleNtuple.TriggerResultsTag = cms.InputTag("TriggerResults")
     
 

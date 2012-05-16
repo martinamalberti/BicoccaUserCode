@@ -15,6 +15,7 @@
 
 SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
 {
+
   edm::Service<TFileService> fs ;
   outTree_  =        fs -> make <TTree>("SimpleNtupleCalib","SimpleNtupleCalib"); 
   outTreeNameEleId = fs -> make <TTree>("NameEleId","NameEleId");
@@ -30,6 +31,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
+
+  inputCollectionStrip_ = iConfig.getParameter<edm::InputTag>("inputCollectionStrip");
+  inputCollectionPixel_ = iConfig.getParameter<edm::InputTag>("inputCollectionPixel");
   
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
   PhotonTag_      = iConfig.getParameter<edm::InputTag>("PhotonTag");
@@ -53,6 +57,8 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   //---- flags ----
   useTriggerEvent_ = iConfig.getUntrackedParameter<bool> ("useTriggerEvent_", true);
   dataFlag_     = iConfig.getUntrackedParameter<bool> ("dataFlag_", true);
+  isRerecoOn_   = iConfig.getUntrackedParameter<bool> ("isRerecoOn", false);
+  saveTrkHits_  = iConfig.getUntrackedParameter<bool> ("saveTrkHits", true);
   saveL1_       = iConfig.getUntrackedParameter<bool> ("saveL1", true);
   saveBS_       = iConfig.getUntrackedParameter<bool> ("saveBS", true);
   savePV_       = iConfig.getUntrackedParameter<bool> ("savePV", true);
@@ -279,7 +285,34 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_deltaEtaIn");
     for( std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++ )
       NtupleFactory_->AddFloat(*iEleId);
+
+    // fbrem variables
+    NtupleFactory_->AddFloat("electrons_inner_p");
+    NtupleFactory_->AddFloat("electrons_inner_x");
+    NtupleFactory_->AddFloat("electrons_inner_y");
+    NtupleFactory_->AddFloat("electrons_inner_z");
+    NtupleFactory_->AddFloat("electrons_outer_p");
+    NtupleFactory_->AddFloat("electrons_outer_x");
+    NtupleFactory_->AddFloat("electrons_outer_y");
+    NtupleFactory_->AddFloat("electrons_outer_z");
+    NtupleFactory_->AddInt("electrons_nTangent");
+    NtupleFactory_->AddFloat("electrons_tangent_p");
+    NtupleFactory_->AddFloat("electrons_tangent_x");
+    NtupleFactory_->AddFloat("electrons_tangent_y");
+    NtupleFactory_->AddFloat("electrons_tangent_z");
+
+    NtupleFactory_->AddFloat("electrons_eta");
+    NtupleFactory_->AddFloat("electrons_phi");
+
+    // pixel hits
+    NtupleFactory_->AddInt("electrons_nGgsfTrackHits");
+    NtupleFactory_->AddInt("electrons_nHitsRemoved");
+    NtupleFactory_->AddInt("electrons_nTrackerHits_DR010");
+    NtupleFactory_->AddInt("electrons_nTrackerHits_DR015");
+    NtupleFactory_->AddInt("electrons_nTrackerHits_DR020");
+    NtupleFactory_->AddInt("electrons_TrackerHits_subDet");
     
+
     // isolation variables
     NtupleFactory_->AddFloat("electrons_tkIso03"); 
     NtupleFactory_->AddFloat("electrons_tkIso04"); 
@@ -894,6 +927,15 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
  const CaloGeometry *caloGeometry = theCaloGeom.product();
 
+ //*********** TRACKER GEOM
+ edm::ESHandle<TrackerGeometry> geom;
+ iSetup.get<TrackerDigiGeometryRecord>().get( geom );
+ const TrackerGeometry& theTracker( *geom );
+
+ //*********** MAGFIELD
+ edm::ESHandle<MagneticField> theMagField ;
+ iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+
  //*********** IC CONSTANTS
  edm::ESHandle<EcalIntercalibConstants> theICConstants;
  iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
@@ -926,6 +968,15 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  if ( ! recHitsEE.isValid() ) {
   std::cerr << "SimpleNtupleCalib::analyze --> recHitsEE not found" << std::endl; 
  }
+
+ //*********** SiStrip CLUSTER
+ edm::Handle< edmNew::DetSetVector<SiStripCluster> > inputStrip;
+ iEvent.getByLabel(inputCollectionStrip_, inputStrip);
+
+ //*********** SiPixel CLUSTER
+ edm::Handle< edmNew::DetSetVector<SiPixelCluster> > inputPixel;
+ iEvent.getByLabel(inputCollectionPixel_, inputPixel);
+
 
  //************* ELECTRONS
  edm::Handle<View<pat::Electron> > electronHandle;
@@ -982,7 +1033,6 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_deltaPhiSuperClusterAtVtx",electron.deltaPhiSuperClusterTrackAtVtx());
    NtupleFactory_->FillFloat("electrons_deltaPhiSeedClusterAtCalo",electron.deltaPhiSeedClusterTrackAtCalo());
    
-
    /*
    if( (electron.closestCtfTrack().ctfTrack).isNonnull()){
      NtupleFactory_ -> Fill3V   ("electrons_p_kf",(electron.closestCtfTrack().ctfTrack)->momentum() );
@@ -1659,7 +1709,192 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    for(std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++)
      NtupleFactory_->FillFloat(*iEleId, electron.electronID(*iEleId));
    
+   if(saveTrkHits_){
+   //  fbrem variables
+   GlobalPoint outPos(eleTrack->extra()->outerPosition().x(), eleTrack->extra()->outerPosition().y(), eleTrack->extra()->outerPosition().z());
+   GlobalPoint innPos(eleTrack->extra()->innerPosition().x(), eleTrack->extra()->innerPosition().y(), eleTrack->extra()->innerPosition().z());
+
+   NtupleFactory_->FillFloat("electrons_inner_p", sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
+   NtupleFactory_->FillFloat("electrons_inner_x", innPos.x());
+   NtupleFactory_->FillFloat("electrons_inner_y", innPos.y());
+   NtupleFactory_->FillFloat("electrons_inner_z", innPos.z());
+   NtupleFactory_->FillFloat("electrons_outer_p", sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
+   NtupleFactory_->FillFloat("electrons_outer_x", outPos.x());
+   NtupleFactory_->FillFloat("electrons_outer_y", outPos.y());
+   NtupleFactory_->FillFloat("electrons_outer_z", outPos.z());
+
+   std::vector<reco::GsfTangent> eleTangent = eleTrack->gsfExtra()->tangents();
+   for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
+     GlobalPoint tangPos( eleTangent.at(pp).position().x(),
+			  eleTangent.at(pp).position().y(),
+			  eleTangent.at(pp).position().z() );
+     //     float innR = sqrt(pow(tangPos.x(),2)+pow(tangPos.y(),2));     
+
+     float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
+     
+     NtupleFactory_->FillFloat("electrons_tangent_p", tangMom);
+     NtupleFactory_->FillFloat("electrons_tangent_x", tangPos.x());
+     NtupleFactory_->FillFloat("electrons_tangent_y", tangPos.y());
+     NtupleFactory_->FillFloat("electrons_tangent_z", tangPos.z());
+   }
+   NtupleFactory_->FillInt("electrons_nTangent", int(eleTangent.size()));
+
+   NtupleFactory_->FillFloat("electrons_eta", electron.eta());
+   NtupleFactory_->FillFloat("electrons_phi", electron.phi());
+
+   if(isRerecoOn_){
+
+   int nBPHits_DR010 = 0;
+   int nBPHits_DR015 = 0;
+   int nBPHits_DR020 = 0;
+   int nFPHits_DR010 = 0;
+   int nFPHits_DR015 = 0;
+   int nFPHits_DR020 = 0;
+   int nAlreadyTrackHit = 0;
+
+   // pixel hits variables
+   for (edmNew::DetSetVector<SiPixelCluster>::const_iterator clustSet = inputPixel->begin(); clustSet!=inputPixel->end(); ++clustSet) {
+     DetId detIdObject( clustSet->detId() );
+     const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detIdObject) );
+     const PixelTopology* topol = dynamic_cast<const PixelTopology*>(&(theGeomDet->specificTopology()));
+
+//      std::cout << " detIdObject.det() " << detIdObject.det() << std::endl;
+//      std::cout << " detIdObject.subdetId() " << detIdObject.subdetId() << std::endl;
+
+     for(edmNew::DetSet<SiPixelCluster>::const_iterator clustIt = clustSet->begin(); clustIt!= clustSet->end(); ++clustIt) {
+
+       LocalPoint lpclust = topol->localPosition(MeasurementPoint(clustIt->x(), clustIt->y()) );
+       GlobalPoint GPclust = theGeomDet->surface().toGlobal(Local3DPoint(lpclust.x(),lpclust.y(),lpclust.z()));
+
+       bool alreadyTrackHit = false;
+       // loop over the track recHit 
+       for(unsigned int iterat=0; iterat< eleTrack->recHitsSize(); ++iterat){
+
+	 TrackingRecHitRef recHit_i = eleTrack->recHit(iterat);
+	 if(!recHit_i->isValid()) continue;
+	 float xxx = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).x();
+	 float yyy = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).y();
+	 float zzz = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).z();
+
+	 if(GPclust.x() == xxx && GPclust.y() == yyy && GPclust.z() == zzz) {
+	   alreadyTrackHit = true;
+	   ++nAlreadyTrackHit;
+	   break;
+	 }
+       }
+       if(alreadyTrackHit) continue;
+
+       float dphiPi = electron.phi() - GPclust.phi();
+       if (std::abs(dphiPi)>CLHEP::pi)  dphiPi = dphiPi < 0? (CLHEP::twopi) + dphiPi : dphiPi - CLHEP::twopi;
+       float drPi = sqrt(pow(electron.eta() - GPclust.eta(), 2) + pow(dphiPi, 2));
+
+       if(drPi < 0.1 && detIdObject.subdetId() == 1) ++nBPHits_DR010;
+       if(drPi < 0.1 && detIdObject.subdetId() == 2) ++nFPHits_DR010;
+       if(drPi < 0.15 && detIdObject.subdetId() == 1) ++nBPHits_DR015;
+       if(drPi < 0.15 && detIdObject.subdetId() == 2) ++nFPHits_DR015;
+       if(drPi < 0.20 && detIdObject.subdetId() == 1) ++nBPHits_DR020;
+       if(drPi < 0.20 && detIdObject.subdetId() == 2) ++nFPHits_DR020;
+     }
+   }
    
+   NtupleFactory_->FillInt("electrons_nGgsfTrackHits", eleTrack->recHitsSize());
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nBPHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nBPHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nBPHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 1);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nFPHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nFPHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nFPHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 2);
+
+   int   nTIBHits_DR010 = 0;
+   int   nTIDHits_DR010 = 0;
+   int   nTOBHits_DR010 = 0;
+   int   nTECHits_DR010 = 0;
+   int   nTIBHits_DR015 = 0;
+   int   nTIDHits_DR015 = 0;
+   int   nTOBHits_DR015 = 0;
+   int   nTECHits_DR015 = 0;
+   int   nTIBHits_DR020 = 0;
+   int   nTIDHits_DR020 = 0;
+   int   nTOBHits_DR020 = 0;
+   int   nTECHits_DR020 = 0;
+
+   // strip hits variables
+   for (edmNew::DetSetVector<SiStripCluster>::const_iterator clustSet = inputStrip->begin(); clustSet!=inputStrip->end(); ++clustSet) {
+     DetId detIdObject( clustSet->detId() );
+     const StripGeomDetUnit* theGeomDet = dynamic_cast<const StripGeomDetUnit*> (theTracker.idToDet(detIdObject) );
+     const StripTopology * topol = dynamic_cast<const StripTopology*>(&(theGeomDet->specificTopology()));
+
+//      std::cout << " detIdObject.det() " << detIdObject.det() << std::endl;
+//      std::cout << " detIdObject.subdetId() " << detIdObject.subdetId() << std::endl;
+
+     for(edmNew::DetSet<SiStripCluster>::const_iterator clustIt = clustSet->begin(); clustIt!= clustSet->end(); ++clustIt) {
+       LocalPoint lpclust = topol->localPosition(clustIt->barycenter());
+       GlobalPoint GPclust = theGeomDet->surface().toGlobal(Local3DPoint(lpclust.x(),lpclust.y(),lpclust.z()));
+
+       bool alreadyTrackHit = false;
+       // loop over the track recHit
+       for(unsigned int iterat=0; iterat< eleTrack->recHitsSize(); ++iterat){
+	 TrackingRecHitRef recHit_i = eleTrack->recHit(iterat);
+	 if(!recHit_i->isValid()) continue;
+	 float xxx = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).x();
+	 float yyy = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).y();
+	 float zzz = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).z();
+	 if(GPclust.x() == xxx && GPclust.y() == yyy && GPclust.z() == zzz) {
+	   alreadyTrackHit = true;
+	   ++nAlreadyTrackHit;
+	   break;
+	 }
+       }
+       if(alreadyTrackHit) continue;
+
+       float dphiSt = electron.phi() - GPclust.phi();
+       if (std::abs(dphiSt)>CLHEP::pi)  dphiSt = dphiSt < 0? (CLHEP::twopi) + dphiSt : dphiSt - CLHEP::twopi;
+       float drSi = sqrt(pow(electron.eta() - GPclust.eta(), 2) + pow(dphiSt, 2));
+
+       if(drSi < 0.1 && detIdObject.subdetId() == 3) ++nTIBHits_DR010;
+       if(drSi < 0.1 && detIdObject.subdetId() == 4) ++nTIDHits_DR010;
+       if(drSi < 0.1 && detIdObject.subdetId() == 5) ++nTOBHits_DR010;
+       if(drSi < 0.1 && detIdObject.subdetId() == 6) ++nTECHits_DR010;
+
+       if(drSi < 0.15 && detIdObject.subdetId() == 3) ++nTIBHits_DR015;
+       if(drSi < 0.15 && detIdObject.subdetId() == 4) ++nTIDHits_DR015;
+       if(drSi < 0.15 && detIdObject.subdetId() == 5) ++nTOBHits_DR015;
+       if(drSi < 0.15 && detIdObject.subdetId() == 6) ++nTECHits_DR015;
+
+       if(drSi < 0.2 && detIdObject.subdetId() == 3) ++nTIBHits_DR020;
+       if(drSi < 0.2 && detIdObject.subdetId() == 4) ++nTIDHits_DR020;
+       if(drSi < 0.2 && detIdObject.subdetId() == 5) ++nTOBHits_DR020;
+       if(drSi < 0.2 && detIdObject.subdetId() == 6) ++nTECHits_DR020;
+
+     }
+   }//  SiStrip                                                                                                    
+   
+   NtupleFactory_->FillInt("electrons_nHitsRemoved", nAlreadyTrackHit);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTIBHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTIBHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTIBHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 3);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTIDHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTIDHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTIDHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 4);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTOBHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTOBHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTOBHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 5);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTECHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTECHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTECHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 6);
+   }// number of tracker Hits ->  only with ReReco
+   }// fbrem layer by layer ->  not working with AOD
+
    // isolation variables
    NtupleFactory_->FillFloat("electrons_tkIso03",(electron.dr03TkSumPt()));
    NtupleFactory_->FillFloat("electrons_tkIso04",(electron.dr04TkSumPt()));
@@ -1699,7 +1934,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    
       
    
- } // end loop over electron candidates
+   } // end loop over electron candidates
 
 }
 
