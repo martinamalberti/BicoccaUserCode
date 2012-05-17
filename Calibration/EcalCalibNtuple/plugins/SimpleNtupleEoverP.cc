@@ -37,8 +37,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   jsonFileName_  = iConfig.getParameter<std::string>("jsonFileName");
     
-  jsonFlag_ = iConfig.getUntrackedParameter<bool>("jsonFlag", false);
   //---- flags ----
+  jsonFlag_ = iConfig.getUntrackedParameter<bool>("jsonFlag", false);
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   doWZSelection_= iConfig.getUntrackedParameter<bool>("doWZSelection", false);
   applyCorrections_ = iConfig.getUntrackedParameter<bool>("applyCorrections", false);
@@ -234,7 +234,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
   EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
  
- // JSON file map 
+  // JSON file map 
   jsonMap_ = readJSONFile(jsonFileName_);
 
  
@@ -1132,10 +1132,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_fEtaCorr = fClusterCorrections(sumRecHitE+ele1_es,ele1_scEta,scRef->phiWidth()/scRef->etaWidth(),params)/fClusterCorrections(scRef->rawEnergy()+ele1_es,ele1_scEta,scRef->phiWidth()/scRef->etaWidth(),params);
         
     ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
-    ele1_e5x5 = sumRecHitE5x5;
   
     ele1_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
-    ele1_e3x3 = sumRecHitE3x3;
 }
 
  if ( eleName == "ele2" ) {
@@ -1467,10 +1465,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_fEtaCorr = fClusterCorrections(sumRecHitE+ele2_es,ele2_scEta,scRef->phiWidth()/scRef->etaWidth(),params)/fClusterCorrections(scRef->rawEnergy()+ele2_es,ele2_scEta,scRef->phiWidth()/scRef->etaWidth(),params);
         
     ele2_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
-    ele2_e5x5 = sumRecHitE5x5;
   
     ele2_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
-    ele2_e3x3 = sumRecHitE3x3;
 
   }
 
