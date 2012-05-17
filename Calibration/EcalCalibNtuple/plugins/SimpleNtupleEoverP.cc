@@ -1134,7 +1134,6 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_e5x5 = sumRecHitE5x5;
   
     ele1_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
-    ele1_e3x3 = sumRecHitE3x3;
 }
 
  if ( eleName == "ele2" ) {
@@ -1466,10 +1465,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_fEtaCorr = fClusterCorrections(sumRecHitE+ele2_es,ele2_scEta,scRef->phiWidth()/scRef->etaWidth(),params)/fClusterCorrections(scRef->rawEnergy()+ele2_es,ele2_scEta,scRef->phiWidth()/scRef->etaWidth(),params);
         
     ele2_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
-    ele2_e5x5 = sumRecHitE5x5;
   
     ele2_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
-    ele2_e3x3 = sumRecHitE3x3;
 
   }
 
