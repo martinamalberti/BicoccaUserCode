@@ -32,6 +32,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
+
+  inputCollectionStrip_ = iConfig.getParameter<edm::InputTag>("inputCollectionStrip");
+  inputCollectionPixel_ = iConfig.getParameter<edm::InputTag>("inputCollectionPixel");
   
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
   PhotonTag_      = iConfig.getParameter<edm::InputTag>("PhotonTag");
@@ -47,6 +50,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
 
   eleId_names_  = iConfig.getParameter< std::vector<std::string> >("eleId_names");
+
+  conversionsInputTag_     = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
+
   outTreeNameEleId->Fill();
   
   mcAnalysisZW_ = NULL;
@@ -58,7 +64,8 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveL1_       = iConfig.getUntrackedParameter<bool> ("saveL1", true);
   saveBS_       = iConfig.getUntrackedParameter<bool> ("saveBS", true);
   savePV_       = iConfig.getUntrackedParameter<bool> ("savePV", true);
-  saveL1_       = iConfig.getUntrackedParameter<bool> ("saveL1", true);
+  isRerecoOn_   = iConfig.getUntrackedParameter<bool> ("isRerecoOn", false);
+  saveTrkHits_  = iConfig.getUntrackedParameter<bool> ("saveTrkHits", true);
   saveHLT_      = iConfig.getUntrackedParameter<bool> ("saveHLT", true);
   saveRho_      = iConfig.getUntrackedParameter<bool> ("saveRho", true);
   saveEle_      = iConfig.getUntrackedParameter<bool> ("saveEle", true);
@@ -69,6 +76,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
   saveTCMet_    = iConfig.getUntrackedParameter<bool> ("saveTCMet", true);
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
+  savePFIso_    = iConfig.getUntrackedParameter<bool> ("savePFIso", true);
   saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
   saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
   
@@ -186,8 +194,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_deltaPhiEleClusterAtCalo");
     NtupleFactory_->AddFloat("electrons_deltaPhiSuperClusterAtVtx");
     NtupleFactory_->AddFloat("electrons_deltaPhiSeedClusterAtCalo");
-    
-    // supercluster variables
+    NtupleFactory_->AddInt("electrons_vtxFitConversion");
+ 
+   // supercluster variables
     NtupleFactory_->Add3PV("electrons_scPosition");    
     NtupleFactory_->Add3PV("electrons_scLocalPosition");    
     NtupleFactory_->AddFloat("electrons_scLocalPositionEtaCry");
@@ -278,9 +287,38 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_hOverE");
     NtupleFactory_->AddFloat("electrons_deltaPhiIn");
     NtupleFactory_->AddFloat("electrons_deltaEtaIn");
+    NtupleFactory_->AddFloat("electrons_EcalEnergy");
+
     for( std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++ )
       NtupleFactory_->AddFloat(*iEleId);
     
+    // fbrem variables
+    NtupleFactory_->AddFloat("electrons_inner_p");
+    NtupleFactory_->AddFloat("electrons_inner_x");
+    NtupleFactory_->AddFloat("electrons_inner_y");
+    NtupleFactory_->AddFloat("electrons_inner_z");
+    NtupleFactory_->AddFloat("electrons_outer_p");
+    NtupleFactory_->AddFloat("electrons_outer_x");
+    NtupleFactory_->AddFloat("electrons_outer_y");
+    NtupleFactory_->AddFloat("electrons_outer_z");
+    NtupleFactory_->AddInt("electrons_nTangent");
+    NtupleFactory_->AddFloat("electrons_tangent_p");
+    NtupleFactory_->AddFloat("electrons_tangent_x");
+    NtupleFactory_->AddFloat("electrons_tangent_y");
+    NtupleFactory_->AddFloat("electrons_tangent_z");
+
+    NtupleFactory_->AddFloat("electrons_eta");
+    NtupleFactory_->AddFloat("electrons_phi");
+
+    // pixel hits
+    NtupleFactory_->AddInt("electrons_nGgsfTrackHits");
+    NtupleFactory_->AddInt("electrons_nHitsRemoved");
+    NtupleFactory_->AddInt("electrons_nTrackerHits_DR010");
+    NtupleFactory_->AddInt("electrons_nTrackerHits_DR015");
+    NtupleFactory_->AddInt("electrons_nTrackerHits_DR020");
+    NtupleFactory_->AddInt("electrons_TrackerHits_subDet");
+    
+
     // isolation variables
     NtupleFactory_->AddFloat("electrons_tkIso03"); 
     NtupleFactory_->AddFloat("electrons_tkIso04"); 
@@ -290,14 +328,104 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("electrons_hadIso03_2"); 
     NtupleFactory_->AddFloat("electrons_hadIso04_1"); 
     NtupleFactory_->AddFloat("electrons_hadIso04_2"); 
-    
+    NtupleFactory_->AddFloat("electrons_effAreaForIso");
+
     // conversion rejection variables
     NtupleFactory_->AddInt("electrons_convFlag");
     NtupleFactory_->AddInt("electrons_mishits");
     NtupleFactory_->AddInt("electrons_nAmbiguousGsfTracks");
     NtupleFactory_->AddFloat("electrons_dist");
     NtupleFactory_->AddFloat("electrons_dcot");
+
+    // regression variables
+    NtupleFactory_->AddFloat("eRegrInput_rawE");
+    NtupleFactory_->AddFloat("eRegrInput_r9");
+    NtupleFactory_->AddFloat("eRegrInput_eta");
+    NtupleFactory_->AddFloat("eRegrInput_phi");
+    NtupleFactory_->AddFloat("eRegrInput_r25");
+    NtupleFactory_->AddFloat("eRegrInput_hoe");
+    NtupleFactory_->AddFloat("eRegrInput_etaW");
+    NtupleFactory_->AddFloat("eRegrInput_phiW");
+    NtupleFactory_->AddFloat("eRegrInput_Deta_bC_sC");
+    NtupleFactory_->AddFloat("eRegrInput_Dphi_bC_sC");
+    NtupleFactory_->AddFloat("eRegrInput_bCE_Over_sCE");
+    NtupleFactory_->AddFloat("eRegrInput_e3x3_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_e5x5_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bC1");
+    NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bC1");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bC1");
+    NtupleFactory_->AddFloat("eRegrInput_bEMax_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_log_bE2nd_Over_bEMax");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEtop_Over_bEMax");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEbot_Over_bEMax");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEleft_Over_bEMax");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEright_Over_bEMax");
+    NtupleFactory_->AddFloat("eRegrInput_asym_top_bottom");
+    NtupleFactory_->AddFloat("eRegrInput_asym_left_right");
+    NtupleFactory_->AddFloat("eRegrInput_Deta_bC2_sC");
+    NtupleFactory_->AddFloat("eRegrInput_Dphi_bC2_sC");
+    NtupleFactory_->AddFloat("eRegrInput_bCE2_Over_sCE");
+    NtupleFactory_->AddFloat("eRegrInput_e3x3_Over_bCE2");
+    NtupleFactory_->AddFloat("eRegrInput_e5x5_Over_bCE2");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bC2");
+    NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bC2");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bC2");
+    NtupleFactory_->AddFloat("eRegrInput_bEMax_Over_bCE2");
+    NtupleFactory_->AddFloat("eRegrInput_log_bE2nd_Over_bEMax2");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEtop_Over_bEMax2");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEbot_Over_bEMax2");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEleft_Over_bEMax2");
+    NtupleFactory_->AddFloat("eRegrInput_log_bEright_Over_bEMax2");
+    NtupleFactory_->AddFloat("eRegrInput_asym_top2_bottom2");
+    NtupleFactory_->AddFloat("eRegrInput_asym_left2_right2");
+    
+
+    NtupleFactory_->AddFloat("eRegrInput_Deta_bCLow_sC");
+    NtupleFactory_->AddFloat("eRegrInput_Dphi_bCLow_sC");
+    NtupleFactory_->AddFloat("eRegrInput_bCELow_Over_sCE");
+    NtupleFactory_->AddFloat("eRegrInput_e3x3_Over_bCELow");
+    NtupleFactory_->AddFloat("eRegrInput_e5x5_Over_bCELow");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bCLow");
+    NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bCLow");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bCLow");
+  
+    NtupleFactory_->AddFloat("eRegrInput_Deta_bCLow2_sC");
+    NtupleFactory_->AddFloat("eRegrInput_Dphi_bCLow2_sC");
+    NtupleFactory_->AddFloat("eRegrInput_bCELow2_Over_sCE");
+    NtupleFactory_->AddFloat("eRegrInput_e3x3_Over_bCELow2");
+    NtupleFactory_->AddFloat("eRegrInput_e5x5_Over_bCELow2");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bCLow2");
+    NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bCLow2");
+    NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bCLow2");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_eta");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_phi");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_eta_p5");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_phi_p2");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_bieta");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_phi_p20");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_etacry");
+    NtupleFactory_->AddFloat("eRegrInput_seedbC_phicry");
+ 
+    NtupleFactory_->AddFloat("eRegrInput_bC2_eta");
+    NtupleFactory_->AddFloat("eRegrInput_bC2_phi");
+    NtupleFactory_->AddFloat("eRegrInput_bC2_eta_p5");
+    NtupleFactory_->AddFloat("eRegrInput_bC2_phi_p2");
+    NtupleFactory_->AddFloat("eRegrInput_bC2_bieta");
+    NtupleFactory_->AddFloat("eRegrInput_bC2_phi_p20");
+    NtupleFactory_->AddFloat("eRegrInput_bC2_etacry");
+    NtupleFactory_->AddFloat("eRegrInput_bC2_phicry");
+
+    NtupleFactory_->AddFloat("eRegrInput_nPV");
+ 
   }
+
+  if(savePFIso_)
+  {
+   NtupleFactory_->AddFloat("electrons_iso_ch");
+   NtupleFactory_->AddFloat("electrons_iso_em");
+   NtupleFactory_->AddFloat("electrons_iso_nh");
+  }
+
 
   if(savePho_)
   {
@@ -461,7 +589,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->Add4V("PFMet");
     NtupleFactory_->AddFloat("PFSumEt");
   }
-  
+
   if(saveMCPU_)
   {
     NtupleFactory_ -> AddFloat("mc_PUit_TrueNumInteractions");
@@ -562,6 +690,9 @@ void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup
  ///---- fill electrons ----
  if (saveEle_)  fillEleInfo (iEvent, iSetup);
 
+ /// ---- Fill PF Iso Info ------
+ if(savePFIso_)  fillPFIsoInfo  (iEvent,iSetup);
+
  ///---- fill photons ----
  if (savePho_)  fillPhoInfo (iEvent, iSetup);
 
@@ -582,7 +713,6 @@ void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup
 
  ///---- fill PFMet ---- 
  if (savePFMet_) fillPFMetInfo (iEvent, iSetup);
-
 
  ///---- fill MC Pileup information ---- 
  if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
@@ -728,7 +858,6 @@ void SimpleNtupleCalib::fillPVInfo(const edm::Event & iEvent, const edm::EventSe
   edm::Handle<reco::VertexCollection> vertexes;
   iEvent.getByLabel(PVTag_, vertexes);
   
-  
   // select the primary vertex
   reco::Vertex PV;
   bool PVfound = (vertexes -> size() != 0);
@@ -774,7 +903,7 @@ void SimpleNtupleCalib::fillPVInfo(const edm::Event & iEvent, const edm::EventSe
   
   math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
   PVPoint_ = PVPoint;
-  
+
   //std::cout << "SimpleNtupleCalib::fillPVInfo::end" << std::endl;
 }
 
@@ -814,6 +943,15 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
  const CaloGeometry *caloGeometry = theCaloGeom.product();
 
+ //*********** TRACKER GEOM
+ edm::ESHandle<TrackerGeometry> geom;
+ iSetup.get<TrackerDigiGeometryRecord>().get( geom );
+ const TrackerGeometry& theTracker( *geom );
+
+ //*********** MAGFIELD
+ edm::ESHandle<MagneticField> theMagField ;
+ iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+
  //*********** IC CONSTANTS
  edm::ESHandle<EcalIntercalibConstants> theICConstants;
  iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
@@ -847,6 +985,14 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
   std::cerr << "SimpleNtupleCalib::analyze --> recHitsEE not found" << std::endl; 
  }
 
+//*********** SiStrip CLUSTER
+ edm::Handle< edmNew::DetSetVector<SiStripCluster> > inputStrip;
+ iEvent.getByLabel(inputCollectionStrip_, inputStrip);
+
+ //*********** SiPixel CLUSTER
+ edm::Handle< edmNew::DetSetVector<SiPixelCluster> > inputPixel;
+ iEvent.getByLabel(inputCollectionPixel_, inputPixel);
+
  //************* ELECTRONS
  edm::Handle<View<pat::Electron> > electronHandle;
  iEvent.getByLabel(EleTag_,electronHandle);
@@ -862,13 +1008,15 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  
  //************* CLUSTER LAZY TOOLS
  if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"gbrv2ele_52x.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/r/rgerosa/scratch0/CMSSW_5_2_3_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
  }
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
  
- 
- 
+ //********* CONVERSION TOOLS
+ edm::Handle<reco::ConversionCollection> conversions_h;
+ iEvent.getByLabel(conversionsInputTag_, conversions_h);
+
  // Loop over electrons
  for ( unsigned int i=0; i<electrons.size(); ++i )
  {
@@ -886,7 +1034,6 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillInt("electrons_isEERingGap",(electron.isEERingGap()));
    NtupleFactory_->FillFloat("electrons_ADCToGeVEB",theADCToGeV->getEBValue());
    NtupleFactory_->FillFloat("electrons_ADCToGeVEE",theADCToGeV->getEEValue());
-   
    
    // track variables
    reco::GsfTrackRef eleTrack  = electron.gsfTrack() ; 
@@ -906,7 +1053,6 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_deltaPhiSuperClusterAtVtx",electron.deltaPhiSuperClusterTrackAtVtx());
    NtupleFactory_->FillFloat("electrons_deltaPhiSeedClusterAtCalo",electron.deltaPhiSeedClusterTrackAtCalo());
    
-
    /*
    if( (electron.closestCtfTrack().ctfTrack).isNonnull()){
      NtupleFactory_ -> Fill3V   ("electrons_p_kf",(electron.closestCtfTrack().ctfTrack)->momentum() );
@@ -920,7 +1066,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    */
 
    NtupleFactory_->FillFloat("electrons_sigmaP",electron.corrections().trackMomentumError); 
-
+   
    
    //
    float ene =  (electron.superCluster())->energy();
@@ -987,11 +1133,243 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_scEtaWidth",scRef->etaWidth());
    NtupleFactory_->FillFloat("electrons_scE_regression",scE_regression);
    NtupleFactory_->FillFloat("electrons_scEerr_regression",scEerr_regression);
-      
+
+    /// add regression input variables
+   reco::SuperClusterRef s = electron.superCluster();
+   reco::CaloClusterPtr b = s->seed(); //seed  basic cluster
+   reco::CaloClusterPtr b2;
+   reco::CaloClusterPtr bclast;
+   reco::CaloClusterPtr bclast2;
+   bool isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
+
+ 
+   if( isbarrel){
+
+    NtupleFactory_->FillFloat("eRegrInput_rawE",s->rawEnergy());
+    NtupleFactory_->FillFloat("eRegrInput_r9"  ,lazyTools.e3x3(*b)/s->rawEnergy());
+    NtupleFactory_->FillFloat("eRegrInput_eta" ,s->eta());
+    NtupleFactory_->FillFloat("eRegrInput_phi" ,s->phi());
+    NtupleFactory_->FillFloat("eRegrInput_r25" ,lazyTools.e5x5(*b)/s->rawEnergy());
+    NtupleFactory_->FillFloat("eRegrInput_hoe" ,electron.hcalOverEcal() );
+    NtupleFactory_->FillFloat("eRegrInput_etaW",s->etaWidth() );
+    NtupleFactory_->FillFloat("eRegrInput_phiW",s->phiWidth() );
+  
+   
+    //seed basic cluster variables
+    double bemax = lazyTools.eMax(*b);
+    double be2nd = lazyTools.e2nd(*b);
+    double betop = lazyTools.eTop(*b);
+    double bebottom = lazyTools.eBottom(*b);
+    double beleft = lazyTools.eLeft(*b);
+    double beright = lazyTools.eRight(*b);
+ 
+    NtupleFactory_->FillFloat("eRegrInput_Deta_bC_sC",b->eta()-s->eta());
+    NtupleFactory_->FillFloat("eRegrInput_Dphi_bC_sC",reco::deltaPhi(b->phi(),s->phi()));
+    NtupleFactory_->FillFloat("eRegrInput_bCE_Over_sCE",lazyTools.e3x3(*b)/b->energy());
+    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE",lazyTools.e3x3(*b)/b->energy());
+    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE",lazyTools.e5x5(*b)/b->energy());
+    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC1",sqrt(lazyTools.localCovariances(*b)[0]));
+    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC1",sqrt(lazyTools.localCovariances(*b)[2]));
+    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC1",lazyTools.localCovariances(*b)[1]);
+    NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE",bemax/b->energy());
+    NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax",log(be2nd/bemax));
+    NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax",log(betop/bemax));
+    NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax",log(bebottom/bemax));
+    NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax",log(beleft/bemax));
+    NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax",log(beright/bemax));
+    NtupleFactory_->FillFloat("eRegrInput_asym_top_bottom",(betop-bebottom)/(betop+bebottom));
+    NtupleFactory_->FillFloat("eRegrInput_asym_left_right",(beleft-beright)/(beleft+beright));
+
+    //highest energy basic cluster excluding seed basic cluster
+    double ebcmax = -99.;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const reco::CaloClusterPtr bc = *bit;
+     if (bc->energy() > ebcmax && bc !=b) {
+       b2 = bc;
+       ebcmax = bc->energy();
+     }
+    }
+  
+    //lowest energy basic cluster excluding seed (for pileup mitigation)
+    double ebcmin = 1e6;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const CaloClusterPtr bc = *bit;
+     if (bc->energy() < ebcmin && bc !=b) {
+      bclast = bc;
+      ebcmin = bc->energy();
+     }
+    }
+
+   //2nd lowest energy basic cluster excluding seed (for pileup mitigation)
+    ebcmin = 1e6;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const CaloClusterPtr bc = *bit;
+     if (bc->energy() < ebcmin && bc !=b && bc!=bclast) {
+       bclast2 = bc;
+       ebcmin = bc->energy();
+     }
+    }
+ 
+    bool hasbc2 = b2.isNonnull() && b2->energy()>0.;
+    bool hasbclast = bclast.isNonnull() && bclast->energy()>0.;
+    bool hasbclast2 = bclast2.isNonnull() && bclast2->energy()>0.;
+  
+    double bc2emax = hasbc2 ? lazyTools.eMax(*b2) : 0.;
+    double bc2e2nd = hasbc2 ? lazyTools.e2nd(*b2) : 0.;
+    double bc2etop = hasbc2 ? lazyTools.eTop(*b2) : 0.;
+    double bc2ebottom = hasbc2 ? lazyTools.eBottom(*b2) : 0.;
+    double bc2eleft = hasbc2 ? lazyTools.eLeft(*b2) : 0.;
+    double bc2eright = hasbc2 ? lazyTools.eRight(*b2) : 0.;
+
+    NtupleFactory_->FillFloat("eRegrInput_Deta_bC2_sC",hasbc2 ? (b2->eta()-s->eta()) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_Dphi_bC2_sC",hasbc2 ? reco::deltaPhi(b2->phi(),s->phi()) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bCE2_Over_sCE",hasbc2 ? b2->energy()/s->rawEnergy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE2",hasbc2 ? lazyTools.e3x3(*b2)/b2->energy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE2",hasbc2 ? lazyTools.e5x5(*b2)/b2->energy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC2",hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[0]) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC2",hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[2]) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC2",hasbc2 ? lazyTools.localCovariances(*b)[1] : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE2",hasbc2 ? bc2emax/b2->energy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax2",hasbc2 ? log(bc2e2nd/bc2emax) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax2",hasbc2 ? log(bc2etop/bc2emax) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax2",hasbc2 ? log(bc2ebottom/bc2emax) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax2",hasbc2 ? log(bc2eleft/bc2emax) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax2",hasbc2 ? log(bc2eright/bc2emax) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_asym_top2_bottom2",hasbc2 ? (bc2etop-bc2ebottom)/(bc2etop+bc2ebottom) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_asym_left2_right2",hasbc2 ? (bc2eleft-bc2eright)/(bc2eleft+bc2eright) : 0.);
+    
+
+    NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow_sC",hasbclast ? (bclast->eta()-s->eta()) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow_sC",hasbclast ? reco::deltaPhi(bclast->phi(),s->phi()) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bCELow_Over_sCE",hasbclast ? bclast->energy()/s->rawEnergy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow",hasbclast ? lazyTools.e3x3(*bclast)/bclast->energy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow",hasbclast ? lazyTools.e5x5(*bclast)/bclast->energy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow",hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[0]) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow",hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[2]) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow",hasbclast ? lazyTools.localCovariances(*bclast)[1] : 0.);
+  
+    NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow2_sC",hasbclast2 ? (bclast2->eta()-s->eta()) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow2_sC",hasbclast2 ? reco::deltaPhi(bclast2->phi(),s->phi()) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bCELow2_Over_sCE",hasbclast2 ? bclast2->energy()/s->rawEnergy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow2",hasbclast2 ? lazyTools.e3x3(*bclast2)/bclast2->energy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow2",hasbclast2 ? lazyTools.e5x5(*bclast2)/bclast2->energy() : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow2", hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[0]) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow2",hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[2]) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow2",hasbclast2 ? lazyTools.localCovariances(*bclast2)[1] : 0.);
+  
+    // seed cluster
+    float betacry, bphicry, bthetatilt, bphitilt;
+    int bieta, biphi;
+    EcalClusterLocal _ecalLocal;
+    _ecalLocal.localCoordsEB(*b,iSetup,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_eta",bieta);
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_phi",biphi);
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_eta_p5",bieta%5);
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_phi_p2",biphi%2);
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_bieta",(TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20));
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_phi_p20",biphi%20);
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_etacry",betacry);
+    NtupleFactory_->FillFloat("eRegrInput_seedbC_phicry",bphicry);
+
+    //2nd cluster (meaningful gap corrections for converted photons)
+    float bc2etacry, bc2phicry, bc2thetatilt, bc2phitilt;
+    int bc2ieta, bc2iphi;
+    if (hasbc2) _ecalLocal.localCoordsEB(*b2,iSetup,bc2etacry,bc2phicry,bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt);    
+  
+    NtupleFactory_->FillFloat("eRegrInput_bC2_eta",hasbc2 ? bc2ieta : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bC2_phi",hasbc2 ? bc2iphi : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bC2_eta_p5",hasbc2 ? bc2ieta%5 : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p2",hasbc2 ? bc2iphi%2 : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bC2_bieta",hasbc2 ? (TMath::Abs(bc2ieta)<=25)*(bc2ieta%25) + (TMath::Abs(bc2ieta)>25)*((bc2ieta-25*TMath::Abs(bc2ieta)/bc2ieta)%20) : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p20",hasbc2 ? bc2iphi%20 : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bC2_etacry",hasbc2 ? bc2etacry : 0.);
+    NtupleFactory_->FillFloat("eRegrInput_bC2_phicry",hasbc2 ? bc2phicry : 0.);
+
+
+    NtupleFactory_->FillFloat("eRegrInput_nPV",hVertexProduct->size());
+  }
+  else{
+ 
+        NtupleFactory_->FillFloat("eRegrInput_rawE",s->rawEnergy());
+        NtupleFactory_->FillFloat("eRegrInput_r9"  ,lazyTools.e3x3(*b)/s->rawEnergy());
+        NtupleFactory_->FillFloat("eRegrInput_eta" ,s->eta());
+        NtupleFactory_->FillFloat("eRegrInput_phi" ,s->phi());
+        NtupleFactory_->FillFloat("eRegrInput_nPV",hVertexProduct->size());
+        NtupleFactory_->FillFloat("eRegrInput_r25" ,lazyTools.e5x5(*b)/s->rawEnergy());
+        NtupleFactory_->FillFloat("eRegrInput_etaW",s->etaWidth() );
+        NtupleFactory_->FillFloat("eRegrInput_phiW",s->phiWidth() );
+  
+        NtupleFactory_->FillFloat("eRegrInput_hoe" ,-99.);
+        NtupleFactory_->FillFloat("eRegrInput_Deta_bC_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_Dphi_bC_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bCE_Over_sCE",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC1",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC1",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC1",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_asym_top_bottom",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_asym_left_right",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_Deta_bC2_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_Dphi_bC2_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bCE2_Over_sCE",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_asym_top2_bottom2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_asym_left2_right2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bCELow_Over_sCE",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow",-99.);  
+        NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow2_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow2_sC",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bCELow2_Over_sCE",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_eta",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_phi",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_eta_p5",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_phi_p2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_bieta",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_phi_p20",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_etacry",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_seedbC_phicry",-99.);
+
+        NtupleFactory_->FillFloat("eRegrInput_bC2_eta",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bC2_phi",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bC2_eta_p5",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p2",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bC2_bieta",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p20",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bC2_etacry",-99.);
+        NtupleFactory_->FillFloat("eRegrInput_bC2_phicry",-99.); 
+  }
+
    const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
-   
-   
-   
+      
    // cluster variables
    float E3x3 = 0;
    float E2x2 = 0;
@@ -1334,6 +1712,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    // eleid variables
    NtupleFactory_->FillInt("electrons_classification",electron.classification());
    NtupleFactory_->FillFloat("electrons_eOverP",electron.eSuperClusterOverP());
+   NtupleFactory_->FillFloat("electrons_EcalEnergy",electron.ecalEnergy());
    NtupleFactory_->FillFloat("electrons_eSeed",electron.superCluster()->seed()->energy());
    NtupleFactory_->FillFloat("electrons_fbrem",electron.fbrem());
    NtupleFactory_->FillFloat("electrons_sigmaIetaIeta",electron.sigmaIetaIeta());
@@ -1343,8 +1722,193 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    for(std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++)
      NtupleFactory_->FillFloat(*iEleId, electron.electronID(*iEleId));
    
+   if(saveTrkHits_){
+   //  fbrem variables
+   GlobalPoint outPos(eleTrack->extra()->outerPosition().x(), eleTrack->extra()->outerPosition().y(), eleTrack->extra()->outerPosition().z());
+   GlobalPoint innPos(eleTrack->extra()->innerPosition().x(), eleTrack->extra()->innerPosition().y(), eleTrack->extra()->innerPosition().z());
+
+   NtupleFactory_->FillFloat("electrons_inner_p", sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
+   NtupleFactory_->FillFloat("electrons_inner_x", innPos.x());
+   NtupleFactory_->FillFloat("electrons_inner_y", innPos.y());
+   NtupleFactory_->FillFloat("electrons_inner_z", innPos.z());
+   NtupleFactory_->FillFloat("electrons_outer_p", sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
+   NtupleFactory_->FillFloat("electrons_outer_x", outPos.x());
+   NtupleFactory_->FillFloat("electrons_outer_y", outPos.y());
+   NtupleFactory_->FillFloat("electrons_outer_z", outPos.z());
+
+   std::vector<reco::GsfTangent> eleTangent = eleTrack->gsfExtra()->tangents();
+   for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
+     GlobalPoint tangPos( eleTangent.at(pp).position().x(),
+                          eleTangent.at(pp).position().y(),
+                          eleTangent.at(pp).position().z() );
+     //     float innR = sqrt(pow(tangPos.x(),2)+pow(tangPos.y(),2));     
+
+     float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
+     
+     NtupleFactory_->FillFloat("electrons_tangent_p", tangMom);
+     NtupleFactory_->FillFloat("electrons_tangent_x", tangPos.x());
+     NtupleFactory_->FillFloat("electrons_tangent_y", tangPos.y());
+     NtupleFactory_->FillFloat("electrons_tangent_z", tangPos.z());
+   }
+   NtupleFactory_->FillInt("electrons_nTangent", int(eleTangent.size()));
+
+   NtupleFactory_->FillFloat("electrons_eta", electron.eta());
+   NtupleFactory_->FillFloat("electrons_phi", electron.phi());
    
-   // isolation variables
+   if(isRerecoOn_){
+
+   int nBPHits_DR010 = 0;
+   int nBPHits_DR015 = 0;
+   int nBPHits_DR020 = 0;
+   int nFPHits_DR010 = 0;
+   int nFPHits_DR015 = 0;
+   int nFPHits_DR020 = 0;
+   int nAlreadyTrackHit = 0;
+
+   // pixel hits variables
+   for (edmNew::DetSetVector<SiPixelCluster>::const_iterator clustSet = inputPixel->begin(); clustSet!=inputPixel->end(); ++clustSet) {
+     DetId detIdObject( clustSet->detId() );
+     const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detIdObject) );
+     const PixelTopology* topol = dynamic_cast<const PixelTopology*>(&(theGeomDet->specificTopology()));
+
+//      std::cout << " detIdObject.det() " << detIdObject.det() << std::endl;
+//      std::cout << " detIdObject.subdetId() " << detIdObject.subdetId() << std::endl;
+
+     for(edmNew::DetSet<SiPixelCluster>::const_iterator clustIt = clustSet->begin(); clustIt!= clustSet->end(); ++clustIt) {
+
+       LocalPoint lpclust = topol->localPosition(MeasurementPoint(clustIt->x(), clustIt->y()) );
+       GlobalPoint GPclust = theGeomDet->surface().toGlobal(Local3DPoint(lpclust.x(),lpclust.y(),lpclust.z()));
+
+       bool alreadyTrackHit = false;
+       // loop over the track recHit 
+       for(unsigned int iterat=0; iterat< eleTrack->recHitsSize(); ++iterat){
+
+         TrackingRecHitRef recHit_i = eleTrack->recHit(iterat);
+         if(!recHit_i->isValid()) continue;
+         float xxx = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).x();
+         float yyy = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).y();
+         float zzz = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).z();
+
+         if(GPclust.x() == xxx && GPclust.y() == yyy && GPclust.z() == zzz) {
+           alreadyTrackHit = true;
+           ++nAlreadyTrackHit;
+           break;
+         }
+       }
+       if(alreadyTrackHit) continue;
+
+       float dphiPi = electron.phi() - GPclust.phi();
+       if (std::abs(dphiPi)>CLHEP::pi)  dphiPi = dphiPi < 0? (CLHEP::twopi) + dphiPi : dphiPi - CLHEP::twopi;
+       float drPi = sqrt(pow(electron.eta() - GPclust.eta(), 2) + pow(dphiPi, 2));
+
+       if(drPi < 0.1 && detIdObject.subdetId() == 1) ++nBPHits_DR010;
+       if(drPi < 0.1 && detIdObject.subdetId() == 2) ++nFPHits_DR010;
+       if(drPi < 0.15 && detIdObject.subdetId() == 1) ++nBPHits_DR015;
+       if(drPi < 0.15 && detIdObject.subdetId() == 2) ++nFPHits_DR015;
+       if(drPi < 0.20 && detIdObject.subdetId() == 1) ++nBPHits_DR020;
+       if(drPi < 0.20 && detIdObject.subdetId() == 2) ++nFPHits_DR020;
+     }
+   }
+   
+   NtupleFactory_->FillInt("electrons_nGgsfTrackHits", eleTrack->recHitsSize());
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nBPHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nBPHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nBPHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 1);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nFPHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nFPHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nFPHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 2);
+
+   int   nTIBHits_DR010 = 0;
+   int   nTIDHits_DR010 = 0;
+   int   nTOBHits_DR010 = 0;
+   int   nTECHits_DR010 = 0;
+   int   nTIBHits_DR015 = 0;
+   int   nTIDHits_DR015 = 0;
+   int   nTOBHits_DR015 = 0;
+   int   nTECHits_DR015 = 0;
+   int   nTIBHits_DR020 = 0;
+   int   nTIDHits_DR020 = 0;
+   int   nTOBHits_DR020 = 0;
+   int   nTECHits_DR020 = 0;
+
+   // strip hits variables
+   for (edmNew::DetSetVector<SiStripCluster>::const_iterator clustSet = inputStrip->begin(); clustSet!=inputStrip->end(); ++clustSet) {
+     DetId detIdObject( clustSet->detId() );
+     const StripGeomDetUnit* theGeomDet = dynamic_cast<const StripGeomDetUnit*> (theTracker.idToDet(detIdObject) );
+     const StripTopology * topol = dynamic_cast<const StripTopology*>(&(theGeomDet->specificTopology()));
+
+//      std::cout << " detIdObject.det() " << detIdObject.det() << std::endl;
+//      std::cout << " detIdObject.subdetId() " << detIdObject.subdetId() << std::endl;
+
+     for(edmNew::DetSet<SiStripCluster>::const_iterator clustIt = clustSet->begin(); clustIt!= clustSet->end(); ++clustIt) {
+       LocalPoint lpclust = topol->localPosition(clustIt->barycenter());
+       GlobalPoint GPclust = theGeomDet->surface().toGlobal(Local3DPoint(lpclust.x(),lpclust.y(),lpclust.z()));
+
+       bool alreadyTrackHit = false;
+       // loop over the track recHit
+       for(unsigned int iterat=0; iterat< eleTrack->recHitsSize(); ++iterat){
+         TrackingRecHitRef recHit_i = eleTrack->recHit(iterat);
+         if(!recHit_i->isValid()) continue;
+         float xxx = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).x();
+         float yyy = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).y();
+         float zzz = (( geom->idToDet(recHit_i->geographicalId()) )->toGlobal(recHit_i->localPosition())).z();
+         if(GPclust.x() == xxx && GPclust.y() == yyy && GPclust.z() == zzz) {
+           alreadyTrackHit = true;
+           ++nAlreadyTrackHit;
+           break;
+         }
+       }
+       if(alreadyTrackHit) continue;
+
+       float dphiSt = electron.phi() - GPclust.phi();
+       if (std::abs(dphiSt)>CLHEP::pi)  dphiSt = dphiSt < 0? (CLHEP::twopi) + dphiSt : dphiSt - CLHEP::twopi;
+       float drSi = sqrt(pow(electron.eta() - GPclust.eta(), 2) + pow(dphiSt, 2));
+       if(drSi < 0.1 && detIdObject.subdetId() == 3) ++nTIBHits_DR010;
+       if(drSi < 0.1 && detIdObject.subdetId() == 4) ++nTIDHits_DR010;
+       if(drSi < 0.1 && detIdObject.subdetId() == 5) ++nTOBHits_DR010;
+       if(drSi < 0.1 && detIdObject.subdetId() == 6) ++nTECHits_DR010;
+
+       if(drSi < 0.15 && detIdObject.subdetId() == 3) ++nTIBHits_DR015;
+       if(drSi < 0.15 && detIdObject.subdetId() == 4) ++nTIDHits_DR015;
+       if(drSi < 0.15 && detIdObject.subdetId() == 5) ++nTOBHits_DR015;
+       if(drSi < 0.15 && detIdObject.subdetId() == 6) ++nTECHits_DR015;
+
+       if(drSi < 0.2 && detIdObject.subdetId() == 3) ++nTIBHits_DR020;
+       if(drSi < 0.2 && detIdObject.subdetId() == 4) ++nTIDHits_DR020;
+       if(drSi < 0.2 && detIdObject.subdetId() == 5) ++nTOBHits_DR020;
+       if(drSi < 0.2 && detIdObject.subdetId() == 6) ++nTECHits_DR020;
+
+     }
+   }//  SiStrip                                                                                                    
+   
+   NtupleFactory_->FillInt("electrons_nHitsRemoved", nAlreadyTrackHit);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTIBHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTIBHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTIBHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 3);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTIDHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTIDHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTIDHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 4);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTOBHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTOBHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTOBHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 5);
+
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR010", nTECHits_DR010);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR015", nTECHits_DR015);
+   NtupleFactory_->FillInt("electrons_nTrackerHits_DR020", nTECHits_DR020);
+   NtupleFactory_->FillInt("electrons_TrackerHits_subDet", 6);
+   }// number of tracker Hits ->  only with ReReco
+   }// fbrem layer by layer ->  not working with AOD
+
+
+   // isolation standard variable variables
    NtupleFactory_->FillFloat("electrons_tkIso03",(electron.dr03TkSumPt()));
    NtupleFactory_->FillFloat("electrons_tkIso04",(electron.dr04TkSumPt()));
    NtupleFactory_->FillFloat("electrons_emIso03",(electron.dr03EcalRecHitSumEt()));
@@ -1353,7 +1917,11 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_hadIso03_2",(electron.dr03HcalDepth2TowerSumEt()));
    NtupleFactory_->FillFloat("electrons_hadIso04_1",(electron.dr04HcalDepth1TowerSumEt()));
    NtupleFactory_->FillFloat("electrons_hadIso04_2",(electron.dr04HcalDepth2TowerSumEt()));
+
+   float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
+   NtupleFactory_->FillFloat("electrons_effAreaForIso",AEff);
    
+
    
    // conversion rejection variables
    NtupleFactory_->FillInt("electrons_convFlag",electron.convFlags());
@@ -1361,7 +1929,17 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillInt("electrons_nAmbiguousGsfTracks",electron.ambiguousGsfTracksSize());
    NtupleFactory_->FillFloat("electrons_dist", electron.convDist());
    NtupleFactory_->FillFloat("electrons_dcot", electron.convDcot());
+
+   edm::Handle<reco::BeamSpot> BSHandle;
+   iEvent.getByType(BSHandle);
+   // select the BS
+   const reco::BeamSpot BS = *BSHandle;
    
+   bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
+   if(isConverted) NtupleFactory_->FillInt("electrons_vtxFitConversion",1);
+   else NtupleFactory_->FillInt("electrons_vtxFitConversion",0);
+
+
    
    // crack correction variables and local containment corrections
    EcalClusterCrackCorrection -> init(iSetup);
@@ -1384,6 +1962,29 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
       
    
  } // end loop over electron candidates
+
+}
+
+// -----------------------------------------------------------------------------------------
+
+void SimpleNtupleCalib::fillPFIsoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup)
+{
+ 
+ //************* PAT ELECTRONS
+ edm::Handle<View<pat::Electron> > electronHandle;
+ iEvent.getByLabel(EleTag_,electronHandle);
+ View<pat::Electron> electrons = *electronHandle;
+
+ for(unsigned int itEle=0; itEle<electrons.size(); ++itEle){
+
+    pat::Electron electron = electrons.at(itEle);
+
+    //Get PF Isolation for cone size 0.3 and 0.4
+    NtupleFactory_->FillFloat("electrons_iso_ch",electron.userIsolation("PfChargedHadronIso"));
+    NtupleFactory_->FillFloat("electrons_iso_em",electron.userIsolation("PfGammaIso"));
+    NtupleFactory_->FillFloat("electrons_iso_nh",electron.userIsolation("PfNeutralHadronIso"));
+     
+ }
 
 }
 
@@ -2078,9 +2679,7 @@ void SimpleNtupleCalib::fillJetInfo (const edm::Event & iEvent, const edm::Event
  }
 } // dumpJetInfo 
 
-// -----------------------------------------------------------------------------------------
-
-
+//------------------------------------------------------------------------------------------
 
 ///---- muons ----
 void SimpleNtupleCalib::fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)

@@ -20,10 +20,18 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
@@ -42,23 +50,35 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h"
+
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTangent.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Flags.h"
@@ -92,6 +112,8 @@
 // Cluster correction functions - regression
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+
 
 #include "PhysicsTools/NtupleUtils/interface/NtupleFactory.h"
 
@@ -103,7 +125,8 @@ using namespace edm ;
 using namespace std ;
 using namespace reco;
 
-
+typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
+typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
 
 class SimpleNtupleCalib : public edm::EDAnalyzer {
  
@@ -135,6 +158,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   void fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPFIsoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
@@ -161,6 +185,8 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag TriggerResultsTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
+  edm::InputTag inputCollectionStrip_;
+  edm::InputTag inputCollectionPixel_;
   edm::InputTag EleTag_;
   edm::InputTag PhotonTag_;
   edm::InputTag SCTag_;
@@ -171,12 +197,16 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag PFMetTag_;
   edm::InputTag MCPileupTag_;
   edm::InputTag MCtruthTag_;
+  edm::InputTag conversionsInputTag_;     
+
   int eventType_;
   std::vector<std::string> eleId_names_;
   
   ///---- flags ----
   bool useTriggerEvent_ ;
   bool dataFlag_ ;
+  bool isRerecoOn_ ;
+  bool saveTrkHits_ ;
   bool saveL1_ ;
   bool saveHLT_ ;
   bool saveBS_ ;
@@ -191,6 +221,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   bool saveCALOMet_ ;
   bool saveTCMet_ ;
   bool savePFMet_ ;
+  bool savePFIso_ ;
   bool saveMCPU_;
   bool saveMCZW_ ;
 

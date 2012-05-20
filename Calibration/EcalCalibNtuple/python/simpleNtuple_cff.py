@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.coreTools import *
 from PhysicsTools.PatAlgos.tools.metTools import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
-
+from PhysicsTools.PatAlgos.tools.pfTools import *
 
 
 def makeSimpleNtuple(process,GlobalTag,ReReco=False):
@@ -54,16 +54,19 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     ## remove tau from the default sequence
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     process.load("PhysicsTools.PatAlgos.tools.pfTools")
+    
+    # Add PF Isolation before removing element
+    usePFIso( process )
+ 
     removeMCMatching(process, ['All'])
-    removeSpecificPATObjects( process, ['Taus'] )
-    process.patDefaultSequence.remove( process.patTaus )
-    
-    
     # Add tcMET and pfMET
     addTcMET(process, 'TC')
     addPfMET(process, 'PF')
-    
-    
+      
+    removeSpecificPATObjects( process, ['Taus'] )
+    process.patDefaultSequence.remove( process.patTaus )
+        
+	
     # Jet energy corrections to use:
     inputJetCorrLabel = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
     #inputJetCorrLabel = ('AK5PF', ['L1Fastjet', 'L2Relative', 'L3Absolute'])
@@ -99,16 +102,13 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     process.patJets.addTagInfos = True
     process.patJets.tagInfoSources  = cms.VInputTag( cms.InputTag("secondaryVertexTagInfosAOD") )
+
     
     # PAT selection layer
     process.selectedPatElectrons.cut = cms.string("pt > 15.")
     process.selectedPatPhotons.cut   = cms.string("pt > 15.")
     process.selectedPatMuons.cut     = cms.string("pt >  5.")
     process.selectedPatJets.cut      = cms.string("pt > 15.")
-    
-    
-    
-    
     
     
     #--------------------------
@@ -119,6 +119,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
 
     if ReReco:
         process.simpleNtuple.useTriggerEvent = cms.untracked.bool(True)
+	process.simpleNtuple.isRerecoOn = cms.untracked.bool(True)
         #process.simpleNtuple.TriggerResultsTag = cms.InputTag("TriggerResults")
     
 
@@ -184,10 +185,6 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     process.AllPassFilterElectronFilter = process.AllPassFilter.clone()
     process.AllPassFilterPhotonFilter = process.AllPassFilter.clone()
-    
-    
-    
-    
     
     
     #--------------------------
