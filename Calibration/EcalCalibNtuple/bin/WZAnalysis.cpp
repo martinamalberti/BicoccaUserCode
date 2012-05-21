@@ -24,14 +24,20 @@
 
 void SetStepNames(std::map<int, std::string>&, const std::string&, const int&, const int&);
 bool AcceptHLTPath(treeReader&, const std::pair<std::string,std::pair<int,int> >&);
+void SetWHLTPathNames(std::vector<std::pair<std::string,std::pair<int,int> > > &);
+void SetZHLTPathNames(std::vector<std::pair<std::string,std::pair<int,int> > > &);
+
+bool TightEle(treeReader&, const int&);
+bool MediumEle(treeReader&, const int&);
+bool LooseEle(treeReader&, const int&);
+bool LooseMuon(treeReader&, const int&);
+
+bool myWSelection(WZAnalysisVariables &);
+bool myZSelection(WZAnalysisVariables &);
 
 
+int main(int argc, char** argv){
 
-
-
-
-int main(int argc, char** argv)
-{
   //Check if all nedeed arguments to parse are there
   if(argc != 2)
   {
@@ -39,10 +45,10 @@ int main(int argc, char** argv)
     return 1;
   }
   
+  /// Acquisition from cfg file
   std::string fileName(argv[1]);
   boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName);
-  
-  
+    
   // "Input"
   edm::ParameterSet Input =  parameterSet -> getParameter<edm::ParameterSet>("Input");
   std::string inputFileList = Input.getParameter<std::string>("inputFileList");
@@ -75,18 +81,335 @@ int main(int argc, char** argv)
   std::map<int, int> noScrapingEvents = GetTotalEvents("AllPassFilterNoScrapingFilter/totalEvents", inputFileList.c_str());
   std::map<int, int> electronEvents   = GetTotalEvents("AllPassFilterElectronFilter/totalEvents",   inputFileList.c_str());
   
-  
-  
   // Get run/LS map from JSON file
   std::cout << ">>> WZPreselection::Get run/LS map from JSON file" << std::endl;
   std::map<int, std::vector<std::pair<int, int> > > jsonMap;
   jsonMap = readJSONFile(jsonFileName);
   
-  
-  
   // define HLT paths
   std::vector<std::pair<std::string,std::pair<int,int> > > WHLTPathNames;
+  std::vector<std::pair<std::string,std::pair<int,int> > > ZHLTPathNames;
+ 
+  SetWHLTPathNames(WHLTPathNames);
+  SetZHLTPathNames(ZHLTPathNames);
+
   
+  // Open tree
+  std::cout << ">>> WZAnalysis::Open old tree" << std::endl;
+  std::string treeName = "simpleNtuple/SimpleNtupleCalib";
+  TChain* chain = new TChain(treeName.c_str());
+  if(!FillChain(*chain, inputFileList.c_str())) return 1;
+  treeReader reader((TTree*)(chain), false);
+  
+ 
+  // Open output root file
+  outputRootFileName += ".root";
+  
+   
+  // define histograms
+  std::cout << ">>> WZAnalysis::Define histograms" << std::endl;
+  
+  int nStep = 9;
+  TH1F* events = new TH1F("events", "events", nStep, 0., 1.*nStep);
+  std::map<int, int> stepEvents;
+  std::map<int, std::string> stepNames;
+  
+ 
+  // define the reduced ntuple 
+  WZAnalysisVariables vars;
+  InitializeWZAnalysisTree(vars,outputRootFullFileName,inputFlag_isCalib);
+  
+    
+  //**********************
+  // STEP 1 - Begin events
+  int step = 1;
+  SetStepNames(stepNames, "All events", step, verbosity);
+  stepEvents[step] = beginEvents[1];
+  
+  
+  //****************************
+  // STEP 2 - Good Vertex events
+  step = 2;
+  SetStepNames(stepNames, "Good vertex", step, verbosity);
+  stepEvents[step] = goodVertexEvents[1];
+  
+  
+  //*********************
+  // STEP 3 - No Scraping
+  step = 3;
+  SetStepNames(stepNames, "No scraping", step, verbosity);
+  stepEvents[step] = noScrapingEvents[1];
+  
+  
+  //******************
+  // STEP 4 - Electron
+  step = 4;
+  SetStepNames(stepNames, "Electron", step, verbosity);
+  stepEvents[step] = electronEvents[1];
+   
+  
+  //*********************
+  // LOOP OVER THE EVENTS
+  std::cout << ">>>>> WZAnalysis::Read " << chain -> GetEntries() << " entries" << std::endl;  
+  for(int entry = entryMIN ; entry < chain -> GetEntries() ; ++entry){
+
+   reader.GetEntry(entry);
+   if((entry%entryMODULO) == 0) std::cout << ">>>>> WZAnalysis::GetEntry " << entry << "\r" << std::flush;
+   if(entry == entryMAX) break;
+      
+   // clear variables
+   ClearWZAnalysisVariables(vars,inputFlag_isCalib);    
+
+   vars.runId   = reader.GetInt("runId")->at(0);
+   vars.lumiId  = reader.GetInt("lumiId")->at(0);
+    
+   // event variables
+   vars.dataFlag = dataFlag;
+   vars.totEvents = beginEvents[1];
+   vars.crossSection = crossSection;
+   vars.eventNaiveId += 1;
+   vars.eventId = reader.GetInt("eventId")->at(0);
+   vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
+   vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
+    
+    
+   SetPUVariables(vars,reader,dataFlag);
+   SetPVVariables(vars,reader);
+
+    
+   //**************************
+   // STEP 5 - run/LS selection
+   step = 5;
+   SetStepNames(stepNames, "run/LS", step, verbosity);
+    
+    
+   bool skipEvent = false;
+   if( vars.dataFlag == 1 )
+      if(AcceptEventByRunAndLumiSection(vars.runId,vars.lumiId,jsonMap) == false)
+        skipEvent = true;
+   if( (jsonFlag == 1) && (skipEvent == true) ) continue;
+   stepEvents[step] += 1;
+   
+
+   //***********************
+   // STEP 6 - HLT selection
+   step = 6;
+   SetStepNames(stepNames, "HLT", step, verbosity);
+    
+   skipEvent = true;
+   bool isWHLT = false;
+   bool isZHLT = false;
+    
+   if( verbosity == 1 ){
+      std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
+      for(unsigned int HLTIt = 0; HLTIt < HLT_names.size(); ++HLTIt)
+        std::cout << "HLT bit " << HLTIt 
+            << ":   "     << HLT_names.at(HLTIt)
+            << std::endl;
+   }
+    
+    // W triggers
+   for(unsigned int HLTIt = 0; HLTIt < WHLTPathNames.size(); ++HLTIt){
+      if( AcceptHLTPath(reader, WHLTPathNames.at(HLTIt)) == true )
+        skipEvent = false;
+      isWHLT = true;
+   }
+    // Z triggers
+   for(unsigned int HLTIt = 0; HLTIt < ZHLTPathNames.size(); ++HLTIt){
+      if( AcceptHLTPath(reader, ZHLTPathNames.at(HLTIt)) == true )
+        skipEvent = false;
+      isZHLT = true; 
+   }
+    
+    //if( vars.dataFlag == 1 && skipEvent == true ) continue;
+   stepEvents[step] += 1;    
+     
+    
+    
+   //**************************
+   // STEP 7 - Electron ID
+   step = 7;
+   SetStepNames(stepNames, "1/2 ele", step, verbosity);
+    
+    
+   int nTightEle = 0; int nMediumEle = 0; int nLooseEle = 0;
+   std::map<float,int> eleIts;
+    
+    // loop on electrons
+   for(unsigned int eleIt = 0; eleIt < (reader.Get4V("electrons")->size()); ++eleIt){
+     
+     ROOT::Math::XYZTVector ele = reader.Get4V("electrons")->at(eleIt);
+     float pt = ele.pt();
+
+     //Tight Ele ID
+     bool isTightElectron = TightEle(reader,eleIt);
+     if(isTightElectron){
+                            ++nTightEle;
+                            eleIts[1./pt] = eleIt;
+                            continue;
+                         }
+      
+     // Medium Ele ID
+     bool isMediumElectron =  MediumEle(reader,eleIt);
+     if(isMediumElectron){
+                             ++nMediumEle;
+                             eleIts[1./pt] = eleIt;
+                             continue;
+                           }
+      
+     //Loose Ele ID
+     bool isLooseElectron =  LooseEle(reader,eleIt);
+     if(isLooseElectron){
+                             ++nLooseEle;
+                             eleIts[1./pt] = eleIt;
+                             continue;
+                           }
+
+   } // loop on electrons
+    
+    
+   int nLooseMu = 0;    
+    // loop on muons
+   for(unsigned int muIt = 0; muIt < (reader.Get4V("muons")->size()); ++muIt){
+
+     bool isLooseMuon =  LooseMuon(reader,muIt);
+     if(isLooseMuon) nLooseMu++;
+
+    }
+     
+   if( verbosity == 1 ) std::cout << " nTightEle = "  << nTightEle << " nMediumEle = " << nMediumEle
+                          << " nLooseEle = "  << nLooseEle << " nLooseMu = "   << nLooseMu<< std::endl;
+   
+   //Event topology selection after id
+   if( nTightEle < 1 ) continue;
+   if( nTightEle > 2 ) continue;
+   if( nMediumEle > 1 ) continue;
+   if( nLooseEle > 0 ) continue;
+   if( nLooseMu > 0 ) continue;
+   stepEvents[step] += 1;
+    
+   PhotonFix::initialise("4_2");
+
+   // Set W-like topology
+   if( (nTightEle == 1) && (nMediumEle == 0) ){
+   std::map<float,int>::const_iterator mapIt = eleIts.begin();
+   //Set Electron variables
+   SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
+   // set met variables
+   SetMetVariables(vars,reader);
+    
+   }
+    
+   // Set Z-like topology
+   if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) ){
+       
+      std::map<float,int>::const_iterator mapIt = eleIts.begin();
+      // Set electron variables
+      SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);      
+      ++mapIt;
+      SetElectron2Variables(vars,reader,mapIt->second,inputFlag_isCalib);
+      // set met variables
+      SetMetVariables(vars,reader);
+      // Set di-electron variables
+      SetDiElectronVariables(vars,reader);
+    }
+    
+   
+   //***********************
+   // STEP 8 - W selection
+   step = 8;
+   SetStepNames(stepNames, "W selection", step, verbosity);
+       
+   if( (nTightEle == 1) && (nMediumEle == 0) ){
+ 
+      if( isWHLT == false ) continue;
+    
+      bool isGoodEvent = myWSelection(vars);
+      if(!isGoodEvent) continue;
+
+      SetGenLeptonInformation(vars,reader,dataFlag,1);  
+      // fill the reduced tree
+      FillWZAnalysisTree(vars);
+
+      stepEvents[step] += 1;
+   }
+    
+    
+   //***********************
+   // STEP 9 - Z selection
+   step = 9;
+   SetStepNames(stepNames, "Z selection", step, verbosity);
+    
+    
+   if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) ){
+    
+      if( isZHLT == false ) continue;
+
+      bool isGoodEvent = myZSelection(vars);
+      if(!isGoodEvent) continue;
+
+      SetGenLeptonInformation(vars,reader,dataFlag,1);  
+      // fill the reduced tree
+      FillWZAnalysisTree(vars);
+
+      stepEvents[step] += 1;
+   }
+    
+
+ } // loop over the events
+  
+ // save the reduced tree
+ DeleteWZAnalysisVariables(vars);
+  
+ // save the histograms
+ TFile* outputRootFile = new TFile((outputRootFullFileName).c_str(), "UPDATE");
+ outputRootFile -> cd();
+  
+ for(step = 1; step <= nStep; ++step){
+    events -> SetBinContent(step, stepEvents[step]);
+    events -> GetXaxis() -> SetBinLabel(step, stepNames[step].c_str());
+ }
+
+ events -> Write();
+ outputRootFile -> Close();
+  
+  
+ return 0;
+}
+
+
+void SetStepNames(std::map<int, std::string>& stepNames, const std::string& stepName, const int& step, const int& verbosity)
+{
+  char dummy[5];
+  sprintf(dummy, "%d)", step);
+  stepNames[step] = std::string(dummy)+" "+stepName;
+
+  if(verbosity)
+    std::cout << ">>>>>>>>> " << stepNames[step] << std::endl;
+}
+
+
+
+
+bool AcceptHLTPath(treeReader& reader, const std::pair<std::string,std::pair<int,int> >& HLTPathName)
+{
+  bool acceptEvent = false;
+
+  int runId = reader.GetInt("runId")->at(0);
+  if( runId < (HLTPathName.second).first )  return acceptEvent;
+  if( runId > (HLTPathName.second).second ) return acceptEvent;
+
+  std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
+  for(unsigned int HLTIt = 0; HLTIt < HLT_names.size(); ++HLTIt)
+    if( (reader.GetString("HLT_Names")->at(HLTIt) == HLTPathName.first) &&
+         (reader.GetFloat("HLT_Accept")->at(HLTIt) == 1) )
+      acceptEvent = true;
+
+  return acceptEvent;
+}
+
+void SetWHLTPathNames(std::vector<std::pair<std::string,std::pair<int,int> > > & WHLTPathNames){
+ 
   std::pair<int,int> WRunRanges1(160404,161176);
   std::pair<std::string,std::pair<int,int> > WHLTPathName1("HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1",WRunRanges1);
   std::pair<int,int> WRunRanges2(161216,163261);
@@ -116,10 +439,9 @@ int main(int argc, char** argv)
   WHLTPathNames.push_back(WHLTPathName7);
   WHLTPathNames.push_back(WHLTPathName8);
   WHLTPathNames.push_back(WHLTPathName9);
-  
-  
-  
-  std::vector<std::pair<std::string,std::pair<int,int> > > ZHLTPathNames;
+}
+
+void SetZHLTPathNames(std::vector<std::pair<std::string,std::pair<int,int> > > & ZHLTPathNames){
   
   std::pair<int,int> ZRunRanges1(160404,161176);
   std::pair<std::string,std::pair<int,int> > ZHLTPathName1("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1",ZRunRanges1);
@@ -153,487 +475,220 @@ int main(int argc, char** argv)
   ZHLTPathNames.push_back(ZHLTPathName8);
   ZHLTPathNames.push_back(ZHLTPathName9);
   ZHLTPathNames.push_back(ZHLTPathName10);
-  
-  
-  // Open tree
-  std::cout << ">>> WZAnalysis::Open old tree" << std::endl;
-  std::string treeName = "simpleNtuple/SimpleNtupleCalib";
-  TChain* chain = new TChain(treeName.c_str());
-  if(!FillChain(*chain, inputFileList.c_str())) return 1;
-  treeReader reader((TTree*)(chain), false);
-  
-  
-  
-  // Open output root file
-  outputRootFileName += ".root";
-  
-  
-  
-  // define histograms
-  std::cout << ">>> WZAnalysis::Define histograms" << std::endl;
-  
-  int nStep = 9;
-  TH1F* events = new TH1F("events", "events", nStep, 0., 1.*nStep);
-  std::map<int, int> stepEvents;
-  std::map<int, std::string> stepNames;
-  
-  
-  
-  // define the reduced ntuple 
-  WZAnalysisVariables vars;
-  InitializeWZAnalysisTree(vars,outputRootFullFileName,inputFlag_isCalib);
-  
-  
-   
-  //**********************
-  // STEP 1 - Begin events
-  int step = 1;
-  SetStepNames(stepNames, "All events", step, verbosity);
-  stepEvents[step] = beginEvents[1];
-  
-  
-  
-  //****************************
-  // STEP 2 - Good Vertex events
-  step = 2;
-  SetStepNames(stepNames, "Good vertex", step, verbosity);
-  stepEvents[step] = goodVertexEvents[1];
-  
-  
-  
-  //*********************
-  // STEP 3 - No Scraping
-  step = 3;
-  SetStepNames(stepNames, "No scraping", step, verbosity);
-  stepEvents[step] = noScrapingEvents[1];
-  
-  
-  
-  //******************
-  // STEP 4 - Electron
-  step = 4;
-  SetStepNames(stepNames, "Electron", step, verbosity);
-  stepEvents[step] = electronEvents[1];
-   
-  
-  
-  //*********************
-  // LOOP OVER THE EVENTS
-  std::cout << ">>>>> WZAnalysis::Read " << chain -> GetEntries() << " entries" << std::endl;  
-  for(int entry = entryMIN ; entry < chain -> GetEntries() ; ++entry)
-  {
-    reader.GetEntry(entry);
-    if((entry%entryMODULO) == 0) std::cout << ">>>>> WZAnalysis::GetEntry " << entry << "\r" << std::flush;
-    if(entry == entryMAX) break;
-      
-    // clear variables
-    
-    ClearWZAnalysisVariables(vars,inputFlag_isCalib);    
+}
 
-    vars.runId   = reader.GetInt("runId")->at(0);
-    vars.lumiId  = reader.GetInt("lumiId")->at(0);
-    
-    
-    // event variables
-    vars.dataFlag = dataFlag;
-    vars.totEvents = beginEvents[1];
-    vars.crossSection = crossSection;
-    vars.eventNaiveId += 1;
-    vars.eventId = reader.GetInt("eventId")->at(0);
-    vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
-    vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
-    
-    
-    SetPUVariables(vars,reader,dataFlag);
-    SetPVVariables(vars,reader);
+bool TightEle(treeReader & reader, const int & eleIt){
 
-    
-    //**************************
-    // STEP 5 - run/LS selection
-    step = 5;
-    SetStepNames(stepNames, "run/LS", step, verbosity);
-    
-    
-    bool skipEvent = false;
-    if( vars.dataFlag == 1 )
-      if(AcceptEventByRunAndLumiSection(vars.runId,vars.lumiId,jsonMap) == false)
-        skipEvent = true;
-    
-    if( (jsonFlag == 1) && (skipEvent == true) ) continue;
-    stepEvents[step] += 1;
-   
+  ROOT::Math::XYZTVector ele = reader.Get4V("electrons")->at(eleIt);
+  float pt = ele.pt();
+  float eta = ele.eta();
+  
+  int isEB = reader.GetInt("electrons_isEB")->at(eleIt);
+      
+  float sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt);
+  float DetaIn        = reader.GetFloat("electrons_deltaEtaIn")->at(eleIt);
+  float DphiIn        = reader.GetFloat("electrons_deltaPhiIn")->at(eleIt);
+  float HOverE        = reader.GetFloat("electrons_hOverE")->at(eleIt);
+  float ooemoop       = (1.0/reader.GetFloat("electrons_EcalEnergy")->at(eleIt)- 
+                         reader.GetFloat("electrons_eOverP")->at(eleIt)/reader.GetFloat("electrons_EcalEnergy")->at(eleIt));
+  float dxy           = reader.GetFloat("electrons_dxy_PV")->at(eleIt);  
+  float dz            = reader.GetFloat("electrons_dz_PV")->at(eleIt);  
 
-    //***********************
-    // STEP 6 - HLT selection
-    step = 6;
-    SetStepNames(stepNames, "HLT", step, verbosity);
-    
-    
-    skipEvent = true;
-    bool isWHLT = false;
-    bool isZHLT = false;
-    
-    if( verbosity == 1 )
-    {
-      std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
-      for(unsigned int HLTIt = 0; HLTIt < HLT_names.size(); ++HLTIt)
-        std::cout << "HLT bit " << HLTIt 
-            << ":   "     << HLT_names.at(HLTIt)
-            << std::endl;
-    }
-    
-    // W triggers
-    for(unsigned int HLTIt = 0; HLTIt < WHLTPathNames.size(); ++HLTIt)
-    {
-      if( AcceptHLTPath(reader, WHLTPathNames.at(HLTIt)) == true )
-        skipEvent = false;
-      isWHLT = true;
-    }
-    // Z triggers
-    for(unsigned int HLTIt = 0; HLTIt < ZHLTPathNames.size(); ++HLTIt)
-    {
-      if( AcceptHLTPath(reader, ZHLTPathNames.at(HLTIt)) == true )
-        skipEvent = false;
-      isZHLT = true; 
-    }
-    
-    //if( vars.dataFlag == 1 && skipEvent == true ) continue;
-    stepEvents[step] += 1;    
-     
-    
-    
-    
-    
-    //**************************
-    // STEP 7 - cut on electrons
-    step = 7;
-    SetStepNames(stepNames, "1/2 ele", step, verbosity);
-    
-    
-    int nTightEle = 0;
-    int nMediumEle = 0;
-    int nLooseEle = 0;
-    std::map<float,int> eleIts;
-    
-    // loop on electrons
-    for(unsigned int eleIt = 0; eleIt < (reader.Get4V("electrons")->size()); ++eleIt)
-    {
-      ROOT::Math::XYZTVector ele = reader.Get4V("electrons")->at(eleIt);
-      float pt = ele.pt();
-      float eta = ele.eta();
-      
-      float rho    = vars.rhoForIsolation; 
-      float tkIso  = reader.GetFloat("electrons_tkIso03")->at(eleIt);
-      float emIso  = reader.GetFloat("electrons_emIso03")->at(eleIt);
-      float hadIso = reader.GetFloat("electrons_hadIso03_1")->at(eleIt) + 
-                     reader.GetFloat("electrons_hadIso03_2")->at(eleIt);
-      float combIso = tkIso + emIso + hadIso - rho*0.3*0.3*3.14159;
-      
-      int isEB = reader.GetInt("electrons_isEB")->at(eleIt);
-      
-      float sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt);
-      float DetaIn        = reader.GetFloat("electrons_deltaEtaIn")->at(eleIt);
-      float DphiIn        = reader.GetFloat("electrons_deltaPhiIn")->at(eleIt);
-      float HOverE        = reader.GetFloat("electrons_hOverE")->at(eleIt);
-      
-      int mishits             = reader.GetInt("electrons_mishits")->at(eleIt);
-      int nAmbiguousGsfTracks = reader.GetInt("electrons_nAmbiguousGsfTracks")->at(eleIt);
-      float dist = reader.GetFloat("electrons_dist")->at(eleIt);
-      float dcot = reader.GetFloat("electrons_dcot")->at(eleIt);
-      
-      
-      // tight electrons
-      bool isTightElectron = false;
-      if(
-         (pt > 20.) &&
-         (fabs(eta) < 2.5) &&
-          // EleID WP80 - 2010
-         ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
-         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+  int mishits             = reader.GetInt("electrons_mishits")->at(eleIt);
+  int nAmbiguousGsfTracks = reader.GetInt("electrons_nAmbiguousGsfTracks")->at(eleIt);
+  int vtxFitConversion=reader.GetInt("electrons_vtxFitConversion")->at(eleIt);
+ 
+  float rho    = std::max(reader.GetFloat("rho_isolation")->at(0),float(0.)); 
+  float charged_PFIso  = reader.GetFloat("electrons_iso_ch")->at(eleIt);
+  float photon_PFIso  = reader.GetFloat("electrons_iso_em")->at(eleIt);
+  float neutral_PFIso = reader.GetFloat("electrons_iso_nh")->at(eleIt);
+  float effAreaForIso = reader.GetFloat("electrons_effAreaForIso")->at(eleIt);
+
+  float combIso = std::max(neutral_PFIso + photon_PFIso - rho * effAreaForIso, float(0.)) + charged_PFIso;
+
+
+  // EleID Medium Cut Based Post Moriond 2012
+  if( (pt > 20.) &&  (fabs(eta) < 2.5) &&         
          ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
-          //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
+         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+         ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
+         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
+         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
+         ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+         ( ( (isEB == 1) && (vtxFitConversion ==0 ) ) || ( (isEB == 0) && (vtxFitConversion  ==0) ) ) &&
          ( mishits == 0 ) &&
          ( nAmbiguousGsfTracks == 0 ) &&
-         ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
-        )
-      {
-        isTightElectron = true;
-        ++nTightEle;
-        eleIts[1./pt] = eleIt;
-      }
+         ( ( (isEB == 1) && (combIso/pt    < 0.150) ) || ( (isEB == 0) && (combIso/pt    < 0.150) ) ) 
+        ) return true;
+
+  return false;
+}
+
+
+bool MediumEle(treeReader & reader, const int & eleIt){
+
+  ROOT::Math::XYZTVector ele = reader.Get4V("electrons")->at(eleIt);
+  float pt = ele.pt();
+  float eta = ele.eta();
+  
+  int isEB = reader.GetInt("electrons_isEB")->at(eleIt);
       
-      
-      // semi-tight electrons
-      if( isTightElectron == true ) continue;
-      bool isMediumElectron = false;
-      if(
-         (pt > 12.) &&
-         (fabs(eta) < 2.5) &&
-          // EleID WP80 - 2010
-         ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
-         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+  float sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt);
+  float DetaIn        = reader.GetFloat("electrons_deltaEtaIn")->at(eleIt);
+  float DphiIn        = reader.GetFloat("electrons_deltaPhiIn")->at(eleIt);
+  float HOverE        = reader.GetFloat("electrons_hOverE")->at(eleIt);
+  float ooemoop       = (1.0/reader.GetFloat("electrons_EcalEnergy")->at(eleIt)- 
+                         reader.GetFloat("electrons_eOverP")->at(eleIt)/reader.GetFloat("electrons_EcalEnergy")->at(eleIt));
+  float dxy           = reader.GetFloat("electrons_dxy_PV")->at(eleIt);  
+  float dz            = reader.GetFloat("electrons_dz_PV")->at(eleIt);  
+
+  int mishits             = reader.GetInt("electrons_mishits")->at(eleIt);
+  int nAmbiguousGsfTracks = reader.GetInt("electrons_nAmbiguousGsfTracks")->at(eleIt);
+  int vtxFitConversion=reader.GetInt("electrons_vtxFitConversion")->at(eleIt);
+ 
+  float rho    = std::max(reader.GetFloat("rho_isolation")->at(0),float(0.)); 
+  float charged_PFIso  = reader.GetFloat("electrons_iso_ch")->at(eleIt);
+  float photon_PFIso  = reader.GetFloat("electrons_iso_em")->at(eleIt);
+  float neutral_PFIso = reader.GetFloat("electrons_iso_nh")->at(eleIt);
+  float effAreaForIso = reader.GetFloat("electrons_effAreaForIso")->at(eleIt);
+
+  float combIso = std::max(neutral_PFIso + photon_PFIso - rho * effAreaForIso, float(0.)) + charged_PFIso;
+
+
+  // EleID Medium Cut Based Post Moriond 2012
+  if( (pt > 12.) &&  (fabs(eta) < 2.5) &&         
          ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
-          //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
+         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+         ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
+         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
+         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
+         ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+         ( ( (isEB == 1) && (vtxFitConversion ==0 ) ) || ( (isEB == 0) && (vtxFitConversion  ==0) ) ) &&
          ( mishits == 0 ) &&
          ( nAmbiguousGsfTracks == 0 ) &&
-         ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
-        )
-      {
-        isMediumElectron = true;
-        ++nMediumEle;
-        eleIts[1./pt] = eleIt;
-      }
-      
-      
-      // loose electrons
-      if( isMediumElectron == true ) continue;
-      if( 
-          (pt > 10.) &&
-          (fabs(eta) < 2.5) &&
-          // EleID WP95 - 2010
-          ( ( (isEB == 1) && (combIso/pt    < 0.150) ) || ( (isEB == 0) && (combIso/pt    < 0.100) ) ) &&
-          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.800) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.700) ) ) &&
-          ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.010) ) ) &&
-          ( ( (isEB == 1) && (HOverE        < 0.150) ) || ( (isEB == 0) && (HOverE        < 0.070) ) )
-        )
-      {
-        ++nLooseEle;
-      }
-      
-    } // loop on electrons
-    
-    
-    
-    int nLooseMu = 0;
-    
-    // loop on muons
-    for(unsigned int muIt = 0; muIt < (reader.Get4V("muons")->size()); ++muIt)
-    {
-      ROOT::Math::XYZTVector mu = reader.Get4V("muons")->at(muIt);
-      float pt = mu.pt();
-      float eta = mu.eta();
-      
-      float rho    = vars.rhoForIsolation;
-      float tkIso  = reader.GetFloat("muons_tkIso03")->at(muIt);
-      float emIso  = reader.GetFloat("muons_emIso03")->at(muIt);
-      float hadIso = reader.GetFloat("muons_hadIso03")->at(muIt);
-      float combIso = (tkIso + emIso + hadIso) - rho*0.3*0.3*3.14159;
-      
-      int global = reader.GetInt("muons_global")->at(muIt);
+         ( ( (isEB == 1) && (combIso/pt    < 0.150) ) || ( (isEB == 0) && (combIso/pt    < 0.150) ) )
+        ) return true;
 
-      if( (pt > 10.) &&
-           (fabs(eta) < 2.5) &&
-           (combIso/pt < 0.20) &&
-           (global == 1) )
-      {
-        ++nLooseMu;
-      }
-    }
-    
-    
-    // cuts
-    if( verbosity == 1 )
-      std::cout << " nTightEle = "  << nTightEle
-          << " nMediumEle = " << nMediumEle
-          << " nLooseEle = "  << nLooseEle
-          << " nLooseMu = "   << nLooseMu
-          << std::endl;
-    if( nTightEle < 1 ) continue;
-    if( nTightEle > 2 ) continue;
-    if( nMediumEle > 1 ) continue;
-    if( nLooseEle > 0 ) continue;
-    if( nLooseMu > 0 ) continue;
-    stepEvents[step] += 1;
-    
-    
-    // set electron variables
-    std::map<float,int>::const_iterator mapIt = eleIts.begin();
+  return false;
+}
 
-    PhotonFix::initialise("4_2");
 
-    if( (nTightEle == 1) && (nMediumEle == 0) )
-    {
-      SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
-      if(!inputFlag_isCalib)
-      {
-//        PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
-//        vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
-      }
+bool LooseEle(treeReader & reader, const int & eleIt){
+
+  ROOT::Math::XYZTVector ele = reader.Get4V("electrons")->at(eleIt);
+  float pt = ele.pt();
+  float eta = ele.eta();
+  
+  int isEB = reader.GetInt("electrons_isEB")->at(eleIt);
+      
+  float sigmaIetaIeta = reader.GetFloat("electrons_sigmaIetaIeta")->at(eleIt);
+  float DetaIn        = reader.GetFloat("electrons_deltaEtaIn")->at(eleIt);
+  float DphiIn        = reader.GetFloat("electrons_deltaPhiIn")->at(eleIt);
+  float HOverE        = reader.GetFloat("electrons_hOverE")->at(eleIt);
+  float ooemoop       = (1.0/reader.GetFloat("electrons_EcalEnergy")->at(eleIt)- 
+                         reader.GetFloat("electrons_eOverP")->at(eleIt)/reader.GetFloat("electrons_EcalEnergy")->at(eleIt));
+  float dxy           = reader.GetFloat("electrons_dxy_PV")->at(eleIt);  
+  float dz            = reader.GetFloat("electrons_dz_PV")->at(eleIt);  
+
+  int mishits             = reader.GetInt("electrons_mishits")->at(eleIt);
+  int nAmbiguousGsfTracks = reader.GetInt("electrons_nAmbiguousGsfTracks")->at(eleIt);
+  int vtxFitConversion=reader.GetInt("electrons_vtxFitConversion")->at(eleIt);
+
+  float rho    = std::max(reader.GetFloat("rho_isolation")->at(0),float(0.)); 
+  float charged_PFIso  = reader.GetFloat("electrons_iso_ch")->at(eleIt);
+  float photon_PFIso  = reader.GetFloat("electrons_iso_em")->at(eleIt);
+  float neutral_PFIso = reader.GetFloat("electrons_iso_nh")->at(eleIt);
+  float effAreaForIso = reader.GetFloat("electrons_effAreaForIso")->at(eleIt);
+
+  float combIso = std::max(neutral_PFIso + photon_PFIso - rho * effAreaForIso, float(0.)) + charged_PFIso;
+  // EleID Loose WP post Moriond 2012
+        
+  if(    (pt > 10.) && (fabs(eta) < 2.5) &&
+         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.009) ) ) &&
+         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.150) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.100) ) ) &&
+         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+         ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
+         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
+         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
+         ( ( (isEB == 1) && (dz            < 0.200) ) || ( (isEB == 0) && (dz            < 0.200) ) ) &&
+         ( ( (isEB == 1) && (vtxFitConversion ==0 ) ) || ( (isEB == 0) && (vtxFitConversion  ==0) ) ) &&
+         ( mishits == 0 ) &&
+         ( nAmbiguousGsfTracks == 0 ) &&
+         ( ( (isEB == 1 && pt>=20.) && (combIso/pt    < 0.150) ) || ( (isEB == 0 && pt>=20.) && (combIso/pt    < 0.150) ) ||
+           ( (isEB == 1 && pt<20. ) && (combIso/pt    < 0.150) ) || ( (isEB == 0 && pt< 20.) && (combIso/pt    < 0.100) ) )      
+        ) return true;
+
+  return false;
+}
+
+bool LooseMuon(treeReader & reader, const int & muIt){
+
+  ROOT::Math::XYZTVector mu = reader.Get4V("muons")->at(muIt);
+  float pt = mu.pt();
+  float eta = mu.eta();
+      
+  float rho    = reader.GetFloat("rho_isolation")->at(0);
+  float tkIso  = reader.GetFloat("muons_tkIso03")->at(muIt);
+  float emIso  = reader.GetFloat("muons_emIso03")->at(muIt);
+  float hadIso = reader.GetFloat("muons_hadIso03")->at(muIt);
+  float combIso = (tkIso + emIso + hadIso) - rho*0.3*0.3*3.14159;
+      
+  int global = reader.GetInt("muons_global")->at(muIt);
+
+  if( (pt > 10.) && (fabs(eta) < 2.5) && (combIso/pt < 0.20) && (global == 1) ) return true;
+
+  return false;
+}
+
+
+
+bool myWSelection ( WZAnalysisVariables & vars){
+
+ float rho    = vars.rhoForIsolation;
+ float combIso = std::max(vars.ele1_PFIso_nh + vars.ele1_PFIso_em - rho * vars.ele1_effAreaForIso , float(0.)) + vars.ele1_PFIso_ch ;
+
+ if( vars.ele1_pt < 30. ) return false;
+
+ // EleID Tight cut Based 2012
+
+ if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.1 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DetaIn) > 0.004 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_sigmaIetaIeta > 0.010 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_HOverE > 0.120 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_ooemoop > 0.050 ) ) return false;
+
+
+ if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.1 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DetaIn) > 0.005 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_sigmaIetaIeta > 0.030 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_HOverE > 0.100 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_ooemoop > 0.050 ) ) return false;
+
+ if( vars.met_et       < 25.00 ) return false;
+ if( vars.ele1Met_mt   < 50.00 ) return false;
+ if( vars.ele1Met_Dphi <  1.57 ) return false;
      
-    }
-    
-    mapIt = eleIts.begin();
-    if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) )
-    {
-      SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
-      if(!inputFlag_isCalib)
-      {
-//        PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
-//        vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
-       }
-      
-      ++mapIt;
-      
-      SetElectron2Variables(vars,reader,mapIt->second,inputFlag_isCalib);
-      if(!inputFlag_isCalib)
-      {
-//        PhotonFix Correction2 (vars.ele2_ph_E,vars.ele2_ph_scEta,vars.ele2_ph_scPhi,vars.ele2_ph_R9);
-//        vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_ph_E;
-      }
-    }
-    
-    
-    // set met variables
-    SetMetVariables(vars,reader);
-    
-    // set di-electron variables
-    if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) )
-    {
-      SetDiElectronVariables(vars,reader);
-    }
-    
-    
-    
-    
-    
-    
-    //***********************
-    // STEP 8 - W selection
-    step = 8;
-    SetStepNames(stepNames, "W selection", step, verbosity);
-    
-    
-    if( (nTightEle == 1) && (nMediumEle == 0) )
-    {
-
-      float rho    = vars.rhoForIsolation;
-      float combIso = (vars.ele1_tkIso + vars.ele1_emIso + vars.ele1_hadIso) - rho*0.3*0.3*3.14159;
+ vars.isW = 1;
+ vars.isZ = 0;
+ 
+ return true;
+}
 
 
-      if( isWHLT == false ) continue;
-      if( vars.ele1_pt < 30. ) continue;
 
-      // EleID WP70 - 2010
-      if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.04 ) ) continue;
-      if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) continue;
-      if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DetaIn) > 0.004 ) ) continue;
-      if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
-      if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.03 ) ) continue;
-      if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) continue;
-      if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DetaIn) > 0.005 ) ) continue;
-      if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_HOverE > 0.025 ) ) continue;
-      
-      if( vars.met_et       < 25.00 ) continue;
-      if( vars.ele1Met_mt   < 50.00 ) continue;
-      if( vars.ele1Met_Dphi <  1.57 ) continue;
-      stepEvents[step] += 1;
-      
-      
-      
-      vars.isW = 1;
-      vars.isZ = 0;
-      
-      SetGenLeptonInformation(vars,reader,dataFlag,1);
-      
-      // fill the reduced tree
-      FillWZAnalysisTree(vars);
+bool myZSelection ( WZAnalysisVariables & vars){
 
-    }
-    
-    
-    
-    
-    
-    
-    //***********************
-    // STEP 9 - Z selection
-    step = 9;
-    SetStepNames(stepNames, "Z selection", step, verbosity);
-    
-    
-    if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) )
-    {
-      if( isZHLT == false ) continue;
-      if( vars.met_et     >  40. ) continue;
-      if( vars.ele1ele2_m <  60. ) continue;
-      if( vars.ele1ele2_m > 120. ) continue;
-      if( (vars.ele1_charge * vars.ele2_charge) != -1. ) continue;
-      stepEvents[step] += 1;
-      
-      
-      vars.isW = 0;
-      vars.isZ = 1;
-     
-      SetGenLeptonInformation(vars,reader,dataFlag,1);
-      
-      // fill the reduced tree
-      FillWZAnalysisTree(vars);
-    }
-    
-    
+ if( vars.met_et     >  40. ) return false;
+ if( vars.ele1ele2_m <  60. ) return false;
+ if( vars.ele1ele2_m > 120. ) return false;
+ if( (vars.ele1_charge * vars.ele2_charge) != -1. ) return false;
    
-  } // loop over the events
-  
-  
-  
-  
-  
-  
-  // save the reduced tree
-  DeleteWZAnalysisVariables(vars);
-  
-  
-  // save the histograms
-  TFile* outputRootFile = new TFile((outputRootFullFileName).c_str(), "UPDATE");
-  outputRootFile -> cd();
-  
-  for(step = 1; step <= nStep; ++step)
-  {
-    events -> SetBinContent(step, stepEvents[step]);
-    events -> GetXaxis() -> SetBinLabel(step, stepNames[step].c_str());
-  }
-
-  events -> Write();
-  outputRootFile -> Close();
-  
-  
-  return 0;
-}
-
-
-
-
-
-
-void SetStepNames(std::map<int, std::string>& stepNames, const std::string& stepName, const int& step, const int& verbosity)
-{
-  char dummy[5];
-  sprintf(dummy, "%d)", step);
-  stepNames[step] = std::string(dummy)+" "+stepName;
-
-  if(verbosity)
-    std::cout << ">>>>>>>>> " << stepNames[step] << std::endl;
-}
-
-
-
-
-bool AcceptHLTPath(treeReader& reader, const std::pair<std::string,std::pair<int,int> >& HLTPathName)
-{
-  bool acceptEvent = false;
-
-  int runId = reader.GetInt("runId")->at(0);
-  if( runId < (HLTPathName.second).first )  return acceptEvent;
-  if( runId > (HLTPathName.second).second ) return acceptEvent;
-
-  std::vector<std::string> HLT_names = *(reader.GetString("HLT_Names"));
-  for(unsigned int HLTIt = 0; HLTIt < HLT_names.size(); ++HLTIt)
-    if( (reader.GetString("HLT_Names")->at(HLTIt) == HLTPathName.first) &&
-         (reader.GetFloat("HLT_Accept")->at(HLTIt) == 1) )
-      acceptEvent = true;
-
-  return acceptEvent;
-}
+ vars.isW = 0;
+ vars.isZ = 1;
+ 
+ return true;
+}  
