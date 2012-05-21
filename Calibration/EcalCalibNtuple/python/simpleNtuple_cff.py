@@ -59,13 +59,14 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     usePFIso( process )
  
     removeMCMatching(process, ['All'])
-    # Add tcMET and pfMET
-    addTcMET(process, 'TC')
-    addPfMET(process, 'PF')
       
     removeSpecificPATObjects( process, ['Taus'] )
     process.patDefaultSequence.remove( process.patTaus )
-        
+       
+    # Add tcMET and pfMET
+    addTcMET(process, 'TC')
+    addPfMET(process, 'PF')
+
 	
     # Jet energy corrections to use:
     inputJetCorrLabel = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
