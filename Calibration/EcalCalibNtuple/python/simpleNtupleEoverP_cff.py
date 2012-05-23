@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
 
 
 def makeSimpleNtuple(process,GlobalTag):
@@ -30,19 +31,9 @@ def makeSimpleNtuple(process,GlobalTag):
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
     
-    #--------------------------
-    # HLT
-    #--------------------------
-
-    #process.load("HLTrigger.HLTfilters.hltHighLevel_cfi")
-    #process.hltfilter = process.hltHighLevel.clone(
-     #Single Ele
-     # HLTPaths = ['HLT_Ele*'],
-      #  andOr = True,  # False = and, True=or
-       # throw = False
-   # )
-
     
+    #process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
+ 
     #--------------------------
     # Ntuple
     #--------------------------
@@ -56,5 +47,7 @@ def makeSimpleNtuple(process,GlobalTag):
     
     process.simpleNtuple_step = cms.Path(
     #    process.hltfilter
-	process.simpleNtupleEoverP
+    #process.pfParticleSelectionSequence*
+    #process.eleIsoSequence*
+    process.simpleNtupleEoverP
         )

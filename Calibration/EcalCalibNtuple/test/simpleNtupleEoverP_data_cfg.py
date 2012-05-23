@@ -16,16 +16,16 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 # simpleNtuple
 #makeSimpleNtuple(process,GlobalTag="GR_R_42_V21::All")
 #makeSimpleNtuple(process,GlobalTag="GR_R_42_V20::All")
-makeSimpleNtuple(process,GlobalTag="GR_P_V32::All")
+makeSimpleNtuple(process,GlobalTag="GR_R_52_V7::All")
 
-#makeRecoTags(process)  #commented for 05Jul ReReco
+makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
 
 
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    'file:/tmp/rgerosa/sandboxRereco-192.root'
+    'file:/media/DATA/SANDBOX/sandboxRereco-201.root'
     )
 
 process.maxEvents = cms.untracked.PSet(

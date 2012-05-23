@@ -54,6 +54,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTangent.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -80,7 +83,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h"
 // PU MC information
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
@@ -139,15 +145,17 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   edm::InputTag rhoTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
+  edm::InputTag conversionsInputTag_;
   edm::InputTag EleTag_;
   edm::InputTag PFMetTag_;
-  std::string jsonFileName_;
 
   int eventType_;
   std::vector<std::string> eleId_names_;
-  std::map<int, std::vector<std::pair<int, int> > > jsonMap_;
-  
+
+  std::string jsonFileName_;
+  std::map<int, std::vector<std::pair<int, int> > > jsonMap_;  
   bool jsonFlag_;
+
   bool verbosity_; //---- true = loquacious     false = silence  
   bool applyCorrections_;  //---- true = correct the recHit and SC energy IN the analyzer
   bool doWZSelection_;
@@ -155,7 +163,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int eventNaiveId_;
   std::map<float,int> eleIts_;
  
-
+  math::XYZPoint PVPoint_;
 
   ///---- output ----
   TTree* outTree_;
@@ -220,7 +228,14 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_tkP;
   float ele1_tkPt;
   float ele1_fbrem;
- 
+  
+  float ele1_dxy_PV ;
+  float ele1_dz_PV ;
+  float ele1_EcalEnergy ;
+  float ele1_ooemoop ;
+  float ele1_effAreaForIso;
+
+
   float ele1_e5x5;
   float ele1_e3x3;
   float ele1_scNxtal;
@@ -296,7 +311,13 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_tkP;
   float ele2_tkPt;
   float ele2_fbrem;
- 
+
+  float ele2_dxy_PV ;
+  float ele2_dz_PV ;
+  float ele2_EcalEnergy ;
+  float ele2_effAreaForIso ;
+  float ele2_ooemoop ;
+
   float ele2_e5x5;
   float ele2_e3x3;
   float ele2_scNxtal;

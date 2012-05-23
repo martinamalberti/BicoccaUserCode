@@ -27,7 +27,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
   
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
-  
+
+  conversionsInputTag_=iConfig.getParameter<edm::InputTag>("conversionsInputTag");
 
   PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
   
@@ -62,8 +63,6 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("rho",   &rho,  "rho/F");
 
  
-
-
   // ele1 variables
  
   outTree_ -> Branch("ele1_charge",     &ele1_charge,         "ele1_charge/F");
@@ -107,6 +106,11 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_tkP",        &ele1_tkP,   "ele1_tkP/F");
   outTree_ -> Branch("ele1_tkPt",       &ele1_tkPt,  "ele1_tkPt/F");
   outTree_ -> Branch("ele1_fbrem",       &ele1_fbrem,  "ele1_fbrem/F");
+
+
+  outTree_ -> Branch("ele1_dxy_PV",        &ele1_dxy_PV,   "ele1_dxy_PV/F");
+  outTree_ -> Branch("ele1_dz_PV",       &ele1_dz_PV,  "ele1_dz_PV/F");
+  outTree_ -> Branch("ele1_EcalEnergy",       &ele1_EcalEnergy,  "ele1_EcalEnergy/F");
 
   outTree_ -> Branch("ele1_e5x5",       &ele1_e5x5,  "ele1_e5x5/F");
   outTree_ -> Branch("ele1_e3x3",       &ele1_e3x3,  "ele1_e3x3/F");
@@ -157,6 +161,10 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_tkIso",     &ele2_tkIso,         "ele2_tkIso/F");
   outTree_ -> Branch("ele2_emIso",     &ele2_emIso,         "ele2_emIso/F");
   outTree_ -> Branch("ele2_hadIso",     &ele2_hadIso,         "ele2_hadIso/F");
+
+  outTree_ -> Branch("ele2_dxy_PV",        &ele2_dxy_PV,   "ele2_dxy_PV/F");
+  outTree_ -> Branch("ele2_dz_PV",       &ele2_dz_PV,  "ele2_dz_PV/F");
+  outTree_ -> Branch("ele2_EcalEnergy",       &ele2_EcalEnergy,  "ele2_EcalEnergy/F");
    
   outTree_ -> Branch("ele2_scERaw",     &ele2_scERaw,         "ele2_scERaw/F");
   outTree_ -> Branch("ele2_scEtRaw",    &ele2_scEtRaw,       "ele2_scEtRaw/F");
@@ -285,6 +293,11 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_emIso =-99.;
   ele1_hadIso =-99.;
 
+  ele1_dxy_PV=-99.;
+  ele1_dz_PV=-99.;
+  ele1_EcalEnergy=-99.;
+  ele1_effAreaForIso=-99.;
+
   ele1_scERaw =-99.;
   ele1_scEtRaw = -99.;
   ele1_scEt = -99.;
@@ -358,6 +371,11 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_tkIso =-99.;
   ele2_emIso =-99.;
   ele2_hadIso =-99.;
+
+  ele2_dxy_PV=-99.;
+  ele2_dz_PV=-99.;
+  ele2_EcalEnergy=-99.;
+  ele2_effAreaForIso=-99.;
 
   ele2_scERaw =-99.;
   ele2_scEtRaw = -99.;
@@ -536,8 +554,12 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
  iEvent.getByLabel(EleTag_,electronHandle);
  View<reco::GsfElectron> electrons = *electronHandle;
 
+  //********* CONVERSION TOOLS
+ edm::Handle<reco::ConversionCollection> conversions_h;
+ iEvent.getByLabel(conversionsInputTag_, conversions_h);
 
  bool isTightEle = false; 
+
  reco::GsfElectron electron = electrons.at(iEle);
  float pt = electron.pt();
  float eta = electron.eta();
@@ -545,31 +567,45 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
  float tkIso  = electron.dr03TkSumPt();
  float emIso  = electron.dr03EcalRecHitSumEt(); 
  float hadIso = electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
- float combIso = tkIso + emIso + hadIso - rho*0.3*0.3*3.14159;
+ float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
+   
+ float combIso = tkIso +std::max(emIso + hadIso - rho*AEff,float(0.));
       
  int isEB = electron.isEB();
  float sigmaIetaIeta = electron.sigmaIetaIeta();
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
  float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
  float HOverE        = electron.hadronicOverEm();
-      
+ float ooemoop       = (1.0/electron.ecalEnergy()- 
+                         electron.hadronicOverEm()/electron.ecalEnergy());
+
  int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
  int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
- float dist = electron.convDist();
- float dcot = electron.convDcot();
 
- if(
-         (pt > 20.) &&
-         (fabs(eta) < 2.5) &&
-          // EleID WP80 - 2010
-         ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
-         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
-         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
-          //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
-         ( mishits == 0 ) &&
-         ( nAmbiguousGsfTracks == 0 ) &&
-         ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
+
+ reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;
+ float dxy           = eleTrack->dxy(PVPoint_);  
+ float dz            = eleTrack->dz (PVPoint_);
+
+ edm::Handle<reco::BeamSpot> BSHandle;
+ iEvent.getByType(BSHandle);
+ const reco::BeamSpot BS = *BSHandle;
+
+ 
+ bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
+ 
+ if(  (pt > 20.) && (fabs(eta) < 2.5) &&
+      ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
+      ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+      ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+      ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
+      ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
+      ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
+      ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+      ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
+      ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
+      ( mishits == 0 ) &&
+      ( nAmbiguousGsfTracks == 0 )      
         )
    isTightEle=true;
 
@@ -584,40 +620,59 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
  iEvent.getByLabel(EleTag_,electronHandle);
  View<reco::GsfElectron> electrons = *electronHandle;
 
- bool isMediumEle=false;
+  //********* CONVERSION TOOLS
+ edm::Handle<reco::ConversionCollection> conversions_h;
+ iEvent.getByLabel(conversionsInputTag_, conversions_h);
+
+ bool isMediumEle = false; 
 
  reco::GsfElectron electron = electrons.at(iEle);
  float pt = electron.pt();
  float eta = electron.eta();
       
  float tkIso  = electron.dr03TkSumPt();
- float emIso  = electron.dr03EcalRecHitSumEt();
+ float emIso  = electron.dr03EcalRecHitSumEt(); 
  float hadIso = electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
- float combIso = tkIso + emIso + hadIso - rho*0.3*0.3*3.14159;
-      
- int isEB = electron.isEB(); 
+ 
+ float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
+
+ float combIso = tkIso +std::max(emIso + hadIso - rho*AEff,float(0.));
+       
+ int isEB = electron.isEB();
  float sigmaIetaIeta = electron.sigmaIetaIeta();
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
  float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
  float HOverE        = electron.hadronicOverEm();
-      
+ float ooemoop       = (1.0/electron.ecalEnergy()- 
+                         electron.hadronicOverEm()/electron.ecalEnergy());
+
  int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
  int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
- float dist = electron.convDist();
- float dcot = electron.convDcot();
 
- if(
-         (pt > 12.) &&
-         (fabs(eta) < 2.5) &&
-          // EleID WP80 - 2010
-         ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
-         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
-         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
-          //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
-         ( mishits == 0 ) &&
-         ( nAmbiguousGsfTracks == 0 ) &&
-         ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
+
+ reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;
+ float dxy           = eleTrack->dxy(PVPoint_);  
+ float dz            = eleTrack->dz (PVPoint_);
+
+ edm::Handle<reco::BeamSpot> BSHandle;
+ iEvent.getByType(BSHandle);
+ const reco::BeamSpot BS = *BSHandle;
+
+ 
+ bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
+ 
+ if(  (pt > 12.) && (fabs(eta) < 2.5) &&
+      ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
+      ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+      ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+      ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
+      ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
+      ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
+      ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+      ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
+      ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
+      ( mishits == 0 ) &&
+      ( nAmbiguousGsfTracks == 0 )      
         )
     isMediumEle=true;
 
@@ -627,40 +682,66 @@ return isMediumEle;
 // ----------------------------------------------------------------------------------------
 bool SimpleNtupleEoverP::LooseEle (const edm::Event & iEvent, const edm::EventSetup & iESetup,const int &iEle){
 
- //************* ELECTRONS
+//************* ELECTRONS
  Handle<View<reco::GsfElectron> > electronHandle;
  iEvent.getByLabel(EleTag_,electronHandle);
  View<reco::GsfElectron> electrons = *electronHandle;
-  
- bool isLooseEle = false;
+
+  //********* CONVERSION TOOLS
+ edm::Handle<reco::ConversionCollection> conversions_h;
+ iEvent.getByLabel(conversionsInputTag_, conversions_h);
+
+ bool isLooseEle = false; 
 
  reco::GsfElectron electron = electrons.at(iEle);
  float pt = electron.pt();
  float eta = electron.eta();
       
  float tkIso  = electron.dr03TkSumPt();
- float emIso  = electron.dr03EcalRecHitSumEt();
+ float emIso  = electron.dr03EcalRecHitSumEt(); 
  float hadIso = electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
- float combIso = tkIso + emIso + hadIso - rho*0.3*0.3*3.14159;
+ 
+ float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
+
+ float combIso = tkIso +std::max(emIso + hadIso - rho*AEff,float(0.));
       
- int isEB = electron.isEB(); 
+ int isEB = electron.isEB();
  float sigmaIetaIeta = electron.sigmaIetaIeta();
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
  float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
  float HOverE        = electron.hadronicOverEm();
-       
- if( 
-          (pt > 10.) &&
-          (fabs(eta) < 2.5) &&
-          // EleID WP95 - 2010
-          ( ( (isEB == 1) && (combIso/pt    < 0.150) ) || ( (isEB == 0) && (combIso/pt    < 0.100) ) ) &&
-          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.800) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.700) ) ) &&
-          ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.010) ) ) &&
-          ( ( (isEB == 1) && (HOverE        < 0.150) ) || ( (isEB == 0) && (HOverE        < 0.070) ) )
-        )
-        isLooseEle=true;
+ float ooemoop       = (1.0/electron.ecalEnergy()- 
+                         electron.hadronicOverEm()/electron.ecalEnergy());
 
+ int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+ int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
+
+
+ reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;
+ float dxy           = eleTrack->dxy(PVPoint_);  
+ float dz            = eleTrack->dz (PVPoint_);
+
+ edm::Handle<reco::BeamSpot> BSHandle;
+ iEvent.getByType(BSHandle);
+ const reco::BeamSpot BS = *BSHandle;
+
+ 
+ bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
+ 
+  if(    (pt > 10.) && (fabs(eta) < 2.5) &&
+         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.009) ) ) &&
+         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.150) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.100) ) ) &&
+         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+         ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
+         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
+         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
+         ( ( (isEB == 1) && (dz            < 0.200) ) || ( (isEB == 0) && (dz            < 0.200) ) ) &&
+         ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
+         ( mishits == 0 ) &&
+         ( nAmbiguousGsfTracks == 0 ) &&
+         ( ( (isEB == 1 ) && (combIso/pt    < 0.150) ) || ( (isEB == 0 ) && (combIso/pt    < 0.100) ) )    
+        ) isLooseEle=true;;
+ 
 return isLooseEle;
 }
 
@@ -669,17 +750,23 @@ return isLooseEle;
 bool SimpleNtupleEoverP::myWselection (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 { 
 
-  float combIso = (ele1_tkIso + ele1_emIso + ele1_hadIso) - rho*0.3*0.3*3.14159;
+
+  float combIso = ele1_tkIso +std::max(ele1_emIso + ele1_hadIso - rho*ele1_effAreaForIso,float(0.));
 
   if( ele1_pt < 30. ) return false;
-  if( ( ele1_isEB == 1 ) && ( combIso/ele1_pt > 0.04 ) ) return false;
-  if( ( ele1_isEB == 1 ) && ( fabs(ele1_DphiIn) > 0.030 ) ) return false;
+  if( ( ele1_isEB == 1 ) && ( combIso/ele1_pt > 0.049 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( fabs(ele1_DetaIn) > 0.004 ) ) return false;
-  if( ( ele1_isEB == 1 ) && ( ele1_HOverE > 0.025 ) ) return false;
+  if( ( ele1_isEB == 1 ) && ( fabs(ele1_DphiIn) > 0.030 ) ) return false;
+  if( ( ele1_isEB == 1 ) && ( ele1_sigmaIetaIeta > 0.010 ) ) return false;
+  if( ( ele1_isEB == 1 ) && ( ele1_HOverE > 0.120 ) ) return false;
+  if( ( ele1_isEB == 1 ) && ( ele1_ooemoop > 0.050 ) ) return false;
+
   if( ( ele1_isEB == 0 ) && ( combIso/ele1_pt > 0.03 ) ) return false;
-  if( ( ele1_isEB == 0 ) && ( fabs(ele1_DphiIn) > 0.020 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DetaIn) > 0.005 ) ) return false;
-  if( ( ele1_isEB == 0 ) && ( ele1_HOverE > 0.025 ) ) return false;
+  if( ( ele1_isEB == 0 ) && ( fabs(ele1_DphiIn) > 0.020 ) ) return false;
+  if( ( ele1_isEB == 0 ) && ( ele1_sigmaIetaIeta > 0.030 ) ) return false;
+  if( ( ele1_isEB == 0 ) && ( ele1_HOverE > 0.100 ) ) return false;
+  if( ( ele1_isEB == 0 ) && ( ele1_ooemoop > 0.050 ) ) return false;
        
   if( met_et       < 25.00 ) return false;
   if( ele1Met_mt   < 50.00 ) return false;
@@ -717,13 +804,16 @@ if(PVfound){
     PV = vertexes->at(0);
     PV_z = PV.z();
     PV_d0 = PV.position().Rho();
-   
   }
   else {
     //creating a dummy PV
     PV_z=-999.;
     PV_d0=-999.;
    }  
+
+ math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
+ PVPoint_=PVPoint;
+
 }
 //------------------------------------------------------------------------------------------------------------
 void SimpleNtupleEoverP::fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) 
@@ -790,7 +880,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
   //************* CLUSTER LAZY TOOLS
   if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/r/rgerosa/scratch0/CMSSW_4_2_8_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/r/rgerosa/scratch0/CMSSW_5_2_3_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
   }
  
@@ -823,9 +913,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_DphiIn=electron.deltaPhiSuperClusterTrackAtVtx();
     ele1_DetaIn=electron.deltaEtaSuperClusterTrackAtVtx();
     ele1_HOverE=electron.hadronicOverEm();
+    ele1_ooemoop       = (1.0/electron.ecalEnergy()- 
+                         electron.hadronicOverEm()/electron.ecalEnergy());
+
     ele1_tkIso=electron.dr03TkSumPt();
     ele1_emIso=electron.dr03EcalRecHitSumEt();
     ele1_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
+
+    ele1_effAreaForIso = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
 
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
@@ -847,7 +942,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_scE_regression=cor.first;
     ele1_scEerr_regression = cor.second;
  
- 
+   
     EcalClusterLocal ecalLocalCoord;
     float bcLocalEta, bcLocalPhi, bcThetatilt, bcPhitilt;  
     int bcIeta, bcIphi;
@@ -1157,9 +1252,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_DphiIn=electron.deltaPhiSuperClusterTrackAtVtx();
     ele2_DetaIn=electron.deltaEtaSuperClusterTrackAtVtx();
     ele2_HOverE=electron.hadronicOverEm();
+    ele2_ooemoop       = (1.0/electron.ecalEnergy()- 
+                         electron.hadronicOverEm()/electron.ecalEnergy());
+
     ele2_tkIso=electron.dr03TkSumPt();
     ele2_emIso=electron.dr03EcalRecHitSumEt();
     ele2_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
+
+    ele2_effAreaForIso = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
 
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
