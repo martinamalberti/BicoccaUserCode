@@ -538,6 +538,11 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
 
  bool isTightEle = false; 
  reco::GsfElectron electron = electrons.at(iEle);
+ 
+ edm::InputTag EleBad = edm::InputTag("gsfElectrons");
+ 
+ if(EleTag_== EleBad && !electron.ecalDriven()) return false ; 
+ 
  float pt = electron.pt();
  float eta = electron.eta();
       
@@ -586,6 +591,12 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
  bool isMediumEle=false;
 
  reco::GsfElectron electron = electrons.at(iEle);
+
+ edm::InputTag EleBad = edm::InputTag("gsfElectrons");
+ 
+ if(EleTag_== EleBad && !electron.ecalDriven()) return false ; 
+ 
+
  float pt = electron.pt();
  float eta = electron.eta();
       
@@ -634,6 +645,11 @@ bool SimpleNtupleEoverP::LooseEle (const edm::Event & iEvent, const edm::EventSe
  bool isLooseEle = false;
 
  reco::GsfElectron electron = electrons.at(iEle);
+ 
+ edm::InputTag EleBad = edm::InputTag("gsfElectrons");
+ 
+ if(EleTag_== EleBad && !electron.ecalDriven()) return false; 
+ 
  float pt = electron.pt();
  float eta = electron.eta();
       
@@ -803,7 +819,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       
   if ( eleName == "ele1") {
  
-    
+    edm::InputTag EleBad = edm::InputTag("gsfElectrons");
+ 
+    if(EleTag_== EleBad && !electron.ecalDriven()) return ; 
+ 
     ele1=electron.p4();
     ele1_charge=electron.charge();
     ele1_p=ele1.P();
@@ -1138,6 +1157,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
  if ( eleName == "ele2" ) {
 
+    edm::InputTag EleBad = edm::InputTag("gsfElectrons");
+   
+    if(EleTag_== EleBad && !electron.ecalDriven()) return ; 
+ 
     ele2=electron.p4();
     ele2_charge=electron.charge();
     ele2_p=ele2.P();
