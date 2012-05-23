@@ -754,14 +754,14 @@ bool SimpleNtupleEoverP::myWselection (const edm::Event & iEvent, const edm::Eve
   float combIso = ele1_tkIso +std::max(ele1_emIso + ele1_hadIso - rho*ele1_effAreaForIso,float(0.));
 
   if( ele1_pt < 30. ) return false;
-  if( ( ele1_isEB == 1 ) && ( combIso/ele1_pt > 0.049 ) ) return false;
+  if( ( ele1_isEB == 1 ) && ( combIso/ele1_pt > 0.05 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( fabs(ele1_DetaIn) > 0.004 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( fabs(ele1_DphiIn) > 0.030 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( ele1_sigmaIetaIeta > 0.010 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( ele1_HOverE > 0.120 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( ele1_ooemoop > 0.050 ) ) return false;
 
-  if( ( ele1_isEB == 0 ) && ( combIso/ele1_pt > 0.03 ) ) return false;
+  if( ( ele1_isEB == 0 ) && ( combIso/ele1_pt > 0.035 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DetaIn) > 0.005 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DphiIn) > 0.020 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( ele1_sigmaIetaIeta > 0.030 ) ) return false;
