@@ -130,8 +130,8 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag TriggerResultsTag_;
   
   edm::InputTag PVTag_;
-  edm::ImputTag NoMuonPVTag_;
-  edm::ImputTag NoMuonTracksTag_;
+  edm::InputTag NoMuonPVTag_;
+  edm::InputTag NoMuonTracksTag_;
 
   edm::InputTag EleTag_;
   edm::InputTag TracksTag_;
