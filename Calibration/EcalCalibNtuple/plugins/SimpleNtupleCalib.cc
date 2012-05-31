@@ -31,7 +31,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
-
+ 
   inputCollectionStrip_ = iConfig.getParameter<edm::InputTag>("inputCollectionStrip");
   inputCollectionPixel_ = iConfig.getParameter<edm::InputTag>("inputCollectionPixel");
   
@@ -44,6 +44,8 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   CALOMetTag_ = iConfig.getParameter<edm::InputTag>("CALOMetTag");
   TCMetTag_ = iConfig.getParameter<edm::InputTag>("TCMetTag");
   PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
+
+  PreshowerRecHit_ = iConfig.getParameter<edm::InputTag>("PreshowerRecHit");;
   
   MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -75,7 +77,10 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
   saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
   saveMCZW_     = iConfig.getUntrackedParameter<bool> ("saveMCZW", false);
-  
+ 
+  savePreShowerEle_ = iConfig.getUntrackedParameter<bool> ("savePreShower", true);
+  savePreShowerPhoton_ = iConfig.getUntrackedParameter<bool> ("savePreShower", true);
+ 
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   
   
@@ -273,6 +278,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     
     // preshower variables
     NtupleFactory_->AddFloat("electrons_ES");
+  
     
     // id variables
     NtupleFactory_->AddInt("electrons_classification");
@@ -574,7 +580,33 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->Add4V("PFMet");
     NtupleFactory_->AddFloat("PFSumEt");
   }
-  
+
+  if(savePreShowerEle_){
+
+   NtupleFactory_->AddInt("electrons_preShowerRecHit_zside");
+   NtupleFactory_->AddFloat("electrons_preShowerRecHit_E");
+   NtupleFactory_->AddInt("electrons_preShowerRecHit_Ix");
+   NtupleFactory_->AddInt("electrons_preShowerRecHit_Iy");
+   NtupleFactory_->AddFloat("electrons_preShowerRecHit_plane");
+   NtupleFactory_->AddFloat("electrons_preShowerRecHit_strip");
+   NtupleFactory_->AddFloat("electrons_preShowerRecHit_rawId");
+   NtupleFactory_->AddInt("electrons_NpreShowerRecHit"); 
+
+ }
+ 
+  if(savePreShowerPhoton_){
+
+   NtupleFactory_->AddInt("photons_preShowerRecHit_zside");
+   NtupleFactory_->AddFloat("photons_preShowerRecHit_E");
+   NtupleFactory_->AddInt("photons_preShowerRecHit_Ix");
+   NtupleFactory_->AddInt("photons_preShowerRecHit_Iy");
+   NtupleFactory_->AddFloat("photons_preShowerRecHit_plane");
+   NtupleFactory_->AddFloat("photons_preShowerRecHit_strip");
+   NtupleFactory_->AddFloat("photons_preShowerRecHit_rawId");
+   NtupleFactory_->AddInt("photons_NpreShowerRecHit"); 
+
+ }
+
   if(saveMCPU_)
   {
     NtupleFactory_ -> AddFloat("mc_PUit_TrueNumInteractions");
@@ -696,6 +728,11 @@ void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup
  ///---- fill PFMet ---- 
  if (savePFMet_) fillPFMetInfo (iEvent, iSetup);
 
+ ///---- fill Preshower Ele ---- 
+ if (savePreShowerEle_) fillPreShowerEleInfo (iEvent, iSetup);
+
+ ///---- fill Preshower Photon ---- 
+ if (savePreShowerPhoton_) fillPreShowerPhotonInfo (iEvent, iSetup);
 
  ///---- fill MC Pileup information ---- 
  if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
@@ -969,6 +1006,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
   std::cerr << "SimpleNtupleCalib::analyze --> recHitsEE not found" << std::endl; 
  }
 
+
  //*********** SiStrip CLUSTER
  edm::Handle< edmNew::DetSetVector<SiStripCluster> > inputStrip;
  iEvent.getByLabel(inputCollectionStrip_, inputStrip);
@@ -982,6 +1020,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  edm::Handle<View<pat::Electron> > electronHandle;
  iEvent.getByLabel(EleTag_,electronHandle);
  View<pat::Electron> electrons = *electronHandle;
+
  
  //************* VERTEX COLLECTION
  edm::Handle<reco::VertexCollection> hVertexProduct;
@@ -1932,9 +1971,9 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_scCrackCorrection", crackcor);
    NtupleFactory_->FillFloat("electrons_scLocalContCorrection", localContCorr);
    
-      
-   
-   } // end loop over electron candidates
+
+ } // end loop over electron candidates
+
 
 }
 
@@ -2563,9 +2602,149 @@ void SimpleNtupleCalib::fillSCInfo (const edm::Event & iEvent, const edm::EventS
  
 }
 
+// ---- Preshower ---------
+void SimpleNtupleCalib::fillPreShowerEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup){
 
+//*********** PreShower recHits
+Handle<edm::SortedCollection<EcalRecHit> > EShits;
+iEvent.getByLabel(PreshowerRecHit_,  EShits);
+const EcalRecHitCollection *recHitES =  EShits.product();
 
+//************* ELECTRONS
+ edm::Handle<View<pat::Electron> > electronHandle;
+ iEvent.getByLabel(EleTag_,electronHandle);
+ View<pat::Electron> electrons = *electronHandle;
 
+ //*********** CALO GEOM
+ edm::ESHandle<CaloGeometry> theCaloGeom;
+ iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+ const CaloGeometry *caloGeometry = theCaloGeom.product();
+
+// Iteration over basic cluster collection
+ // Loop over electrons
+ for ( unsigned int i=0; i<electrons.size(); ++i ){
+ 
+  pat::Electron electron = electrons.at(i);
+
+  if(electron.pflowSuperCluster().isNull() || electron.isEB()==1){
+     
+       NtupleFactory_->FillInt("electrons_preShowerRecHit_zside",-999);
+       NtupleFactory_->FillFloat("electrons_preShowerRecHit_E",-999.);
+       NtupleFactory_->FillInt("electrons_preShowerRecHit_Ix",-999);
+       NtupleFactory_->FillInt("electrons_preShowerRecHit_Iy",-999);
+       NtupleFactory_->FillFloat("electrons_preShowerRecHit_plane",-999.);
+       NtupleFactory_->FillFloat("electrons_preShowerRecHit_strip",-999.);
+       NtupleFactory_->FillFloat("electrons_preShowerRecHit_rawId",-999.);
+       NtupleFactory_->FillInt("electrons_NpreShowerRecHit",0); 
+       continue;
+   }
+  
+
+   for(reco::CaloCluster_iterator escl = electron.pflowSuperCluster()->preshowerClustersBegin(); escl != electron.pflowSuperCluster() ->preshowerClustersEnd(); escl++){
+
+     std::vector< std::pair<DetId, float> > esCells=(*escl)->hitsAndFractions();
+     // Iterate on the hits of this ES cluster: 
+     int nPreshowerRecHit = 0; 
+     for(unsigned int s=0; s<esCells.size(); ++s){
+
+        // Iterate on the RecHits collection, matching them with the hits that make up the ES cluster by looking at their DetId: 
+        for(EcalRecHitCollection::const_iterator es=recHitES->begin(); es!= recHitES->end(); ++es){
+          
+          DetId hitid = DetId(esCells[s].first.rawId());
+          if(es->id().rawId()==esCells[s].first.rawId()){
+          ESDetId id=ESDetId(es->id().rawId());
+          
+          NtupleFactory_->FillInt("electrons_preShowerRecHit_zside",id.zside());
+          NtupleFactory_->FillFloat("electrons_preShowerRecHit_E",es->energy());
+          NtupleFactory_->FillInt("electrons_preShowerRecHit_Ix",id.six());
+          NtupleFactory_->FillInt("electrons_preShowerRecHit_Iy",id.siy());
+          NtupleFactory_->FillFloat("electrons_preShowerRecHit_plane",id.plane());
+          NtupleFactory_->FillFloat("electrons_preShowerRecHit_strip",id.strip());
+          NtupleFactory_->FillFloat("electrons_preShowerRecHit_rawId",id.rawId());
+          nPreshowerRecHit++;
+         }
+        }
+       }
+
+     NtupleFactory_->FillInt("electrons_NpreShowerRecHit",nPreshowerRecHit); 
+     
+   }
+ }
+
+}   
+
+void SimpleNtupleCalib::fillPreShowerPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup){
+
+//*********** PreShower recHits
+Handle<edm::SortedCollection<EcalRecHit> > EShits;
+iEvent.getByLabel(PreshowerRecHit_,  EShits);
+const EcalRecHitCollection *recHitES =  EShits.product();
+
+//************* ELECTRONS
+ edm::Handle<View<pat::Photon> > photonHandle;
+ iEvent.getByLabel(PhotonTag_,photonHandle);
+ View<pat::Photon> photons = *photonHandle;
+
+ //*********** CALO GEOM
+ edm::ESHandle<CaloGeometry> theCaloGeom;
+ iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+ const CaloGeometry *caloGeometry = theCaloGeom.product();
+
+// Iteration over basic cluster collection
+ // Loop over electrons
+ for ( unsigned int i=0; i<photons.size(); ++i ){
+
+  pat::Photon photon = photons.at(i);
+
+  if(photon.pfSuperCluster().isNull() || photon.isEB()==1){
+     
+       NtupleFactory_->FillInt("photons_preShowerRecHit_zside",-999);
+       NtupleFactory_->FillFloat("photons_preShowerRecHit_E",-999.);
+       NtupleFactory_->FillInt("photons_preShowerRecHit_Ix",-999);
+       NtupleFactory_->FillInt("photons_preShowerRecHit_Iy",-999);
+       NtupleFactory_->FillFloat("photons_preShowerRecHit_plane",-999.);
+       NtupleFactory_->FillFloat("photons_preShowerRecHit_strip",-999.);
+       NtupleFactory_->FillFloat("photons_preShowerRecHit_rawId",-999.);
+       NtupleFactory_->FillInt("photons_NpreShowerRecHit",0); 
+  
+       continue;
+   }
+  
+
+   for(reco::CaloCluster_iterator escl = photon.pfSuperCluster()->preshowerClustersBegin(); escl != photon.pfSuperCluster() ->preshowerClustersEnd(); escl++){
+
+     std::vector< std::pair<DetId, float> > esCells=(*escl)->hitsAndFractions();
+     // Iterate on the hits of this ES cluster: 
+     int nPreshowerRecHit = 0;
+     for(unsigned int s=0; s<esCells.size(); ++s){
+
+        // Iterate on the RecHits collection, matching them with the hits that make up the ES cluster by looking at their DetId: 
+    
+        for(EcalRecHitCollection::const_iterator es=recHitES->begin(); es!= recHitES->end(); ++es){
+          
+          DetId hitid = DetId(esCells[s].first.rawId());
+          const CaloCellGeometry *strip = caloGeometry->getGeometry(hitid);
+          if(!strip) continue;
+          if(es->id().rawId()==esCells[s].first.rawId()){
+          ESDetId id=ESDetId(es->id().rawId());
+          
+          NtupleFactory_->FillInt("photons_preShowerRecHit_zside",id.zside());
+          NtupleFactory_->FillFloat("photons_preShowerRecHit_E",es->energy());
+          NtupleFactory_->FillInt("photons_preShowerRecHit_Ix",id.six());
+          NtupleFactory_->FillInt("photons_preShowerRecHit_Iy",id.siy());
+          NtupleFactory_->FillFloat("photons_preShowerRecHit_plane",id.plane());
+          NtupleFactory_->FillFloat("photons_preShowerRecHit_strip",id.strip());
+          NtupleFactory_->FillFloat("photons_preShowerRecHit_rawId",id.rawId());
+          nPreshowerRecHit++;
+         }
+        }
+     }
+      NtupleFactory_->FillInt("photons_NpreShowerRecHit",nPreshowerRecHit); 
+ 
+    }
+ }
+
+}  
 
 // ---- MET ----
 void SimpleNtupleCalib::fillCALOMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)

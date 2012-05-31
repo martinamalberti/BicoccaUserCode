@@ -42,6 +42,9 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
+
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
@@ -50,6 +53,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -153,6 +157,8 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   void fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPreShowerEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPreShowerPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
@@ -179,6 +185,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag TriggerResultsTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
+
   edm::InputTag inputCollectionStrip_;
   edm::InputTag inputCollectionPixel_;
   edm::InputTag EleTag_;
@@ -191,6 +198,8 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag PFMetTag_;
   edm::InputTag MCPileupTag_;
   edm::InputTag MCtruthTag_;
+  edm::InputTag PreshowerRecHit_;
+
   int eventType_;
   std::vector<std::string> eleId_names_;
   
@@ -211,6 +220,9 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   bool saveMu_ ;
   bool saveJet_ ;
   bool saveCALOMet_ ;
+  bool savePreShowerEle_ ;
+  bool savePreShowerPhoton_ ;
+
   bool saveTCMet_ ;
   bool savePFMet_ ;
   bool saveMCPU_;
