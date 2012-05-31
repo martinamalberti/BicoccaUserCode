@@ -2696,7 +2696,7 @@ const EcalRecHitCollection *recHitES =  EShits.product();
 
   pat::Photon photon = photons.at(i);
 
-  if(photon.pfSuperCluster().isNull() || photon.isEB()==1){
+  if(photon.superCluster().isNull() || photon.isEB()==1){
      
        NtupleFactory_->FillInt("photons_preShowerRecHit_zside",-999);
        NtupleFactory_->FillFloat("photons_preShowerRecHit_E",-999.);
@@ -2711,7 +2711,7 @@ const EcalRecHitCollection *recHitES =  EShits.product();
    }
   
 
-   for(reco::CaloCluster_iterator escl = photon.pfSuperCluster()->preshowerClustersBegin(); escl != photon.pfSuperCluster() ->preshowerClustersEnd(); escl++){
+   for(reco::CaloCluster_iterator escl = photon.superCluster()->preshowerClustersBegin(); escl != photon.superCluster() ->preshowerClustersEnd(); escl++){
 
      std::vector< std::pair<DetId, float> > esCells=(*escl)->hitsAndFractions();
      // Iterate on the hits of this ES cluster: 
