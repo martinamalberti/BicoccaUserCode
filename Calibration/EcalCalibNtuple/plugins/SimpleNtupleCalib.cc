@@ -2620,7 +2620,6 @@ const EcalRecHitCollection *recHitES =  EShits.product();
  iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
  const CaloGeometry *caloGeometry = theCaloGeom.product();
 
-// Iteration over basic cluster collection
  // Loop over electrons
  for ( unsigned int i=0; i<electrons.size(); ++i ){
  
@@ -2639,12 +2638,11 @@ const EcalRecHitCollection *recHitES =  EShits.product();
        continue;
    }
   
-
+   int nPreshowerRecHit = 0; 
    for(reco::CaloCluster_iterator escl = electron.pflowSuperCluster()->preshowerClustersBegin(); escl != electron.pflowSuperCluster() ->preshowerClustersEnd(); escl++){
 
      std::vector< std::pair<DetId, float> > esCells=(*escl)->hitsAndFractions();
      // Iterate on the hits of this ES cluster: 
-     int nPreshowerRecHit = 0; 
      for(unsigned int s=0; s<esCells.size(); ++s){
 
         // Iterate on the RecHits collection, matching them with the hits that make up the ES cluster by looking at their DetId: 
@@ -2664,11 +2662,9 @@ const EcalRecHitCollection *recHitES =  EShits.product();
           nPreshowerRecHit++;
          }
         }
-       }
-
-     NtupleFactory_->FillInt("electrons_NpreShowerRecHit",nPreshowerRecHit); 
-     
+       }    
    }
+    NtupleFactory_->FillInt("electrons_NpreShowerRecHit",nPreshowerRecHit); 
  }
 
 }   
@@ -2710,12 +2706,12 @@ const EcalRecHitCollection *recHitES =  EShits.product();
        continue;
    }
   
+  int nPreshowerRecHit = 0;
 
-   for(reco::CaloCluster_iterator escl = photon.superCluster()->preshowerClustersBegin(); escl != photon.superCluster() ->preshowerClustersEnd(); escl++){
+  for(reco::CaloCluster_iterator escl = photon.superCluster()->preshowerClustersBegin(); escl != photon.superCluster() ->preshowerClustersEnd(); escl++){
 
      std::vector< std::pair<DetId, float> > esCells=(*escl)->hitsAndFractions();
      // Iterate on the hits of this ES cluster: 
-     int nPreshowerRecHit = 0;
      for(unsigned int s=0; s<esCells.size(); ++s){
 
         // Iterate on the RecHits collection, matching them with the hits that make up the ES cluster by looking at their DetId: 
@@ -2739,9 +2735,8 @@ const EcalRecHitCollection *recHitES =  EShits.product();
          }
         }
      }
-      NtupleFactory_->FillInt("photons_NpreShowerRecHit",nPreshowerRecHit); 
- 
-    }
+   }
+   NtupleFactory_->FillInt("photons_NpreShowerRecHit",nPreshowerRecHit); 
  }
 
 }  
