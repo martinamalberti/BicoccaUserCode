@@ -2687,6 +2687,7 @@ const EcalRecHitCollection *recHitES =  EShits.product();
    }
   
    int nPreShowerRecHit=0;
+
    for(reco::CaloCluster_iterator escl = electron.pflowSuperCluster()->preshowerClustersBegin(); escl != electron.pflowSuperCluster() ->preshowerClustersEnd(); escl++){
 
      std::vector< std::pair<DetId, float> > esCells=(*escl)->hitsAndFractions();
@@ -2708,13 +2709,12 @@ const EcalRecHitCollection *recHitES =  EShits.product();
           NtupleFactory_->FillFloat("electrons_preShowerRecHit_plane",id.plane());
           NtupleFactory_->FillFloat("electrons_preShowerRecHit_strip",id.strip());
           NtupleFactory_->FillFloat("electrons_preShowerRecHit_rawId",id.rawId());
-          nPreshowerRecHit++;
+          nPreShowerRecHit++;
          }
         }
        }
-       NtupleFactory_->FillInt("electrons_NpreShowerRecHit",nPreshowerRecHit);
-
-   }
+     }
+  NtupleFactory_->FillInt("electrons_NpreShowerRecHit",nPreShowerRecHit);
   }
 
 }   
@@ -2756,7 +2756,7 @@ const EcalRecHitCollection *recHitES =  EShits.product();
        continue;
    }
   
-
+   int nPreshowerRecHit=0;
    for(reco::CaloCluster_iterator escl = photon.superCluster()->preshowerClustersBegin(); escl != photon.superCluster() ->preshowerClustersEnd(); escl++){
 
      std::vector< std::pair<DetId, float> > esCells=(*escl)->hitsAndFractions();
@@ -2785,8 +2785,8 @@ const EcalRecHitCollection *recHitES =  EShits.product();
          }
         }
        }
-       NtupleFactory_->FillInt("photons_NpreShowerRecHit",nPreshowerRecHit); 
-    }
+     }
+   NtupleFactory_->FillInt("photons_NpreShowerRecHit",nPreshowerRecHit);
   }
 }  
 
