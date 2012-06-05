@@ -71,6 +71,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_eta",     &ele1_eta,         "ele1_eta/F");
   outTree_ -> Branch("ele1_phi",     &ele1_phi,         "ele1_phi/F");
 
+  outTree_ -> Branch("ele2_isTrackerDriven",     &ele2_isTrackerDriven,         "ele2_isTrackerDriven/I");
+
   outTree_ -> Branch("ele1_sigmaIetaIeta",     &ele1_sigmaIetaIeta,         "ele1_sigmaIetaIeta/F");
   outTree_ -> Branch("ele1_DphiIn",     &ele1_DphiIn,         "ele1_DphiIn/F");
   outTree_ -> Branch("ele1_DetaIn",     &ele1_DetaIn,         "ele1_DetaIn/F");
@@ -153,6 +155,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_pt",     &ele2_pt,         "ele2_pt/F");
   outTree_ -> Branch("ele2_eta",     &ele2_eta,         "ele2_eta/F");
   outTree_ -> Branch("ele2_phi",     &ele2_phi,         "ele2_phi/F");
+
+  outTree_ -> Branch("ele2_isTrackerDriven",     &ele2_isTrackerDriven,         "ele2_isTrackerDriven/I");
 
   outTree_ -> Branch("ele2_sigmaIetaIeta",     &ele2_sigmaIetaIeta,         "ele2_sigmaIetaIeta/F");
   outTree_ -> Branch("ele2_DphiIn",     &ele2_DphiIn,         "ele2_DphiIn/F");
@@ -284,6 +288,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_pt =-99.;
   ele1_eta =-99.;
   ele1_phi=-99.;
+  ele1_isTrackerDriven=-99;
 
   ele1_sigmaIetaIeta =-99.;
   ele1_DphiIn =-99.;
@@ -363,6 +368,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_pt =-99.;
   ele2_eta =-99.;
   ele2_phi=-99.;
+  ele2_isTrackerDriven=-99;
 
   ele2_sigmaIetaIeta =-99.;
   ele2_DphiIn =-99.;
@@ -895,7 +901,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
   //************* CLUSTER LAZY TOOLS
   if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/r/rgerosa/scratch0/CMSSW_5_2_3_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_5_2_5/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
   }
  
@@ -1237,7 +1243,9 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
       }
     }
-    
+
+    ele1_nRecHits = numRecHit; 
+
     ele1_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
     if ( applyCorrections_ ) ele1_scE = scRef->energy()*ele1_fEta*sumRecHitE;
     else ele1_scE = scRef->energy();
@@ -1580,6 +1588,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       }
     }
     
+    ele2_nRecHits = numRecHit;
     ele2_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
     if ( applyCorrections_ ) ele2_scE = scRef->energy()*ele2_fEta*sumRecHitE;
     else ele2_scE = scRef->energy();
