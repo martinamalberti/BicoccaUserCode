@@ -100,6 +100,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+
 
 // PU MC information
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
@@ -159,6 +161,8 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFIsoInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPreShowerEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillPreShowerPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMCZWInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
@@ -197,7 +201,9 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag PFMetTag_;
   edm::InputTag MCPileupTag_;
   edm::InputTag MCtruthTag_;
-  edm::InputTag conversionsInputTag_;     
+  edm::InputTag conversionsInputTag_;  
+  edm::InputTag PreshowerRecHit_;
+   
 
   int eventType_;
   std::vector<std::string> eleId_names_;
@@ -224,6 +230,8 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   bool savePFIso_ ;
   bool saveMCPU_;
   bool saveMCZW_ ;
+  bool savePreShowerEle_ ;
+  bool savePreShowerPhoton_ ;
 
   bool verbosity_; //---- true = loquacious     false = silence  
   
