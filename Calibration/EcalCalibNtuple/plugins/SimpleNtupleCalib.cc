@@ -1044,7 +1044,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  
  //************* CLUSTER LAZY TOOLS
  if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/r/rgerosa/scratch0/CMSSW_5_2_3_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_5_2_5/src/Calibration/EcalCalibNtuple/test/crab/gbrv3ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
  }
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
@@ -1154,7 +1154,10 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
    double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
    
-   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(electron,*hVertexProduct,lazyTools,iSetup);
+   edm::Handle<double> hRho;
+   iEvent.getByLabel("kt6PFJetsForIsolation", "rho", hRho);
+
+   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*hRho,lazyTools,iSetup);
    double scE_regression = cor.first;
    double scEerr_regression = cor.second;
    

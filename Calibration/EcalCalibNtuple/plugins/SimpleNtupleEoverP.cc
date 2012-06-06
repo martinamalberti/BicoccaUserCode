@@ -901,7 +901,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
   //************* CLUSTER LAZY TOOLS
   if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_5_2_5/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele_52x.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_5_2_5/src/Calibration/EcalCalibNtuple/test/crab/gbrv3ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
   }
  
@@ -951,9 +951,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
    
     double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
     double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
-   
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(electron,*hVertexProduct,lazyTools,iSetup);
 
+    Handle< double > rhoHandle;
+    iEvent.getByLabel(rhoTag_,rhoHandle);
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*rhoHandle,lazyTools,iSetup);
 
     ele1_scERaw=scRef->rawEnergy();
     ele1_scEtRaw=scRef->rawEnergy()*(Rt/R);
@@ -1296,8 +1297,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
    
     double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
     double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
-   
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(electron,*hVertexProduct,lazyTools,iSetup);
+  
+    Handle< double > rhoHandle;
+    iEvent.getByLabel(rhoTag_,rhoHandle);
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*rhoHandle,lazyTools,iSetup);
 
 
     ele2_scERaw=scRef->rawEnergy();
