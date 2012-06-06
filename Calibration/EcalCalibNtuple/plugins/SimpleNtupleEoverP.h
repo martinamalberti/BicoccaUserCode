@@ -194,6 +194,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_pt;
   float ele1_eta;
   float ele1_phi;
+  int ele1_isTrackerDriven;
 
   float ele1_sigmaIetaIeta;
   float ele1_DphiIn;
@@ -277,6 +278,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_pt;
   float ele2_eta;
   float ele2_phi;
+  int ele2_isTrackerDriven;
+
 
   float ele2_sigmaIetaIeta;
   float ele2_DphiIn;
