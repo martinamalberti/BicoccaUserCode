@@ -129,6 +129,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   void fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
   void fillMetInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
   void fillDoubleEleInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+
   bool  TightEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
   bool  MediumEle  (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
   bool  LooseEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup,const int &iEle) ;
@@ -148,14 +150,16 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   edm::InputTag conversionsInputTag_;
   edm::InputTag EleTag_;
   edm::InputTag PFMetTag_;
+  edm::InputTag MCPileupTag_;
 
   int eventType_;
   std::vector<std::string> eleId_names_;
 
   std::string jsonFileName_;
   std::map<int, std::vector<std::pair<int, int> > > jsonMap_;  
-  bool jsonFlag_;
 
+  bool jsonFlag_;
+  bool saveMCPU_;
   bool verbosity_; //---- true = loquacious     false = silence  
   bool applyCorrections_;  //---- true = correct the recHit and SC energy IN the analyzer
   bool doWZSelection_;
@@ -370,6 +374,33 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1ele2_scM;
   float ele1ele2_scM_regression;
   float ele1ele2_scMZS;
+
+  float PUit_TrueNumInteractions;
+  int PUit_NumInteractions;
+  float PUit_zpositions ;
+  float PUit_sumpT_lowpT ;
+  float PUit_sumpT_highpT ;
+  float PUit_ntrks_lowpT ;
+  float PUit_ntrks_highpT;
+
+  float PUoot_early_TrueNumInteractions ;
+  int PUoot_early ;
+  float PUoot_early_zpositions ;
+  float PUoot_early_sumpT_lowpT ;
+  float PUoot_early_sumpT_highpT;
+  float PUoot_early_ntrks_lowpT ;
+  float PUoot_early_ntrks_highpT;
+
+  float PUoot_late_TrueNumInteractions;
+  int PUoot_late ;
+  float PUoot_late_zpositions ;
+  float PUoot_late_sumpT_lowpT ;
+  float PUoot_late_sumpT_highpT ; 
+  float PUoot_late_ntrks_lowpT ;
+  float PUoot_late_ntrks_highpT ;
+ 
+  
+
 
  
 } ;

@@ -22,6 +22,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   edm::Service<TFileService> fs ;
   outTree_  =        fs -> make <TTree>("SimpleNtupleEoverP","SimpleNtupleEoverP"); 
 
+  MCPileupTag_ = iConfig.getParameter<edm::InputTag>("MCPileupTag");
+
   PVTag_       = iConfig.getParameter<edm::InputTag>("PVTag");
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
@@ -40,6 +42,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
     
   //---- flags ----
   jsonFlag_ = iConfig.getUntrackedParameter<bool>("jsonFlag", false);
+  saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   doWZSelection_= iConfig.getUntrackedParameter<bool>("doWZSelection", false);
   applyCorrections_ = iConfig.getUntrackedParameter<bool>("applyCorrections", false);
@@ -243,6 +246,35 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1ele2_scM",       &ele1ele2_scM,  "ele1ele2_scM/F");
   outTree_ -> Branch("ele1ele2_scM_regression",       &ele1ele2_scM_regression,  "ele1ele2_scM_regression/F");
 
+  if(saveMCPU_){
+ 
+  outTree_ -> Branch("PUit_TrueNumInteractions",       &PUit_TrueNumInteractions,  "PUit_TrueNumInteractions/F");
+  outTree_ -> Branch("PUit_NumInteractions",       &PUit_NumInteractions,  "PUit_NumInteractions/I");
+  outTree_ -> Branch("PUit_zpositions",       &PUit_zpositions,  "PUit_zpositions/F");
+  outTree_ -> Branch("PUit_sumpT_lowpT",       &PUit_sumpT_lowpT,  "PUit_sumpT_lowpT/F");
+  outTree_ -> Branch("PUit_sumpT_highpT",       &PUit_sumpT_highpT,  "PUit_sumpT_highpT/F");
+  outTree_ -> Branch("PUit_ntrks_lowpT",       &PUit_ntrks_lowpT,  "PUit_ntrks_lowpT/F");
+  outTree_ -> Branch("PUit_ntrks_highpT",       &PUit_ntrks_highpT,  "PUit_ntrks_highpT/F");
+
+  outTree_ -> Branch("PUoot_early_TrueNumInteractions",       &PUoot_early_TrueNumInteractions,  "PUoot_early_TrueNumInteractions/F");
+  outTree_ -> Branch("PUoot_early",       &PUoot_early,  "PUoot_early/I");
+  outTree_ -> Branch("PUoot_early_zpositions",       &PUoot_early_zpositions,  "PUoot_early_zpositions/F");
+  outTree_ -> Branch("PUoot_early_sumpT_lowpT",       &PUoot_early_sumpT_lowpT,  "PUoot_early_sumpT_lowpT/F");
+  outTree_ -> Branch("PUoot_early_sumpT_highpT",       &PUoot_early_sumpT_highpT,  "PUoot_early_sumpT_highpT/F");
+  outTree_ -> Branch("PUoot_early_ntrks_lowpT",       &PUoot_early_ntrks_lowpT,  "PUoot_early_ntrks_lowpT/F");
+  outTree_ -> Branch("PUoot_early_ntrks_highpT",       &PUoot_early_ntrks_highpT,  "PUoot_early_ntrks_highpT/F");
+
+  outTree_ -> Branch("PUoot_late_TrueNumInteractions",       &PUoot_late_TrueNumInteractions,  "PUoot_late_TrueNumInteractions/F");
+  outTree_ -> Branch("PUoot_late",       &PUoot_late,  "PUoot_late/I");
+  outTree_ -> Branch("PUoot_late_zpositions",       &PUoot_late_zpositions,  "PUoot_late_zpositions/F");
+  outTree_ -> Branch("PUoot_late_sumpT_lowpT",       &PUoot_late_sumpT_lowpT,  "PUoot_late_sumpT_lowpT/F");
+  outTree_ -> Branch("PUoot_late_sumpT_highpT",       &PUoot_late_sumpT_highpT,  "PUoot_late_sumpT_highpT/F");
+  outTree_ -> Branch("PUoot_late_ntrks_lowpT",       &PUoot_late_ntrks_lowpT,  "PUoot_late_ntrks_lowpT/F");
+  outTree_ -> Branch("PUoot_late_ntrks_highpT",       &PUoot_late_ntrks_highpT,  "PUoot_late_ntrks_highpT/F");
+
+
+  }
+
   EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
   EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
  
@@ -282,6 +314,30 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   isW = -1;
   isZ = -1;
 
+  PUit_TrueNumInteractions= -99.;
+  PUit_NumInteractions= -99;
+  PUit_zpositions = -99.;
+  PUit_sumpT_lowpT = -99.;
+  PUit_sumpT_highpT = -99.;
+  PUit_ntrks_lowpT = -99.;
+  PUit_ntrks_highpT = -99.;
+
+  PUoot_early_TrueNumInteractions = -99.;
+  PUoot_early = -99;
+  PUoot_early_zpositions = -99.;
+  PUoot_early_sumpT_lowpT = -99.;
+  PUoot_early_sumpT_highpT = -99.;
+  PUoot_early_ntrks_lowpT = -99.;
+  PUoot_early_ntrks_highpT = -99.;
+
+  PUoot_late_TrueNumInteractions = -99.;
+  PUoot_late = -99;
+  PUoot_late_zpositions = -99.;
+  PUoot_late_sumpT_lowpT = -99.;
+  PUoot_late_sumpT_highpT = -99.; 
+  PUoot_late_ntrks_lowpT = -99.;
+  PUoot_late_ntrks_highpT = -99.;
+  
   // electron variables  
   ele1_charge =-99.;
   ele1_p =-99.;
@@ -466,6 +522,9 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
 
   //************* RHO for ISO
   fillRhoInfo(iEvent,iSetup) ; 
+
+  //************* MC PU
+   if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
  
   //************* ELECTRONS
   Handle<View<reco::GsfElectron> > electronHandle;
@@ -1651,5 +1710,95 @@ double SimpleNtupleEoverP::deltaPhi(const double& phi1, const double& phi2){
   return deltaphi;
 }
 
+// -----------------------------------------------------------------------------------------
+void SimpleNtupleEoverP::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
+ //std::cout << "SimpleNtupleCalib::fillMCPUInfo" << std::endl;
+
+  edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+  iEvent.getByLabel(MCPileupTag_, PupInfo);
+  
+  
+  // loop on BX
+   // loop on BX
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI)
+  {
+    std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
+    std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
+    std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
+    std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
+    std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+    
+    // in-time pileup
+    if( PVI->getBunchCrossing() == 0 )
+    {
+      PUit_TrueNumInteractions = PVI->getTrueNumInteractions();
+      PUit_NumInteractions = PVI->getPU_NumInteractions();    
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+        PUit_zpositions = *it;
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+        PUit_sumpT_lowpT=*it;
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+        PUit_sumpT_highpT = *it;
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+        PUit_ntrks_lowpT = *it;
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+        PUit_ntrks_highpT = *it;
+    }
+    
+    // out-of-time pileup
+    else
+    {
+      if (PVI->getBunchCrossing() < 0)
+      {
+        PUoot_early_TrueNumInteractions = PVI->getTrueNumInteractions();
+        PUoot_early = PVI->getPU_NumInteractions();
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+          PUoot_early_zpositions = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+          PUoot_early_sumpT_lowpT = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+          PUoot_early_sumpT_highpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+          PUoot_early_ntrks_lowpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+          PUoot_early_ntrks_highpT = *it;
+      }
+      else
+      {
+        PUoot_late_TrueNumInteractions = PVI->getTrueNumInteractions();
+        PUoot_late = PVI->getPU_NumInteractions();
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+          PUoot_late_zpositions = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+          PUoot_late_sumpT_lowpT = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+          PUoot_late_sumpT_highpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+          PUoot_late_ntrks_lowpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+          PUoot_late_ntrks_highpT = *it;          
+      }
+    }
+  } // loop on BX
+ 
+ 
+}
 //----------------------------------------------------------------------------------------------
 DEFINE_FWK_MODULE(SimpleNtupleEoverP);
