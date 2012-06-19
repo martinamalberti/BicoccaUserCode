@@ -43,7 +43,6 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   JetTag_ = iConfig.getParameter<edm::InputTag>("JetTag");
   
   CALOMetTag_ = iConfig.getParameter<edm::InputTag>("CALOMetTag");
-  TCMetTag_ = iConfig.getParameter<edm::InputTag>("TCMetTag");
   PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
   
   MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
@@ -77,7 +76,6 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
   saveMu_       = iConfig.getUntrackedParameter<bool> ("saveMu", true);
   saveJet_      = iConfig.getUntrackedParameter<bool> ("saveJet", true);
   saveCALOMet_  = iConfig.getUntrackedParameter<bool> ("saveCALOMet", true);
-  saveTCMet_    = iConfig.getUntrackedParameter<bool> ("saveTCMet", true);
   savePFMet_    = iConfig.getUntrackedParameter<bool> ("savePFMet", true);
   savePFIso_    = iConfig.getUntrackedParameter<bool> ("savePFIso", true);
   saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
@@ -351,6 +349,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("eRegrInput_hoe");
     NtupleFactory_->AddFloat("eRegrInput_etaW");
     NtupleFactory_->AddFloat("eRegrInput_phiW");
+    NtupleFactory_->AddFloat("eRegrInput_rho");
+     
+ 
     NtupleFactory_->AddFloat("eRegrInput_Deta_bC_sC");
     NtupleFactory_->AddFloat("eRegrInput_Dphi_bC_sC");
     NtupleFactory_->AddFloat("eRegrInput_bCE_Over_sCE");
@@ -359,49 +360,20 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bC1");
     NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bC1");
     NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bC1");
-    NtupleFactory_->AddFloat("eRegrInput_bEMax_Over_bCE");
-    NtupleFactory_->AddFloat("eRegrInput_log_bE2nd_Over_bEMax");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEtop_Over_bEMax");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEbot_Over_bEMax");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEleft_Over_bEMax");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEright_Over_bEMax");
-    NtupleFactory_->AddFloat("eRegrInput_asym_top_bottom");
-    NtupleFactory_->AddFloat("eRegrInput_asym_left_right");
-    NtupleFactory_->AddFloat("eRegrInput_Deta_bC2_sC");
-    NtupleFactory_->AddFloat("eRegrInput_Dphi_bC2_sC");
-    NtupleFactory_->AddFloat("eRegrInput_bCE2_Over_sCE");
-    NtupleFactory_->AddFloat("eRegrInput_e3x3_Over_bCE2");
-    NtupleFactory_->AddFloat("eRegrInput_e5x5_Over_bCE2");
-    NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bC2");
-    NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bC2");
-    NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bC2");
-    NtupleFactory_->AddFloat("eRegrInput_bEMax_Over_bCE2");
-    NtupleFactory_->AddFloat("eRegrInput_log_bE2nd_Over_bEMax2");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEtop_Over_bEMax2");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEbot_Over_bEMax2");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEleft_Over_bEMax2");
-    NtupleFactory_->AddFloat("eRegrInput_log_bEright_Over_bEMax2");
-    NtupleFactory_->AddFloat("eRegrInput_asym_top2_bottom2");
-    NtupleFactory_->AddFloat("eRegrInput_asym_left2_right2");
-    
 
-    NtupleFactory_->AddFloat("eRegrInput_Deta_bCLow_sC");
-    NtupleFactory_->AddFloat("eRegrInput_Dphi_bCLow_sC");
-    NtupleFactory_->AddFloat("eRegrInput_bCELow_Over_sCE");
-    NtupleFactory_->AddFloat("eRegrInput_e3x3_Over_bCELow");
-    NtupleFactory_->AddFloat("eRegrInput_e5x5_Over_bCELow");
-    NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bCLow");
-    NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bCLow");
-    NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bCLow");
+    NtupleFactory_->AddFloat("eRegrInput_bEMax_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_bE2nd_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_bEtop_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_bEbot_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_bEleft_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_bEright_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_be2x5max_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_be2x5top_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_be2x5bottom_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_be2x5left_Over_bCE");
+    NtupleFactory_->AddFloat("eRegrInput_be2x5right_Over_bCE");
+    
   
-    NtupleFactory_->AddFloat("eRegrInput_Deta_bCLow2_sC");
-    NtupleFactory_->AddFloat("eRegrInput_Dphi_bCLow2_sC");
-    NtupleFactory_->AddFloat("eRegrInput_bCELow2_Over_sCE");
-    NtupleFactory_->AddFloat("eRegrInput_e3x3_Over_bCELow2");
-    NtupleFactory_->AddFloat("eRegrInput_e5x5_Over_bCELow2");
-    NtupleFactory_->AddFloat("eRegrInput_sigietaieta_bCLow2");
-    NtupleFactory_->AddFloat("eRegrInput_sigiphiiphi_bCLow2");
-    NtupleFactory_->AddFloat("eRegrInput_sigietaiphi_bCLow2");
     NtupleFactory_->AddFloat("eRegrInput_seedbC_eta");
     NtupleFactory_->AddFloat("eRegrInput_seedbC_phi");
     NtupleFactory_->AddFloat("eRegrInput_seedbC_eta_p5");
@@ -411,16 +383,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("eRegrInput_seedbC_etacry");
     NtupleFactory_->AddFloat("eRegrInput_seedbC_phicry");
  
-    NtupleFactory_->AddFloat("eRegrInput_bC2_eta");
-    NtupleFactory_->AddFloat("eRegrInput_bC2_phi");
-    NtupleFactory_->AddFloat("eRegrInput_bC2_eta_p5");
-    NtupleFactory_->AddFloat("eRegrInput_bC2_phi_p2");
-    NtupleFactory_->AddFloat("eRegrInput_bC2_bieta");
-    NtupleFactory_->AddFloat("eRegrInput_bC2_phi_p20");
-    NtupleFactory_->AddFloat("eRegrInput_bC2_etacry");
-    NtupleFactory_->AddFloat("eRegrInput_bC2_phicry");
 
     NtupleFactory_->AddFloat("eRegrInput_nPV");
+    NtupleFactory_->AddFloat("eRegrInput_SCsize");
  
   }
 
@@ -583,11 +548,6 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("CALOSumEt");
   }
   
-  if(saveTCMet_)
-  {
-    NtupleFactory_->Add4V("TCMet");
-    NtupleFactory_->AddFloat("TCSumEt");
-  }
   
   if(savePFMet_)
   {
@@ -703,64 +663,62 @@ void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup
 
  
  ///---- fill L1 ----
- if (saveL1_) fillL1Info (iEvent, iSetup);
+//  if (saveL1_) fillL1Info (iEvent, iSetup);
  
  ///---- fill HLT ----
- if (saveHLT_) fillHLTInfo (iEvent, iSetup);
+//  if (saveHLT_) fillHLTInfo (iEvent, iSetup);
 
  ///---- fill PV ----
- if(saveBS_) fillBSInfo (iEvent, iSetup);
+//  if(saveBS_) fillBSInfo (iEvent, iSetup);
 
  ///---- fill PV ----
- if(savePV_) fillPVInfo (iEvent, iSetup);
+//  if(savePV_) fillPVInfo (iEvent, iSetup);
  
  ///---- fill Rho ----
- if(saveRho_) fillRhoInfo (iEvent, iSetup);
+//  if(saveRho_) fillRhoInfo (iEvent, iSetup);
  
  ///---- fill electrons ----
- if (saveEle_)  fillEleInfo (iEvent, iSetup);
+//  if (saveEle_)  fillEleInfo (iEvent, iSetup);
 
  /// ---- Fill PF Iso Info ------
- if(savePFIso_)  fillPFIsoInfo  (iEvent,iSetup);
+//  if(savePFIso_)  fillPFIsoInfo  (iEvent,iSetup);
 
  ///---- fill photons ----
- if (savePho_)  fillPhoInfo (iEvent, iSetup);
+//  if (savePho_)  fillPhoInfo (iEvent, iSetup);
 
  ///---- fill superclusters ----
- if (saveSC_)  fillSCInfo (iEvent, iSetup);
+//  if (saveSC_)  fillSCInfo (iEvent, iSetup);
 
  ///---- fill muons ----
- if (saveMu_) fillMuInfo (iEvent, iSetup);
+//  if (saveMu_) fillMuInfo (iEvent, iSetup);
 
  ///---- fill jets ---- 
- if (saveJet_) fillJetInfo (iEvent, iSetup);
+//  if (saveJet_) fillJetInfo (iEvent, iSetup);
 
  ///---- fill CALOMet ---- 
- if (saveCALOMet_) fillCALOMetInfo (iEvent, iSetup);
+//  if (saveCALOMet_) fillCALOMetInfo (iEvent, iSetup);
 
- ///---- fill TCMet ---- 
- if (saveTCMet_) fillTCMetInfo (iEvent, iSetup);
 
  ///---- fill PFMet ---- 
- if (savePFMet_) fillPFMetInfo (iEvent, iSetup);
+//  if (savePFMet_) fillPFMetInfo (iEvent, iSetup);
 
  ///---- fill Preshower Ele ---- 
- if (savePreShowerEle_) fillPreShowerEleInfo (iEvent, iSetup);
+//  if (savePreShowerEle_) fillPreShowerEleInfo (iEvent, iSetup);
 
  ///---- fill Preshower Photon ---- 
- if (savePreShowerPhoton_) fillPreShowerPhotonInfo (iEvent, iSetup);
+//  if (savePreShowerPhoton_) fillPreShowerPhotonInfo (iEvent, iSetup);
 
  ///---- fill MC Pileup information ---- 
- if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
+//  if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
 
  //fill W/Z MC information
- if(saveMCZW_)
-   {
-     edm::Handle<reco::GenParticleCollection> genParticles;
-     iEvent.getByLabel(MCtruthTag_, genParticles);
-     mcAnalysisZW_ = new MCDumperZW(genParticles, eventType_, verbosity_);
-     fillMCZWInfo (iEvent, iSetup);
-   }
+//  if(saveMCZW_)
+//    {
+//      edm::Handle<reco::GenParticleCollection> genParticles;
+//      iEvent.getByLabel(MCtruthTag_, genParticles);
+//      mcAnalysisZW_ = new MCDumperZW(genParticles, eventType_, verbosity_);
+//      fillMCZWInfo (iEvent, iSetup);
+//    }
 
 
  ///---- save the entry of the tree ----
@@ -1181,121 +1139,57 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    reco::CaloClusterPtr bclast2;
    bool isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
 
+
+   NtupleFactory_->FillFloat("eRegrInput_rawE",s->rawEnergy());
+   NtupleFactory_->FillFloat("eRegrInput_r9"  ,lazyTools.e3x3(*b)/s->rawEnergy());
+   NtupleFactory_->FillFloat("eRegrInput_eta" ,s->eta());
+   NtupleFactory_->FillFloat("eRegrInput_phi" ,s->phi());
+   NtupleFactory_->FillFloat("eRegrInput_r25" ,lazyTools.e5x5(*b)/s->rawEnergy());
+   NtupleFactory_->FillFloat("eRegrInput_hoe" ,electron.hcalOverEcal() );
+   NtupleFactory_->FillFloat("eRegrInput_etaW",s->etaWidth() );
+   NtupleFactory_->FillFloat("eRegrInput_phiW",s->phiWidth() );
+   NtupleFactory_->FillFloat("eRegrInput_SCsize",s->clustersSize() );
+   NtupleFactory_->FillFloat("eRegrInput_rho",*hRho);
+   NtupleFactory_->FillFloat("eRegrInput_nPV",hVertexProduct->size());
+   
+   //seed basic cluster variables
+   double bemax = lazyTools.eMax(*b);
+   double be2nd = lazyTools.e2nd(*b);
+   double betop = lazyTools.eTop(*b);
+   double bebottom = lazyTools.eBottom(*b);
+   double beleft = lazyTools.eLeft(*b);
+   double beright = lazyTools.eRight(*b);
+
+   double be2x5max = lazyTools.e2x5Max(*b);
+   double be2x5top = lazyTools.e2x5Top(*b);
+   double be2x5bottom = lazyTools.e2x5Bottom(*b);
+   double be2x5left = lazyTools.e2x5Left(*b);
+   double be2x5right = lazyTools.e2x5Right(*b);
  
+   NtupleFactory_->FillFloat("eRegrInput_Deta_bC_sC",b->eta()-s->eta());
+   NtupleFactory_->FillFloat("eRegrInput_Dphi_bC_sC",reco::deltaPhi(b->phi(),s->phi()));
+   NtupleFactory_->FillFloat("eRegrInput_bCE_Over_sCE",b->energy()/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE",lazyTools.e3x3(*b)/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE",lazyTools.e5x5(*b)/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC1",sqrt(lazyTools.localCovariances(*b)[0]));
+   NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC1",sqrt(lazyTools.localCovariances(*b)[2]));
+   NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC1",lazyTools.localCovariances(*b)[1]);
+   NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE",bemax/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_bE2nd_Over_bCE",be2nd/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_bEtop_Over_bCE",betop/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_bEbot_Over_bCE",bebottom/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_bEleft_Over_bCE",beleft/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_bEright_Over_bCE", beright/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_be2x5max_Over_bCE", be2x5max/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_be2x5top_Over_bCE", be2x5top/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_be2x5bottom_Over_bCE", be2x5bottom/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_be2x5left_Over_bCE", be2x5left/b->energy());
+   NtupleFactory_->FillFloat("eRegrInput_be2x5right_Over_bCE", be2x5right/b->energy());
+
+ 
+
    if( isbarrel){
 
-    NtupleFactory_->FillFloat("eRegrInput_rawE",s->rawEnergy());
-    NtupleFactory_->FillFloat("eRegrInput_r9"  ,lazyTools.e3x3(*b)/s->rawEnergy());
-    NtupleFactory_->FillFloat("eRegrInput_eta" ,s->eta());
-    NtupleFactory_->FillFloat("eRegrInput_phi" ,s->phi());
-    NtupleFactory_->FillFloat("eRegrInput_r25" ,lazyTools.e5x5(*b)/s->rawEnergy());
-    NtupleFactory_->FillFloat("eRegrInput_hoe" ,electron.hcalOverEcal() );
-    NtupleFactory_->FillFloat("eRegrInput_etaW",s->etaWidth() );
-    NtupleFactory_->FillFloat("eRegrInput_phiW",s->phiWidth() );
-  
-   
-    //seed basic cluster variables
-    double bemax = lazyTools.eMax(*b);
-    double be2nd = lazyTools.e2nd(*b);
-    double betop = lazyTools.eTop(*b);
-    double bebottom = lazyTools.eBottom(*b);
-    double beleft = lazyTools.eLeft(*b);
-    double beright = lazyTools.eRight(*b);
- 
-    NtupleFactory_->FillFloat("eRegrInput_Deta_bC_sC",b->eta()-s->eta());
-    NtupleFactory_->FillFloat("eRegrInput_Dphi_bC_sC",reco::deltaPhi(b->phi(),s->phi()));
-    NtupleFactory_->FillFloat("eRegrInput_bCE_Over_sCE",lazyTools.e3x3(*b)/b->energy());
-    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE",lazyTools.e3x3(*b)/b->energy());
-    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE",lazyTools.e5x5(*b)/b->energy());
-    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC1",sqrt(lazyTools.localCovariances(*b)[0]));
-    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC1",sqrt(lazyTools.localCovariances(*b)[2]));
-    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC1",lazyTools.localCovariances(*b)[1]);
-    NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE",bemax/b->energy());
-    NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax",log(be2nd/bemax));
-    NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax",log(betop/bemax));
-    NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax",log(bebottom/bemax));
-    NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax",log(beleft/bemax));
-    NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax",log(beright/bemax));
-    NtupleFactory_->FillFloat("eRegrInput_asym_top_bottom",(betop-bebottom)/(betop+bebottom));
-    NtupleFactory_->FillFloat("eRegrInput_asym_left_right",(beleft-beright)/(beleft+beright));
-
-    //highest energy basic cluster excluding seed basic cluster
-    double ebcmax = -99.;
-    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
-     const reco::CaloClusterPtr bc = *bit;
-     if (bc->energy() > ebcmax && bc !=b) {
-       b2 = bc;
-       ebcmax = bc->energy();
-     }
-    }
-  
-    //lowest energy basic cluster excluding seed (for pileup mitigation)
-    double ebcmin = 1e6;
-    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
-     const CaloClusterPtr bc = *bit;
-     if (bc->energy() < ebcmin && bc !=b) {
-      bclast = bc;
-      ebcmin = bc->energy();
-     }
-    }
-
-   //2nd lowest energy basic cluster excluding seed (for pileup mitigation)
-    ebcmin = 1e6;
-    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
-     const CaloClusterPtr bc = *bit;
-     if (bc->energy() < ebcmin && bc !=b && bc!=bclast) {
-       bclast2 = bc;
-       ebcmin = bc->energy();
-     }
-    }
- 
-    bool hasbc2 = b2.isNonnull() && b2->energy()>0.;
-    bool hasbclast = bclast.isNonnull() && bclast->energy()>0.;
-    bool hasbclast2 = bclast2.isNonnull() && bclast2->energy()>0.;
-  
-    double bc2emax = hasbc2 ? lazyTools.eMax(*b2) : 0.;
-    double bc2e2nd = hasbc2 ? lazyTools.e2nd(*b2) : 0.;
-    double bc2etop = hasbc2 ? lazyTools.eTop(*b2) : 0.;
-    double bc2ebottom = hasbc2 ? lazyTools.eBottom(*b2) : 0.;
-    double bc2eleft = hasbc2 ? lazyTools.eLeft(*b2) : 0.;
-    double bc2eright = hasbc2 ? lazyTools.eRight(*b2) : 0.;
-
-    NtupleFactory_->FillFloat("eRegrInput_Deta_bC2_sC",hasbc2 ? (b2->eta()-s->eta()) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_Dphi_bC2_sC",hasbc2 ? reco::deltaPhi(b2->phi(),s->phi()) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bCE2_Over_sCE",hasbc2 ? b2->energy()/s->rawEnergy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE2",hasbc2 ? lazyTools.e3x3(*b2)/b2->energy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE2",hasbc2 ? lazyTools.e5x5(*b2)/b2->energy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC2",hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[0]) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC2",hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[2]) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC2",hasbc2 ? lazyTools.localCovariances(*b)[1] : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE2",hasbc2 ? bc2emax/b2->energy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax2",hasbc2 ? log(bc2e2nd/bc2emax) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax2",hasbc2 ? log(bc2etop/bc2emax) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax2",hasbc2 ? log(bc2ebottom/bc2emax) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax2",hasbc2 ? log(bc2eleft/bc2emax) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax2",hasbc2 ? log(bc2eright/bc2emax) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_asym_top2_bottom2",hasbc2 ? (bc2etop-bc2ebottom)/(bc2etop+bc2ebottom) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_asym_left2_right2",hasbc2 ? (bc2eleft-bc2eright)/(bc2eleft+bc2eright) : 0.);
-    
-
-    NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow_sC",hasbclast ? (bclast->eta()-s->eta()) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow_sC",hasbclast ? reco::deltaPhi(bclast->phi(),s->phi()) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bCELow_Over_sCE",hasbclast ? bclast->energy()/s->rawEnergy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow",hasbclast ? lazyTools.e3x3(*bclast)/bclast->energy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow",hasbclast ? lazyTools.e5x5(*bclast)/bclast->energy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow",hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[0]) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow",hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[2]) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow",hasbclast ? lazyTools.localCovariances(*bclast)[1] : 0.);
-  
-    NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow2_sC",hasbclast2 ? (bclast2->eta()-s->eta()) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow2_sC",hasbclast2 ? reco::deltaPhi(bclast2->phi(),s->phi()) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bCELow2_Over_sCE",hasbclast2 ? bclast2->energy()/s->rawEnergy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow2",hasbclast2 ? lazyTools.e3x3(*bclast2)/bclast2->energy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow2",hasbclast2 ? lazyTools.e5x5(*bclast2)/bclast2->energy() : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow2", hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[0]) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow2",hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[2]) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow2",hasbclast2 ? lazyTools.localCovariances(*bclast2)[1] : 0.);
-  
     // seed cluster
     float betacry, bphicry, bthetatilt, bphitilt;
     int bieta, biphi;
@@ -1310,84 +1204,13 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
     NtupleFactory_->FillFloat("eRegrInput_seedbC_phi_p20",biphi%20);
     NtupleFactory_->FillFloat("eRegrInput_seedbC_etacry",betacry);
     NtupleFactory_->FillFloat("eRegrInput_seedbC_phicry",bphicry);
-
-    //2nd cluster (meaningful gap corrections for converted photons)
-    float bc2etacry, bc2phicry, bc2thetatilt, bc2phitilt;
-    int bc2ieta, bc2iphi;
-    if (hasbc2) _ecalLocal.localCoordsEB(*b2,iSetup,bc2etacry,bc2phicry,bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt);    
-  
-    NtupleFactory_->FillFloat("eRegrInput_bC2_eta",hasbc2 ? bc2ieta : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bC2_phi",hasbc2 ? bc2iphi : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bC2_eta_p5",hasbc2 ? bc2ieta%5 : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p2",hasbc2 ? bc2iphi%2 : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bC2_bieta",hasbc2 ? (TMath::Abs(bc2ieta)<=25)*(bc2ieta%25) + (TMath::Abs(bc2ieta)>25)*((bc2ieta-25*TMath::Abs(bc2ieta)/bc2ieta)%20) : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p20",hasbc2 ? bc2iphi%20 : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bC2_etacry",hasbc2 ? bc2etacry : 0.);
-    NtupleFactory_->FillFloat("eRegrInput_bC2_phicry",hasbc2 ? bc2phicry : 0.);
-
-
-    NtupleFactory_->FillFloat("eRegrInput_nPV",hVertexProduct->size());
+    NtupleFactory_->FillFloat("eRegr_ESoSC",-99. );
+ 
   }
   else{
  
-        NtupleFactory_->FillFloat("eRegrInput_rawE",s->rawEnergy());
-        NtupleFactory_->FillFloat("eRegrInput_r9"  ,lazyTools.e3x3(*b)/s->rawEnergy());
-        NtupleFactory_->FillFloat("eRegrInput_eta" ,s->eta());
-        NtupleFactory_->FillFloat("eRegrInput_phi" ,s->phi());
-        NtupleFactory_->FillFloat("eRegrInput_nPV",hVertexProduct->size());
-        NtupleFactory_->FillFloat("eRegrInput_r25" ,lazyTools.e5x5(*b)/s->rawEnergy());
-        NtupleFactory_->FillFloat("eRegrInput_etaW",s->etaWidth() );
-        NtupleFactory_->FillFloat("eRegrInput_phiW",s->phiWidth() );
-  
-        NtupleFactory_->FillFloat("eRegrInput_hoe" ,-99.);
-        NtupleFactory_->FillFloat("eRegrInput_Deta_bC_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_Dphi_bC_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bCE_Over_sCE",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC1",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC1",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC1",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_asym_top_bottom",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_asym_left_right",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_Deta_bC2_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_Dphi_bC2_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bCE2_Over_sCE",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCE2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCE2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bC2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bC2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bC2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bEMax_Over_bCE2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bE2nd_Over_bEMax2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEtop_Over_bEMax2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEbot_Over_bEMax2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEleft_Over_bEMax2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_log_bEright_Over_bEMax2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_asym_top2_bottom2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_asym_left2_right2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bCELow_Over_sCE",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow",-99.);  
-        NtupleFactory_->FillFloat("eRegrInput_Deta_bCLow2_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_Dphi_bCLow2_sC",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bCELow2_Over_sCE",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e3x3_Over_bCELow2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_e5x5_Over_bCELow2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaieta_bCLow2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigiphiiphi_bCLow2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_sigietaiphi_bCLow2",-99.);
+        NtupleFactory_->FillFloat("eRegr_ESoSC",s->preshowerEnergy()/s->rawEnergy());
+   
         NtupleFactory_->FillFloat("eRegrInput_seedbC_eta",-99.);
         NtupleFactory_->FillFloat("eRegrInput_seedbC_phi",-99.);
         NtupleFactory_->FillFloat("eRegrInput_seedbC_eta_p5",-99.);
@@ -1397,14 +1220,6 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
         NtupleFactory_->FillFloat("eRegrInput_seedbC_etacry",-99.);
         NtupleFactory_->FillFloat("eRegrInput_seedbC_phicry",-99.);
 
-        NtupleFactory_->FillFloat("eRegrInput_bC2_eta",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bC2_phi",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bC2_eta_p5",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p2",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bC2_bieta",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bC2_phi_p20",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bC2_etacry",-99.);
-        NtupleFactory_->FillFloat("eRegrInput_bC2_phicry",-99.); 
   }
 
    const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
@@ -2809,19 +2624,6 @@ void SimpleNtupleCalib::fillCALOMetInfo (const edm::Event & iEvent, const edm::E
  NtupleFactory_->FillFloat("CALOSumEt",met.sumEt());
 }
 
-void SimpleNtupleCalib::fillTCMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
-{
- //std::cout << "SimpleNtupleCalib::fillTCMetInfo" << std::endl;
- 
- edm::Handle<edm::View<pat::MET> > tcmetHandle;
- iEvent.getByLabel(TCMetTag_,tcmetHandle);
- View<pat::MET>  mets = *tcmetHandle;
- //pat::MET met = mets.at(mets.size()-1);
- //std::cout << " mets.size()-1 = " << mets.size()-1 << std::endl;
- pat::MET met = mets.at(0);
- NtupleFactory_->Fill4V("TCMet",met.p4());
- NtupleFactory_->FillFloat("TCSumEt",met.sumEt());
-}
 
 void SimpleNtupleCalib::fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
