@@ -646,8 +646,7 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
  float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
  float HOverE        = electron.hadronicOverEm();
- float ooemoop       = (1.0/electron.ecalEnergy()- 
-                         electron.hadronicOverEm()/electron.ecalEnergy());
+ float ooemoop       = (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
 
  int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
  int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
@@ -718,8 +717,7 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
  float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
  float HOverE        = electron.hadronicOverEm();
- float ooemoop       = (1.0/electron.ecalEnergy()- 
-                         electron.hadronicOverEm()/electron.ecalEnergy());
+ float ooemoop       = (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
 
  int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
  int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
@@ -790,8 +788,7 @@ bool SimpleNtupleEoverP::LooseEle (const edm::Event & iEvent, const edm::EventSe
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
  float DphiIn        = electron.deltaPhiSuperClusterTrackAtVtx();
  float HOverE        = electron.hadronicOverEm();
- float ooemoop       = (1.0/electron.ecalEnergy()- 
-                         electron.hadronicOverEm()/electron.ecalEnergy());
+ float ooemoop       = (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
 
  int mishits             = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
  int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
@@ -996,9 +993,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_DphiIn=electron.deltaPhiSuperClusterTrackAtVtx();
     ele1_DetaIn=electron.deltaEtaSuperClusterTrackAtVtx();
     ele1_HOverE=electron.hadronicOverEm();
-    ele1_ooemoop       = (1.0/electron.ecalEnergy()- 
-                         electron.hadronicOverEm()/electron.ecalEnergy());
-
+    ele1_ooemoop  = (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
     ele1_tkIso=electron.dr03TkSumPt();
     ele1_emIso=electron.dr03EcalRecHitSumEt();
     ele1_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
@@ -1342,8 +1337,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_DphiIn=electron.deltaPhiSuperClusterTrackAtVtx();
     ele2_DetaIn=electron.deltaEtaSuperClusterTrackAtVtx();
     ele2_HOverE=electron.hadronicOverEm();
-    ele2_ooemoop       = (1.0/electron.ecalEnergy()- 
-                         electron.hadronicOverEm()/electron.ecalEnergy());
+    ele2_ooemoop=  (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
 
     ele2_tkIso=electron.dr03TkSumPt();
     ele2_emIso=electron.dr03EcalRecHitSumEt();
