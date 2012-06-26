@@ -378,7 +378,7 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_eRegrInput_bC2_phicry", &vars.ele2_eRegrInput_bC2_phicry, "ele2_eRegrInput_bC2_phicry/F");
   vars.m_reducedTree -> Branch("ele2_eRegrInput_nPV", &vars.ele2_eRegrInput_nPV, "ele2_eRegrInput_nPV/F");
   
-  
+
  vars.m_reducedTree -> Branch("ele1_E_true", &vars.ele1_E_true, "ele1_E_true/F");
  vars.m_reducedTree -> Branch("ele1_DR", &vars.ele1_DR, "ele1_DR/F");
  vars.m_reducedTree -> Branch("ele2_E_true", &vars.ele2_E_true, "ele2_E_true/F");

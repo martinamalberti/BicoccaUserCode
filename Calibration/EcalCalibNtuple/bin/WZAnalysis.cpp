@@ -243,7 +243,6 @@ int main(int argc, char** argv)
     vars.timeStampLow  = reader.GetInt("timeStampLow")->at(0);
     vars.timeStampHigh = reader.GetInt("timeStampHigh")->at(0);
     
-    
     SetPUVariables(vars,reader,dataFlag);
     SetPVVariables(vars,reader);
 
@@ -286,14 +285,14 @@ int main(int argc, char** argv)
     for(unsigned int HLTIt = 0; HLTIt < WHLTPathNames.size(); ++HLTIt)
     {
       if( AcceptHLTPath(reader, WHLTPathNames.at(HLTIt)) == true )
-        skipEvent = false;
+      skipEvent = false;
       isWHLT = true;
     }
     // Z triggers
     for(unsigned int HLTIt = 0; HLTIt < ZHLTPathNames.size(); ++HLTIt)
     {
       if( AcceptHLTPath(reader, ZHLTPathNames.at(HLTIt)) == true )
-        skipEvent = false;
+      skipEvent = false;
       isZHLT = true; 
     }
     
@@ -314,7 +313,7 @@ int main(int argc, char** argv)
     int nMediumEle = 0;
     int nLooseEle = 0;
     std::map<float,int> eleIts;
-    
+  
     // loop on electrons
     for(unsigned int eleIt = 0; eleIt < (reader.Get4V("electrons")->size()); ++eleIt)
     {
@@ -452,8 +451,8 @@ int main(int argc, char** argv)
     // set electron variables
     std::map<float,int>::const_iterator mapIt = eleIts.begin();
 
-    PhotonFix::initialise("4_2");
-
+//     PhotonFix::initialise("4_2");
+    
     if( (nTightEle == 1) && (nMediumEle == 0) )
     {
       SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
@@ -462,9 +461,11 @@ int main(int argc, char** argv)
 //        PhotonFix Correction1 (vars.ele1_ph_E,vars.ele1_ph_scEta,vars.ele1_ph_scPhi,vars.ele1_ph_R9);
 //        vars.ele1_scLocalContCorr_DK = Correction1.fixedEnergy()/vars.ele1_ph_E;
       }
+     int isWZ = 0;
+     SetGenLeptonInformation (vars,reader, dataFlag, isWZ);
      
     }
-    
+
     mapIt = eleIts.begin();
     if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) )
     {
@@ -483,6 +484,9 @@ int main(int argc, char** argv)
 //        PhotonFix Correction2 (vars.ele2_ph_E,vars.ele2_ph_scEta,vars.ele2_ph_scPhi,vars.ele2_ph_R9);
 //        vars.ele2_scLocalContCorr_DK = Correction2.fixedEnergy()/vars.ele2_ph_E;
       }
+     int isWZ = 1;
+     SetGenLeptonInformation(vars,reader, dataFlag, isWZ);
+    
     }
     
     
@@ -497,9 +501,7 @@ int main(int argc, char** argv)
     
     
     
-    
-    
-    
+ 
     //***********************
     // STEP 8 - W selection
     step = 8;
@@ -568,11 +570,10 @@ int main(int argc, char** argv)
       vars.isZ = 1;
      
       SetGenLeptonInformation(vars,reader,dataFlag,1);
-      
+          
       // fill the reduced tree
       FillWZAnalysisTree(vars);
     }
-    
     
    
   } // loop over the events
