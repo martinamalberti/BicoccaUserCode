@@ -288,13 +288,13 @@ int main(int argc, char** argv){
    if( nLooseMu > 0 ) continue;
    stepEvents[step] += 1;
     
-   PhotonFix::initialise("4_2");
+//    PhotonFix::initialise("4_2");
 
    // Set W-like topology
    if( (nTightEle == 1) && (nMediumEle == 0) ){
    std::map<float,int>::const_iterator mapIt = eleIts.begin();
    //Set Electron variables
-   SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
+    SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
    // set met variables
    SetMetVariables(vars,reader);
     
@@ -314,7 +314,7 @@ int main(int argc, char** argv){
       SetDiElectronVariables(vars,reader);
     }
     
-   
+ 
    //***********************
    // STEP 8 - W selection
    step = 8;
@@ -326,15 +326,16 @@ int main(int argc, char** argv){
     
       bool isGoodEvent = myWSelection(vars);
       if(!isGoodEvent) continue;
+  
+      int isWZ = 0;
+      SetGenLeptonInformation (vars,reader, dataFlag, isWZ);
 
-      SetGenLeptonInformation(vars,reader,dataFlag,1);  
-      // fill the reduced tree
       FillWZAnalysisTree(vars);
 
       stepEvents[step] += 1;
    }
     
-    
+   
    //***********************
    // STEP 9 - Z selection
    step = 9;
@@ -348,14 +349,16 @@ int main(int argc, char** argv){
       bool isGoodEvent = myZSelection(vars);
       if(!isGoodEvent) continue;
 
-      SetGenLeptonInformation(vars,reader,dataFlag,1);  
+  
+      int isWZ = 1;
+      SetGenLeptonInformation (vars,reader, dataFlag, isWZ);
+
       // fill the reduced tree
       FillWZAnalysisTree(vars);
 
       stepEvents[step] += 1;
    }
-    
-
+  
  } // loop over the events
   
  // save the reduced tree
