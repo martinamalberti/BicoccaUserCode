@@ -134,7 +134,53 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_seedLaserCorr",  &vars.ele1_seedLaserCorr,   "ele1_seedLaserCorr/F");
   
   vars.m_reducedTree -> Branch("ele1_tkPt", &vars.ele1_tkPt, "ele1_tkPt/F");
-   
+
+   // regression variable
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_rawE",  &vars.ele1_eRegrInput_rawE,   "ele1_eRegrInput_rawE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_r9",  &vars.ele1_eRegrInput_r9,   "ele1_eRegrInput_r9/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_eta",  &vars.ele1_eRegrInput_eta,   "ele1_eRegrInput_eta/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_phi",  &vars.ele1_eRegrInput_phi,   "ele1_eRegrInput_phi/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_r25",  &vars.ele1_eRegrInput_r25,   "ele1_eRegrInput_r25/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_hoe",  &vars.ele1_eRegrInput_hoe,   "ele1_eRegrInput_hoe/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_etaW",  &vars.ele1_eRegrInput_etaW,   "ele1_eRegrInput_etaW/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_phiW",  &vars.ele1_eRegrInput_phiW,   "ele1_eRegrInput_phiW/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_rho",  &vars.ele1_eRegrInput_rho,   "ele1_eRegrInput_rho/F");
+  
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_Deta_bC_sC",  &vars.ele1_eRegrInput_Deta_bC_sC,   "ele1_eRegrInput_Deta_bC_sC/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_Dphi_bC_sC",  &vars.ele1_eRegrInput_Dphi_bC_sC,   "ele1_eRegrInput_Dphi_bC_sC/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_bCE_Over_sCE",  &vars.ele1_eRegrInput_bCE_Over_sCE,   "ele1_eRegrInput_bCE_Over_sCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_e3x3_Over_bCE",  &vars.ele1_eRegrInput_e3x3_Over_bCE,   "ele1_eRegrInput_e3x3_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_e5x5_Over_bCE",  &vars.ele1_eRegrInput_e5x5_Over_bCE,   "ele1_eRegrInput_e5x5_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_sigietaieta_bC1",  &vars.ele1_eRegrInput_sigietaieta_bC1,   "ele1_eRegrInput_sigietaieta_bC1/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_sigiphiiphi_bC1",  &vars.ele1_eRegrInput_sigiphiiphi_bC1,   "ele1_eRegrInput_sigiphiiphi_bC1/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_sigietaiphi_bC1",  &vars.ele1_eRegrInput_sigietaiphi_bC1,   "ele1_eRegrInput_sigietaiphi_bC1/F");
+ 
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_bEMax_Over_bCE",  &vars.ele1_eRegrInput_bEMax_Over_bCE,   "ele1_eRegrInput_bEMax_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_bE2nd_Over_bCE",  &vars.ele1_eRegrInput_bE2nd_Over_bCE,   "ele1_eRegrInput_bE2nd_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_bEtop_Over_bCE",  &vars.ele1_eRegrInput_bEtop_Over_bCE,   "ele1_eRegrInput_bEtop_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_bEbot_Over_bCE",  &vars.ele1_eRegrInput_bEbot_Over_bCE,   "ele1_eRegrInput_bEbot_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_bEleft_Over_bCE",  &vars.ele1_eRegrInput_bEleft_Over_bCE,   "ele1_eRegrInput_bEleft_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_bEright_Over_bCE",  &vars.ele1_eRegrInput_bEright_Over_bCE,   "ele1_eRegrInput_bEright_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_be2x5max_Over_bCE",  &vars.ele1_eRegrInput_be2x5max_Over_bCE,   "ele1_eRegrInput_be2x5max_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_be2x5top_Over_bCE",  &vars.ele1_eRegrInput_be2x5top_Over_bCE,   "ele1_eRegrInput_be2x5top_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_be2x5bottom_Over_bCE",  &vars.ele1_eRegrInput_be2x5bottom_Over_bCE,   "ele1_eRegrInput_be2x5bottom_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_be2x5left_Over_bCE",  &vars.ele1_eRegrInput_be2x5left_Over_bCE,   "ele1_eRegrInput_be2x5left_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_be2x5right_Over_bCE",  &vars.ele1_eRegrInput_be2x5right_Over_bCE,   "ele1_eRegrInput_be2x5right_Over_bCE/F");
+
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_eta",  &vars.ele1_eRegrInput_seedbC_eta,   "ele1_eRegrInput_seedbC_eta/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_phi",  &vars.ele1_eRegrInput_seedbC_phi,   "ele1_eRegrInput_seedbC_phi/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_eta_p5",  &vars.ele1_eRegrInput_seedbC_eta_p5,   "ele1_eRegrInput_seedbC_eta_p5/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_phi_p2",  &vars.ele1_eRegrInput_seedbC_phi_p2,   "ele1_eRegrInput_seedbC_phi_p2/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_bieta",  &vars.ele1_eRegrInput_seedbC_bieta,   "ele1_eRegrInput_seedbC_bieta/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_phi_p20",  &vars.ele1_eRegrInput_seedbC_phi_p20,   "ele1_eRegrInput_seedbC_phi_p20/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_etacry",  &vars.ele1_eRegrInput_seedbC_etacry,   "ele1_eRegrInput_seedbC_etacry/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_seedbC_phicry",  &vars.ele1_eRegrInput_seedbC_phicry,   "ele1_eRegrInput_seedbC_phicry/F");
+
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_ESoSC",  &vars.ele1_eRegrInput_ESoSC,   "ele1_eRegrInput_ESoSC/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_nPV",  &vars.ele1_eRegrInput_nPV,   "ele1_eRegrInput_nPV/F");
+  vars.m_reducedTree -> Branch("ele1_eRegrInput_SCsize",  &vars.ele1_eRegrInput_SCsize,   "ele1_eRegrInput_SCsize/F");
+ 
+       
   // 2nd electron variables  
   if(isCalib)
   {
@@ -221,7 +267,52 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_seedLaserCorr",  &vars.ele2_seedLaserCorr,   "ele2_seedLaserCorr/F");
   
   vars.m_reducedTree -> Branch("ele2_tkPt", &vars.ele2_tkPt, "ele2_tkPt/F");
+
+   // regression variable
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_rawE",  &vars.ele2_eRegrInput_rawE,   "ele2_eRegrInput_rawE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_r9",  &vars.ele2_eRegrInput_r9,   "ele2_eRegrInput_r9/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_eta",  &vars.ele2_eRegrInput_eta,   "ele2_eRegrInput_eta/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_phi",  &vars.ele2_eRegrInput_phi,   "ele2_eRegrInput_phi/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_r25",  &vars.ele2_eRegrInput_r25,   "ele2_eRegrInput_r25/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_hoe",  &vars.ele2_eRegrInput_hoe,   "ele2_eRegrInput_hoe/F");
+  vars.m_reducedTree -> Branch("ele2eRegrInput_etaW",  &vars.ele2_eRegrInput_etaW,   "ele2_eRegrInput_etaW/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_phiW",  &vars.ele2_eRegrInput_phiW,   "ele2_eRegrInput_phiW/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_rho",  &vars.ele2_eRegrInput_rho,   "ele2_eRegrInput_rho/F");
   
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_Deta_bC_sC",  &vars.ele2_eRegrInput_Deta_bC_sC,   "ele2_eRegrInput_Deta_bC_sC/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_Dphi_bC_sC",  &vars.ele2_eRegrInput_Dphi_bC_sC,   "ele2_eRegrInput_Dphi_bC_sC/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_bCE_Over_sCE",  &vars.ele2_eRegrInput_bCE_Over_sCE,   "ele2_eRegrInput_bCE_Over_sCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_e3x3_Over_bCE",  &vars.ele2_eRegrInput_e3x3_Over_bCE,   "ele2_eRegrInput_e3x3_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_e5x5_Over_bCE",  &vars.ele2_eRegrInput_e5x5_Over_bCE,   "ele2_eRegrInput_e5x5_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_sigietaieta_bC1",  &vars.ele2_eRegrInput_sigietaieta_bC1,   "ele2_eRegrInput_sigietaieta_bC1/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_sigiphiiphi_bC1",  &vars.ele2_eRegrInput_sigiphiiphi_bC1,   "ele2_eRegrInput_sigiphiiphi_bC1/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_sigietaiphi_bC1",  &vars.ele2_eRegrInput_sigietaiphi_bC1,   "ele2_eRegrInput_sigietaiphi_bC1/F");
+ 
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_bEMax_Over_bCE",  &vars.ele2_eRegrInput_bEMax_Over_bCE,   "ele2_eRegrInput_bEMax_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_bE2nd_Over_bCE",  &vars.ele2_eRegrInput_bE2nd_Over_bCE,   "ele2_eRegrInput_bE2nd_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_bEtop_Over_bCE",  &vars.ele2_eRegrInput_bEtop_Over_bCE,   "ele2_eRegrInput_bEtop_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_bEbot_Over_bCE",  &vars.ele2_eRegrInput_bEbot_Over_bCE,   "ele2_eRegrInput_bEbot_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_bEleft_Over_bCE",  &vars.ele2_eRegrInput_bEleft_Over_bCE,   "ele2_eRegrInput_bEleft_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_bEright_Over_bCE",  &vars.ele2_eRegrInput_bEright_Over_bCE,   "ele2_eRegrInput_bEright_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_be2x5max_Over_bCE",  &vars.ele2_eRegrInput_be2x5max_Over_bCE,   "ele2_eRegrInput_be2x5max_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_be2x5top_Over_bCE",  &vars.ele2_eRegrInput_be2x5top_Over_bCE,   "ele2_eRegrInput_be2x5top_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_be2x5bottom_Over_bCE",  &vars.ele2_eRegrInput_be2x5bottom_Over_bCE,   "ele2_eRegrInput_be2x5bottom_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_be2x5left_Over_bCE",  &vars.ele2_eRegrInput_be2x5left_Over_bCE,   "ele2_eRegrInput_be2x5left_Over_bCE/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_be2x5right_Over_bCE",  &vars.ele2_eRegrInput_be2x5right_Over_bCE,   "ele2_eRegrInput_be2x5right_Over_bCE/F");
+
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_eta",  &vars.ele2_eRegrInput_seedbC_eta,   "ele2_eRegrInput_seedbC_eta/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_phi",  &vars.ele2_eRegrInput_seedbC_phi,   "ele2_eRegrInput_seedbC_phi/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_eta_p5",  &vars.ele2_eRegrInput_seedbC_eta_p5,   "ele2_eRegrInput_seedbC_eta_p5/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_phi_p2",  &vars.ele2_eRegrInput_seedbC_phi_p2,   "ele2_eRegrInput_seedbC_phi_p2/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_bieta",  &vars.ele2_eRegrInput_seedbC_bieta,   "ele1_eRegrInput_seedbC_bieta/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_phi_p20",  &vars.ele2_eRegrInput_seedbC_phi_p20,   "ele2_eRegrInput_seedbC_phi_p20/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_etacry",  &vars.ele2_eRegrInput_seedbC_etacry,   "ele2_eRegrInput_seedbC_etacry/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_seedbC_phicry",  &vars.ele2_eRegrInput_seedbC_phicry,   "ele2_eRegrInput_seedbC_phicry/F");
+
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_ESoSC",  &vars.ele2_eRegrInput_ESoSC,   "ele2_eRegrInput_ESoSC/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_nPV",  &vars.ele2_eRegrInput_nPV,   "ele2_eRegrInput_nPV/F");
+  vars.m_reducedTree -> Branch("ele2_eRegrInput_SCsize",  &vars.ele2_eRegrInput_SCsize,   "ele2_eRegrInput_SCsize/F");
+   
 
  vars.m_reducedTree -> Branch("ele1_E_true", &vars.ele1_E_true, "ele1_E_true/F");
  vars.m_reducedTree -> Branch("ele1_DR", &vars.ele1_DR, "ele1_DR/F");
@@ -372,6 +463,52 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   
   vars.ele1_nRecHits = -1;
 
+
+  vars.ele1_eRegrInput_rawE =-1.;
+  vars.ele1_eRegrInput_r9 =-1.;
+  vars.ele1_eRegrInput_eta =-1.;
+  vars.ele1_eRegrInput_phi =-1.;
+  vars.ele1_eRegrInput_r25 =-1.;
+  vars.ele1_eRegrInput_hoe =-1.;
+  vars.ele1_eRegrInput_etaW =-1.;
+  vars.ele1_eRegrInput_phiW =-1.;
+  vars.ele1_eRegrInput_rho =-1.;
+
+  vars.ele1_eRegrInput_Deta_bC_sC =-1.;
+  vars.ele1_eRegrInput_Dphi_bC_sC =-1.;
+  vars.ele1_eRegrInput_bCE_Over_sCE =-1.;
+  vars.ele1_eRegrInput_e3x3_Over_bCE =-1.;
+  vars.ele1_eRegrInput_e5x5_Over_bCE =-1.;
+  vars.ele1_eRegrInput_sigietaieta_bC1 =-1.;
+  vars.ele1_eRegrInput_sigiphiiphi_bC1 =-1.;
+  vars.ele1_eRegrInput_sigietaiphi_bC1 =-1.;
+
+  vars.ele1_eRegrInput_bEMax_Over_bCE =-1.;
+  vars.ele1_eRegrInput_bE2nd_Over_bCE =-1.;
+  vars.ele1_eRegrInput_bEtop_Over_bCE =-1.;
+  vars.ele1_eRegrInput_bEbot_Over_bCE =-1.;
+  vars.ele1_eRegrInput_bEleft_Over_bCE =-1.;
+  vars.ele1_eRegrInput_bEright_Over_bCE =-1.;
+  vars.ele1_eRegrInput_be2x5max_Over_bCE =-1.;
+  vars.ele1_eRegrInput_be2x5top_Over_bCE =-1.;
+  vars.ele1_eRegrInput_be2x5bottom_Over_bCE =-1.;
+  vars.ele1_eRegrInput_be2x5left_Over_bCE =-1.;
+  vars.ele1_eRegrInput_be2x5right_Over_bCE =-1.;
+
+  vars.ele1_eRegrInput_seedbC_eta =-1.;
+  vars.ele1_eRegrInput_seedbC_phi =-1.;
+  vars.ele1_eRegrInput_seedbC_eta_p5 =-1.;
+  vars.ele1_eRegrInput_seedbC_phi_p2 =-1.;
+  vars.ele1_eRegrInput_seedbC_bieta =-1.;
+  vars.ele1_eRegrInput_seedbC_phi_p20 =-1.;
+  vars.ele1_eRegrInput_seedbC_etacry =-1.;
+  vars.ele1_eRegrInput_seedbC_phicry =-1.;
+
+  vars.ele1_eRegrInput_ESoSC =-1.;
+  vars.ele1_eRegrInput_nPV =-1.;
+  vars.ele1_eRegrInput_SCsize =-1.;
+     
+ 
   // 2nd electron variables
   vars.ele2 = ROOT::Math::XYZTVector(0., 0., 0., 0.);
   vars.p_ele2 = &vars.ele2;
@@ -459,6 +596,51 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele2_isEERingGap = -1;
 
   vars.ele2_nRecHits = -1;
+
+  vars.ele2_eRegrInput_rawE =-1.;
+  vars.ele2_eRegrInput_r9 =-1.;
+  vars.ele2_eRegrInput_eta =-1.;
+  vars.ele2_eRegrInput_phi =-1.;
+  vars.ele2_eRegrInput_r25 =-1.;
+  vars.ele2_eRegrInput_hoe =-1.;
+  vars.ele2_eRegrInput_etaW =-1.;
+  vars.ele2_eRegrInput_phiW =-1.;
+  vars.ele2_eRegrInput_rho =-1.;
+
+  vars.ele2_eRegrInput_Deta_bC_sC =-1.;
+  vars.ele2_eRegrInput_Dphi_bC_sC =-1.;
+  vars.ele2_eRegrInput_bCE_Over_sCE =-1.;
+  vars.ele2_eRegrInput_e3x3_Over_bCE =-1.;
+  vars.ele2_eRegrInput_e5x5_Over_bCE =-1.;
+  vars.ele2_eRegrInput_sigietaieta_bC1 =-1.;
+  vars.ele2_eRegrInput_sigiphiiphi_bC1 =-1.;
+  vars.ele2_eRegrInput_sigietaiphi_bC1 =-1.;
+
+  vars.ele2_eRegrInput_bEMax_Over_bCE =-1.;
+  vars.ele2_eRegrInput_bE2nd_Over_bCE =-1.;
+  vars.ele2_eRegrInput_bEtop_Over_bCE =-1.;
+  vars.ele2_eRegrInput_bEbot_Over_bCE =-1.;
+  vars.ele2_eRegrInput_bEleft_Over_bCE =-1.;
+  vars.ele2_eRegrInput_bEright_Over_bCE =-1.;
+  vars.ele2_eRegrInput_be2x5max_Over_bCE =-1.;
+  vars.ele2_eRegrInput_be2x5top_Over_bCE =-1.;
+  vars.ele2_eRegrInput_be2x5bottom_Over_bCE =-1.;
+  vars.ele2_eRegrInput_be2x5left_Over_bCE =-1.;
+  vars.ele2_eRegrInput_be2x5right_Over_bCE =-1.;
+
+  vars.ele2_eRegrInput_seedbC_eta =-1.;
+  vars.ele2_eRegrInput_seedbC_phi =-1.;
+  vars.ele2_eRegrInput_seedbC_eta_p5 =-1.;
+  vars.ele2_eRegrInput_seedbC_phi_p2 =-1.;
+  vars.ele2_eRegrInput_seedbC_bieta =-1.;
+  vars.ele2_eRegrInput_seedbC_phi_p20 =-1.;
+  vars.ele2_eRegrInput_seedbC_etacry =-1.;
+  vars.ele2_eRegrInput_seedbC_phicry =-1.;
+ 
+  vars.ele2_eRegrInput_ESoSC =-1.;
+  vars.ele2_eRegrInput_nPV =-1.;
+  vars.ele2_eRegrInput_SCsize =-1.;
+ 
 
   // met variables
   vars.met = ROOT::Math::XYZTVector(0., 0., 0., 0.);
@@ -568,7 +750,7 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_seedLaserCorr = reader.GetFloat("electrons_seedLaserCorrection")->at(ele1It);
   
   vars.ele1_tkPt = (reader.Get3V("electrons_p_atVtx")->at(ele1It)).Rho();
-  
+
   if(isCalib)
   {
    int theRecHitBeginIndex = 0;
@@ -578,27 +760,27 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   
    for ( int iRecHit = theRecHitBeginIndex; iRecHit < theRecHitBeginIndex + reader.GetInt("recHit_n")->at(ele1It); iRecHit++ ){
     
-    int iRecHit_zside = reader.GetInt("recHit_zside")->at(iRecHit);
-    float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
-    float iRecHit_alpha = reader.GetFloat("recHit_alpha")->at(iRecHit);
-    int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
-    int iRecHit_flag = reader.GetInt("recHit_flag")->at(iRecHit);
-    int iRecHit_ietaORix, iRecHit_iphiORiy;
-    if ( iRecHit_zside == 0 ) {
-      iRecHit_ietaORix = reader.GetInt("recHit_ieta")->at(iRecHit);
-      iRecHit_iphiORiy = reader.GetInt("recHit_iphi")->at(iRecHit);
-    }
-    else {
-      iRecHit_ietaORix = reader.GetInt("recHit_ix")->at(iRecHit);
-      iRecHit_iphiORiy = reader.GetInt("recHit_iy")->at(iRecHit);
-    }
-    vars.ele1_recHit_zside.push_back(iRecHit_zside);
-    vars.ele1_recHit_E.push_back(iRecHit_E);
-    vars.ele1_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
-    vars.ele1_recHit_ieta.push_back(iRecHit_ietaORix);
-    vars.ele1_recHit_iphi.push_back(iRecHit_iphiORiy);
-    vars.ele1_recHit_flag.push_back(iRecHit_flag);
-    vars.ele1_recHit_alpha.push_back(iRecHit_alpha);
+      int iRecHit_zside = reader.GetInt("recHit_zside")->at(iRecHit);
+      float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
+//     float iRecHit_alpha = reader.GetFloat("recHit_alpha")->at(iRecHit);
+     int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
+     int iRecHit_flag = reader.GetInt("recHit_flag")->at(iRecHit);
+     int iRecHit_ietaORix, iRecHit_iphiORiy;
+     if ( iRecHit_zside == 0 ) {
+       iRecHit_ietaORix = reader.GetInt("recHit_ieta")->at(iRecHit);
+       iRecHit_iphiORiy = reader.GetInt("recHit_iphi")->at(iRecHit);
+     }
+     else {
+       iRecHit_ietaORix = reader.GetInt("recHit_ix")->at(iRecHit);
+       iRecHit_iphiORiy = reader.GetInt("recHit_iy")->at(iRecHit);
+     }
+       vars.ele1_recHit_zside.push_back(iRecHit_zside);
+       vars.ele1_recHit_E.push_back(iRecHit_E);
+       vars.ele1_recHit_hashedIndex.push_back(iRecHit_hashedIndex);
+       vars.ele1_recHit_ieta.push_back(iRecHit_ietaORix);
+       vars.ele1_recHit_iphi.push_back(iRecHit_iphiORiy);
+       vars.ele1_recHit_flag.push_back(iRecHit_flag);
+//     vars.ele1_recHit_alpha.push_back(iRecHit_alpha);
    }  
   }
   
@@ -631,8 +813,51 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
 
   vars.ele1_nRecHits = reader.GetInt("recHit_n")->at(ele1It);
   
+//regression variables
+  vars.ele1_eRegrInput_rawE = reader.GetFloat("eRegrInput_rawE")->at(ele1It);
+  vars.ele1_eRegrInput_r9 = reader.GetFloat("eRegrInput_r9")->at(ele1It);
+  vars.ele1_eRegrInput_eta = reader.GetFloat("eRegrInput_eta")->at(ele1It);
+  vars.ele1_eRegrInput_phi = reader.GetFloat("eRegrInput_phi")->at(ele1It);
+  vars.ele1_eRegrInput_r25 = reader.GetFloat("eRegrInput_r25")->at(ele1It);
+  vars.ele1_eRegrInput_hoe = reader.GetFloat("eRegrInput_hoe")->at(ele1It);
+  vars.ele1_eRegrInput_etaW = reader.GetFloat("eRegrInput_etaW")->at(ele1It);
+  vars.ele1_eRegrInput_phiW = reader.GetFloat("eRegrInput_phiW")->at(ele1It);
+  vars.ele1_eRegrInput_rho = reader.GetFloat("eRegrInput_rho")->at(ele1It);
+ 
+  vars.ele1_eRegrInput_Deta_bC_sC = reader.GetFloat("eRegrInput_Deta_bC_sC")->at(ele1It);
+  vars.ele1_eRegrInput_Dphi_bC_sC = reader.GetFloat("eRegrInput_Dphi_bC_sC")->at(ele1It);
+  vars.ele1_eRegrInput_bCE_Over_sCE = reader.GetFloat("eRegrInput_bCE_Over_sCE")->at(ele1It);
+  vars.ele1_eRegrInput_e3x3_Over_bCE = reader.GetFloat("eRegrInput_e3x3_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_e5x5_Over_bCE = reader.GetFloat("eRegrInput_e5x5_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_sigietaieta_bC1 = reader.GetFloat("eRegrInput_sigietaieta_bC1")->at(ele1It);
+  vars.ele1_eRegrInput_sigiphiiphi_bC1 = reader.GetFloat("eRegrInput_sigiphiiphi_bC1")->at(ele1It);
+  vars.ele1_eRegrInput_sigietaiphi_bC1 = reader.GetFloat("eRegrInput_sigietaiphi_bC1")->at(ele1It);
+ 
+  vars.ele1_eRegrInput_bEMax_Over_bCE = reader.GetFloat("eRegrInput_bEMax_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_bE2nd_Over_bCE = reader.GetFloat("eRegrInput_bE2nd_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_bEtop_Over_bCE = reader.GetFloat("eRegrInput_bEtop_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_bEleft_Over_bCE = reader.GetFloat("eRegrInput_bEleft_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_bEright_Over_bCE = reader.GetFloat("eRegrInput_bEright_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_be2x5max_Over_bCE = reader.GetFloat("eRegrInput_be2x5max_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_be2x5top_Over_bCE = reader.GetFloat("eRegrInput_be2x5top_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_be2x5bottom_Over_bCE = reader.GetFloat("eRegrInput_be2x5bottom_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_be2x5left_Over_bCE = reader.GetFloat("eRegrInput_be2x5left_Over_bCE")->at(ele1It);
+  vars.ele1_eRegrInput_be2x5right_Over_bCE = reader.GetFloat("eRegrInput_be2x5right_Over_bCE")->at(ele1It);
 
- }
+  vars.ele1_eRegrInput_seedbC_eta = reader.GetFloat("eRegrInput_seedbC_eta")->at(ele1It);
+  vars.ele1_eRegrInput_seedbC_phi = reader.GetFloat("eRegrInput_seedbC_phi")->at(ele1It);
+  vars.ele1_eRegrInput_seedbC_eta_p5 = reader.GetFloat("eRegrInput_seedbC_eta_p5")->at(ele1It);
+  vars.ele1_eRegrInput_seedbC_phi_p2 = reader.GetFloat("eRegrInput_seedbC_phi_p2")->at(ele1It);
+  vars.ele1_eRegrInput_seedbC_bieta = reader.GetFloat("eRegrInput_seedbC_bieta")->at(ele1It);
+  vars.ele1_eRegrInput_seedbC_phi_p20 = reader.GetFloat("eRegrInput_seedbC_phi_p20")->at(ele1It);
+  vars.ele1_eRegrInput_seedbC_etacry = reader.GetFloat("eRegrInput_seedbC_etacry")->at(ele1It);
+  vars.ele1_eRegrInput_seedbC_phicry = reader.GetFloat("eRegrInput_seedbC_phicry")->at(ele1It);
+
+  vars.ele1_eRegrInput_ESoSC = reader.GetFloat("eRegrInput_ESoSC")->at(ele1It);
+  vars.ele1_eRegrInput_nPV = reader.GetFloat("eRegrInput_nPV")->at(ele1It);
+  vars.ele1_eRegrInput_SCsize = reader.GetFloat("eRegrInput_SCsize")->at(ele1It);
+    
+  }
 
 
 void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib)
@@ -699,7 +924,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
     
     int iRecHit_zside = reader.GetInt("recHit_zside")->at(iRecHit);
     float iRecHit_E = reader.GetFloat("recHit_E")->at(iRecHit);
-    float iRecHit_alpha = reader.GetFloat("recHit_alpha")->at(iRecHit);
+//     float iRecHit_alpha = reader.GetFloat("recHit_alpha")->at(iRecHit);
     int iRecHit_hashedIndex = reader.GetInt("recHit_hashedIndex")->at(iRecHit);
     int iRecHit_flag = reader.GetInt("recHit_flag")->at(iRecHit);
     int iRecHit_ietaORix, iRecHit_iphiORiy;
@@ -717,7 +942,7 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
     vars.ele2_recHit_ieta.push_back(iRecHit_ietaORix);
     vars.ele2_recHit_iphi.push_back(iRecHit_iphiORiy);
     vars.ele2_recHit_flag.push_back(iRecHit_flag);
-    vars.ele2_recHit_flag.push_back(iRecHit_alpha);
+//    vars.ele2_recHit_flag.push_back(iRecHit_alpha);
     }
  }
  
@@ -750,6 +975,49 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
 
  vars.ele2_nRecHits = reader.GetInt("recHit_n")->at(ele2It);
 
+ //regression variables
+ vars.ele2_eRegrInput_rawE = reader.GetFloat("eRegrInput_rawE")->at(ele2It);
+ vars.ele2_eRegrInput_r9 = reader.GetFloat("eRegrInput_r9")->at(ele2It);
+ vars.ele2_eRegrInput_eta = reader.GetFloat("eRegrInput_eta")->at(ele2It);
+ vars.ele2_eRegrInput_phi = reader.GetFloat("eRegrInput_phi")->at(ele2It);
+ vars.ele2_eRegrInput_r25 = reader.GetFloat("eRegrInput_r25")->at(ele2It);
+ vars.ele2_eRegrInput_hoe = reader.GetFloat("eRegrInput_hoe")->at(ele2It);
+ vars.ele2_eRegrInput_etaW = reader.GetFloat("eRegrInput_etaW")->at(ele2It);
+ vars.ele2_eRegrInput_phiW = reader.GetFloat("eRegrInput_phiW")->at(ele2It);
+ vars.ele2_eRegrInput_rho = reader.GetFloat("eRegrInput_rho")->at(ele2It);
+ 
+ vars.ele2_eRegrInput_Deta_bC_sC = reader.GetFloat("eRegrInput_Deta_bC_sC")->at(ele2It);
+ vars.ele2_eRegrInput_Dphi_bC_sC = reader.GetFloat("eRegrInput_Dphi_bC_sC")->at(ele2It);
+ vars.ele2_eRegrInput_bCE_Over_sCE = reader.GetFloat("eRegrInput_bCE_Over_sCE")->at(ele2It);
+ vars.ele2_eRegrInput_e3x3_Over_bCE = reader.GetFloat("eRegrInput_e3x3_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_e5x5_Over_bCE = reader.GetFloat("eRegrInput_e5x5_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_sigietaieta_bC1 = reader.GetFloat("eRegrInput_sigietaieta_bC1")->at(ele2It);
+ vars.ele2_eRegrInput_sigiphiiphi_bC1 = reader.GetFloat("eRegrInput_sigiphiiphi_bC1")->at(ele2It);
+ vars.ele2_eRegrInput_sigietaiphi_bC1 = reader.GetFloat("eRegrInput_sigietaiphi_bC1")->at(ele2It);
+  
+ vars.ele2_eRegrInput_bEMax_Over_bCE = reader.GetFloat("eRegrInput_bEMax_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_bE2nd_Over_bCE = reader.GetFloat("eRegrInput_bE2nd_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_bEtop_Over_bCE = reader.GetFloat("eRegrInput_bEtop_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_bEleft_Over_bCE = reader.GetFloat("eRegrInput_bEleft_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_bEright_Over_bCE = reader.GetFloat("eRegrInput_bEright_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_be2x5max_Over_bCE = reader.GetFloat("eRegrInput_be2x5max_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_be2x5top_Over_bCE = reader.GetFloat("eRegrInput_be2x5top_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_be2x5bottom_Over_bCE = reader.GetFloat("eRegrInput_be2x5bottom_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_be2x5left_Over_bCE = reader.GetFloat("eRegrInput_be2x5left_Over_bCE")->at(ele2It);
+ vars.ele2_eRegrInput_be2x5right_Over_bCE = reader.GetFloat("eRegrInput_be2x5right_Over_bCE")->at(ele2It);
+
+ vars.ele2_eRegrInput_seedbC_eta = reader.GetFloat("eRegrInput_seedbC_eta")->at(ele2It);
+ vars.ele2_eRegrInput_seedbC_phi = reader.GetFloat("eRegrInput_seedbC_phi")->at(ele2It);
+ vars.ele2_eRegrInput_seedbC_eta_p5 = reader.GetFloat("eRegrInput_seedbC_eta_p5")->at(ele2It);
+ vars.ele2_eRegrInput_seedbC_phi_p2 = reader.GetFloat("eRegrInput_seedbC_phi_p2")->at(ele2It);
+ vars.ele2_eRegrInput_seedbC_bieta = reader.GetFloat("eRegrInput_seedbC_bieta")->at(ele2It);
+ vars.ele2_eRegrInput_seedbC_phi_p20 = reader.GetFloat("eRegrInput_seedbC_phi_p20")->at(ele2It);
+ vars.ele2_eRegrInput_seedbC_etacry = reader.GetFloat("eRegrInput_seedbC_etacry")->at(ele2It);
+ vars.ele2_eRegrInput_seedbC_phicry = reader.GetFloat("eRegrInput_seedbC_phicry")->at(ele2It);
+
+ vars.ele2_eRegrInput_ESoSC = reader.GetFloat("eRegrInput_ESoSC")->at(ele2It);
+ vars.ele2_eRegrInput_nPV = reader.GetFloat("eRegrInput_nPV")->at(ele2It);
+ vars.ele2_eRegrInput_SCsize = reader.GetFloat("eRegrInput_SCsize")->at(ele2It);
  }
 
 void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader)
@@ -851,10 +1119,10 @@ void SetGenLeptonInformation (WZAnalysisVariables& vars, treeReader& reader, con
   }
  }
  
- if(isWZ==1) {
+   if(isWZ==1) {
    if(reader.Get4V("mcF1_fromV")->size() == 1 && reader.Get4V("mcF2_fromV")->size() == 1) {
      TLorentzVector mcp[2] = { GetTLorentzV( reader.Get4V("mcF1_fromV")->at(0) ), 
-			       GetTLorentzV( reader.Get4V("mcF2_fromV")->at(1) ) };
+			       GetTLorentzV( reader.Get4V("mcF2_fromV")->at(0) ) };
      TLorentzVector ereco[2];
      ereco[0].SetPtEtaPhiM(vars.ele1_pt,vars.ele1_eta,vars.ele1_phi,0);
      ereco[1].SetPtEtaPhiM(vars.ele2_pt,vars.ele2_eta,vars.ele2_phi,0);
