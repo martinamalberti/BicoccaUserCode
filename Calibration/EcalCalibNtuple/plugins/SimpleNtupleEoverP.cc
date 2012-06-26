@@ -668,9 +668,9 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
       ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
       ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
       ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
-      ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
-      ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
-      ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+      ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
+      ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
+      ( ( (isEB == 1) && (fabs(dz)      < 0.100) ) || ( (isEB == 0) && (fabs(dz)      < 0.100) ) ) &&
       ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
       ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
       ( mishits == 0 ) &&
@@ -739,9 +739,9 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
       ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
       ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
       ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
-      ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
-      ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
-      ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+      ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
+      ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
+      ( ( (isEB == 1) && (fabs(dz)      < 0.100) ) || ( (isEB == 0) && (fabs(dz)      < 0.100) ) ) &&
       ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
       ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
       ( mishits == 0 ) &&
@@ -810,9 +810,9 @@ bool SimpleNtupleEoverP::LooseEle (const edm::Event & iEvent, const edm::EventSe
          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.150) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.100) ) ) &&
          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
          ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
-         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
-         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
-         ( ( (isEB == 1) && (dz            < 0.200) ) || ( (isEB == 0) && (dz            < 0.200) ) ) &&
+         ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
+         ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
+         ( ( (isEB == 1) && (fabs(dz)      < 0.200) ) || ( (isEB == 0) && (fabs(dz)      < 0.200) ) ) &&
          ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
          ( mishits == 0 ) &&
          ( nAmbiguousGsfTracks == 0 ) &&
@@ -836,14 +836,14 @@ bool SimpleNtupleEoverP::myWselection (const edm::Event & iEvent, const edm::Eve
   if( ( ele1_isEB == 1 ) && ( fabs(ele1_DphiIn) > 0.030 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( ele1_sigmaIetaIeta > 0.010 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( ele1_HOverE > 0.120 ) ) return false;
-  if( ( ele1_isEB == 1 ) && ( ele1_ooemoop > 0.050 ) ) return false;
+  if( ( ele1_isEB == 1 ) && ( fabs(ele1_ooemoop) > 0.050 ) ) return false;
 
   if( ( ele1_isEB == 0 ) && ( combIso/ele1_pt > 0.035 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DetaIn) > 0.005 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DphiIn) > 0.020 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( ele1_sigmaIetaIeta > 0.030 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( ele1_HOverE > 0.100 ) ) return false;
-  if( ( ele1_isEB == 0 ) && ( ele1_ooemoop > 0.050 ) ) return false;
+  if( ( ele1_isEB == 0 ) && ( fabs(ele1_ooemoop) > 0.050 ) ) return false;
        
   if( met_et       < 25.00 ) return false;
   if( ele1Met_mt   < 50.00 ) return false;
