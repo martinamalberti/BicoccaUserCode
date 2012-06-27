@@ -516,9 +516,9 @@ bool TightEle(treeReader & reader, const int & eleIt){
          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
          ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
-         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
-         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
-         ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+         ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
+         ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
+         ( ( (isEB == 1) && (fabs(dz)      < 0.100) ) || ( (isEB == 0) && (fabs(dz)      < 0.100) ) ) &&
          ( ( (isEB == 1) && (vtxFitConversion ==0 ) ) || ( (isEB == 0) && (vtxFitConversion  ==0) ) ) &&
          ( mishits == 0 ) &&
          ( nAmbiguousGsfTracks == 0 ) &&
@@ -565,9 +565,9 @@ bool MediumEle(treeReader & reader, const int & eleIt){
          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
          ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
-         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
-         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
-         ( ( (isEB == 1) && (dz            < 0.100) ) || ( (isEB == 0) && (dz            < 0.100) ) ) &&
+         ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
+         ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
+         ( ( (isEB == 1) && (fabs(dz)      < 0.100) ) || ( (isEB == 0) && (fabs(dz)      < 0.100) ) ) &&
          ( ( (isEB == 1) && (vtxFitConversion ==0 ) ) || ( (isEB == 0) && (vtxFitConversion  ==0) ) ) &&
          ( mishits == 0 ) &&
          ( nAmbiguousGsfTracks == 0 ) &&
@@ -613,9 +613,9 @@ bool LooseEle(treeReader & reader, const int & eleIt){
          ( ( (isEB == 1) && (fabs(DphiIn)  < 0.150) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.100) ) ) &&
          ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
          ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
-         ( ( (isEB == 1) && (ooemoop       < 0.050) ) || ( (isEB == 0) && (ooemoop       < 0.050) ) ) &&
-         ( ( (isEB == 1) && (dxy           < 0.020) ) || ( (isEB == 0) && (dxy           < 0.020) ) ) &&
-         ( ( (isEB == 1) && (dz            < 0.200) ) || ( (isEB == 0) && (dz            < 0.200) ) ) &&
+         ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
+         ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
+         ( ( (isEB == 1) && (fabs(dz)      < 0.200) ) || ( (isEB == 0) && (fabs(dz)      < 0.200) ) ) &&
          ( ( (isEB == 1) && (vtxFitConversion ==0 ) ) || ( (isEB == 0) && (vtxFitConversion  ==0) ) ) &&
          ( mishits == 0 ) &&
          ( nAmbiguousGsfTracks == 0 ) &&
@@ -661,7 +661,7 @@ bool myWSelection ( WZAnalysisVariables & vars){
  if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_sigmaIetaIeta > 0.010 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_HOverE > 0.120 ) ) return false;
- if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_ooemoop > 0.050 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_ooemoop) > 0.050 ) ) return false;
 
 
  if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.1 ) ) return false;
@@ -669,7 +669,7 @@ bool myWSelection ( WZAnalysisVariables & vars){
  if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_sigmaIetaIeta > 0.030 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_HOverE > 0.100 ) ) return false;
- if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_ooemoop > 0.050 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_ooemoop) > 0.050 ) ) return false;
 
  if( vars.met_et       < 25.00 ) return false;
  if( vars.ele1Met_mt   < 50.00 ) return false;
