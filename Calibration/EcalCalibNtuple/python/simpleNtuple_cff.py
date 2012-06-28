@@ -6,7 +6,6 @@ from PhysicsTools.PatAlgos.tools.metTools import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
-
 def makeSimpleNtuple(process,GlobalTag,ReReco=False):
 
     # Source
@@ -57,14 +56,14 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     
     # Add PF Isolation before removing element
     usePFIso( process )
- 
+    
     removeMCMatching(process, ['All'])
       
     removeSpecificPATObjects( process, ['Taus'] )
     process.patDefaultSequence.remove( process.patTaus )
        
     # Add tcMET and pfMET
-    addTcMET(process, 'TC')
+    #addTcMET(process, 'TC')
     addPfMET(process, 'PF')
 
 	
@@ -90,7 +89,7 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         )
     process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
     
-    # Add PF jets
+    ## Add PF jets
     switchJetCollection(process,
                         cms.InputTag('ak5PFJets'),
                         doJTA        = True,
@@ -207,8 +206,8 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.AllPassFilterPhotonFilter *
         process.kt6PFJets *
         process.ak5PFJets *
-        process.kt6PFJetsForIsolation *
-        process.patDefaultSequence *
+        process.kt6PFJetsForIsolation* 
+        process.patDefaultSequence*
         process.simpleNtuple
         )
 
