@@ -16,30 +16,30 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 ReReco=False
 
 # simpleNtuple module call
-makeSimpleNtuple(process,GlobalTag="GR_R_52_V7::All",ReReco=ReReco)
+makeSimpleNtuple(process,GlobalTag="FT_R_52_V8::All",ReReco=ReReco)
 	
 # Set reco laser, IC ,ADCtoGeV .... tags
-makeRecoTags(process)
+#makeRecoTags(process)
 
 #makeSqliteTags(process)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    #'rfio:/castor/cern.ch/cms/store/data/Run2012A/SingleElectron/AOD/PromptReco-v1/000/190/703/1C7611B0-6383-E111-B61A-001D09F2447F.root'
-    'file:/media/DATA/SANDBOX/3CD47EAB-7283-E111-B30B-001D09F253D4.root'
+#    'file:/media/DATA/CMSSWRoot/DATA2012/Run2012B_DoubleElectron_RAW-RECO_PromptSkim-v1/B4507E93-C0A4-E111-B958-0030486790C0.root'
+    'file:/media/DATA/SANDBOX/NTUPLES/3CD47EAB-7283-E111-B30B-001D09F253D4_AOD_2012.root'
     )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.maxEvents = cms.untracked.PSet(
-   input = cms.untracked.int32(1000)
+   input = cms.untracked.int32(100)
 )
 
 # out
 if not ReReco:
     process.TFileService = cms.Service(
         "TFileService",
-        fileName = cms.string("/data2/simpleNtuple_OLD.root")
+        fileName = cms.string("simpleNtuple.root")
         )
 
     #process.out = cms.OutputModule(
@@ -77,5 +77,4 @@ if ReReco:
         process.reconstruction_step,
         process.endjob_step,
         process.simpleNtuple_step
-        #process.e
         )
