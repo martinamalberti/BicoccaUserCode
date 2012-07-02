@@ -120,6 +120,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_e5x5",       &ele1_e5x5,  "ele1_e5x5/F");
   outTree_ -> Branch("ele1_e3x3",       &ele1_e3x3,  "ele1_e3x3/F");
   outTree_ -> Branch("ele1_scNxtal",       &ele1_scNxtal,  "ele1_scNxtal/F");
+  outTree_ -> Branch("ele1_bcN",           &ele1_bcN,  "ele1_bcN/I");
   outTree_ -> Branch("ele1_5x5LaserCorr",       &ele1_5x5LaserCorr,  "ele1_5x5LaserCorr/F");
   outTree_ -> Branch("ele1_3x3LaserCorr",       &ele1_3x3LaserCorr,  "ele1_3x3LaserCorr/F");
   outTree_ -> Branch("ele1_es",       &ele1_es,  "ele1_es/F");
@@ -204,6 +205,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_e5x5",       &ele2_e5x5,  "ele2_e5x5/F");
   outTree_ -> Branch("ele2_e3x3",       &ele2_e3x3,  "ele2_e3x3/F");
   outTree_ -> Branch("ele2_scNxtal",       &ele2_scNxtal,  "ele2_scNxtal/F");
+  outTree_ -> Branch("ele2_bcN",           &ele2_bcN,  "ele2_bcN/I");
   outTree_ -> Branch("ele2_5x5LaserCorr",       &ele2_5x5LaserCorr,  "ele2_5x5LaserCorr/F");
   outTree_ -> Branch("ele2_3x3LaserCorr",       &ele2_3x3LaserCorr,  "ele2_3x3LaserCorr/F");
   outTree_ -> Branch("ele2_es",       &ele2_es,  "ele2_es/F");
@@ -388,6 +390,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_e5x5=-99.;
   ele1_e3x3=-99.;
   ele1_scNxtal=-99.;
+  ele1_bcN    =-99;
   ele1_5x5LaserCorr=-99.;
   ele1_3x3LaserCorr=-99.;
   ele1_es=-99.;
@@ -468,6 +471,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_e5x5=-99.;
   ele2_e3x3=-99.;
   ele2_scNxtal=-99.;
+  ele2_bcN    =-99;
   ele2_5x5LaserCorr=-99.;
   ele2_3x3LaserCorr=-99.;
   ele2_es=-99.;
@@ -957,7 +961,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
   //************* CLUSTER LAZY TOOLS
   if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_5_2_5/src/Calibration/EcalCalibNtuple/test/crab/gbrv3ele_52x.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
   }
  
@@ -1092,7 +1096,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
  
   ele1_e3x3=E3x3;
   ele1_scNxtal = scRef->hitsAndFractions().size();
- 
+  ele1_bcN = electron.basicClustersSize();
 
   float energy=0.;
   int ieta=0;
@@ -1437,7 +1441,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
  
   ele2_e3x3=E3x3;
   ele2_scNxtal = scRef->hitsAndFractions().size();
- 
+  ele2_bcN = electron.basicClustersSize();
 
   float energy=0.;
   int ieta=0;
