@@ -240,7 +240,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_ooemoop ;
   float ele1_effAreaForIso;
 
-
+  float ele1_eSeedBC;
   float ele1_e5x5;
   float ele1_e3x3;
   float ele1_scNxtal;
@@ -326,6 +326,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_effAreaForIso ;
   float ele2_ooemoop ;
 
+  float ele2_eSeedBC;
   float ele2_e5x5;
   float ele2_e3x3;
   float ele2_scNxtal;

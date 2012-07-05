@@ -117,6 +117,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_dz_PV",       &ele1_dz_PV,  "ele1_dz_PV/F");
   outTree_ -> Branch("ele1_EcalEnergy",       &ele1_EcalEnergy,  "ele1_EcalEnergy/F");
 
+  outTree_ -> Branch("ele1_eSeedBC",       &ele1_eSeedBC,  "ele1_eSeedBC/F");
   outTree_ -> Branch("ele1_e5x5",       &ele1_e5x5,  "ele1_e5x5/F");
   outTree_ -> Branch("ele1_e3x3",       &ele1_e3x3,  "ele1_e3x3/F");
   outTree_ -> Branch("ele1_scNxtal",       &ele1_scNxtal,  "ele1_scNxtal/F");
@@ -202,6 +203,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_tkPt",       &ele2_tkPt,  "ele2_tkPt/F");
   outTree_ -> Branch("ele2_fbrem",       &ele2_fbrem,  "ele2_fbrem/F");
 
+  outTree_ -> Branch("ele2_eSeedBC",    &ele2_eSeedBC,  "ele2_eSeedBC/F");
   outTree_ -> Branch("ele2_e5x5",       &ele2_e5x5,  "ele2_e5x5/F");
   outTree_ -> Branch("ele2_e3x3",       &ele2_e3x3,  "ele2_e3x3/F");
   outTree_ -> Branch("ele2_scNxtal",       &ele2_scNxtal,  "ele2_scNxtal/F");
@@ -387,6 +389,8 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_tkPt=-99.;
   ele1_fbrem=-99.;
  
+
+  ele1_eSeedBC=-99.;
   ele1_e5x5=-99.;
   ele1_e3x3=-99.;
   ele1_scNxtal=-99.;
@@ -468,6 +472,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_tkPt=-99.;
   ele2_fbrem=-99.;
  
+  ele2_eSeedBC=-99.;
   ele2_e5x5=-99.;
   ele2_e3x3=-99.;
   ele2_scNxtal=-99.;
@@ -1082,6 +1087,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   ele1_tkPt=electron.trackMomentumAtVtx().Rho();
   ele1_fbrem=electron.fbrem();
   ele1_e5x5=electron.e5x5();
+  ele1_eSeedBC=(scRef->seed())->energy();
   ele1_es=scRef->preshowerEnergy();
   
   float E3x3 = 0;
@@ -1427,6 +1433,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   ele2_tkPt=electron.trackMomentumAtVtx().Rho();
   ele2_fbrem=electron.fbrem();
   ele2_e5x5=electron.e5x5();
+  ele2_eSeedBC=(scRef->seed())->energy();
   ele2_es=scRef->preshowerEnergy();
 
   float E3x3 = 0;
