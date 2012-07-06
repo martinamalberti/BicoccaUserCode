@@ -296,7 +296,7 @@ SimpleNtupleEoverP::~SimpleNtupleEoverP ()
 {
   cout<< "Analyzed " <<  eventNaiveId_ << " events" <<endl;
   // save tree
-  outTree_ -> Write();
+  //outTree_ -> Write();
 }
 
 // -----------------------------------------------------------------------------------------

@@ -156,7 +156,6 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   void fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillMuInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillCALOMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
-  void fillTCMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFMetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPFJetInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
@@ -197,7 +196,6 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag MuTag_;
   edm::InputTag JetTag_;
   edm::InputTag CALOMetTag_;
-  edm::InputTag TCMetTag_;
   edm::InputTag PFMetTag_;
   edm::InputTag MCPileupTag_;
   edm::InputTag MCtruthTag_;
@@ -225,7 +223,6 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   bool saveMu_ ;
   bool saveJet_ ;
   bool saveCALOMet_ ;
-  bool saveTCMet_ ;
   bool savePFMet_ ;
   bool savePFIso_ ;
   bool saveMCPU_;

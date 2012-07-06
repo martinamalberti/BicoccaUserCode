@@ -383,7 +383,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_->AddFloat("eRegrInput_seedbC_etacry");
     NtupleFactory_->AddFloat("eRegrInput_seedbC_phicry");
  
-
+    NtupleFactory_->AddFloat("eRegrInput_ESoSC");
     NtupleFactory_->AddFloat("eRegrInput_nPV");
     NtupleFactory_->AddFloat("eRegrInput_SCsize");
  
@@ -663,62 +663,61 @@ void SimpleNtupleCalib::analyze (const edm::Event& iEvent, const edm::EventSetup
 
  
  ///---- fill L1 ----
-//  if (saveL1_) fillL1Info (iEvent, iSetup);
+ if (saveL1_) fillL1Info (iEvent, iSetup);
  
  ///---- fill HLT ----
-//  if (saveHLT_) fillHLTInfo (iEvent, iSetup);
+ if (saveHLT_) fillHLTInfo (iEvent, iSetup);
 
  ///---- fill PV ----
-//  if(saveBS_) fillBSInfo (iEvent, iSetup);
+ if(saveBS_) fillBSInfo (iEvent, iSetup);
 
  ///---- fill PV ----
-//  if(savePV_) fillPVInfo (iEvent, iSetup);
+ if(savePV_) fillPVInfo (iEvent, iSetup);
  
  ///---- fill Rho ----
-//  if(saveRho_) fillRhoInfo (iEvent, iSetup);
+ if(saveRho_) fillRhoInfo (iEvent, iSetup);
  
  ///---- fill electrons ----
-//  if (saveEle_)  fillEleInfo (iEvent, iSetup);
+ if (saveEle_)  fillEleInfo (iEvent, iSetup);
 
  /// ---- Fill PF Iso Info ------
-//  if(savePFIso_)  fillPFIsoInfo  (iEvent,iSetup);
+ if(savePFIso_)  fillPFIsoInfo  (iEvent,iSetup);
 
  ///---- fill photons ----
-//  if (savePho_)  fillPhoInfo (iEvent, iSetup);
+ if (savePho_)  fillPhoInfo (iEvent, iSetup);
 
  ///---- fill superclusters ----
-//  if (saveSC_)  fillSCInfo (iEvent, iSetup);
+ if (saveSC_)  fillSCInfo (iEvent, iSetup);
 
  ///---- fill muons ----
-//  if (saveMu_) fillMuInfo (iEvent, iSetup);
+ if (saveMu_) fillMuInfo (iEvent, iSetup);
 
  ///---- fill jets ---- 
-//  if (saveJet_) fillJetInfo (iEvent, iSetup);
+ if (saveJet_) fillJetInfo (iEvent, iSetup);
 
  ///---- fill CALOMet ---- 
-//  if (saveCALOMet_) fillCALOMetInfo (iEvent, iSetup);
+ if (saveCALOMet_) fillCALOMetInfo (iEvent, iSetup);
 
 
  ///---- fill PFMet ---- 
-//  if (savePFMet_) fillPFMetInfo (iEvent, iSetup);
+ if (savePFMet_) fillPFMetInfo (iEvent, iSetup);
 
  ///---- fill Preshower Ele ---- 
-//  if (savePreShowerEle_) fillPreShowerEleInfo (iEvent, iSetup);
+ if (savePreShowerEle_) fillPreShowerEleInfo (iEvent, iSetup);
 
  ///---- fill Preshower Photon ---- 
-//  if (savePreShowerPhoton_) fillPreShowerPhotonInfo (iEvent, iSetup);
+ if (savePreShowerPhoton_) fillPreShowerPhotonInfo (iEvent, iSetup);
 
  ///---- fill MC Pileup information ---- 
-//  if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
+ if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
 
  //fill W/Z MC information
-//  if(saveMCZW_)
-//    {
-//      edm::Handle<reco::GenParticleCollection> genParticles;
-//      iEvent.getByLabel(MCtruthTag_, genParticles);
-//      mcAnalysisZW_ = new MCDumperZW(genParticles, eventType_, verbosity_);
-//      fillMCZWInfo (iEvent, iSetup);
-//    }
+  if(saveMCZW_) {
+      edm::Handle<reco::GenParticleCollection> genParticles;
+      iEvent.getByLabel(MCtruthTag_, genParticles);
+      mcAnalysisZW_ = new MCDumperZW(genParticles, eventType_, verbosity_);
+      fillMCZWInfo (iEvent, iSetup);
+    }
 
 
  ///---- save the entry of the tree ----
@@ -1002,7 +1001,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  
  //************* CLUSTER LAZY TOOLS
  if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_5_2_5/src/Calibration/EcalCalibNtuple/test/crab/gbrv3ele_52x.root");
+   ecorr_.Initialize(iSetup,"gbrv3ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
  }
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
@@ -1204,12 +1203,12 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
     NtupleFactory_->FillFloat("eRegrInput_seedbC_phi_p20",biphi%20);
     NtupleFactory_->FillFloat("eRegrInput_seedbC_etacry",betacry);
     NtupleFactory_->FillFloat("eRegrInput_seedbC_phicry",bphicry);
-    NtupleFactory_->FillFloat("eRegr_ESoSC",-99. );
+    NtupleFactory_->FillFloat("eRegrInput_ESoSC",-99. );
  
   }
   else{
  
-        NtupleFactory_->FillFloat("eRegr_ESoSC",s->preshowerEnergy()/s->rawEnergy());
+        NtupleFactory_->FillFloat("eRegrInput_ESoSC",s->preshowerEnergy()/s->rawEnergy());
    
         NtupleFactory_->FillFloat("eRegrInput_seedbC_eta",-99.);
         NtupleFactory_->FillFloat("eRegrInput_seedbC_phi",-99.);
