@@ -172,7 +172,8 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
   EcalClusterFunctionBaseClass* EcalClusterLocalContCorrection;
   PositionCalc                  positionCalculator;
-  EGEnergyCorrector             ecorr_;  
+  EGEnergyCorrector             ecorrE_;  
+  EGEnergyCorrector             ecorrP_;  
   
   HLTConfigProvider hltConfig_;
   

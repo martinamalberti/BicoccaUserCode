@@ -417,6 +417,9 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
    NtupleFactory_ -> AddFloat("photons_r1x5");        
    NtupleFactory_ -> AddFloat("photons_r2x5");        
    NtupleFactory_ -> AddFloat("photons_r9");
+   NtupleFactory_ -> AddFloat("photons_scE_regression");   
+   NtupleFactory_ -> AddFloat("photons_scEerr_regression");
+
    NtupleFactory_ -> AddFloat("photons_ecalIso");   
    NtupleFactory_ -> AddFloat("photons_hcalIso");   
    NtupleFactory_ -> AddFloat("photons_hadronicOverEm");   
@@ -990,8 +993,8 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  edm::Handle<View<pat::Electron> > electronHandle;
  iEvent.getByLabel(EleTag_,electronHandle);
  View<pat::Electron> electrons = *electronHandle;
- 
- //************* VERTEX COLLECTION
+
+  //************* VERTEX COLLECTION
  edm::Handle<reco::VertexCollection> hVertexProduct;
  iEvent.getByLabel("offlinePrimaryVerticesWithBS",hVertexProduct);
  
@@ -1000,12 +1003,12 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  float xi = 0.02;   
  
  //************* CLUSTER LAZY TOOLS
- if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"gbrv3ele_52x.root");
+ if( !ecorrE_.IsInitialized() ){
+   ecorrE_.Initialize(iSetup,"gbrv3ele_52x.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
  }
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
- 
+
  //********* CONVERSION TOOLS
  edm::Handle<reco::ConversionCollection> conversions_h;
  iEvent.getByLabel(conversionsInputTag_, conversions_h);
@@ -1114,10 +1117,11 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    edm::Handle<double> hRho;
    iEvent.getByLabel("kt6PFJetsForIsolation", "rho", hRho);
 
-   std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*hRho,lazyTools,iSetup);
+   std::pair<double,double> cor = ecorrE_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*hRho,lazyTools,iSetup);
    double scE_regression = cor.first;
    double scEerr_regression = cor.second;
-   
+  
+
    NtupleFactory_->Fill3PV("electrons_scPosition",electron.superClusterPosition());
    NtupleFactory_->FillFloat("electrons_scE",scRef->energy());
    NtupleFactory_->FillFloat("electrons_scEt",scRef->energy()*(Rt/R));
@@ -1872,6 +1876,17 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
  edm::ESHandle<EcalLaserDbService> theLaser;
  iSetup.get<EcalLaserDbRecord>().get(theLaser);
 
+ //************* VERTEX COLLECTION
+ edm::Handle<reco::VertexCollection> hVertexProduct;
+ iEvent.getByLabel("offlinePrimaryVerticesWithBS",hVertexProduct);
+
+ //************* CLUSTER LAZY TOOLS
+ if( !ecorrP_.IsInitialized() ){
+   ecorrP_.Initialize(iSetup,"gbrv3ph_52x.root");
+   //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
+ }
+ EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE"));
+
  //*********** PHOTONS
  edm::Handle<edm::View<pat::Photon> > photonHandle;
  iEvent.getByLabel(PhotonTag_,photonHandle);
@@ -1911,6 +1926,21 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
   NtupleFactory_ -> FillFloat("photons_hadronicOverEm",photon.hadronicOverEm());   
   NtupleFactory_ -> FillFloat("photons_trkSumPtHollowConeDR04",photon.trkSumPtHollowConeDR04());   
   NtupleFactory_ -> FillInt  ("photons_hasPixelSeed",photon.hasPixelSeed());  
+
+  //energy regression
+  Handle<double> hRho;
+  //  iEvent.getByLabel(edm::InputTag("kt6PFJets","rho"), hRho);
+  iEvent.getByLabel("kt6PFJetsForIsolation", "rho", hRho);
+
+
+  std::pair<double,double> cor = ecorrP_.CorrectedEnergyWithErrorV3(photon, *hVertexProduct, *hRho, lazyTools, iSetup);
+
+  double scE_regression = cor.first;
+  double scEerr_regression = cor.second;
+
+  NtupleFactory_ -> FillFloat("photons_scE_regression", scE_regression);   
+  NtupleFactory_ -> FillFloat("photons_scEerr_regression", scEerr_regression);
+
 
 
   //conversion info
