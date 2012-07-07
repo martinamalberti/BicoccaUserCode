@@ -203,7 +203,13 @@ struct WZAnalysisVariables
   float ele1_eRegrInput_bC2_etacry;
   float ele1_eRegrInput_bC2_phicry;
   float ele1_eRegrInput_nPV;
-   
+  
+  float ele1_dxy_PV; 
+  float ele1_dz_PV ;
+  float ele1_sigmaP;
+
+  float ele1_deltaEtaSuperClusterAtVtx;
+  float ele1_deltaPhiSuperClusterAtVtx;
 
   // 2nd electron variables
   ROOT::Math::XYZTVector ele2;
@@ -354,6 +360,14 @@ struct WZAnalysisVariables
   float ele2_eRegrInput_bC2_etacry;
   float ele2_eRegrInput_bC2_phicry;
   float ele2_eRegrInput_nPV;
+
+  float ele2_dxy_PV; 
+  float ele2_dz_PV ;
+  float ele2_sigmaP;
+
+  float ele2_deltaEtaSuperClusterAtVtx;
+  float ele2_deltaPhiSuperClusterAtVtx;
+
   
   std::vector<float> ele2_recHit_E;
   std::vector<int> ele2_recHit_hashedIndex;
