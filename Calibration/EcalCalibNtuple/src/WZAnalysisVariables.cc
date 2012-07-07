@@ -49,6 +49,14 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("PV_z",     &vars.PV_z,         "PV_z/F");
   vars.m_reducedTree -> Branch("PV_d0",    &vars.PV_d0,       "PV_d0/F");
   vars.m_reducedTree -> Branch("PV_SumPt", &vars.PV_SumPt, "PV_SumPt/F");
+
+// Ele Track variables 
+  vars.m_reducedTree -> Branch("ele1_dxy_PV",     &vars.ele1_dxy_PV,         "ele1_dxy_PV/I");
+  vars.m_reducedTree -> Branch("ele1_dz_PV",     &vars.ele1_dz_PV,         "ele1_dz_PV/F");
+  vars.m_reducedTree -> Branch("ele1_sigmaP",    &vars.ele1_sigmaP,       "ele1_sigmaP/F");
+  vars.m_reducedTree -> Branch("ele1_deltaEtaSuperClusterAtVtx", &vars.ele1_deltaEtaSuperClusterAtVtx, "ele1_deltaEtaSuperClusterAtVtx/F");
+  vars.m_reducedTree -> Branch("ele1_deltaPhiSuperClusterAtVtx", &vars.ele1_deltaPhiSuperClusterAtVtx, "ele1_deltaPhiSuperClusterAtVtx/F");
+
     
   // 1st electron variables
   if(isCalib)
@@ -104,7 +112,11 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele1_tkIso",         &vars.ele1_tkIso,                 "ele1_tkIso/F");
   vars.m_reducedTree -> Branch("ele1_emIso",         &vars.ele1_emIso,                 "ele1_emIso/F");
   vars.m_reducedTree -> Branch("ele1_hadIso",        &vars.ele1_hadIso,               "ele1_hadIso/F");
-  
+
+  vars.m_reducedTree -> Branch("ele1_PFIso_ch",         &vars.ele1_PFIso_ch,                 "ele1_PFIso_ch/F");
+  vars.m_reducedTree -> Branch("ele1_PFIso_em",         &vars.ele1_PFIso_em,                 "ele1_PFIso_em/F");
+  vars.m_reducedTree -> Branch("ele1_PFIso_nh",        &vars.ele1_PFIso_nh,               "ele1_PFIso_nh/F");
+
   vars.m_reducedTree -> Branch("ele1_scEtRaw",     &vars.ele1_scEtRaw,         "ele1_scEtRaw/F");
   vars.m_reducedTree -> Branch("ele1_scEt",        &vars.ele1_scEt,               "ele1_scEt/F");
   vars.m_reducedTree -> Branch("ele1_scEta",       &vars.ele1_scEta,             "ele1_scEta/F");
@@ -182,6 +194,13 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
  
        
   // 2nd electron variables  
+
+  vars.m_reducedTree -> Branch("ele2_dxy_PV",     &vars.ele2_dxy_PV,         "ele2_dxy_PV/I");
+  vars.m_reducedTree -> Branch("ele2_dz_PV",     &vars.ele2_dz_PV,         "ele2_dz_PV/F");
+  vars.m_reducedTree -> Branch("ele2_sigmaP",    &vars.ele2_sigmaP,       "ele2_sigmaP/F");
+  vars.m_reducedTree -> Branch("ele2_deltaEtaSuperClusterAtVtx", &vars.ele2_deltaEtaSuperClusterAtVtx, "ele2_deltaEtaSuperClusterAtVtx/F");
+  vars.m_reducedTree -> Branch("ele2_deltaPhiSuperClusterAtVtx", &vars.ele2_deltaPhiSuperClusterAtVtx, "ele2_deltaPhiSuperClusterAtVtx/F");
+
   if(isCalib)
   {
     vars.m_reducedTree -> Branch("ele2_recHit_E",           "std::vector<float>", &vars.ele2_recHit_E);
@@ -236,7 +255,11 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("ele2_tkIso",         &vars.ele2_tkIso,                 "ele2_tkIso/F");
   vars.m_reducedTree -> Branch("ele2_emIso",         &vars.ele2_emIso,                 "ele2_emIso/F");
   vars.m_reducedTree -> Branch("ele2_hadIso",        &vars.ele2_hadIso,               "ele2_hadIso/F");
-  
+ 
+  vars.m_reducedTree -> Branch("ele2_PFIso_ch",        &vars.ele2_PFIso_ch,                 "ele2_PFIso_ch/F");
+  vars.m_reducedTree -> Branch("ele2_PFIso_em",        &vars.ele2_PFIso_em,                 "ele2_PFIso_em/F");
+  vars.m_reducedTree -> Branch("ele2_PFIso_nh",        &vars.ele2_PFIso_nh,               "ele2_PFIso_nh/F");
+ 
   vars.m_reducedTree -> Branch("ele2_scEtRaw",     &vars.ele2_scEtRaw,         "ele2_scEtRaw/F");
   vars.m_reducedTree -> Branch("ele2_scEt",        &vars.ele2_scEt,               "ele2_scEt/F");
   vars.m_reducedTree -> Branch("ele2_scEta",       &vars.ele2_scEta,             "ele2_scEta/F");
@@ -383,6 +406,10 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele1_tkIso = -99.;
   vars.ele1_emIso = -99.;
   vars.ele1_hadIso = -99.;
+
+  vars.ele1_PFIso_ch = -99.;
+  vars.ele1_PFIso_em = -99.;
+  vars.ele1_PFIso_nh = -99.;
    
      // PU variables
   vars.PUit_TrueNumInteraction = -1;
@@ -421,6 +448,13 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele1_seedLaserAlpha = -99.;
   vars.ele1_seedLaserCorr = -99.;
 
+  vars.ele1_dxy_PV = -99.; 
+  vars.ele1_dz_PV = -99.;
+  vars.ele1_sigmaP= -99.;
+
+  vars.ele1_deltaEtaSuperClusterAtVtx = -99.;
+  vars.ele1_deltaPhiSuperClusterAtVtx = -99.;
+ 
   if(isCalib)
   {
    vars.ele1_recHit_E.clear();
@@ -546,6 +580,13 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele2_ph_scPhi = -99;
   vars.ele2_ph_R9 = -99;
   
+  vars.ele2_dxy_PV = -99.; 
+  vars.ele2_dz_PV = -99.;
+  vars.ele2_sigmaP= -99.;
+
+  vars.ele2_deltaEtaSuperClusterAtVtx = -99.;
+  vars.ele2_deltaPhiSuperClusterAtVtx = -99.;
+
   vars.ele2_seedE = -99.;
   vars.ele2_seedIeta = -99;
   vars.ele2_seedIphi = -99;
@@ -607,6 +648,10 @@ void ClearWZAnalysisVariables(WZAnalysisVariables& vars, bool isCalib)
   vars.ele2_eRegrInput_phiW =-1.;
   vars.ele2_eRegrInput_rho =-1.;
 
+  vars.ele2_PFIso_ch = -99.;
+  vars.ele2_PFIso_em = -99.;
+  vars.ele2_PFIso_nh = -99.;
+  
   vars.ele2_eRegrInput_Deta_bC_sC =-1.;
   vars.ele2_eRegrInput_Dphi_bC_sC =-1.;
   vars.ele2_eRegrInput_bCE_Over_sCE =-1.;
@@ -719,6 +764,10 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele1It) +
                      reader.GetFloat("electrons_hadIso03_2")->at(ele1It);
  
+  vars.ele1_PFIso_em = reader.GetFloat("electrons_PFIso_em")->at(ele1It);
+  vars.ele1_PFIso_ch = reader.GetFloat("electrons_PFIso_ch")->at(ele1It);
+  vars.ele1_PFIso_nh = reader.GetFloat("electrons_PFIso_nh")->at(ele1It);
+
   vars.ele1_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele1It);
   vars.ele1_scEt = reader.GetFloat("electrons_scEt")->at(ele1It);
   vars.ele1_scEta = reader.GetFloat("electrons_scEta")->at(ele1It);
@@ -801,6 +850,13 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
 
   vars.ele1_tkP = (reader.Get3V("electrons_p_atVtx")->at(ele1It)).R();
   
+  vars.ele1_dxy_PV = reader.GetFloat("electrons_dxy_PV")->at(ele1It);
+  vars.ele1_dz_PV = reader.GetFloat("electrons_dz_PV")->at(ele1It);
+  vars.ele1_sigmaP= reader.GetFloat("electrons_sigmaP")->at(ele1It);
+
+  vars.ele1_deltaEtaSuperClusterAtVtx = reader.GetFloat("electrons_deltaEtaSuperClusterAtVtx")->at(ele1It);
+  vars.ele1_deltaPhiSuperClusterAtVtx = reader.GetFloat("electrons_deltaPhiSuperClusterAtVtx")->at(ele1It);
+
   vars.ele1_fbrem = reader.GetFloat("electrons_fbrem")->at(ele1It);
   vars.ele1_EOverP = reader.GetFloat("electrons_eOverP")->at(ele1It);
   
@@ -881,6 +937,11 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele2_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele2It) +
                      reader.GetFloat("electrons_hadIso03_2")->at(ele2It);
 
+  vars.ele2_PFIso_em = reader.GetFloat("electrons_PFIso_em")->at(ele2It);
+  vars.ele2_PFIso_ch = reader.GetFloat("electrons_PFIso_ch")->at(ele2It);
+  vars.ele2_PFIso_nh = reader.GetFloat("electrons_PFIso_nh")->at(ele2It);
+
+
   vars.ele2_scEtRaw = reader.GetFloat("electrons_scEtRaw")->at(ele2It);
   vars.ele2_scEt = reader.GetFloat("electrons_scEt")->at(ele2It);
   vars.ele2_scEta = reader.GetFloat("electrons_scEta")->at(ele2It);
@@ -893,6 +954,13 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele2_scCrackCorr = reader.GetFloat("electrons_scCrackCorrection")->at(ele2It);
   vars.ele2_scLocalContCorr = reader.GetFloat("electrons_scLocalContCorrection")->at(ele2It);
    
+  vars.ele2_dxy_PV = reader.GetFloat("electrons_dxy_PV")->at(ele2It);
+  vars.ele2_dz_PV = reader.GetFloat("electrons_dz_PV")->at(ele2It);
+  vars.ele2_sigmaP= reader.GetFloat("electrons_sigmaP")->at(ele2It);
+
+  vars.ele2_deltaEtaSuperClusterAtVtx = reader.GetFloat("electrons_deltaEtaSuperClusterAtVtx")->at(ele2It);
+  vars.ele2_deltaPhiSuperClusterAtVtx = reader.GetFloat("electrons_deltaPhiSuperClusterAtVtx")->at(ele2It);
+
   
    float var[5];
    SetPhotonMatchingEle( var, reader, ele2It);

@@ -66,8 +66,14 @@ struct WZAnalysisVariables
   float ele1_PFIso_em;
   float ele1_PFIso_nh;
   float ele1_effAreaForIso; 
-  float ele1_dxy_PV ;
+
+  float ele1_dxy_PV; 
   float ele1_dz_PV ;
+  float ele1_sigmaP;
+
+  float ele1_deltaEtaSuperClusterAtVtx;
+  float ele1_deltaPhiSuperClusterAtVtx;
+
   float ele1_vtxFitConversion; 
   float ele1_ooemoop ;
 
@@ -205,8 +211,13 @@ struct WZAnalysisVariables
   float ele2_PFIso_nh;
 
   float ele2_effAreaForIso; 
-  float ele2_dxy_PV ;
+  float ele2_dxy_PV; 
   float ele2_dz_PV ;
+  float ele2_sigmaP;
+
+  float ele2_deltaEtaSuperClusterAtVtx;
+  float ele2_deltaPhiSuperClusterAtVtx;
+
   float ele2_ooemoop ;
   float ele2_vtxFitConversion; 
   
