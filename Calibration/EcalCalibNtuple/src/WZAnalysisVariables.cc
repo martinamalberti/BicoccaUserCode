@@ -1115,7 +1115,8 @@ void SetGenLeptonInformation (WZAnalysisVariables& vars, treeReader& reader, con
     TLorentzVector  mcp =  GetTLorentzV( reader.Get4V("mcF1_fromV")->at(0) );
     TLorentzVector  ereco;
     ereco.SetPtEtaPhiM(vars.ele1_pt,vars.ele1_eta,vars.ele1_phi,0);
-    vars.ele1_DR = mcp.DeltaR(ereco);    
+    vars.ele1_DR = mcp.DeltaR(ereco); 
+    vars.ele1_E_true = mcp.E();    
   }
  }
  
@@ -1127,18 +1128,23 @@ void SetGenLeptonInformation (WZAnalysisVariables& vars, treeReader& reader, con
      ereco[0].SetPtEtaPhiM(vars.ele1_pt,vars.ele1_eta,vars.ele1_phi,0);
      ereco[1].SetPtEtaPhiM(vars.ele2_pt,vars.ele2_eta,vars.ele2_phi,0);
      float drmin[2];
+     float eTrue[2];
      for( int iEleReco = 0 ; iEleReco < 2; iEleReco++ ) {
        float dr[2];
-       for( int iEleMC = 0 ; iEleMC < 2; iEleMC++ ) 
+       for( int iEleMC = 0 ; iEleMC < 2; iEleMC++ )
 	 dr[iEleMC] = mcp[iEleMC].DeltaR(ereco[iEleReco]);
        
-       if( dr[0] < dr[1] ) drmin[iEleReco] = dr[0];
-       else                drmin[iEleReco] = dr[1];
+       if( dr[0] < dr[1] ) {drmin[iEleReco] = dr[0]; eTrue[iEleReco] =mcp[0].E();}
+       else                {drmin[iEleReco] = dr[1]; eTrue[iEleReco] =mcp[1].E();}
      }
      
      //// match to the closest MC truth electron
+     vars.ele1_E_true = eTrue[0];
      vars.ele1_DR = drmin[0];
+
+     vars.ele2_E_true = eTrue[1];
      vars.ele2_DR = drmin[1];
+  
    }
  }
 
