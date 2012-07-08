@@ -51,7 +51,7 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
   vars.m_reducedTree -> Branch("PV_SumPt", &vars.PV_SumPt, "PV_SumPt/F");
 
   // Ele Track variables 
-  vars.m_reducedTree -> Branch("ele1_dxy_PV",     &vars.ele1_dxy_PV,         "ele1_dxy_PV/I");
+  vars.m_reducedTree -> Branch("ele1_dxy_PV",     &vars.ele1_dxy_PV,         "ele1_dxy_PV/F");
   vars.m_reducedTree -> Branch("ele1_dz_PV",     &vars.ele1_dz_PV,         "ele1_dz_PV/F");
   vars.m_reducedTree -> Branch("ele1_sigmaP",    &vars.ele1_sigmaP,       "ele1_sigmaP/F");
   vars.m_reducedTree -> Branch("ele1_deltaEtaSuperClusterAtVtx", &vars.ele1_deltaEtaSuperClusterAtVtx, "ele1_deltaEtaSuperClusterAtVtx/F");
@@ -223,7 +223,7 @@ void InitializeWZAnalysisTree(WZAnalysisVariables& vars, const std::string& outp
 
   // 2nd electron variables  
 
-  vars.m_reducedTree -> Branch("ele2_dxy_PV",     &vars.ele2_dxy_PV,         "ele2_dxy_PV/I");
+  vars.m_reducedTree -> Branch("ele2_dxy_PV",     &vars.ele2_dxy_PV,         "ele2_dxy_PV/F");
   vars.m_reducedTree -> Branch("ele2_dz_PV",     &vars.ele2_dz_PV,         "ele2_dz_PV/F");
   vars.m_reducedTree -> Branch("ele2_sigmaP",    &vars.ele2_sigmaP,       "ele2_sigmaP/F");
   vars.m_reducedTree -> Branch("ele2_deltaEtaSuperClusterAtVtx", &vars.ele2_deltaEtaSuperClusterAtVtx, "ele2_deltaEtaSuperClusterAtVtx/F");
