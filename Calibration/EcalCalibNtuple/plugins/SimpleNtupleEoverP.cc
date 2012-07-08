@@ -834,7 +834,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
   //************* CLUSTER LAZY TOOLS
   if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/r/rgerosa/scratch0/CMSSW_4_2_8_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele.root");
+   ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_4_2_8_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
   }
  
