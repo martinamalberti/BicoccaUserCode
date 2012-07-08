@@ -161,6 +161,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   ///---- output ----
   TTree* outTree_;
+  math::XYZPoint PVPoint_;
   // event variables
   long int eventId;
   int lumiId;
@@ -171,7 +172,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   // PU variables
 
-   float rho;
+  float rho;
   
   // PV variables
   int PV_n;
@@ -196,6 +197,12 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_tkIso;
   float ele1_emIso;
   float ele1_hadIso;
+
+  float ele1_dxy_PV  ;
+  float ele1_dz_PV  ;
+  float ele1_deltaEtaSuperClusterAtVtx;
+  float ele1_deltaPhiSuperClusterAtVtx;
+  float ele1_sigmaP;
 
   float ele1_scERaw;
   float ele1_scEtRaw;
@@ -272,6 +279,12 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_tkIso;
   float ele2_emIso;
   float ele2_hadIso;
+
+  float ele2_dxy_PV  ;
+  float ele2_dz_PV  ;
+  float ele2_deltaEtaSuperClusterAtVtx;
+  float ele2_deltaPhiSuperClusterAtVtx;
+  float ele2_sigmaP;
 
   float ele2_scERaw;
   float ele2_scEtRaw;

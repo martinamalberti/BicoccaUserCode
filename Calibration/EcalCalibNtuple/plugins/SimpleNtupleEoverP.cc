@@ -80,6 +80,12 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_tkIso",     &ele1_tkIso,         "ele1_tkIso/F");
   outTree_ -> Branch("ele1_emIso",     &ele1_emIso,         "ele1_emIso/F");
   outTree_ -> Branch("ele1_hadIso",     &ele1_hadIso,         "ele1_hadIso/F");
+
+  outTree_ -> Branch("ele1_dxy_PV",     &ele1_dxy_PV,         "ele1_dxy_PV/F");
+  outTree_ -> Branch("ele1_dz_PV",     &ele1_dz_PV,         "ele1_dz_PV/F");
+  outTree_ -> Branch("ele1_deltaEtaSuperClusterAtVtx",     &ele1_deltaEtaSuperClusterAtVtx,         "ele1_deltaEtaSuperClusterAtVtx/F");
+  outTree_ -> Branch("ele1_deltaPhiSuperClusterAtVtx",     &ele1_deltaPhiSuperClusterAtVtx,         "ele1_hadele1_deltaPhiSuperClusterAtVtxIso/F");
+  outTree_ -> Branch("ele1_sigmaP",     &ele1_sigmaP,         "ele1_sigmaP/F");
    
   outTree_ -> Branch("ele1_scERaw",     &ele1_scERaw,         "ele1_scERaw/F");
   outTree_ -> Branch("ele1_scEtRaw",    &ele1_scEtRaw,       "ele1_scEtRaw/F");
@@ -158,6 +164,12 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_tkIso",     &ele2_tkIso,         "ele2_tkIso/F");
   outTree_ -> Branch("ele2_emIso",     &ele2_emIso,         "ele2_emIso/F");
   outTree_ -> Branch("ele2_hadIso",     &ele2_hadIso,         "ele2_hadIso/F");
+
+  outTree_ -> Branch("ele2_dxy_PV",     &ele2_dxy_PV,         "ele2_dxy_PV/F");
+  outTree_ -> Branch("ele2_dz_PV",     &ele2_dz_PV,         "ele2_dz_PV/F");
+  outTree_ -> Branch("ele2_deltaEtaSuperClusterAtVtx",     &ele2_deltaEtaSuperClusterAtVtx,         "ele2_deltaEtaSuperClusterAtVtx/F");
+  outTree_ -> Branch("ele2_deltaPhiSuperClusterAtVtx",     &ele2_deltaPhiSuperClusterAtVtx,         "ele2_hadele1_deltaPhiSuperClusterAtVtxIso/F");
+  outTree_ -> Branch("ele2_sigmaP",     &ele2_sigmaP,         "ele2_sigmaP/F");
    
   outTree_ -> Branch("ele2_scERaw",     &ele2_scERaw,         "ele2_scERaw/F");
   outTree_ -> Branch("ele2_scEtRaw",    &ele2_scEtRaw,       "ele2_scEtRaw/F");
@@ -285,6 +297,12 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_emIso =-99.;
   ele1_hadIso =-99.;
 
+  ele1_dxy_PV = -99. ;
+  ele1_dz_PV  = -99. ;
+  ele1_deltaEtaSuperClusterAtVtx  = -99.;
+  ele1_deltaPhiSuperClusterAtVtx = -99.;
+  ele1_sigmaP = -99.;
+
   ele1_scERaw =-99.;
   ele1_scEtRaw = -99.;
   ele1_scEt = -99.;
@@ -358,6 +376,13 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_tkIso =-99.;
   ele2_emIso =-99.;
   ele2_hadIso =-99.;
+
+
+  ele2_dxy_PV = -99. ;
+  ele2_dz_PV  = -99. ;
+  ele2_deltaEtaSuperClusterAtVtx  = -99.;
+  ele2_deltaPhiSuperClusterAtVtx = -99.;
+  ele2_sigmaP = -99.;
 
   ele2_scERaw =-99.;
   ele2_scEtRaw = -99.;
@@ -739,6 +764,10 @@ if(PVfound){
     PV_z=-999.;
     PV_d0=-999.;
    }  
+
+  math::XYZPoint PVPoint(PV.position().x(), PV.position().y(), PV.position().z());
+  PVPoint_ = PVPoint;
+ 
 }
 //------------------------------------------------------------------------------------------------------------
 void SimpleNtupleEoverP::fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) 
@@ -845,6 +874,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_emIso=electron.dr03EcalRecHitSumEt();
     ele1_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
 
+
+    reco::GsfTrackRef eleTrack  = electron.gsfTrack() ; 
+    ele1_dxy_PV  =eleTrack->dxy (PVPoint_);
+    ele1_dz_PV  =eleTrack->dz (PVPoint_);
+    ele1_deltaEtaSuperClusterAtVtx =electron.deltaEtaSuperClusterTrackAtVtx();
+    ele1_deltaPhiSuperClusterAtVtx = electron.deltaPhiSuperClusterTrackAtVtx();
+    ele1_sigmaP = electron.corrections().trackMomentumError;
+   
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
    
@@ -1183,6 +1220,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_tkIso=electron.dr03TkSumPt();
     ele2_emIso=electron.dr03EcalRecHitSumEt();
     ele2_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
+
+    reco::GsfTrackRef eleTrack  = electron.gsfTrack() ; 
+    ele2_dxy_PV  =eleTrack->dxy (PVPoint_);
+    ele2_dz_PV  =eleTrack->dz (PVPoint_);
+    ele2_deltaEtaSuperClusterAtVtx =electron.deltaEtaSuperClusterTrackAtVtx();
+    ele2_deltaPhiSuperClusterAtVtx = electron.deltaPhiSuperClusterTrackAtVtx();
+    ele2_sigmaP = electron.corrections().trackMomentumError;
+   
 
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
