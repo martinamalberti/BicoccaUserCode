@@ -237,6 +237,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_dxy_PV ;
   float ele1_dz_PV ;
   float ele1_EcalEnergy ;
+  float ele1_sigmaP ;
+
   float ele1_ooemoop ;
   float ele1_effAreaForIso;
 
@@ -322,6 +324,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   float ele2_dxy_PV ;
   float ele2_dz_PV ;
+  float ele2_sigmaP ;
   float ele2_EcalEnergy ;
   float ele2_effAreaForIso ;
   float ele2_ooemoop ;

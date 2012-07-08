@@ -115,6 +115,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   outTree_ -> Branch("ele1_dxy_PV",        &ele1_dxy_PV,   "ele1_dxy_PV/F");
   outTree_ -> Branch("ele1_dz_PV",       &ele1_dz_PV,  "ele1_dz_PV/F");
+  outTree_ -> Branch("ele1_sigmaP",       &ele1_sigmaP,  "ele1_sigmaP/F");
+ 
   outTree_ -> Branch("ele1_EcalEnergy",       &ele1_EcalEnergy,  "ele1_EcalEnergy/F");
 
   outTree_ -> Branch("ele1_eSeedBC",       &ele1_eSeedBC,  "ele1_eSeedBC/F");
@@ -173,6 +175,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   outTree_ -> Branch("ele2_dxy_PV",        &ele2_dxy_PV,   "ele2_dxy_PV/F");
   outTree_ -> Branch("ele2_dz_PV",       &ele2_dz_PV,  "ele2_dz_PV/F");
+  outTree_ -> Branch("ele2_sigmaP",       &ele2_sigmaP,  "ele2_sigmaP/F");
+ 
   outTree_ -> Branch("ele2_EcalEnergy",       &ele2_EcalEnergy,  "ele2_EcalEnergy/F");
    
   outTree_ -> Branch("ele2_scERaw",     &ele2_scERaw,         "ele2_scERaw/F");
@@ -360,6 +364,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
 
   ele1_dxy_PV=-99.;
   ele1_dz_PV=-99.;
+  ele1_sigmaP = -99.;
   ele1_EcalEnergy=-99.;
   ele1_effAreaForIso=-99.;
 
@@ -443,6 +448,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
 
   ele2_dxy_PV=-99.;
   ele2_dz_PV=-99.;
+  ele2_sigmaP = -99.;
   ele2_EcalEnergy=-99.;
   ele2_effAreaForIso=-99.;
 
@@ -1008,7 +1014,12 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
 
     ele1_effAreaForIso = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
-
+    
+    reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;
+    ele1_dxy_PV = eleTrack->dxy (PVPoint_);
+    ele1_dz_PV = eleTrack->dz (PVPoint_);
+    ele1_sigmaP =electron.corrections().trackMomentumError;
+  
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
    
@@ -1354,6 +1365,12 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
 
     ele2_effAreaForIso = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
+
+    reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;
+    ele2_dxy_PV = eleTrack->dxy (PVPoint_);
+    ele2_dz_PV = eleTrack->dz (PVPoint_);
+    ele2_sigmaP =electron.corrections().trackMomentumError;
+  
 
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
