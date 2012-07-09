@@ -12,8 +12,8 @@ process.Input = cms.PSet(
     )
 
 process.Output = cms.PSet(
-    outputRootFilePath = cms.string("OUTPUTSAVEPATH/OUTPUTSAVEFOLDER"),
-    outputRootFileName = cms.string("OUTPUTFILENAME_RUN")
+    outputRootFilePath = cms.string("/"),
+    outputRootFileName = cms.string("OUTPUTFILENAME_jobIt")
     )
 
 process.Options = cms.PSet(
@@ -21,6 +21,7 @@ process.Options = cms.PSet(
     entryMAX = cms.int32(-1),
     entryMODULO = cms.int32(100000),
     dataFlag = cms.int32(0),
+    dataRun = cms.string("RUN"),
     jsonFlag = cms.int32(0),
     crossSection = cms.double(1.),
     verbosity = cms.int32(0),
