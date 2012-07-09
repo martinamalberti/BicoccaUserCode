@@ -20,7 +20,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   InitializeParams(params);
 
   edm::Service<TFileService> fs ;
-  outTree_  =        fs -> make <TTree>("SimpleNtupleEoverP","SimpleNtupleEoverP"); 
+  outTree_  =        fs -> make <TTree>("ntu","ntu"); 
 
   PVTag_       = iConfig.getParameter<edm::InputTag>("PVTag");
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
@@ -36,14 +36,16 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
 
   jsonFileName_  = iConfig.getParameter<std::string>("jsonFileName");
-    
-    
+ 
+  dataRun_ = iConfig.getUntrackedParameter<std::string>("dataRun");
   //---- flags ----
   jsonFlag_ = iConfig.getUntrackedParameter<bool>("jsonFlag", false);
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   doWZSelection_= iConfig.getUntrackedParameter<bool>("doWZSelection", false);
   applyCorrections_ = iConfig.getUntrackedParameter<bool>("applyCorrections", false);
-  
+  dataFlag_ = iConfig.getUntrackedParameter<bool>("dataFlag", true) ;
+  saveMCPU_     = iConfig.getUntrackedParameter<bool> ("saveMCPU", false);
+
   eventNaiveId_ = 0;
   //---- Initialize tree branches ----
   
@@ -149,6 +151,85 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_isEEDeeGap",       &ele1_isEEDeeGap,  "ele1_isEEDeeGap/I");
   outTree_ -> Branch("ele1_isEERingGap",       &ele1_isEERingGap,  "ele1_isEERingGap/I");
 
+
+  outTree_ -> Branch("ele1_eRegrInput_rawE", &ele1_eRegrInput_rawE, "ele1_eRegrInput_rawE/F");
+  outTree_ -> Branch("ele1_eRegrInput_r9", &ele1_eRegrInput_r9, "ele1_eRegrInput_r9/F");
+  outTree_ -> Branch("ele1_eRegrInput_eta", &ele1_eRegrInput_eta, "ele1_eRegrInput_eta/F");
+  outTree_ -> Branch("ele1_eRegrInput_phi", &ele1_eRegrInput_phi, "ele1_eRegrInput_phi/F");
+  outTree_ -> Branch("ele1_eRegrInput_r25", &ele1_eRegrInput_r25, "ele1_eRegrInput_r25/F");
+  outTree_ -> Branch("ele1_eRegrInput_hoe", &ele1_eRegrInput_hoe, "ele1_eRegrInput_hoe/F");
+  outTree_ -> Branch("ele1_eRegrInput_etaW", &ele1_eRegrInput_etaW, "ele1_eRegrInput_etaW/F");
+  outTree_ -> Branch("ele1_eRegrInput_phiW", &ele1_eRegrInput_phiW, "ele1_eRegrInput_phiW/F");
+  outTree_ -> Branch("ele1_eRegrInput_Deta_bC_sC", &ele1_eRegrInput_Deta_bC_sC, "ele1_eRegrInput_Deta_bC_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_Dphi_bC_sC", &ele1_eRegrInput_Dphi_bC_sC, "ele1_eRegrInput_Dphi_bC_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_bCE_Over_sCE", &ele1_eRegrInput_bCE_Over_sCE, "ele1_eRegrInput_bCE_Over_sCE/F");
+  outTree_ -> Branch("ele1_eRegrInput_e3x3_Over_bCE", &ele1_eRegrInput_e3x3_Over_bCE, "ele1_eRegrInput_e3x3_Over_bCE/F");
+  outTree_ -> Branch("ele1_eRegrInput_e5x5_Over_bCE", &ele1_eRegrInput_e5x5_Over_bCE, "ele1_eRegrInput_e5x5_Over_bCE/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bC1", &ele1_eRegrInput_sigietaieta_bC1, "ele1_eRegrInput_sigietaieta_bC1/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bC1", &ele1_eRegrInput_sigietaieta_bC1, "ele1_eRegrInput_sigietaieta_bC1/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigiphiiphi_bC1", &ele1_eRegrInput_sigiphiiphi_bC1, "ele1_eRegrInput_sigiphiiphi_bC1/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaiphi_bC1", &ele1_eRegrInput_sigietaiphi_bC1, "ele1_eRegrInput_sigietaiphi_bC1/F");
+  outTree_ -> Branch("ele1_eRegrInput_bEMax_Over_bCE", &ele1_eRegrInput_bEMax_Over_bCE,
+"ele1_eRegrInput_bEMax_Over_bCE/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bE2nd_Over_bEMax", &ele1_eRegrInput_log_bE2nd_Over_bEMax, "ele1_eRegrInput_log_bE2nd_Over_bEMax/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEtop_Over_bEMax", &ele1_eRegrInput_log_bEtop_Over_bEMax, "ele1_eRegrInput_log_bEtop_Over_bEMax/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEbot_Over_bEMax", &ele1_eRegrInput_log_bEbot_Over_bEMax, "ele1_eRegrInput_log_bEbot_Over_bEMax/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEleft_Over_bEMax", &ele1_eRegrInput_log_bEleft_Over_bEMax, "ele1_eRegrInput_log_bEleft_Over_bEMax/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEright_Over_bEMax", &ele1_eRegrInput_log_bEright_Over_bEMax, "ele1_eRegrInput_log_bEright_Over_bEMax/F");
+  outTree_ -> Branch("ele1_eRegrInput_asym_top_bottom", &ele1_eRegrInput_asym_top_bottom, "ele1_eRegrInput_asym_top_bottom/F");
+  outTree_ -> Branch("ele1_eRegrInput_asym_left_right", &ele1_eRegrInput_asym_left_right, "ele1_eRegrInput_asym_left_right/F");
+  outTree_ -> Branch("ele1_eRegrInput_Deta_bC2_sC", &ele1_eRegrInput_Deta_bC2_sC, "ele1_eRegrInput_Deta_bC2_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_Dphi_bC2_sC", &ele1_eRegrInput_Dphi_bC2_sC, "ele1_eRegrInput_Dphi_bC2_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_bCE2_Over_sCE", &ele1_eRegrInput_bCE2_Over_sCE, "ele1_eRegrInput_bCE2_Over_sCE/F");
+  outTree_ -> Branch("ele1_eRegrInput_e3x3_Over_bCE2", &ele1_eRegrInput_e3x3_Over_bCE2, "ele1_eRegrInput_e3x3_Over_bCE2/F");
+  outTree_ -> Branch("ele1_eRegrInput_e5x5_Over_bCE2", &ele1_eRegrInput_e5x5_Over_bCE2, "ele1_eRegrInput_e5x5_Over_bCE2/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bC2", &ele1_eRegrInput_sigietaieta_bC2, "ele1_eRegrInput_sigietaieta_bC2/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigiphiiphi_bC2", &ele1_eRegrInput_sigiphiiphi_bC2, "ele1_eRegrInput_sigiphiiphi_bC2/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaiphi_bC2", &ele1_eRegrInput_sigietaiphi_bC2, "ele1_eRegrInput_sigietaiphi_bC2/F");
+  outTree_ -> Branch("ele1_eRegrInput_bEMax_Over_bCE2", &ele1_eRegrInput_bEMax_Over_bCE2, "ele1_eRegrInput_bEMax_Over_bCE2/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bE2nd_Over_bEMax2", &ele1_eRegrInput_log_bE2nd_Over_bEMax2, "ele1_eRegrInput_log_bE2nd_Over_bEMax2/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEtop_Over_bEMax2", &ele1_eRegrInput_log_bEtop_Over_bEMax2, "ele1_eRegrInput_log_bEtop_Over_bEMax2/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEbot_Over_bEMax2", &ele1_eRegrInput_log_bEbot_Over_bEMax2, "ele1_eRegrInput_log_bEbot_Over_bEMax2/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEleft_Over_bEMax2", &ele1_eRegrInput_log_bEleft_Over_bEMax2, "ele1_eRegrInput_log_bEleft_Over_bEMax2/F");
+  outTree_ -> Branch("ele1_eRegrInput_log_bEright_Over_bEMax2", &ele1_eRegrInput_log_bEright_Over_bEMax2, "ele1_eRegrInput_log_bEright_Over_bEMax2/F");
+  outTree_ -> Branch("ele1_eRegrInput_asym_top2_bottom2", &ele1_eRegrInput_asym_top2_bottom2, "ele1_eRegrInput_asym_top2_bottom2/F");
+  outTree_ -> Branch("ele1_eRegrInput_asym_left2_right2", &ele1_eRegrInput_asym_left2_right2, "ele1_eRegrInput_asym_left2_right2/F");
+  outTree_ -> Branch("ele1_eRegrInput_Deta_bCLow_sC", &ele1_eRegrInput_Deta_bCLow_sC, "ele1_eRegrInput_Deta_bCLow_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_Dphi_bCLow_sC", &ele1_eRegrInput_Dphi_bCLow_sC, "ele1_eRegrInput_Dphi_bCLow_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_bCELow_Over_sCE", &ele1_eRegrInput_bCELow_Over_sCE, "ele1_eRegrInput_bCELow_Over_sCE/F");
+  outTree_ -> Branch("ele1_eRegrInput_e3x3_Over_bCELow", &ele1_eRegrInput_e3x3_Over_bCELow, "ele1_eRegrInput_e3x3_Over_bCELow/F");
+  outTree_ -> Branch("ele1_eRegrInput_e5x5_Over_bCELow", &ele1_eRegrInput_e5x5_Over_bCELow, "ele1_eRegrInput_e5x5_Over_bCELow/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bCLow", &ele1_eRegrInput_sigietaieta_bCLow, "ele1_eRegrInput_sigietaieta_bCLow/F");
+  outTree_ -> Branch("ele1_eRegrInput_e5x5_Over_bCELow", &ele1_eRegrInput_e5x5_Over_bCELow, "ele1_eRegrInput_e5x5_Over_bCELow/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bCLow", &ele1_eRegrInput_sigietaieta_bCLow, "ele1_eRegrInput_sigietaieta_bCLow/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigiphiiphi_bCLow", &ele1_eRegrInput_sigiphiiphi_bCLow, "ele1_eRegrInput_e5x5_Over_bCELow/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaiphi_bCLow", &ele1_eRegrInput_sigietaiphi_bCLow, "ele1_eRegrInput_sigietaiphi_bCLow/F");
+  outTree_ -> Branch("ele1_eRegrInput_Deta_bCLow2_sC", &ele1_eRegrInput_Deta_bCLow2_sC, "ele1_eRegrInput_Deta_bCLow2_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_Dphi_bCLow2_sC", &ele1_eRegrInput_Dphi_bCLow2_sC, "ele1_eRegrInput_Dphi_bCLow2_sC/F");
+  outTree_ -> Branch("ele1_eRegrInput_bCELow2_Over_sCE", &ele1_eRegrInput_bCELow2_Over_sCE, "ele1_eRegrInput_bCELow2_Over_sCE/F");
+  outTree_ -> Branch("ele1_eRegrInput_e3x3_Over_bCELow2", &ele1_eRegrInput_e3x3_Over_bCELow2, "ele1_eRegrInput_e3x3_Over_bCELow2/F");
+  outTree_ -> Branch("ele1_eRegrInput_e5x5_Over_bCELow2", &ele1_eRegrInput_e5x5_Over_bCELow2, "ele1_eRegrInput_e5x5_Over_bCELow2/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bCLow2", &ele1_eRegrInput_sigietaieta_bCLow2, "ele1_eRegrInput_sigietaieta_bCLow2/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigiphiiphi_bCLow2", &ele1_eRegrInput_sigiphiiphi_bCLow2, "ele1_eRegrInput_sigiphiiphi_bCLow2/F");
+  outTree_ -> Branch("ele1_eRegrInput_sigietaiphi_bCLow2", &ele1_eRegrInput_sigietaiphi_bCLow2, "ele1_eRegrInput_sigietaiphi_bCLow2/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_eta", &ele1_eRegrInput_seedbC_eta, "ele1_eRegrInput_seedbC_eta/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_phi", &ele1_eRegrInput_seedbC_phi, "ele1_eRegrInput_seedbC_phi/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_eta_p5", &ele1_eRegrInput_seedbC_eta_p5, "ele1_eRegrInput_seedbC_eta_p5/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_phi_p2", &ele1_eRegrInput_seedbC_phi_p2, "ele1_eRegrInput_seedbC_phi_p2/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_bieta", &ele1_eRegrInput_seedbC_bieta, "ele1_eRegrInput_seedbC_bieta/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_phi_p20", &ele1_eRegrInput_seedbC_phi_p20, "ele1_eRegrInput_seedbC_phi_p20/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_etacry", &ele1_eRegrInput_seedbC_etacry, "ele1_eRegrInput_seedbC_etacry/F");
+  outTree_ -> Branch("ele1_eRegrInput_seedbC_phicry", &ele1_eRegrInput_seedbC_phicry, "ele1_eRegrInput_seedbC_phicry/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_eta", &ele1_eRegrInput_bC2_eta, "ele1_eRegrInput_bC2_eta/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_phi", &ele1_eRegrInput_bC2_phi, "ele1_eRegrInput_bC2_phi/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_eta_p5", &ele1_eRegrInput_bC2_eta_p5, "ele1_eRegrInput_bC2_eta_p5/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_phi_p2", &ele1_eRegrInput_bC2_phi_p2, "ele1_eRegrInput_bC2_phi_p2/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_bieta", &ele1_eRegrInput_bC2_bieta, "ele1_eRegrInput_bC2_bieta/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_phi_p20", &ele1_eRegrInput_bC2_phi_p20, "ele1_eRegrInput_bC2_phi_p20/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_etacry", &ele1_eRegrInput_bC2_etacry, "ele1_eRegrInput_bC2_etacry/F");
+  outTree_ -> Branch("ele1_eRegrInput_bC2_phicry", &ele1_eRegrInput_bC2_phicry, "ele1_eRegrInput_bC2_phicry/F");
+  outTree_ -> Branch("ele1_eRegrInput_nPV", &ele1_eRegrInput_nPV, "ele1_eRegrInput_nPV/F");
+
   // ele2 variables
 
   outTree_ -> Branch("ele2_charge",     &ele2_charge,         "ele2_charge/F");
@@ -233,6 +314,84 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_isEEDeeGap",       &ele2_isEEDeeGap,  "ele2_isEEDeeGap/I");
   outTree_ -> Branch("ele2_isEERingGap",       &ele2_isEERingGap,  "ele2_isEERingGap/I");
 
+ outTree_ -> Branch("ele2_eRegrInput_rawE", &ele2_eRegrInput_rawE, "ele2_eRegrInput_rawE/F");
+  outTree_ -> Branch("ele2_eRegrInput_r9", &ele2_eRegrInput_r9, "ele2_eRegrInput_r9/F");
+  outTree_ -> Branch("ele2_eRegrInput_eta", &ele2_eRegrInput_eta, "ele2_eRegrInput_eta/F");
+  outTree_ -> Branch("ele2_eRegrInput_phi", &ele2_eRegrInput_phi, "ele2_eRegrInput_phi/F");
+  outTree_ -> Branch("ele2_eRegrInput_r25", &ele2_eRegrInput_r25, "ele2_eRegrInput_r25/F");
+  outTree_ -> Branch("ele2_eRegrInput_hoe", &ele2_eRegrInput_hoe, "ele2_eRegrInput_hoe/F");
+  outTree_ -> Branch("ele2_eRegrInput_etaW", &ele2_eRegrInput_etaW, "ele2_eRegrInput_etaW/F");
+  outTree_ -> Branch("ele2_eRegrInput_phiW", &ele2_eRegrInput_phiW, "ele2_eRegrInput_phiW/F");
+  outTree_ -> Branch("ele2_eRegrInput_Deta_bC_sC", &ele2_eRegrInput_Deta_bC_sC, "ele2_eRegrInput_Deta_bC_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_Dphi_bC_sC", &ele2_eRegrInput_Dphi_bC_sC, "ele2_eRegrInput_Dphi_bC_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_bCE_Over_sCE", &ele2_eRegrInput_bCE_Over_sCE, "ele2_eRegrInput_bCE_Over_sCE/F");
+  outTree_ -> Branch("ele2_eRegrInput_e3x3_Over_bCE", &ele2_eRegrInput_e3x3_Over_bCE, "ele2_eRegrInput_e3x3_Over_bCE/F");
+  outTree_ -> Branch("ele2_eRegrInput_e5x5_Over_bCE", &ele2_eRegrInput_e5x5_Over_bCE, "ele2_eRegrInput_e5x5_Over_bCE/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bC1", &ele2_eRegrInput_sigietaieta_bC1, "ele2_eRegrInput_sigietaieta_bC1/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bC1", &ele2_eRegrInput_sigietaieta_bC1, "ele2_eRegrInput_sigietaieta_bC1/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigiphiiphi_bC1", &ele2_eRegrInput_sigiphiiphi_bC1, "ele2_eRegrInput_sigiphiiphi_bC1/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaiphi_bC1", &ele2_eRegrInput_sigietaiphi_bC1, "ele2_eRegrInput_sigietaiphi_bC1/F");
+  outTree_ -> Branch("ele2_eRegrInput_bEMax_Over_bCE", &ele2_eRegrInput_bEMax_Over_bCE,
+"ele2_eRegrInput_bEMax_Over_bCE/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bE2nd_Over_bEMax", &ele2_eRegrInput_log_bE2nd_Over_bEMax, "ele2_eRegrInput_log_bE2nd_Over_bEMax/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEtop_Over_bEMax", &ele2_eRegrInput_log_bEtop_Over_bEMax, "ele2_eRegrInput_log_bEtop_Over_bEMax/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEbot_Over_bEMax", &ele2_eRegrInput_log_bEbot_Over_bEMax, "ele2_eRegrInput_log_bEbot_Over_bEMax/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEleft_Over_bEMax", &ele2_eRegrInput_log_bEleft_Over_bEMax, "ele2_eRegrInput_log_bEleft_Over_bEMax/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEright_Over_bEMax", &ele2_eRegrInput_log_bEright_Over_bEMax, "ele2_eRegrInput_log_bEright_Over_bEMax/F");
+  outTree_ -> Branch("ele2_eRegrInput_asym_top_bottom", &ele2_eRegrInput_asym_top_bottom, "ele2_eRegrInput_asym_top_bottom/F");
+  outTree_ -> Branch("ele2_eRegrInput_asym_left_right", &ele2_eRegrInput_asym_left_right, "ele2_eRegrInput_asym_left_right/F");
+  outTree_ -> Branch("ele2_eRegrInput_Deta_bC2_sC", &ele2_eRegrInput_Deta_bC2_sC, "ele2_eRegrInput_Deta_bC2_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_Dphi_bC2_sC", &ele2_eRegrInput_Dphi_bC2_sC, "ele2_eRegrInput_Dphi_bC2_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_bCE2_Over_sCE", &ele2_eRegrInput_bCE2_Over_sCE, "ele2_eRegrInput_bCE2_Over_sCE/F");
+  outTree_ -> Branch("ele2_eRegrInput_e3x3_Over_bCE2", &ele2_eRegrInput_e3x3_Over_bCE2, "ele2_eRegrInput_e3x3_Over_bCE2/F");
+  outTree_ -> Branch("ele2_eRegrInput_e5x5_Over_bCE2", &ele2_eRegrInput_e5x5_Over_bCE2, "ele2_eRegrInput_e5x5_Over_bCE2/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bC2", &ele2_eRegrInput_sigietaieta_bC2, "ele2_eRegrInput_sigietaieta_bC2/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigiphiiphi_bC2", &ele2_eRegrInput_sigiphiiphi_bC2, "ele2_eRegrInput_sigiphiiphi_bC2/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaiphi_bC2", &ele2_eRegrInput_sigietaiphi_bC2, "ele2_eRegrInput_sigietaiphi_bC2/F");
+  outTree_ -> Branch("ele2_eRegrInput_bEMax_Over_bCE2", &ele2_eRegrInput_bEMax_Over_bCE2, "ele2_eRegrInput_bEMax_Over_bCE2/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bE2nd_Over_bEMax2", &ele2_eRegrInput_log_bE2nd_Over_bEMax2, "ele2_eRegrInput_log_bE2nd_Over_bEMax2/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEtop_Over_bEMax2", &ele2_eRegrInput_log_bEtop_Over_bEMax2, "ele2_eRegrInput_log_bEtop_Over_bEMax2/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEbot_Over_bEMax2", &ele2_eRegrInput_log_bEbot_Over_bEMax2, "ele2_eRegrInput_log_bEbot_Over_bEMax2/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEleft_Over_bEMax2", &ele2_eRegrInput_log_bEleft_Over_bEMax2, "ele2_eRegrInput_log_bEleft_Over_bEMax2/F");
+  outTree_ -> Branch("ele2_eRegrInput_log_bEright_Over_bEMax2", &ele2_eRegrInput_log_bEright_Over_bEMax2, "ele2_eRegrInput_log_bEright_Over_bEMax2/F");
+  outTree_ -> Branch("ele2_eRegrInput_asym_top2_bottom2", &ele2_eRegrInput_asym_top2_bottom2, "ele2_eRegrInput_asym_top2_bottom2/F");
+  outTree_ -> Branch("ele2_eRegrInput_asym_left2_right2", &ele2_eRegrInput_asym_left2_right2, "ele2_eRegrInput_asym_left2_right2/F");
+  outTree_ -> Branch("ele2_eRegrInput_Deta_bCLow_sC", &ele2_eRegrInput_Deta_bCLow_sC, "ele2_eRegrInput_Deta_bCLow_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_Dphi_bCLow_sC", &ele2_eRegrInput_Dphi_bCLow_sC, "ele2_eRegrInput_Dphi_bCLow_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_bCELow_Over_sCE", &ele2_eRegrInput_bCELow_Over_sCE, "ele2_eRegrInput_bCELow_Over_sCE/F");
+  outTree_ -> Branch("ele2_eRegrInput_e3x3_Over_bCELow", &ele2_eRegrInput_e3x3_Over_bCELow, "ele2_eRegrInput_e3x3_Over_bCELow/F");
+  outTree_ -> Branch("ele2_eRegrInput_e5x5_Over_bCELow", &ele2_eRegrInput_e5x5_Over_bCELow, "ele2_eRegrInput_e5x5_Over_bCELow/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bCLow", &ele2_eRegrInput_sigietaieta_bCLow, "ele2_eRegrInput_sigietaieta_bCLow/F");
+  outTree_ -> Branch("ele2_eRegrInput_e5x5_Over_bCELow", &ele2_eRegrInput_e5x5_Over_bCELow, "ele2_eRegrInput_e5x5_Over_bCELow/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bCLow", &ele2_eRegrInput_sigietaieta_bCLow, "ele2_eRegrInput_sigietaieta_bCLow/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigiphiiphi_bCLow", &ele2_eRegrInput_sigiphiiphi_bCLow, "ele2_eRegrInput_e5x5_Over_bCELow/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaiphi_bCLow", &ele2_eRegrInput_sigietaiphi_bCLow, "ele2_eRegrInput_sigietaiphi_bCLow/F");
+  outTree_ -> Branch("ele2_eRegrInput_Deta_bCLow2_sC", &ele2_eRegrInput_Deta_bCLow2_sC, "ele2_eRegrInput_Deta_bCLow2_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_Dphi_bCLow2_sC", &ele2_eRegrInput_Dphi_bCLow2_sC, "ele2_eRegrInput_Dphi_bCLow2_sC/F");
+  outTree_ -> Branch("ele2_eRegrInput_bCELow2_Over_sCE", &ele2_eRegrInput_bCELow2_Over_sCE, "ele2_eRegrInput_bCELow2_Over_sCE/F");
+  outTree_ -> Branch("ele2_eRegrInput_e3x3_Over_bCELow2", &ele2_eRegrInput_e3x3_Over_bCELow2, "ele2_eRegrInput_e3x3_Over_bCELow2/F");
+  outTree_ -> Branch("ele2_eRegrInput_e5x5_Over_bCELow2", &ele2_eRegrInput_e5x5_Over_bCELow2, "ele2_eRegrInput_e5x5_Over_bCELow2/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bCLow2", &ele2_eRegrInput_sigietaieta_bCLow2, "ele2_eRegrInput_sigietaieta_bCLow2/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigiphiiphi_bCLow2", &ele2_eRegrInput_sigiphiiphi_bCLow2, "ele2_eRegrInput_sigiphiiphi_bCLow2/F");
+  outTree_ -> Branch("ele2_eRegrInput_sigietaiphi_bCLow2", &ele2_eRegrInput_sigietaiphi_bCLow2, "ele2_eRegrInput_sigietaiphi_bCLow2/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_eta", &ele2_eRegrInput_seedbC_eta, "ele2_eRegrInput_seedbC_eta/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_phi", &ele2_eRegrInput_seedbC_phi, "ele2_eRegrInput_seedbC_phi/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_eta_p5", &ele2_eRegrInput_seedbC_eta_p5, "ele2_eRegrInput_seedbC_eta_p5/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_phi_p2", &ele2_eRegrInput_seedbC_phi_p2, "ele2_eRegrInput_seedbC_phi_p2/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_bieta", &ele2_eRegrInput_seedbC_bieta, "ele2_eRegrInput_seedbC_bieta/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_phi_p20", &ele2_eRegrInput_seedbC_phi_p20, "ele2_eRegrInput_seedbC_phi_p20/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_etacry", &ele2_eRegrInput_seedbC_etacry, "ele2_eRegrInput_seedbC_etacry/F");
+  outTree_ -> Branch("ele2_eRegrInput_seedbC_phicry", &ele2_eRegrInput_seedbC_phicry, "ele2_eRegrInput_seedbC_phicry/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_eta", &ele2_eRegrInput_bC2_eta, "ele2_eRegrInput_bC2_eta/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_phi", &ele2_eRegrInput_bC2_phi, "ele2_eRegrInput_bC2_phi/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_eta_p5", &ele2_eRegrInput_bC2_eta_p5, "ele2_eRegrInput_bC2_eta_p5/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_phi_p2", &ele2_eRegrInput_bC2_phi_p2, "ele2_eRegrInput_bC2_phi_p2/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_bieta", &ele2_eRegrInput_bC2_bieta, "ele2_eRegrInput_bC2_bieta/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_phi_p20", &ele2_eRegrInput_bC2_phi_p20, "ele2_eRegrInput_bC2_phi_p20/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_etacry", &ele2_eRegrInput_bC2_etacry, "ele2_eRegrInput_bC2_etacry/F");
+  outTree_ -> Branch("ele2_eRegrInput_bC2_phicry", &ele2_eRegrInput_bC2_phicry, "ele2_eRegrInput_bC2_phicry/F");
+  outTree_ -> Branch("ele2_eRegrInput_nPV", &ele2_eRegrInput_nPV, "ele2_eRegrInput_nPV/F");
+  
   // met variables
   outTree_ -> Branch("met_et",       &met_et,  "met_et/F");
   outTree_ -> Branch("met_phi",       &met_phi,  "met_phi/F");
@@ -363,6 +522,82 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_isEEDeeGap= -9999;
   ele1_isEERingGap= -9999;
 
+   ele1_eRegrInput_rawE = -99.;
+  ele1_eRegrInput_r9 = -99.;
+  ele1_eRegrInput_eta = -99. ;
+  ele1_eRegrInput_phi = -99.;
+  ele1_eRegrInput_r25= -99.;
+  ele1_eRegrInput_hoe= -99.;
+  ele1_eRegrInput_etaW= -99.;
+  ele1_eRegrInput_phiW= -99.;
+
+  ele1_eRegrInput_Deta_bC_sC= -99.;
+  ele1_eRegrInput_Dphi_bC_sC= -99.;
+  ele1_eRegrInput_bCE_Over_sCE= -99.;
+  ele1_eRegrInput_e3x3_Over_bCE= -99.;
+  ele1_eRegrInput_e5x5_Over_bCE= -99.;
+  ele1_eRegrInput_sigietaieta_bC1= -99.;
+  ele1_eRegrInput_sigiphiiphi_bC1= -99.;
+  ele1_eRegrInput_sigietaiphi_bC1= -99.;
+  ele1_eRegrInput_bEMax_Over_bCE= -99.;
+  ele1_eRegrInput_log_bE2nd_Over_bEMax= -99.;
+  ele1_eRegrInput_log_bEtop_Over_bEMax= -99.;
+  ele1_eRegrInput_log_bEbot_Over_bEMax= -99.;
+  ele1_eRegrInput_log_bEleft_Over_bEMax= -99.;
+  ele1_eRegrInput_log_bEright_Over_bEMax= -99.;
+  ele1_eRegrInput_asym_top_bottom= -99.;
+  ele1_eRegrInput_asym_left_right= -99.;
+  ele1_eRegrInput_Deta_bC2_sC= -99.;
+  ele1_eRegrInput_Dphi_bC2_sC= -99.;
+  ele1_eRegrInput_bCE2_Over_sCE= -99.;
+  ele1_eRegrInput_e3x3_Over_bCE2= -99.;
+  ele1_eRegrInput_e5x5_Over_bCE2= -99.;
+  ele1_eRegrInput_sigietaieta_bC2= -99.;
+  ele1_eRegrInput_sigiphiiphi_bC2= -99.;
+  ele1_eRegrInput_sigietaiphi_bC2= -99.;
+  ele1_eRegrInput_bEMax_Over_bCE2= -99.;
+  ele1_eRegrInput_log_bE2nd_Over_bEMax2= -99.;
+  ele1_eRegrInput_log_bEtop_Over_bEMax2= -99.;
+  ele1_eRegrInput_log_bEbot_Over_bEMax2= -99.;
+  ele1_eRegrInput_log_bEleft_Over_bEMax2= -99.;
+  ele1_eRegrInput_log_bEright_Over_bEMax2= -99.;
+  ele1_eRegrInput_asym_top2_bottom2= -99.;
+  ele1_eRegrInput_asym_left2_right2= -99.;
+  ele1_eRegrInput_Deta_bCLow_sC= -99.;
+  ele1_eRegrInput_Dphi_bCLow_sC= -99.;
+  ele1_eRegrInput_bCELow_Over_sCE= -99.;
+  ele1_eRegrInput_e3x3_Over_bCELow= -99.;
+  ele1_eRegrInput_e5x5_Over_bCELow= -99.;
+  ele1_eRegrInput_sigietaieta_bCLow= -99.;
+  ele1_eRegrInput_sigiphiiphi_bCLow= -99.;
+  ele1_eRegrInput_sigietaiphi_bCLow= -99.;
+  ele1_eRegrInput_Deta_bCLow2_sC= -99.;
+  ele1_eRegrInput_Dphi_bCLow2_sC= -99.;
+  ele1_eRegrInput_bCELow2_Over_sCE= -99.;
+  ele1_eRegrInput_e3x3_Over_bCELow2= -99.;
+  ele1_eRegrInput_e5x5_Over_bCELow2= -99.;
+  ele1_eRegrInput_sigietaieta_bCLow2= -99.;
+  ele1_eRegrInput_sigiphiiphi_bCLow2= -99.;
+  ele1_eRegrInput_sigietaiphi_bCLow2= -99.;
+  ele1_eRegrInput_seedbC_eta= -99.;
+  ele1_eRegrInput_seedbC_phi= -99.;
+  ele1_eRegrInput_seedbC_eta_p5= -99.;
+  ele1_eRegrInput_seedbC_phi_p2= -99.;
+  ele1_eRegrInput_seedbC_bieta= -99.;
+  ele1_eRegrInput_seedbC_phi_p20= -99.;
+  ele1_eRegrInput_seedbC_etacry= -99.;
+  ele1_eRegrInput_seedbC_phicry= -99.;
+  ele1_eRegrInput_bC2_eta= -99.;
+  ele1_eRegrInput_bC2_phi= -99.;
+  ele1_eRegrInput_bC2_eta_p5= -99.;
+  ele1_eRegrInput_bC2_phi_p2= -99.;
+  ele1_eRegrInput_bC2_bieta= -99.;
+  ele1_eRegrInput_bC2_phi_p20= -99.;
+  ele1_eRegrInput_bC2_etacry= -99.;
+  ele1_eRegrInput_bC2_phicry= -99.;
+  ele1_eRegrInput_nPV= -99.;
+
+
   ele2_charge =-99.;
   ele2_p =-99.;
   ele2_pt =-99.;
@@ -444,6 +679,81 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_isEEDeeGap= -9999;
   ele2_isEERingGap= -9999;
 
+ele2_eRegrInput_rawE = -99.;
+  ele2_eRegrInput_r9 = -99.;
+  ele2_eRegrInput_eta = -99. ;
+  ele2_eRegrInput_phi = -99.;
+  ele2_eRegrInput_r25= -99.;
+  ele2_eRegrInput_hoe= -99.;
+  ele2_eRegrInput_etaW= -99.;
+  ele2_eRegrInput_phiW= -99.;
+
+  ele2_eRegrInput_Deta_bC_sC= -99.;
+  ele2_eRegrInput_Dphi_bC_sC= -99.;
+  ele2_eRegrInput_bCE_Over_sCE= -99.;
+  ele2_eRegrInput_e3x3_Over_bCE= -99.;
+  ele2_eRegrInput_e5x5_Over_bCE= -99.;
+  ele2_eRegrInput_sigietaieta_bC1= -99.;
+  ele2_eRegrInput_sigiphiiphi_bC1= -99.;
+  ele2_eRegrInput_sigietaiphi_bC1= -99.;
+  ele2_eRegrInput_bEMax_Over_bCE= -99.;
+  ele2_eRegrInput_log_bE2nd_Over_bEMax= -99.;
+  ele2_eRegrInput_log_bEtop_Over_bEMax= -99.;
+  ele2_eRegrInput_log_bEbot_Over_bEMax= -99.;
+  ele2_eRegrInput_log_bEleft_Over_bEMax= -99.;
+  ele2_eRegrInput_log_bEright_Over_bEMax= -99.;
+  ele2_eRegrInput_asym_top_bottom= -99.;
+  ele2_eRegrInput_asym_left_right= -99.;
+  ele2_eRegrInput_Deta_bC2_sC= -99.;
+  ele2_eRegrInput_Dphi_bC2_sC= -99.;
+  ele2_eRegrInput_bCE2_Over_sCE= -99.;
+  ele2_eRegrInput_e3x3_Over_bCE2= -99.;
+  ele2_eRegrInput_e5x5_Over_bCE2= -99.;
+  ele2_eRegrInput_sigietaieta_bC2= -99.;
+  ele2_eRegrInput_sigiphiiphi_bC2= -99.;
+  ele2_eRegrInput_sigietaiphi_bC2= -99.;
+  ele2_eRegrInput_bEMax_Over_bCE2= -99.;
+  ele2_eRegrInput_log_bE2nd_Over_bEMax2= -99.;
+  ele2_eRegrInput_log_bEtop_Over_bEMax2= -99.;
+  ele2_eRegrInput_log_bEbot_Over_bEMax2= -99.;
+  ele2_eRegrInput_log_bEleft_Over_bEMax2= -99.;
+  ele2_eRegrInput_log_bEright_Over_bEMax2= -99.;
+  ele2_eRegrInput_asym_top2_bottom2= -99.;
+  ele2_eRegrInput_asym_left2_right2= -99.;
+  ele2_eRegrInput_Deta_bCLow_sC= -99.;
+  ele2_eRegrInput_Dphi_bCLow_sC= -99.;
+  ele2_eRegrInput_bCELow_Over_sCE= -99.;
+  ele2_eRegrInput_e3x3_Over_bCELow= -99.;
+  ele2_eRegrInput_e5x5_Over_bCELow= -99.;
+  ele2_eRegrInput_sigietaieta_bCLow= -99.;
+  ele2_eRegrInput_sigiphiiphi_bCLow= -99.;
+  ele2_eRegrInput_sigietaiphi_bCLow= -99.;
+  ele2_eRegrInput_Deta_bCLow2_sC= -99.;
+  ele2_eRegrInput_Dphi_bCLow2_sC= -99.;
+  ele2_eRegrInput_bCELow2_Over_sCE= -99.;
+  ele2_eRegrInput_e3x3_Over_bCELow2= -99.;
+  ele2_eRegrInput_e5x5_Over_bCELow2= -99.;
+  ele2_eRegrInput_sigietaieta_bCLow2= -99.;
+  ele2_eRegrInput_sigiphiiphi_bCLow2= -99.;
+  ele2_eRegrInput_sigietaiphi_bCLow2= -99.;
+  ele2_eRegrInput_seedbC_eta= -99.;
+  ele2_eRegrInput_seedbC_phi= -99.;
+  ele2_eRegrInput_seedbC_eta_p5= -99.;
+  ele2_eRegrInput_seedbC_phi_p2= -99.;
+  ele2_eRegrInput_seedbC_bieta= -99.;
+  ele2_eRegrInput_seedbC_phi_p20= -99.;
+  ele2_eRegrInput_seedbC_etacry= -99.;
+  ele2_eRegrInput_seedbC_phicry= -99.;
+  ele2_eRegrInput_bC2_eta= -99.;
+  ele2_eRegrInput_bC2_phi= -99.;
+  ele2_eRegrInput_bC2_eta_p5= -99.;
+  ele2_eRegrInput_bC2_phi_p2= -99.;
+  ele2_eRegrInput_bC2_bieta= -99.;
+  ele2_eRegrInput_bC2_phi_p20= -99.;
+  ele2_eRegrInput_bC2_etacry= -99.;
+  ele2_eRegrInput_bC2_phicry= -99.;
+  ele2_eRegrInput_nPV= -99.;
+
   met_et=-99.;
   met_phi=-99.;
 
@@ -466,6 +776,9 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
 
   //************* RHO for ISO
   fillRhoInfo(iEvent,iSetup) ; 
+
+   //************* MC PU
+   if (saveMCPU_ && dataFlag_==false) fillMCPUInfo (iEvent, iSetup);
  
   //************* ELECTRONS
   Handle<View<reco::GsfElectron> > electronHandle;
@@ -1190,6 +1503,242 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_e5x5 = sumRecHitE5x5;
   
     ele1_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
+   
+    /// add regression input variables
+    reco::SuperClusterRef s = electron.superCluster();
+    reco::CaloClusterPtr b = s->seed(); //seed  basic cluster
+    reco::CaloClusterPtr b2;
+    reco::CaloClusterPtr bclast;
+    reco::CaloClusterPtr bclast2;
+    bool isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
+
+     if( isbarrel){
+
+    ele1_eRegrInput_rawE = s->rawEnergy();
+    ele1_eRegrInput_r9 = lazyTools.e3x3(*b)/s->rawEnergy();
+    ele1_eRegrInput_eta = s->eta();
+    ele1_eRegrInput_phi = s->phi();
+    ele1_eRegrInput_r25 = lazyTools.e5x5(*b)/s->rawEnergy();
+    ele1_eRegrInput_hoe = electron.hcalOverEcal() ;
+    ele1_eRegrInput_etaW = s->etaWidth() ;
+    ele1_eRegrInput_phiW = s->phiWidth() ;
+  
+   
+    //seed basic cluster variables
+    double bemax = lazyTools.eMax(*b);
+    double be2nd = lazyTools.e2nd(*b);
+    double betop = lazyTools.eTop(*b);
+    double bebottom = lazyTools.eBottom(*b);
+    double beleft = lazyTools.eLeft(*b);
+    double beright = lazyTools.eRight(*b);
+ 
+    ele1_eRegrInput_Deta_bC_sC = b->eta()-s->eta();
+    ele1_eRegrInput_Dphi_bC_sC = reco::deltaPhi(b->phi(),s->phi());
+    ele1_eRegrInput_bCE_Over_sCE = lazyTools.e3x3(*b)/b->energy();
+    ele1_eRegrInput_e3x3_Over_bCE = lazyTools.e3x3(*b)/b->energy();
+    ele1_eRegrInput_e5x5_Over_bCE = lazyTools.e5x5(*b)/b->energy();
+    ele1_eRegrInput_sigietaieta_bC1 = sqrt(lazyTools.localCovariances(*b)[0]);
+    ele1_eRegrInput_sigiphiiphi_bC1 = sqrt(lazyTools.localCovariances(*b)[2]);
+    ele1_eRegrInput_sigietaiphi_bC1 = lazyTools.localCovariances(*b)[1];
+    ele1_eRegrInput_bEMax_Over_bCE = bemax/b->energy();
+    ele1_eRegrInput_log_bE2nd_Over_bEMax = log(be2nd/bemax);
+    ele1_eRegrInput_log_bEtop_Over_bEMax = log(betop/bemax);
+    ele1_eRegrInput_log_bEbot_Over_bEMax = log(bebottom/bemax);
+    ele1_eRegrInput_log_bEleft_Over_bEMax = log(beleft/bemax);
+    ele1_eRegrInput_log_bEright_Over_bEMax = log(beright/bemax);
+    ele1_eRegrInput_asym_top_bottom = (betop-bebottom)/(betop+bebottom);
+    ele1_eRegrInput_asym_left_right = (beleft-beright)/(beleft+beright);
+
+    //highest energy basic cluster excluding seed basic cluster
+    double ebcmax = -99.;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const reco::CaloClusterPtr bc = *bit;
+     if (bc->energy() > ebcmax && bc !=b) {
+       b2 = bc;
+       ebcmax = bc->energy();
+     }
+    }
+  
+    //lowest energy basic cluster excluding seed (for pileup mitigation)
+    double ebcmin = 1e6;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const CaloClusterPtr bc = *bit;
+     if (bc->energy() < ebcmin && bc !=b) {
+      bclast = bc;
+      ebcmin = bc->energy();
+     }
+    }
+
+   //2nd lowest energy basic cluster excluding seed (for pileup mitigation)
+    ebcmin = 1e6;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const CaloClusterPtr bc = *bit;
+     if (bc->energy() < ebcmin && bc !=b && bc!=bclast) {
+       bclast2 = bc;
+       ebcmin = bc->energy();
+     }
+    }
+ 
+    bool hasbc2 = b2.isNonnull() && b2->energy()>0.;
+    bool hasbclast = bclast.isNonnull() && bclast->energy()>0.;
+    bool hasbclast2 = bclast2.isNonnull() && bclast2->energy()>0.;
+  
+    double bc2emax = hasbc2 ? lazyTools.eMax(*b2) : 0.;
+    double bc2e2nd = hasbc2 ? lazyTools.e2nd(*b2) : 0.;
+    double bc2etop = hasbc2 ? lazyTools.eTop(*b2) : 0.;
+    double bc2ebottom = hasbc2 ? lazyTools.eBottom(*b2) : 0.;
+    double bc2eleft = hasbc2 ? lazyTools.eLeft(*b2) : 0.;
+    double bc2eright = hasbc2 ? lazyTools.eRight(*b2) : 0.;
+
+    ele1_eRegrInput_Deta_bC2_sC = hasbc2 ? (b2->eta()-s->eta()) : 0.;
+    ele1_eRegrInput_Dphi_bC2_sC = hasbc2 ? reco::deltaPhi(b2->phi(),s->phi()) : 0.;
+    ele1_eRegrInput_bCE2_Over_sCE = hasbc2 ? b2->energy()/s->rawEnergy() : 0.;
+    ele1_eRegrInput_e3x3_Over_bCE2 = hasbc2 ? lazyTools.e3x3(*b2)/b2->energy() : 0.;
+    ele1_eRegrInput_e5x5_Over_bCE2 = hasbc2 ? lazyTools.e5x5(*b2)/b2->energy() : 0.;
+    ele1_eRegrInput_sigietaieta_bC2 = hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[0]) : 0.;
+    ele1_eRegrInput_sigiphiiphi_bC2 = hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[2]) : 0.;
+    ele1_eRegrInput_sigietaiphi_bC2 = hasbc2 ? lazyTools.localCovariances(*b)[1] : 0.;
+    ele1_eRegrInput_bEMax_Over_bCE2 = hasbc2 ? bc2emax/b2->energy() : 0.;
+    ele1_eRegrInput_log_bE2nd_Over_bEMax2 = hasbc2 ? log(bc2e2nd/bc2emax) : 0.;
+    ele1_eRegrInput_log_bEtop_Over_bEMax2 = hasbc2 ? log(bc2etop/bc2emax) : 0.;
+    ele1_eRegrInput_log_bEbot_Over_bEMax2 = hasbc2 ? log(bc2ebottom/bc2emax) : 0.;
+    ele1_eRegrInput_log_bEleft_Over_bEMax2 = hasbc2 ? log(bc2eleft/bc2emax) : 0.;
+    ele1_eRegrInput_log_bEright_Over_bEMax2 = hasbc2 ? log(bc2eright/bc2emax) : 0.;
+    ele1_eRegrInput_asym_top2_bottom2 = hasbc2 ? (bc2etop-bc2ebottom)/(bc2etop+bc2ebottom) : 0.;
+    ele1_eRegrInput_asym_left2_right2 = hasbc2 ? (bc2eleft-bc2eright)/(bc2eleft+bc2eright) : 0.;
+    
+
+    ele1_eRegrInput_Deta_bCLow_sC = hasbclast ? (bclast->eta()-s->eta()) : 0.;
+    ele1_eRegrInput_Dphi_bCLow_sC = hasbclast ? reco::deltaPhi(bclast->phi(),s->phi()) : 0.;
+    ele1_eRegrInput_bCELow_Over_sCE = hasbclast ? bclast->energy()/s->rawEnergy() : 0.;
+    ele1_eRegrInput_e3x3_Over_bCELow = hasbclast ? lazyTools.e3x3(*bclast)/bclast->energy() : 0.;
+    ele1_eRegrInput_e5x5_Over_bCELow = hasbclast ? lazyTools.e5x5(*bclast)/bclast->energy() : 0.;
+    ele1_eRegrInput_sigietaieta_bCLow = hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[0]) : 0.;
+    ele1_eRegrInput_sigiphiiphi_bCLow = hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[2]) : 0.;
+    ele1_eRegrInput_sigietaiphi_bCLow = hasbclast ? lazyTools.localCovariances(*bclast)[1] : 0.;
+  
+    ele1_eRegrInput_Deta_bCLow2_sC = hasbclast2 ? (bclast2->eta()-s->eta()) : 0.;
+    ele1_eRegrInput_Dphi_bCLow2_sC = hasbclast2 ? reco::deltaPhi(bclast2->phi(),s->phi()) : 0.;
+    ele1_eRegrInput_bCELow2_Over_sCE = hasbclast2 ? bclast2->energy()/s->rawEnergy() : 0.;
+    ele1_eRegrInput_e3x3_Over_bCELow2 = hasbclast2 ? lazyTools.e3x3(*bclast2)/bclast2->energy() : 0.;
+    ele1_eRegrInput_e5x5_Over_bCELow2 = hasbclast2 ? lazyTools.e5x5(*bclast2)/bclast2->energy() : 0.;
+    ele1_eRegrInput_sigietaieta_bCLow2 = hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[0]) : 0.;
+    ele1_eRegrInput_sigiphiiphi_bCLow2 = hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[2]) : 0.;
+    ele1_eRegrInput_sigietaiphi_bCLow2 = hasbclast2 ? lazyTools.localCovariances(*bclast2)[1] : 0.;
+  
+    // seed cluster
+    float betacry, bphicry, bthetatilt, bphitilt;
+    int bieta, biphi;
+    EcalClusterLocal _ecalLocal;
+    _ecalLocal.localCoordsEB(*b,iSetup,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    
+    ele1_eRegrInput_seedbC_eta = bieta;
+    ele1_eRegrInput_seedbC_phi = biphi;
+    ele1_eRegrInput_seedbC_eta_p5 = bieta%5;
+    ele1_eRegrInput_seedbC_phi_p2 = biphi%2;
+    ele1_eRegrInput_seedbC_bieta = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);
+    ele1_eRegrInput_seedbC_phi_p20 = biphi%20;
+    ele1_eRegrInput_seedbC_etacry = betacry;
+    ele1_eRegrInput_seedbC_phicry = bphicry;
+
+    //2nd cluster (meaningful gap corrections for converted photons)
+    float bc2etacry, bc2phicry, bc2thetatilt, bc2phitilt;
+    int bc2ieta, bc2iphi;
+    if (hasbc2) _ecalLocal.localCoordsEB(*b2,iSetup,bc2etacry,bc2phicry,bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt);    
+  
+    ele1_eRegrInput_bC2_eta = hasbc2 ? bc2ieta : 0.;
+    ele1_eRegrInput_bC2_phi = hasbc2 ? bc2iphi : 0.;
+    ele1_eRegrInput_bC2_eta_p5 = hasbc2 ? bc2ieta%5 : 0.;
+    ele1_eRegrInput_bC2_phi_p2 = hasbc2 ? bc2iphi%2 : 0.;
+    ele1_eRegrInput_bC2_bieta = hasbc2 ? (TMath::Abs(bc2ieta)<=25)*(bc2ieta%25) + (TMath::Abs(bc2ieta)>25)*((bc2ieta-25*TMath::Abs(bc2ieta)/bc2ieta)%20) : 0.;
+    ele1_eRegrInput_bC2_phi_p20 = hasbc2 ? bc2iphi%20 : 0.;
+    ele1_eRegrInput_bC2_etacry = hasbc2 ? bc2etacry : 0.;
+    ele1_eRegrInput_bC2_phicry = hasbc2 ? bc2phicry : 0.;
+
+
+    ele1_eRegrInput_nPV = hVertexProduct->size();
+  }
+  else{
+ 
+        ele1_eRegrInput_rawE = s->rawEnergy();
+        ele1_eRegrInput_r9 = lazyTools.e3x3(*b)/s->rawEnergy();
+        ele1_eRegrInput_eta = s->eta();
+        ele1_eRegrInput_phi = s->phi();
+        ele1_eRegrInput_nPV = hVertexProduct->size();
+        ele1_eRegrInput_r25 = lazyTools.e5x5(*b)/s->rawEnergy();
+        ele1_eRegrInput_etaW = s->etaWidth() ;
+        ele1_eRegrInput_phiW = s->phiWidth() ;
+  
+        ele1_eRegrInput_hoe = -99.;
+        ele1_eRegrInput_Deta_bC_sC = -99.;
+        ele1_eRegrInput_Dphi_bC_sC = -99.;
+        ele1_eRegrInput_bCE_Over_sCE = -99.;
+        ele1_eRegrInput_e3x3_Over_bCE = -99.;
+        ele1_eRegrInput_e5x5_Over_bCE = -99.;
+        ele1_eRegrInput_sigietaieta_bC1 = -99.;
+        ele1_eRegrInput_sigiphiiphi_bC1 = -99.;
+        ele1_eRegrInput_sigietaiphi_bC1 = -99.;
+        ele1_eRegrInput_bEMax_Over_bCE = -99.;
+        ele1_eRegrInput_log_bE2nd_Over_bEMax = -99.;
+        ele1_eRegrInput_log_bEtop_Over_bEMax = -99.;
+        ele1_eRegrInput_log_bEbot_Over_bEMax = -99.;
+        ele1_eRegrInput_log_bEleft_Over_bEMax = -99.;
+        ele1_eRegrInput_log_bEright_Over_bEMax = -99.;
+        ele1_eRegrInput_asym_top_bottom = -99.;
+        ele1_eRegrInput_asym_left_right = -99.;
+        ele1_eRegrInput_Deta_bC2_sC = -99.;
+        ele1_eRegrInput_Dphi_bC2_sC = -99.;
+        ele1_eRegrInput_bCE2_Over_sCE = -99.;
+        ele1_eRegrInput_e3x3_Over_bCE2 = -99.;
+        ele1_eRegrInput_e5x5_Over_bCE2 = -99.;
+        ele1_eRegrInput_sigietaieta_bC2 = -99.;
+        ele1_eRegrInput_sigiphiiphi_bC2 = -99.;
+        ele1_eRegrInput_sigietaiphi_bC2 = -99.;
+        ele1_eRegrInput_bEMax_Over_bCE2 = -99.;
+        ele1_eRegrInput_log_bE2nd_Over_bEMax2 = -99.;
+        ele1_eRegrInput_log_bEtop_Over_bEMax2 = -99.;
+        ele1_eRegrInput_log_bEbot_Over_bEMax2 = -99.;
+        ele1_eRegrInput_log_bEleft_Over_bEMax2 = -99.;
+        ele1_eRegrInput_log_bEright_Over_bEMax2 = -99.;
+        ele1_eRegrInput_asym_top2_bottom2 = -99.;
+        ele1_eRegrInput_asym_left2_right2 = -99.;
+        ele1_eRegrInput_Deta_bCLow_sC = -99.;
+        ele1_eRegrInput_Dphi_bCLow_sC = -99.;
+        ele1_eRegrInput_bCELow_Over_sCE = -99.;
+        ele1_eRegrInput_e3x3_Over_bCELow = -99.;
+        ele1_eRegrInput_e5x5_Over_bCELow = -99.;
+        ele1_eRegrInput_sigietaieta_bCLow = -99.;
+        ele1_eRegrInput_sigiphiiphi_bCLow = -99.;
+        ele1_eRegrInput_sigietaiphi_bCLow = -99.;  
+        ele1_eRegrInput_Deta_bCLow2_sC = -99.;
+        ele1_eRegrInput_Dphi_bCLow2_sC = -99.;
+        ele1_eRegrInput_bCELow2_Over_sCE = -99.;
+        ele1_eRegrInput_e3x3_Over_bCELow2 = -99.;
+        ele1_eRegrInput_e5x5_Over_bCELow2 = -99.;
+        ele1_eRegrInput_sigietaieta_bCLow2 = -99.;
+        ele1_eRegrInput_sigiphiiphi_bCLow2 = -99.;
+        ele1_eRegrInput_sigietaiphi_bCLow2 = -99.;
+        ele1_eRegrInput_seedbC_eta = -99.;
+        ele1_eRegrInput_seedbC_phi = -99.;
+        ele1_eRegrInput_seedbC_eta_p5 = -99.;
+        ele1_eRegrInput_seedbC_phi_p2 = -99.;
+        ele1_eRegrInput_seedbC_bieta = -99.;
+        ele1_eRegrInput_seedbC_phi_p20 = -99.;
+        ele1_eRegrInput_seedbC_etacry = -99.;
+        ele1_eRegrInput_seedbC_phicry = -99.;
+
+        ele1_eRegrInput_bC2_eta = -99.;
+        ele1_eRegrInput_bC2_phi = -99.;
+        ele1_eRegrInput_bC2_eta_p5 = -99.;
+        ele1_eRegrInput_bC2_phi_p2 = -99.;
+        ele1_eRegrInput_bC2_bieta = -99.;
+        ele1_eRegrInput_bC2_phi_p20 = -99.;
+        ele1_eRegrInput_bC2_etacry = -99.;
+        ele1_eRegrInput_bC2_phicry =-99.; 
+  }
+
+
+
 }
 
  if ( eleName == "ele2" ) {
@@ -1536,6 +2085,240 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   
     ele2_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
 
+
+
+    /// add regression input variables
+    reco::SuperClusterRef s = electron.superCluster();
+    reco::CaloClusterPtr b = s->seed(); //seed  basic cluster
+    reco::CaloClusterPtr b2;
+    reco::CaloClusterPtr bclast;
+    reco::CaloClusterPtr bclast2;
+    bool isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
+
+     if( isbarrel){
+
+    ele2_eRegrInput_rawE = s->rawEnergy();
+    ele2_eRegrInput_r9 = lazyTools.e3x3(*b)/s->rawEnergy();
+    ele2_eRegrInput_eta = s->eta();
+    ele2_eRegrInput_phi = s->phi();
+    ele2_eRegrInput_r25 = lazyTools.e5x5(*b)/s->rawEnergy();
+    ele2_eRegrInput_hoe = electron.hcalOverEcal() ;
+    ele2_eRegrInput_etaW = s->etaWidth() ;
+    ele2_eRegrInput_phiW = s->phiWidth() ;
+  
+   
+    //seed basic cluster variables
+    double bemax = lazyTools.eMax(*b);
+    double be2nd = lazyTools.e2nd(*b);
+    double betop = lazyTools.eTop(*b);
+    double bebottom = lazyTools.eBottom(*b);
+    double beleft = lazyTools.eLeft(*b);
+    double beright = lazyTools.eRight(*b);
+ 
+    ele2_eRegrInput_Deta_bC_sC = b->eta()-s->eta();
+    ele2_eRegrInput_Dphi_bC_sC = reco::deltaPhi(b->phi(),s->phi());
+    ele2_eRegrInput_bCE_Over_sCE = lazyTools.e3x3(*b)/b->energy();
+    ele2_eRegrInput_e3x3_Over_bCE = lazyTools.e3x3(*b)/b->energy();
+    ele2_eRegrInput_e5x5_Over_bCE = lazyTools.e5x5(*b)/b->energy();
+    ele2_eRegrInput_sigietaieta_bC1 = sqrt(lazyTools.localCovariances(*b)[0]);
+    ele2_eRegrInput_sigiphiiphi_bC1 = sqrt(lazyTools.localCovariances(*b)[2]);
+    ele2_eRegrInput_sigietaiphi_bC1 = lazyTools.localCovariances(*b)[1];
+    ele2_eRegrInput_bEMax_Over_bCE = bemax/b->energy();
+    ele2_eRegrInput_log_bE2nd_Over_bEMax = log(be2nd/bemax);
+    ele2_eRegrInput_log_bEtop_Over_bEMax = log(betop/bemax);
+    ele2_eRegrInput_log_bEbot_Over_bEMax = log(bebottom/bemax);
+    ele2_eRegrInput_log_bEleft_Over_bEMax = log(beleft/bemax);
+    ele2_eRegrInput_log_bEright_Over_bEMax = log(beright/bemax);
+    ele2_eRegrInput_asym_top_bottom = (betop-bebottom)/(betop+bebottom);
+    ele2_eRegrInput_asym_left_right = (beleft-beright)/(beleft+beright);
+
+    //highest energy basic cluster excluding seed basic cluster
+    double ebcmax = -99.;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const reco::CaloClusterPtr bc = *bit;
+     if (bc->energy() > ebcmax && bc !=b) {
+       b2 = bc;
+       ebcmax = bc->energy();
+     }
+    }
+  
+    //lowest energy basic cluster excluding seed (for pileup mitigation)
+    double ebcmin = 1e6;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const CaloClusterPtr bc = *bit;
+     if (bc->energy() < ebcmin && bc !=b) {
+      bclast = bc;
+      ebcmin = bc->energy();
+     }
+    }
+
+   //2nd lowest energy basic cluster excluding seed (for pileup mitigation)
+    ebcmin = 1e6;
+    for (reco::CaloCluster_iterator bit = s->clustersBegin(); bit!=s->clustersEnd(); ++bit) {
+     const CaloClusterPtr bc = *bit;
+     if (bc->energy() < ebcmin && bc !=b && bc!=bclast) {
+       bclast2 = bc;
+       ebcmin = bc->energy();
+     }
+    }
+ 
+    bool hasbc2 = b2.isNonnull() && b2->energy()>0.;
+    bool hasbclast = bclast.isNonnull() && bclast->energy()>0.;
+    bool hasbclast2 = bclast2.isNonnull() && bclast2->energy()>0.;
+  
+    double bc2emax = hasbc2 ? lazyTools.eMax(*b2) : 0.;
+    double bc2e2nd = hasbc2 ? lazyTools.e2nd(*b2) : 0.;
+    double bc2etop = hasbc2 ? lazyTools.eTop(*b2) : 0.;
+    double bc2ebottom = hasbc2 ? lazyTools.eBottom(*b2) : 0.;
+    double bc2eleft = hasbc2 ? lazyTools.eLeft(*b2) : 0.;
+    double bc2eright = hasbc2 ? lazyTools.eRight(*b2) : 0.;
+
+    ele2_eRegrInput_Deta_bC2_sC = hasbc2 ? (b2->eta()-s->eta()) : 0.;
+    ele2_eRegrInput_Dphi_bC2_sC = hasbc2 ? reco::deltaPhi(b2->phi(),s->phi()) : 0.;
+    ele2_eRegrInput_bCE2_Over_sCE = hasbc2 ? b2->energy()/s->rawEnergy() : 0.;
+    ele2_eRegrInput_e3x3_Over_bCE2 = hasbc2 ? lazyTools.e3x3(*b2)/b2->energy() : 0.;
+    ele2_eRegrInput_e5x5_Over_bCE2 = hasbc2 ? lazyTools.e5x5(*b2)/b2->energy() : 0.;
+    ele2_eRegrInput_sigietaieta_bC2 = hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[0]) : 0.;
+    ele2_eRegrInput_sigiphiiphi_bC2 = hasbc2 ? sqrt(lazyTools.localCovariances(*b2)[2]) : 0.;
+    ele2_eRegrInput_sigietaiphi_bC2 = hasbc2 ? lazyTools.localCovariances(*b)[1] : 0.;
+    ele2_eRegrInput_bEMax_Over_bCE2 = hasbc2 ? bc2emax/b2->energy() : 0.;
+    ele2_eRegrInput_log_bE2nd_Over_bEMax2 = hasbc2 ? log(bc2e2nd/bc2emax) : 0.;
+    ele2_eRegrInput_log_bEtop_Over_bEMax2 = hasbc2 ? log(bc2etop/bc2emax) : 0.;
+    ele2_eRegrInput_log_bEbot_Over_bEMax2 = hasbc2 ? log(bc2ebottom/bc2emax) : 0.;
+    ele2_eRegrInput_log_bEleft_Over_bEMax2 = hasbc2 ? log(bc2eleft/bc2emax) : 0.;
+    ele2_eRegrInput_log_bEright_Over_bEMax2 = hasbc2 ? log(bc2eright/bc2emax) : 0.;
+    ele2_eRegrInput_asym_top2_bottom2 = hasbc2 ? (bc2etop-bc2ebottom)/(bc2etop+bc2ebottom) : 0.;
+    ele2_eRegrInput_asym_left2_right2 = hasbc2 ? (bc2eleft-bc2eright)/(bc2eleft+bc2eright) : 0.;
+   
+
+    ele2_eRegrInput_Deta_bCLow_sC = hasbclast ? (bclast->eta()-s->eta()) : 0.;
+    ele2_eRegrInput_Dphi_bCLow_sC = hasbclast ? reco::deltaPhi(bclast->phi(),s->phi()) : 0.;
+    ele2_eRegrInput_bCELow_Over_sCE = hasbclast ? bclast->energy()/s->rawEnergy() : 0.;
+    ele2_eRegrInput_e3x3_Over_bCELow = hasbclast ? lazyTools.e3x3(*bclast)/bclast->energy() : 0.;
+    ele2_eRegrInput_e5x5_Over_bCELow = hasbclast ? lazyTools.e5x5(*bclast)/bclast->energy() : 0.;
+    ele2_eRegrInput_sigietaieta_bCLow = hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[0]) : 0.;
+    ele2_eRegrInput_sigiphiiphi_bCLow = hasbclast ? sqrt(lazyTools.localCovariances(*bclast)[2]) : 0.;
+    ele2_eRegrInput_sigietaiphi_bCLow = hasbclast ? lazyTools.localCovariances(*bclast)[1] : 0.;
+  
+    ele2_eRegrInput_Deta_bCLow2_sC = hasbclast2 ? (bclast2->eta()-s->eta()) : 0.;
+    ele2_eRegrInput_Dphi_bCLow2_sC = hasbclast2 ? reco::deltaPhi(bclast2->phi(),s->phi()) : 0.;
+    ele2_eRegrInput_bCELow2_Over_sCE = hasbclast2 ? bclast2->energy()/s->rawEnergy() : 0.;
+    ele2_eRegrInput_e3x3_Over_bCELow2 = hasbclast2 ? lazyTools.e3x3(*bclast2)/bclast2->energy() : 0.;
+    ele2_eRegrInput_e5x5_Over_bCELow2 = hasbclast2 ? lazyTools.e5x5(*bclast2)/bclast2->energy() : 0.;
+    ele2_eRegrInput_sigietaieta_bCLow2 = hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[0]) : 0.;
+    ele2_eRegrInput_sigiphiiphi_bCLow2 = hasbclast2 ? sqrt(lazyTools.localCovariances(*bclast2)[2]) : 0.;
+    ele2_eRegrInput_sigietaiphi_bCLow2 = hasbclast2 ? lazyTools.localCovariances(*bclast2)[1] : 0.;
+  
+    // seed cluster
+    float betacry, bphicry, bthetatilt, bphitilt;
+    int bieta, biphi;
+    EcalClusterLocal _ecalLocal;
+    _ecalLocal.localCoordsEB(*b,iSetup,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    
+    ele2_eRegrInput_seedbC_eta = bieta;
+    ele2_eRegrInput_seedbC_phi = biphi;
+    ele2_eRegrInput_seedbC_eta_p5 = bieta%5;
+    ele2_eRegrInput_seedbC_phi_p2 = biphi%2;
+    ele2_eRegrInput_seedbC_bieta = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);
+    ele2_eRegrInput_seedbC_phi_p20 = biphi%20;
+    ele2_eRegrInput_seedbC_etacry = betacry;
+    ele2_eRegrInput_seedbC_phicry = bphicry;
+
+    //2nd cluster (meaningful gap corrections for converted photons)
+    float bc2etacry, bc2phicry, bc2thetatilt, bc2phitilt;
+    int bc2ieta, bc2iphi;
+    if (hasbc2) _ecalLocal.localCoordsEB(*b2,iSetup,bc2etacry,bc2phicry,bc2ieta,bc2iphi,bc2thetatilt,bc2phitilt);    
+  
+    ele2_eRegrInput_bC2_eta = hasbc2 ? bc2ieta : 0.;
+    ele2_eRegrInput_bC2_phi = hasbc2 ? bc2iphi : 0.;
+    ele2_eRegrInput_bC2_eta_p5 = hasbc2 ? bc2ieta%5 : 0.;
+    ele2_eRegrInput_bC2_phi_p2 = hasbc2 ? bc2iphi%2 : 0.;
+    ele2_eRegrInput_bC2_bieta = hasbc2 ? (TMath::Abs(bc2ieta)<=25)*(bc2ieta%25) + (TMath::Abs(bc2ieta)>25)*((bc2ieta-25*TMath::Abs(bc2ieta)/bc2ieta)%20) : 0.;
+    ele2_eRegrInput_bC2_phi_p20 = hasbc2 ? bc2iphi%20 : 0.;
+    ele2_eRegrInput_bC2_etacry = hasbc2 ? bc2etacry : 0.;
+    ele2_eRegrInput_bC2_phicry = hasbc2 ? bc2phicry : 0.;
+
+
+    ele2_eRegrInput_nPV = hVertexProduct->size();
+  }
+  else{
+ 
+        ele2_eRegrInput_rawE = s->rawEnergy();
+        ele2_eRegrInput_r9 = lazyTools.e3x3(*b)/s->rawEnergy();
+        ele2_eRegrInput_eta = s->eta();
+        ele2_eRegrInput_phi = s->phi();
+        ele2_eRegrInput_nPV = hVertexProduct->size();
+        ele2_eRegrInput_r25 = lazyTools.e5x5(*b)/s->rawEnergy();
+        ele2_eRegrInput_etaW = s->etaWidth() ;
+        ele2_eRegrInput_phiW = s->phiWidth() ;
+  
+        ele2_eRegrInput_hoe = -99.;
+        ele2_eRegrInput_Deta_bC_sC = -99.;
+        ele2_eRegrInput_Dphi_bC_sC = -99.;
+        ele2_eRegrInput_bCE_Over_sCE = -99.;
+        ele2_eRegrInput_e3x3_Over_bCE = -99.;
+        ele2_eRegrInput_e5x5_Over_bCE = -99.;
+        ele2_eRegrInput_sigietaieta_bC1 = -99.;
+        ele2_eRegrInput_sigiphiiphi_bC1 = -99.;
+        ele2_eRegrInput_sigietaiphi_bC1 = -99.;
+        ele2_eRegrInput_bEMax_Over_bCE = -99.;
+        ele2_eRegrInput_log_bE2nd_Over_bEMax = -99.;
+        ele2_eRegrInput_log_bEtop_Over_bEMax = -99.;
+        ele2_eRegrInput_log_bEbot_Over_bEMax = -99.;
+        ele2_eRegrInput_log_bEleft_Over_bEMax = -99.;
+        ele2_eRegrInput_log_bEright_Over_bEMax = -99.;
+        ele2_eRegrInput_asym_top_bottom = -99.;
+        ele2_eRegrInput_asym_left_right = -99.;
+        ele2_eRegrInput_Deta_bC2_sC = -99.;
+        ele2_eRegrInput_Dphi_bC2_sC = -99.;
+        ele2_eRegrInput_bCE2_Over_sCE = -99.;
+        ele2_eRegrInput_e3x3_Over_bCE2 = -99.;
+        ele2_eRegrInput_e5x5_Over_bCE2 = -99.;
+        ele2_eRegrInput_sigietaieta_bC2 = -99.;
+        ele2_eRegrInput_sigiphiiphi_bC2 = -99.;
+        ele2_eRegrInput_sigietaiphi_bC2 = -99.;
+        ele2_eRegrInput_bEMax_Over_bCE2 = -99.;
+        ele2_eRegrInput_log_bE2nd_Over_bEMax2 = -99.;
+        ele2_eRegrInput_log_bEtop_Over_bEMax2 = -99.;
+        ele2_eRegrInput_log_bEbot_Over_bEMax2 = -99.;
+        ele2_eRegrInput_log_bEleft_Over_bEMax2 = -99.;
+        ele2_eRegrInput_log_bEright_Over_bEMax2 = -99.;
+        ele2_eRegrInput_asym_top2_bottom2 = -99.;
+        ele2_eRegrInput_asym_left2_right2 = -99.;
+        ele2_eRegrInput_Deta_bCLow_sC = -99.;
+        ele2_eRegrInput_Dphi_bCLow_sC = -99.;
+        ele2_eRegrInput_bCELow_Over_sCE = -99.;
+        ele2_eRegrInput_e3x3_Over_bCELow = -99.;
+        ele2_eRegrInput_e5x5_Over_bCELow = -99.;
+        ele2_eRegrInput_sigietaieta_bCLow = -99.;
+        ele2_eRegrInput_sigiphiiphi_bCLow = -99.;
+        ele2_eRegrInput_sigietaiphi_bCLow = -99.;  
+        ele2_eRegrInput_Deta_bCLow2_sC = -99.;
+        ele2_eRegrInput_Dphi_bCLow2_sC = -99.;
+        ele2_eRegrInput_bCELow2_Over_sCE = -99.;
+        ele2_eRegrInput_e3x3_Over_bCELow2 = -99.;
+        ele2_eRegrInput_e5x5_Over_bCELow2 = -99.;
+        ele2_eRegrInput_sigietaieta_bCLow2 = -99.;
+        ele2_eRegrInput_sigiphiiphi_bCLow2 = -99.;
+        ele2_eRegrInput_sigietaiphi_bCLow2 = -99.;
+        ele2_eRegrInput_seedbC_eta = -99.;
+        ele2_eRegrInput_seedbC_phi = -99.;
+        ele2_eRegrInput_seedbC_eta_p5 = -99.;
+        ele2_eRegrInput_seedbC_phi_p2 = -99.;
+        ele2_eRegrInput_seedbC_bieta = -99.;
+        ele2_eRegrInput_seedbC_phi_p20 = -99.;
+        ele2_eRegrInput_seedbC_etacry = -99.;
+        ele2_eRegrInput_seedbC_phicry = -99.;
+
+        ele2_eRegrInput_bC2_eta = -99.;
+        ele2_eRegrInput_bC2_phi = -99.;
+        ele2_eRegrInput_bC2_eta_p5 = -99.;
+        ele2_eRegrInput_bC2_phi_p2 = -99.;
+        ele2_eRegrInput_bC2_bieta = -99.;
+        ele2_eRegrInput_bC2_phi_p20 = -99.;
+        ele2_eRegrInput_bC2_etacry = -99.;
+        ele2_eRegrInput_bC2_phicry =-99.; 
+  }
   }
 
 }
@@ -1551,13 +2334,51 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   View<reco::MET>  mets = *PFmetHandle;
   reco::MET MET = mets.at(0);
 
-  met = MET.p4();
+  ROOT::Math::XYZTVector met = MET.p4();
+ 
+  // correct phi Met in data and MC
+  float cx0,cx1;
+  float cy0,cy1;
+
+  if( dataFlag_ == true){
+
+      if( dataRun_ == "2011A" ){
+        cx1 = +0.004801; cx0 = -0.3365;
+        cy1 = -0.006124; cy0 = +0.2578;
+      }
+      if(dataRun_ == "2011B" ){
+        cx1 = +0.005162; cx0 = -0.3265;
+        cy1 = -0.006299; cy0 = -0.1956;
+      }
+    }
+  else{
+
+      if( dataRun_ == "2011A" ){
+        cx1 = +0.0001815; cx0 = -0.09389;
+        cy1 = -0.003710;  cy0 = +0.1571;      
+      }
+      if( dataRun_ == "2011B" ){
+        cx1 = +0.00009587; cx0 = -0.1070;
+        cy1 = -0.003357;   cy0 = +0.01517;
+      }
+  }
+
+  float metx = met.px();
+  float mety = met.py();
+
+  metx -= (cx0 + cx1*PV_n);
+  mety -= (cy0 + cy1*PV_n);
+
+  met.SetPxPyPzE(metx,mety,0,sqrt(metx*metx+mety*mety));
+
   p_met = &met;
   met_et = p_met->Et();
   met_phi = p_met->phi();
   
   ele1Met_mt = sqrt( 2. * ele1_pt * met_et * ( 1. - cos( deltaPhi(ele1_phi,met_phi) ) ) );
   ele1Met_Dphi = deltaPhi(ele1_phi,met_phi);
+
+
 
 
 }
@@ -1585,5 +2406,93 @@ double SimpleNtupleEoverP::deltaPhi(const double& phi1, const double& phi2){
   return deltaphi;
 }
 
+// -----------------------------------------------------------------------------------------
+void SimpleNtupleEoverP::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
+ //std::cout << "SimpleNtupleCalib::fillMCPUInfo" << std::endl;
+
+  edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+  iEvent.getByLabel(MCPileupTag_, PupInfo);
+  
+  
+  // loop on BX
+   // loop on BX
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI)
+  {
+    std::vector<float> temp_mc_PU_zpositions   = PVI->getPU_zpositions();
+    std::vector<float> temp_mc_PU_sumpT_lowpT  = PVI->getPU_sumpT_lowpT();
+    std::vector<float> temp_mc_PU_sumpT_highpT = PVI->getPU_sumpT_highpT();
+    std::vector<int> temp_mc_PU_ntrks_lowpT    = PVI->getPU_ntrks_lowpT();
+    std::vector<int> temp_mc_PU_ntrks_highpT   = PVI->getPU_ntrks_highpT();
+    
+    // in-time pileup
+    if( PVI->getBunchCrossing() == 0 )
+    {
+      PUit_TrueNumInteractions = PVI->getTrueNumInteractions();
+      PUit_NumInteractions = PVI->getPU_NumInteractions();    
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+        PUit_zpositions = *it;
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+        PUit_sumpT_lowpT=*it;
+      
+      for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+        PUit_sumpT_highpT = *it;
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+        PUit_ntrks_lowpT = *it;
+      
+      for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+        PUit_ntrks_highpT = *it;
+    }
+    
+    // out-of-time pileup
+    else
+    {
+      if (PVI->getBunchCrossing() < 0)
+      {
+        PUoot_early_TrueNumInteractions = PVI->getTrueNumInteractions();
+        PUoot_early = PVI->getPU_NumInteractions();
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+          PUoot_early_zpositions = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+          PUoot_early_sumpT_lowpT = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+          PUoot_early_sumpT_highpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+          PUoot_early_ntrks_lowpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+          PUoot_early_ntrks_highpT = *it;
+      }
+      else
+      {
+        PUoot_late_TrueNumInteractions = PVI->getTrueNumInteractions();
+        PUoot_late = PVI->getPU_NumInteractions();
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_zpositions.begin(); it < temp_mc_PU_zpositions.end(); ++it)
+          PUoot_late_zpositions = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_lowpT.begin(); it < temp_mc_PU_sumpT_lowpT.end(); ++it)
+          PUoot_late_sumpT_lowpT = *it;
+        
+        for(std::vector<float>::const_iterator it = temp_mc_PU_sumpT_highpT.begin(); it < temp_mc_PU_sumpT_highpT.end(); ++it)
+          PUoot_late_sumpT_highpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_lowpT.begin(); it < temp_mc_PU_ntrks_lowpT.end(); ++it)
+          PUoot_late_ntrks_lowpT = *it;
+        
+        for(std::vector<int>::const_iterator it = temp_mc_PU_ntrks_highpT.begin(); it < temp_mc_PU_ntrks_highpT.end(); ++it)
+          PUoot_late_ntrks_highpT = *it;          
+      }
+    }
+  }
+}
 //----------------------------------------------------------------------------------------------
 DEFINE_FWK_MODULE(SimpleNtupleEoverP);
