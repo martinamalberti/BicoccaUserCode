@@ -1,1 +1,1 @@
-/store/caf/user/rgerosa/MC DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola_Fall11-PU_S6_START42_V14B-v1
+/store/caf/user/rgerosa/MC    DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola_Fall11-PU_S6_START42_V14B-v1
