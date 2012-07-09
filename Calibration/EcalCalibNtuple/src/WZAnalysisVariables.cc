@@ -1270,15 +1270,52 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
  vars.ele2_eRegrInput_nPV= reader.GetFloat("eRegrInput_nPV")->at(ele2It);
  }
 
-void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader)
+void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader, int dataFlag, std::string dataRun )
 {
   vars.met = reader.Get4V("PFMet")->at(0);
+
+  float cx0,cx1;
+  float cy0,cy1;
+
+  if( dataFlag == 1){
+
+      if( dataRun == "2011A" ){
+        cx1 = +0.004801; cx0 = -0.3365;
+        cy1 = -0.006124; cy0 = +0.2578;
+      }
+      if(dataRun == "2011B" ){
+        cx1 = +0.005162; cx0 = -0.3265;
+        cy1 = -0.006299; cy0 = -0.1956;
+      }
+    }
+  else{
+
+      if( dataRun == "2011A" ){
+        cx1 = +0.0001815; cx0 = -0.09389;
+        cy1 = -0.003710;  cy0 = +0.1571;      
+      }
+      if( dataRun == "2011B" ){
+        cx1 = +0.00009587; cx0 = -0.1070;
+        cy1 = -0.003357;   cy0 = +0.01517;
+      }
+  }
+
+  float metx = vars.met.px();
+  float mety = vars.met.py();
+
+  metx -= (cx0 + cx1*vars.PV_n);
+  mety -= (cy0 + cy1*vars.PV_n);
+
+  vars.met.SetPxPyPzE(metx,mety,0,sqrt(metx*metx+mety*mety));
   vars.p_met = &vars.met;
   vars.met_et = vars.p_met->Et();
   vars.met_phi = vars.p_met->phi();
   
   vars.ele1Met_mt = sqrt( 2. * vars.ele1_pt * vars.met_et * ( 1 - cos( deltaPhi(vars.ele1_phi,vars.met_phi) ) ) );
   vars.ele1Met_Dphi = deltaPhi(vars.ele1_phi,vars.met_phi);
+
+
+
 }
 
 

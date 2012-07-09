@@ -110,6 +110,7 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
     NtupleFactory_ -> AddString("HLT_Names");
   }
 
+
   if(saveBS_)
   {
     NtupleFactory_ -> AddFloat("BS_x0");
@@ -1031,7 +1032,8 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  float xi = 0.02;   
  
  //************* CLUSTER LAZY TOOLS
- if( !ecorr_.IsInitialized() ) ecorr_.Initialize(iSetup,"crab/gbrv2ele.root");
+ if( !ecorr_.IsInitialized() ) 
+ ecorr_.Initialize(iSetup,"gbrv2ele.root");
  EcalClusterLazyTools lazyTools(iEvent,iSetup,edm::InputTag("reducedEcalRecHitsEB"),edm::InputTag("reducedEcalRecHitsEE")); 
  
   

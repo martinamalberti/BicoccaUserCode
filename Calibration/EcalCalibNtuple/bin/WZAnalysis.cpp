@@ -64,6 +64,7 @@ int main(int argc, char** argv)
   int entryMODULO    = Options.getParameter<int>("entryMODULO");
   int jsonFlag       = Options.getParameter<int>("jsonFlag");
   int dataFlag       = Options.getParameter<int>("dataFlag");
+  std::string dataRun = Options.getParameter<std::string>("dataRun");
   float crossSection = Options.getParameter<double>("crossSection");
   int verbosity      = Options.getParameter<int>("verbosity");
   
@@ -491,7 +492,7 @@ int main(int argc, char** argv)
     
     
     // set met variables
-    SetMetVariables(vars,reader);
+    SetMetVariables(vars,reader,dataFlag,dataRun);
     
     // set di-electron variables
     if( (nTightEle == 2) || (nTightEle == 1 && nMediumEle == 1) )

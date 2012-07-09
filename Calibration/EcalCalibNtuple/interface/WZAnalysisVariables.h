@@ -420,7 +420,7 @@ void SetPVVariables(WZAnalysisVariables& vars, treeReader& reader);
 
 void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele1It, bool isCalib);
 void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const int& ele2It, bool isCalib);
-void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader);
+void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader, int dataFlag, std::string dataRun);
 void SetDiElectronVariables(WZAnalysisVariables& vars, treeReader& reader);
 
 void SetPhotonMatchingEle(float* const var, treeReader& reader, const int& eleIt);
