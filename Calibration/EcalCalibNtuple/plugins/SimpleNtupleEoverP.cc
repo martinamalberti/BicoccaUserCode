@@ -37,7 +37,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   jsonFileName_  = iConfig.getParameter<std::string>("jsonFileName");
  
-  dataRun_ = iConfig.getUntrackedParameter<std::string>("dataRun");
+  dataRun_ = iConfig.getParameter<std::string>("dataRun");
   //---- flags ----
   jsonFlag_ = iConfig.getUntrackedParameter<bool>("jsonFlag", false);
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
