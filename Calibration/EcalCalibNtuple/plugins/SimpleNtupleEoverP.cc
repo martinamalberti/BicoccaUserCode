@@ -20,7 +20,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   InitializeParams(params);
 
   edm::Service<TFileService> fs ;
-  outTree_  =        fs -> make <TTree>("ntu","ntu"); 
+  outTree_  =        fs -> make <TTree>("SimpleNtupleEoverP","SimpleNtupleEoverP"); 
 
   PVTag_       = iConfig.getParameter<edm::InputTag>("PVTag");
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
