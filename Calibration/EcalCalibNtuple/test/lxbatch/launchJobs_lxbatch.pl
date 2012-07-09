@@ -30,7 +30,9 @@ $JOBCfgTemplate   = $User_Preferences{"JOBCfgTemplate"} ;
 $OUTPUTSAVEPath   = $User_Preferences{"OUTPUTSAVEPath"} ;
 $OUTPUTFILEName   = $User_Preferences{"OUTPUTFILEName"} ;
 $JOBModulo        = $User_Preferences{"JOBModulo"} ;
-
+$Storage          = $User_Preferences{"Storage"} ;
+$isDATA           = $User_Preferences{"isDATA"} ;
+$dataRun          = $User_Preferences{"dataRun"} ;
 
 
 print "BASEDir = "          .$BASEDir."\n" ;
@@ -39,8 +41,10 @@ print "EXEName = "          .$EXEName."\n" ;
 print "JOBCfgTemplate = "   .$JOBCfgTemplate."\n" ;
 print "OUTPUTSAVEPath = "   .$OUTPUTSAVEPath."\n" ;
 print "OUTPUTFILEName = "   .$OUTPUTFILEName."\n" ;
-print "JOBModulo = "        .$JOBModulo."\n\n" ;
-
+print "JOBModulo = "        .$JOBModulo."\n" ;
+print "Storage = "          .$Storage."\n" ;
+print "isDATA = "           .$isDATA."\n" ;
+print "dataRun = "          .$dataRun."\n" ;
 
 
 
@@ -74,17 +78,15 @@ while (<LISTOFSamples>)
     print("Sample: ".$sample."\n") ;  
     system ("mkdir ".$sample."\n") ;
     
-  
-  
-    
-  
-  
+    #########################
+    ### Make List Of File ###
+    #########################
+ 
     $LISTOFFiles = "./list_".$sample.".txt" ;
-    system ("cmsLs ".$INPUTSAVEPath."/".$sample." | grep root | awk '{print \$5}' > ".$LISTOFFiles."\n") ;
-    #system ("rfdir ".$INPUTSAVEPath."/".$sample." | grep \"simpleNtuple.root\" | awk '{print \$9}' > ".$LISTOFFiles."\n") ;
-  
-  
-  
+
+    if($Storage=~ /eos/) {system ("cmsLs ".$INPUTSAVEPath."/".$sample." | grep root | awk '{print \$5}' > ".$LISTOFFiles."\n") ;}
+    if($Storage=~ /castor/)  {system ("rfdir ".$INPUTSAVEPath."/".$sample." | grep root | awk '{print \$9}' > ".$LISTOFFiles."\n") ;}
+    
     $totNumber = 0;
     $jobNumber = 0;
   
@@ -102,11 +104,7 @@ while (<LISTOFSamples>)
     
     print "NumberOfJobs = ".$jobNumber."\n";
     
-  
-  
-  
-  
-  
+    
     ################
     # loop over jobs 
     ################
@@ -127,17 +125,20 @@ while (<LISTOFSamples>)
     
 
 
-    
+        ###############################
+        ##### Create Job cfg File #####
+        ###############################  
     
 	$tempo1 = "./tempo1" ;
-	system ("cat ".$JOBCfgTemplate."   | sed -e s%OUTPUTFILENAME%".$OUTPUTFILEName."_".$jobIt.
-		                       "%g > ".$tempo1) ;
+	if($Storage =~ /castor/){ system ("cat ".$JOBCfgTemplate."   | sed -e s%OUTPUTFILENAME%".$OUTPUTFILEName."_".$jobIt.
+		                       "%g > ".$tempo1) ;}
+	if($Storage =~ /eos/){ system ("cat ".$JOBCfgTemplate."   | sed -e s%OUTPUTFILENAME%"."root://eoscms//eos/cms".$OUTPUTSAVEPath.$sample."/".$OUTPUTFILEName."_".$jobIt.
+		                       "%g > ".$tempo1) ;}
     
-    
-    
+        
 	$it = 0;
 	$JOBLISTOFFiles;
-
+    
 	open (LISTOFFiles2,$LISTOFFiles) ;
 	while (<LISTOFFiles2>)
 	{
@@ -149,10 +150,12 @@ while (<LISTOFSamples>)
 	    
 	    if( ($it >= ($jobIt - 1)*$JOBModulo) && ($it < ($jobIt)*$JOBModulo) )
 	    { 
-		#$JOBLISTOFFiles = "APICE".$INPUTSAVEPath."/".$sample."/".$file."APICE,";
-		$JOBLISTOFFiles = $JOBLISTOFFiles."APICE".$file."APICE,";
+                if($Storage=~/eos/) {$JOBLISTOFFiles = $JOBLISTOFFiles."APICE".$file."APICE,";}
+                if($Storage=~/castor/)  {$JOBLISTOFFiles = $JOBLISTOFFiles."APICE"."rfio:".$INPUTSAVEPath."/".$sample."/".$file."APICE,";}
+                       
 	    }
 	    ++$it;
+		
 	}
 	
 	
@@ -160,78 +163,64 @@ while (<LISTOFSamples>)
 	system ("cat ".$tempo1." | sed -e s%LISTOFFILES%".$JOBLISTOFFiles."%g > ".$tempo2) ;
 	$JOBLISTOFFiles = "" ;
 
+
 	$tempo3 = "./tempo3" ;
-	system ("cat ".$tempo2." | sed -e s%APICE%\\'%g > ".$tempo3) ;
-    
+	system ("cat ".$tempo2." | sed -e s%APICE%\\'".
+                                "%g | sed -e s%isDATA%".$isDATA.
+                                "%g | sed -e s%dataRUN%".$dataRun.
+                                "%g > ".$tempo3) ;
+
+
+
     
 	$JOBCfgFile = $jobDir."/simpleNtuple_data_cfg.py" ;
 	system ("mv ".$tempo3." ".$JOBCfgFile) ;
 	system ("rm ./tempo*") ;
     
-    
-    
-    
-    
+      
     
     ######################
-    # make job files
+    # make job files sh
     ######################    
+    open (SAMPLEJOBFILE, ">", $tempBjob) or die "Can't open file ".$tempBjob;
+
+
     
-	open (SAMPLEJOBFILE, ">", $tempBjob) or die "Can't open file ".$tempBjob;
+    $command = "cd ".$BASEDir ;
+    print SAMPLEJOBFILE $command."\n";
 
-# 	$command = "#!/bin/tcsh" ;
-# 	print SAMPLEJOBFILE $command."\n";
-
-    #$command = "cd /gwteraz/users/deguio/CMSSW_4_2_8/src/" ;
-    #print SAMPLEJOBFILE $command."\n";
+    $command = "export SCRAM_ARCH=slc5_amd64_gcc434";
+    print SAMPLEJOBFILE $command."\n";
+  
+    $command = "eval `scramv1 runtime -sh`" ;
+    print SAMPLEJOBFILE $command."\n";
     
-    #$command = "cmsenv" ;
-    #print SAMPLEJOBFILE $command."\n";
+    $command = "cd -" ;
+    print SAMPLEJOBFILE $command."\n";
+ 
+    if($Storage=~/castor/){$command = "rfmkdir -p ".$OUTPUTSAVEPath.$sample;}
+    if($Storage=~/eos/)   {$command = "cmsMkdir ".$OUTPUTSAVEPath.$sample;}
 
-    #$command = "cd -" ;
-    #print SAMPLEJOBFILE $command."\n";
+    print SAMPLEJOBFILE $command."\n";
 
-	$command = "cd ".$BASEDir ;
-	print SAMPLEJOBFILE $command."\n";
 
-	$command = "eval `scramv1 runtime -sh`" ;
-	print SAMPLEJOBFILE $command."\n";
+    $command = "cmsRun ".$JOBCfgFile ;
+    print SAMPLEJOBFILE $command."\n";
     
-	$command = "cd -" ;
-	print SAMPLEJOBFILE $command."\n";
-
-    # $command = "cd ".$jobDir ;
-    # print SAMPLEJOBFILE $command."\n";
+ 
     
-    
-    # $command = "unbuffer ".$EXEName." ".$JOBCfgFile." >> ".$jobDir."/out.txt" ;
-    # print SAMPLEJOBFILE $command."\n";    
+    if($Storage=~/castor/) {$command = "rfcp ".$OUTPUTFILEName."_".$jobIt.".root ".$OUTPUTSAVEPath.$sample;
+                            print SAMPLEJOBFILE $command."\n";
+    }
 
-
-	$command = "cmsRun ".$JOBCfgFile ;
-	print SAMPLEJOBFILE $command."\n";
-
-	$command = "rfmkdir -p ".$OUTPUTSAVEPath.$sample;
-	print SAMPLEJOBFILE $command."\n";
-
-
-	#$command = "mv  ".$OUTPUTFILEName."_".$jobIt.".root ".$sample;
-	#print SAMPLEJOBFILE $command."\n";
-
-
-	#$command = "scp -r ./".$sample." cmsmi4:".$OUTPUTSAVEPath;
-	#print SAMPLEJOBFILE $command."\n";
-    
-	$command = "rfcp ".$OUTPUTFILEName."_".$jobIt.".root ".$OUTPUTSAVEPath.$sample;
-	print SAMPLEJOBFILE $command."\n";
     
     
     ############
     # submit job
     ############
     
-	$command = "bsub -cwd ".$jobDir." -q 8nh ".$tempBjob."\n" ;  
-	print SAMPLEJOBLISTFILE $command."\n";
+    $command = "bsub -cwd ".$jobDir." -q cmscaf1nh ".$tempBjob."\n" ;  
+    print SAMPLEJOBLISTFILE $command."\n";
     
     #print "\n" ;
     }

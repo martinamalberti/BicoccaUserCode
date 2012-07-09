@@ -19,6 +19,9 @@ makeSimpleNtuple(process,GlobalTag="GR_R_42_V24::All")
 makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
 
+process.simpleNtupleEoverP.dataFlag = cms.untracked.bool(isDATA);
+process.simpleNtupleEoverP.dataRun = cms.string("dataRUN");
+
 
 
 # source
