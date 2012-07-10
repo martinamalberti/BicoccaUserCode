@@ -2341,7 +2341,6 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   float cy0,cy1;
 
   if( dataFlag_ == true){
-
       if( dataRun_ == "2011A" ){
         cx1 = +0.004801; cx0 = -0.3365;
         cy1 = -0.006124; cy0 = +0.2578;
@@ -2350,18 +2349,6 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         cx1 = +0.005162; cx0 = -0.3265;
         cy1 = -0.006299; cy0 = -0.1956;
       }
-    }
-  else{
-
-      if( dataRun_ == "2011A" ){
-        cx1 = +0.0001815; cx0 = -0.09389;
-        cy1 = -0.003710;  cy0 = +0.1571;      
-      }
-      if( dataRun_ == "2011B" ){
-        cx1 = +0.00009587; cx0 = -0.1070;
-        cy1 = -0.003357;   cy0 = +0.01517;
-      }
-  }
 
   float metx = met.px();
   float mety = met.py();
@@ -2370,6 +2357,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   mety -= (cy0 + cy1*PV_n);
 
   met.SetPxPyPzE(metx,mety,0,sqrt(metx*metx+mety*mety));
+  }
 
   p_met = &met;
   met_et = p_met->Et();
