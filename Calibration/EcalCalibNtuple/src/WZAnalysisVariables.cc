@@ -772,8 +772,8 @@ void SetElectron1Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele1_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele1It) +
                      reader.GetFloat("electrons_hadIso03_2")->at(ele1It);
  
-  vars.ele1_PFIso_em = reader.GetFloat("electrons_iso_ch")->at(ele1It);
-  vars.ele1_PFIso_ch = reader.GetFloat("electrons_iso_em")->at(ele1It);
+  vars.ele1_PFIso_ch = reader.GetFloat("electrons_iso_ch")->at(ele1It);
+  vars.ele1_PFIso_em = reader.GetFloat("electrons_iso_em")->at(ele1It);
   vars.ele1_PFIso_nh = reader.GetFloat("electrons_iso_nh")->at(ele1It);
   vars.ele1_effAreaForIso =  reader.GetFloat("electrons_effAreaForIso")->at(ele1It);
 
@@ -947,8 +947,8 @@ void SetElectron2Variables(WZAnalysisVariables& vars, treeReader& reader, const 
   vars.ele2_hadIso = reader.GetFloat("electrons_hadIso03_1")->at(ele2It) +
                      reader.GetFloat("electrons_hadIso03_2")->at(ele2It);
 
-  vars.ele2_PFIso_em = reader.GetFloat("electrons_iso_ch")->at(ele2It);
-  vars.ele2_PFIso_ch = reader.GetFloat("electrons_iso_em")->at(ele2It);
+  vars.ele2_PFIso_ch = reader.GetFloat("electrons_iso_ch")->at(ele2It);
+  vars.ele2_PFIso_em = reader.GetFloat("electrons_iso_em")->at(ele2It);
   vars.ele2_PFIso_nh = reader.GetFloat("electrons_iso_nh")->at(ele2It);
   vars.ele2_effAreaForIso =  reader.GetFloat("electrons_effAreaForIso")->at(ele2It);
 
