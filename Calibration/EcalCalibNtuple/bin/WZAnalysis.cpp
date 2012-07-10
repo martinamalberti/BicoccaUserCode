@@ -657,20 +657,18 @@ bool myWSelection ( WZAnalysisVariables & vars){
 
  // EleID Tight cut Based 2012
 
- if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.150 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.125 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DetaIn) > 0.004 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_sigmaIetaIeta > 0.010 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_HOverE > 0.120 ) ) return false;
- if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_ooemoop) > 0.050 ) ) return false;
 
 
- if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.125 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.150 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DetaIn) > 0.005 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_sigmaIetaIeta > 0.030 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_HOverE > 0.100 ) ) return false;
- if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_ooemoop) > 0.050 ) ) return false;
 
  if( vars.met_et       < 25.00 ) return false;
  if( vars.ele1Met_mt   < 50.00 ) return false;
