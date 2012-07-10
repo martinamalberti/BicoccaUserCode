@@ -22,6 +22,7 @@ process.Options = cms.PSet(
     entryMAX = cms.int32(-1),
     entryMODULO = cms.int32(10000),
     dataFlag = cms.int32(1),
+    dataRun  = cms.string("RUN2012A"), 
     jsonFlag = cms.int32(0),
     crossSection = cms.double(1.),
     verbosity = cms.int32(0),

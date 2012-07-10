@@ -70,6 +70,7 @@ int main(int argc, char** argv){
   int entryMODULO    = Options.getParameter<int>("entryMODULO");
   int jsonFlag       = Options.getParameter<int>("jsonFlag");
   int dataFlag       = Options.getParameter<int>("dataFlag");
+  std::string dataRun       =  Options.getParameter<std::string>("dataRun");
   float crossSection = Options.getParameter<double>("crossSection");
   int verbosity      = Options.getParameter<int>("verbosity");
   
@@ -294,9 +295,9 @@ int main(int argc, char** argv){
    if( (nTightEle == 1) && (nMediumEle == 0) ){
    std::map<float,int>::const_iterator mapIt = eleIts.begin();
    //Set Electron variables
-    SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
+   SetElectron1Variables(vars,reader,mapIt->second,inputFlag_isCalib);
    // set met variables
-   SetMetVariables(vars,reader);
+   SetMetVariables(vars,reader, dataFlag, dataRun);
     
    }
     
@@ -309,7 +310,7 @@ int main(int argc, char** argv){
       ++mapIt;
       SetElectron2Variables(vars,reader,mapIt->second,inputFlag_isCalib);
       // set met variables
-      SetMetVariables(vars,reader);
+      SetMetVariables(vars,reader,dataFlag, dataRun);
       // Set di-electron variables
       SetDiElectronVariables(vars,reader);
     }
@@ -656,7 +657,7 @@ bool myWSelection ( WZAnalysisVariables & vars){
 
  // EleID Tight cut Based 2012
 
- if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.1 ) ) return false;
+ if( ( vars.ele1_isEB == 1 ) && ( combIso/vars.ele1_pt > 0.150 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DetaIn) > 0.004 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_DphiIn) > 0.030 ) ) return false;
  if( ( vars.ele1_isEB == 1 ) && ( vars.ele1_sigmaIetaIeta > 0.010 ) ) return false;
@@ -664,7 +665,7 @@ bool myWSelection ( WZAnalysisVariables & vars){
  if( ( vars.ele1_isEB == 1 ) && ( fabs(vars.ele1_ooemoop) > 0.050 ) ) return false;
 
 
- if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.1 ) ) return false;
+ if( ( vars.ele1_isEB == 0 ) && ( combIso/vars.ele1_pt > 0.125 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DetaIn) > 0.005 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( fabs(vars.ele1_DphiIn) > 0.020 ) ) return false;
  if( ( vars.ele1_isEB == 0 ) && ( vars.ele1_sigmaIetaIeta > 0.030 ) ) return false;
