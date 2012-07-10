@@ -1115,19 +1115,7 @@ void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader, int dataFlag
         cx1 = +2.65299e-01; cx0 = +3.54233e-01;
         cy1 = -1.66425e-01; cy0 = +1.88923e-01;
       }
-   }
-   else{
-      
-     if( dataRun == "2012A" ){
-        cx1 = -6.61932e-02; cx0 = -2.99576e-02;
-        cy1 = -1.48617e-01; cy0 = +3.70819e-01;
-      }
-     if( dataRun == "2012B" ){
-        cx1 = -6.61932e-02; cx0 = -2.99576e-02;
-        cy1 = -1.48617e-01; cy0 = +3.70819e-01;
-      }
-  }
-   
+  
   float metx = vars.met.px();
   float mety = vars.met.py();
 
@@ -1135,6 +1123,9 @@ void SetMetVariables(WZAnalysisVariables& vars, treeReader& reader, int dataFlag
   mety -= (cy0 + cy1*vars.PV_n);
 
   vars.met.SetPxPyPzE(metx,mety,0,sqrt(metx*metx+mety*mety));
+   
+  }
+   
   
   vars.p_met = &vars.met;
   vars.met_et = vars.p_met->Et();
