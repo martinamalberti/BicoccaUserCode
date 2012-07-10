@@ -138,6 +138,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   EGEnergyCorrector             ecorr_;  
+  EGEnergyCorrector             ecorrPho_;  
   EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
   EcalClusterFunctionBaseClass* EcalClusterLocalContCorrection;
  
@@ -157,12 +158,14 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   std::string jsonFileName_;
   std::map<int, std::vector<std::pair<int, int> > > jsonMap_;  
+  std::string dataRun_;
 
   bool jsonFlag_;
   bool saveMCPU_;
   bool verbosity_; //---- true = loquacious     false = silence  
   bool applyCorrections_;  //---- true = correct the recHit and SC energy IN the analyzer
   bool doWZSelection_;
+  bool dataFlag_;
 
   int eventNaiveId_;
   std::map<float,int> eleIts_;
@@ -181,7 +184,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   // PU variables
 
-   float rho;
+  float rho;
   
   // PV variables
   int PV_n;
@@ -223,6 +226,9 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_scLaserCorr;
   float ele1_scE_regression;
   float ele1_scEerr_regression;
+  float ele1_scE_regression_PhotonTuned ;
+  float ele1_scEerr_regression_PhotonTuned ;
+
   float ele1_scERaw_PUcleaned;
   float ele1_scEtaWidth_PUcleaned;
   float ele1_scPhiWidth_PUcleaned;
@@ -277,7 +283,53 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int ele1_isEBPhiGap;
   int ele1_isEEDeeGap;
   int ele1_isEERingGap;
+
+  // Regression V3 variables
+  float ele1_eRegrInput_rawE;
+  float ele1_eRegrInput_r9;
+  float ele1_eRegrInput_eta;
+  float ele1_eRegrInput_phi;
+  float ele1_eRegrInput_r25;
+  float ele1_eRegrInput_hoe;
+  float ele1_eRegrInput_etaW;
+  float ele1_eRegrInput_phiW;
+  float ele1_eRegrInput_rho;
+  float ele1_eRegrInput_Deta_bC_sC;
+  float ele1_eRegrInput_Dphi_bC_sC;
+  float ele1_eRegrInput_bCE_Over_sCE;
+  float ele1_eRegrInput_e3x3_Over_bCE;
+  float ele1_eRegrInput_e5x5_Over_bCE;
+  float ele1_eRegrInput_sigietaieta_bC1;
+  float ele1_eRegrInput_sigiphiiphi_bC1;
+  float ele1_eRegrInput_sigietaiphi_bC1;
+  float ele1_eRegrInput_bEMax_Over_bCE;
+  float ele1_eRegrInput_bE2nd_Over_bCE;
+  float ele1_eRegrInput_bEtop_Over_bCE;
+  float ele1_eRegrInput_bEbot_Over_bCE;
+
+  float ele1_eRegrInput_bEleft_Over_bCE;
+  float ele1_eRegrInput_bEright_Over_bCE;
+  float ele1_eRegrInput_be2x5max_Over_bCE;
+  float ele1_eRegrInput_be2x5top_Over_bCE;
+  float ele1_eRegrInput_be2x5bottom_Over_bCE;
+  float ele1_eRegrInput_be2x5left_Over_bCE;
+  float ele1_eRegrInput_be2x5right_Over_bCE;
+
+  float ele1_eRegrInput_seedbC_eta;
+  float ele1_eRegrInput_seedbC_phi;
+  float ele1_eRegrInput_seedbC_eta_p5;
+  float ele1_eRegrInput_seedbC_phi_p2;
+  float ele1_eRegrInput_seedbC_bieta;
+  float ele1_eRegrInput_seedbC_phi_p20;
+  float ele1_eRegrInput_seedbC_etacry;
+  float ele1_eRegrInput_seedbC_phicry;
+
  
+  float ele1_eRegrInput_ESoSC;
+  float ele1_eRegrInput_nPV;
+  float ele1_eRegrInput_SCsize;
+    
+  
  // ele2 variables  
   ROOT::Math::XYZTVector ele2;
   float ele2_charge;
@@ -311,6 +363,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_scLaserCorr;
   float ele2_scE_regression;
   float ele2_scEerr_regression;
+  float ele2_scE_regression_PhotonTuned ;
+  float ele2_scEerr_regression_PhotonTuned ;
   float ele2_scERaw_PUcleaned;
   float ele2_scEtaWidth_PUcleaned;
   float ele2_scPhiWidth_PUcleaned;
@@ -364,6 +418,53 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   int ele2_isEBPhiGap;
   int ele2_isEEDeeGap;
   int ele2_isEERingGap;
+
+
+ // Regression V3 variables
+  float ele2_eRegrInput_rawE;
+  float ele2_eRegrInput_r9;
+  float ele2_eRegrInput_eta;
+  float ele2_eRegrInput_phi;
+  float ele2_eRegrInput_r25;
+  float ele2_eRegrInput_hoe;
+  float ele2_eRegrInput_etaW;
+  float ele2_eRegrInput_phiW;
+  float ele2_eRegrInput_rho;
+  float ele2_eRegrInput_Deta_bC_sC;
+  float ele2_eRegrInput_Dphi_bC_sC;
+  float ele2_eRegrInput_bCE_Over_sCE;
+  float ele2_eRegrInput_e3x3_Over_bCE;
+  float ele2_eRegrInput_e5x5_Over_bCE;
+  float ele2_eRegrInput_sigietaieta_bC1;
+  float ele2_eRegrInput_sigiphiiphi_bC1;
+  float ele2_eRegrInput_sigietaiphi_bC1;
+  float ele2_eRegrInput_bEMax_Over_bCE;
+  float ele2_eRegrInput_bE2nd_Over_bCE;
+  float ele2_eRegrInput_bEtop_Over_bCE;
+  float ele2_eRegrInput_bEbot_Over_bCE;
+
+  float ele2_eRegrInput_bEleft_Over_bCE;
+  float ele2_eRegrInput_bEright_Over_bCE;
+  float ele2_eRegrInput_be2x5max_Over_bCE;
+  float ele2_eRegrInput_be2x5top_Over_bCE;
+  float ele2_eRegrInput_be2x5bottom_Over_bCE;
+  float ele2_eRegrInput_be2x5left_Over_bCE;
+  float ele2_eRegrInput_be2x5right_Over_bCE;
+
+  float ele2_eRegrInput_seedbC_eta;
+  float ele2_eRegrInput_seedbC_phi;
+  float ele2_eRegrInput_seedbC_eta_p5;
+  float ele2_eRegrInput_seedbC_phi_p2;
+  float ele2_eRegrInput_seedbC_bieta;
+  float ele2_eRegrInput_seedbC_phi_p20;
+  float ele2_eRegrInput_seedbC_etacry;
+  float ele2_eRegrInput_seedbC_phicry;
+
+ 
+  float ele2_eRegrInput_ESoSC;
+  float ele2_eRegrInput_nPV;
+  float ele2_eRegrInput_SCsize;
+ 
  
   // met variables
   ROOT::Math::XYZTVector met;
