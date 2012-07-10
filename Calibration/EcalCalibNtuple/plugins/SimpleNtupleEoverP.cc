@@ -2079,18 +2079,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         cx1 = +2.65299e-01; cx0 = +3.54233e-01;
         cy1 = -1.66425e-01; cy0 = +1.88923e-01;
       }
-   }
-   else{
-      
-     if( dataRun_ == "2012A" ){
-        cx1 = -6.61932e-02; cx0 = -2.99576e-02;
-        cy1 = -1.48617e-01; cy0 = +3.70819e-01;
-      }
-     if( dataRun_ == "2012B" ){
-        cx1 = -6.61932e-02; cx0 = -2.99576e-02;
-        cy1 = -1.48617e-01; cy0 = +3.70819e-01;
-      }
-  }
+   
    
   float metx = met.px();
   float mety = met.py();
@@ -2099,7 +2088,8 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   mety -= (cy0 + cy1*PV_n);
 
   met.SetPxPyPzE(metx,mety,0,sqrt(metx*metx+mety*mety));
-  
+  }
+
   p_met = &met;
   met_et = p_met->Et();
   met_phi = p_met->phi();
