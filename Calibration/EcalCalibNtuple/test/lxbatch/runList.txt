@@ -1,0 +1,5 @@
+/store/group/alca_ecalcalib/ecalMIBI/SandboxRereco DoubleElectron_Run2012A-PromptReco-v1_RECO
+/store/group/alca_ecalcalib/ecalMIBI/SandboxRereco DoubleElectron_Run2012B-PromptReco-v1_RECO
+/store/group/alca_ecalcalib/sandboxRecalib/8TeV/fromUncalib/HggPaper SingleElectron-RUN2012A-v1
+/store/group/alca_ecalcalib/sandboxRecalib/8TeV/fromUncalib/HggPaper SingleElectron_Run2012B-PromptReco-v1_RECO
+
