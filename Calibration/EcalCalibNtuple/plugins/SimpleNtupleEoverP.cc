@@ -105,8 +105,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_scLaserCorr",       &ele1_scLaserCorr,         "ele1_scLaserCorr/F");
   outTree_ -> Branch("ele1_scE_regression",    &ele1_scE_regression,   "ele1_scE_regression/F");
   outTree_ -> Branch("ele1_scEerr_regression",       &ele1_scEerr_regression,         "ele1_scEerr_regression/F");
-  outTree_ -> Branch("ele1_scE_regression_PhotonTuned ",    &ele1_scE_regression_PhotonTuned ,   "ele1_scE_regression_PhotonTuned /F");
-  outTree_ -> Branch("ele1_scEerr_regression_PhotonTuned ",       &ele1_scEerr_regression_PhotonTuned ,         "ele1_scEerr_regression_PhotonTuned /F");
+  outTree_ -> Branch("ele1_scE_regression_PhotonTuned",    &ele1_scE_regression_PhotonTuned ,   "ele1_scE_regression_PhotonTuned/F");
+  outTree_ -> Branch("ele1_scEerr_regression_PhotonTuned",       &ele1_scEerr_regression_PhotonTuned ,         "ele1_scEerr_regression_PhotonTuned/F");
   
   outTree_ -> Branch("ele1_scERaw_PUcleaned",    &ele1_scERaw_PUcleaned,   "ele1_scERaw_PUcleaned/F");
   outTree_ -> Branch("ele1_scEtaWidth_PUcleaned",       &ele1_scEtaWidth_PUcleaned,         "ele1_scEtaWidth_PUcleaned/F");
@@ -271,8 +271,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_scLaserCorr",       &ele2_scLaserCorr,         "ele2_scLaserCorr/F");
   outTree_ -> Branch("ele2_scE_regression",    &ele2_scE_regression,   "ele2_scE_regression/F");
   outTree_ -> Branch("ele2_scEerr_regression",       &ele2_scEerr_regression,         "ele2_scEerr_regression/F");
-  outTree_ -> Branch("ele2_scE_regression_PhotonTuned ",    &ele2_scE_regression_PhotonTuned ,   "ele2_scE_regression_PhotonTuned /F");
-  outTree_ -> Branch("ele2_scEerr_regression_PhotonTuned",&ele2_scEerr_regression_PhotonTuned ,"ele2_scEerr_regression_PhotonTuned /F");
+  outTree_ -> Branch("ele2_scE_regression_PhotonTuned",    &ele2_scE_regression_PhotonTuned ,   "ele2_scE_regression_PhotonTuned/F");
+  outTree_ -> Branch("ele2_scEerr_regression_PhotonTuned",&ele2_scEerr_regression_PhotonTuned ,"ele2_scEerr_regression_PhotonTuned/F");
   outTree_ -> Branch("ele2_scERaw_PUcleaned",    &ele2_scERaw_PUcleaned,   "ele2_scERaw_PUcleaned/F");
   outTree_ -> Branch("ele2_scEtaWidth_PUcleaned",       &ele2_scEtaWidth_PUcleaned,         "ele2_scEtaWidth_PUcleaned/F");
   outTree_ -> Branch("ele2_scPhiWidth_PUcleaned",    &ele2_scPhiWidth_PUcleaned,   "ele2_scPhiWidth_PUcleaned/F");
