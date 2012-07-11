@@ -70,7 +70,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
  
   // ele1 variables
- 
+
   outTree_ -> Branch("ele1_charge",     &ele1_charge,         "ele1_charge/F");
   outTree_ -> Branch("ele1_p",     &ele1_p,         "ele1_p/F");
   outTree_ -> Branch("ele1_pt",     &ele1_pt,         "ele1_pt/F");
@@ -103,6 +103,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_scLaserCorr",       &ele1_scLaserCorr,         "ele1_scLaserCorr/F");
   outTree_ -> Branch("ele1_scE_regression",    &ele1_scE_regression,   "ele1_scE_regression/F");
   outTree_ -> Branch("ele1_scEerr_regression",       &ele1_scEerr_regression,         "ele1_scEerr_regression/F");
+  outTree_ -> Branch("ele1_scE_regression_PhotonTuned ",    &ele1_scE_regression_PhotonTuned ,   "ele1_scE_regression_PhotonTuned /F");
+  outTree_ -> Branch("ele1_scEerr_regression_PhotonTuned ",       &ele1_scEerr_regression_PhotonTuned ,         "ele1_scEerr_regression_PhotonTuned /F");
   outTree_ -> Branch("ele1_scERaw_PUcleaned",    &ele1_scERaw_PUcleaned,   "ele1_scERaw_PUcleaned/F");
   outTree_ -> Branch("ele1_scEtaWidth_PUcleaned",       &ele1_scEtaWidth_PUcleaned,         "ele1_scEtaWidth_PUcleaned/F");
   outTree_ -> Branch("ele1_scPhiWidth_PUcleaned",    &ele1_scPhiWidth_PUcleaned,   "ele1_scPhiWidth_PUcleaned/F");
@@ -240,6 +242,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_scLaserCorr",       &ele2_scLaserCorr,         "ele2_scLaserCorr/F");
   outTree_ -> Branch("ele2_scE_regression",    &ele2_scE_regression,   "ele2_scE_regression/F");
   outTree_ -> Branch("ele2_scEerr_regression",       &ele2_scEerr_regression,         "ele2_scEerr_regression/F");
+  outTree_ -> Branch("ele2_scE_regression_PhotonTuned ",    &ele2_scE_regression_PhotonTuned ,   "ele2_scE_regression_PhotonTuned /F");
+  outTree_ -> Branch("ele2_scEerr_regression_PhotonTuned",&ele2_scEerr_regression_PhotonTuned ,"ele2_scEerr_regression_PhotonTuned /F");
   outTree_ -> Branch("ele2_scERaw_PUcleaned",    &ele2_scERaw_PUcleaned,   "ele2_scERaw_PUcleaned/F");
   outTree_ -> Branch("ele2_scEtaWidth_PUcleaned",       &ele2_scEtaWidth_PUcleaned,         "ele2_scEtaWidth_PUcleaned/F");
   outTree_ -> Branch("ele2_scPhiWidth_PUcleaned",    &ele2_scPhiWidth_PUcleaned,   "ele2_scPhiWidth_PUcleaned/F");
@@ -471,6 +475,8 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_scLaserCorr =-99.;
   ele1_scE_regression =-99.;
   ele1_scEerr_regression=-99.;
+  ele1_scE_regression_PhotonTuned=-99.;
+  ele1_scEerr_regression_PhotonTuned=-99.;
   ele1_scERaw_PUcleaned=-99.;
   ele1_scEtaWidth_PUcleaned=-99.;
   ele1_scPhiWidth_PUcleaned=-99.;
@@ -598,6 +604,8 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_scLaserCorr =-99.;
   ele2_scE_regression =-99.;
   ele2_scEerr_regression=-99.;
+  ele2_scE_regression_PhotonTuned=-99.;
+  ele2_scEerr_regression_PhotonTuned=-99.;
   ele2_scERaw_PUcleaned=-99.;
   ele2_scEtaWidth_PUcleaned=-99.;
   ele2_scPhiWidth_PUcleaned=-99.;
