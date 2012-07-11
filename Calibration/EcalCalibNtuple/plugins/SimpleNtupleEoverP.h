@@ -132,6 +132,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   EGEnergyCorrector             ecorr_;  
+  EGEnergyCorrector             ecorrPho_;  
   EcalClusterFunctionBaseClass* EcalClusterCrackCorrection;
   EcalClusterFunctionBaseClass* EcalClusterLocalContCorrection;
  
@@ -226,6 +227,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_scLaserCorr;
   float ele1_scE_regression;
   float ele1_scEerr_regression;
+  float ele1_scE_regression_PhotonTuned ;
+  float ele1_scEerr_regression_PhotonTuned ;
   float ele1_scERaw_PUcleaned;
   float ele1_scEtaWidth_PUcleaned;
   float ele1_scPhiWidth_PUcleaned;
@@ -390,6 +393,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_scLaserCorr;
   float ele2_scE_regression;
   float ele2_scEerr_regression;
+  float ele2_scE_regression_PhotonTuned ;
+  float ele2_scEerr_regression_PhotonTuned ;
   float ele2_scERaw_PUcleaned;
   float ele2_scEtaWidth_PUcleaned;
   float ele2_scPhiWidth_PUcleaned;

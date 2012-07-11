@@ -105,6 +105,9 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_scLaserCorr",       &ele1_scLaserCorr,         "ele1_scLaserCorr/F");
   outTree_ -> Branch("ele1_scE_regression",    &ele1_scE_regression,   "ele1_scE_regression/F");
   outTree_ -> Branch("ele1_scEerr_regression",       &ele1_scEerr_regression,         "ele1_scEerr_regression/F");
+  outTree_ -> Branch("ele1_scE_regression_PhotonTuned ",    &ele1_scE_regression_PhotonTuned ,   "ele1_scE_regression_PhotonTuned /F");
+  outTree_ -> Branch("ele1_scEerr_regression_PhotonTuned ",       &ele1_scEerr_regression_PhotonTuned ,         "ele1_scEerr_regression_PhotonTuned /F");
+  
   outTree_ -> Branch("ele1_scERaw_PUcleaned",    &ele1_scERaw_PUcleaned,   "ele1_scERaw_PUcleaned/F");
   outTree_ -> Branch("ele1_scEtaWidth_PUcleaned",       &ele1_scEtaWidth_PUcleaned,         "ele1_scEtaWidth_PUcleaned/F");
   outTree_ -> Branch("ele1_scPhiWidth_PUcleaned",    &ele1_scPhiWidth_PUcleaned,   "ele1_scPhiWidth_PUcleaned/F");
@@ -268,6 +271,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_scLaserCorr",       &ele2_scLaserCorr,         "ele2_scLaserCorr/F");
   outTree_ -> Branch("ele2_scE_regression",    &ele2_scE_regression,   "ele2_scE_regression/F");
   outTree_ -> Branch("ele2_scEerr_regression",       &ele2_scEerr_regression,         "ele2_scEerr_regression/F");
+  outTree_ -> Branch("ele2_scE_regression_PhotonTuned ",    &ele2_scE_regression_PhotonTuned ,   "ele2_scE_regression_PhotonTuned /F");
+  outTree_ -> Branch("ele2_scEerr_regression_PhotonTuned",&ele2_scEerr_regression_PhotonTuned ,"ele2_scEerr_regression_PhotonTuned /F");
   outTree_ -> Branch("ele2_scERaw_PUcleaned",    &ele2_scERaw_PUcleaned,   "ele2_scERaw_PUcleaned/F");
   outTree_ -> Branch("ele2_scEtaWidth_PUcleaned",       &ele2_scEtaWidth_PUcleaned,         "ele2_scEtaWidth_PUcleaned/F");
   outTree_ -> Branch("ele2_scPhiWidth_PUcleaned",    &ele2_scPhiWidth_PUcleaned,   "ele2_scPhiWidth_PUcleaned/F");
@@ -477,6 +482,9 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele1_scLaserCorr =-99.;
   ele1_scE_regression =-99.;
   ele1_scEerr_regression=-99.;
+  ele1_scE_regression_PhotonTuned=-99.;
+  ele1_scEerr_regression_PhotonTuned=-99.;
+  
   ele1_scERaw_PUcleaned=-99.;
   ele1_scEtaWidth_PUcleaned=-99.;
   ele1_scPhiWidth_PUcleaned=-99.;
@@ -634,6 +642,8 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   ele2_scLaserCorr =-99.;
   ele2_scE_regression =-99.;
   ele2_scEerr_regression=-99.;
+  ele2_scE_regression_PhotonTuned=-99.;
+  ele2_scEerr_regression_PhotonTuned=-99.;
   ele2_scERaw_PUcleaned=-99.;
   ele2_scEtaWidth_PUcleaned=-99.;
   ele2_scPhiWidth_PUcleaned=-99.;
@@ -1150,6 +1160,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
    ecorr_.Initialize(iSetup,"/afs/cern.ch/work/r/rgerosa/CMSSW_4_2_8_patch3/src/Calibration/EcalCalibNtuple/test/crab/gbrv2ele.root");
    //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
   }
+
+ if( !ecorrPho_.IsInitialized()){
+   ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweightsV2/gbrv2ph.root");
+  } 
  
   EcalClusterLazyTools lazyTools(iEvent,iSetup,recHitCollection_EB_,recHitCollection_EE_); 
  
@@ -1215,6 +1229,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_scE_regression=cor.first;
     ele1_scEerr_regression = cor.second;
  
+    std::pair<double,double> corPho = ecorrPho_.CorrectedEnergyWithErrorV2(electron,*hVertexProduct,lazyTools,iSetup);
+    ele1_scE_regression_PhotonTuned=corPho.first;
+    ele1_scEerr_regression_PhotonTuned = corPho.second;
+
  
     EcalClusterLocal ecalLocalCoord;
     float bcLocalEta, bcLocalPhi, bcThetatilt, bcPhitilt;  
@@ -1797,6 +1815,10 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_scPhi=scRef->phi();
     ele2_scE_regression=cor.first;
     ele2_scEerr_regression = cor.second;
+ 
+    std::pair<double,double> corPho = ecorrPho_.CorrectedEnergyWithErrorV2(electron,*hVertexProduct,lazyTools,iSetup);
+    ele2_scE_regression_PhotonTuned=corPho.first;
+    ele2_scEerr_regression_PhotonTuned = corPho.second;
  
  
     EcalClusterLocal ecalLocalCoord;
