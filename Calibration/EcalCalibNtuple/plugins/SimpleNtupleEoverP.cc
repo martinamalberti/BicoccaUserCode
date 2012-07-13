@@ -392,7 +392,7 @@ SimpleNtupleEoverP::~SimpleNtupleEoverP ()
 {
   cout<< "Analyzed " <<  eventNaiveId_ << " events" <<endl;
   // save tree
-  //outTree_ -> Write();
+  outTree_ -> Write();
 }
 
 // -----------------------------------------------------------------------------------------
@@ -2077,27 +2077,27 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   float cx0,cx1;
   float cy0,cy1; 
 
-  if( dataFlag_ == true){
-
-   if( dataRun_ == "2012A" ){
-        cx1 = +2.65299e-01; cx0 = +3.54233e-01;
-        cy1 = -1.66425e-01; cy0 = +1.88923e-01;
-   }
-   if( dataRun_ == "2012B" ){
-        cx1 = +2.65299e-01; cx0 = +3.54233e-01;
-        cy1 = -1.66425e-01; cy0 = +1.88923e-01;
-      }
-   
-   
-  float metx = met.px();
-  float mety = met.py();
-
-  metx -= (cx0 + cx1*PV_n);
-  mety -= (cy0 + cy1*PV_n);
-
-  met.SetPxPyPzE(metx,mety,0,sqrt(metx*metx+mety*mety));
+  if( dataFlag_ == true && (dataRun_=="2012A" || dataRun_=="2012B")){
+    
+    if( dataRun_ == "2012A" ){
+      cx1 = +2.65299e-01; cx0 = +3.54233e-01;
+      cy1 = -1.66425e-01; cy0 = +1.88923e-01;
+    }
+    if( dataRun_ == "2012B" ){
+      cx1 = +2.65299e-01; cx0 = +3.54233e-01;
+      cy1 = -1.66425e-01; cy0 = +1.88923e-01;
+    }
+    
+    
+    float metx = met.px();
+    float mety = met.py();
+    
+    metx -= (cx0 + cx1*PV_n);
+    mety -= (cy0 + cy1*PV_n);
+    
+    met.SetPxPyPzE(metx,mety,0,sqrt(metx*metx+mety*mety));
   }
-
+  
   p_met = &met;
   met_et = p_met->Et();
   met_phi = p_met->phi();
