@@ -29,7 +29,7 @@ DICTHDRS  =  $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
 
 
 ROOTCFLAGS    = $(shell root-config --cflags)
-ROOTGLIBS     = $(shell root-config --glibs)
+ROOTGLIBS     = $(shell root-config --glibs) 
 
 CLHEPCFLAGS   =  $(shell clhep-config --include)
 CLHEPLIBS     =  $(shell clhep-config --libs)
@@ -42,17 +42,17 @@ ARCHL = -m64
 endif
 
 
-CXX  =  c++
+CXX  =  g++
 CXXFLAGS  =  -Wall -O -fPIC -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
-CPP  =  c++
+CPP  =  g++
 CPPFLAGS  = -Wall $(ARCHL) -I$(HDR) $(ROOTCFLAGS) $(CLHEPCFLAGS)
 
-LD       =  c++
+LD       =  g++
 LDFLAGS  =  -rdynamic -shared $(ARCHL)
 SONAME	 =  libEvent.so
 SOFLAGS  =  -Wl,-soname,$(SONAME)
 
-GLIBS   =  -lm -ldl -rdynamic $(ROOTGLIBS) $(CLHEPLIBS) -lGenVector
+GLIBS   =  -lm -ldl -rdynamic -lGpad $(ROOTGLIBS) $(CLHEPLIBS) -lProof -lProofPlayer -lGenVector -lFoam -lMinuit -lTMVA -lMLP -lXMLIO  -lTreePlayer
 
 
 #################################################
@@ -113,11 +113,11 @@ test:
 
 
 $(OBJ)%$(ObjSuf): %$(SrcSuf) $(HDRS)
-	$(CXX) -c $(CXXFLAGS) -o $@ $< 
+	$(CXX)  $< -c $(CXXFLAGS) -o $@
 
 
 $(OBJ)mydict.o: $(OBJ)mydict.cc $(OBJ)mydict.h
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX)  $< -c $(CXXFLAGS) -o $@
 
 
 $(OBJ)mydict.cc: $(DICTHDRS)
@@ -126,10 +126,10 @@ $(OBJ)mydict.cc: $(DICTHDRS)
 
 $(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o
 	@echo "Linking $(SONAME):" 
-	$(LD) $(LDFLAGS) $(OBJS) $(OBJ)mydict.o $(SOFLAGS) -o $(LIB)$(SONAME) 
+	$(LD) $(OBJS)  $(LDFLAGS) $(OBJ)mydict.o $(SOFLAGS) -o $(LIB)$(SONAME)
 
 $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf) $(HDRS) $(LIB)$(SONAME)
-	$(CPP) $(CPPFLAGS) -L$(LIB) $(GLIBS) -lEvent  -o $@ $<
+	$(CPP) $< $(CPPFLAGS) -L$(LIB) -lEvent $(GLIBS)  -o $@
 
 
 clean:
