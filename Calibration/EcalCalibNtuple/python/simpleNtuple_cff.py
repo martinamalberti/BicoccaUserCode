@@ -62,10 +62,11 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
     removeSpecificPATObjects( process, ['Taus'] )
     process.patDefaultSequence.remove( process.patTaus )
        
-    # Add tcMET and pfMET
-    #addTcMET(process, 'TC')
-    addPfMET(process, 'PF')
+    # Add  pfMET
+    process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 
+    addPfMET(process, 'PF')
+    process.metAnalysisSequence=cms.Sequence(process.producePFMETCorrections)
 	
     # Jet energy corrections to use:
     inputJetCorrLabel = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
@@ -206,7 +207,8 @@ def makeSimpleNtuple(process,GlobalTag,ReReco=False):
         process.AllPassFilterPhotonFilter *
         process.kt6PFJets *
         process.ak5PFJets *
-        process.kt6PFJetsForIsolation* 
+        process.kt6PFJetsForIsolation*
+	process.metAnalysisSequence* 
         process.patDefaultSequence*
         process.simpleNtuple
         )
