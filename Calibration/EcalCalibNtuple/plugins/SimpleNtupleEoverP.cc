@@ -54,6 +54,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   //---- Initialize tree branches ----
   
   // event variables
+  outTree_ -> Branch("bxId",       &bxId,                       "bxId/L");
   outTree_ -> Branch("eventId",       &eventId,                 "eventId/L");
   outTree_ -> Branch("lumiId",        &lumiId,                 "lumiId/I");
   outTree_ -> Branch("runId",         &runId,                 "runId/I");
@@ -392,7 +393,7 @@ SimpleNtupleEoverP::~SimpleNtupleEoverP ()
 {
   cout<< "Analyzed " <<  eventNaiveId_ << " events" <<endl;
   // save tree
-  outTree_ -> Write();
+  // outTree_ -> Write();
 }
 
 // -----------------------------------------------------------------------------------------
@@ -406,6 +407,7 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
   bool isGoodEvent = false;
 
   // event variables 
+  bxId = iEvent.bunchCrossing();
   runId = iEvent.id().run();
   lumiId = iEvent.luminosityBlock();
   eventId = iEvent.id().event();

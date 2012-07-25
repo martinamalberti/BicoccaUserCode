@@ -175,6 +175,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   ///---- output ----
   TTree* outTree_;
   // event variables
+  long int bxId;
   long int eventId;
   int lumiId;
   int runId;
