@@ -84,7 +84,10 @@ class SimpleNtupleGen : public edm::EDAnalyzer {
   bool saveGenTTBar_;
   bool saveGenHiggs_;
   bool saveGenHiggsWW_;
-  
+  bool saveGenHiggsGammaGamma_;
+  bool saveGenZW_ ;
+  bool saveGenPU_;
+    
   int eventType_;  //---- 0 = signal    1 = background 
   bool verbosity_; //---- true = loquacious    false = silence  
   int eventNaiveId_;

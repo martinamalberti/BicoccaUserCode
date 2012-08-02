@@ -26,16 +26,19 @@ SimpleNtupleGen::SimpleNtupleGen(const edm::ParameterSet& iConfig)
   
   
   //---- flags ----
-  saveGenPtHat_   = iConfig.getUntrackedParameter<bool>("saveGenPtHat", true);
-  saveGenEle_     = iConfig.getUntrackedParameter<bool>("saveGenEle", true);
-  saveGenMu_      = iConfig.getUntrackedParameter<bool>("saveGenMu", true);
-  saveGenTau_     = iConfig.getUntrackedParameter<bool>("saveGenTau", true);
-  saveGenTauJ_    = iConfig.getUntrackedParameter<bool>("saveGenTauJ", true);
-  saveGenMet_     = iConfig.getUntrackedParameter<bool>("saveGenMet", true);
-  saveGenJet_     = iConfig.getUntrackedParameter<bool>("saveGenJet", true);
-  saveGenTTBar_   = iConfig.getUntrackedParameter<bool>("saveGenTTBar", false);
-  saveGenHiggs_   = iConfig.getUntrackedParameter<bool>("saveGenHiggs", true);
-  saveGenHiggsWW_ = iConfig.getUntrackedParameter<bool>("saveGenHiggsWW", true);
+  saveGenPtHat_           = iConfig.getUntrackedParameter<bool>("saveGenPtHat", true);
+  saveGenEle_             = iConfig.getUntrackedParameter<bool>("saveGenEle", true);
+  saveGenMu_              = iConfig.getUntrackedParameter<bool>("saveGenMu", true);
+  saveGenTau_             = iConfig.getUntrackedParameter<bool>("saveGenTau", true);
+  saveGenTauJ_            = iConfig.getUntrackedParameter<bool>("saveGenTauJ", true);
+  saveGenMet_             = iConfig.getUntrackedParameter<bool>("saveGenMet", true);
+  saveGenJet_             = iConfig.getUntrackedParameter<bool>("saveGenJet", true);
+  saveGenTTBar_           = iConfig.getUntrackedParameter<bool>("saveGenTTBar", false);
+  saveGenHiggs_           = iConfig.getUntrackedParameter<bool>("saveGenHiggs", true);
+  saveGenHiggsWW_         = iConfig.getUntrackedParameter<bool>("saveGenHiggsWW", true);
+  saveGenHiggsGammaGamma_ = iConfig.getUntrackedParameter<bool>("saveGenHiggsGammaGamma", false);
+  saveGenZW_              = iConfig.getUntrackedParameter<bool>("saveGenZW", false);
+  saveGenPU_              = iConfig.getUntrackedParameter<bool>("saveGenPU", false);
   
   verbosity_ = iConfig.getUntrackedParameter<bool>("verbosity", false);
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -132,7 +135,7 @@ SimpleNtupleGen::SimpleNtupleGen(const edm::ParameterSet& iConfig)
     NtupleFactory_->Add4V("mcH");    
     NtupleFactory_->AddFloat("mcH_charge");    
     
-    if(saveGenHiggsWW_)
+    if(saveGenHiggsWW_ || saveGenHiggsGammaGamma_)
     {
       NtupleFactory_->Add4V("mcQ1_tag");    
       NtupleFactory_->AddFloat("mcQ1_tag_charge");    
@@ -149,7 +152,10 @@ SimpleNtupleGen::SimpleNtupleGen(const edm::ParameterSet& iConfig)
       NtupleFactory_->Add4V("mcV2");         
       NtupleFactory_->AddFloat("mcV2_charge");    
       NtupleFactory_->AddFloat("mcV2_pdgId");  
-      
+    }
+    
+    if(saveGenHiggsWW_)
+    {
       NtupleFactory_->Add4V("mcF1_fromV1");   
       NtupleFactory_->AddFloat("mcF1_fromV1_charge");    
       NtupleFactory_->AddFloat("mcF1_fromV1_pdgId");  
@@ -165,6 +171,57 @@ SimpleNtupleGen::SimpleNtupleGen(const edm::ParameterSet& iConfig)
       NtupleFactory_->Add4V("mcF2_fromV2");         
       NtupleFactory_->AddFloat("mcF2_fromV2_charge");    
       NtupleFactory_->AddFloat("mcF2_fromV2_pdgId");  
+    }
+    
+    if(saveGenZW_)
+    {
+      NtupleFactory_->Add4V("mc_V");
+      NtupleFactory_->AddFloat("mc_V_charge");
+      NtupleFactory_->AddFloat("mcV_pdgId");
+      NtupleFactory_->Add3V("mc_V_vertex");
+
+      NtupleFactory_->Add4V("mcQ1_tag");
+      NtupleFactory_->AddFloat("mcQ1_tag_charge");
+      NtupleFactory_->AddFloat("mcQ1_tag_pdgId");
+
+      NtupleFactory_->Add4V("mcQ2_tag");
+      NtupleFactory_->AddFloat("mcQ2_tag_charge");
+      NtupleFactory_->AddFloat("mcQ2_tag_pdgId");
+
+      NtupleFactory_->Add4V("mcF1_fromV");
+      NtupleFactory_->AddFloat("mcF1_fromV_charge");
+      NtupleFactory_->AddFloat("mcF1_fromV_pdgId");
+
+      NtupleFactory_->Add4V("mcF2_fromV");
+      NtupleFactory_->AddFloat("mcF2_fromV_charge");
+      NtupleFactory_->AddFloat("mcF2_fromV_pdgId");
+    }
+    
+    if(saveGenPU_)
+    {
+      NtupleFactory_ -> AddFloat("mc_PUit_TrueNumInteractions");
+      NtupleFactory_ -> AddInt  ("mc_PUit_NumInteractions");
+      NtupleFactory_ -> AddFloat("mc_PUit_zpositions");
+      NtupleFactory_ -> AddFloat("mc_PUit_sumpT_lowpT");
+      NtupleFactory_ -> AddFloat("mc_PUit_sumpT_highpT");
+      NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_lowpT");
+      NtupleFactory_ -> AddInt  ("mc_PUit_ntrks_highpT");
+
+      NtupleFactory_ -> AddFloat("mc_PUoot_early_TrueNumInteractions");
+      NtupleFactory_ -> AddInt  ("mc_PUoot_early_NumInteractions");
+      NtupleFactory_ -> AddFloat("mc_PUoot_early_zpositions");
+      NtupleFactory_ -> AddFloat("mc_PUoot_early_sumpT_lowpT");
+      NtupleFactory_ -> AddFloat("mc_PUoot_early_sumpT_highpT");
+      NtupleFactory_ -> AddInt  ("mc_PUoot_early_ntrks_lowpT");
+      NtupleFactory_ -> AddInt  ("mc_PUoot_early_ntrks_highpT");
+
+      NtupleFactory_ -> AddFloat("mc_PUoot_late_TrueNumInteractions");
+      NtupleFactory_ -> AddInt  ("mc_PUoot_late_NumInteractions");
+      NtupleFactory_ -> AddFloat("mc_PUoot_late_zpositions");
+      NtupleFactory_ -> AddFloat("mc_PUoot_late_sumpT_lowpT");
+      NtupleFactory_ -> AddFloat("mc_PUoot_late_sumpT_highpT");
+      NtupleFactory_ -> AddInt  ("mc_PUoot_late_ntrks_lowpT");
+      NtupleFactory_ -> AddInt  ("mc_PUoot_late_ntrks_highpT");
     }
   }
 }
@@ -332,7 +389,7 @@ void SimpleNtupleGen::fillGenHiggsInfo(const edm::Event & iEvent, const edm::Eve
     NtupleFactory_->Fill4V("mcH",mcAnalysisHiggs_ -> mcH()->p4());
     NtupleFactory_->FillFloat("mcH_charge",mcAnalysisHiggs_ -> mcH()->charge());
     
-    if(saveGenHiggsWW_)
+    if(saveGenHiggsWW_ || saveGenHiggsGammaGamma_)
     {  
       NtupleFactory_->Fill4V("mcQ1_tag",mcAnalysisHiggs_ -> mcQ1_tag()->p4());
       NtupleFactory_->FillFloat("mcQ1_tag_charge",mcAnalysisHiggs_ -> mcQ1_tag()->charge());
@@ -349,7 +406,10 @@ void SimpleNtupleGen::fillGenHiggsInfo(const edm::Event & iEvent, const edm::Eve
       NtupleFactory_->Fill4V("mcV2",mcAnalysisHiggs_ -> mcV2()->p4());
       NtupleFactory_->FillFloat("mcV2_charge",mcAnalysisHiggs_ -> mcV2()->charge());
       NtupleFactory_->FillFloat("mcV2_pdgId",mcAnalysisHiggs_ -> mcV2()->pdgId());
-      
+    }
+    
+    if(saveGenHiggsWW_)
+    {
       NtupleFactory_->Fill4V("mcF1_fromV1",mcAnalysisHiggs_ -> mcF1_fromV1()->p4());
       NtupleFactory_->FillFloat("mcF1_fromV1_charge",mcAnalysisHiggs_ -> mcF1_fromV1()->charge());
       NtupleFactory_->FillFloat("mcF1_fromV1_pdgId",mcAnalysisHiggs_ -> mcF1_fromV1()->pdgId());
