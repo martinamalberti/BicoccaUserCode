@@ -15,16 +15,17 @@ SimpleNtupleGen = cms.EDAnalyzer(
     
     #--------------
     #### flags ####
-    saveMCPtHat    = cms.untracked.bool(True),
-    saveGenEle     = cms.untracked.bool(True),
-    saveGenMu      = cms.untracked.bool(True),
-    saveGenTau     = cms.untracked.bool(True),
-    saveGenTauJ    = cms.untracked.bool(True),
-    saveGenMet     = cms.untracked.bool(True),
-    saveGenJet     = cms.untracked.bool(True),
-    saveMCTTBar    = cms.untracked.bool(False),    
-    saveMCHiggs    = cms.untracked.bool(True),
-    saveMCHiggsWW  = cms.untracked.bool(True),
+    saveMCPtHat            = cms.untracked.bool(True),
+    saveGenEle             = cms.untracked.bool(True),
+    saveGenMu              = cms.untracked.bool(True),
+    saveGenTau             = cms.untracked.bool(True),
+    saveGenTauJ            = cms.untracked.bool(True),
+    saveGenMet             = cms.untracked.bool(True),
+    saveGenJet             = cms.untracked.bool(True),
+    saveGenTTBar           = cms.untracked.bool(False),
+    saveGenHiggs           = cms.untracked.bool(False),
+    saveGenHiggsWW         = cms.untracked.bool(False),
+    saveGenHiggsGammaGamma = cms.untracked.bool(False),
 	    
     eventType      = cms.untracked.int32(0),
     
