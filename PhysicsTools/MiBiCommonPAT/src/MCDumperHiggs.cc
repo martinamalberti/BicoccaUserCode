@@ -108,7 +108,7 @@ void MCDumperHiggs::Analyze(edm::Handle<reco::GenParticleCollection>& genParticl
     }
     
     // higgs
-    if( (pdgId == 25) && (status == 3) )
+    if( ( (pdgId == 25) || (pdgId == 5000039) ) && (status == 3) )
     {
       mcH_p = pCurrent;
     }
