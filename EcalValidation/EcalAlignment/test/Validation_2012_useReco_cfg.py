@@ -33,7 +33,9 @@ process.source = cms.Source("PoolSource",
   # fileNames = cms.untracked.vstring('file:/data2/amassiro/CMSSWRoot/WZtoAnything_TuneZ2_7TeV-pythia6-tauola_Spring11-PU_S1_START311_V1G1-v1/F0F54048-4A50-E011-9CDE-003048D47792.root')   
 
     fileNames = cms.untracked.vstring(
-        'file:/data2/amassiro/CMSSWRoot/DATA2012/SingleElectron_AOD/April07.root'
+        #'file:/data2/amassiro/CMSSWRoot/DATA2012/SingleElectron_AOD/April07.root'
+        #'file:/data2/amassiro/CMSSWRoot/DATA2012/Run2012B_DoubleElectron_RAW-RECO_PromptSkim-v1/B4507E93-C0A4-E111-B958-0030486790C0.root'
+        'file:/data2/amassiro/CMSSWRoot/DATA2012/DoubleElectron_Run2012B-ZElectron-13Jul2012-v1_RAW-RECO/FEE043A5-93D4-E111-84DC-0030486790C0.root'
     ) )
 #file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-PromptReco-v1_AOD/outSkim_1_1_Fq4.root')     )
 
@@ -69,7 +71,9 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 # process.GlobalTag.globaltag = 'GR_P_V32::All'
-process.GlobalTag.globaltag = 'GR_R_52_V7::All'
+# process.GlobalTag.globaltag = 'GR_R_52_V7::All'
+process.GlobalTag.globaltag = 'GR_R_52_V9D::All'
+     
 
 
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions?redirectedfrom=CMS.SWGuideFrontierConditions#311X_Releases  
@@ -145,8 +149,8 @@ process.FilterPatDefaultSequenceEvents = cms.EDProducer("EventCountProducer")
 process.ntupleEcalAlignment = cms.EDAnalyzer(
     'EcalAlignment',
 
-    recHitCollection_EB = cms.InputTag("reducedEcalRecHitsEB"),
-    recHitCollection_EE = cms.InputTag("reducedEcalRecHitsEE"),
+    recHitCollection_EB = cms.InputTag("reducedEcalRecHitsEB:RECO"),
+    recHitCollection_EE = cms.InputTag("reducedEcalRecHitsEE:RECO"),
 #    recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
 #    recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     EleTag              = cms.InputTag("patElectrons"),
