@@ -16,6 +16,9 @@
 
 SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 {
+  std::cout<< ">>> SimpleNtupleEoverP::SimpleNtupleEoverP begin <<<" << std::endl;
+  
+  
   // Initialize parameters for cluster corrections
   InitializeParams(params);
 
@@ -381,8 +384,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
  
   // JSON file map 
   jsonMap_ = readJSONFile(jsonFileName_);
-
- 
+  
+  std::cout<< ">>> SimpleNtupleEoverP::SimpleNtupleEoverP end <<<" << std::endl;
 }
 
 // --------------------------------------------------------------------
@@ -391,7 +394,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
 SimpleNtupleEoverP::~SimpleNtupleEoverP ()
 {
-  cout<< "Analyzed " <<  eventNaiveId_ << " events" <<endl;
+  std::cout<< ">>> SimpleNtupleEoverP::~SimpleNtupleEoverP <<< analyzed " <<  eventNaiveId_ << " events" << std::endl;
   // save tree
   // outTree_ -> Write();
 }
@@ -400,8 +403,12 @@ SimpleNtupleEoverP::~SimpleNtupleEoverP ()
 
 
 
-void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  if( verbosity_ )
+    std::cout<< ">>> SimpleNtupleEoverP::analyze begin <<<" << std::endl;
+  
+  
   ++eventNaiveId_;
   
   bool isGoodEvent = false;
@@ -805,6 +812,10 @@ void SimpleNtupleEoverP::analyze (const edm::Event& iEvent, const edm::EventSetu
  
          if (isW==1 || isZ==1) outTree_ -> Fill();
          }
+  
+  
+  if( verbosity_ )
+    std::cout<< ">>> SimpleNtupleEoverP::analyze end <<<" << std::endl;
 }
 
 
@@ -836,9 +847,13 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
  float emIso  = electron.dr03EcalRecHitSumEt(); 
  float hadIso = electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
  float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
-   
+ 
+ // default
  float combIso = tkIso +std::max(emIso + hadIso - rho*AEff,float(0.));
-      
+ 
+ // 2011-like test
+ //float combIso = tkIso + emIso + hadIso - rho*3.14159*0.3*0.3;
+ 
  int isEB = electron.isEB();
  float sigmaIetaIeta = electron.sigmaIetaIeta();
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
@@ -861,6 +876,7 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
  
  bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
  
+ // default
  if(  (pt > 20.) && (fabs(eta) < 2.5) &&
       ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
       ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
@@ -872,9 +888,19 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
       ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
       ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
       ( mishits == 0 ) &&
-      ( nAmbiguousGsfTracks == 0 )      
-        )
+      ( nAmbiguousGsfTracks == 0 ) )
    isTightEle=true;
+ 
+ // 2011-like test
+ //if(  (pt > 20.) && (fabs(eta) < 2.5) &&
+ //     ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
+ //     ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+ //     ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+ //     //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
+ //     ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
+ //     ( mishits == 0 ) &&
+ //     ( nAmbiguousGsfTracks == 0 ) )
+ //  isTightEle=true;
 
 return isTightEle;
 
@@ -907,9 +933,13 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
  float hadIso = electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
  
  float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
-
+ 
+ // default
  float combIso = tkIso +std::max(emIso + hadIso - rho*AEff,float(0.));
-       
+ 
+ // 2011-like test
+ //float combIso = tkIso + emIso + hadIso - rho*3.14159*0.3*0.3;
+ 
  int isEB = electron.isEB();
  float sigmaIetaIeta = electron.sigmaIetaIeta();
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
@@ -932,6 +962,7 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
  
  bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
  
+ // default
  if(  (pt > 12.) && (fabs(eta) < 2.5) &&
       ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
       ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
@@ -946,6 +977,18 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
       ( nAmbiguousGsfTracks == 0 )      
         )
     isMediumEle=true;
+ 
+ // 2011-like test
+ //if(  (pt > 12.) && (fabs(eta) < 2.5) &&
+ //     ( ( (isEB == 1) && (fabs(DetaIn)  < 0.004) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.007) ) ) &&
+ //     ( ( (isEB == 1) && (fabs(DphiIn)  < 0.060) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.030) ) ) &&
+ //     ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+ //     //( ( (isEB == 1) && (HOverE        < 0.040) ) || ( (isEB == 0) && (HOverE        < 0.025) ) ) &&
+ //     ( ( (isEB == 1) && (combIso/pt    < 0.070) ) || ( (isEB == 0) && (combIso/pt    < 0.060) ) ) &&
+ //     ( mishits == 0 ) &&
+ //     ( nAmbiguousGsfTracks == 0 )      
+ //       )
+ //   isMediumEle=true;
 
 
 return isMediumEle;
@@ -979,8 +1022,12 @@ bool SimpleNtupleEoverP::LooseEle (const edm::Event & iEvent, const edm::EventSe
  
  float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
 
+ // default
  float combIso = tkIso +std::max(emIso + hadIso - rho*AEff,float(0.));
-      
+ 
+ // 2011-like test
+ //float combIso = tkIso + emIso + hadIso - rho*3.14159*0.3*0.3;      
+ 
  int isEB = electron.isEB();
  float sigmaIetaIeta = electron.sigmaIetaIeta();
  float DetaIn        = electron.deltaEtaSuperClusterTrackAtVtx();
@@ -1003,19 +1050,32 @@ bool SimpleNtupleEoverP::LooseEle (const edm::Event & iEvent, const edm::EventSe
  
  bool isConverted = ConversionTools::hasMatchedConversion(electron, conversions_h, BS.position());
  
-  if(    (pt > 10.) && (fabs(eta) < 2.5) &&
-         ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.009) ) ) &&
-         ( ( (isEB == 1) && (fabs(DphiIn)  < 0.150) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.100) ) ) &&
-         ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
-         ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
-         ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
-         ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
-         ( ( (isEB == 1) && (fabs(dz)      < 0.200) ) || ( (isEB == 0) && (fabs(dz)      < 0.200) ) ) &&
-         ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
-         ( mishits == 0 ) &&
-         ( nAmbiguousGsfTracks == 0 ) &&
-         ( ( (isEB == 1 ) && (combIso/pt    < 0.150) ) || ( (isEB == 0 ) && (combIso/pt    < 0.100) ) )    
-        ) isLooseEle=true;;
+ // default
+ if(   (pt > 10.) && (fabs(eta) < 2.5) &&
+       ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.009) ) ) &&
+       ( ( (isEB == 1) && (fabs(DphiIn)  < 0.150) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.100) ) ) &&
+       ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+       ( ( (isEB == 1) && (HOverE        < 0.120) ) || ( (isEB == 0) && (HOverE        < 0.100) ) ) &&
+       ( ( (isEB == 1) && (fabs(ooemoop) < 0.050) ) || ( (isEB == 0) && (fabs(ooemoop) < 0.050) ) ) &&
+       ( ( (isEB == 1) && (fabs(dxy)     < 0.020) ) || ( (isEB == 0) && (fabs(dxy)     < 0.020) ) ) &&
+       ( ( (isEB == 1) && (fabs(dz)      < 0.200) ) || ( (isEB == 0) && (fabs(dz)      < 0.200) ) ) &&
+       ( ( (isEB == 1) && (!isConverted) ) || ( (isEB == 0) && (!isConverted) ) ) &&
+       ( mishits == 0 ) &&
+       ( nAmbiguousGsfTracks == 0 ) &&
+       ( ( (isEB == 1 ) && (combIso/pt    < 0.150) ) || ( (isEB == 0 ) && (combIso/pt    < 0.100) ) ) )
+   isLooseEle=true;;
+ 
+ // 2011-like test
+ //if(   (pt > 10.) && (fabs(eta) < 2.5) &&
+ //      ( ( (isEB == 1) && (fabs(DetaIn)  < 0.007) ) || ( (isEB == 0) && (fabs(DetaIn)  < 0.010) ) ) &&
+ //      ( ( (isEB == 1) && (fabs(DphiIn)  < 0.800) ) || ( (isEB == 0) && (fabs(DphiIn)  < 0.700) ) ) &&
+ //      ( ( (isEB == 1) && (sigmaIetaIeta < 0.010) ) || ( (isEB == 0) && (sigmaIetaIeta < 0.030) ) ) &&
+ //      ( ( (isEB == 1) && (HOverE        < 0.150) ) || ( (isEB == 0) && (HOverE        < 0.070) ) ) &&
+ //      ( mishits == 0 ) &&
+ //      ( nAmbiguousGsfTracks == 0 ) &&
+ //      ( ( (isEB == 1 ) && (combIso/pt    < 0.150) ) || ( (isEB == 0 ) && (combIso/pt    < 0.100) ) ) )
+ //  isLooseEle=true;;
+
  
 return isLooseEle;
 }
@@ -1024,24 +1084,39 @@ return isLooseEle;
 
 bool SimpleNtupleEoverP::myWselection (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 { 
-
-
+  // default
   float combIso = ele1_tkIso +std::max(ele1_emIso + ele1_hadIso - rho*ele1_effAreaForIso,float(0.));
-
+  
+  // 2011-like test
+  //float combIso = ele1_tkIso + ele1_emIso + ele1_hadIso - rho*3.14159*0.3*0.3;
+  
   if( ele1_pt < 30. ) return false;
+  
+  // default
   if( ( ele1_isEB == 1 ) && ( combIso/ele1_pt > 0.05 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( fabs(ele1_DetaIn) > 0.004 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( fabs(ele1_DphiIn) > 0.030 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( ele1_sigmaIetaIeta > 0.010 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( ele1_HOverE > 0.120 ) ) return false;
   if( ( ele1_isEB == 1 ) && ( fabs(ele1_ooemoop) > 0.050 ) ) return false;
-
+  
   if( ( ele1_isEB == 0 ) && ( combIso/ele1_pt > 0.035 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DetaIn) > 0.005 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_DphiIn) > 0.020 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( ele1_sigmaIetaIeta > 0.030 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( ele1_HOverE > 0.100 ) ) return false;
   if( ( ele1_isEB == 0 ) && ( fabs(ele1_ooemoop) > 0.050 ) ) return false;
+  
+  // 2011-like test
+  //if( ( ele1_isEB == 1 ) && ( combIso/ele1_pt > 0.04 ) ) return false;
+  //if( ( ele1_isEB == 1 ) && ( fabs(ele1_DetaIn) > 0.004 ) ) return false;
+  //if( ( ele1_isEB == 1 ) && ( fabs(ele1_DphiIn) > 0.030 ) ) return false;
+  //if( ( ele1_isEB == 1 ) && ( ele1_HOverE > 0.25 ) ) return false;
+  
+  //if( ( ele1_isEB == 0 ) && ( combIso/ele1_pt > 0.03 ) ) return false;
+  //if( ( ele1_isEB == 0 ) && ( fabs(ele1_DetaIn) > 0.005 ) ) return false;
+  //if( ( ele1_isEB == 0 ) && ( fabs(ele1_DphiIn) > 0.020 ) ) return false;
+  //if( ( ele1_isEB == 0 ) && ( ele1_HOverE > 0.025 ) ) return false;
        
   if( met_et       < 25.00 ) return false;
   if( ele1Met_mt   < 50.00 ) return false;
