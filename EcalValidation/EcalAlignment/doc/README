@@ -15,6 +15,26 @@ cmsenv
 scramv1 b
 
 
+######################################################################################
+############################ Use RAW-RECO without RE-RECO ############################
+
+cd EcalValidation/EcalAlignment/test/
+cmsRun Validation_2012_useReco_cfg.py
+
+cd EcalValidation/EcalAlignment/test/crab/
+crab_validation_useReco.cfg
+multicrab -create -cfg multicrab_useReco.cfg
+multicrab -submit
+multicrab -status
+multicrab -get
+
+
+################################################################
+############################ Use MC ############################
+
+FIXME!!!!!!!!!
+
+
 
 ###########################################################################
 ############################ Old alignment TAG ############################
