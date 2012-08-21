@@ -24,13 +24,11 @@ while(<USERCONFIG>)
 $BASEDir     = $User_Preferences{"BASEDir"};
 $DATASETName = $User_Preferences{"DATASETName"};
 $FOLDERName  = $User_Preferences{"FOLDERName"};
-$JSONFile    = $User_Preferences{"JSONFile"};
 $PERIODName  = $User_Preferences{"PERIODName"};
 
 print "BASEDir     = ".$BASEDir.     "\n";
 print "DATASETName = ".$DATASETName. "\n";
 print "FOLDERName  = ".$FOLDERName."\n";
-print "JSONFile    = ".$JSONFile.  "\n";
 print "PERIODName  = ".$PERIODName.  "\n";
 
 
