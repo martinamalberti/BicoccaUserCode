@@ -13,7 +13,7 @@ process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 # simpleNtuple
-makeSimpleNtuple(process,GlobalTag="GR_P_V40::All",runOverSandbox=True)
+makeSimpleNtuple(process,GlobalTag="GR_P_V41::All",runOverSandbox=False)
 
 #makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
@@ -22,7 +22,7 @@ makeSimpleNtuple(process,GlobalTag="GR_P_V40::All",runOverSandbox=True)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    'file:/data2/alcareco-26_05_12_87_1_HBU.root'
+    'file:'
     )
 
 process.maxEvents = cms.untracked.PSet(
