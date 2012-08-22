@@ -38,7 +38,7 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox):
 
     if not runOverSandbox:
         process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("reducedEcalRecHitsEB")
-        process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("reducedEcalRecHitsEB")
+        process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("reducedEcalRecHitsEE")
         process.simpleNtupleEoverP.EleTag              = cms.InputTag("gsfElectrons")
         process.simpleNtupleEoverP.rhoTag              = cms.InputTag("kt6PFJets","rho")
     
