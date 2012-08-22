@@ -45,7 +45,7 @@ $year    = 1900+$time[5];
 $month   = 1+$time[4];
 $day     = $time[3];
 $hours   = $time[2];
-$minutes = $time[3];
+$minutes = $time[1];
 
 $date = $year."-".$month."-".$day."_".$hours.":".$minutes;
 print("date: ".$date."\n");
@@ -91,6 +91,8 @@ print JSON "}\n";
 
 $CMSSW_RELEASE_BASE = $ENV{'CMSSW_RELEASE_BASE'};
 system("python ".$CMSSW_RELEASE_BASE."/src/FWCore/PythonUtilities/scripts/compareJSON.py --and tempJson.txt /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/DCSOnly/json_DCSONLY.txt json.txt");
+
+system("rm tempJson.txt");
 
 
 
