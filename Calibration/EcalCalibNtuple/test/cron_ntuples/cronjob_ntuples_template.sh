@@ -46,7 +46,7 @@ echo ""
 echo "****** LAUNCH THE JOBS ******"
 
 perl launchNtuples.pl paramsCronjob_ntuples.cfg
-source lancia.sh
+sh BASEDIR/test/cron_ntuples/lancia.sh
 
 
 

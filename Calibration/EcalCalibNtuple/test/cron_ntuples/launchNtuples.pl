@@ -101,7 +101,7 @@ system("rm tempJson.txt");
 
 system("rm lancia.sh");
 open LANCIA, ">", "lancia.sh";
-system("chmode a+x lancia.sh");
+system("chmod a+x lancia.sh");
 
 print LANCIA "echo \"\"\n";
 print LANCIA "echo \"\"\n";
