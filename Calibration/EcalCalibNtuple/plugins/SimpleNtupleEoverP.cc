@@ -149,6 +149,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_EOverP",       &ele1_EOverP,  "ele1_EOverP/F");
 
   outTree_ -> Branch("ele1_recHit_E",              "std::vector<float>", &ele1_recHit_E);
+  outTree_ -> Branch("ele1_recHit_flag",           "std::vector<int>",   &ele1_recHit_flag);
   outTree_ -> Branch("ele1_recHit_hashedIndex", "std::vector<int>",   &ele1_recHit_hashedIndex);
   outTree_ -> Branch("ele1_recHit_ietaORix", "std::vector<int>",   &ele1_recHit_ietaORix);
   outTree_ -> Branch("ele1_recHit_iphiORiy", "std::vector<int>",   &ele1_recHit_iphiORiy);
@@ -281,6 +282,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_EOverP",       &ele2_EOverP,  "ele2_EOverP/F");
 
   outTree_ -> Branch("ele2_recHit_E",              "std::vector<float>", &ele2_recHit_E);
+  outTree_ -> Branch("ele2_recHit_flag",           "std::vector<int>", &ele2_recHit_flag);
   outTree_ -> Branch("ele2_recHit_hashedIndex", "std::vector<int>",   &ele2_recHit_hashedIndex);
   outTree_ -> Branch("ele2_recHit_ietaORix", "std::vector<int>",   &ele2_recHit_ietaORix);
   outTree_ -> Branch("ele2_recHit_iphiORiy", "std::vector<int>",   &ele2_recHit_iphiORiy);
@@ -519,6 +521,7 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele1_EOverP=-99.;
 
   ele1_recHit_E.clear();
+  ele1_recHit_flag.clear();
   ele1_recHit_hashedIndex.clear();
   ele1_recHit_ietaORix.clear();
   ele1_recHit_iphiORiy.clear();
@@ -647,6 +650,7 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele2_EOverP=-99.;
 
   ele2_recHit_E.clear();
+  ele2_recHit_flag.clear();
   ele2_recHit_hashedIndex.clear();
   ele2_recHit_ietaORix.clear();
   ele2_recHit_iphiORiy.clear();
@@ -1534,6 +1538,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
         // fill recHit variables
         ele1_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
+        ele1_recHit_flag.push_back(itrechit->recoFlag());
         ele1_recHit_hashedIndex.push_back(barrelId.hashedIndex());
         ele1_recHit_ietaORix.push_back(barrelId.ieta());
         ele1_recHit_iphiORiy.push_back(barrelId.iphi());
@@ -1579,6 +1584,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
         // fill recHit variables
         ele1_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
+        ele1_recHit_flag.push_back(itrechit->recoFlag());
         ele1_recHit_hashedIndex.push_back(endcapId.hashedIndex());
         ele1_recHit_ietaORix.push_back(endcapId.ix());
         ele1_recHit_iphiORiy.push_back(endcapId.iy());
@@ -1982,6 +1988,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
         // fill recHit variables
         ele2_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
+        ele2_recHit_flag.push_back(itrechit->recoFlag());
         ele2_recHit_hashedIndex.push_back(barrelId.hashedIndex());
         ele2_recHit_ietaORix.push_back(barrelId.ieta());
         ele2_recHit_iphiORiy.push_back(barrelId.iphi());
@@ -2027,6 +2034,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
         // fill recHit variables
         ele2_recHit_E.push_back(itrechit->energy() * rhLaserCorrection);
+        ele2_recHit_flag.push_back(itrechit->recoFlag());
         ele2_recHit_hashedIndex.push_back(endcapId.hashedIndex());
         ele2_recHit_ietaORix.push_back(endcapId.ix());
         ele2_recHit_iphiORiy.push_back(endcapId.iy());
