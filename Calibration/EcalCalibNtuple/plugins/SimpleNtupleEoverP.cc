@@ -1177,32 +1177,34 @@ void SimpleNtupleEoverP::fillRhoInfo(const edm::Event & iEvent, const edm::Event
 // ------------------------------------------------------------------------------------------------------------
 
 void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int iEle, const std::string eleName )
-{ 
+{
+  if( verbosity_ )
+    std::cout<< ">>> SimpleNtupleEoverP::fillEleInfo start <<<" << std::endl;
+  
+  
   //*********** CALO TOPOLOGY
   edm::ESHandle<CaloTopology> pTopology;
   iSetup.get<CaloTopologyRecord>().get(pTopology);
   const CaloTopology *topology = pTopology.product();
-
+  
   //*********** IC CONSTANTS
   edm::ESHandle<EcalIntercalibConstants> theICConstants;
   iSetup.get<EcalIntercalibConstantsRcd>().get(theICConstants);
   const EcalIntercalibConstantMap& ICMap = theICConstants->getMap();
   
-   
- //*********** ADCToGeV
+  //*********** ADCToGeV
   edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
   iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);
-
-   
+  
   //*********** LASER ALPHAS
   edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
   iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
   const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
-
+  
   //*********** LASER CORRECTION
   edm::ESHandle<EcalLaserDbService> theLaser;
   iSetup.get<EcalLaserDbRecord>().get(theLaser);
- 
+  
   //*********** EB REC HITS
   edm::Handle<EcalRecHitCollection> recHitsEB;
   iEvent.getByLabel( recHitCollection_EB_, recHitsEB );
@@ -1218,38 +1220,41 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   if ( ! recHitsEE.isValid() ) {
     std::cerr << "SimpleNtupleEoverP::analyze --> recHitsEE not found" << std::endl; 
   }
-
+  
   //************* ELECTRONS
   Handle<View<reco::GsfElectron> > electronHandle;
   iEvent.getByLabel(EleTag_,electronHandle);
   View<reco::GsfElectron> electrons = *electronHandle;
-
+  
   //************* VERTEX COLLECTION
   edm::Handle<reco::VertexCollection> hVertexProduct;
   iEvent.getByLabel("offlinePrimaryVerticesWithBS",hVertexProduct);
-
+  
   //************* CLUSTER LAZY TOOLS
+  EcalClusterLazyTools lazyTools(iEvent,iSetup,recHitCollection_EB_,recHitCollection_EE_); 
+  
+  //************* REGRESSION
   if( !ecorr_.IsInitialized() ){
-   ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
-   //ecorr_.Initialize(iSetup,"wgbrph",true); // --- > FIXME : use ele regression!!! weights in DB not meanngful for now
+    ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
   }
   if( !ecorrPho_.IsInitialized()){
-   ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ph_52x.root");
+    ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ph_52x.root");
   } 
-
-  EcalClusterLazyTools lazyTools(iEvent,iSetup,recHitCollection_EB_,recHitCollection_EE_); 
- 
- //************* CLUSTER PU CLEANING TOOLS
+  
+  //************* CLUSTER PU CLEANING TOOLS
   EcalClusterPUCleaningTools cleaningTools(iEvent, iSetup, recHitCollection_EB_, recHitCollection_EE_); 
   
+  
+  
   // Take the correct ele
+  bool printOut = false;
   reco::GsfElectron electron = electrons.at(iEle);
-      
-  if ( eleName == "ele1") {
- 
-   edm::InputTag EleBad = edm::InputTag("gsfElectrons");
- 
-   if(EleTag_== EleBad && !electron.ecalDriven()) return ; 
+  
+  if ( eleName == "ele1")
+  {
+    edm::InputTag EleBad = edm::InputTag("gsfElectrons");
+    
+    if(EleTag_== EleBad && !electron.ecalDriven()) return ; 
     
     ele1=electron.p4();
     ele1_charge=electron.charge();
@@ -1257,14 +1262,14 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_pt=ele1.Pt();
     ele1_eta=ele1.eta();
     ele1_phi=ele1.phi();
-
+    
     ele1_isEB=electron.isEB();
     ele1_isEBEEGap=electron.isEBEEGap();
     ele1_isEBEtaGap=electron.isEBEtaGap();
     ele1_isEBPhiGap=electron.isEBPhiGap();
     ele1_isEEDeeGap=electron.isEEDeeGap();
     ele1_isEERingGap=electron.isEERingGap();
- 
+    
     ele1_sigmaIetaIeta=electron.sigmaIetaIeta();
     ele1_DphiIn=electron.deltaPhiSuperClusterTrackAtVtx();
     ele1_DetaIn=electron.deltaEtaSuperClusterTrackAtVtx();
@@ -1273,24 +1278,24 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_tkIso=electron.dr03TkSumPt();
     ele1_emIso=electron.dr03EcalRecHitSumEt();
     ele1_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
-
+    
     ele1_effAreaForIso = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
     
-    reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;
+    reco::GsfTrackRef eleTrack  = electron.gsfTrack();
     ele1_dxy_PV = eleTrack->dxy (PVPoint_);
     ele1_dz_PV = eleTrack->dz (PVPoint_);
     ele1_sigmaP =electron.corrections().trackMomentumError;
-  
+    
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
-   
+    
     double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
     double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
-
+    
     Handle< double > rhoHandle;
     iEvent.getByLabel(rhoTag_,rhoHandle);
     std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*rhoHandle,lazyTools,iSetup);
-
+    
     ele1_scERaw=scRef->rawEnergy();
     ele1_scEtRaw=scRef->rawEnergy()*(Rt/R);
     ele1_scEt=scRef->energy()*(Rt/R);
@@ -1301,190 +1306,195 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele1_scPhi=scRef->phi();
     ele1_scE_regression=cor.first;
     ele1_scEerr_regression = cor.second;
-
+    
     std::pair<double,double> corPho = ecorrPho_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*rhoHandle,lazyTools,iSetup);
     ele1_scE_regression_PhotonTuned=corPho.first;
     ele1_scEerr_regression_PhotonTuned = corPho.second;
-
- 
-   
+    
+    
+    
     EcalClusterLocal ecalLocalCoord;
     float bcLocalEta, bcLocalPhi, bcThetatilt, bcPhitilt;  
     int bcIeta, bcIphi;
     bcLocalEta = 0;
-   
+    
     if ( electron.isEB() )
      ecalLocalCoord.localCoordsEB(*seedCluster,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);  
     if ( electron.isEE() )
     ecalLocalCoord.localCoordsEE(*seedCluster,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
-     
-
+    
+    
     ele1_scLocalEta=bcLocalEta;
     ele1_scLocalPhi=bcLocalPhi;
-   
-
-   // crack correction variables and local containment corrections
-   EcalClusterCrackCorrection -> init(iSetup);
-   EcalClusterLocalContCorrection -> init(iSetup);
-   double crackcor = 1.;
-   double localContCorr = 1.;
-
-   for(reco::CaloCluster_iterator cIt = electron.superCluster()->clustersBegin();
-       cIt != electron.superCluster()->clustersEnd(); ++cIt)
-     {
-       const reco::CaloClusterPtr cc = *cIt; 
-       crackcor *= ( (electron.superCluster()->rawEnergy() + (*cIt)->energy()*(EcalClusterCrackCorrection->getValue(*cc)-1.)) / electron.superCluster()->rawEnergy() );
-       
-     }
-   localContCorr = EcalClusterLocalContCorrection->getValue(*electron.superCluster(), 1) ;
-
-   ele1_scCrackCorr=crackcor;
-   ele1_scLocalContCorr=localContCorr;
-
-  
-   reco::SuperCluster cleanedSC   = cleaningTools.CleanedSuperCluster(0.02, *scRef, iEvent );
-   reco::CaloClusterPtr myseed = (*scRef).seed();
-   if (  !((myseed->seed()).rawId()) || (myseed->seed()).rawId()==0 ) {
-    ele1_scERaw_PUcleaned=-9999.;
-    ele1_scEtaWidth_PUcleaned=-9999.;
-    ele1_scPhiWidth_PUcleaned=-9999.;
-    ele1_fCorrection_PUcleaned=-9999.;
-   }
-   else{
-          ele1_scERaw_PUcleaned=cleanedSC.energy();
-          ele1_scEtaWidth_PUcleaned=cleanedSC.etaWidth();
-          ele1_scPhiWidth_PUcleaned=cleanedSC.phiWidth();   
-          float fCorrCleaned = fClusterCorrections(cleanedSC.energy() + scRef->preshowerEnergy(), cleanedSC.eta(),cleanedSC.phiWidth()/cleanedSC.etaWidth(),params)/(cleanedSC.energy()+ scRef->preshowerEnergy());
-          ele1_fCorrection_PUcleaned=fCorrCleaned;
-  }
-
-
-  ele1_fEta = scRef->energy()/scRef->rawEnergy();
-  ele1_tkP = electron.trackMomentumAtVtx().R();
-  ele1_tkPt=electron.trackMomentumAtVtx().Rho();
-  ele1_fbrem=electron.fbrem();
-  ele1_e5x5=electron.e5x5();
-  ele1_eSeedBC=(scRef->seed())->energy();
-  ele1_es=scRef->preshowerEnergy();
-  
-  float E3x3 = 0;
-  
-  if ( electron.isEB() ) {
-     E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
-  }
-
-  if ( electron.isEE() ){
-     E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
-  }
- 
-  ele1_e3x3=E3x3;
-  ele1_scNxtal = scRef->hitsAndFractions().size();
-  ele1_bcN = electron.basicClustersSize();
-
-  float energy=0.;
-  int ieta=0;
-  int iphi=0;
-  int ix=0;
-  int iy=0;
-  int zside=0;
-  float seedICConstant = -1.;
-  float seedLaserAlpha = -1.;
-  float seedLaserCorrection = -1.;
-   
-   if(electron.isEB())
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
-     
-     // flag
-     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
-     
-     if( it != theBarrelEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       energy = rh.energy();
-       ieta = (EBDetId(id.first)).ieta();
-       iphi = (EBDetId(id.first)).iphi();
-       ix = -999;
-       iy = -999;
-       zside = 0;
-     }
-     
-     // intercalib constant
-     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
-     if( ICMapIt != ICMap.end() )
-       seedICConstant = *ICMapIt;
-     
-     // laser alphas
-     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
-     if( italpha != theEcalLaserAlphaMap->end() )
-       seedLaserAlpha = (*italpha);
-     
-     // laser correction
-     seedLaserCorrection = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
-   }
-   
-   else
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
-     
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-     
-     if( it != theEndcapEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       energy = rh.energy();
-       ix = (EEDetId(id.first)).ix();
-       iy = (EEDetId(id.first)).iy();
-       ieta = -999;
-       iphi = -999;
-       zside = (EEDetId(id.first)).zside();
-     }
-     
-     // intercalib constant
-     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EEDetId(id.first));
-     if( ICMapIt != ICMap.end() )
-       seedICConstant = *ICMapIt;
-     
-     // laser alphas
-     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
-     if( italpha != theEcalLaserAlphaMap->end() )
-       seedLaserAlpha = (*italpha);
-     
-     // laser correction
-     seedLaserCorrection = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
-   }
-
-   ele1_seedE=energy;
-   ele1_seedLaserAlpha=seedLaserAlpha;
-   ele1_seedLaserCorr=seedLaserCorrection;
-   ele1_seedICConstant=seedICConstant;
-   ele1_seedIeta =ieta;
-   ele1_seedIphi = iphi;
-   ele1_seedIx=ix;
-   ele1_seedIy=iy;
-   ele1_seedZside=zside;
-   ele1_EOverP=electron.eSuperClusterOverP();
-           
-   // rechit variables
-   int numRecHit = 0;
-   float sumRecHitE = 0.;
-   float sumLaserCorrectionRecHitE = 0.;
-   float sumRecHitE5x5 = 0.;
-   float sumLaserCorrectionRecHitE5x5 = 0.;
-   float sumRecHitE3x3 = 0.;
-   float sumLaserCorrectionRecHitE3x3 = 0.;
     
-    bool printOut = false;
+    
+    // crack correction variables and local containment corrections
+    EcalClusterCrackCorrection -> init(iSetup);
+    EcalClusterLocalContCorrection -> init(iSetup);
+    double crackcor = 1.;
+    double localContCorr = 1.;
+    
+    for(reco::CaloCluster_iterator cIt = electron.superCluster()->clustersBegin();
+        cIt != electron.superCluster()->clustersEnd(); ++cIt)
+    {
+      const reco::CaloClusterPtr cc = *cIt; 
+      crackcor *= ( (electron.superCluster()->rawEnergy() + (*cIt)->energy()*(EcalClusterCrackCorrection->getValue(*cc)-1.)) / electron.superCluster()->rawEnergy() );
+    }
+    localContCorr = EcalClusterLocalContCorrection->getValue(*electron.superCluster(), 1) ;
+    
+    ele1_scCrackCorr=crackcor;
+    ele1_scLocalContCorr=localContCorr;
+    
+    
+    reco::SuperCluster cleanedSC   = cleaningTools.CleanedSuperCluster(0.02, *scRef, iEvent );
+    reco::CaloClusterPtr myseed = (*scRef).seed();
+    if (  !((myseed->seed()).rawId()) || (myseed->seed()).rawId()==0 )
+    {
+      ele1_scERaw_PUcleaned=-9999.;
+      ele1_scEtaWidth_PUcleaned=-9999.;
+      ele1_scPhiWidth_PUcleaned=-9999.;
+      ele1_fCorrection_PUcleaned=-9999.;
+    }
+    else
+    {
+      ele1_scERaw_PUcleaned=cleanedSC.energy();
+      ele1_scEtaWidth_PUcleaned=cleanedSC.etaWidth();
+      ele1_scPhiWidth_PUcleaned=cleanedSC.phiWidth();   
+      float fCorrCleaned = fClusterCorrections(cleanedSC.energy() + scRef->preshowerEnergy(), cleanedSC.eta(),cleanedSC.phiWidth()/cleanedSC.etaWidth(),params)/(cleanedSC.energy()+ scRef->preshowerEnergy());
+      ele1_fCorrection_PUcleaned=fCorrCleaned;
+    }
+    
+    
+    ele1_fEta = scRef->energy()/scRef->rawEnergy();
+    ele1_tkP = electron.trackMomentumAtVtx().R();
+    ele1_tkPt=electron.trackMomentumAtVtx().Rho();
+    ele1_fbrem=electron.fbrem();
+    ele1_e5x5=electron.e5x5();
+    ele1_eSeedBC=(scRef->seed())->energy();
+    ele1_es=scRef->preshowerEnergy();
+    
+    float E3x3 = 0;
+    
+    if( electron.isEB() ){
+      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
+    }
+    if( electron.isEE() ){
+      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
+    }
+    
+    ele1_e3x3=E3x3;
+    ele1_scNxtal = scRef->hitsAndFractions().size();
+    ele1_bcN = electron.basicClustersSize();
+    
+    float energy=0.;
+    int ieta=0;
+    int iphi=0;
+    int ix=0;
+    int iy=0;
+    int zside=0;
+    float seedICConstant = -1.;
+    float seedLaserAlpha = -1.;
+    float seedLaserCorrection = -1.;
+    
+    if(electron.isEB())
+    {
+      if( printOut )
+        std::cout << "*** EB ***" << std::endl;
+      
+      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
+      
+      // flag
+      EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+      
+      if( it != theBarrelEcalRecHits->end() )
+      {
+        const EcalRecHit& rh = (*it);
+        energy = rh.energy();
+        ieta = (EBDetId(id.first)).ieta();
+        iphi = (EBDetId(id.first)).iphi();
+        ix = -999;
+        iy = -999;
+        zside = 0;
+      }
+      
+      // intercalib constant
+      EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
+      if( ICMapIt != ICMap.end() )
+        seedICConstant = *ICMapIt;
+      
+      // laser alphas
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+      if( italpha != theEcalLaserAlphaMap->end() )
+        seedLaserAlpha = (*italpha);
+      
+      // laser correction
+      seedLaserCorrection = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+    }
+    
+    else
+    {
+      if( printOut )
+        std::cout << "*** EE ***" << std::endl;
+      
+      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
+      
+      // flag - OutOfTime
+      EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+      
+      if( it != theEndcapEcalRecHits->end() )
+      {
+        const EcalRecHit& rh = (*it);
+        energy = rh.energy();
+        ix = (EEDetId(id.first)).ix();
+        iy = (EEDetId(id.first)).iy();
+        ieta = -999;
+        iphi = -999;
+        zside = (EEDetId(id.first)).zside();
+      }
+      
+      // intercalib constant
+      EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EEDetId(id.first));
+      if( ICMapIt != ICMap.end() )
+        seedICConstant = *ICMapIt;
+      
+      // laser alphas
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+      if( italpha != theEcalLaserAlphaMap->end() )
+        seedLaserAlpha = (*italpha);
+      
+      // laser correction
+      seedLaserCorrection = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+    }
+    
+    ele1_seedE=energy;
+    ele1_seedLaserAlpha=seedLaserAlpha;
+    ele1_seedLaserCorr=seedLaserCorrection;
+    ele1_seedICConstant=seedICConstant;
+    ele1_seedIeta =ieta;
+    ele1_seedIphi = iphi;
+    ele1_seedIx=ix;
+    ele1_seedIy=iy;
+    ele1_seedZside=zside;
+    ele1_EOverP=electron.eSuperClusterOverP();
+           
+    // rechit variables
+    int numRecHit = 0;
+    float sumRecHitE = 0.;
+    float sumLaserCorrectionRecHitE = 0.;
+    float sumRecHitE5x5 = 0.;
+    float sumLaserCorrectionRecHitE5x5 = 0.;
+    float sumRecHitE3x3 = 0.;
+    float sumLaserCorrectionRecHitE3x3 = 0.;
+    
     const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
-
+    
     if( printOut )
     {
       std::cout << "runId: " << iEvent.id().run() 
           << std::fixed
           << "   electron eta: " << std::setprecision(2) << std::setw(5) << electron.eta()
           << "   electron phi: " << std::setprecision(2) << std::setw(5) << electron.phi()
-  //           << "   SC energy: "    << std::setprecision(2) << std::setw(6) << scRef -> energy()
+          << "   SC energy: "    << std::setprecision(2) << std::setw(6) << scRef -> energy()
           << std::endl;
     } 
         
@@ -1530,7 +1540,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         ele1_recHit_zside.push_back(0);
         ele1_recHit_laserCorrection.push_back(theLaserCorrection);
         ele1_recHit_ICConstant.push_back(theICCorrection);
- 
+        
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
@@ -1540,13 +1550,13 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         }
       }
         
-      if ((*rh).first.subdetId()== EcalEndcap)
+      if( (*rh).first.subdetId()== EcalEndcap )
       {
         EERecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
         if (itrechit==theEndcapEcalRecHits->end()) continue;
         EEDetId endcapId (itrechit->id ()); 
         ++numRecHit;
-          
+        
         // laser correction
         theLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
         if ( applyCorrections_ ) rhLaserCorrection = theLaserCorrection;
@@ -1575,7 +1585,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         ele1_recHit_zside.push_back(endcapId.zside());
         ele1_recHit_laserCorrection.push_back(theLaserCorrection);
         ele1_recHit_ICConstant.push_back(theICCorrection);
-
+        
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
@@ -1584,162 +1594,161 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
               << std::endl;
         }
       }
+      
     }
-
+    
     ele1_nRecHits = numRecHit; 
-
+    
     ele1_scLaserCorr = sumLaserCorrectionRecHitE/sumRecHitE;
     if ( applyCorrections_ ) ele1_scE = scRef->energy()*ele1_fEta*sumRecHitE;
     else ele1_scE = scRef->energy();
     
     ele1_fEtaCorr = fClusterCorrections(sumRecHitE+ele1_es,ele1_scEta,scRef->phiWidth()/scRef->etaWidth(),params)/fClusterCorrections(scRef->rawEnergy()+ele1_es,ele1_scEta,scRef->phiWidth()/scRef->etaWidth(),params);
-        
-    ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
-  
-    ele1_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
-
-   /// add regression input variables
-   reco::SuperClusterRef s = electron.superCluster();
-   reco::CaloClusterPtr b = s->seed(); //seed  basic cluster
-   reco::CaloClusterPtr b2;
-   reco::CaloClusterPtr bclast;
-   reco::CaloClusterPtr bclast2;
-   bool isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
-
-
-   ele1_eRegrInput_rawE = s->rawEnergy();
-   ele1_eRegrInput_r9 = lazyTools.e3x3(*b)/s->rawEnergy();
-   ele1_eRegrInput_eta = s->eta();
-   ele1_eRegrInput_phi = s->phi();
-   ele1_eRegrInput_r25 = lazyTools.e5x5(*b)/s->rawEnergy();
-   ele1_eRegrInput_hoe = electron.hcalOverEcal();
-   ele1_eRegrInput_etaW = s->etaWidth() ;
-   ele1_eRegrInput_phiW = s->phiWidth() ;
-   ele1_eRegrInput_SCsize = s->clustersSize() ;
-   ele1_eRegrInput_rho = *rhoHandle;
-   ele1_eRegrInput_nPV = hVertexProduct->size();
-   
-   //seed basic cluster variables
-   double bemax = lazyTools.eMax(*b);
-   double be2nd = lazyTools.e2nd(*b);
-   double betop = lazyTools.eTop(*b);
-   double bebottom = lazyTools.eBottom(*b);
-   double beleft = lazyTools.eLeft(*b);
-   double beright = lazyTools.eRight(*b);
-
-   double be2x5max = lazyTools.e2x5Max(*b);
-   double be2x5top = lazyTools.e2x5Top(*b);
-   double be2x5bottom = lazyTools.e2x5Bottom(*b);
-   double be2x5left = lazyTools.e2x5Left(*b);
-   double be2x5right = lazyTools.e2x5Right(*b);
- 
-   ele1_eRegrInput_Deta_bC_sC = b->eta()-s->eta();
-   ele1_eRegrInput_Dphi_bC_sC = reco::deltaPhi(b->phi(),s->phi());
-   ele1_eRegrInput_bCE_Over_sCE = b->energy()/b->energy();
-   ele1_eRegrInput_e3x3_Over_bCE = lazyTools.e3x3(*b)/b->energy();
-   ele1_eRegrInput_e5x5_Over_bCE = lazyTools.e5x5(*b)/b->energy();
-   ele1_eRegrInput_sigietaieta_bC1 = sqrt(lazyTools.localCovariances(*b)[0]);
-   ele1_eRegrInput_sigiphiiphi_bC1 = sqrt(lazyTools.localCovariances(*b)[2]);
-   ele1_eRegrInput_sigietaiphi_bC1 = lazyTools.localCovariances(*b)[1];
-   ele1_eRegrInput_bEMax_Over_bCE = bemax/b->energy();
-   ele1_eRegrInput_bE2nd_Over_bCE = be2nd/b->energy();
-   ele1_eRegrInput_bEtop_Over_bCE = betop/b->energy();
-   ele1_eRegrInput_bEbot_Over_bCE = bebottom/b->energy();
-   ele1_eRegrInput_bEleft_Over_bCE = beleft/b->energy();
-   ele1_eRegrInput_bEright_Over_bCE = beright/b->energy();
-   ele1_eRegrInput_be2x5max_Over_bCE = be2x5max/b->energy();
-   ele1_eRegrInput_be2x5top_Over_bCE = be2x5top/b->energy();
-   ele1_eRegrInput_be2x5bottom_Over_bCE = be2x5bottom/b->energy();
-   ele1_eRegrInput_be2x5left_Over_bCE = be2x5left/b->energy();
-   ele1_eRegrInput_be2x5right_Over_bCE = be2x5right/b->energy();
-
- 
-
-   if( isbarrel){
-
-    // seed cluster
-    float betacry, bphicry, bthetatilt, bphitilt;
-    int bieta, biphi;
-    EcalClusterLocal _ecalLocal;
-    _ecalLocal.localCoordsEB(*b,iSetup,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
     
-    ele1_eRegrInput_seedbC_eta = bieta;
-    ele1_eRegrInput_seedbC_phi = biphi;
-    ele1_eRegrInput_seedbC_eta_p5 = bieta%5;
-    ele1_eRegrInput_seedbC_phi_p2 = biphi%2;
-    ele1_eRegrInput_seedbC_bieta = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);
-    ele1_eRegrInput_seedbC_phi_p20 = biphi%20;
-    ele1_eRegrInput_seedbC_etacry = betacry;
-    ele1_eRegrInput_seedbC_phicry = bphicry;
-    ele1_eRegrInput_ESoSC = -99. ;
- 
+    ele1_5x5LaserCorr = sumLaserCorrectionRecHitE5x5/sumRecHitE5x5;
+    
+    ele1_3x3LaserCorr = sumLaserCorrectionRecHitE3x3/sumRecHitE3x3;
+    
+    /// add regression input variables
+    reco::SuperClusterRef s = electron.superCluster();
+    reco::CaloClusterPtr b = s->seed(); //seed  basic cluster
+    reco::CaloClusterPtr b2;
+    reco::CaloClusterPtr bclast;
+    reco::CaloClusterPtr bclast2;
+    bool isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
+    
+    
+    ele1_eRegrInput_rawE = s->rawEnergy();
+    ele1_eRegrInput_r9 = lazyTools.e3x3(*b)/s->rawEnergy();
+    ele1_eRegrInput_eta = s->eta();
+    ele1_eRegrInput_phi = s->phi();
+    ele1_eRegrInput_r25 = lazyTools.e5x5(*b)/s->rawEnergy();
+    ele1_eRegrInput_hoe = electron.hcalOverEcal();
+    ele1_eRegrInput_etaW = s->etaWidth() ;
+    ele1_eRegrInput_phiW = s->phiWidth() ;
+    ele1_eRegrInput_SCsize = s->clustersSize() ;
+    ele1_eRegrInput_rho = *rhoHandle;
+    ele1_eRegrInput_nPV = hVertexProduct->size();
+    
+    //seed basic cluster variables
+    double bemax = lazyTools.eMax(*b);
+    double be2nd = lazyTools.e2nd(*b);
+    double betop = lazyTools.eTop(*b);
+    double bebottom = lazyTools.eBottom(*b);
+    double beleft = lazyTools.eLeft(*b);
+    double beright = lazyTools.eRight(*b);
+    
+    double be2x5max = lazyTools.e2x5Max(*b);
+    double be2x5top = lazyTools.e2x5Top(*b);
+    double be2x5bottom = lazyTools.e2x5Bottom(*b);
+    double be2x5left = lazyTools.e2x5Left(*b);
+    double be2x5right = lazyTools.e2x5Right(*b);
+     
+    ele1_eRegrInput_Deta_bC_sC = b->eta()-s->eta();
+    ele1_eRegrInput_Dphi_bC_sC = reco::deltaPhi(b->phi(),s->phi());
+    ele1_eRegrInput_bCE_Over_sCE = b->energy()/b->energy();
+    ele1_eRegrInput_e3x3_Over_bCE = lazyTools.e3x3(*b)/b->energy();
+    ele1_eRegrInput_e5x5_Over_bCE = lazyTools.e5x5(*b)/b->energy();
+    ele1_eRegrInput_sigietaieta_bC1 = sqrt(lazyTools.localCovariances(*b)[0]);
+    ele1_eRegrInput_sigiphiiphi_bC1 = sqrt(lazyTools.localCovariances(*b)[2]);
+    ele1_eRegrInput_sigietaiphi_bC1 = lazyTools.localCovariances(*b)[1];
+    ele1_eRegrInput_bEMax_Over_bCE = bemax/b->energy();
+    ele1_eRegrInput_bE2nd_Over_bCE = be2nd/b->energy();
+    ele1_eRegrInput_bEtop_Over_bCE = betop/b->energy();
+    ele1_eRegrInput_bEbot_Over_bCE = bebottom/b->energy();
+    ele1_eRegrInput_bEleft_Over_bCE = beleft/b->energy();
+    ele1_eRegrInput_bEright_Over_bCE = beright/b->energy();
+    ele1_eRegrInput_be2x5max_Over_bCE = be2x5max/b->energy();
+    ele1_eRegrInput_be2x5top_Over_bCE = be2x5top/b->energy();
+    ele1_eRegrInput_be2x5bottom_Over_bCE = be2x5bottom/b->energy();
+    ele1_eRegrInput_be2x5left_Over_bCE = be2x5left/b->energy();
+    ele1_eRegrInput_be2x5right_Over_bCE = be2x5right/b->energy();
+    
+    
+    
+    if( isbarrel )
+    {
+      // seed cluster
+      float betacry, bphicry, bthetatilt, bphitilt;
+      int bieta, biphi;
+      EcalClusterLocal _ecalLocal;
+      _ecalLocal.localCoordsEB(*b,iSetup,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+      
+      ele1_eRegrInput_seedbC_eta = bieta;
+      ele1_eRegrInput_seedbC_phi = biphi;
+      ele1_eRegrInput_seedbC_eta_p5 = bieta%5;
+      ele1_eRegrInput_seedbC_phi_p2 = biphi%2;
+      ele1_eRegrInput_seedbC_bieta = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);
+      ele1_eRegrInput_seedbC_phi_p20 = biphi%20;
+      ele1_eRegrInput_seedbC_etacry = betacry;
+      ele1_eRegrInput_seedbC_phicry = bphicry;
+      ele1_eRegrInput_ESoSC = -99. ;
+    }
+    else
+    {
+      ele1_eRegrInput_ESoSC = s->preshowerEnergy()/s->rawEnergy();
+      ele1_eRegrInput_seedbC_eta = -99.;
+      ele1_eRegrInput_seedbC_phi = -99.;
+      ele1_eRegrInput_seedbC_eta_p5 = -99.;
+      ele1_eRegrInput_seedbC_phi_p2 = -99.;
+      ele1_eRegrInput_seedbC_bieta = -99.;
+      ele1_eRegrInput_seedbC_phi_p20 = -99.;
+      ele1_eRegrInput_seedbC_etacry = -99.;
+      ele1_eRegrInput_seedbC_phicry =-99.;
+    }
   }
-  else{
- 
-        ele1_eRegrInput_ESoSC = s->preshowerEnergy()/s->rawEnergy();
-        ele1_eRegrInput_seedbC_eta = -99.;
-        ele1_eRegrInput_seedbC_phi = -99.;
-        ele1_eRegrInput_seedbC_eta_p5 = -99.;
-        ele1_eRegrInput_seedbC_phi_p2 = -99.;
-        ele1_eRegrInput_seedbC_bieta = -99.;
-        ele1_eRegrInput_seedbC_phi_p20 = -99.;
-        ele1_eRegrInput_seedbC_etacry = -99.;
-        ele1_eRegrInput_seedbC_phicry =-99.;
-
-  }
-
-}
-
- if ( eleName == "ele2" ) {
-
+  
+  
+  
+  if ( eleName == "ele2" )
+  {
     edm::InputTag EleBad = edm::InputTag("gsfElectrons");
-
+    
     if(EleTag_== EleBad && !electron.ecalDriven()) return ; 
-
+    
     ele2=electron.p4();
     ele2_charge=electron.charge();
     ele2_p=ele2.P();
     ele2_pt=ele2.Pt();
     ele2_eta=ele2.eta();
     ele2_phi=ele2.phi();
-
-
+    
     ele2_isEB=electron.isEB();
     ele2_isEBEEGap=electron.isEBEEGap();
     ele2_isEBEtaGap=electron.isEBEtaGap();
     ele2_isEBPhiGap=electron.isEBPhiGap();
     ele2_isEEDeeGap=electron.isEEDeeGap();
     ele2_isEERingGap=electron.isEERingGap();
-
+    
     ele2_sigmaIetaIeta=electron.sigmaIetaIeta();
     ele2_DphiIn=electron.deltaPhiSuperClusterTrackAtVtx();
     ele2_DetaIn=electron.deltaEtaSuperClusterTrackAtVtx();
     ele2_HOverE=electron.hadronicOverEm();
     ele2_ooemoop=  (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
-
+    
     ele2_tkIso=electron.dr03TkSumPt();
     ele2_emIso=electron.dr03EcalRecHitSumEt();
     ele2_hadIso=electron.dr03HcalDepth1TowerSumEt()+electron.dr03HcalDepth2TowerSumEt();
-
+    
     ele2_effAreaForIso = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, electron.superCluster()->eta(), ElectronEffectiveArea::kEleEAData2011);
-
+    
     reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;
     ele2_dxy_PV = eleTrack->dxy (PVPoint_);
     ele2_dz_PV = eleTrack->dz (PVPoint_);
     ele2_sigmaP =electron.corrections().trackMomentumError;
-  
-
+    
+    
     reco::SuperClusterRef scRef = electron.superCluster();
     const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
-   
+    
     double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
     double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
-  
+    
     Handle< double > rhoHandle;
     iEvent.getByLabel(rhoTag_,rhoHandle);
     std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*rhoHandle,lazyTools,iSetup);
-
-
+    
+    
     ele2_scERaw=scRef->rawEnergy();
     ele2_scEtRaw=scRef->rawEnergy()*(Rt/R);
     ele2_scEt=scRef->energy()*(Rt/R);
@@ -1750,12 +1759,12 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     ele2_scPhi=scRef->phi();
     ele2_scE_regression=cor.first;
     ele2_scEerr_regression = cor.second;
-
+    
     std::pair<double,double> corPho = ecorrPho_.CorrectedEnergyWithErrorV3(electron,*hVertexProduct,*rhoHandle,lazyTools,iSetup);
     ele2_scE_regression_PhotonTuned=corPho.first;
     ele2_scEerr_regression_PhotonTuned = corPho.second;
- 
- 
+    
+    
     EcalClusterLocal ecalLocalCoord;
     float bcLocalEta, bcLocalPhi, bcThetatilt, bcPhitilt;  
     int bcIeta, bcIphi;
@@ -1766,172 +1775,174 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     if ( electron.isEE() )
     ecalLocalCoord.localCoordsEE(*seedCluster,iSetup,bcLocalEta,bcLocalPhi,bcIeta,bcIphi,bcThetatilt,bcPhitilt);
      
-
+    
     ele2_scLocalEta=bcLocalEta;
     ele2_scLocalPhi=bcLocalPhi;
-   
-
-   // crack correction variables and local containment corrections
-   EcalClusterCrackCorrection -> init(iSetup);
-   EcalClusterLocalContCorrection -> init(iSetup);
-   double crackcor = 1.;
-   double localContCorr = 1.;
-
-   for(reco::CaloCluster_iterator cIt = electron.superCluster()->clustersBegin();
-       cIt != electron.superCluster()->clustersEnd(); ++cIt){
-       const reco::CaloClusterPtr cc = *cIt; 
-       crackcor *= ( (electron.superCluster()->rawEnergy() + (*cIt)->energy()*(EcalClusterCrackCorrection->getValue(*cc)-1.)) / electron.superCluster()->rawEnergy() );
-       
-     }
-   localContCorr = EcalClusterLocalContCorrection->getValue(*electron.superCluster(), 1) ;
-
-   ele2_scCrackCorr=crackcor;
-   ele2_scLocalContCorr=localContCorr;
-
-  
-   reco::SuperCluster cleanedSC   = cleaningTools.CleanedSuperCluster(0.02, *scRef, iEvent );
-   reco::CaloClusterPtr myseed = (*scRef).seed();
-   if (  !((myseed->seed()).rawId()) || (myseed->seed()).rawId()==0 ) {
-    ele2_scERaw_PUcleaned=-9999.;
-    ele2_scEtaWidth_PUcleaned=-9999.;
-    ele2_scPhiWidth_PUcleaned=-9999.;
-    ele2_fCorrection_PUcleaned=-9999.;
-   }
-   else{
-          ele2_scERaw_PUcleaned=cleanedSC.energy();
-          ele2_scEtaWidth_PUcleaned=cleanedSC.etaWidth();
-          ele2_scPhiWidth_PUcleaned=cleanedSC.phiWidth();   
-          float fCorrCleaned = fClusterCorrections(cleanedSC.energy() + scRef->preshowerEnergy(), cleanedSC.eta(),cleanedSC.phiWidth()/cleanedSC.etaWidth(),params)/(cleanedSC.energy()+ scRef->preshowerEnergy());
-          ele2_fCorrection_PUcleaned=fCorrCleaned;
-  }
-
-
-  ele2_fEta = scRef->energy()/scRef->rawEnergy();
-  ele2_tkP = electron.trackMomentumAtVtx().R();
-  ele2_tkPt=electron.trackMomentumAtVtx().Rho();
-  ele2_fbrem=electron.fbrem();
-  ele2_e5x5=electron.e5x5();
-  ele2_eSeedBC=(scRef->seed())->energy();
-  ele2_es=scRef->preshowerEnergy();
-
-  float E3x3 = 0;
-
-  if ( electron.isEB() ) {
-     E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
-  }
-
-  if ( electron.isEE() ){
-     E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
-  }
- 
-  ele2_e3x3=E3x3;
-  ele2_scNxtal = scRef->hitsAndFractions().size();
-  ele2_bcN = electron.basicClustersSize();
-
-  float energy=0.;
-  int ieta=0;
-  int iphi=0;
-  int ix=0;
-  int iy=0;
-  int zside=0;
-  float seedICConstant = -1.;
-  float seedLaserAlpha = -1.;
-  float seedLaserCorrection = -1.;
-   
-   if(electron.isEB())
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
-     
-     // flag
-     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
-     
-     if( it != theBarrelEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       energy = rh.energy();
-       ieta = (EBDetId(id.first)).ieta();
-       iphi = (EBDetId(id.first)).iphi();
-       ix = -999;
-       iy = -999;
-       zside = 0;
-     }
-     
-     // intercalib constant
-     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
-     if( ICMapIt != ICMap.end() )
-       seedICConstant = *ICMapIt;
-     
-     // laser alphas
-     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
-     if( italpha != theEcalLaserAlphaMap->end() )
-       seedLaserAlpha = (*italpha);
-     
-     // laser correction
-     seedLaserCorrection = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
-   }
-   
-   else
-   {
-     std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
-     
-     // flag - OutOfTime
-     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-     
-     if( it != theEndcapEcalRecHits->end() )
-     {
-       const EcalRecHit& rh = (*it);
-       energy = rh.energy();
-       ix = (EEDetId(id.first)).ix();
-       iy = (EEDetId(id.first)).iy();
-       ieta = -999;
-       iphi = -999;
-       zside = (EEDetId(id.first)).zside();
-     }
-     
-     // intercalib constant
-     EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EEDetId(id.first));
-     if( ICMapIt != ICMap.end() )
-       seedICConstant = *ICMapIt;
-     
-     // laser alphas
-     EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
-     if( italpha != theEcalLaserAlphaMap->end() )
-       seedLaserAlpha = (*italpha);
-     
-     // laser correction
-     seedLaserCorrection = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
-   }
-
-   ele2_seedE=energy;
-   ele2_seedLaserAlpha=seedLaserAlpha;
-   ele2_seedLaserCorr=seedLaserCorrection;
-   ele2_seedICConstant=seedICConstant;
-   ele2_seedIeta =ieta;
-   ele2_seedIphi = iphi;
-   ele2_seedIx=ix;
-   ele2_seedIy=iy;
-   ele2_seedZside=zside;
-   ele2_EOverP=electron.eSuperClusterOverP();
+    
+    
+    // crack correction variables and local containment corrections
+    EcalClusterCrackCorrection -> init(iSetup);
+    EcalClusterLocalContCorrection -> init(iSetup);
+    double crackcor = 1.;
+    double localContCorr = 1.;
+    
+    for(reco::CaloCluster_iterator cIt = electron.superCluster()->clustersBegin();
+        cIt != electron.superCluster()->clustersEnd(); ++cIt)
+    {
+      const reco::CaloClusterPtr cc = *cIt; 
+      crackcor *= ( (electron.superCluster()->rawEnergy() + (*cIt)->energy()*(EcalClusterCrackCorrection->getValue(*cc)-1.)) / electron.superCluster()->rawEnergy() );
+    }
+    localContCorr = EcalClusterLocalContCorrection->getValue(*electron.superCluster(), 1) ;
+    
+    ele2_scCrackCorr=crackcor;
+    ele2_scLocalContCorr=localContCorr;
+    
+    
+    reco::SuperCluster cleanedSC   = cleaningTools.CleanedSuperCluster(0.02, *scRef, iEvent );
+    reco::CaloClusterPtr myseed = (*scRef).seed();
+    if (  !((myseed->seed()).rawId()) || (myseed->seed()).rawId()==0 )
+    {
+      ele2_scERaw_PUcleaned=-9999.;
+      ele2_scEtaWidth_PUcleaned=-9999.;
+      ele2_scPhiWidth_PUcleaned=-9999.;
+      ele2_fCorrection_PUcleaned=-9999.;
+    }
+    else
+    {
+      ele2_scERaw_PUcleaned=cleanedSC.energy();
+      ele2_scEtaWidth_PUcleaned=cleanedSC.etaWidth();
+      ele2_scPhiWidth_PUcleaned=cleanedSC.phiWidth();   
+      float fCorrCleaned = fClusterCorrections(cleanedSC.energy() + scRef->preshowerEnergy(), cleanedSC.eta(),cleanedSC.phiWidth()/cleanedSC.etaWidth(),params)/(cleanedSC.energy()+ scRef->preshowerEnergy());
+      ele2_fCorrection_PUcleaned=fCorrCleaned;
+    }
+    
+    
+    ele2_fEta = scRef->energy()/scRef->rawEnergy();
+    ele2_tkP = electron.trackMomentumAtVtx().R();
+    ele2_tkPt=electron.trackMomentumAtVtx().Rho();
+    ele2_fbrem=electron.fbrem();
+    ele2_e5x5=electron.e5x5();
+    ele2_eSeedBC=(scRef->seed())->energy();
+    ele2_es=scRef->preshowerEnergy();
+    
+    float E3x3 = 0;
+    
+    if( electron.isEB() ){
+      E3x3 = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
+    }
+    
+    if ( electron.isEE() ){
+      E3x3 = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
+    }
+    
+    ele2_e3x3=E3x3;
+    ele2_scNxtal = scRef->hitsAndFractions().size();
+    ele2_bcN = electron.basicClustersSize();
+    
+    float energy=0.;
+    int ieta=0;
+    int iphi=0;
+    int ix=0;
+    int iy=0;
+    int zside=0;
+    float seedICConstant = -1.;
+    float seedLaserAlpha = -1.;
+    float seedLaserCorrection = -1.;
+    
+    if(electron.isEB())
+    {
+      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theBarrelEcalRecHits);
+      
+      // flag
+      EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);
+      
+      if( it != theBarrelEcalRecHits->end() )
+      {
+        const EcalRecHit& rh = (*it);
+        energy = rh.energy();
+        ieta = (EBDetId(id.first)).ieta();
+        iphi = (EBDetId(id.first)).iphi();
+        ix = -999;
+        iy = -999;
+        zside = 0;
+      }
+      
+      // intercalib constant
+      EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EBDetId(id.first));
+      if( ICMapIt != ICMap.end() )
+        seedICConstant = *ICMapIt;
+      
+      // laser alphas
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+      if( italpha != theEcalLaserAlphaMap->end() )
+        seedLaserAlpha = (*italpha);
+      
+      // laser correction
+      seedLaserCorrection = theLaser->getLaserCorrection(EBDetId(id.first), iEvent.time());
+    }
+    
+    else
+    {
+      std::pair<DetId, float> id = EcalClusterTools::getMaximum(seedCluster->hitsAndFractions(), theEndcapEcalRecHits);
+      
+      // flag - OutOfTime
+      EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+      
+      if( it != theEndcapEcalRecHits->end() )
+      {
+        const EcalRecHit& rh = (*it);
+        energy = rh.energy();
+        ix = (EEDetId(id.first)).ix();
+        iy = (EEDetId(id.first)).iy();
+        ieta = -999;
+        iphi = -999;
+        zside = (EEDetId(id.first)).zside();
+      }
+      
+      // intercalib constant
+      EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(EEDetId(id.first));
+      if( ICMapIt != ICMap.end() )
+        seedICConstant = *ICMapIt;
+      
+      // laser alphas
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+      if( italpha != theEcalLaserAlphaMap->end() )
+        seedLaserAlpha = (*italpha);
+      
+      // laser correction
+      seedLaserCorrection = theLaser->getLaserCorrection(EEDetId(id.first), iEvent.time());
+    }
+    
+    ele2_seedE=energy;
+    ele2_seedLaserAlpha=seedLaserAlpha;
+    ele2_seedLaserCorr=seedLaserCorrection;
+    ele2_seedICConstant=seedICConstant;
+    ele2_seedIeta =ieta;
+    ele2_seedIphi = iphi;
+    ele2_seedIx=ix;
+    ele2_seedIy=iy;
+    ele2_seedZside=zside;
+    ele2_EOverP=electron.eSuperClusterOverP();
            
-   // rechit variables
-   int numRecHit = 0;
-   float sumRecHitE = 0.;
-   float sumLaserCorrectionRecHitE = 0.;
-   float sumRecHitE5x5 = 0.;
-   float sumLaserCorrectionRecHitE5x5 = 0.;
-   float sumRecHitE3x3 = 0.;
-   float sumLaserCorrectionRecHitE3x3 = 0.;
+    // rechit variables
+    int numRecHit = 0;
+    float sumRecHitE = 0.;
+    float sumLaserCorrectionRecHitE = 0.;
+    float sumRecHitE5x5 = 0.;
+    float sumLaserCorrectionRecHitE5x5 = 0.;
+    float sumRecHitE3x3 = 0.;
+    float sumLaserCorrectionRecHitE3x3 = 0.;
     
     bool printOut = false;
     const std::vector<std::pair<DetId,float> >& hits = scRef->hitsAndFractions();
-
+    
     if( printOut )
     {
       std::cout << "runId: " << iEvent.id().run() 
           << std::fixed
           << "   electron eta: " << std::setprecision(2) << std::setw(5) << electron.eta()
           << "   electron phi: " << std::setprecision(2) << std::setw(5) << electron.phi()
-  //           << "   SC energy: "    << std::setprecision(2) << std::setw(6) << scRef -> energy()
+          << "   SC energy: "    << std::setprecision(2) << std::setw(6) << scRef -> energy()
           << std::endl;
     } 
         
@@ -1977,7 +1988,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
         ele2_recHit_zside.push_back(0);
         ele2_recHit_laserCorrection.push_back(theLaserCorrection);
         ele2_recHit_ICConstant.push_back(theICCorrection);
- 
+        
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
@@ -2098,44 +2109,44 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
    ele2_eRegrInput_be2x5bottom_Over_bCE = be2x5bottom/b->energy();
    ele2_eRegrInput_be2x5left_Over_bCE = be2x5left/b->energy();
    ele2_eRegrInput_be2x5right_Over_bCE = be2x5right/b->energy();
-
- 
-
-   if( isbarrel){
-
-    // seed cluster
-    float betacry, bphicry, bthetatilt, bphitilt;
-    int bieta, biphi;
-    EcalClusterLocal _ecalLocal;
-    _ecalLocal.localCoordsEB(*b,iSetup,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
-    
-    ele2_eRegrInput_seedbC_eta = bieta;
-    ele2_eRegrInput_seedbC_phi = biphi;
-    ele2_eRegrInput_seedbC_eta_p5 = bieta%5;
-    ele2_eRegrInput_seedbC_phi_p2 = biphi%2;
-    ele2_eRegrInput_seedbC_bieta = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);
-    ele2_eRegrInput_seedbC_phi_p20 = biphi%20;
-    ele2_eRegrInput_seedbC_etacry = betacry;
-    ele2_eRegrInput_seedbC_phicry = bphicry;
-    ele2_eRegrInput_ESoSC = -99. ;
- 
-  }
-  else{
- 
-        ele2_eRegrInput_ESoSC = s->preshowerEnergy()/s->rawEnergy();
-        ele2_eRegrInput_seedbC_eta = -99.;
-        ele2_eRegrInput_seedbC_phi = -99.;
-        ele2_eRegrInput_seedbC_eta_p5 = -99.;
-        ele2_eRegrInput_seedbC_phi_p2 = -99.;
-        ele2_eRegrInput_seedbC_bieta = -99.;
-        ele2_eRegrInput_seedbC_phi_p20 = -99.;
-        ele2_eRegrInput_seedbC_etacry = -99.;
-        ele2_eRegrInput_seedbC_phicry =-99.;
-
-  }
-
-  }
-
+   
+   
+   
+   if( isbarrel)
+   {
+     // seed cluster
+     float betacry, bphicry, bthetatilt, bphitilt;
+     int bieta, biphi;
+     EcalClusterLocal _ecalLocal;
+     _ecalLocal.localCoordsEB(*b,iSetup,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+     
+     ele2_eRegrInput_seedbC_eta = bieta;
+     ele2_eRegrInput_seedbC_phi = biphi;
+     ele2_eRegrInput_seedbC_eta_p5 = bieta%5;
+     ele2_eRegrInput_seedbC_phi_p2 = biphi%2;
+     ele2_eRegrInput_seedbC_bieta = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);
+     ele2_eRegrInput_seedbC_phi_p20 = biphi%20;
+     ele2_eRegrInput_seedbC_etacry = betacry;
+     ele2_eRegrInput_seedbC_phicry = bphicry;
+     ele2_eRegrInput_ESoSC = -99. ;
+   }
+   else
+   {
+     ele2_eRegrInput_ESoSC = s->preshowerEnergy()/s->rawEnergy();
+     ele2_eRegrInput_seedbC_eta = -99.;
+     ele2_eRegrInput_seedbC_phi = -99.;
+     ele2_eRegrInput_seedbC_eta_p5 = -99.;
+     ele2_eRegrInput_seedbC_phi_p2 = -99.;
+     ele2_eRegrInput_seedbC_bieta = -99.;
+     ele2_eRegrInput_seedbC_phi_p20 = -99.;
+     ele2_eRegrInput_seedbC_etacry = -99.;
+     ele2_eRegrInput_seedbC_phicry =-99.;
+   }
+ }
+  
+  
+ if( verbosity_ )
+   std::cout<< ">>> SimpleNtupleEoverP::fillEleInfo end <<<" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------
