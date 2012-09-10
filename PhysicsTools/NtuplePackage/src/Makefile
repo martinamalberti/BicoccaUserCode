@@ -126,7 +126,7 @@ $(OBJ)mydict.cc: $(DICTHDRS)
 
 $(LIB)$(SONAME): $(OBJS) $(OBJ)mydict.o
 	@echo "Linking $(SONAME):" 
-	$(LD) $(OBJS)  $(LDFLAGS) $(OBJ)mydict.o $(SOFLAGS) -o $(LIB)$(SONAME)
+	$(LD) $(OBJS)  $(LDFLAGS) $(OBJ)mydict.o $(SOFLAGS) -lGenVector $(ROOTGLIBS) -o $(LIB)$(SONAME)
 
 $(BIN)%$(BinSuf): $(PRG)%$(PrgSuf) $(HDRS) $(LIB)$(SONAME)
 	$(CPP) $< $(CPPFLAGS) -L$(LIB) -lEvent $(GLIBS)  -o $@
