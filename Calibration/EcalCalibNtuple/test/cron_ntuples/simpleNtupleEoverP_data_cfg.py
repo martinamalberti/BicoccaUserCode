@@ -22,7 +22,7 @@ makeSimpleNtuple(process,GlobalTag="GR_P_V41::All",runOverSandbox=False)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    'file:/tmp/abenagli/Run2012C-PromptSkim-v3_USER.root'
+    'file:/tmp/abenagli/Run2012C-PromptReco-v2_AOD.root'
     )
 
 process.maxEvents = cms.untracked.PSet(

@@ -19,13 +19,13 @@ eval `scramv1 runtime -sh`
 echo ""
 echo "****** LOOK FOR NEW RUNS ******"
 
-if [ -f BASEDIR/test/cron_ntuples/tempList.txt ]
+if [ -f BASEDIR/test/cron_ntuples/tempList_WORZ.txt ]
 then
-rm BASEDIR/test/cron_ntuples/tempList.txt
+rm BASEDIR/test/cron_ntuples/tempList_WORZ.txt
 fi
 
-dbs search --query='find run where dataset=DATASETNAME' | grep "1" > BASEDIR/test/cron_ntuples/tempList.txt
-chmod a+rw BASEDIR/test/cron_ntuples/tempList.txt
+dbs search --query='find run where dataset=DATASETNAME' | grep "1" > BASEDIR/test/cron_ntuples/tempList_WORZ.txt
+chmod a+rw BASEDIR/test/cron_ntuples/tempList_WORZ.txt
 
 
 
@@ -33,11 +33,11 @@ chmod a+rw BASEDIR/test/cron_ntuples/tempList.txt
 echo ""
 echo "****** CREATE THE NEW RUN LIST ******"
 
-rm runList.txt
+rm runList_WORZ.txt
 
-touch BASEDIR/test/cron_ntuples/tempList_old.txt
+touch BASEDIR/test/cron_ntuples/tempList_WORZ_old.txt
 
-diff BASEDIR/test/cron_ntuples/tempList.txt BASEDIR/test/cron_ntuples/tempList_old.txt | grep "<" | awk '{print $2}' > BASEDIR/test/cron_ntuples/runList.txt
+diff BASEDIR/test/cron_ntuples/tempList_WORZ.txt BASEDIR/test/cron_ntuples/tempList_WORZ_old.txt | grep "<" | awk '{print $2}' > BASEDIR/test/cron_ntuples/runList_WORZ.txt
 
 
 
@@ -45,10 +45,10 @@ diff BASEDIR/test/cron_ntuples/tempList.txt BASEDIR/test/cron_ntuples/tempList_o
 echo ""
 echo "****** LAUNCH THE JOBS ******"
 
-perl launchNtuples.pl paramsCronjob_ntuples.cfg
-sh BASEDIR/test/cron_ntuples/lancia.sh
+perl launchNtuples.pl paramsCronjob_ntuples.cfg WORZ
+sh BASEDIR/test/cron_ntuples/lancia_WORZ.sh
 
 
 
 # update the run list
-mv BASEDIR/test/cron_ntuples/tempList.txt BASEDIR/test/cron_ntuples/tempList_old.txt
+mv BASEDIR/test/cron_ntuples/tempList_WORZ.txt BASEDIR/test/cron_ntuples/tempList_WORZ_old.txt

@@ -21,32 +21,54 @@ while(<USERCONFIG>)
   $User_Preferences{$var} = $value;
 }
 
-$BASEDir     = $User_Preferences{"BASEDir"};
-$DATASETName = $User_Preferences{"DATASETName"};
-$FOLDERName  = $User_Preferences{"FOLDERName"};
-$PERIODName  = $User_Preferences{"PERIODName"};
+$BASEDir      = $User_Preferences{"BASEDir"};
+$WDATASETName = $User_Preferences{"WDATASETName"};
+$WFOLDERName  = $User_Preferences{"WFOLDERName"};
+$ZDATASETName = $User_Preferences{"ZDATASETName"};
+$ZFOLDERName  = $User_Preferences{"ZFOLDERName"};
+$PERIODName   = $User_Preferences{"PERIODName"};
 
-print "BASEDir     = ".$BASEDir.    "\n";
-print "DATASETName = ".$DATASETName."\n";
-print "FOLDERName  = ".$DATASETName."\n";
-print "PERIODName  = ".$PERIODName. "\n";
+print "BASEDir      = ".$BASEDir.     "\n";
+print "WDATASETName = ".$WDATASETName."\n";
+print "WFOLDERName  = ".$WDATASETName."\n";
+print "ZDATASETName = ".$ZDATASETName."\n";
+print "ZFOLDERName  = ".$ZDATASETName."\n";
+print "PERIODName   = ".$PERIODName.  "\n";
 
 
 
 
 
 
-#--------------------
-# create cronjob file
+#----------------------
+# create W cronjob file
 
 system("cat cronjob_ntuples_template.sh   | sed -e s%BASEDIR%".$BASEDir.
-                                      "%g | sed -e s%DATASETNAME%".$DATASETName. 
-                                      "%g > cronjob_ntuples.sh");
+                                      "%g | sed -e s%DATASETNAME%".$WDATASETName.
+                                      "%g | sed -e s%WORZ%W".
+                                      "%g > cronjob_ntuples_W.sh");
+
+#-------------------------
+# create W crab job folder
+
+system("mkdir ".$BASEDir."/test/cron_ntuples/".$WFOLDERName);
+system("rm ".$BASEDir."/test/cron_ntuples/runList_W.txt");
+system("rm ".$BASEDir."/test/cron_ntuples/tempList_W_old.txt");
 
 
-#-----------------------
-# create crab job folder
 
-system("mkdir ".$BASEDir."/test/cron_ntuples/".$FOLDERName);
-system("rm ".$BASEDir."/test/cron_ntuples/runList.txt");
-system("rm ".$BASEDir."/test/cron_ntuples/tempList_old.txt");
+
+#----------------------
+# create Z cronjob file
+
+system("cat cronjob_ntuples_template.sh   | sed -e s%BASEDIR%".$BASEDir.
+                                      "%g | sed -e s%DATASETNAME%".$ZDATASETName. 
+                                      "%g | sed -e s%WORZ%Z".
+                                      "%g > cronjob_ntuples_Z.sh");
+
+#-------------------------
+# create Z crab job folder
+
+system("mkdir ".$BASEDir."/test/cron_ntuples/".$ZFOLDERName);
+system("rm ".$BASEDir."/test/cron_ntuples/runList_Z.txt");
+system("rm ".$BASEDir."/test/cron_ntuples/tempList_Z_old.txt");
