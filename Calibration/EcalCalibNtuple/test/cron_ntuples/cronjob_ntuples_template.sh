@@ -24,7 +24,7 @@ then
 rm BASEDIR/test/cron_ntuples/tempList_WORZ.txt
 fi
 
-dbs search --query='find run where dataset=DATASETNAME' | grep "1" > BASEDIR/test/cron_ntuples/tempList_WORZ.txt
+dbs search --query='find run where dataset=DATASETNAME' | egrep '1|2|3|4|5|6|7|8|9|0' > BASEDIR/test/cron_ntuples/tempList_WORZ.txt
 chmod a+rw BASEDIR/test/cron_ntuples/tempList_WORZ.txt
 
 
