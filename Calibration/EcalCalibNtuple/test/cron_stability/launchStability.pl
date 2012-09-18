@@ -137,5 +137,11 @@ system($command);
 $command = "rm list_*.txt";
 system($command);
 
+$command = "rm inputDATA.txt";
+system($command);
+
+$command = "rm inputMC.txt";
+system($command);
+
 $command = "rm -rf /tmp/ecalmon/*";
 system($command);

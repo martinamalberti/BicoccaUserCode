@@ -46,12 +46,10 @@ float timeLapse = 24.; // in hours
 int t1 = 1267401600;   //  1 Mar 2010
 int t2 = 1325289600;   // 31 Dec 2011 
 
-float yMIN_EB = 0.930;
-float yMAX_EB = 1.030;
-//float yMIN_EE = 0.790;
-//float yMAX_EE = 1.080;
+float yMIN_EB = 0.925;
+float yMAX_EB = 1.025;
 float yMIN_EE = 0.700;
-float yMAX_EE = 1.070;
+float yMAX_EE = 1.100;
 
 
 
@@ -282,7 +280,7 @@ int main(int argc, char** argv)
   //2012 EB
   float p0_EB = 0.9991;
   float p1_EB = 0.0001552;
-  //2011
+  //2012 EE
   float p0_EE = 0.9968;
   float p1_EE = 0.001046;
   
@@ -333,20 +331,9 @@ int main(int argc, char** argv)
       if( (seedIphi < IphiMin) || (seedIphi > IphiMax) ) continue;
     }
     
-
     // PU correction
     float PUCorr = (p0 + p1*PV_n);
-    //float PUCorr = 1.;
     //std::cout << "p0: " << p0  << "   p1: " << p1 << "   PV_n: " << PV_n << std::endl;
-    
-
-    //fede
-//     if( strcmp(EBEE,"EB") == 0  &&  runId >= 195536 && runId <= 197709)
-//       scE = scE*0.0394/0.03968;
-    
-//     if( strcmp(EBEE,"EE") == 0  &&  runId >= 195536 && runId < 197709)
-//       scE = scE*0.06498/0.06723;
-
     
     // fill the template histogram
     if( useRegression < 1 )    
@@ -396,7 +383,7 @@ int main(int argc, char** argv)
     
     if( timeStampHigh < t1 ) continue;
     if( timeStampHigh > t2 ) continue;
-
+    
     isSavedEntries.at(ientry) = true;
     
     
@@ -416,7 +403,7 @@ int main(int argc, char** argv)
   std::map<int,int> antiMap;
   for(unsigned int iSaved = 0; iSaved < sortedEntries.size(); ++iSaved)
     antiMap[sortedEntries.at(iSaved).entry] = iSaved;
-
+  
   
   //---------------------
   // Loop and define bins
@@ -592,11 +579,6 @@ int main(int argc, char** argv)
     for(bin = 0; bin < nBins; ++bin)
       if( iSaved >= binEntryMax.at(bin) && iSaved < binEntryMax.at(bin+1) )
 	break;
-
-//     int bin = -1;
-//     for(bin = 0; bin < nBins; ++bin)
-//       if( iSaved >= binEntryMax.at(bin) && iSaved < binEntryMax.at(bin+1) )
-//         break;
     
     //std::cout << "bin = " << bin << "   iSaved = "<< iSaved << std::endl;
     ntu_DA->GetEntry(ientry);
@@ -614,18 +596,8 @@ int main(int argc, char** argv)
         
     // PU correction
     float PUCorr = (p0 + p1*PV_n);
-    //float PUCorr = 1.;
     
     
-    //fede
-//     if( strcmp(EBEE,"EB") == 0  &&  runId >= 195536 && runId <= 197709)
-//       scE = scE*0.0394/0.03968;
-
-//     if( strcmp(EBEE,"EE") == 0  &&  runId >= 195536 && runId < 197709)
-//       scE = scE*0.06498/0.06723;
-
-
-
     // fill the histograms
     if( useRegression < 1 )
       (h_EoP[bin]) -> Fill( (scE-ES)/(P-ES) / scLaserCorr / PUCorr);
@@ -656,6 +628,7 @@ int main(int argc, char** argv)
     AveRun[bin]  = 1. * AveRun[bin]  / (binEntryMax.at(bin+1)-binEntryMax.at(bin));
     //std::cout << date << " " << AveTime[i] << " " << MinTime[i] << " " << MaxTime[i] << std::endl;
   }
+  
   
   
   
@@ -692,7 +665,7 @@ int main(int argc, char** argv)
     // define the fitting function
     // N.B. [0] * ( [1] * f( [1]*(x-[2]) ) )
     
-    o -> cd();
+    //o -> cd();
     char convolutionName[50];
     sprintf(convolutionName,"h_convolution_%d",i);
     //h_Cvl[i] = ConvoluteTemplate(std::string(convolutionName),h_template,h_Las[i],32768,-5.,5.);
@@ -737,10 +710,10 @@ int main(int argc, char** argv)
     
     // fill the graph
     double eee = f_EoP[i]->GetParError(1);
-    //float k = f_EoP[i]->GetParameter(1);
-    float k =  f_EoP[i]->GetParameter(1) / h_Tsp[i]->GetMean();
+    //float k    = f_EoP[i]->GetParameter(1);
+    float k    = f_EoP[i]->GetParameter(1) / h_Tsp[i]->GetMean(); //needed when using mellin's convolution 
     
-    if( (h_EoP[i]->GetEntries() > 3) && (fStatus == 0) && (eee > 0.1*h_template->GetRMS()/sqrt(evtsPerPoint)) )
+    if( (h_EoP[i]->GetEntries() > 3) && (fStatus == 0) && (eee > 0.05*h_template->GetRMS()/sqrt(evtsPerPoint)) )
     {
       float date = (float)AveTime[i];
       float dLow = (float)(AveTime[i]-MinTime[i]); 
@@ -806,8 +779,8 @@ int main(int argc, char** argv)
     // fill the graph
     k   = f_EoC[i]->GetParameter(1);
     eee = f_EoC[i]->GetParError(1); 
-
-    if( (h_EoC[i]->GetEntries() > 10) && (fStatus == 0) && (eee > 0.1*h_template->GetRMS()/sqrt(evtsPerPoint)) )
+    
+    if( (h_EoC[i]->GetEntries() > 10) && (fStatus == 0) && (eee > 0.05*h_template->GetRMS()/sqrt(evtsPerPoint)) )
     {
       float date = (float)AveTime[i]; 
       float dLow = (float)(AveTime[i]-MinTime[i]); 
@@ -848,7 +821,6 @@ int main(int argc, char** argv)
   
   //fede
   for(unsigned int itr = 0; itr < validBins.size(); ++itr)
-  //for(int i = 0; i < nBins; ++i)
   {  
     int i = validBins.at(itr);
     g_las -> SetPoint(itr, (float)AveTime[i], h_Tsp[i]->GetMean() );
@@ -866,12 +838,11 @@ int main(int argc, char** argv)
   //---------------
   // Rescale graphs
   
-  //float yscale = 1.;
-  float yscale = 1./EoC_scale;
+  float yscale = 1.;
+  //float yscale = 1./EoC_scale;
   
   for(unsigned int itr = 0; itr < validBins.size(); ++itr)
-    //for(int i = 0; i < nBins; ++i)                                                                                                                                   
-    {
+  {
     double x,y; 
     g_fit -> GetPoint(itr,x,y); 
     g_fit -> SetPoint(itr,x,y*yscale);
@@ -1297,37 +1268,37 @@ int main(int argc, char** argv)
   
   
   
-  o -> cd();
+   o -> cd();
   
-  h_template -> Write();
+   h_template -> Write();
+
+   h_scOccupancy_eta   -> Write();
+   h_scOccupancy_phi   -> Write();
+   h_seedOccupancy_EB  -> Write(); 
+   h_seedOccupancy_EEp -> Write();
+   h_seedOccupancy_EEm -> Write();
+
+   g_fit   -> Write("g_fit");
+   g_c_fit -> Write("g_c_fit");
+   g_fit_run   -> Write("g_fit_run");
+   g_c_fit_run -> Write("g_c_fit_run");
+   g_las -> Write("g_las");
+
+   h_EoP_chi2 -> Write();
+   h_EoC_chi2 -> Write();
   
-  h_scOccupancy_eta   -> Write();
-  h_scOccupancy_phi   -> Write();
-  h_seedOccupancy_EB  -> Write(); 
-  h_seedOccupancy_EEp -> Write();
-  h_seedOccupancy_EEm -> Write();
-  
-  g_fit   -> Write("g_fit");
-  g_c_fit -> Write("g_c_fit");
-  g_fit_run   -> Write("g_fit_run");
-  g_c_fit_run -> Write("g_c_fit_run");
-  g_las -> Write("g_las");
-  
-  h_EoP_chi2 -> Write();
-  h_EoC_chi2 -> Write();
-  
-  for(int i = 0; i < nBins; ++i)
-  {
-    h_EoP[i] -> GetXaxis() -> SetTitle("E/p");
-    h_EoP[i] -> Write();
-    
-    h_EoC[i] -> GetXaxis() -> SetTitle("E/p");
-    h_EoC[i] -> Write();
-    
-    h_Tsp[i] -> Write();
-    
-    h_Cvl[i] -> Write();
-  }
-  
+   //for(int i = 0; i < nBins; ++i)
+   //{
+   //  h_EoP[i] -> GetXaxis() -> SetTitle("E/p");
+   //  h_EoP[i] -> Write();
+   //
+   //  h_EoC[i] -> GetXaxis() -> SetTitle("E/p");
+   //  h_EoC[i] -> Write();
+   //
+   //  h_Tsp[i] -> Write();
+   //
+   //  h_Cvl[i] -> Write();
+   //}
+
   o -> Close();
 }
