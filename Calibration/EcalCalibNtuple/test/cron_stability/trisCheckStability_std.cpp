@@ -46,10 +46,10 @@ float timeLapse = 24.; // in hours
 int t1 = 1267401600;   //  1 Mar 2010
 int t2 = 1325289600;   // 31 Dec 2011 
 
-float yMIN_EB = 0.925;
-float yMAX_EB = 1.025;
-float yMIN_EE = 0.700;
-float yMAX_EE = 1.100;
+float yMIN = 0.700;
+float yMAX = 1.100;
+
+
 
 
 
@@ -102,29 +102,20 @@ int main(int argc, char** argv)
   }
   if(argc >= 11)
   {
-    absEtaMin = atof(argv[10]);
-    absEtaMax = atof(argv[11]);
+    yMIN = atof(argv[10]);
+    yMAX = atof(argv[11]);
   }
   if(argc >= 13)
   {
-    IetaMin = atoi(argv[12]);
-    IetaMax = atoi(argv[13]);
-    IphiMin = atoi(argv[14]);
-    IphiMax = atoi(argv[15]);
+    absEtaMin = atof(argv[12]);
+    absEtaMax = atof(argv[13]);
   }
-  
-  float yMIN = -1.;
-  float yMAX = -1.;
-  
-  if( strcmp(EBEE,"EB") == 0 )
+  if(argc >= 15)
   {
-    yMIN = yMIN_EB;
-    yMAX = yMAX_EB;
-  }
-  else
-  {
-    yMIN = yMIN_EE;
-    yMAX = yMAX_EE;
+    IetaMin = atoi(argv[14]);
+    IetaMax = atoi(argv[15]);
+    IphiMin = atoi(argv[16]);
+    IphiMax = atoi(argv[17]);
   }
   
   std::cout << "EBEE: "          << EBEE          << std::endl;
@@ -132,6 +123,8 @@ int main(int argc, char** argv)
   std::cout << "useRegression: " << useRegression << std::endl;
   std::cout << "dayMin: "        << dayMin        << std::endl;
   std::cout << "dayMax: "        << dayMax        << std::endl;
+  std::cout << "yMin: "          << yMIN          << std::endl;
+  std::cout << "yMax: "          << yMAX          << std::endl;
   std::cout << "absEtaMin: "     << absEtaMin     << std::endl;
   std::cout << "absEtaMax: "     << absEtaMax     << std::endl;
   std::cout << "IetaMin: "       << IetaMin       << std::endl;
@@ -1008,17 +1001,8 @@ int main(int argc, char** argv)
   hPad->GetXaxis()->SetTitleSize(labSize2);
   hPad->GetYaxis()->SetLabelSize(labSize);
   hPad->GetYaxis()->SetTitleSize(labSize2);
-  
-  if ( strcmp(EBEE,"EB")==0 )
-  {  
-    hPad -> SetMinimum(yMIN_EB);
-    hPad -> SetMaximum(yMAX_EB);
-  }
-  else 
-  {  
-    hPad -> SetMinimum(yMIN_EE);
-    hPad -> SetMaximum(yMAX_EE);
-  }
+  hPad -> SetMinimum(yMIN);
+  hPad -> SetMaximum(yMAX);
   
   // draw history plot
   g_fit -> SetMarkerStyle(24);
@@ -1179,17 +1163,8 @@ int main(int argc, char** argv)
   hPad->GetXaxis()->SetTitleSize(labSize);
   hPad->GetYaxis()->SetLabelSize(labSize);
   hPad->GetYaxis()->SetTitleSize(labSize);
-  
-  if ( strcmp(EBEE,"EB")==0 )
-  {  
-    hPad -> SetMinimum(yMIN_EB);
-    hPad -> SetMaximum(yMAX_EB);
-  }
-  else 
-  {  
-    hPad -> SetMinimum(yMIN_EE);
-    hPad -> SetMaximum(yMAX_EE);
-  }
+  hPad -> SetMinimum(yMIN);
+  hPad -> SetMaximum(yMAX);
   
   // draw history plot
   g_fit_run -> SetMarkerStyle(20);

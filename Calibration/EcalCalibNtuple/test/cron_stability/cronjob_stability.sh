@@ -38,6 +38,14 @@ echo "****** COPY THE PLOTS ******"
 
 rm -rf /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/EB_1_1_2012_31_12_2012/
 rm -rf /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/EE_1_1_2012_31_12_2012/
+rm -rf /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/EB_1_1_2012_31_12_2012_0.00-1.14/
+rm -rf /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/EE_1_1_2012_31_12_2012_1.50-2.00/
+rm -rf /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/EB_1_1_2012_31_12_2012_1.14-1.50/
+rm -rf /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/EE_1_1_2012_31_12_2012_2.00-2.50/
 
 cp -r EB_1_1_2012_31_12_2012 /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/
 cp -r EE_1_1_2012_31_12_2012 /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/
+cp -r EB_1_1_2012_31_12_2012_0.00-1.14 /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/
+cp -r EE_1_1_2012_31_12_2012_1.50-2.00 /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/
+cp -r EB_1_1_2012_31_12_2012_1.14-1.50 /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/
+cp -r EE_1_1_2012_31_12_2012_2.00-2.50 /afs/cern.ch/user/e/ecalmon/www/EoPStability2012/
