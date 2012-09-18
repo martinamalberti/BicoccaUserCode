@@ -943,7 +943,7 @@ int main(int argc, char** argv)
     
   TPaveStats* s_EoC = new TPaveStats;
   s_EoC = (TPaveStats*)(h_EoC_chi2->GetListOfFunctions()->FindObject("stats"));
-  s_EoC -> SetStatFormat("6.2g");
+  s_EoC -> SetStatFormat("1.4g");
   s_EoC -> SetTextColor(kGreen+2);
   s_EoC->SetY1NDC(0.59);
   s_EoC->SetY2NDC(0.79);
@@ -956,7 +956,7 @@ int main(int argc, char** argv)
   
   TPaveStats* s_EoP = new TPaveStats;
   s_EoP = (TPaveStats*)(h_EoP_chi2->GetListOfFunctions()->FindObject("stats"));
-  s_EoP -> SetStatFormat("6.2g");
+  s_EoP -> SetStatFormat("1.4g");
   s_EoP -> SetTextColor(kRed+2);
   s_EoP->SetY1NDC(0.79);
   s_EoP->SetY2NDC(0.99);
@@ -1107,7 +1107,7 @@ int main(int argc, char** argv)
   gPad -> Update();
   
   s_EoC_spread = (TPaveStats*)(h_EoC_spread->GetListOfFunctions()->FindObject("stats"));
-  s_EoC_spread -> SetStatFormat("6.2g");
+  s_EoC_spread -> SetStatFormat("1.4g");
   s_EoC_spread->SetX1NDC(0.06); //new x start position
   s_EoC_spread->SetX2NDC(0.71); //new x end position
   s_EoC_spread->SetY1NDC(0.93); //new x start position
@@ -1123,7 +1123,7 @@ int main(int argc, char** argv)
   h_EoP_spread -> Draw("hbarsames");
   gPad -> Update();
   s_EoP_spread = (TPaveStats*)(h_EoP_spread->GetListOfFunctions()->FindObject("stats"));
-  s_EoP_spread -> SetStatFormat("6.2g");
+  s_EoP_spread -> SetStatFormat("1.4g");
   s_EoP_spread->SetX1NDC(0.06); //new x start position
   s_EoP_spread->SetX2NDC(0.71); //new x end position
   s_EoP_spread->SetY1NDC(0.83); //new x start position
@@ -1131,7 +1131,7 @@ int main(int argc, char** argv)
   s_EoP_spread ->SetOptStat(1100);
   s_EoP_spread ->SetTextColor(kRed+2);
   s_EoP_spread ->SetTextSize(0.08);
-  //s_EoP_spread -> Draw("sames");
+  s_EoP_spread -> Draw("sames");
   
   /*
   h_EoP_spread -> SetFillStyle(3001);
