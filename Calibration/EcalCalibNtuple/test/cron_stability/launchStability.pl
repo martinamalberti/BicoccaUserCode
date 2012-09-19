@@ -40,7 +40,6 @@ close LASTSTABILITY;
 
 $user = `whoami`;
 chomp($user);
-print("user: ".$user."\n");
 
 
 

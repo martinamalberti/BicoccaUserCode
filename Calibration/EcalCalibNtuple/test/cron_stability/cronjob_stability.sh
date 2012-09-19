@@ -2,7 +2,16 @@
 
 
 
- set the cmssw environment
+echo "****** INFO ******"
+echo "whoami: "
+whoami
+echo "hostname: "
+hostname
+echo "pwd: "
+pwd
+
+
+#set the cmssw environment
 echo ""
 echo "****** SET THE CMSSW ENVIRONMENT ******"
 
@@ -28,6 +37,7 @@ echo "****** MOUNT EOS ******"
 echo ""
 echo "****** LAUNCH THE PLOTS ******"
 
+cd /afs/cern.ch/user/e/ecalmon/EoPStability/2012/cron_stability/
 perl launchStability.pl
 
 
