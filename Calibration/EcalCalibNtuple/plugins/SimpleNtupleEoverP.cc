@@ -52,6 +52,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   doWZSelection_= iConfig.getUntrackedParameter<bool>("doWZSelection", false);
   applyCorrections_ = iConfig.getUntrackedParameter<bool>("applyCorrections", false);
   dataFlag_ = iConfig.getUntrackedParameter<bool>("dataFlag", true) ;
+  saveRecHitMatrix_ = iConfig.getUntrackedParameter<bool>("saveRecHitMatrix", false) ;
   
   eventNaiveId_ = 0;
   //---- Initialize tree branches ----
@@ -81,7 +82,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_eta",     &ele1_eta,         "ele1_eta/F");
   outTree_ -> Branch("ele1_phi",     &ele1_phi,         "ele1_phi/F");
 
-  outTree_ -> Branch("ele2_isTrackerDriven",     &ele2_isTrackerDriven,         "ele2_isTrackerDriven/I");
+  outTree_ -> Branch("ele1_isTrackerDriven",     &ele1_isTrackerDriven,         "ele1_isTrackerDriven/I");
 
   outTree_ -> Branch("ele1_sigmaIetaIeta",     &ele1_sigmaIetaIeta,         "ele1_sigmaIetaIeta/F");
   outTree_ -> Branch("ele1_DphiIn",     &ele1_DphiIn,         "ele1_DphiIn/F");
@@ -156,6 +157,16 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_recHit_zside", "std::vector<int>",   &ele1_recHit_zside);
   outTree_ -> Branch("ele1_recHit_laserCorrection","std::vector<float>", &ele1_recHit_laserCorrection);
   outTree_ -> Branch("ele1_recHit_ICConstant",     "std::vector<float>", &ele1_recHit_ICConstant);
+
+  if(saveRecHitMatrix_)
+    {
+      outTree_ -> Branch("ele1_recHitMatrix_E",              "std::vector<float>", &ele1_recHitMatrix_E);
+      outTree_ -> Branch("ele1_recHitMatrix_flag",           "std::vector<int>",   &ele1_recHitMatrix_flag);
+      outTree_ -> Branch("ele1_recHitMatrix_hashedIndex", "std::vector<int>",   &ele1_recHitMatrix_hashedIndex);
+      outTree_ -> Branch("ele1_recHitMatrix_ietaORix", "std::vector<int>",   &ele1_recHitMatrix_ietaORix);
+      outTree_ -> Branch("ele1_recHitMatrix_iphiORiy", "std::vector<int>",   &ele1_recHitMatrix_iphiORiy);
+      outTree_ -> Branch("ele1_recHitMatrix_zside", "std::vector<int>",   &ele1_recHitMatrix_zside);
+    }
 
   outTree_ -> Branch("ele1_nRecHits",       &ele1_nRecHits,  "ele1_nRecHits/I");
   outTree_ -> Branch("ele1_isEB",       &ele1_isEB,  "ele1_isEB/I");
@@ -289,6 +300,16 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_recHit_zside", "std::vector<int>",   &ele2_recHit_zside);
   outTree_ -> Branch("ele2_recHit_laserCorrection","std::vector<float>", &ele2_recHit_laserCorrection);
   outTree_ -> Branch("ele2_recHit_ICConstant",     "std::vector<float>", &ele2_recHit_ICConstant);
+
+  if(saveRecHitMatrix_)
+    {
+      outTree_ -> Branch("ele2_recHitMatrix_E",              "std::vector<float>", &ele2_recHitMatrix_E);
+      outTree_ -> Branch("ele2_recHitMatrix_flag",           "std::vector<int>",   &ele2_recHitMatrix_flag);
+      outTree_ -> Branch("ele2_recHitMatrix_hashedIndex", "std::vector<int>",   &ele2_recHitMatrix_hashedIndex);
+      outTree_ -> Branch("ele2_recHitMatrix_ietaORix", "std::vector<int>",   &ele2_recHitMatrix_ietaORix);
+      outTree_ -> Branch("ele2_recHitMatrix_iphiORiy", "std::vector<int>",   &ele2_recHitMatrix_iphiORiy);
+      outTree_ -> Branch("ele2_recHitMatrix_zside", "std::vector<int>",   &ele2_recHitMatrix_zside);
+    }
 
   outTree_ -> Branch("ele2_nRecHits",       &ele2_nRecHits,  "ele2_nRecHits/I");
   outTree_ -> Branch("ele2_isEB",       &ele2_isEB,  "ele2_isEB/I");
@@ -529,6 +550,13 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele1_recHit_laserCorrection.clear();
   ele1_recHit_ICConstant.clear();
   ele1_nRecHits = -9999;
+
+  ele1_recHitMatrix_E.clear();
+  ele1_recHitMatrix_flag.clear();
+  ele1_recHitMatrix_hashedIndex.clear();
+  ele1_recHitMatrix_ietaORix.clear();
+  ele1_recHitMatrix_iphiORiy.clear();
+  ele1_recHitMatrix_zside.clear();
  
   ele1_isEB= -9999;
   ele1_isEBEEGap= -9999;
@@ -658,6 +686,13 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele2_recHit_laserCorrection.clear();
   ele2_recHit_ICConstant.clear();
   ele2_nRecHits = -9999;
+
+  ele2_recHitMatrix_E.clear();
+  ele2_recHitMatrix_flag.clear();
+  ele2_recHitMatrix_hashedIndex.clear();
+  ele2_recHitMatrix_ietaORix.clear();
+  ele2_recHitMatrix_iphiORiy.clear();
+  ele2_recHitMatrix_zside.clear();
  
   ele2_isEB= -9999;
   ele2_isEBEEGap= -9999;
@@ -1501,7 +1536,60 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           << "   SC energy: "    << std::setprecision(2) << std::setw(6) << scRef -> energy()
           << std::endl;
     } 
-        
+
+
+    if(saveRecHitMatrix_)
+      {
+	if(electron.isEB())
+	  {
+	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;    
+	    //save the matrix in case of eleSeed
+	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
+	    
+	    
+	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+	      {
+		EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
+		if(itrRecHit == theBarrelEcalRecHits->end()) continue;
+		
+		
+		// fill recHit variables                                                                                                                                       
+		EBDetId barrelId (*itr);
+		
+		ele1_recHitMatrix_E.push_back(itrRecHit->energy());
+		ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+		ele1_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
+		ele1_recHitMatrix_ietaORix.push_back(barrelId.ieta());
+		ele1_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
+		ele1_recHitMatrix_zside.push_back(0);
+	      }
+	  }
+	else
+	  { 
+	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theEndcapEcalRecHits ).first;
+	    //save the matrix in case of eleSeed                                                                                                                                 
+	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
+	    
+	    
+	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+	      {
+		EcalRecHitCollection::const_iterator itrRecHit = theEndcapEcalRecHits->find(*itr) ;
+		if(itrRecHit == theEndcapEcalRecHits->end()) continue;
+		
+		
+		// fill recHit variables                                                                                                                                         
+		EEDetId endcapId (*itr);
+		
+		ele1_recHitMatrix_E.push_back(itrRecHit->energy());
+		ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+		ele1_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
+		ele1_recHitMatrix_ietaORix.push_back(endcapId.ix());
+		ele1_recHitMatrix_iphiORiy.push_back(endcapId.iy());
+		ele1_recHitMatrix_zside.push_back(0);
+	      }
+	  }
+      }
+  
     for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
     {
       float rhLaserCorrection = 1.;
@@ -1951,6 +2039,60 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
           << "   SC energy: "    << std::setprecision(2) << std::setw(6) << scRef -> energy()
           << std::endl;
     } 
+
+    if(saveRecHitMatrix_)
+      {
+	if(electron.isEB())
+	  {
+	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;
+	    //save the matrix in case of eleSeed                                                                                                                                 
+	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
+	    
+	    
+	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+	      {
+		EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
+		if(itrRecHit == theBarrelEcalRecHits->end()) continue;
+		
+		
+		// fill recHit variables                                                                                                                                         
+		EBDetId barrelId (*itr);
+		
+		ele2_recHitMatrix_E.push_back(itrRecHit->energy());
+		ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+		ele2_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
+		ele2_recHitMatrix_ietaORix.push_back(barrelId.ieta());
+		ele2_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
+		ele2_recHitMatrix_zside.push_back(0);
+	      }
+	  }
+	else
+	  {
+	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theEndcapEcalRecHits ).first;
+	    //save the matrix in case of eleSeed
+	    
+	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
+	    
+	    
+	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+	      {
+		EcalRecHitCollection::const_iterator itrRecHit = theEndcapEcalRecHits->find(*itr) ;
+		if(itrRecHit == theEndcapEcalRecHits->end()) continue;
+		
+		
+		// fill recHit variables	
+		EEDetId endcapId (*itr);
+		
+		ele2_recHitMatrix_E.push_back(itrRecHit->energy());
+		ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+		ele2_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
+		ele2_recHitMatrix_ietaORix.push_back(endcapId.ix());
+		ele2_recHitMatrix_iphiORiy.push_back(endcapId.iy());
+		ele2_recHitMatrix_zside.push_back(0);
+	      }
+	  }
+      }
+	
         
     for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
     {
@@ -2317,5 +2459,6 @@ void SimpleNtupleEoverP::fillMCPUInfo (const edm::Event & iEvent, const edm::Eve
  
  
 }
+
 //----------------------------------------------------------------------------------------------
 DEFINE_FWK_MODULE(SimpleNtupleEoverP);

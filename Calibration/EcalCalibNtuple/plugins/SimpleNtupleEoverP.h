@@ -130,6 +130,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   void fillMetInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
   void fillDoubleEleInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  void fillMatrixRecHit(reco::SuperClusterRef scRef, int type, const EcalRecHitCollection* theRecHitCollection, const CaloTopology* topology);
 
   bool  TightEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
   bool  MediumEle  (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
@@ -166,6 +167,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   bool applyCorrections_;  //---- true = correct the recHit and SC energy IN the analyzer
   bool doWZSelection_;
   bool dataFlag_;
+  bool saveRecHitMatrix_;
 
   int eventNaiveId_;
   std::map<float,int> eleIts_;
@@ -278,6 +280,13 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<float> ele1_recHit_laserCorrection;
   std::vector<float> ele1_recHit_ICConstant;
   int   ele1_nRecHits;
+
+  std::vector<float> ele1_recHitMatrix_E;
+  std::vector<int> ele1_recHitMatrix_flag;
+  std::vector<int> ele1_recHitMatrix_hashedIndex;
+  std::vector<int> ele1_recHitMatrix_ietaORix;
+  std::vector<int> ele1_recHitMatrix_iphiORiy;
+  std::vector<int> ele1_recHitMatrix_zside;
  
   int ele1_isEB;
   int ele1_isEBEEGap;
@@ -414,6 +423,14 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<float> ele2_recHit_laserCorrection;
   std::vector<float> ele2_recHit_ICConstant;
   int   ele2_nRecHits;
+
+  std::vector<float> ele2_recHitMatrix_E;
+  std::vector<int> ele2_recHitMatrix_flag;
+  std::vector<int> ele2_recHitMatrix_hashedIndex;
+  std::vector<int> ele2_recHitMatrix_ietaORix;
+  std::vector<int> ele2_recHitMatrix_iphiORiy;
+  std::vector<int> ele2_recHitMatrix_zside;
+
  
   int ele2_isEB;
   int ele2_isEBEEGap;
