@@ -130,6 +130,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   void fillMetInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
   void fillDoubleEleInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
   void fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  void fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup);
   void fillMatrixRecHit(reco::SuperClusterRef scRef, int type, const EcalRecHitCollection* theRecHitCollection, const CaloTopology* topology);
 
   bool  TightEle   (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int &iEle) ;
@@ -152,6 +153,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   edm::InputTag conversionsInputTag_;
   edm::InputTag EleTag_;
   edm::InputTag PFMetTag_;
+  edm::InputTag MCtruthTag_;
   edm::InputTag MCPileupTag_;
 
   int eventType_;
@@ -168,6 +170,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   bool doWZSelection_;
   bool dataFlag_;
   bool saveRecHitMatrix_;
+  bool saveFbrem_;
+  bool saveMCInfo_;
 
   int eventNaiveId_;
   std::map<float,int> eleIts_;
@@ -176,6 +180,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
 
   ///---- output ----
   TTree* outTree_;
+  MCDumperZW*    mcAnalysisZW_;
+
   // event variables
   long int bxId;
   long int eventId;
@@ -340,6 +346,22 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele1_eRegrInput_nPV;
   float ele1_eRegrInput_SCsize;
     
+  float ele1_inner_p;
+  float ele1_inner_x;
+  float ele1_inner_y;
+  float ele1_inner_z;
+  float ele1_outer_p;
+  float ele1_outer_x;
+  float ele1_outer_y;
+  float ele1_outer_z;
+  int ele1_tangent_n;
+  std::vector<float> ele1_tangent_p;
+  std::vector<float> ele1_tangent_x;
+  std::vector<float> ele1_tangent_y;
+  std::vector<float> ele1_tangent_z;
+  std::vector<float> ele1_tangent_dP;
+  std::vector<float> ele1_tangent_dPerr;
+
   
  // ele2 variables  
   ROOT::Math::XYZTVector ele2;
@@ -485,6 +507,21 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float ele2_eRegrInput_nPV;
   float ele2_eRegrInput_SCsize;
  
+  float ele2_inner_p;
+  float ele2_inner_x;
+  float ele2_inner_y;
+  float ele2_inner_z;
+  float ele2_outer_p;
+  float ele2_outer_x;
+  float ele2_outer_y;
+  float ele2_outer_z;
+  int ele2_tangent_n;
+  std::vector<float> ele2_tangent_p;
+  std::vector<float> ele2_tangent_x;
+  std::vector<float> ele2_tangent_y;
+  std::vector<float> ele2_tangent_z;
+  std::vector<float> ele2_tangent_dP;
+  std::vector<float> ele2_tangent_dPerr;
  
   // met variables
   ROOT::Math::XYZTVector met;
@@ -527,9 +564,27 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   float PUoot_late_ntrks_highpT ;
  
   
+  // MC Info
+  float mcV_E;
+  float mcV_Px;
+  float mcV_Py;
+  float mcV_Pz;
+  int mcV_Charge;
+  int mcV_PdgId;
 
+  float mcF1_fromV_E;
+  float mcF1_fromV_Px;
+  float mcF1_fromV_Py;
+  float mcF1_fromV_Pz;
+  int mcF1_fromV_Charge;
+  int mcF1_fromV_PdgId;
 
- 
+  float mcF2_fromV_E;
+  float mcF2_fromV_Px;
+  float mcF2_fromV_Py;
+  float mcF2_fromV_Pz;
+  int mcF2_fromV_Charge;
+  int mcF2_fromV_PdgId;
 } ;
 
 #endif

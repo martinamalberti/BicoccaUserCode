@@ -37,6 +37,8 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   PFMetTag_ = iConfig.getParameter<edm::InputTag>("PFMetTag");
   
+  MCtruthTag_ = iConfig.getParameter<edm::InputTag>("MCtruthTag");
+
   rhoTag_ = iConfig.getParameter<edm::InputTag>("rhoTag");
       
   eventType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
@@ -53,8 +55,12 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   applyCorrections_ = iConfig.getUntrackedParameter<bool>("applyCorrections", false);
   dataFlag_ = iConfig.getUntrackedParameter<bool>("dataFlag", true) ;
   saveRecHitMatrix_ = iConfig.getUntrackedParameter<bool>("saveRecHitMatrix", false) ;
-  
+  saveFbrem_ = iConfig.getUntrackedParameter<bool>("saveFbrem", false);  
+  saveMCInfo_ = iConfig.getUntrackedParameter<bool>("saveMCInfo", false);  
   eventNaiveId_ = 0;
+
+  mcAnalysisZW_ = NULL;
+
   //---- Initialize tree branches ----
   
   // event variables
@@ -372,9 +378,43 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
  outTree_ -> Branch("ele2_eRegrInput_nPV",       &ele2_eRegrInput_nPV,  "ele2_eRegrInput_nPV/F");
  outTree_ -> Branch("ele2_eRegrInput_SCsize",       &ele2_eRegrInput_SCsize,  "ele2_eRegrInput_SCsize/F");
 
- 
+ if(saveFbrem_){
+   outTree_ -> Branch("ele1_inner_p", &ele1_inner_p, "ele1_inner_p/F");
+   outTree_ -> Branch("ele1_inner_x", &ele1_inner_x, "ele1_inner_x/F");
+   outTree_ -> Branch("ele1_inner_y", &ele1_inner_y, "ele1_inner_y/F");
+   outTree_ -> Branch("ele1_inner_z", &ele1_inner_z, "ele1_inner_z/F");
+   outTree_ -> Branch("ele1_outer_p", &ele1_outer_p, "ele1_outer_p/F");
+   outTree_ -> Branch("ele1_outer_x", &ele1_outer_x, "ele1_outer_x/F");
+   outTree_ -> Branch("ele1_outer_y", &ele1_outer_y, "ele1_outer_y/F");
+   outTree_ -> Branch("ele1_outer_z", &ele1_outer_z, "ele1_outer_z/F");
+   outTree_ -> Branch("ele1_tangent_n", &ele1_tangent_n, "ele1_tangent_n/I");
+   outTree_ -> Branch("ele1_tangent_p", "std::vector<float>", &ele1_tangent_p);
+   outTree_ -> Branch("ele1_tangent_x", "std::vector<float>", &ele1_tangent_x);
+   outTree_ -> Branch("ele1_tangent_y", "std::vector<float>", &ele1_tangent_y);
+   outTree_ -> Branch("ele1_tangent_z", "std::vector<float>", &ele1_tangent_z);
+   outTree_ -> Branch("ele1_tangent_dP", "std::vector<float>", &ele1_tangent_dP);
+   outTree_ -> Branch("ele1_tangent_dPerr", "std::vector<float>", &ele1_tangent_dPerr);
+
+   outTree_ -> Branch("ele2_inner_p", &ele2_inner_p, "ele2_inner_p/F");
+   outTree_ -> Branch("ele2_inner_x", &ele2_inner_x, "ele2_inner_x/F");
+   outTree_ -> Branch("ele2_inner_y", &ele2_inner_y, "ele2_inner_y/F");
+   outTree_ -> Branch("ele2_inner_z", &ele2_inner_z, "ele2_inner_z/F");
+   outTree_ -> Branch("ele2_outer_p", &ele2_outer_p, "ele2_outer_p/F");
+   outTree_ -> Branch("ele2_outer_x", &ele2_outer_x, "ele2_outer_x/F");
+   outTree_ -> Branch("ele2_outer_y", &ele2_outer_y, "ele2_outer_y/F");
+   outTree_ -> Branch("ele2_outer_z", &ele2_outer_z, "ele2_outer_z/F");
+   outTree_ -> Branch("ele2_tangent_n", &ele2_tangent_n, "ele2_tangent_n/I");
+   outTree_ -> Branch("ele2_tangent_p", "std::vector<float>", &ele2_tangent_p);
+   outTree_ -> Branch("ele2_tangent_x", "std::vector<float>", &ele2_tangent_x);
+   outTree_ -> Branch("ele2_tangent_y", "std::vector<float>", &ele2_tangent_y);
+   outTree_ -> Branch("ele2_tangent_z", "std::vector<float>", &ele2_tangent_z);
+   outTree_ -> Branch("ele2_tangent_dP", "std::vector<float>", &ele2_tangent_dP);
+   outTree_ -> Branch("ele2_tangent_dPerr", "std::vector<float>", &ele2_tangent_dPerr);
+
+ }
+
+
   if(saveMCPU_){
- 
   outTree_ -> Branch("PUit_TrueNumInteractions",       &PUit_TrueNumInteractions,  "PUit_TrueNumInteractions/F");
   outTree_ -> Branch("PUit_NumInteractions",       &PUit_NumInteractions,  "PUit_NumInteractions/I");
   outTree_ -> Branch("PUit_zpositions",       &PUit_zpositions,  "PUit_zpositions/F");
@@ -398,8 +438,29 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("PUoot_late_sumpT_highpT",       &PUoot_late_sumpT_highpT,  "PUoot_late_sumpT_highpT/F");
   outTree_ -> Branch("PUoot_late_ntrks_lowpT",       &PUoot_late_ntrks_lowpT,  "PUoot_late_ntrks_lowpT/F");
   outTree_ -> Branch("PUoot_late_ntrks_highpT",       &PUoot_late_ntrks_highpT,  "PUoot_late_ntrks_highpT/F");
+  }
 
+  if(saveMCInfo_){
+    outTree_ -> Branch("mcV_E", &mcV_E, "mcV_E/F");
+    outTree_ -> Branch("mcV_Px", &mcV_Px, "mcV_Px/F");
+    outTree_ -> Branch("mcV_Py", &mcV_Py, "mcV_Py/F");
+    outTree_ -> Branch("mcV_Pz", &mcV_Pz, "mcV_Pz/F");
+    outTree_ -> Branch("mcV_Charge", &mcV_Charge, "mcV_Charge/I");
+    outTree_ -> Branch("mcV_PdgId", &mcV_PdgId, "mcV_PdgId/I");
 
+    outTree_ -> Branch("mcF1_fromV_E", &mcF1_fromV_E, "mcF1_fromV_E/F");
+    outTree_ -> Branch("mcF1_fromV_Px", &mcF1_fromV_Px, "mcF1_fromV_Px/F");
+    outTree_ -> Branch("mcF1_fromV_Py", &mcF1_fromV_Py, "mcF1_fromV_Py/F");
+    outTree_ -> Branch("mcF1_fromV_Pz", &mcF1_fromV_Pz, "mcF1_fromV_Pz/F");
+    outTree_ -> Branch("mcF1_fromV_Charge", &mcF1_fromV_Charge, "mcF1_fromV_Charge/I");
+    outTree_ -> Branch("mcF1_fromV_PdgId", &mcF1_fromV_PdgId, "mcF1_fromV_PdgId/I");
+
+    outTree_ -> Branch("mcF2_fromV_E", &mcF2_fromV_E, "mcF2_fromV_E/F");
+    outTree_ -> Branch("mcF2_fromV_Px", &mcF2_fromV_Px, "mcF2_fromV_Px/F");
+    outTree_ -> Branch("mcF2_fromV_Py", &mcF2_fromV_Py, "mcF2_fromV_Py/F");
+    outTree_ -> Branch("mcF2_fromV_Pz", &mcF2_fromV_Pz, "mcF2_fromV_Pz/F");
+    outTree_ -> Branch("mcF2_fromV_Charge", &mcF2_fromV_Charge, "mcF2_fromV_Charge/I");
+    outTree_ -> Branch("mcF2_fromV_PdgId", &mcF2_fromV_PdgId, "mcF2_fromV_PdgId/I");
   }
 
   EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
@@ -470,6 +531,28 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   PUoot_late_ntrks_lowpT = -99.;
   PUoot_late_ntrks_highpT = -99.;
   
+  if(saveMCInfo_){
+    mcV_E = -9999.;
+    mcV_Px = -9999.;
+    mcV_Py = -9999.;
+    mcV_Pz = -9999.;
+    mcV_Charge = -99;
+    mcV_PdgId = -99;
+
+    mcF1_fromV_E = -9999.;
+    mcF1_fromV_Px = -9999.;
+    mcF1_fromV_Py = -9999.;
+    mcF1_fromV_Pz = -9999.;
+    mcF1_fromV_Charge = -99;
+    mcF1_fromV_PdgId = -99;
+    mcF2_fromV_E = -9999.;
+    mcF2_fromV_Px = -9999.;
+    mcF2_fromV_Py = -9999.;
+    mcF2_fromV_Pz = -9999.;
+    mcF2_fromV_Charge = -99;
+    mcF2_fromV_PdgId = -99;
+  }
+
   // electron variables  
   ele1_charge =-99.;
   ele1_p =-99.;
@@ -743,6 +826,39 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele2_eRegrInput_nPV= -99.;
   ele2_eRegrInput_SCsize= -99.;
 
+  if(saveFbrem_){
+  ele1_inner_p = -9999.;
+  ele1_inner_x = -9999.;
+  ele1_inner_y = -9999.;
+  ele1_inner_z = -9999.;
+  ele1_outer_p = -9999.;
+  ele1_outer_x = -9999.;
+  ele1_outer_y = -9999.;
+  ele1_outer_z = -9999.;
+  ele1_tangent_n = -1;
+  ele1_tangent_p.clear();
+  ele1_tangent_x.clear();
+  ele1_tangent_y.clear();
+  ele1_tangent_z.clear();
+  ele1_tangent_dP.clear();
+  ele1_tangent_dPerr.clear();
+
+  ele2_inner_p = -9999.;
+  ele2_inner_x = -9999.;
+  ele2_inner_y = -9999.;
+  ele2_inner_z = -9999.;
+  ele2_outer_p = -9999.;
+  ele2_outer_x = -9999.;
+  ele2_outer_y = -9999.;
+  ele2_outer_z = -9999.;
+  ele2_tangent_n = -1;
+  ele2_tangent_p.clear();
+  ele2_tangent_x.clear();
+  ele2_tangent_y.clear();
+  ele2_tangent_z.clear();
+  ele2_tangent_dP.clear();
+  ele2_tangent_dPerr.clear();
+  }
   met_et=-99.;
   met_phi=-99.;
 
@@ -769,6 +885,15 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   //************* MC PU
    if (saveMCPU_) fillMCPUInfo (iEvent, iSetup);
+
+   //************ MC INFO
+   if(saveMCInfo_) {
+     edm::Handle<reco::GenParticleCollection> genParticles;
+     iEvent.getByLabel(MCtruthTag_, genParticles);
+     eventType_ = 0;
+     mcAnalysisZW_ = new MCDumperZW(genParticles, eventType_, verbosity_);
+     fillMCInfo(iEvent, iSetup);
+   }
  
   //************* ELECTRONS
   Handle<View<reco::GsfElectron> > electronHandle;
@@ -1274,9 +1399,11 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   
   //************* REGRESSION
   if( !ecorr_.IsInitialized() ){
+    //    ecorr_.Initialize(iSetup,"gbrv3ele_52x.root");
     ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
   }
   if( !ecorrPho_.IsInitialized()){
+    //    ecorrPho_.Initialize(iSetup,"gbrv3ph_52x.root");
     ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ph_52x.root");
   } 
   
@@ -1790,6 +1917,36 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
       ele1_eRegrInput_seedbC_etacry = -99.;
       ele1_eRegrInput_seedbC_phicry =-99.;
     }
+
+    if(saveFbrem_){
+      reco::GsfTrackRef eleTrack  = electron.gsfTrack();
+      GlobalPoint outPos(eleTrack->extra()->outerPosition().x(), eleTrack->extra()->outerPosition().y(), eleTrack->extra()->outerPosition().z());
+      GlobalPoint innPos(eleTrack->extra()->innerPosition().x(), eleTrack->extra()->innerPosition().y(), eleTrack->extra()->innerPosition().z());
+      ele1_inner_p = (sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
+      ele1_inner_x = innPos.x();
+      ele1_inner_y = innPos.y();
+      ele1_inner_z = innPos.z();
+      ele1_outer_p = (sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
+      ele1_outer_x = outPos.x();
+      ele1_outer_y = outPos.y();
+      ele1_outer_z = outPos.z();
+      
+      std::vector<reco::GsfTangent> eleTangent = eleTrack->gsfExtra()->tangents();
+      for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
+	GlobalPoint tangPos( eleTangent.at(pp).position().x(),
+			     eleTangent.at(pp).position().y(),
+			     eleTangent.at(pp).position().z() );
+	//     float innR = sqrt(pow(tangPos.x(),2)+pow(tangPos.y(),2));                                                     
+	float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
+	ele1_tangent_p.push_back(tangMom);
+	ele1_tangent_x.push_back(tangPos.x());
+	ele1_tangent_y.push_back(tangPos.y());
+	ele1_tangent_z.push_back(tangPos.z());
+	ele1_tangent_dP.push_back(eleTangent.at(pp).deltaP().value());
+	ele1_tangent_dPerr.push_back(eleTangent.at(pp).deltaP().error());
+      }
+      ele1_tangent_n = eleTangent.size();
+    }
   }
   
   
@@ -2292,7 +2449,38 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
      ele2_eRegrInput_seedbC_etacry = -99.;
      ele2_eRegrInput_seedbC_phicry =-99.;
    }
- }
+
+ if(saveFbrem_){
+      reco::GsfTrackRef eleTrack  = electron.gsfTrack();
+      GlobalPoint outPos(eleTrack->extra()->outerPosition().x(), eleTrack->extra()->outerPosition().y(), eleTrack->extra()->outerPosition().z());
+      GlobalPoint innPos(eleTrack->extra()->innerPosition().x(), eleTrack->extra()->innerPosition().y(), eleTrack->extra()->innerPosition().z());
+      ele2_inner_p = (sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
+      ele2_inner_x = innPos.x();
+      ele2_inner_y = innPos.y();
+      ele2_inner_z = innPos.z();
+      ele2_outer_p = (sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
+      ele2_outer_x = outPos.x();
+      ele2_outer_y = outPos.y();
+      ele2_outer_z = outPos.z();
+      
+      std::vector<reco::GsfTangent> eleTangent = eleTrack->gsfExtra()->tangents();
+      for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
+	GlobalPoint tangPos( eleTangent.at(pp).position().x(),
+			     eleTangent.at(pp).position().y(),
+			     eleTangent.at(pp).position().z() );
+	//     float innR = sqrt(pow(tangPos.x(),2)+pow(tangPos.y(),2));                                                     
+	float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
+	ele2_tangent_p.push_back(tangMom);
+	ele2_tangent_x.push_back(tangPos.x());
+	ele2_tangent_y.push_back(tangPos.y());
+	ele2_tangent_z.push_back(tangPos.z());
+	ele2_tangent_dP.push_back(eleTangent.at(pp).deltaP().value());
+	ele2_tangent_dPerr.push_back(eleTangent.at(pp).deltaP().error());
+      }
+      ele2_tangent_n = eleTangent.size();
+    }
+
+  }
   
   
  if( verbosity_ )
@@ -2458,6 +2646,42 @@ void SimpleNtupleEoverP::fillMCPUInfo (const edm::Event & iEvent, const edm::Eve
   } // loop on BX
  
  
+}
+
+
+// -----------------------------------------------------------------------------------------
+void SimpleNtupleEoverP::fillMCInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup)
+{
+  //  std::cout << "SimpleNtupleEoverP::fillMCDecayInfo" << std::endl; 
+
+  if(mcAnalysisZW_->isValid())
+    {
+      // Vboson Z 23  W +/-24
+      mcV_E = mcAnalysisZW_->mcV()->p4().E();
+      mcV_Px = mcAnalysisZW_->mcV()->p4().Px();
+      mcV_Px = mcAnalysisZW_->mcV()->p4().Py();
+      mcV_Px = mcAnalysisZW_->mcV()->p4().Pz();
+      mcV_Charge = mcAnalysisZW_->mcV()->charge();
+      mcV_PdgId = mcAnalysisZW_->mcV()->pdgId();
+
+      // lepton1 pT > lepton2 pT
+      //      mcAnalysisZW_->PrintEventInfo();
+      mcF1_fromV_E = mcAnalysisZW_->mcF1_fromV()->p4().E();
+      mcF1_fromV_Px = mcAnalysisZW_->mcF1_fromV()->p4().Px();
+      mcF1_fromV_Py = mcAnalysisZW_->mcF1_fromV()->p4().Py();
+      mcF1_fromV_Pz = mcAnalysisZW_->mcF1_fromV()->p4().Pz();
+      mcF1_fromV_Charge = mcAnalysisZW_->mcF1_fromV()->charge();
+      mcF1_fromV_PdgId = mcAnalysisZW_->mcF1_fromV()->pdgId();
+      
+      mcF2_fromV_E = mcAnalysisZW_->mcF2_fromV()->p4().E();
+      mcF2_fromV_Px = mcAnalysisZW_->mcF2_fromV()->p4().Px();
+      mcF2_fromV_Py = mcAnalysisZW_->mcF2_fromV()->p4().Py();
+      mcF2_fromV_Pz = mcAnalysisZW_->mcF2_fromV()->p4().Pz();
+      mcF2_fromV_Charge = mcAnalysisZW_->mcF2_fromV()->charge();
+      mcF2_fromV_PdgId = mcAnalysisZW_->mcF2_fromV()->pdgId();
+      
+    }
+
 }
 
 //----------------------------------------------------------------------------------------------
