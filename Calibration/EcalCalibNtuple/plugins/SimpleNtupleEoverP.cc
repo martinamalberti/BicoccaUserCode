@@ -1712,7 +1712,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 		ele1_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
 		ele1_recHitMatrix_ietaORix.push_back(endcapId.ix());
 		ele1_recHitMatrix_iphiORiy.push_back(endcapId.iy());
-		ele1_recHitMatrix_zside.push_back(0);
+		ele1_recHitMatrix_zside.push_back(endcapId.zside());
 	      }
 	  }
       }
@@ -2245,7 +2245,7 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 		ele2_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
 		ele2_recHitMatrix_ietaORix.push_back(endcapId.ix());
 		ele2_recHitMatrix_iphiORiy.push_back(endcapId.iy());
-		ele2_recHitMatrix_zside.push_back(0);
+		ele2_recHitMatrix_zside.push_back(endcapId.zside());
 	      }
 	  }
       }
