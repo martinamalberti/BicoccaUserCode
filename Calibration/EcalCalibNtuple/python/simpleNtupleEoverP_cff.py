@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def makeSimpleNtuple(process,GlobalTag,runOverSandbox):
+def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverData):
     
     # Source
     process.source = cms.Source(
@@ -36,12 +36,16 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox):
     
     process.load("Calibration/EcalCalibNtuple/simpleNtupleEoverP_cfi")
 
-    if not runOverSandbox:
-        process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("reducedEcalRecHitsEB")
-        process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("reducedEcalRecHitsEE")
+    if not runOverSandbox:                
+        process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO")
+        process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO")
         process.simpleNtupleEoverP.EleTag              = cms.InputTag("gsfElectrons")
         process.simpleNtupleEoverP.rhoTag              = cms.InputTag("kt6PFJets","rho")
     
+    if not runOverData:
+        process.simpleNtupleEoverP.saveMCPU            = cms.untracked.bool(True)
+        process.simpleNtupleEoverP.dataFlag            = cms.untracked.bool(False)
+                
         
     #--------------------------
     # paths

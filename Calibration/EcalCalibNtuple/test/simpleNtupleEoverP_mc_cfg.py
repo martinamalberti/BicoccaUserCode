@@ -13,7 +13,7 @@ process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 # simpleNtuple
-makeSimpleNtuple(process,GlobalTag="GR_P_V41::All",runOverSandbox=False,runOverData=True)
+makeSimpleNtuple(process,GlobalTag="START53_V7D::All",runOverSandbox=False,runOverData=False)
 
 #makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
@@ -22,9 +22,7 @@ makeSimpleNtuple(process,GlobalTag="GR_P_V41::All",runOverSandbox=False,runOverD
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    '/store/data/Run2012C/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v3/000/202/087/00000/D847428A-3CF8-E111-B644-002618FDA265.root',
-    '/store/data/Run2012C/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v3/000/202/087/00000/D63AF27F-3CF8-E111-921A-003048678FFE.root'
-    
+    ''
     )
 
 process.maxEvents = cms.untracked.PSet(
