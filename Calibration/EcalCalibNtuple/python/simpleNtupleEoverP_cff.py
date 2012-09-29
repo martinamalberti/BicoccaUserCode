@@ -43,9 +43,9 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverData):
         process.simpleNtupleEoverP.rhoTag              = cms.InputTag("kt6PFJets","rho")
     
     if not runOverData:
-        process.simpleNtupleEoverP.saveMCPU            = cms.untracked.bool(True)
         process.simpleNtupleEoverP.dataFlag            = cms.untracked.bool(False)
-                
+        process.simpleNtupleEoverP.saveMCPU            = cms.untracked.bool(True)
+        process.simpleNtupleEoverP.saveMCInfo          = cms.untracked.bool(True)
         
     #--------------------------
     # paths
