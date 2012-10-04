@@ -42,9 +42,14 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDigi/interface/EBSrFlag.h"
+#include "DataFormats/EcalDigi/interface/EESrFlag.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -150,6 +155,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   edm::InputTag rhoTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
+  edm::InputTag SRFlagCollection_EB_;
+  edm::InputTag SRFlagCollection_EE_;
   edm::InputTag conversionsInputTag_;
   edm::InputTag EleTag_;
   edm::InputTag PFMetTag_;

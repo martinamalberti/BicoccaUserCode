@@ -30,7 +30,9 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   PVTag_       = iConfig.getParameter<edm::InputTag>("PVTag");
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
-  
+  SRFlagCollection_EB_ = iConfig.getParameter<edm::InputTag>("SRFlagCollection_EB");
+  SRFlagCollection_EE_ = iConfig.getParameter<edm::InputTag>("SRFlagCollection_EE");
+    
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
 
   conversionsInputTag_=iConfig.getParameter<edm::InputTag>("conversionsInputTag");
@@ -1340,7 +1342,7 @@ void SimpleNtupleEoverP::fillRhoInfo(const edm::Event & iEvent, const edm::Event
 
 // ------------------------------------------------------------------------------------------------------------
 
-void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup, const int iEle, const std::string eleName )
+void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup, const int iEle, const std::string eleName)
 {
   if( verbosity_ )
     std::cout<< ">>> SimpleNtupleEoverP::fillEleInfo start <<<" << std::endl;
@@ -1384,6 +1386,39 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
   if ( ! recHitsEE.isValid() ) {
     std::cerr << "SimpleNtupleEoverP::analyze --> recHitsEE not found" << std::endl; 
   }
+  
+  //*********** EB SR FLAGS
+  edm::Handle<EBSrFlagCollection> SRFlagsEB;
+  std::vector<EcalTrigTowerDetId> TTIdList;
+  
+  if( saveRecHitMatrix_ )
+  {
+    iEvent.getByLabel(SRFlagCollection_EB_, SRFlagsEB );
+    for(EBSrFlagCollection::const_iterator it = SRFlagsEB->begin(); it != SRFlagsEB->end(); ++it)
+    {
+      const int flag = it->value();
+      if( flag != EcalSrFlag::SRF_FULL ) continue;
+      const EcalTrigTowerDetId TTId = it->id();
+      TTIdList.push_back(TTId);
+      //std::cout << "flag: " << flag << "   TTId: " << TTId << "   iEta: " << TTId.ieta() << "   iPhi: " << TTId.iphi() << std::endl;
+    }
+  }        
+  
+  //*********** EE SR FLAGS
+  edm::Handle<EESrFlagCollection> SRFlagsEE;
+  std::vector<EcalScDetId> SCIdList;
+  if( saveRecHitMatrix_ )
+  {
+    iEvent.getByLabel(SRFlagCollection_EE_, SRFlagsEE );
+    for(EESrFlagCollection::const_iterator it = SRFlagsEE->begin(); it != SRFlagsEE->end(); ++it)
+    {
+      const int flag = it->value();
+      if( flag != EcalSrFlag::SRF_FULL ) continue;
+      const EcalScDetId SCId = it->id();
+      SCIdList.push_back(SCId);
+      //std::cout << "flag: " << flag << "   SCId: " << SCId << "   iEta: " << SCId.ieta() << "   iPhi: " << SCId.iphi() << std::endl;
+    }
+  }      
   
   //************* ELECTRONS
   Handle<View<reco::GsfElectron> > electronHandle;
@@ -1666,57 +1701,62 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
 
 
     if(saveRecHitMatrix_)
+    {
+      if(electron.isEB())
       {
-	if(electron.isEB())
-	  {
-	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;    
-	    //save the matrix in case of eleSeed
-	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
-	    
-	    
-	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
-	      {
-		EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
-		if(itrRecHit == theBarrelEcalRecHits->end()) continue;
-		
-		
-		// fill recHit variables                                                                                                                                       
-		EBDetId barrelId (*itr);
-		
-		ele1_recHitMatrix_E.push_back(itrRecHit->energy());
-		ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
-		ele1_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
-		ele1_recHitMatrix_ietaORix.push_back(barrelId.ieta());
-		ele1_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
-		ele1_recHitMatrix_zside.push_back(0);
-	      }
-	  }
-	else
-	  { 
-	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theEndcapEcalRecHits ).first;
-	    //save the matrix in case of eleSeed                                                                                                                                 
-	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
-	    
-	    
-	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
-	      {
-		EcalRecHitCollection::const_iterator itrRecHit = theEndcapEcalRecHits->find(*itr) ;
-		if(itrRecHit == theEndcapEcalRecHits->end()) continue;
-		
-		
-		// fill recHit variables                                                                                                                                         
-		EEDetId endcapId (*itr);
-		
-		ele1_recHitMatrix_E.push_back(itrRecHit->energy());
-		ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
-		ele1_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
-		ele1_recHitMatrix_ietaORix.push_back(endcapId.ix());
-		ele1_recHitMatrix_iphiORiy.push_back(endcapId.iy());
-		ele1_recHitMatrix_zside.push_back(endcapId.zside());
-	      }
-	  }
+        DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;    
+	//save the matrix in case of eleSeed
+	std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -9, 9, -9, 9);
+	
+	for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+        {
+          EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
+          if(itrRecHit == theBarrelEcalRecHits->end()) continue;
+          
+          // fill recHit variables
+          EBDetId barrelId(*itr);
+          EcalTrigTowerDetId towerId = barrelId.tower();
+          
+          std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
+          if( TTIdListIt == TTIdList.end() ) continue;
+          
+          ele1_recHitMatrix_E.push_back(itrRecHit->energy());
+          ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele1_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
+          ele1_recHitMatrix_ietaORix.push_back(barrelId.ieta());
+          ele1_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
+          ele1_recHitMatrix_zside.push_back(0);
+        }
       }
-  
+      
+      else
+      {
+        DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theEndcapEcalRecHits ).first;    
+	//save the matrix in case of eleSeed
+	std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -9, 9, -9, 9);
+	
+	for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+        {
+          EcalRecHitCollection::const_iterator itrRecHit = theEndcapEcalRecHits->find(*itr) ;
+          if(itrRecHit == theEndcapEcalRecHits->end()) continue;
+          
+          // fill recHit variables
+          EEDetId endcapId(*itr);
+          EcalScDetId scId = endcapId.sc();
+          
+          std::vector<EcalScDetId>::iterator SCIdListIt = std::find(SCIdList.begin(),SCIdList.end(),scId);
+          if( SCIdListIt == SCIdList.end() ) continue;
+          
+          ele1_recHitMatrix_E.push_back(itrRecHit->energy());
+          ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele1_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
+          ele1_recHitMatrix_ietaORix.push_back(endcapId.ix());
+          ele1_recHitMatrix_iphiORiy.push_back(endcapId.iy());
+          ele1_recHitMatrix_zside.push_back(0);
+        }
+      }
+    }
+    
     for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
     {
       float rhLaserCorrection = 1.;
@@ -2198,59 +2238,62 @@ void SimpleNtupleEoverP::fillEleInfo (const edm::Event & iEvent, const edm::Even
     } 
 
     if(saveRecHitMatrix_)
+    {
+      if(electron.isEB())
       {
-	if(electron.isEB())
-	  {
-	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;
-	    //save the matrix in case of eleSeed                                                                                                                                 
-	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
-	    
-	    
-	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
-	      {
-		EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
-		if(itrRecHit == theBarrelEcalRecHits->end()) continue;
-		
-		
-		// fill recHit variables                                                                                                                                         
-		EBDetId barrelId (*itr);
-		
-		ele2_recHitMatrix_E.push_back(itrRecHit->energy());
-		ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
-		ele2_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
-		ele2_recHitMatrix_ietaORix.push_back(barrelId.ieta());
-		ele2_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
-		ele2_recHitMatrix_zside.push_back(0);
-	      }
-	  }
-	else
-	  {
-	    DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theEndcapEcalRecHits ).first;
-	    //save the matrix in case of eleSeed
-	    
-	    std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -7, 7, -7, 7);
-	    
-	    
-	    for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
-	      {
-		EcalRecHitCollection::const_iterator itrRecHit = theEndcapEcalRecHits->find(*itr) ;
-		if(itrRecHit == theEndcapEcalRecHits->end()) continue;
-		
-		
-		// fill recHit variables	
-		EEDetId endcapId (*itr);
-		
-		ele2_recHitMatrix_E.push_back(itrRecHit->energy());
-		ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
-		ele2_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
-		ele2_recHitMatrix_ietaORix.push_back(endcapId.ix());
-		ele2_recHitMatrix_iphiORiy.push_back(endcapId.iy());
-		ele2_recHitMatrix_zside.push_back(endcapId.zside());
-	      }
-	  }
-      }
+        DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;    
+	//save the matrix in case of eleSeed
+	std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -9, 9, -9, 9);
 	
-        
+	for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+        {
+          EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
+          if(itrRecHit == theBarrelEcalRecHits->end()) continue;
+          
+          // fill recHit variables
+          EBDetId barrelId(*itr);
+          EcalTrigTowerDetId towerId = barrelId.tower();
+          
+          std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
+          if( TTIdListIt == TTIdList.end() ) continue;
+          
+          ele2_recHitMatrix_E.push_back(itrRecHit->energy());
+          ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele2_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
+          ele2_recHitMatrix_ietaORix.push_back(barrelId.ieta());
+          ele2_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
+          ele2_recHitMatrix_zside.push_back(0);
+        }
+      }
+      
+      else
+      {
+        DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theEndcapEcalRecHits ).first;    
+	//save the matrix in case of eleSeed
+	std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -9, 9, -9, 9);
+	
+	for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
+        {
+          EcalRecHitCollection::const_iterator itrRecHit = theEndcapEcalRecHits->find(*itr) ;
+          if(itrRecHit == theEndcapEcalRecHits->end()) continue;
+          
+          // fill recHit variables
+          EEDetId endcapId(*itr);
+          EcalScDetId scId = endcapId.sc();
+          
+          std::vector<EcalScDetId>::iterator SCIdListIt = std::find(SCIdList.begin(),SCIdList.end(),scId);
+          if( SCIdListIt == SCIdList.end() ) continue;
+          
+          ele2_recHitMatrix_E.push_back(itrRecHit->energy());
+          ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele2_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
+          ele2_recHitMatrix_ietaORix.push_back(endcapId.ix());
+          ele2_recHitMatrix_iphiORiy.push_back(endcapId.iy());
+          ele2_recHitMatrix_zside.push_back(0);
+        }
+      }
+    }	
+    
     for(std::vector<std::pair<DetId,float> >::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh)
     {
       float rhLaserCorrection = 1.;

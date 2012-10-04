@@ -6,6 +6,8 @@ simpleNtupleEoverP = cms.EDAnalyzer(
     PVTag               = cms.InputTag("offlinePrimaryVerticesWithBS"),
     recHitCollection_EB = cms.InputTag("alCaIsolatedElectrons","alCaRecHitsEB","ALCARERECO"),
     recHitCollection_EE = cms.InputTag("alCaIsolatedElectrons","alCaRecHitsEE","ALCARERECO"),
+    SRFlagCollection_EB = cms.InputTag("ecalDigis"),
+    SRFlagCollection_EE = cms.InputTag("ecalDigis"),
     EleTag              = cms.InputTag("electronRecalibSCAssociator","","ALCARERECO"),
     PFMetTag          = cms.InputTag("pfMet"),
     MCtruthTag          = cms.InputTag("genParticles"),
@@ -20,6 +22,6 @@ simpleNtupleEoverP = cms.EDAnalyzer(
     saveMCPU      = cms.untracked.bool(False),
     saveMCInfo = cms.untracked.bool(False),
     dataFlag      = cms.untracked.bool(True),
-    saveRecHitMatrix  = cms.untracked.bool(False),
+    saveRecHitMatrix  = cms.untracked.bool(True),
     saveFbrem = cms.untracked.bool(False)   # set Flase if running on AOD
     )

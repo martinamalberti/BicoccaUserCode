@@ -53,5 +53,6 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverData):
     
     process.simpleNtuple_step = cms.Path(
         #process.hltfilter
+        process.ecalDigis *
         process.simpleNtupleEoverP
         )
