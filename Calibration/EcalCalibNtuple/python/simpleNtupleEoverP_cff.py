@@ -46,13 +46,3 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverData):
         process.simpleNtupleEoverP.dataFlag            = cms.untracked.bool(False)
         process.simpleNtupleEoverP.saveMCPU            = cms.untracked.bool(True)
         process.simpleNtupleEoverP.saveMCInfo          = cms.untracked.bool(True)
-        
-    #--------------------------
-    # paths
-    #--------------------------
-    
-    process.simpleNtuple_step = cms.Path(
-        #process.hltfilter
-        process.ecalDigis *
-        process.simpleNtupleEoverP
-        )

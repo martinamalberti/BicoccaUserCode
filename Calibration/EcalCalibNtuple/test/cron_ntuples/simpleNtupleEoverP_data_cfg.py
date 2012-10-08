@@ -13,12 +13,18 @@ process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 # simpleNtuple
-makeSimpleNtuple(process,GlobalTag="GR_P_V41::All",runOverSandbox=False)
+makeSimpleNtuple(process,GlobalTag="GR_P_V42::All",runOverSandbox=True,runOverData=True)
 
 #makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
 
+# path
+process.simpleNtuple_step = cms.Path(
+    #process.hltfilter
+    process.simpleNtupleEoverP
+    )
 
+process.simpleNtupleEoverP.saveRecHitMatrix = cms.untracked.bool(False)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
