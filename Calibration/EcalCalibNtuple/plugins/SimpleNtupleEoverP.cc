@@ -167,14 +167,16 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_recHit_ICConstant",     "std::vector<float>", &ele1_recHit_ICConstant);
 
   if(saveRecHitMatrix_)
-    {
-      outTree_ -> Branch("ele1_recHitMatrix_E",              "std::vector<float>", &ele1_recHitMatrix_E);
-      outTree_ -> Branch("ele1_recHitMatrix_flag",           "std::vector<int>",   &ele1_recHitMatrix_flag);
-      outTree_ -> Branch("ele1_recHitMatrix_hashedIndex", "std::vector<int>",   &ele1_recHitMatrix_hashedIndex);
-      outTree_ -> Branch("ele1_recHitMatrix_ietaORix", "std::vector<int>",   &ele1_recHitMatrix_ietaORix);
-      outTree_ -> Branch("ele1_recHitMatrix_iphiORiy", "std::vector<int>",   &ele1_recHitMatrix_iphiORiy);
-      outTree_ -> Branch("ele1_recHitMatrix_zside", "std::vector<int>",   &ele1_recHitMatrix_zside);
-    }
+  {
+    outTree_ -> Branch("ele1_recHitMatrix_E",              "std::vector<float>", &ele1_recHitMatrix_E);
+    outTree_ -> Branch("ele1_recHitMatrix_flag",           "std::vector<int>",   &ele1_recHitMatrix_flag);
+    outTree_ -> Branch("ele1_recHitMatrix_hashedIndex", "std::vector<int>",   &ele1_recHitMatrix_hashedIndex);
+    outTree_ -> Branch("ele1_recHitMatrix_ietaORix", "std::vector<int>",   &ele1_recHitMatrix_ietaORix);
+    outTree_ -> Branch("ele1_recHitMatrix_iphiORiy", "std::vector<int>",   &ele1_recHitMatrix_iphiORiy);
+    outTree_ -> Branch("ele1_recHitMatrix_zside", "std::vector<int>",   &ele1_recHitMatrix_zside);
+    outTree_ -> Branch("ele1_recHitMatrix_laserCorrection","std::vector<float>", &ele1_recHitMatrix_laserCorrection);
+    outTree_ -> Branch("ele1_recHitMatrix_ICConstant",     "std::vector<float>", &ele1_recHitMatrix_ICConstant);
+  }
 
   outTree_ -> Branch("ele1_nRecHits",       &ele1_nRecHits,  "ele1_nRecHits/I");
   outTree_ -> Branch("ele1_isEB",       &ele1_isEB,  "ele1_isEB/I");
@@ -310,15 +312,17 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_recHit_ICConstant",     "std::vector<float>", &ele2_recHit_ICConstant);
 
   if(saveRecHitMatrix_)
-    {
-      outTree_ -> Branch("ele2_recHitMatrix_E",              "std::vector<float>", &ele2_recHitMatrix_E);
-      outTree_ -> Branch("ele2_recHitMatrix_flag",           "std::vector<int>",   &ele2_recHitMatrix_flag);
-      outTree_ -> Branch("ele2_recHitMatrix_hashedIndex", "std::vector<int>",   &ele2_recHitMatrix_hashedIndex);
-      outTree_ -> Branch("ele2_recHitMatrix_ietaORix", "std::vector<int>",   &ele2_recHitMatrix_ietaORix);
-      outTree_ -> Branch("ele2_recHitMatrix_iphiORiy", "std::vector<int>",   &ele2_recHitMatrix_iphiORiy);
-      outTree_ -> Branch("ele2_recHitMatrix_zside", "std::vector<int>",   &ele2_recHitMatrix_zside);
-    }
-
+  {
+    outTree_ -> Branch("ele2_recHitMatrix_E",              "std::vector<float>", &ele2_recHitMatrix_E);
+    outTree_ -> Branch("ele2_recHitMatrix_flag",           "std::vector<int>",   &ele2_recHitMatrix_flag);
+    outTree_ -> Branch("ele2_recHitMatrix_hashedIndex", "std::vector<int>",   &ele2_recHitMatrix_hashedIndex);
+    outTree_ -> Branch("ele2_recHitMatrix_ietaORix", "std::vector<int>",   &ele2_recHitMatrix_ietaORix);
+    outTree_ -> Branch("ele2_recHitMatrix_iphiORiy", "std::vector<int>",   &ele2_recHitMatrix_iphiORiy);
+    outTree_ -> Branch("ele2_recHitMatrix_zside", "std::vector<int>",   &ele2_recHitMatrix_zside);
+    outTree_ -> Branch("ele2_recHitMatrix_laserCorrection","std::vector<float>", &ele2_recHitMatrix_laserCorrection);
+    outTree_ -> Branch("ele2_recHitMatrix_ICConstant",     "std::vector<float>", &ele2_recHitMatrix_ICConstant);
+  }
+  
   outTree_ -> Branch("ele2_nRecHits",       &ele2_nRecHits,  "ele2_nRecHits/I");
   outTree_ -> Branch("ele2_isEB",       &ele2_isEB,  "ele2_isEB/I");
   outTree_ -> Branch("ele2_isEBEEGap",       &ele2_isEBEEGap,  "ele2_isEBEEGap/I");
@@ -326,20 +330,20 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_isEBPhiGap",       &ele2_isEBPhiGap,  "ele2_isEBPhiGap/I");
   outTree_ -> Branch("ele2_isEEDeeGap",       &ele2_isEEDeeGap,  "ele2_isEEDeeGap/I");
   outTree_ -> Branch("ele2_isEERingGap",       &ele2_isEERingGap,  "ele2_isEERingGap/I");
-
+  
   // met variables
   outTree_ -> Branch("met_et",       &met_et,  "met_et/F");
   outTree_ -> Branch("met_phi",       &met_phi,  "met_phi/F");
   outTree_ -> Branch("ele1Met_mt",       &ele1Met_mt,  "ele1Met_mt/F");
   outTree_ -> Branch("ele1Met_Dphi",       &ele1Met_Dphi,  "ele1Met_Dphi/F");
-   
+  
   // di-electron variables
   outTree_ -> Branch("ele1ele2_m",       &ele1ele2_m,  "ele1ele2_m/F");
   outTree_ -> Branch("ele1ele2_scM",       &ele1ele2_scM,  "ele1ele2_scM/F");
   outTree_ -> Branch("ele1ele2_scM_regression",       &ele1ele2_scM_regression,  "ele1ele2_scM_regression/F");
 
 
- // Regression V3 variable
+  // Regression V3 variable
   outTree_ -> Branch("ele2_eRegrInput_rawE",       &ele2_eRegrInput_rawE,  "ele2_eRegrInput_rawE/F");
   outTree_ -> Branch("ele2_eRegrInput_r9",       &ele2_eRegrInput_r9,  "ele2_eRegrInput_r9/F");
   outTree_ -> Branch("ele2_eRegrInput_eta",       &ele2_eRegrInput_eta,  "ele2_eRegrInput_eta/F");
@@ -642,6 +646,8 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele1_recHitMatrix_ietaORix.clear();
   ele1_recHitMatrix_iphiORiy.clear();
   ele1_recHitMatrix_zside.clear();
+  ele1_recHitMatrix_laserCorrection.clear();
+  ele1_recHitMatrix_ICConstant.clear();
  
   ele1_isEB= -9999;
   ele1_isEBEEGap= -9999;
@@ -778,7 +784,9 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele2_recHitMatrix_ietaORix.clear();
   ele2_recHitMatrix_iphiORiy.clear();
   ele2_recHitMatrix_zside.clear();
- 
+  ele2_recHitMatrix_laserCorrection.clear();
+  ele2_recHitMatrix_ICConstant.clear();
+   
   ele2_isEB= -9999;
   ele2_isEBEEGap= -9999;
   ele2_isEBEtaGap= -9999;
@@ -1702,6 +1710,9 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
 
     if(saveRecHitMatrix_)
     {
+      float theLaserCorrection = -1.;
+      float theICCorrection = -1.;
+      
       if(electron.isEB())
       {
         DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;    
@@ -1717,6 +1728,12 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           EBDetId barrelId(*itr);
           EcalTrigTowerDetId towerId = barrelId.tower();
           
+          // laser correction
+          theLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+          // IC correction
+          EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
+          theICCorrection = *ICMapIt;
+          
           std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
           if( TTIdListIt == TTIdList.end() ) continue;
           
@@ -1726,6 +1743,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           ele1_recHitMatrix_ietaORix.push_back(barrelId.ieta());
           ele1_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
           ele1_recHitMatrix_zside.push_back(0);
+          ele1_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
+          ele1_recHitMatrix_ICConstant.push_back(theICCorrection);
         }
       }
       
@@ -1743,7 +1762,13 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           // fill recHit variables
           EEDetId endcapId(*itr);
           EcalScDetId scId = endcapId.sc();
-          
+
+          // laser correction
+          theLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+          // IC correction
+          EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
+          theICCorrection = *ICMapIt;
+                    
           std::vector<EcalScDetId>::iterator SCIdListIt = std::find(SCIdList.begin(),SCIdList.end(),scId);
           if( SCIdListIt == SCIdList.end() ) continue;
           
@@ -1753,6 +1778,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           ele1_recHitMatrix_ietaORix.push_back(endcapId.ix());
           ele1_recHitMatrix_iphiORiy.push_back(endcapId.iy());
           ele1_recHitMatrix_zside.push_back(0);
+          ele1_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
+          ele1_recHitMatrix_ICConstant.push_back(theICCorrection);
         }
       }
     }
@@ -2239,6 +2266,9 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
 
     if(saveRecHitMatrix_)
     {
+      float theLaserCorrection = -1.;
+      float theICCorrection = -1.;
+      
       if(electron.isEB())
       {
         DetId seedId = EcalClusterTools::getMaximum( scRef->hitsAndFractions(), theBarrelEcalRecHits ).first;    
@@ -2254,6 +2284,12 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           EBDetId barrelId(*itr);
           EcalTrigTowerDetId towerId = barrelId.tower();
           
+          // laser correction
+          theLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
+          // IC correction
+          EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
+          theICCorrection = *ICMapIt;
+          
           std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
           if( TTIdListIt == TTIdList.end() ) continue;
           
@@ -2263,6 +2299,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           ele2_recHitMatrix_ietaORix.push_back(barrelId.ieta());
           ele2_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
           ele2_recHitMatrix_zside.push_back(0);
+          ele2_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
+          ele2_recHitMatrix_ICConstant.push_back(theICCorrection);
         }
       }
       
@@ -2281,6 +2319,12 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           EEDetId endcapId(*itr);
           EcalScDetId scId = endcapId.sc();
           
+          // laser correction
+          theLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
+          // IC correction
+          EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
+          theICCorrection = *ICMapIt;
+          
           std::vector<EcalScDetId>::iterator SCIdListIt = std::find(SCIdList.begin(),SCIdList.end(),scId);
           if( SCIdListIt == SCIdList.end() ) continue;
           
@@ -2290,6 +2334,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           ele2_recHitMatrix_ietaORix.push_back(endcapId.ix());
           ele2_recHitMatrix_iphiORiy.push_back(endcapId.iy());
           ele2_recHitMatrix_zside.push_back(0);
+          ele2_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
+          ele2_recHitMatrix_ICConstant.push_back(theICCorrection);
         }
       }
     }	

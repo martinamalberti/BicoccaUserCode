@@ -22,6 +22,6 @@ simpleNtupleEoverP = cms.EDAnalyzer(
     saveMCPU      = cms.untracked.bool(False),
     saveMCInfo = cms.untracked.bool(False),
     dataFlag      = cms.untracked.bool(True),
-    saveRecHitMatrix  = cms.untracked.bool(True),
+    saveRecHitMatrix  = cms.untracked.bool(False),
     saveFbrem = cms.untracked.bool(False)   # set Flase if running on AOD
     )
