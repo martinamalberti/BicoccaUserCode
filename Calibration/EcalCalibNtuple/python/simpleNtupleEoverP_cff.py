@@ -34,15 +34,15 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverData):
     # Ntuple
     #--------------------------
     
-    process.load("Calibration/EcalCalibNtuple/simpleNtupleEoverP_cfi")
+    process.load("Calibration/EcalCalibNtuple/simpleNtupleRecHits_cfi")
 
     if not runOverSandbox:                
-        process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO")
-        process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO")
-        process.simpleNtupleEoverP.EleTag              = cms.InputTag("gsfElectrons")
-        process.simpleNtupleEoverP.rhoTag              = cms.InputTag("kt6PFJets","rho")
+        process.simpleNtupleRecHits.recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO")
+        process.simpleNtupleRecHits.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO")
+        process.simpleNtupleRecHits.EleTag              = cms.InputTag("gsfElectrons")
+        process.simpleNtupleRecHits.rhoTag              = cms.InputTag("kt6PFJets","rho")
     
     if not runOverData:
-        process.simpleNtupleEoverP.dataFlag            = cms.untracked.bool(False)
-        process.simpleNtupleEoverP.saveMCPU            = cms.untracked.bool(True)
-        process.simpleNtupleEoverP.saveMCInfo          = cms.untracked.bool(True)
+        process.simpleNtupleRecHits.dataFlag            = cms.untracked.bool(False)
+        process.simpleNtupleRecHits.saveMCPU            = cms.untracked.bool(True)
+        process.simpleNtupleRecHits.saveMCInfo          = cms.untracked.bool(True)
