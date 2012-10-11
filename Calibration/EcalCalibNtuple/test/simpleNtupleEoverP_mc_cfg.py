@@ -13,16 +13,23 @@ process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 # simpleNtuple
-makeSimpleNtuple(process,GlobalTag="START53_V7D::All",runOverSandbox=False,runOverData=False)
+makeSimpleNtuple(process,GlobalTag="START53_V11::All",runOverSandbox=False,runOverData=False)
 
 #makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
 
+# path
+process.simpleNtuple_step = cms.Path(
+    #process.hltfilter *
+    #process.ecalDigis *
+    process.simpleNtupleEoverP
+    )
 
+process.simpleNtupleEoverP.saveRecHitMatrix = cms.untracked.bool(False)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    ''
+    'file:/tmp/abenagli/Run2012C-PromptReco-v2_AOD.root'
     )
 
 process.maxEvents = cms.untracked.PSet(
