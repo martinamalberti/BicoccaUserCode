@@ -389,6 +389,8 @@ int main(int argc, char** argv)
     if( timeStampHigh < t1 ) continue;
     if( timeStampHigh > t2 ) continue;
     
+    if( scLaserCorr <= 0. ) continue;
+    
     isSavedEntries.at(ientry) = true;
     
     
