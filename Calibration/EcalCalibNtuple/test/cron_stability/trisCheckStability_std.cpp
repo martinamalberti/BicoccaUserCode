@@ -183,7 +183,7 @@ int main(int argc, char** argv)
   int runId;
   int timeStampHigh;
   int PV_n;
-  float scLaserCorr, EoP, scEta, scPhi, scE, ES, P;
+  float scLaserCorr, seedLaserAlpha, EoP, scEta, scPhi, scE, ES, P;
   int seedIeta, seedIphi, seedIx, seedIy, seedZside;
   
   ntu_DA->SetBranchStatus("*",0);
@@ -191,6 +191,7 @@ int main(int argc, char** argv)
   ntu_DA->SetBranchStatus("timeStampHigh",1);
   ntu_DA->SetBranchStatus("PV_n",1);
   ntu_DA->SetBranchStatus("ele1_scLaserCorr",1);
+  ntu_DA->SetBranchStatus("ele1_seedLaserAlpha",1);
   ntu_DA->SetBranchStatus("ele1_EOverP",1);
   ntu_DA->SetBranchStatus("ele1_scEta",1);
   ntu_DA->SetBranchStatus("ele1_scPhi",1);
@@ -209,6 +210,7 @@ int main(int argc, char** argv)
   ntu_DA->SetBranchAddress("timeStampHigh", &timeStampHigh);
   ntu_DA->SetBranchAddress("PV_n", &PV_n);
   ntu_DA->SetBranchAddress("ele1_scLaserCorr", &scLaserCorr);
+  ntu_DA->SetBranchAddress("ele1_seedLaserAlpha", &seedLaserAlpha);
   ntu_DA->SetBranchAddress("ele1_EOverP", &EoP);
   ntu_DA->SetBranchAddress("ele1_scEta", &scEta);
   ntu_DA->SetBranchAddress("ele1_scPhi", &scPhi);
@@ -266,16 +268,29 @@ int main(int argc, char** argv)
   // Define PU correction (to be used if useRegression == 0)
   
   // corr = p0 + p1 * PV_n
+  float p0_EB;
+  float p1_EB;
+  float p0_EE;
+  float p1_EE;
   
-  //2011 EB
-  //float p0_EB = 0.9989;
-  //float p1_EB = 0.0003988;
-  //2012 EB
-  float p0_EB = 0.9991;
-  float p1_EB = 0.0001552;
-  //2012 EE
-  float p0_EE = 0.9968;
-  float p1_EE = 0.001046;
+  if( useRegression == 0 )
+  {
+    //2012 EB
+    p0_EB = 0.9991;
+    p1_EB = 0.0001635;
+    //2012 EE
+    p0_EE = 0.9968;
+    p1_EE = 0.001046;
+  }
+  else
+  {
+    //2012 EB
+    p0_EB = 1.001;
+    p1_EB = -0.000143;
+    //2012 EE
+    p0_EE = 1.00327;
+    p1_EE = -0.000432;
+  }
   
   float p0 = -1.;
   float p1 = -1.;
@@ -329,10 +344,7 @@ int main(int argc, char** argv)
     //std::cout << "p0: " << p0  << "   p1: " << p1 << "   PV_n: " << PV_n << std::endl;
     
     // fill the template histogram
-    if( useRegression < 1 )    
-      h_template -> Fill( (scE-ES)/(P-ES) / PUCorr );
-    else
-      h_template -> Fill( (scE-ES)/(P-ES) );
+    h_template -> Fill( (scE-ES)/(P-ES) / PUCorr );
   }
   
   std::cout << "Reference built for " << EBEE << " - " << h_template->GetEntries() << " events" << std::endl;
@@ -532,14 +544,17 @@ int main(int argc, char** argv)
   
   TGraph* g_las = new TGraph();
   
+  TGraphErrors* g_LT = new TGraphErrors();
+  
   g_fit->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
   g_fit->GetXaxis()->SetTimeDisplay(1);
   g_c_fit->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
   g_c_fit->GetXaxis()->SetTimeDisplay(1);
   g_las->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
   g_las->GetXaxis()->SetTimeDisplay(1);
-  
-  
+  g_LT->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
+  g_LT->GetXaxis()->SetTimeDisplay(1);
+    
   
   
   
@@ -550,14 +565,17 @@ int main(int argc, char** argv)
   
   std::cout << std::endl;
   std::cout << "***** Fill and fit histograms *****" << std::endl;
-  
+
+  std::vector<int> Entries(nBins);  
   std::vector<double> AveTime(nBins);
   std::vector<int> MinTime(nBins);
   std::vector<int> MaxTime(nBins);
   std::vector<double> AveRun(nBins);    
   std::vector<int> MinRun(nBins);
   std::vector<int> MaxRun(nBins);
-  
+  std::vector<double> AveLT(nBins);
+  std::vector<double> AveLT2(nBins);
+    
   int iSaved = -1;
   for(int ientry = 0; ientry < nEntries; ++ientry)
   {
@@ -578,6 +596,8 @@ int main(int argc, char** argv)
     
     
     
+    Entries[bin] += 1;
+    
     if( iSaved == binEntryMax.at(bin)+1 )   MinTime[bin] = timeStampHigh;
     if( iSaved == binEntryMax.at(bin+1)-1 ) MaxTime[bin] = timeStampHigh;
     AveTime[bin] += timeStampHigh;
@@ -586,21 +606,16 @@ int main(int argc, char** argv)
     if( iSaved == binEntryMax.at(bin+1)-1 ) MaxRun[bin] = runId;
     AveRun[bin] += runId;
     
-        
+    float LT = (-1. / seedLaserAlpha * log(scLaserCorr));
+    AveLT[bin] += LT;
+    AveLT2[bin] += LT*LT;
+    
     // PU correction
     float PUCorr = (p0 + p1*PV_n);
     
-    
     // fill the histograms
-    if( useRegression < 1 )
-      (h_EoP[bin]) -> Fill( (scE-ES)/(P-ES) / scLaserCorr / PUCorr);
-    else
-      (h_EoP[bin]) -> Fill( (scE-ES)/(P-ES) / scLaserCorr );
-    
-    if( useRegression < 1 )
-      (h_EoC[bin]) -> Fill( (scE-ES)/(P-ES) / PUCorr );
-    else
-      (h_EoC[bin]) -> Fill( (scE-ES)/(P-ES) );
+    (h_EoP[bin]) -> Fill( (scE-ES)/(P-ES) / scLaserCorr / PUCorr);
+    (h_EoC[bin]) -> Fill( (scE-ES)/(P-ES) / PUCorr );
     
     (h_Las[bin]) -> Fill(scLaserCorr);
     (h_Tsp[bin]) -> Fill(1./scLaserCorr);
@@ -619,6 +634,8 @@ int main(int argc, char** argv)
   {
     AveTime[bin] = 1. * AveTime[bin] / (binEntryMax.at(bin+1)-binEntryMax.at(bin));
     AveRun[bin]  = 1. * AveRun[bin]  / (binEntryMax.at(bin+1)-binEntryMax.at(bin));
+    AveLT[bin]   = 1. * AveLT[bin]   / (binEntryMax.at(bin+1)-binEntryMax.at(bin));
+    AveLT2[bin]  = 1. * AveLT2[bin]  / (binEntryMax.at(bin+1)-binEntryMax.at(bin));
     //std::cout << date << " " << AveTime[i] << " " << MinTime[i] << " " << MaxTime[i] << std::endl;
   }
   
@@ -647,6 +664,8 @@ int main(int argc, char** argv)
   std::vector<int> validBins;
   for(int i = 0; i < nBins; ++i)
   {
+    bool isValid = true;
+    
     h_EoP[i] -> Rebin(rebin);
     h_EoC[i] -> Rebin(rebin);
     
@@ -726,12 +745,12 @@ int main(int argc, char** argv)
       EoP_scale += 1./k;
       EoP_err += eee/k/k;
       ++EoP_nActiveBins;
-      validBins.push_back(i);
     }
     else
+    {
       std::cout << "Fitting uncorrected time bin: " << i << "   Fail status: " << fStatus << "   sigma: " << eee << std::endl;
-    
-    
+      isValid = false;
+    }  
     
     //----------------------------------
     // Fill the graph for corrected data
@@ -795,7 +814,12 @@ int main(int argc, char** argv)
       ++EoC_nActiveBins;
     }
     else
+    {
       std::cout << "Fitting corrected time bin: " << i << "   Fail status: " << fStatus << "   sigma: " << eee << std::endl;
+      isValid = false;
+    }
+    
+    if( isValid == true ) validBins.push_back(i);
   }
   
   EoP_scale /= EoP_nActiveBins;
@@ -817,7 +841,9 @@ int main(int argc, char** argv)
   {  
     int i = validBins.at(itr);
     g_las -> SetPoint(itr, (float)AveTime[i], h_Tsp[i]->GetMean() );
-    
+    g_LT  -> SetPoint(itr, (float)AveTime[i], AveLT[i] );
+    g_LT  -> SetPointError(itr, 0., sqrt(AveLT2[i]-AveLT[i]*AveLT[i]) / sqrt(Entries[i]) );
+        
     LCInv_scale += h_Tsp[i]->GetMean();
   }  
   
@@ -1258,7 +1284,8 @@ int main(int argc, char** argv)
    g_fit_run   -> Write("g_fit_run");
    g_c_fit_run -> Write("g_c_fit_run");
    g_las -> Write("g_las");
-
+   g_LT -> Write("g_LT");
+   
    h_EoP_chi2 -> Write();
    h_EoC_chi2 -> Write();
   
