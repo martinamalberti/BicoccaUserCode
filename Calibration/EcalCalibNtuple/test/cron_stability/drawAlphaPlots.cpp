@@ -5,6 +5,7 @@
 #include "stabilityUtils.h"
 
 #include <iostream>
+#include <cstdlib>
 
 #include "TFile.h"
 #include "TGraphErrors.h"
@@ -115,8 +116,10 @@ int main(int argc, char** argv)
     
     if( found == false ) continue;
     if( run == 201191. ) continue;
+    if( EoP > 1. ) continue;
     if( (EoP <= 0.) || (EoC <= 0.) ) continue;
     if( (EoPErr > 0.01) || (EoCErr > 0.01) ) continue;
+    if( (EoPErr < 0.0001) || (EoCErr < 0.0001) ) continue;
     if( (time < t1) || (time > t2) ) continue;
     
     //std::cout << ">>> getting point " << point << std::endl;
@@ -128,8 +131,8 @@ int main(int argc, char** argv)
     
     g_EoP_alpha -> SetPoint(savedPoints,LT,log(EoP));
     g_EoC_alpha -> SetPoint(savedPoints,LT,log(EoC));
-    g_EoP_alpha -> SetPointError(savedPoints,0.,EoPErr/EoP);
-    g_EoC_alpha -> SetPointError(savedPoints,0.,EoCErr/EoC);
+    g_EoP_alpha -> SetPointError(savedPoints,LTErr,EoPErr/EoP);
+    g_EoC_alpha -> SetPointError(savedPoints,LTErr,EoCErr/EoC);
     
     ++savedPoints;
   }
@@ -152,40 +155,61 @@ int main(int argc, char** argv)
   g_EoP_alpha -> SetMarkerStyle(24);
   g_EoP_alpha -> SetMarkerSize(0.7);
   g_EoP_alpha -> SetMarkerColor(kRed+2);
+  g_EoP_alpha -> SetLineColor(kRed+2);
   g_EoP_alpha -> GetXaxis() -> SetNdivisions(510);
   g_EoP_alpha -> GetXaxis() -> SetLabelSize(0.04);
   g_EoP_alpha -> GetYaxis() -> SetLabelSize(0.04);
   g_EoP_alpha -> GetXaxis() -> SetTitle("#LT log [ R/R_{0} ] #GT");
   g_EoP_alpha -> GetYaxis() -> SetTitle("log [ E/p relative scale ]");
   g_EoP_alpha -> GetYaxis() -> SetTitleOffset(1.10);
-  g_EoP_alpha -> GetXaxis() -> SetRangeUser(-0.060,0.015);
-  g_EoP_alpha -> GetYaxis() -> SetRangeUser(-0.080,0.020);
+  if( strcmp(EBEE,"EB") == 0 )
+  {
+    g_EoP_alpha -> GetXaxis() -> SetRangeUser(-0.060,0.015);
+    g_EoP_alpha -> GetYaxis() -> SetRangeUser(-0.080,0.020);
+  }
+  else
+  {
+    g_EoP_alpha -> GetXaxis() -> SetRangeUser(-0.300,0.075);
+    g_EoP_alpha -> GetYaxis() -> SetRangeUser(-0.400,0.100);
+  }
   
   g_EoC_alpha -> SetMarkerStyle(20);
   g_EoC_alpha -> SetMarkerSize(0.7);
   g_EoC_alpha -> SetMarkerColor(kGreen+2);
+  g_EoC_alpha -> SetLineColor(kGreen+2);
   g_EoC_alpha -> GetXaxis() -> SetNdivisions(510);
   g_EoC_alpha -> GetXaxis() -> SetLabelSize(0.04);
   g_EoC_alpha -> GetYaxis() -> SetLabelSize(0.04);
   g_EoC_alpha -> GetXaxis() -> SetTitle("#LT log [ R/R_{0} ] #GT");
   g_EoC_alpha -> GetYaxis() -> SetTitle("log [ E/p relative scale ]");
   g_EoC_alpha -> GetYaxis() -> SetTitleOffset(1.10);
-  g_EoC_alpha -> GetXaxis() -> SetRangeUser(-0.060,0.015);
-  g_EoC_alpha -> GetYaxis() -> SetRangeUser(-0.080,0.020);
+  if( strcmp(EBEE,"EB") == 0 )
+  {
+    g_EoC_alpha -> GetXaxis() -> SetRangeUser(-0.060,0.015);
+    g_EoC_alpha -> GetYaxis() -> SetRangeUser(-0.080,0.020);
+  }
+  else
+  {
+    g_EoC_alpha -> GetXaxis() -> SetRangeUser(-0.300,0.075);
+    g_EoC_alpha -> GetYaxis() -> SetRangeUser(-0.400,0.100);
+  }
   
-  TF1* f_EoP = new TF1("f_EoP","[0]+[1]*x",-0.05,0.);
+  TF1* f_EoP = new TF1("f_EoP","[0]+[1]*x",-0.500,0.);
   f_EoP -> SetLineColor(kRed+2);
   f_EoP -> SetLineStyle(7);
   f_EoP -> SetLineWidth(2);
-  f_EoP -> SetParameters(0.,1.52);
-  g_EoP_alpha -> Fit("f_EoP","QNS+","",-0.05,-0.01);
+  if( strcmp(EBEE,"EB") == 0 ) f_EoP -> SetParameters(0.,1.52);
+  else                         f_EoP -> SetParameters(0.,1.16);
+  if( strcmp(EBEE,"EB") == 0 ) g_EoP_alpha -> Fit("f_EoP","QNS+","",-0.050,-0.010);
+  else                         g_EoP_alpha -> Fit("f_EoP","QNS+","",-0.300,-0.050);
   
-  TF1* f_EoC = new TF1("f_EoC","[0]+[1]*x",-0.05,0.);
+  TF1* f_EoC = new TF1("f_EoC","[0]+[1]*x",-0.500,0.);
   f_EoC -> SetLineColor(kGreen+2);
   f_EoC -> SetLineStyle(7);
   f_EoC -> SetLineWidth(2);
-  f_EoC -> SetParameters(0.,1.52);
-  g_EoC_alpha -> Fit("f_EoC","QNS+","",-0.05,-0.01);  
+  f_EoC -> SetParameters(0.,0.);
+  if( strcmp(EBEE,"EB") == 0 ) g_EoC_alpha -> Fit("f_EoC","QNS+","",-0.050,-0.010);
+  else                         g_EoC_alpha -> Fit("f_EoC","QNS+","",-0.300,-0.050);
   
   char latexBuffer[250];
   
@@ -196,7 +220,8 @@ int main(int argc, char** argv)
   latex_EoP -> SetTextSize(0.05);
   latex_EoP -> SetTextColor(kRed+2);
   
-  sprintf(latexBuffer,"#alpha = %1.2f #pm %1.2f",1.52+f_EoC->GetParameter(1),f_EoC->GetParError(1));
+  if( strcmp(EBEE,"EB") == 0 ) sprintf(latexBuffer,"#alpha = %1.2f #pm %1.2f",1.52+f_EoC->GetParameter(1),f_EoC->GetParError(1));
+  else                         sprintf(latexBuffer,"#alpha = %1.2f #pm %1.2f",1.16+f_EoC->GetParameter(1),f_EoC->GetParError(1));
   TLatex* latex_EoC = new TLatex(0.47,0.32,latexBuffer);
   latex_EoC -> SetNDC();
   latex_EoC -> SetTextFont(42);
@@ -215,7 +240,7 @@ int main(int argc, char** argv)
   //----------------
   // Save alpha plot
   
-  std::string alphaName = std::string(EBEE) + "_" + dayMin + "_" + dayMax + "_alphaPlot";
+  std::string alphaName = std::string(EBEE) + "_" + dayMinLabel + "_" + dayMaxLabel + "_alphaPlot";
   
   TFile* outFile = TFile::Open((folderName+"/"+alphaName+"_alphaHistos.root").c_str(),"RECREATE");
   outFile -> cd();
