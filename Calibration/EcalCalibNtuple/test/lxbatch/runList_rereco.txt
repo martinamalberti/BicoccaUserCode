@@ -1,0 +1,8 @@
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 DoubleElectron-ZSkim-RUN2012C-v2
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 DoubleElectron-ZSkim-RUN2012B-13Jul-v1
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 SingleElectron-WSkim-RUN2012C-v2
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 DoubleElectron-ZSkim-RUN2012A-13Jul-v1
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 SingleElectron-WSkim-RUN2012A-13Jul-v1
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 DoubleElectron-ZSkim-RUN2012C-v3
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 SingleElectron-WSkim-RUN2012B-13Jul-v1
+/store/group/alca_ecalcalib/sandboxRereco/8TeV/Cal_Dic2012 SingleElectron-WSkim-RUN2012C-v3
