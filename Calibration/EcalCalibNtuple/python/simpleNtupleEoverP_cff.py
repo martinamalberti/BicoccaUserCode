@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverData):
+def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverAlcaReco,runOverData):
     
     # Source
     process.source = cms.Source(
@@ -36,12 +36,18 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverData):
     
     process.load("Calibration/EcalCalibNtuple/simpleNtupleEoverP_cfi")
 
-    if not runOverSandbox:                
-        process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO")
-        process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO")
-        process.simpleNtupleEoverP.EleTag              = cms.InputTag("gsfElectrons")
-        process.simpleNtupleEoverP.rhoTag              = cms.InputTag("kt6PFJets","rho")
-    
+    if runOverAlcaReco:
+        process.simpleNtupleEoverP.recHitCollection_EB =  cms.InputTag("alCaIsolatedElectrons","alcaBarrelHits")
+        process.simpleNtupleEoverP.recHitCollection_EE =  cms.InputTag("alCaIsolatedElectrons","alcaEndcapHits")
+        process.simpleNtupleEoverP.EleTag              =  cms.InputTag("gsfElectrons")
+        process.simpleNtupleEoverP.rhoTag              =  cms.InputTag("kt6PFJetsForRhoCorrection","rho")
+
+    if runOverSandbox:                
+        process.simpleNtupleEoverP.recHitCollection_EB =  cms.InputTag("alCaIsolatedElectrons","alCaRecHitsEB","ALCARERECO")
+        process.simpleNtupleEoverP.recHitCollection_EE =  cms.InputTag("alCaIsolatedElectrons","alCaRecHitsEE","ALCARERECO")
+        process.simpleNtupleEoverP.EleTag              =  cms.InputTag("electronRecalibSCAssociator","","ALCARERECO")
+        process.simpleNtupleEoverP.rhoTag              =  cms.InputTag("kt6PFJetsForRhoCorrection","rho")
+
     if not runOverData:
         process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("ecalRecHit","reducedEcalRecHitsEB","RECO")
         process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("ecalRecHit","reducedEcalRecHitsEE","RECO")

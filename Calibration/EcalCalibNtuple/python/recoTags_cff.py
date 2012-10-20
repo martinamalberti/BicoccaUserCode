@@ -7,8 +7,6 @@ def makeRecoTags(process):
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 
     process.GlobalTag.toGet = cms.VPSet(
-
-        toGet = cms.VPSet(
         cms.PSet(record = cms.string("EcalADCToGeVConstantRcd"),
                  tag = cms.string('EcalADCToGeVConstant_Bon_V20111129'),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
@@ -25,7 +23,7 @@ def makeRecoTags(process):
                  tag = cms.string('EcalIntercalibConstants_V20120620_piZPhiSEtaScale2012_IOV2_AlphaStudies'),
                  connect = cms.untracked.string("frontier://FrontierInt/CMS_COND_ECAL")
                  )
-        )
+
 )
 
 
