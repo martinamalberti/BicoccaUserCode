@@ -1,0 +1,1 @@
+/afs/cern.ch/user/d/deguio/eos/cms/store/group/alca_ecalcalib/ecalMIBI/NTUPLES_EOverP/ReReco/13Jul2012_v2/SingleElectron_Run2012B-WElectron-13Jul2012-v1_USER/SingleElectron_Run2012B-WElectron-13Jul2012-v1_USER_ts.root

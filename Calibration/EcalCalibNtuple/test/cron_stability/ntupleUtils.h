@@ -44,6 +44,26 @@ struct Sorter
 };
 
 /*** time sort a tree ***/
+struct myEvent
+{
+  int runId;
+  int timeStampHigh;
+
+  int region;
+  
+  float scE;
+  float P;
+
+  float scLaserCorr;
+  float seedLaserAlpha;
+  
+  bool operator() (const myEvent& s1, const myEvent& s2)
+  {
+    return s1.timeStampHigh < s2.timeStampHigh;
+  }
+};
+
+/*** time sort a tree ***/
 struct SorterLC
 {
   float laserCorr;
@@ -68,5 +88,6 @@ double crystalBallLowHigh(double* x, double* par);
 
 /*** breit-wigner convoluted with crystalBall ***/
 double breitWigner_crystalBallLow(double* x, double* par);
+
 
 #endif
