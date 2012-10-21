@@ -13,7 +13,7 @@ process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 # simpleNtuple
-makeSimpleNtuple(process,GlobalTag="GR_P_V42B::All",runOverSandbox=False,runOverAlcaReco=False,runOverData=True)
+makeSimpleNtuple(process,GlobalTag="GR_P_V42B::All",runOverSandbox=True,runOverAlcaReco=False,runOverData=True)
 
 makeRecoTags(process)  #commented for 05Jul ReReco
 #makeSqliteTags(process)
