@@ -132,7 +132,8 @@ while (<LISTOFSamples>)
     
     
 	$tempo1 = "./tempo1" ;
-	system ("cat ".$JOBCfgTemplate."   | sed -e s%OUTPUTFILENAME%".$OUTPUTSAVEPath.$sample1."/".$OUTPUTFILEName."_".$jobIt.
+	#system ("cat ".$JOBCfgTemplate."   | sed -e s%OUTPUTFILENAME%".$OUTPUTSAVEPath.$sample1."/".$OUTPUTFILEName."_".$jobIt.
+	system ("cat ".$JOBCfgTemplate."   | sed -e s%OUTPUTFILENAME%".$OUTPUTFILEName."_".$jobIt.
 		                       "%g > ".$tempo1) ;
     
     
@@ -203,6 +204,8 @@ while (<LISTOFSamples>)
 	$command = "cmsRun ".$JOBCfgFile ;
 	print SAMPLEJOBFILE $command."\n";
 
+	$command = "cmsStage ".$OUTPUTFILEName."_".$jobIt.".root ".$OUTPUTSAVEPath.$sample1;
+	print SAMPLEJOBFILE $command."\n";
 
 	
 	############
