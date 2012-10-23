@@ -159,7 +159,7 @@ int main(int argc, char** argv)
   } 
   
   gSystem->mkdir(folderName.c_str());
-  TFile* o = new TFile((folderName+"/"+folderName+"_histos.root").c_str(),"RECREATE");
+  TFile* o = new TFile((folderName+"/"+folderName+"_regions_histos.root").c_str(),"RECREATE");
   
   
   
@@ -1286,20 +1286,20 @@ int main(int argc, char** argv)
       sprintf(counter,"%d",ii);
       std::string countString(counter);
 
-      c_chi2 -> Print((folderName+"/"+folderName+"_fitChi2_"+countString+".png").c_str(),"png");
-      //c_scOccupancy -> Print((folderName+"/"+folderName+"_scOccupancy.png").c_str(),"png");
-      //c_seedOccupancy -> Print((folderName+"/"+folderName+"_seedOccupancy.png").c_str(),"png");
-      cplot -> Print((folderName+"/"+folderName+"_history_vsTime_"+countString+".png").c_str(),"png");
-      cplot_run -> Print((folderName+"/"+folderName+"_history_vsRun_"+countString+".png").c_str(),"png");
+      c_chi2 -> Print((folderName+"/"+folderName+"_regions_fitChi2_"+countString+".png").c_str(),"png");
+      //c_scOccupancy -> Print((folderName+"/"+folderName+"_regions_scOccupancy.png").c_str(),"png");
+      //c_seedOccupancy -> Print((folderName+"/"+folderName+"_regions_seedOccupancy.png").c_str(),"png");
+      cplot -> Print((folderName+"/"+folderName+"_regions_history_vsTime_"+countString+".png").c_str(),"png");
+      cplot_run -> Print((folderName+"/"+folderName+"_regions_history_vsRun_"+countString+".png").c_str(),"png");
   
-      c_chi2 -> Print((folderName+"/"+folderName+"_fitChi2_"+countString+".pdf").c_str(),"pdf");
-      // c_scOccupancy -> Print((folderName+"/"+folderName+"_scOccupancy.pdf").c_str(),"pdf");
-      // c_seedOccupancy -> Print((folderName+"/"+folderName+"_seedOccupancy.pdf").c_str(),"pdf");
-      cplot -> Print((folderName+"/"+folderName+"_history_vsTime_"+countString+".pdf").c_str(),"pdf");
-      cplot_run -> Print((folderName+"/"+folderName+"_history_vsRun_"+countString+".pdf").c_str(),"pdf");
+      c_chi2 -> Print((folderName+"/"+folderName+"_regions_fitChi2_"+countString+".pdf").c_str(),"pdf");
+      // c_scOccupancy -> Print((folderName+"/"+folderName+"_regions_scOccupancy.pdf").c_str(),"pdf");
+      // c_seedOccupancy -> Print((folderName+"/"+folderName+"_regions_seedOccupancy.pdf").c_str(),"pdf");
+      cplot -> Print((folderName+"/"+folderName+"_regions_history_vsTime_"+countString+".pdf").c_str(),"pdf");
+      cplot_run -> Print((folderName+"/"+folderName+"_regions_history_vsRun_"+countString+".pdf").c_str(),"pdf");
   
-      cplot -> SaveAs((folderName+"/"+folderName+"_history_vsTime_"+countString+".C").c_str());
-      cplot_run -> SaveAs((folderName+"/"+folderName+"_history_vsRun_"+countString+".C").c_str());
+      cplot -> SaveAs((folderName+"/"+folderName+"_regions_history_vsTime_"+countString+".C").c_str());
+      cplot_run -> SaveAs((folderName+"/"+folderName+"_regions_history_vsRun_"+countString+".C").c_str());
   
       char name[50];
       sprintf(name,"g_fit_%d",ii);
