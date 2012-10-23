@@ -1,6 +1,6 @@
 #! /bin/sh
 
-
+export GROUP=zh
 
 echo "****** INFO ******"
 echo "whoami: "
@@ -22,14 +22,6 @@ source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
 cd /afs/cern.ch/user/e/ecalmon/EoPStability/2012/cron_stability/CMSSW_5_3_3_patch1/src/
 eval `scramv1 runtime -sh`
 cd -
-
-
-
-# mount eos
-echo ""
-echo "****** MOUNT EOS ******"
-
-/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select -b fuse mount ~/eos eos
 
 
 
