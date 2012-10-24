@@ -1,5 +1,8 @@
 // g++ -Wall -o trisCheckStabilityRegion_std `root-config --cflags --glibs` setTDRStyle.cc ntupleUtils.cc geometryUtils.cc stabilityUtils.cc ConvoluteTemplate.cc histoFunc.h trisCheckStabilityRegion_std.cpp
 
+//./trisCheckStabilityRegion_std EB 12000 1 SM 1 1 2012 31 12 2012 0.700 1.100 -1. -1.
+//./trisCheckStabilityRegion_std EE 6000 1 AA 1 1 2012 31 12 2012 0.700 1.100 -1. -1.
+
 // ***************************************************
 // Plot EB or EE stability vs time and ancillary plots
 // ***************************************************
@@ -329,7 +332,7 @@ int main(int argc, char** argv)
     
     // selections
     if( (strcmp(EBEE,"EB") == 0) && (fabs(scEta) > 1.45) )                    continue; // barrel
-    if( (strcmp(EBEE,"EE") == 0) && (fabs(scEta) < 1.47 || fabs(scEta)>2.7) ) continue; // endcap
+    if( (strcmp(EBEE,"EE") == 0) && (fabs(scEta) < 1.5 || fabs(scEta)>2.7) ) continue; // endcap
 
     if( (absEtaMin != -1.) && (absEtaMax != -1.) )
     {
@@ -384,7 +387,7 @@ int main(int argc, char** argv)
   if( strcmp(EBEE,"EE") == 0 )
     {
       eeRegion = new TEndcapRegions();
-      //      nRegions = eeRegion->GetNRegions(regionType);
+      nRegions = 5;
     }
   
   for(int ientry = 0; ientry < nEntries; ++ientry)
@@ -394,7 +397,7 @@ int main(int argc, char** argv)
     
     // selections
     if( (strcmp(EBEE,"EB") == 0) && (fabs(scEta) > 1.45) )                    continue; // barrel
-    if( (strcmp(EBEE,"EE") == 0) && (fabs(scEta) < 1.47 || fabs(scEta)>2.7) ) continue; // endcap
+    if( (strcmp(EBEE,"EE") == 0) && (fabs(scEta) < 1.5 || fabs(scEta)>2.7) ) continue; // endcap
     
     if( (absEtaMin != -1.) && (absEtaMax != -1.) )
     {
@@ -420,9 +423,9 @@ int main(int argc, char** argv)
     if( strcmp(EBEE,"EB") == 0 )
       regionId = ebRegion->GetRegionId(seedIeta, seedIphi, regionType);
 
-    if( strcmp(EBEE,"EE") == 0 )
-      regionId = eeRegion->GetEndcapRing(seedIeta, seedIphi, 1);
 
+    if( strcmp(EBEE,"EE") == 0 )
+      regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
 
     // fill sorter
     myEvent dummy;
@@ -519,8 +522,9 @@ int main(int argc, char** argv)
     int reg = sortedEntries[iSaved].region;
     if( (sortedEntries[iSaved].timeStampHigh-timeStampOld[reg])/3600. > timeLapse )
       {
+
 	++fillingBin[reg];
-	
+
 	Entries[reg][fillingBin[reg]] = 0;
 	AveTime[reg][fillingBin[reg]] = 0;
 	MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
@@ -530,13 +534,10 @@ int main(int argc, char** argv)
 	MaxRun[reg][fillingBin[reg]] = 0;
 	AveLT[reg][fillingBin[reg]] = 0;
 	AveLT2[reg][fillingBin[reg]] = 0;
+
       }
     
-
-
-
     timeStampOld[reg] = sortedEntries[iSaved].timeStampHigh;
-
 
     if(h_EoP[reg][fillingBin[reg]]->GetEntries() > evtsPerPoint-1)
       {
