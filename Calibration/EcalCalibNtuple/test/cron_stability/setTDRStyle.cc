@@ -103,7 +103,7 @@ void setTDRStyle()
   // tdrStyle->SetTitleYSize(Float_t size = 0.02);
   tdrStyle->SetTitleXOffset(0.9);
   tdrStyle->SetTitleYOffset(1.05);
-  // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
+  tdrStyle->SetTitleOffset(1.3,"Z"); // Another way to set the Offset
 
   // For the axis labels:
   tdrStyle->SetLabelColor(1, "XYZ");

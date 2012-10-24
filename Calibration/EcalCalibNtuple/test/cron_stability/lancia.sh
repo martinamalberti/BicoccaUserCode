@@ -8,6 +8,11 @@
 
 
 
+./trisCheckStabilityRegion_std      EB 12000 1      SM      1 1 2012   31 12 2012      0.925 1.025      -1.  -1.
+./drawRegionPlots                   EB              SM      1 1 2012   31 12 2012
+
+
+
 ./drawAlphaPlots EB    1 1 2012   31 12 2012
 ./drawAlphaPlots EB    1 1 2012    1  5 2012
 ./drawAlphaPlots EB    1 5 2012   20  6 2012
