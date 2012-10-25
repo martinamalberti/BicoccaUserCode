@@ -45,9 +45,9 @@ int main()
       regionId = eRegion->GetRegionId(iEta,iPhi,"LMR");
       h2_EB_LMR -> SetBinContent(iBin,jBin,regionId);
       
-      std::cout << "==>>>" << std::endl;
-      std::cout << iBin << "\t" << jBin << "\t" << regionId << std::endl;
-      std::cout << iEta << "\t" << iPhi << "\t" << regionId << std::endl;
+      // std::cout << "==>>>" << std::endl;
+      // std::cout << iBin << "\t" << jBin << "\t" << regionId << std::endl;
+      // std::cout << iEta << "\t" << iPhi << "\t" << regionId << std::endl;
 
       regionId = eRegion->GetRegionId(iEta,iPhi,"TT");
       h2_EB_TT -> SetBinContent(iBin,jBin,regionId);

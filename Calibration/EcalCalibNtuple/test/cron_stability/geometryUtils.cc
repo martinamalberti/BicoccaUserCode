@@ -45,9 +45,9 @@ TBarrelRegions::TBarrelRegions() {
   int ieta,iphi,sm,tt,lmr;
   while(fscanf(fRegion,"(%d ,%d) %d %d %d\n",&ieta,&iphi,&sm,&tt,&lmr) !=EOF ) 
     {
-      iLMR[ieta][iphi] = lmr;
-      iSM[ieta][iphi] = sm;
-      iTT[ieta][iphi] = tt;
+      iLMR[ieta+85][iphi-1] = lmr;
+      iSM[ieta+85][iphi-1] = sm;
+      iTT[ieta+85][iphi-1] = tt;
     }
   return;
 }
@@ -76,15 +76,15 @@ int TBarrelRegions::GetRegionId(int iEta, int iPhi, const std::string& type)
   
   if( type == "SM" )
     {
-      return iSM[iEta][iPhi];
+      return iSM[iEta+85][iPhi-1];
     }
   if( type == "LMR" )
     {
-      return iLMR[iEta][iPhi];
+      return iLMR[iEta+85][iPhi-1];
     }
   if( type == "TT" )
     {
-      return iTT[iEta][iPhi];
+      return iTT[iEta+85][iPhi-1];
     }
   return -1;
 }
