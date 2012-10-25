@@ -62,6 +62,7 @@ TBarrelRegions::~TBarrelRegions()
 //methods
 int TBarrelRegions::GetNRegions(const std::string& type)
 {
+  if( type == "ALL" ) return 1;
   if( type == "SM" ) return 36;
   if( type == "LMR" ) return 324;
   if( type == "TT" ) return 2448;
@@ -74,6 +75,10 @@ int TBarrelRegions::GetRegionId(int iEta, int iPhi, const std::string& type)
   if( (iEta < -85) || (iEta == 0) || (iEta > 85) ) return -1;
   if( (iPhi < 1) || (iPhi > 360) ) return -1;
   
+  if( type == "ALL" )
+    {
+      return 0;
+    }
   if( type == "SM" )
     {
       return iSM[iEta+85][iPhi-1];
