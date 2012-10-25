@@ -18,7 +18,7 @@
 /// EE Geometry ///
 class TEndcapRegions {
  private:
-  float iEndcapRing[100][100][2]; 
+  int iEndcapRing[100][100][2]; 
  public:
   TEndcapRegions(); 
   virtual ~TEndcapRegions();
@@ -32,9 +32,9 @@ class TEndcapRegions {
 /// EB Geometry
 class TBarrelRegions {
  private:
-  float iLMR[171][360];
-  float iTT[171][360];
-  float iSM[171][360];
+  int iLMR[171][360];
+  int iTT[171][360];
+  int iSM[171][360];
  public:
   TBarrelRegions();
   virtual ~TBarrelRegions();

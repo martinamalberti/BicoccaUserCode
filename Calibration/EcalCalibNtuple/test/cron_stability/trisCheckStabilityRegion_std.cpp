@@ -1,4 +1,4 @@
-// g++ -Wall -o trisCheckStabilityRegion_std `root-config --cflags --glibs` setTDRStyle.cc ntupleUtils.cc geometryUtils.cc stabilityUtils.cc ConvoluteTemplate.cc histoFunc.h trisCheckStabilityRegion_std.cpp
+// g++ -Wall -o trisCheckStabilityRegion_std `root-config --cflags --glibs` -L/gwteraw/cmssw/slc5_amd64_gcc462/external/gcc/4.6.2/lib64/ setTDRStyle.cc ntupleUtils.cc geometryUtils.cc stabilityUtils.cc ConvoluteTemplate.cc histoFunc.h trisCheckStabilityRegion_std.cpp
 
 //./trisCheckStabilityRegion_std EB 12000 1 SM 0     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
 //./trisCheckStabilityRegion_std EE 6000  1 AA 1     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
   } 
   
   gSystem->mkdir(folderName.c_str());
-  TFile* o = new TFile((folderName+"/"+folderName+"_regions_histos.root").c_str(),"RECREATE");
+  TFile* o = new TFile((folderName+"/"+folderName+"_"+regionType+"_histos.root").c_str(),"RECREATE");
   
   
   
@@ -187,88 +187,59 @@ int main(int argc, char** argv)
   
   
   
+  //---------------------
   // Set branch addresses
+  
   int runId;
   int timeStampHigh;
   int PV_n;
+  int isEB;
   float scLaserCorr, seedLaserAlpha, EoP, scEta, scPhi, scE, ES, P;
   int seedIeta, seedIphi, seedIx, seedIy, seedZside;
   
-  ntu_DA->SetBranchStatus("*",0);
-  ntu_DA->SetBranchStatus("runId",1);  
-  ntu_DA->SetBranchStatus("timeStampHigh",1);
-  ntu_DA->SetBranchStatus("PV_n",1);
-  ntu_DA->SetBranchStatus("ele1_scLaserCorr",1);
-  ntu_DA->SetBranchStatus("ele1_seedLaserAlpha",1);
-  ntu_DA->SetBranchStatus("ele1_EOverP",1);
-  ntu_DA->SetBranchStatus("ele1_scEta",1);
-  ntu_DA->SetBranchStatus("ele1_scPhi",1);
-  ntu_DA->SetBranchStatus("ele1_scE",1);
-  ntu_DA->SetBranchStatus("ele1_scE_regression",1);
-  ntu_DA->SetBranchStatus("ele1_scE",1);
-  ntu_DA->SetBranchStatus("ele1_es",1);
-  ntu_DA->SetBranchStatus("ele1_tkP",1);
-  ntu_DA->SetBranchStatus("ele1_seedIeta",1);
-  ntu_DA->SetBranchStatus("ele1_seedIphi",1);
-  ntu_DA->SetBranchStatus("ele1_seedIx",1);
-  ntu_DA->SetBranchStatus("ele1_seedIy",1);
-  ntu_DA->SetBranchStatus("ele1_seedZside",1);
-    
-  ntu_DA->SetBranchAddress("runId", &runId);  
-  ntu_DA->SetBranchAddress("timeStampHigh", &timeStampHigh);
-  ntu_DA->SetBranchAddress("PV_n", &PV_n);
-  ntu_DA->SetBranchAddress("ele1_scLaserCorr", &scLaserCorr);
-  ntu_DA->SetBranchAddress("ele1_seedLaserAlpha", &seedLaserAlpha);
-  ntu_DA->SetBranchAddress("ele1_EOverP", &EoP);
-  ntu_DA->SetBranchAddress("ele1_scEta", &scEta);
-  ntu_DA->SetBranchAddress("ele1_scPhi", &scPhi);
-  if( useRegression < 1 )
-    ntu_DA->SetBranchAddress("ele1_scE", &scE);
-  else
-    ntu_DA->SetBranchAddress("ele1_scE_regression", &scE);
-  ntu_DA->SetBranchAddress("ele1_scE", &scE);
-  ntu_DA->SetBranchAddress("ele1_es", &ES);
-  ntu_DA->SetBranchAddress("ele1_tkP", &P);
-  ntu_DA->SetBranchAddress("ele1_seedIeta", &seedIeta);
-  ntu_DA->SetBranchAddress("ele1_seedIphi", &seedIphi);
-  ntu_DA->SetBranchAddress("ele1_seedIx", &seedIx);
-  ntu_DA->SetBranchAddress("ele1_seedIy", &seedIy);
-  ntu_DA->SetBranchAddress("ele1_seedZside", &seedZside);
-  
-  
   ntu_MC->SetBranchStatus("*",0);
-  ntu_MC->SetBranchStatus("runId",1);
-  ntu_MC->SetBranchStatus("PV_n",1);
-  ntu_MC->SetBranchStatus("ele1_scEta",1);
-  ntu_MC->SetBranchStatus("ele1_EOverP",1);
-  ntu_MC->SetBranchStatus("ele1_scE",1);
-  ntu_MC->SetBranchStatus("ele1_scE_regression",1);
-  ntu_MC->SetBranchStatus("ele1_es",1);
-  ntu_MC->SetBranchStatus("ele1_tkP",1);
-  ntu_MC->SetBranchStatus("ele1_seedIeta",1);
-  ntu_MC->SetBranchStatus("ele1_seedIphi",1);
-  ntu_MC->SetBranchStatus("ele1_seedIx",1);
-  ntu_MC->SetBranchStatus("ele1_seedIy",1);
-  ntu_MC->SetBranchStatus("ele1_seedZside",1);
+  ntu_MC->SetBranchStatus("runId",1);               ntu_MC->SetBranchAddress("runId", &runId);   
+  ntu_MC->SetBranchStatus("timeStampHigh",1);       ntu_MC->SetBranchAddress("timeStampHigh", &timeStampHigh);
+  ntu_MC->SetBranchStatus("PV_n",1);                ntu_MC->SetBranchAddress("PV_n", &PV_n);
+  ntu_MC->SetBranchStatus("ele1_isEB",1);           ntu_MC->SetBranchAddress("ele1_isEB", &isEB);
+  ntu_MC->SetBranchStatus("ele1_scLaserCorr",1);    ntu_MC->SetBranchAddress("ele1_scLaserCorr", &scLaserCorr);
+  ntu_MC->SetBranchStatus("ele1_seedLaserAlpha",1); ntu_MC->SetBranchAddress("ele1_seedLaserAlpha", &seedLaserAlpha);
+  ntu_MC->SetBranchStatus("ele1_EOverP",1);         ntu_MC->SetBranchAddress("ele1_EOverP", &EoP);
+  ntu_MC->SetBranchStatus("ele1_scEta",1);          ntu_MC->SetBranchAddress("ele1_scEta", &scEta);
+  ntu_MC->SetBranchStatus("ele1_scPhi",1);          ntu_MC->SetBranchAddress("ele1_scPhi", &scPhi);
+  ntu_MC->SetBranchStatus("ele1_es",1);             ntu_MC->SetBranchAddress("ele1_es", &ES);
+  ntu_MC->SetBranchStatus("ele1_tkP",1);            ntu_MC->SetBranchAddress("ele1_tkP", &P);
+  ntu_MC->SetBranchStatus("ele1_seedIeta",1);       ntu_MC->SetBranchAddress("ele1_seedIeta", &seedIeta);
+  ntu_MC->SetBranchStatus("ele1_seedIphi",1);       ntu_MC->SetBranchAddress("ele1_seedIphi", &seedIphi);
+  ntu_MC->SetBranchStatus("ele1_seedIx",1);         ntu_MC->SetBranchAddress("ele1_seedIx", &seedIx);
+  ntu_MC->SetBranchStatus("ele1_seedIy",1);         ntu_MC->SetBranchAddress("ele1_seedIy", &seedIy);
+  ntu_MC->SetBranchStatus("ele1_seedZside",1);      ntu_MC->SetBranchAddress("ele1_seedZside", &seedZside);
+  if( useRegression < 1 ) {
+    ntu_MC->SetBranchStatus("ele1_scE",1);            ntu_MC->SetBranchAddress("ele1_scE", &scE);}
+  else {
+    ntu_MC->SetBranchStatus("ele1_scE_regression",1); ntu_MC->SetBranchAddress("ele1_scE_regression", &scE);}
   
-  ntu_MC->SetBranchAddress("runId", &runId);  
-  ntu_MC->SetBranchAddress("PV_n", &PV_n);
-  ntu_MC->SetBranchAddress("ele1_scEta", &scEta);
-  ntu_MC->SetBranchAddress("ele1_EOverP", &EoP);
-  if( useRegression < 1 )
-    ntu_MC->SetBranchAddress("ele1_scE", &scE);
-  else
-    ntu_MC->SetBranchAddress("ele1_scE_regression", &scE);
-  ntu_MC->SetBranchAddress("ele1_es", &ES);
-  ntu_MC->SetBranchAddress("ele1_tkP", &P);
-  ntu_MC->SetBranchAddress("ele1_seedIeta", &seedIeta);
-  ntu_MC->SetBranchAddress("ele1_seedIphi", &seedIphi);
-  ntu_MC->SetBranchAddress("ele1_seedIx", &seedIx);
-  ntu_MC->SetBranchAddress("ele1_seedIy", &seedIy);
-  ntu_MC->SetBranchAddress("ele1_seedZside", &seedZside);
-  
-  
-  
+  ntu_DA->SetBranchStatus("*",0);
+  ntu_DA->SetBranchStatus("runId",1);               ntu_DA->SetBranchAddress("runId", &runId);   
+  ntu_DA->SetBranchStatus("timeStampHigh",1);       ntu_DA->SetBranchAddress("timeStampHigh", &timeStampHigh);
+  ntu_DA->SetBranchStatus("PV_n",1);                ntu_DA->SetBranchAddress("PV_n", &PV_n);
+  ntu_DA->SetBranchStatus("ele1_isEB",1);           ntu_DA->SetBranchAddress("ele1_isEB", &isEB);
+  ntu_DA->SetBranchStatus("ele1_scLaserCorr",1);    ntu_DA->SetBranchAddress("ele1_scLaserCorr", &scLaserCorr);
+  ntu_DA->SetBranchStatus("ele1_seedLaserAlpha",1); ntu_DA->SetBranchAddress("ele1_seedLaserAlpha", &seedLaserAlpha);
+  ntu_DA->SetBranchStatus("ele1_EOverP",1);         ntu_DA->SetBranchAddress("ele1_EOverP", &EoP);
+  ntu_DA->SetBranchStatus("ele1_scEta",1);          ntu_DA->SetBranchAddress("ele1_scEta", &scEta);
+  ntu_DA->SetBranchStatus("ele1_scPhi",1);          ntu_DA->SetBranchAddress("ele1_scPhi", &scPhi);
+  ntu_DA->SetBranchStatus("ele1_es",1);             ntu_DA->SetBranchAddress("ele1_es", &ES);
+  ntu_DA->SetBranchStatus("ele1_tkP",1);            ntu_DA->SetBranchAddress("ele1_tkP", &P);
+  ntu_DA->SetBranchStatus("ele1_seedIeta",1);       ntu_DA->SetBranchAddress("ele1_seedIeta", &seedIeta);
+  ntu_DA->SetBranchStatus("ele1_seedIphi",1);       ntu_DA->SetBranchAddress("ele1_seedIphi", &seedIphi);
+  ntu_DA->SetBranchStatus("ele1_seedIx",1);         ntu_DA->SetBranchAddress("ele1_seedIx", &seedIx);
+  ntu_DA->SetBranchStatus("ele1_seedIy",1);         ntu_DA->SetBranchAddress("ele1_seedIy", &seedIy);
+  ntu_DA->SetBranchStatus("ele1_seedZside",1);      ntu_DA->SetBranchAddress("ele1_seedZside", &seedZside);
+  if( useRegression < 1 ) {
+    ntu_DA->SetBranchStatus("ele1_scE",1);            ntu_DA->SetBranchAddress("ele1_scE", &scE);}
+  else {
+    ntu_DA->SetBranchStatus("ele1_scE_regression",1); ntu_DA->SetBranchAddress("ele1_scE_regression", &scE);}  
   
   
   
@@ -362,9 +333,9 @@ int main(int argc, char** argv)
     ntu_MC->GetEntry(ientry);
     
     // selections
-    if( (strcmp(EBEE,"EB") == 0) && (fabs(scEta) > 1.45) )                    continue; // barrel
-    if( (strcmp(EBEE,"EE") == 0) && (fabs(scEta) < 1.5 || fabs(scEta)>2.7) ) continue; // endcap
-
+    if( (strcmp(EBEE,"EB") == 0) && (isEB != 1) ) continue; // barrel
+    if( (strcmp(EBEE,"EE") == 0) && (isEB != 0) ) continue; // endcap
+    
     if( (absEtaMin != -1.) && (absEtaMax != -1.) )
     {
       if( (fabs(scEta) < absEtaMin) || (fabs(scEta) > absEtaMax) ) continue;
@@ -410,129 +381,106 @@ int main(int argc, char** argv)
   std::vector<int> timeStampFirst;
   
   for(int ientry = 0; ientry < nEntries; ++ientry)
-  {
-    ntu_DA -> GetEntry(ientry);
-    isSavedEntries.at(ientry) = false;
-    
-    // selections
-    if( (strcmp(EBEE,"EB") == 0) && (fabs(scEta) > 1.45) )                    continue; // barrel
-    if( (strcmp(EBEE,"EE") == 0) && (fabs(scEta) < 1.5 || fabs(scEta)>2.7) ) continue; // endcap
-    
-    if( (absEtaMin != -1.) && (absEtaMax != -1.) )
     {
-      if( (fabs(scEta) < absEtaMin) || (fabs(scEta) > absEtaMax) ) continue;
+      ntu_DA -> GetEntry(ientry);
+      if( ientry%100000 == 0 ) std::cout << ">>> reading entry " << ientry << " / " << nEntries << "\r"<< std::flush;
+      
+      isSavedEntries.at(ientry) = false;
+      
+      // selections
+      if( (strcmp(EBEE,"EB") == 0) && (isEB != 1) ) continue; // barrel
+      if( (strcmp(EBEE,"EE") == 0) && (isEB != 0) ) continue; // endcap
+      
+      if( (absEtaMin != -1.) && (absEtaMax != -1.) )
+	{
+	  if( (fabs(scEta) < absEtaMin) || (fabs(scEta) > absEtaMax) ) continue;
+	}
+      
+      if( (IetaMin != -1.) && (IetaMax != -1.) && (IphiMin != -1.) && (IphiMax != -1.) )
+	{
+	  if( (seedIeta < IetaMin) || (seedIeta > IetaMax) ) continue;
+	  if( (seedIphi < IphiMin) || (seedIphi > IphiMax) ) continue;
+	}
+      
+      if( timeStampHigh < t1 ) continue;
+      if( timeStampHigh > t2 ) continue;
+      
+      if( scLaserCorr <= 0. ) continue;
+      
+      isSavedEntries.at(ientry) = true;
+      
+      
+      //choose region
+      int regionId = -1;
+      if( strcmp(EBEE,"EB") == 0 )
+	regionId = ebRegion->GetRegionId(seedIeta, seedIphi, regionType);
+      
+      
+      if( strcmp(EBEE,"EE") == 0 )
+	regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
+      
+      // fill sorter
+      myEvent dummy;
+      float PUCorr = (p0 + p1*PV_n);
+      
+      dummy.runId = runId;
+      dummy.timeStampHigh = timeStampHigh;
+      dummy.region = regionId;
+      dummy.scE = (scE-ES) / PUCorr;
+      dummy.P = (P - ES);
+      dummy.scLaserCorr = scLaserCorr;
+      dummy.seedLaserAlpha = seedLaserAlpha;
+      
+      sortedEntries.push_back(dummy);
+      
+      ++nSavePts;
     }
-    
-    if( (IetaMin != -1.) && (IetaMax != -1.) && (IphiMin != -1.) && (IphiMax != -1.) )
-    {
-      if( (seedIeta < IetaMin) || (seedIeta > IetaMax) ) continue;
-      if( (seedIphi < IphiMin) || (seedIphi > IphiMax) ) continue;
-    }
-    
-    if( timeStampHigh < t1 ) continue;
-    if( timeStampHigh > t2 ) continue;
-    
-    if( scLaserCorr <= 0. ) continue;
-    
-    isSavedEntries.at(ientry) = true;
-    
-
-    //choose region
-    int regionId = -1;
-    if( strcmp(EBEE,"EB") == 0 )
-      regionId = ebRegion->GetRegionId(seedIeta, seedIphi, regionType);
-
-
-    if( strcmp(EBEE,"EE") == 0 )
-      regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
-
-    // fill sorter
-    myEvent dummy;
-    float PUCorr = (p0 + p1*PV_n);
-
-    dummy.runId = runId;
-    dummy.timeStampHigh = timeStampHigh;
-    dummy.region = regionId;
-    dummy.scE = (scE-ES) / PUCorr;
-    dummy.P = (P - ES);
-    dummy.scLaserCorr = scLaserCorr;
-    dummy.seedLaserAlpha = seedLaserAlpha;
-
-    sortedEntries.push_back(dummy);
-    
-    ++nSavePts;
-  }
   
   // sort events
   std::sort(sortedEntries.begin(),sortedEntries.end(),myEvent());
   std::cout << "Data sorted in " << EBEE << " - " << nSavePts << " events" << std::endl;
   
-  std::cout << "1111" << std::endl;
-
+  
   
   //---------------------
   // Loop and define bins
   int nBins = (int)(sortedEntries.size()/evtsPerPoint) + 100;
-
-  std::cout << "2222" << std::endl;
+  
   std::cout << "nRegions = " << nRegions << std::endl;
   std::cout << "nBins = " << nBins << std::endl;
-
-
+  
+  
   //time infos
-  // int    Entries[nRegions][nBins];
-  // double AveTime[nRegions][nBins];
-  // int    MinTime[nRegions][nBins];
-  // int    MaxTime[nRegions][nBins];
-  // double AveRun[nRegions][nBins];    
-  // int    MinRun[nRegions][nBins];
-  // int    MaxRun[nRegions][nBins];
-  // double AveLT[nRegions][nBins];
-  // double AveLT2[nRegions][nBins];
-
-  std::map<int,std::map<int,int> >          Entries;
-  std::map<int,std::map<int,double> >       AveTime;
-  std::map<int,std::map<int,int> >          MinTime;
-  std::map<int,std::map<int,int> >          MaxTime;
-  std::map<int,std::map<int,double> >       AveRun;    
-  std::map<int,std::map<int,int> >          MinRun;
-  std::map<int,std::map<int,int> >          MaxRun;
-  std::map<int,std::map<int,double> >       AveLT;
-  std::map<int,std::map<int,double> >       AveLT2;
-
-  std::cout << "3333" << std::endl;
-
-  //define histograms to be fitted
-  // TH1F* h_EoP[nRegions][nBins];
-  // TH1F* h_EoC[nRegions][nBins];
-  // TH1F* h_Las[nRegions][nBins];
-  // TH1F* h_Tsp[nRegions][nBins];
-  // TH1F* h_Cvl[nRegions][nBins];
-
+  std::map<int,std::map<int,int> > Entries;
+  std::map<int,std::map<int,double> > AveTime;
+  std::map<int,std::map<int,int> > MinTime;
+  std::map<int,std::map<int,int> > MaxTime;
+  std::map<int,std::map<int,double> > AveRun;    
+  std::map<int,std::map<int,int> > MinRun;
+  std::map<int,std::map<int,int> > MaxRun;
+  std::map<int,std::map<int,double> > AveLT;
+  std::map<int,std::map<int,double> > AveLT2;
+  
   std::map<int,std::map<int,TH1F*> > h_EoP;
   std::map<int,std::map<int,TH1F*> > h_EoC;
   std::map<int,std::map<int,TH1F*> > h_Las;
   std::map<int,std::map<int,TH1F*> > h_Tsp;
   std::map<int,std::map<int,TH1F*> > h_Cvl;
-
-  std::cout << "4444" << std::endl;
-
+  
+  
+  
   TH1F* h_scOccupancy_eta  = new TH1F("h_scOccupancy_eta","", 298, -2.6, 2.6);
   TH1F* h_scOccupancy_phi  = new TH1F("h_scOccupancy_phi","", 363, -3.1765, 3.159);
   SetHistoStyle(h_scOccupancy_eta);
   SetHistoStyle(h_scOccupancy_phi);
   
-  std::cout << "5555" << std::endl;
-
   TH2F* h_seedOccupancy_EB  = new TH2F("h_seedOccupancy_EB","",  171, -85., 86., 361,   0.,361.);
   TH2F* h_seedOccupancy_EEp = new TH2F("h_seedOccupancy_EEp","", 101,   0.,101., 100,   0.,101.);
   TH2F* h_seedOccupancy_EEm = new TH2F("h_seedOccupancy_EEm","", 101,   0.,101., 100,   0.,101.);
   SetHistoStyle(h_seedOccupancy_EB);
   SetHistoStyle(h_seedOccupancy_EEp);
   SetHistoStyle(h_seedOccupancy_EEm);
-
-  std::cout << "AAAA" << std::endl;
-
+  
   for(int i = 0; i < nRegions; ++i)
     for(int k = 0; k < nBins; ++k)
       {
@@ -552,79 +500,79 @@ int main(int argc, char** argv)
 	sprintf(histoName, "Tsp_%d_%d", i, k);
 	h_Tsp[i][k] = new TH1F(histoName, histoName, 500, 0.5, 1.5);
       }
-
-  std::cout << "BBBB" << std::endl;
-
-
+  
+  
+  
+  //-----------------------
   //loop over sorted enties
+  
   int timeStampOld[nRegions];
   int fillingBin[nRegions];
   for(int iSaved = 0; iSaved < nSavePts; ++iSaved)
-  {
-    if( iSaved%100000 == 0 ) std::cout << "reading saved entry " << iSaved << "\r" << std::flush;
-
-    if( iSaved == 0 )
-      for(int k=0; k<nRegions; ++k)
+    {
+      if( iSaved%100000 == 0 ) std::cout << "reading saved entry " << iSaved << "\r" << std::flush;
+      
+      if( iSaved == 0 )
+	for(int k=0; k<nRegions; ++k)
+	  {
+	    timeStampOld[k] = sortedEntries[iSaved].timeStampHigh;
+	    fillingBin[k] = 0;
+	  }
+      
+      int reg = sortedEntries[iSaved].region;
+      if( (sortedEntries[iSaved].timeStampHigh-timeStampOld[reg])/3600. > timeLapse )
 	{
-	  timeStampOld[k] = sortedEntries[iSaved].timeStampHigh;
-	  fillingBin[k] = 0;
+	  
+	  ++fillingBin[reg];
+	  
+	  Entries[reg][fillingBin[reg]] = 0;
+	  AveTime[reg][fillingBin[reg]] = 0;
+	  MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
+	  MaxTime[reg][fillingBin[reg]] = 0;
+	  AveRun[reg][fillingBin[reg]] = 0;
+	  MinRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
+	  MaxRun[reg][fillingBin[reg]] = 0;
+	  AveLT[reg][fillingBin[reg]] = 0;
+	  AveLT2[reg][fillingBin[reg]] = 0;
+      }
+      
+      timeStampOld[reg] = sortedEntries[iSaved].timeStampHigh;
+      
+      if(h_EoP[reg][fillingBin[reg]]->GetEntries() > evtsPerPoint-1)
+	{
+	  ++fillingBin[reg];
+	  
+	  Entries[reg][fillingBin[reg]] = 0;
+	  AveTime[reg][fillingBin[reg]] = 0;
+	  MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
+	  MaxTime[reg][fillingBin[reg]] = 0;
+	  AveRun[reg][fillingBin[reg]] = 0;
+	  MinRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
+	  MaxRun[reg][fillingBin[reg]] = 0;
+	  AveLT[reg][fillingBin[reg]] = 0;
+	  AveLT2[reg][fillingBin[reg]] = 0;
 	}
-    
-    int reg = sortedEntries[iSaved].region;
-    if( (sortedEntries[iSaved].timeStampHigh-timeStampOld[reg])/3600. > timeLapse )
-      {
-
-	++fillingBin[reg];
-
-	Entries[reg][fillingBin[reg]] = 0;
-	AveTime[reg][fillingBin[reg]] = 0;
-	MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
-	MaxTime[reg][fillingBin[reg]] = 0;
-	AveRun[reg][fillingBin[reg]] = 0;
-	MinRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
-	MaxRun[reg][fillingBin[reg]] = 0;
-	AveLT[reg][fillingBin[reg]] = 0;
-	AveLT2[reg][fillingBin[reg]] = 0;
-
-      }
-    
-    timeStampOld[reg] = sortedEntries[iSaved].timeStampHigh;
-
-    if(h_EoP[reg][fillingBin[reg]]->GetEntries() > evtsPerPoint-1)
-      {
-	++fillingBin[reg];
-
-	Entries[reg][fillingBin[reg]] = 0;
-	AveTime[reg][fillingBin[reg]] = 0;
-	MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
-	MaxTime[reg][fillingBin[reg]] = 0;
-	AveRun[reg][fillingBin[reg]] = 0;
-	MinRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
-	MaxRun[reg][fillingBin[reg]] = 0;
-	AveLT[reg][fillingBin[reg]] = 0;
-	AveLT2[reg][fillingBin[reg]] = 0;
-      }
-
-
-    h_EoP[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE / sortedEntries[iSaved].scLaserCorr / sortedEntries[iSaved].P );
-    h_EoC[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE/sortedEntries[iSaved].P );
-    h_Las[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scLaserCorr );
-    h_Tsp[reg][fillingBin[reg]] -> Fill( 1./sortedEntries[iSaved].scLaserCorr );
-
-    float LT = (-1. / sortedEntries[iSaved].seedLaserAlpha * log(sortedEntries[iSaved].scLaserCorr));
-
-    ++Entries[reg][fillingBin[reg]];
-    AveTime[reg][fillingBin[reg]] += sortedEntries[iSaved].timeStampHigh;
-    MaxTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
-    AveRun[reg][fillingBin[reg]] += sortedEntries[iSaved].runId;    
-    MaxRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
-    AveLT[reg][fillingBin[reg]] += LT;
-    AveLT2[reg][fillingBin[reg]] += LT*LT;
-
-  }
+      
+      
+      h_EoP[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE / sortedEntries[iSaved].scLaserCorr / sortedEntries[iSaved].P );
+      h_EoC[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE/sortedEntries[iSaved].P );
+      h_Las[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scLaserCorr );
+      h_Tsp[reg][fillingBin[reg]] -> Fill( 1./sortedEntries[iSaved].scLaserCorr );
+      
+      float LT = (-1. / sortedEntries[iSaved].seedLaserAlpha * log(sortedEntries[iSaved].scLaserCorr));
+      
+      ++Entries[reg][fillingBin[reg]];
+      AveTime[reg][fillingBin[reg]] += sortedEntries[iSaved].timeStampHigh;
+      MaxTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
+      AveRun[reg][fillingBin[reg]] += sortedEntries[iSaved].runId;    
+      MaxRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
+      AveLT[reg][fillingBin[reg]] += LT;
+      AveLT2[reg][fillingBin[reg]] += LT*LT;
+    }
   std::cout << std::endl;
-
- 
+  
+  
+  
   //calculate averages
   for(int ii = 0; ii < nRegions; ++ii)
     for(int kk = 0; kk < nBins; ++kk)
@@ -634,8 +582,8 @@ int main(int argc, char** argv)
 	AveLT[ii][kk] /= Entries[ii][kk];
 	AveLT2[ii][kk] /= Entries[ii][kk];
       }
-
-
+  
+  
   
   //---------------------
   // histogram definition
@@ -649,11 +597,8 @@ int main(int argc, char** argv)
   TH1F* h_EoC_chi2[nRegions];
 
   // function definition
-  // TF1* f_EoP[nRegions][nBins];
-  // TF1* f_EoC[nRegions][nBins];  
-
   std::map<int,std::map<int,TF1*> > f_EoP;
-  std::map<int,std::map<int,TF1*> > f_EoC;  
+  std::map<int,std::map<int,TF1*> > f_EoC;
   
   // graphs definition
   TGraphAsymmErrors* g_fit[nRegions];
@@ -671,34 +616,33 @@ int main(int argc, char** argv)
   for(int region=0; region<nRegions; ++region)
     {
       char histoname[50];
-
+      
       sprintf(histoname,"h_EoP_spread_%d",region);
       h_EoP_spread[region] = new TH1F(histoname,"",100,yMIN,yMAX);
-
+      
       sprintf(histoname,"h_EoC_spread_%d",region);
       h_EoC_spread[region] = new TH1F(histoname,"",100,yMIN,yMAX);
-
+      
       sprintf(histoname,"h_EoP_spread_run_%d",region);
       h_EoP_spread_run[region] = new TH1F(histoname,"",100,yMIN,yMAX);
-
+      
       sprintf(histoname,"h_EoC_spread_run_%d",region);
       h_EoC_spread_run[region] = new TH1F(histoname,"",100,yMIN,yMAX);
-
-
+      
       sprintf(histoname,"h_EoP_chi2_%d",region);
       h_EoP_chi2[region] = new TH1F(histoname,"",50,0.,5.);
-
+      
       sprintf(histoname,"h_EoC_chi2_%d",region);
       h_EoC_chi2[region] = new TH1F(histoname,"",50,0.,5.);
-
+      
       SetHistoStyle(h_EoP_spread[region],"EoP");
       SetHistoStyle(h_EoC_spread[region],"EoC");
       SetHistoStyle(h_EoP_spread_run[region],"EoP");
       SetHistoStyle(h_EoC_spread_run[region],"EoC");
-
+      
       SetHistoStyle(h_EoP_chi2[region],"EoP");
       SetHistoStyle(h_EoC_chi2[region],"EoC");  
-
+      
       //graphs
       g_fit[region] = new TGraphAsymmErrors();
       g_c_fit[region] = new TGraphAsymmErrors();      
@@ -706,7 +650,7 @@ int main(int argc, char** argv)
       g_c_fit_run[region] = new TGraphAsymmErrors();
       g_las[region] = new TGraph();
       g_LT[region] = new TGraphErrors();
-
+      
       g_fit[region]->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
       g_fit[region]->GetXaxis()->SetTimeDisplay(1);
       g_c_fit[region]->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
@@ -715,7 +659,7 @@ int main(int argc, char** argv)
       g_las[region]->GetXaxis()->SetTimeDisplay(1);
       g_LT[region]->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
       g_LT[region]->GetXaxis()->SetTimeDisplay(1);
-
+      
       if(multiTemplate == 0 && region == 0)
 	h_template[0] -> Rebin(rebin);
       else if (multiTemplate == 1) h_template[region] -> Rebin(rebin);
@@ -726,215 +670,189 @@ int main(int argc, char** argv)
   
   
   
-  float EoP_scale = 0.;
-  float EoP_err = 0.;
-  int   EoP_nActiveBins = 0;
+  std::vector<int> nValidBins(nRegions);
   
-  float EoC_scale = 0.;
-  float EoC_err = 0.;
-  int   EoC_nActiveBins = 0;
+  std::vector<float> EoP_scale(nRegions);
+  std::vector<float> EoP_err(nRegions);
   
-  float LCInv_scale = 0;
+  std::vector<float> EoC_scale(nRegions);
+  std::vector<float> EoC_err(nRegions);
+   
+  std::vector<float> LCInv_scale(nRegions);
   
-  std::vector<int> validBins[nRegions];
   for(int ii = 0; ii < nRegions; ++ii)
-    for(int kk = 0; kk < nBins; ++kk)
-      {
-	bool isValid = true;
-
-	int tRegion = 0;
-	if(multiTemplate == 1) tRegion = ii;
-
-
-	if(h_EoP[ii][kk]->GetEntries() < 100)
-	  continue;
-	
-	h_EoP[ii][kk] -> Rebin(rebin);
-	h_EoC[ii][kk] -> Rebin(rebin);
-	
-    
-    
-	//------------------------------------
-	// Fill the graph for uncorrected data
-	
-	// define the fitting function
-	// N.B. [0] * ( [1] * f( [1]*(x-[2]) ) )
-	
-	//o -> cd();
-	char convolutionName[50];
-	sprintf(convolutionName,"h_convolution_%d_%d",ii, kk);
-	//h_Cvl[ii][kk] = ConvoluteTemplate(std::string(convolutionName),h_template[ii],h_Las[ii][kk],32768,-5.,5.);
-	h_Cvl[ii][kk] = MellinConvolution(std::string(convolutionName),h_template[tRegion],h_Tsp[ii][kk]);
-	
-	histoFunc* templateHistoFunc = new histoFunc(h_template[tRegion]);
-	histoFunc* templateConvolutedHistoFunc = new histoFunc(h_Cvl[ii][kk]);
-	char funcName[50];
-	
-	sprintf(funcName,"f_EoP_%d_%d", ii, kk);
-	
-	if( strcmp(EBEE,"EB") == 0 )
-	  f_EoP[ii][kk] = new TF1(funcName, templateConvolutedHistoFunc, 0.8*(h_Tsp[ii][kk]->GetMean()), 1.4*(h_Tsp[ii][kk]->GetMean()), 3, "histoFunc");
-	else
-	  f_EoP[ii][kk] = new TF1(funcName, templateConvolutedHistoFunc, 0.75*(h_Tsp[ii][kk]->GetMean()), 1.5*(h_Tsp[ii][kk]->GetMean()), 3, "histoFunc");
-	
-	f_EoP[ii][kk] -> SetParName(0,"Norm"); 
-	f_EoP[ii][kk] -> SetParName(1,"Scale factor"); 
-	f_EoP[ii][kk] -> SetLineWidth(1); 
-	f_EoP[ii][kk] -> SetNpx(10000);
-	
-	double xNorm = h_EoP[ii][kk]->GetEntries()/h_template[tRegion]->GetEntries() *
-	  h_EoP[ii][kk]->GetBinWidth(1)/h_template[tRegion]->GetBinWidth(1); 
-	
-	f_EoP[ii][kk] -> FixParameter(0, xNorm);
-	f_EoP[ii][kk] -> SetParameter(1, 1.);
-	f_EoP[ii][kk] -> FixParameter(2, 0.);
-	f_EoP[ii][kk] -> SetLineColor(kRed+2); 
-	
-	int fStatus = 0;
-	int nTrials = 0;
-	TFitResultPtr rp;
-	
-	rp = h_EoP[ii][kk] -> Fit(funcName, "QERLS+");
-	while( (fStatus != 0) && (nTrials < 10) )
-	  {
-	    rp = h_EoP[ii][kk] -> Fit(funcName, "QERLS+");
-	    fStatus = rp;
-	    if(fStatus == 0) break;
-	    ++nTrials;
-	  }
-	
-	// fill the graph
-	double eee = f_EoP[ii][kk]->GetParError(1);
-	//float k    = f_EoP[ii][kk]->GetParameter(1);
-	float k    = f_EoP[ii][kk]->GetParameter(1) / h_Tsp[ii][kk]->GetMean(); //needed when using mellin's convolution 
-	
-	if( (h_EoP[ii][kk]->GetEntries() > 3) && (fStatus == 0) && (eee > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) )
-	  {
-	    float date = (float)AveTime[ii][kk];
-	    float dLow = (float)(AveTime[ii][kk]-MinTime[ii][kk]); 
-	    float dHig = (float)(MaxTime[ii][kk]-AveTime[ii][kk]);
-	    float run = (float)AveRun[ii][kk];
-	    float rLow = (float)(AveRun[ii][kk]-MinRun[ii][kk]); 
-	    float rHig = (float)(MaxRun[ii][kk]-AveRun[ii][kk]);
-	    
-	    g_fit[ii] -> SetPoint(kk,  date , 1./k);
-	    g_fit[ii] -> SetPointError(kk, dLow , dHig, eee/k/k, eee/k/k);
-	    
-	    g_fit_run[ii] -> SetPoint(kk,  run , 1./k);
-	    g_fit_run[ii] -> SetPointError(kk, rLow , rHig, eee/k/k, eee/k/k);
-	    
-	    h_EoP_chi2[ii] -> Fill(f_EoP[ii][kk]->GetChisquare()/f_EoP[ii][kk]->GetNDF());
-	    
-	    EoP_scale += 1./k;
-	    EoP_err += eee/k/k;
-	    ++EoP_nActiveBins;
-	  }
-	else
-	  {
-	    std::cout << "Fitting uncorrected time bin: " << kk << " in region: "<<ii<<"   Fail status: " << fStatus << "   sigma: " << eee << std::endl;
-	    isValid = false;
-	  }  
-    
-    //----------------------------------
-    // Fill the graph for corrected data
-    
-    // define the fitting function
-    // N.B. [0] * ( [1] * f( [1]*(x-[2]) ) )
-
-	sprintf(funcName,"f_EoC_%d_%d",ii, kk);
-    if( strcmp(EBEE,"EB") == 0 )
-      f_EoC[ii][kk] = new TF1(funcName, templateHistoFunc, 0.8, 1.4, 3, "histoFunc");
-    else
-      f_EoC[ii][kk] = new TF1(funcName, templateHistoFunc, 0.75, 1.5, 3, "histoFunc");
-    f_EoC[ii][kk] -> SetParName(0,"Norm"); 
-    f_EoC[ii][kk] -> SetParName(1,"Scale factor"); 
-    f_EoC[ii][kk] -> SetLineWidth(1); 
-    f_EoC[ii][kk] -> SetNpx(10000);
-    
-    xNorm = h_EoC[ii][kk]->GetEntries()/h_template[tRegion]->GetEntries() *
-            h_EoC[ii][kk]->GetBinWidth(1)/h_template[tRegion]->GetBinWidth(1); 
-
-    f_EoC[ii][kk] -> FixParameter(0, xNorm);
-    f_EoC[ii][kk] -> SetParameter(1, 0.99);
-    f_EoC[ii][kk] -> FixParameter(2, 0.);
-    f_EoC[ii][kk] -> SetLineColor(kGreen+2); 
-    
-    
-    rp = h_EoC[ii][kk] -> Fit(funcName, "QERLS+");
-    fStatus = rp;
-    nTrials = 0;
-    while( (fStatus != 0) && (nTrials < 10) )
     {
-      rp = h_EoC[ii][kk] -> Fit(funcName, "QERLS+");
-      fStatus = rp;
-      if(fStatus == 0) break;
-      ++nTrials;
-    }
-    
-    // fill the graph
-    k   = f_EoC[ii][kk]->GetParameter(1);
-    eee = f_EoC[ii][kk]->GetParError(1); 
-    
-    if( (h_EoC[ii][kk]->GetEntries() > 10) && (fStatus == 0) && (eee > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) )
-    {
-      float date = (float)AveTime[ii][kk]; 
-      float dLow = (float)(AveTime[ii][kk]-MinTime[ii][kk]); 
-      float dHig = (float)(MaxTime[ii][kk]-AveTime[ii][kk]);
-      float run = (float)AveRun[ii][kk];
-      float rLow = (float)(AveRun[ii][kk]-MinRun[ii][kk]); 
-      float rHig = (float)(MaxRun[ii][kk]-AveRun[ii][kk]);
-      
-      g_c_fit[ii] -> SetPoint(kk,  date , 1./k);
-      g_c_fit[ii] -> SetPointError(kk, dLow , dHig , eee/k/k, eee/k/k);
-      
-      g_c_fit_run[ii] -> SetPoint(kk,  run , 1./k);
-      g_c_fit_run[ii] -> SetPointError(kk, rLow , rHig, eee/k/k, eee/k/k);
-      
-      h_EoC_chi2[ii] -> Fill(f_EoC[ii][kk]->GetChisquare()/f_EoP[ii][kk]->GetNDF());
-      
-      EoC_scale += 1./k;
-      EoC_err += eee/k/k;
-      ++EoC_nActiveBins;
-    }
-    else
-    {
-      std::cout << "Fitting corrected time bin: " << kk << "   Fail status: " << fStatus << "   sigma: " << eee << std::endl;
-      isValid = false;
-    }
-    
-    if( isValid == true ) validBins[ii].push_back(kk);
-  }
-  
-  EoP_scale /= EoP_nActiveBins;
-  EoP_err   /= EoP_nActiveBins;
-  
-  EoC_scale /= EoC_nActiveBins;
-  EoC_err   /= EoC_nActiveBins;
-  
-  
-  
-  
-  
-  
-  //----------------------------------------
-  // Fill the graph for avg laser correction
-  
-  //fede
-  int lcScaleCounter = 0;
-  for(int ii=0; ii<nRegions; ++ii)
-    {
-      for(unsigned int itr = 0; itr < validBins[ii].size(); ++itr)
-	{  
-	  int kk = validBins[ii].at(itr);
-	  g_las[ii] -> SetPoint(itr, (float)AveTime[ii][kk], h_Tsp[ii][kk]->GetMean() );
-	  g_LT[ii]  -> SetPoint(itr, (float)AveTime[ii][kk], AveLT[ii][kk] );
-	  g_LT[ii]  -> SetPointError(itr, 0., sqrt(AveLT2[ii][kk]-AveLT[ii][kk]*AveLT[ii][kk]) / sqrt(Entries[ii][kk]) );
+      for(int kk = 0; kk < nBins; ++kk)
+	{
+	  int tRegion = 0;
+	  if(multiTemplate == 1) tRegion = ii;
 	  
-	  LCInv_scale += h_Tsp[ii][kk]->GetMean();
-	  ++lcScaleCounter;
-	}  
+	  
+          
+          // sanity check
+	  if(h_EoP[ii][kk]->GetEntries() < 100)
+	    continue;
+	  if(h_EoC[ii][kk]->GetEntries() < 100)
+	    continue;
+	  
+	  h_EoP[ii][kk] -> Rebin(rebin);
+	  h_EoC[ii][kk] -> Rebin(rebin);
+	  
+	  
+	  
+	  //-----------------------------------
+	  // Fit the graph for uncorrected data
+	  
+	  // define the fitting function
+	  // N.B. [0] * ( [1] * f( [1]*(x-[2]) ) )
+	  
+	  char convolutionName[50];
+	  sprintf(convolutionName,"h_convolution_%d_%d",ii, kk);
+	  //h_Cvl[ii][kk] = ConvoluteTemplate(std::string(convolutionName),h_template[ii],h_Las[ii][kk],32768,-5.,5.);
+	  h_Cvl[ii][kk] = MellinConvolution(std::string(convolutionName),h_template[tRegion],h_Tsp[ii][kk]);
+	  
+	  histoFunc* templateHistoFunc = new histoFunc(h_template[tRegion]);
+	  histoFunc* templateConvolutedHistoFunc = new histoFunc(h_Cvl[ii][kk]);
+	  char funcName[50];
+	  
+	  sprintf(funcName,"f_EoP_%d_%d", ii, kk);
+	  
+	  if( strcmp(EBEE,"EB") == 0 )
+	    f_EoP[ii][kk] = new TF1(funcName, templateConvolutedHistoFunc, 0.8*(h_Tsp[ii][kk]->GetMean()), 1.4*(h_Tsp[ii][kk]->GetMean()), 3, "histoFunc");
+	  else
+	    f_EoP[ii][kk] = new TF1(funcName, templateConvolutedHistoFunc, 0.75*(h_Tsp[ii][kk]->GetMean()), 1.5*(h_Tsp[ii][kk]->GetMean()), 3, "histoFunc");
+	  
+	  f_EoP[ii][kk] -> SetParName(0,"Norm"); 
+	  f_EoP[ii][kk] -> SetParName(1,"Scale factor"); 
+	  f_EoP[ii][kk] -> SetLineWidth(1); 
+	  f_EoP[ii][kk] -> SetNpx(10000);
+	  
+	  double xNorm = h_EoP[ii][kk]->GetEntries()/h_template[tRegion]->GetEntries() *
+	    h_EoP[ii][kk]->GetBinWidth(1)/h_template[tRegion]->GetBinWidth(1); 
+	  
+	  f_EoP[ii][kk] -> FixParameter(0, xNorm);
+	  f_EoP[ii][kk] -> SetParameter(1, 1.);
+	  f_EoP[ii][kk] -> FixParameter(2, 0.);
+	  f_EoP[ii][kk] -> SetLineColor(kRed+2); 
+	  
+	  int fStatus_EoP = 0;
+	  int nTrials_EoP = 0;
+	  TFitResultPtr rp_EoP;
+	  
+	  rp_EoP = h_EoP[ii][kk] -> Fit(funcName, "QERLS+");
+	  while( (fStatus_EoP != 0) && (nTrials_EoP < 10) )
+	    {
+	      rp_EoP = h_EoP[ii][kk] -> Fit(funcName, "QERLS+");
+	      fStatus_EoP = rp_EoP;
+	      if(fStatus_EoP == 0) break;
+	      ++nTrials_EoP;
+	    }
+	  
+	  double eee_EoP = f_EoP[ii][kk]->GetParError(1);
+	  //double k_EoP = f_EoP[ii][kk]->GetParameter(1);
+	  double k_EoP = f_EoP[ii][kk]->GetParameter(1) / h_Tsp[ii][kk]->GetMean(); //needed when using mellin's convolution 
+	  
+	  
+	  
+	  //---------------------------------
+	  // Fit the graph for corrected data
+	  
+	  // define the fitting function
+	  // N.B. [0] * ( [1] * f( [1]*(x-[2]) ) )
+	  
+	  sprintf(funcName,"f_EoC_%d_%d",ii, kk);
+	  if( strcmp(EBEE,"EB") == 0 )
+	    f_EoC[ii][kk] = new TF1(funcName, templateHistoFunc, 0.8, 1.4, 3, "histoFunc");
+	  else
+	    f_EoC[ii][kk] = new TF1(funcName, templateHistoFunc, 0.75, 1.5, 3, "histoFunc");
+	  f_EoC[ii][kk] -> SetParName(0,"Norm"); 
+	  f_EoC[ii][kk] -> SetParName(1,"Scale factor"); 
+	  f_EoC[ii][kk] -> SetLineWidth(1); 
+	  f_EoC[ii][kk] -> SetNpx(10000);
+	  
+	  xNorm = h_EoC[ii][kk]->GetEntries()/h_template[tRegion]->GetEntries() *
+	    h_EoC[ii][kk]->GetBinWidth(1)/h_template[tRegion]->GetBinWidth(1); 
+	  
+	  f_EoC[ii][kk] -> FixParameter(0, xNorm);
+	  f_EoC[ii][kk] -> SetParameter(1, 0.99);
+	  f_EoC[ii][kk] -> FixParameter(2, 0.);
+	  f_EoC[ii][kk] -> SetLineColor(kGreen+2); 
+	  
+	  
+	  int fStatus_EoC = 0;
+	  int nTrials_EoC = 0;
+	  TFitResultPtr rp_EoC;
+	  
+	  rp_EoC = h_EoC[ii][kk] -> Fit(funcName, "QERLS+");
+	  fStatus_EoC = rp_EoC;
+	  nTrials_EoC = 0;
+	  while( (fStatus_EoC != 0) && (nTrials_EoC < 10) )
+	    {
+	      rp_EoC = h_EoC[ii][kk] -> Fit(funcName, "QERLS+");
+	      fStatus_EoC = rp_EoC;
+	      if(fStatus_EoC == 0) break;
+	      ++nTrials_EoC;
+	    }
+	  
+	  double k_EoC   = f_EoC[ii][kk]->GetParameter(1);
+	  double eee_EoC = f_EoC[ii][kk]->GetParError(1); 
+	  
+	  
+	  
+	  //----------------
+	  // fill the graphs
+	  
+	  if( (fStatus_EoP == 0) && (eee_EoP > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) &&
+	      (fStatus_EoC == 0) && (eee_EoC > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) )
+	    {
+	      float date = (float)AveTime[ii][kk];
+	      float dLow = (float)(AveTime[ii][kk]-MinTime[ii][kk]); 
+	      float dHig = (float)(MaxTime[ii][kk]-AveTime[ii][kk]);
+	      float run = (float)AveRun[ii][kk];
+	      float rLow = (float)(AveRun[ii][kk]-MinRun[ii][kk]); 
+	      float rHig = (float)(MaxRun[ii][kk]-AveRun[ii][kk]);
+	      
+	      g_las[ii] -> SetPoint(nValidBins[ii], (float)AveTime[ii][kk], h_Tsp[ii][kk]->GetMean() );
+	      g_LT[ii]  -> SetPoint(nValidBins[ii], (float)AveTime[ii][kk], AveLT[ii][kk] );
+	      g_LT[ii]  -> SetPointError(nValidBins[ii], 0., sqrt(AveLT2[ii][kk]-AveLT[ii][kk]*AveLT[ii][kk]) / sqrt(Entries[ii][kk]) );
+	      
+	      g_fit[ii] -> SetPoint(nValidBins[ii],  date , 1./k_EoP);
+	      g_fit[ii] -> SetPointError(nValidBins[ii], dLow , dHig, eee_EoP/k_EoP/k_EoP, eee_EoP/k_EoP/k_EoP);
+	      g_c_fit[ii] -> SetPoint(nValidBins[ii],  date , 1./k_EoC);
+	      g_c_fit[ii] -> SetPointError(nValidBins[ii], dLow , dHig , eee_EoC/k_EoC/k_EoC, eee_EoC/k_EoC/k_EoC);
+	      
+	      g_fit_run[ii] -> SetPoint(nValidBins[ii],  run , 1./k_EoP);
+	      g_fit_run[ii] -> SetPointError(nValidBins[ii], rLow , rHig, eee_EoP/k_EoP/k_EoP, eee_EoP/k_EoP/k_EoP);
+	      g_c_fit_run[ii] -> SetPoint(nValidBins[ii],  run , 1./k_EoC);
+	      g_c_fit_run[ii] -> SetPointError(nValidBins[ii], rLow , rHig, eee_EoC/k_EoC/k_EoC, eee_EoC/k_EoC/k_EoC);
+	      
+	      h_EoP_chi2[ii] -> Fill(f_EoP[ii][kk]->GetChisquare()/f_EoP[ii][kk]->GetNDF());
+	      h_EoC_chi2[ii] -> Fill(f_EoC[ii][kk]->GetChisquare()/f_EoP[ii][kk]->GetNDF());
+	      
+	      LCInv_scale[ii] += h_Tsp[ii][kk]->GetMean();
+	      EoP_scale[ii] += 1./k_EoP;
+	      EoP_err[ii] += eee_EoP/k_EoP/k_EoP;
+	      EoC_scale[ii] += 1./k_EoC;
+	      EoC_err[ii] += eee_EoC/k_EoC/k_EoC;
+	      
+	      ++nValidBins[ii];
+	    }
+	  else
+	    {
+	      std::cout << "Fitting uncorrected time bin: " << kk << " in region: " << ii << "   Fail status: " << fStatus_EoP << "   sigma: " << eee_EoP << std::endl;
+	      std::cout << "Fitting   corrected time bin: " << kk << " in region: " << ii << "   Fail status: " << fStatus_EoC << "   sigma: " << eee_EoC << std::endl;
+	    }
+	}
+      
+      LCInv_scale[ii] /= nValidBins[ii];
+      EoP_scale[ii] /= nValidBins[ii];
+      EoP_err[ii]   /= nValidBins[ii];
+      EoC_scale[ii] /= nValidBins[ii];
+      EoC_err[ii]   /= nValidBins[ii];
     }
-  LCInv_scale /= lcScaleCounter;
+  
+  
+  
   
   
   
@@ -944,38 +862,38 @@ int main(int argc, char** argv)
   float yscale = 1.;
   //float yscale = 1./EoC_scale;
   
-  for(int ii=0; ii<nRegions; ++ii)
+  for(int ii = 0; ii < nRegions; ++ii)
     {
-      for(unsigned int itr = 0; itr < validBins[ii].size(); ++itr)
+      for(int kk = 0; kk < nValidBins[ii]; ++kk)
 	{
 	  double x,y; 
-	  g_fit[ii] -> GetPoint(itr,x,y); 
-	  g_fit[ii] -> SetPoint(itr,x,y*yscale);
+	  g_fit[ii] -> GetPoint(kk,x,y); 
+	  g_fit[ii] -> SetPoint(kk,x,y*yscale);
 	  if ( (x > t1) && (x < t2) ) h_EoP_spread[ii] -> Fill(y*yscale);
 	  
-	  g_c_fit[ii] -> GetPoint(itr,x,y); 
-	  g_c_fit[ii] -> SetPoint(itr,x,y*yscale);
+	  g_c_fit[ii] -> GetPoint(kk,x,y); 
+	  g_c_fit[ii] -> SetPoint(kk,x,y*yscale);
 	  if ( (x > t1) && (x < t2) ) h_EoC_spread[ii] -> Fill(y*yscale);
-    
-	  g_fit_run[ii] -> GetPoint(itr,x,y); 
-	  g_fit_run[ii] -> SetPoint(itr,x,y*yscale); 
+	  
+	  g_fit_run[ii] -> GetPoint(kk,x,y); 
+	  g_fit_run[ii] -> SetPoint(kk,x,y*yscale); 
 	  if ( (x > t1) && (x < t2) ) h_EoP_spread_run[ii] -> Fill(y*yscale);
 	  
-	  g_c_fit_run[ii] -> GetPoint(itr,x,y); 
-	  g_c_fit_run[ii] -> SetPoint(itr,x,y*yscale);
+	  g_c_fit_run[ii] -> GetPoint(kk,x,y); 
+	  g_c_fit_run[ii] -> SetPoint(kk,x,y*yscale);
 	  if ( (x > t1) && (x < t2) ) h_EoC_spread_run[ii] -> Fill(y*yscale);
 	  
-	  g_las[ii] -> GetPoint(itr,x,y);
-	  g_las[ii] -> SetPoint(itr,x,y*yscale*EoP_scale/LCInv_scale);
+	  g_las[ii] -> GetPoint(kk,x,y);
+	  //g_las[ii] -> SetPoint(kk,x,y*yscale*EoP_scale[ii]/LCInv_scale[ii]);
+	  g_las[ii] -> SetPoint(kk,x,y*yscale);
 	}
-  
+      
       // TF1 EoC_pol0("EoC_pol0","pol0",t1,t2);
       // EoC_pol0.SetLineColor(kGreen+2);
       // EoC_pol0.SetLineWidth(2);
       // EoC_pol0.SetLineStyle(2);
       // g_c_fit[ii] -> Fit("EoC_pol0","QNR");
     }
-  
   
   
   
@@ -989,9 +907,13 @@ int main(int argc, char** argv)
   std::cout << "***** Mean scales and errors *****" << std::endl; 
   std::cout << std::fixed;
   std::cout << std::setprecision(4);
-  std::cout << "Mean EoP scale: "  << std::setw(6) << EoP_scale   << "   mean EoP error: " << std::setw(8) << EoP_err << std::endl;
-  std::cout << "Mean EoC scale: "  << std::setw(6) << EoC_scale   << "   mean EoC error: " << std::setw(8) << EoC_err << std::endl;
-  std::cout << "Mean 1/LC scale: " << std::setw(6) << LCInv_scale << std::endl;
+  for(int ii = 0; ii < nRegions; ++ii)
+    {
+      std::cout << "Region: " << ii << std::endl;
+      std::cout << "Mean EoP scale: "  << std::setw(6) << EoP_scale[ii]   << "   mean EoP error: " << std::setw(8) << EoP_err[ii] << std::endl;
+      std::cout << "Mean EoC scale: "  << std::setw(6) << EoC_scale[ii]   << "   mean EoC error: " << std::setw(8) << EoC_err[ii] << std::endl;
+      std::cout << "Mean 1/LC scale: " << std::setw(6) << LCInv_scale[ii] << std::endl;
+    }
   
   
   
@@ -1035,11 +957,15 @@ int main(int argc, char** argv)
   
   
   
-  //-----------
-  // Chi2 plots
-  //-----------
+  
+  
+  
   for(int ii=0; ii<nRegions; ++ii)
     {
+      //-----------
+      // Chi2 plots
+      //-----------
+      
       char canvaName[80];
       sprintf(canvaName,"c_chi2_%d",ii);
 
@@ -1071,15 +997,12 @@ int main(int argc, char** argv)
       s_EoP->SetY2NDC(0.99);
       s_EoP -> Draw("sames");
       gPad -> Update();
-    
       
       
       
-  
-  
-  //-------------------
-  // Final plot vs date
-  //-------------------
+      //-------------------
+      // Final plot vs date
+      //-------------------
       sprintf(canvaName,"c_cplot_%d",ii);
       
       TCanvas* cplot = new TCanvas(canvaName, "history plot vs date",100,100,1000,500);
@@ -1233,42 +1156,43 @@ int main(int argc, char** argv)
       s_EoP_spread ->SetTextColor(kRed+2);
       s_EoP_spread ->SetTextSize(0.08);
       s_EoP_spread -> Draw("sames");
-  
+      
       /*
 	h_EoP_spread -> SetFillStyle(3001);
 	h_EoP_spread -> SetFillColor(kRed+2);
 	h_EoP_spread -> Draw("hbarsame");
 	gPad -> Update();
       */
-  
-  
-  
+      
+      
+      
       //------------------
       // Final plot vs run
       //------------------
+      
       sprintf(canvaName,"cplot_run_%d",ii);
       TCanvas* cplot_run = new TCanvas(canvaName, "history plot vs run",100,100,1000,500);
       cplot_run->cd();
-  
+      
       cLeft  = new TPad("pad_0_run","pad_0_run",0.00,0.00,0.75,1.00);
       cRight = new TPad("pad_1_run","pad_1_run",0.75,0.00,1.00,1.00);
-
+      
       cLeft->SetLeftMargin(0.15); 
       cLeft->SetRightMargin(0.025); 
       cRight->SetLeftMargin(0.025); 
-
+      
       cLeft->Draw();
       cRight->Draw();
-
+      
       tYoffset = 1.5; 
       labSize = 0.04;
       labSize2 = 0.07;
-
+      
       cLeft->cd(); 
-
+      
       cLeft->SetGridx();
       cLeft->SetGridy();
-  
+      
       hPad = (TH1F*)gPad->DrawFrame(sortedEntries[0].runId-1000,0.9,sortedEntries.back().runId+1000,1.05);
       hPad->GetXaxis()->SetTitle("run");
       if( strcmp(EBEE,"EB") == 0 )
@@ -1282,7 +1206,7 @@ int main(int argc, char** argv)
       hPad->GetYaxis()->SetTitleSize(labSize);
       hPad -> SetMinimum(yMIN);
       hPad -> SetMaximum(yMAX);
-  
+      
       // draw history plot
       g_fit_run[ii] -> SetMarkerStyle(20);
       g_fit_run[ii] -> SetMarkerSize(0.7);
@@ -1294,14 +1218,14 @@ int main(int argc, char** argv)
       g_c_fit_run[ii] -> SetLineColor(kGreen+2);
       g_c_fit_run[ii] -> SetMarkerSize(0.7);
       g_c_fit_run[ii] -> Draw("P,same");
-  
-  
+      
+      
       cRight -> cd();
-  
+      
       s_EoP_spread = new TPaveStats();
       s_EoC_spread = new TPaveStats();
-  
-  
+      
+      
       h_EoC_spread_run[ii] -> SetFillStyle(3001);
       h_EoC_spread_run[ii] -> SetFillColor(kGreen+2);
       h_EoC_spread_run[ii] ->GetYaxis()->SetLabelSize(labSize2);
@@ -1309,10 +1233,10 @@ int main(int argc, char** argv)
       h_EoC_spread_run[ii] ->GetYaxis()->SetNdivisions(505);
       h_EoC_spread_run[ii] ->GetYaxis()->SetLabelOffset(-0.02);
       h_EoC_spread_run[ii] ->GetXaxis()->SetLabelOffset(1000);
-
+      
       h_EoC_spread_run[ii] -> Draw("hbar");
       gPad -> Update();
-  
+      
       s_EoC_spread = (TPaveStats*)(h_EoC_spread_run[ii]->GetListOfFunctions()->FindObject("stats"));
       s_EoC_spread ->SetTextColor(kGreen+2);
       s_EoC_spread ->SetTextSize(0.06);
@@ -1322,12 +1246,12 @@ int main(int argc, char** argv)
       s_EoC_spread->SetY2NDC(0.990); //new x end position
       s_EoC_spread -> SetOptStat(1100);
       s_EoC_spread -> Draw("sames");
-
+      
       h_EoP_spread_run[ii] -> SetFillStyle(3001);
       h_EoP_spread_run[ii] -> SetFillColor(kRed+2);
       h_EoP_spread_run[ii] -> Draw("hbarsames");
       gPad -> Update();
-  
+      
       s_EoP_spread = (TPaveStats*)(h_EoP_spread_run[ii]->GetListOfFunctions()->FindObject("stats"));
       s_EoP_spread->SetX1NDC(0.49); //new x start position
       s_EoP_spread->SetX2NDC(0.99); //new x end position
@@ -1337,51 +1261,45 @@ int main(int argc, char** argv)
       s_EoP_spread ->SetTextColor(kRed+2);
       s_EoP_spread ->SetTextSize(0.06);
       s_EoP_spread -> Draw("sames");
-  
-  
-  
-  
-  
-
-
+      
+      
+      
       char counter[50];
       sprintf(counter,"%d",ii);
       std::string countString(counter);
-
-      c_chi2 -> Print((folderName+"/"+folderName+"_regions_fitChi2_"+countString+".png").c_str(),"png");
-      //c_scOccupancy -> Print((folderName+"/"+folderName+"_regions_scOccupancy.png").c_str(),"png");
-      //c_seedOccupancy -> Print((folderName+"/"+folderName+"_regions_seedOccupancy.png").c_str(),"png");
-      cplot -> Print((folderName+"/"+folderName+"_regions_history_vsTime_"+countString+".png").c_str(),"png");
-      cplot_run -> Print((folderName+"/"+folderName+"_regions_history_vsRun_"+countString+".png").c_str(),"png");
-  
-      c_chi2 -> Print((folderName+"/"+folderName+"_regions_fitChi2_"+countString+".pdf").c_str(),"pdf");
-      // c_scOccupancy -> Print((folderName+"/"+folderName+"_regions_scOccupancy.pdf").c_str(),"pdf");
-      // c_seedOccupancy -> Print((folderName+"/"+folderName+"_regions_seedOccupancy.pdf").c_str(),"pdf");
-      cplot -> Print((folderName+"/"+folderName+"_regions_history_vsTime_"+countString+".pdf").c_str(),"pdf");
-      cplot_run -> Print((folderName+"/"+folderName+"_regions_history_vsRun_"+countString+".pdf").c_str(),"pdf");
-  
-      cplot -> SaveAs((folderName+"/"+folderName+"_regions_history_vsTime_"+countString+".C").c_str());
-      cplot_run -> SaveAs((folderName+"/"+folderName+"_regions_history_vsRun_"+countString+".C").c_str());
-  
+      
+      c_chi2 -> Print((folderName+"/"+folderName+"_"+regionType+"_fitChi2_"+countString+".png").c_str(),"png");
+      //c_scOccupancy -> Print((folderName+"/"+folderName+"_"+regionType+"_scOccupancy.png").c_str(),"png");
+      //c_seedOccupancy -> Print((folderName+"/"+folderName+"_"+regionType+"_seedOccupancy.png").c_str(),"png");
+      cplot -> Print((folderName+"/"+folderName+"_"+regionType+"_history_vsTime_"+countString+".png").c_str(),"png");
+      cplot_run -> Print((folderName+"/"+folderName+"_"+regionType+"_history_vsRun_"+countString+".png").c_str(),"png");
+      
+      c_chi2 -> Print((folderName+"/"+folderName+"_"+regionType+"_fitChi2_"+countString+".pdf").c_str(),"pdf");
+      // c_scOccupancy -> Print((folderName+"/"+folderName+"_"+regionType+"_scOccupancy.pdf").c_str(),"pdf");
+      // c_seedOccupancy -> Print((folderName+"/"+folderName+"_"+regionType+"_seedOccupancy.pdf").c_str(),"pdf");
+      cplot -> Print((folderName+"/"+folderName+"_"+regionType+"_history_vsTime_"+countString+".pdf").c_str(),"pdf");
+      cplot_run -> Print((folderName+"/"+folderName+"_"+regionType+"_history_vsRun_"+countString+".pdf").c_str(),"pdf");
+      
+      cplot -> SaveAs((folderName+"/"+folderName+"_"+regionType+"_history_vsTime_"+countString+".C").c_str());
+      cplot_run -> SaveAs((folderName+"/"+folderName+"_"+regionType+"_history_vsRun_"+countString+".C").c_str());
+      
       char name[50];
       sprintf(name,"g_fit_%d",ii);
-      g_fit[ii]   -> Write(name);
-
+      g_fit[ii] -> Write(name);
       sprintf(name,"g_c_fit_%d",ii);
       g_c_fit[ii] -> Write(name);
       sprintf(name,"g_fit_run_%d",ii);
-      g_fit_run[ii]   -> Write(name);
+      g_fit_run[ii] -> Write(name);
       sprintf(name,"g_c_fit_run_%d",ii);
       g_c_fit_run[ii] -> Write(name);
       sprintf(name,"g_las_%d",ii);
       g_las[ii] -> Write(name);
       sprintf(name,"g_LT_%d",ii);
       g_LT[ii] -> Write(name);
-   
+      
       h_EoP_chi2[ii] -> Write();
       h_EoC_chi2[ii] -> Write();
-
-
+      
       int tRegion = 0;
       if(multiTemplate == 1) tRegion = ii;
       h_template[tRegion] -> Write();
