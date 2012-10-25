@@ -42,13 +42,33 @@ TBarrelRegions::TBarrelRegions() {
   FILE *fRegion;
   fRegion = fopen("ebregions.dat","r");
   std::cout << "Inizializing barrel geometry from: ebregions.dat" << std::endl;
+
   int ieta,iphi,sm,tt,lmr;
+  std::map<int,int> dummyMap;
   while(fscanf(fRegion,"(%d ,%d) %d %d %d\n",&ieta,&iphi,&sm,&tt,&lmr) !=EOF ) 
     {
       iLMR[ieta+85][iphi-1] = lmr;
       iSM[ieta+85][iphi-1] = sm;
       iTT[ieta+85][iphi-1] = tt;
+
+      //inverse map containing the ietaMin in that region
+      if(dummyMap.find(lmr) == dummyMap.end()) dummyMap[lmr] = abs(ieta);
+      else if(abs(ieta) < dummyMap[lmr]) dummyMap[lmr] = abs(ieta);
     }
+
+  int counter=0;
+  std::map<int,int> dummyMapEtaCount;
+  for(std::map<int,int>::const_iterator itr = dummyMap.begin(); itr != dummyMap.end(); ++itr)
+    {
+      if(dummyMapEtaCount.find(itr->second) == dummyMapEtaCount.end()) 
+	{
+	  dummyMapEtaCount[itr->second] = counter;
+	  ++counter;
+	}
+      LmrEtaMap[itr->first] = dummyMapEtaCount[itr->second];
+    }
+
+  
   return;
 }
 
@@ -70,7 +90,7 @@ int TBarrelRegions::GetNRegions(const std::string& type)
   return -1;
 }
 
-int TBarrelRegions::GetRegionId(int iEta, int iPhi, const std::string& type)
+int TBarrelRegions::GetRegionId(const int iEta, const int iPhi, const std::string& type)
 {
   if( (iEta < -85) || (iEta == 0) || (iEta > 85) ) return -1;
   if( (iPhi < 1) || (iPhi > 360) ) return -1;
@@ -95,40 +115,50 @@ int TBarrelRegions::GetRegionId(int iEta, int iPhi, const std::string& type)
 }
 
 
-// // ---- geometry functions ----
+// ---- geometry functions ----
+int TBarrelRegions::GetNRegionsIeta(const std::string& type)
+{
+  if( type == "SM" ) return 1;
+  if( type == "LMR" ) return 5;
+  if( type == "TT" ) return 17;
+
+  return -1;
+}
 
 
-// void GetRegionIetaIphi(float& iEta, float& iPhi,
-//                        const int& regionId, char* EBEE, const std::string& type)
-// {
-//   if( strcmp(EBEE,"EB") == 0 )
-//   {
-//     int nPhiRegions;
-//     float regionEtaWidth;
-//     float regionPhiWidth;
-    
-//     if( type == "SM" )
-//     {
-//       nPhiRegions = 18;
-//       regionEtaWidth = 85.;
-//       regionPhiWidth = 20.;
-//     }
-//     if( type == "TT" )
-//     {
-//       nPhiRegions = 72;
-//       regionEtaWidth = 5.;
-//       regionPhiWidth = 5.;
-//     }
-    
-//     iPhi = regionPhiWidth/2. + regionPhiWidth * (regionId % nPhiRegions);
-//     iEta = regionEtaWidth/2. + regionPhiWidth * (regionId / nPhiRegions);
-    
-//     iPhi += 1.;
-//     if( iEta  < 75 ) iEta = -1. * (iEta+1.);
-//     if( iEta >= 75 ) iEta -= 74.;
-//   }
+int TBarrelRegions::GetRegionIdIeta(const int& regionId, const std::string& type)
+{
   
-//   else
-//   {
-//   }
-// }
+  if( type == "LMR" )
+    {
+      return ( LmrEtaMap[regionId] );
+    }
+  
+  return -1;
+
+  //--------------------------------
+  
+  // int nPhiRegions;
+  // float regionEtaWidth;
+  // float regionPhiWidth;
+  
+  // if( type == "SM" )
+  //   {
+  //     nPhiRegions = 18;
+  //     regionEtaWidth = 85.;
+  //     regionPhiWidth = 20.;
+  //   }
+  // if( type == "TT" )
+  //   {
+  //     nPhiRegions = 72;
+  //     regionEtaWidth = 5.;
+  //     regionPhiWidth = 5.;
+  //   }
+  
+  // iPhi = regionPhiWidth/2. + regionPhiWidth * (regionId % nPhiRegions);
+  // iEta = regionEtaWidth/2. + regionPhiWidth * (regionId / nPhiRegions);
+  
+  // iPhi += 1.;
+  // if( iEta  < 75 ) iEta = -1. * (iEta+1.);
+  // if( iEta >= 75 ) iEta -= 74.;
+}

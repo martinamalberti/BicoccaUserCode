@@ -31,16 +31,19 @@ class TEndcapRegions {
 
 /// EB Geometry
 class TBarrelRegions {
+
  private:
+  std::map<int,int> LmrEtaMap;
   int iLMR[171][360];
   int iTT[171][360];
   int iSM[171][360];
+
  public:
   TBarrelRegions();
   virtual ~TBarrelRegions();
   int GetNRegions(const std::string& type); 
-  int GetRegionId(int,int,const std::string&);
-/* void GetRegionIetaIphi(float& iEta, float& iPhi, const int& regionId, char* EBEE, const std::string& type); */
+  int GetRegionId(const int,const int,const std::string&);
+  int GetRegionIdIeta(const int& regionId, const std::string& type);
 
 
 };
