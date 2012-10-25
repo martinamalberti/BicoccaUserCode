@@ -1,7 +1,7 @@
 // g++ -Wall -o trisCheckStabilityRegion_std `root-config --cflags --glibs` setTDRStyle.cc ntupleUtils.cc geometryUtils.cc stabilityUtils.cc ConvoluteTemplate.cc histoFunc.h trisCheckStabilityRegion_std.cpp
 
-//./trisCheckStabilityRegion_std EB 12000 1 SM 1 1 2012 31 12 2012 0.700 1.100 -1. -1.
-//./trisCheckStabilityRegion_std EE 6000 1 AA 1 1 2012 31 12 2012 0.700 1.100 -1. -1.
+//./trisCheckStabilityRegion_std EB 12000 1 SM 0     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
+//./trisCheckStabilityRegion_std EE 6000  1 AA 1     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
 
 // ***************************************************
 // Plot EB or EE stability vs time and ancillary plots
@@ -85,6 +85,7 @@ int main(int argc, char** argv)
   int evtsPerPoint = atoi(argv[2]);
   int useRegression = atoi(argv[3]);
   std::string regionType = std::string(argv[4]);
+  int multiTemplate = atoi(argv[5]);
   std::string dayMin = "";
   std::string dayMax = "";
   std::string dayMinLabel = "";
@@ -95,38 +96,39 @@ int main(int argc, char** argv)
   int IetaMax = -1;
   int IphiMin = -1;
   int IphiMax = -1;
-  if(argc >= 5)
+  if(argc >= 6)
   {
-    dayMin = std::string(argv[5])+" "+std::string(argv[6])+" "+std::string(argv[7]);
-    dayMax = std::string(argv[8])+" "+std::string(argv[9])+" "+std::string(argv[10]);
-    dayMinLabel = std::string(argv[5])+"_"+std::string(argv[6])+"_"+std::string(argv[7]);
-    dayMaxLabel = std::string(argv[8])+"_"+std::string(argv[9])+"_"+std::string(argv[10]);
+    dayMin = std::string(argv[6])+" "+std::string(argv[7])+" "+std::string(argv[8]);
+    dayMax = std::string(argv[9])+" "+std::string(argv[10])+" "+std::string(argv[11]);
+    dayMinLabel = std::string(argv[6])+"_"+std::string(argv[7])+"_"+std::string(argv[8]);
+    dayMaxLabel = std::string(argv[9])+"_"+std::string(argv[10])+"_"+std::string(argv[11]);
     
     t1 = dateToInt(dayMin);
     t2 = dateToInt(dayMax);
   }
-  if(argc >= 12)
+  if(argc >= 13)
   {
-    yMIN = atof(argv[11]);
-    yMAX = atof(argv[12]);
+    yMIN = atof(argv[12]);
+    yMAX = atof(argv[13]);
   }
-  if(argc >= 14)
+  if(argc >= 15)
   {
-    absEtaMin = atof(argv[13]);
-    absEtaMax = atof(argv[14]);
+    absEtaMin = atof(argv[14]);
+    absEtaMax = atof(argv[15]);
   }
-  if(argc >= 16)
+  if(argc >= 17)
   {
-    IetaMin = atoi(argv[15]);
-    IetaMax = atoi(argv[16]);
-    IphiMin = atoi(argv[17]);
-    IphiMax = atoi(argv[18]);
+    IetaMin = atoi(argv[16]);
+    IetaMax = atoi(argv[17]);
+    IphiMin = atoi(argv[18]);
+    IphiMax = atoi(argv[19]);
   }
   
   std::cout << "EBEE: "          << EBEE          << std::endl;
   std::cout << "evtsPerPoint: "  << evtsPerPoint  << std::endl;
   std::cout << "useRegression: " << useRegression << std::endl;
   std::cout << "regionType:    " << regionType    << std::endl;
+  std::cout << "multiTemplate:" << multiTemplate<< std::endl;
   std::cout << "dayMin: "        << dayMin        << std::endl;
   std::cout << "dayMax: "        << dayMax        << std::endl;
   std::cout << "yMin: "          << yMIN          << std::endl;
@@ -322,8 +324,37 @@ int main(int argc, char** argv)
   
   std::cout << std::endl;
   std::cout << "***** Build reference for " << EBEE << " *****" << std::endl;
+
+  //-----------------------
+  //---- define region ----
+  TBarrelRegions *ebRegion;
+  TEndcapRegions *eeRegion;
+  int nRegions = 0;
   
-  TH1F* h_template = new TH1F("template", "", 2000, 0., 5.);
+  if( strcmp(EBEE,"EB") == 0 ) 
+    {
+      ebRegion = new TBarrelRegions();
+      nRegions = ebRegion->GetNRegions(regionType);
+    }
+  
+  if( strcmp(EBEE,"EE") == 0 )
+    {
+      eeRegion = new TEndcapRegions();
+      nRegions = 5;
+    }
+
+  //------------------------------------
+  //---- define template per region ----
+  int tRegions = 1;
+  if(multiTemplate == 1) tRegions = nRegions;
+
+  TH1F* h_template[tRegions];
+  for(int ii = 0; ii < tRegions; ++ii)
+    {
+      char histoName[80];
+      sprintf(histoName, "template_%d", ii);
+      h_template[ii] = new TH1F(histoName, "", 2000, 0., 5.);
+    }
   
   for(int ientry = 0; ientry < ntu_MC->GetEntries(); ++ientry)
   {
@@ -349,15 +380,21 @@ int main(int argc, char** argv)
     float PUCorr = (p0 + p1*PV_n);
     //std::cout << "p0: " << p0  << "   p1: " << p1 << "   PV_n: " << PV_n << std::endl;
     
+    //choose region
+    int regionId = -1;
+    if( strcmp(EBEE,"EB") == 0 )
+      regionId = ebRegion->GetRegionId(seedIeta, seedIphi, regionType);
+    if( strcmp(EBEE,"EE") == 0 )
+      regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
+
     // fill the template histogram
-    h_template -> Fill( (scE-ES)/(P-ES) / PUCorr );
+    if(multiTemplate == 0) regionId = 0;
+    h_template[regionId] -> Fill( (scE-ES)/(P-ES) / PUCorr );
   }
   
-  std::cout << "Reference built for " << EBEE << " - " << h_template->GetEntries() << " events" << std::endl;
-  
-  
-  
-  
+  for(int ii=0; ii<tRegions; ++ii)
+    std::cout << "Reference built for " << EBEE << " - " << h_template[ii]->GetEntries() << " events" << std::endl;
+    
   
   
   //---------------------
@@ -371,24 +408,6 @@ int main(int argc, char** argv)
   std::vector<bool> isSavedEntries(nEntries);
   std::vector<myEvent> sortedEntries;
   std::vector<int> timeStampFirst;
-
-
-  //define region
-  TBarrelRegions *ebRegion;
-  TEndcapRegions *eeRegion;
-  int nRegions = 0;
-  
-  if( strcmp(EBEE,"EB") == 0 ) 
-    {
-      ebRegion = new TBarrelRegions();
-      nRegions = ebRegion->GetNRegions(regionType);
-    }
-  
-  if( strcmp(EBEE,"EE") == 0 )
-    {
-      eeRegion = new TEndcapRegions();
-      nRegions = 5;
-    }
   
   for(int ientry = 0; ientry < nEntries; ++ientry)
   {
@@ -448,41 +467,71 @@ int main(int argc, char** argv)
   std::sort(sortedEntries.begin(),sortedEntries.end(),myEvent());
   std::cout << "Data sorted in " << EBEE << " - " << nSavePts << " events" << std::endl;
   
+  std::cout << "1111" << std::endl;
+
   
   //---------------------
   // Loop and define bins
   int nBins = (int)(sortedEntries.size()/evtsPerPoint) + 100;
 
-  //time infos
-  int    Entries[nRegions][nBins];
-  double AveTime[nRegions][nBins];
-  int    MinTime[nRegions][nBins];
-  int    MaxTime[nRegions][nBins];
-  double AveRun[nRegions][nBins];    
-  int    MinRun[nRegions][nBins];
-  int    MaxRun[nRegions][nBins];
-  double AveLT[nRegions][nBins];
-  double AveLT2[nRegions][nBins];
+  std::cout << "2222" << std::endl;
+  std::cout << "nRegions = " << nRegions << std::endl;
+  std::cout << "nBins = " << nBins << std::endl;
 
+
+  //time infos
+  // int    Entries[nRegions][nBins];
+  // double AveTime[nRegions][nBins];
+  // int    MinTime[nRegions][nBins];
+  // int    MaxTime[nRegions][nBins];
+  // double AveRun[nRegions][nBins];    
+  // int    MinRun[nRegions][nBins];
+  // int    MaxRun[nRegions][nBins];
+  // double AveLT[nRegions][nBins];
+  // double AveLT2[nRegions][nBins];
+
+  std::map<int,std::map<int,int> >          Entries;
+  std::map<int,std::map<int,double> >       AveTime;
+  std::map<int,std::map<int,int> >          MinTime;
+  std::map<int,std::map<int,int> >          MaxTime;
+  std::map<int,std::map<int,double> >       AveRun;    
+  std::map<int,std::map<int,int> >          MinRun;
+  std::map<int,std::map<int,int> >          MaxRun;
+  std::map<int,std::map<int,double> >       AveLT;
+  std::map<int,std::map<int,double> >       AveLT2;
+
+  std::cout << "3333" << std::endl;
 
   //define histograms to be fitted
-  TH1F* h_EoP[nRegions][nBins];
-  TH1F* h_EoC[nRegions][nBins];
-  TH1F* h_Las[nRegions][nBins];
-  TH1F* h_Tsp[nRegions][nBins];
-  TH1F* h_Cvl[nRegions][nBins];
+  // TH1F* h_EoP[nRegions][nBins];
+  // TH1F* h_EoC[nRegions][nBins];
+  // TH1F* h_Las[nRegions][nBins];
+  // TH1F* h_Tsp[nRegions][nBins];
+  // TH1F* h_Cvl[nRegions][nBins];
+
+  std::map<int,std::map<int,TH1F*> > h_EoP;
+  std::map<int,std::map<int,TH1F*> > h_EoC;
+  std::map<int,std::map<int,TH1F*> > h_Las;
+  std::map<int,std::map<int,TH1F*> > h_Tsp;
+  std::map<int,std::map<int,TH1F*> > h_Cvl;
+
+  std::cout << "4444" << std::endl;
 
   TH1F* h_scOccupancy_eta  = new TH1F("h_scOccupancy_eta","", 298, -2.6, 2.6);
   TH1F* h_scOccupancy_phi  = new TH1F("h_scOccupancy_phi","", 363, -3.1765, 3.159);
   SetHistoStyle(h_scOccupancy_eta);
   SetHistoStyle(h_scOccupancy_phi);
   
+  std::cout << "5555" << std::endl;
+
   TH2F* h_seedOccupancy_EB  = new TH2F("h_seedOccupancy_EB","",  171, -85., 86., 361,   0.,361.);
   TH2F* h_seedOccupancy_EEp = new TH2F("h_seedOccupancy_EEp","", 101,   0.,101., 100,   0.,101.);
   TH2F* h_seedOccupancy_EEm = new TH2F("h_seedOccupancy_EEm","", 101,   0.,101., 100,   0.,101.);
   SetHistoStyle(h_seedOccupancy_EB);
   SetHistoStyle(h_seedOccupancy_EEp);
   SetHistoStyle(h_seedOccupancy_EEm);
+
+  std::cout << "AAAA" << std::endl;
 
   for(int i = 0; i < nRegions; ++i)
     for(int k = 0; k < nBins; ++k)
@@ -503,6 +552,8 @@ int main(int argc, char** argv)
 	sprintf(histoName, "Tsp_%d_%d", i, k);
 	h_Tsp[i][k] = new TH1F(histoName, histoName, 500, 0.5, 1.5);
       }
+
+  std::cout << "BBBB" << std::endl;
 
 
   //loop over sorted enties
@@ -598,8 +649,11 @@ int main(int argc, char** argv)
   TH1F* h_EoC_chi2[nRegions];
 
   // function definition
-  TF1* f_EoP[nRegions][nBins];
-  TF1* f_EoC[nRegions][nBins];  
+  // TF1* f_EoP[nRegions][nBins];
+  // TF1* f_EoC[nRegions][nBins];  
+
+  std::map<int,std::map<int,TF1*> > f_EoP;
+  std::map<int,std::map<int,TF1*> > f_EoC;  
   
   // graphs definition
   TGraphAsymmErrors* g_fit[nRegions];
@@ -611,6 +665,9 @@ int main(int argc, char** argv)
   TGraph* g_las[nRegions];
   TGraphErrors* g_LT[nRegions];
 
+  int rebin = 2;
+  if( strcmp(EBEE,"EE") == 0 ) rebin *= 2;
+  
   for(int region=0; region<nRegions; ++region)
     {
       char histoname[50];
@@ -659,13 +716,13 @@ int main(int argc, char** argv)
       g_LT[region]->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
       g_LT[region]->GetXaxis()->SetTimeDisplay(1);
 
+      if(multiTemplate == 0 && region == 0)
+	h_template[0] -> Rebin(rebin);
+      else if (multiTemplate == 1) h_template[region] -> Rebin(rebin);
     }
   
   
-  int rebin = 2;
-  if( strcmp(EBEE,"EE") == 0 ) rebin *= 2;
   
-  h_template -> Rebin(rebin);
   
   
   
@@ -685,6 +742,10 @@ int main(int argc, char** argv)
       {
 	bool isValid = true;
 
+	int tRegion = 0;
+	if(multiTemplate == 1) tRegion = ii;
+
+
 	if(h_EoP[ii][kk]->GetEntries() < 100)
 	  continue;
 	
@@ -702,10 +763,10 @@ int main(int argc, char** argv)
 	//o -> cd();
 	char convolutionName[50];
 	sprintf(convolutionName,"h_convolution_%d_%d",ii, kk);
-	//h_Cvl[ii][kk] = ConvoluteTemplate(std::string(convolutionName),h_template,h_Las[ii][kk],32768,-5.,5.);
-	h_Cvl[ii][kk] = MellinConvolution(std::string(convolutionName),h_template,h_Tsp[ii][kk]);
+	//h_Cvl[ii][kk] = ConvoluteTemplate(std::string(convolutionName),h_template[ii],h_Las[ii][kk],32768,-5.,5.);
+	h_Cvl[ii][kk] = MellinConvolution(std::string(convolutionName),h_template[tRegion],h_Tsp[ii][kk]);
 	
-	histoFunc* templateHistoFunc = new histoFunc(h_template);
+	histoFunc* templateHistoFunc = new histoFunc(h_template[tRegion]);
 	histoFunc* templateConvolutedHistoFunc = new histoFunc(h_Cvl[ii][kk]);
 	char funcName[50];
 	
@@ -721,8 +782,8 @@ int main(int argc, char** argv)
 	f_EoP[ii][kk] -> SetLineWidth(1); 
 	f_EoP[ii][kk] -> SetNpx(10000);
 	
-	double xNorm = h_EoP[ii][kk]->GetEntries()/h_template->GetEntries() *
-	  h_EoP[ii][kk]->GetBinWidth(1)/h_template->GetBinWidth(1); 
+	double xNorm = h_EoP[ii][kk]->GetEntries()/h_template[tRegion]->GetEntries() *
+	  h_EoP[ii][kk]->GetBinWidth(1)/h_template[tRegion]->GetBinWidth(1); 
 	
 	f_EoP[ii][kk] -> FixParameter(0, xNorm);
 	f_EoP[ii][kk] -> SetParameter(1, 1.);
@@ -747,7 +808,7 @@ int main(int argc, char** argv)
 	//float k    = f_EoP[ii][kk]->GetParameter(1);
 	float k    = f_EoP[ii][kk]->GetParameter(1) / h_Tsp[ii][kk]->GetMean(); //needed when using mellin's convolution 
 	
-	if( (h_EoP[ii][kk]->GetEntries() > 3) && (fStatus == 0) && (eee > 0.05*h_template->GetRMS()/sqrt(evtsPerPoint)) )
+	if( (h_EoP[ii][kk]->GetEntries() > 3) && (fStatus == 0) && (eee > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) )
 	  {
 	    float date = (float)AveTime[ii][kk];
 	    float dLow = (float)(AveTime[ii][kk]-MinTime[ii][kk]); 
@@ -790,8 +851,8 @@ int main(int argc, char** argv)
     f_EoC[ii][kk] -> SetLineWidth(1); 
     f_EoC[ii][kk] -> SetNpx(10000);
     
-    xNorm = h_EoC[ii][kk]->GetEntries()/h_template->GetEntries() *
-            h_EoC[ii][kk]->GetBinWidth(1)/h_template->GetBinWidth(1); 
+    xNorm = h_EoC[ii][kk]->GetEntries()/h_template[tRegion]->GetEntries() *
+            h_EoC[ii][kk]->GetBinWidth(1)/h_template[tRegion]->GetBinWidth(1); 
 
     f_EoC[ii][kk] -> FixParameter(0, xNorm);
     f_EoC[ii][kk] -> SetParameter(1, 0.99);
@@ -814,7 +875,7 @@ int main(int argc, char** argv)
     k   = f_EoC[ii][kk]->GetParameter(1);
     eee = f_EoC[ii][kk]->GetParError(1); 
     
-    if( (h_EoC[ii][kk]->GetEntries() > 10) && (fStatus == 0) && (eee > 0.05*h_template->GetRMS()/sqrt(evtsPerPoint)) )
+    if( (h_EoC[ii][kk]->GetEntries() > 10) && (fStatus == 0) && (eee > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) )
     {
       float date = (float)AveTime[ii][kk]; 
       float dLow = (float)(AveTime[ii][kk]-MinTime[ii][kk]); 
@@ -1319,9 +1380,12 @@ int main(int argc, char** argv)
    
       h_EoP_chi2[ii] -> Write();
       h_EoC_chi2[ii] -> Write();
-  
+
+
+      int tRegion = 0;
+      if(multiTemplate == 1) tRegion = ii;
+      h_template[tRegion] -> Write();
     }
-  h_template -> Write();
   
   o -> Close();
 }
