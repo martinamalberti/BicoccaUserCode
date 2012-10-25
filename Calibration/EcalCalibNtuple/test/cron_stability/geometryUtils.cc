@@ -38,16 +38,32 @@ int TEndcapRegions::GetEndcapIeta(int ix, int iy, int iz){
 
 // --- EB ---
 // default constructor (NEEDED FOR INPUT REGIONS FROM EXTERNAL FILE)
-TBarrelRegions::TBarrelRegions() {return;}
+TBarrelRegions::TBarrelRegions() {
+  FILE *fRegion;
+  fRegion = fopen("ebregions.dat","r");
+  std::cout << "Inizializing barrel geometry from: ebregions.dat" << std::endl;
+  int ieta,iphi,sm,tt,lmr;
+  while(fscanf(fRegion,"(%d ,%d) %d %d %d\n",&ieta,&iphi,&sm,&tt,&lmr) !=EOF ) 
+    {
+      iLMR[ieta][iphi] = lmr;
+      iSM[ieta][iphi] = sm;
+      iTT[ieta][iphi] = tt;
+    }
+  return;
+}
 
 //dtor                                                                                                                                                                     
-TBarrelRegions::~TBarrelRegions() {return;}
+TBarrelRegions::~TBarrelRegions() 
+{
+  return;
+}
 
 
 //methods
 int TBarrelRegions::GetNRegions(const std::string& type)
 {
   if( type == "SM" ) return 36;
+  if( type == "LMR" ) return 324;
   if( type == "TT" ) return 2448;
 
   return -1;
@@ -56,21 +72,19 @@ int TBarrelRegions::GetNRegions(const std::string& type)
 int TBarrelRegions::GetRegionId(int iEta, int iPhi, const std::string& type)
 {
   if( (iEta < -85) || (iEta == 0) || (iEta > 85) ) return -1;
-  if( (iPhi < 0) || (iPhi > 360) ) return -1;
-  
-  // redefine iEta and iPhi such that iEta=[0,169] and iPhi=[0,359]
-  int newEta = iEta;
-  if( iEta < 0) newEta += 85;
-  if( iEta > 0) newEta += 84;
-  int newPhi = iPhi - 1;
+  if( (iPhi < 1) || (iPhi > 360) ) return -1;
   
   if( type == "SM" )
     {
-      return (newPhi/20) + 18 * (newEta/85);
+      return iSM[iEta][iPhi];
+    }
+  if( type == "LMR" )
+    {
+      return iLMR[iEta][iPhi];
     }
   if( type == "TT" )
     {
-      return (newPhi/5) + 72 * (newEta/5);
+      return iTT[iEta][iPhi];
     }
   return -1;
 }

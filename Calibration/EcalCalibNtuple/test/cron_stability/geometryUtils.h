@@ -32,7 +32,9 @@ class TEndcapRegions {
 /// EB Geometry
 class TBarrelRegions {
  private:
-  float iBarrelRegion[171][360];
+  float iLMR[171][360];
+  float iTT[171][360];
+  float iSM[171][360];
  public:
   TBarrelRegions();
   virtual ~TBarrelRegions();
