@@ -523,9 +523,15 @@ int main(int argc, char** argv)
 	  }
       
       int reg = sortedEntries[iSaved].region;
-      if( (sortedEntries[iSaved].timeStampHigh-timeStampOld[reg])/3600. > timeLapse )
+      
+      if( Entries[reg][fillingBin[reg]] == 0 )
 	{
-	  
+	  MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
+          MinRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
+	}
+       
+      if( (sortedEntries[iSaved].timeStampHigh-MinTime[reg][fillingBin[reg]])/3600. > timeLapse )
+	{
 	  ++fillingBin[reg];
 	  
 	  Entries[reg][fillingBin[reg]] = 0;
@@ -870,19 +876,19 @@ int main(int argc, char** argv)
 	  double x,y; 
 	  g_fit[ii] -> GetPoint(kk,x,y); 
 	  g_fit[ii] -> SetPoint(kk,x,y*yscale);
-	  if ( (x > t1) && (x < t2) ) h_EoP_spread[ii] -> Fill(y*yscale);
+	  h_EoP_spread[ii] -> Fill(y*yscale);
 	  
 	  g_c_fit[ii] -> GetPoint(kk,x,y); 
 	  g_c_fit[ii] -> SetPoint(kk,x,y*yscale);
-	  if ( (x > t1) && (x < t2) ) h_EoC_spread[ii] -> Fill(y*yscale);
+	  h_EoC_spread[ii] -> Fill(y*yscale);
 	  
 	  g_fit_run[ii] -> GetPoint(kk,x,y); 
 	  g_fit_run[ii] -> SetPoint(kk,x,y*yscale); 
-	  if ( (x > t1) && (x < t2) ) h_EoP_spread_run[ii] -> Fill(y*yscale);
+	  h_EoP_spread_run[ii] -> Fill(y*yscale);
 	  
 	  g_c_fit_run[ii] -> GetPoint(kk,x,y); 
 	  g_c_fit_run[ii] -> SetPoint(kk,x,y*yscale);
-	  if ( (x > t1) && (x < t2) ) h_EoC_spread_run[ii] -> Fill(y*yscale);
+	  h_EoC_spread_run[ii] -> Fill(y*yscale);
 	  
 	  g_las[ii] -> GetPoint(kk,x,y);
 	  //g_las[ii] -> SetPoint(kk,x,y*yscale*EoP_scale[ii]/LCInv_scale[ii]);
