@@ -42,6 +42,7 @@ class TBarrelRegions {
   TBarrelRegions();
   virtual ~TBarrelRegions();
   int GetNRegions(const std::string& type); 
+  int GetNRegionsIeta(const std::string& type); 
   int GetRegionId(const int,const int,const std::string&);
   int GetRegionIdIeta(const int& regionId, const std::string& type);
 

@@ -29,6 +29,7 @@ int main()
 
   TH2F* h2_EE_RING = new TH2F("h2_EE_RING","",100,1.,101.,100,1.,101.);
   
+  TH2F* h2_EB_LMR_min  = new TH2F("h2_EB_LMR_min", "",171,-85,86,360,1,361);
 
   //EB
   //initializing EE geometry                                                                                                                                                 
@@ -44,10 +45,9 @@ int main()
 
       regionId = eRegion->GetRegionId(iEta,iPhi,"LMR");
       h2_EB_LMR -> SetBinContent(iBin,jBin,regionId);
-      
-      // std::cout << "==>>>" << std::endl;
-      // std::cout << iBin << "\t" << jBin << "\t" << regionId << std::endl;
-      // std::cout << iEta << "\t" << iPhi << "\t" << regionId << std::endl;
+       
+      h2_EB_LMR_min -> SetBinContent(iBin,jBin,eRegion->GetRegionIdIeta(regionId,"LMR"));
+
 
       regionId = eRegion->GetRegionId(iEta,iPhi,"TT");
       h2_EB_TT -> SetBinContent(iBin,jBin,regionId);
@@ -71,6 +71,7 @@ int main()
   
   h2_EB_SM -> Write();
   h2_EB_LMR -> Write();
+  h2_EB_LMR_min -> Write();
   h2_EB_TT -> Write();
 
   h2_EE_RING->Write();

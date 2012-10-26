@@ -300,12 +300,15 @@ int main(int argc, char** argv)
   //---- define region ----
   TBarrelRegions *ebRegion;
   TEndcapRegions *eeRegion;
-  int nRegions = 0;
+  int nRegions = 1;
+  int tRegions = 1;
   
   if( strcmp(EBEE,"EB") == 0 ) 
     {
       ebRegion = new TBarrelRegions();
       nRegions = ebRegion->GetNRegions(regionType);
+      if(multiTemplate == 1)
+	tRegions = ebRegion->GetNRegionsIeta(regionType);
     }
   
   if( strcmp(EBEE,"EE") == 0 )
@@ -316,9 +319,6 @@ int main(int argc, char** argv)
 
   //------------------------------------
   //---- define template per region ----
-  int tRegions = 1;
-  if(multiTemplate == 1) tRegions = nRegions;
-
   TH1F* h_template[tRegions];
   for(int ii = 0; ii < tRegions; ++ii)
     {
@@ -353,14 +353,18 @@ int main(int argc, char** argv)
     
     //choose region
     int regionId = -1;
+    int regionIdIeta = -1;
     if( strcmp(EBEE,"EB") == 0 )
-      regionId = ebRegion->GetRegionId(seedIeta, seedIphi, regionType);
+      {
+	regionId     = ebRegion->GetRegionId(seedIeta, seedIphi, regionType);
+	regionIdIeta = ebRegion->GetRegionIdIeta(regionId, regionType);	
+      }
     if( strcmp(EBEE,"EE") == 0 )
       regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
 
     // fill the template histogram
-    if(multiTemplate == 0) regionId = 0;
-    h_template[regionId] -> Fill( (scE-ES)/(P-ES) / PUCorr );
+    if(multiTemplate == 0) regionIdIeta = 0;
+    h_template[regionIdIeta] -> Fill( (scE-ES)/(P-ES) / PUCorr );
   }
   
   for(int ii=0; ii<tRegions; ++ii)
@@ -415,7 +419,6 @@ int main(int argc, char** argv)
       if( strcmp(EBEE,"EB") == 0 )
 	regionId = ebRegion->GetRegionId(seedIeta, seedIphi, regionType);
       
-      
       if( strcmp(EBEE,"EE") == 0 )
 	regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
       
@@ -444,7 +447,7 @@ int main(int argc, char** argv)
   
   //---------------------
   // Loop and define bins
-  int nBins = (int)(sortedEntries.size()/evtsPerPoint) + 100;
+  int nBins = (int)(sortedEntries.size()/evtsPerPoint/nRegions*2.)+50; //+5 is needed for the interruptions
   
   std::cout << "nRegions = " << nRegions << std::endl;
   std::cout << "nBins = " << nBins << std::endl;
@@ -660,12 +663,11 @@ int main(int argc, char** argv)
       g_LT[region]->GetXaxis()->SetTimeFormat("%d/%m%F1970-01-01 00:00:00");
       g_LT[region]->GetXaxis()->SetTimeDisplay(1);
       
-      if(multiTemplate == 0 && region == 0)
-	h_template[0] -> Rebin(rebin);
-      else if (multiTemplate == 1) h_template[region] -> Rebin(rebin);
     }
   
-  
+  for(int region=0; region<tRegions; ++region)
+    h_template[region] -> Rebin(rebin);
+
   
   
   
@@ -685,9 +687,8 @@ int main(int argc, char** argv)
       for(int kk = 0; kk < nBins; ++kk)
 	{
 	  int tRegion = 0;
-	  if(multiTemplate == 1) tRegion = ii;
-	  
-	  
+	  if(multiTemplate == 1) 
+	    tRegion = ebRegion->GetRegionIdIeta(ii, regionType);
           
           // sanity check
 	  if(h_EoP[ii][kk]->GetEntries() < 100)
@@ -1283,6 +1284,12 @@ int main(int argc, char** argv)
       cplot -> SaveAs((folderName+"/"+folderName+"_"+regionType+"_history_vsTime_"+countString+".C").c_str());
       cplot_run -> SaveAs((folderName+"/"+folderName+"_"+regionType+"_history_vsRun_"+countString+".C").c_str());
       
+      //organize in subdir
+      char regionName[50];
+      sprintf(regionName,"region_%d",ii);
+      o -> mkdir(regionName);
+      o -> cd(regionName);
+
       char name[50];
       sprintf(name,"g_fit_%d",ii);
       g_fit[ii] -> Write(name);
@@ -1300,8 +1307,24 @@ int main(int argc, char** argv)
       h_EoP_chi2[ii] -> Write();
       h_EoC_chi2[ii] -> Write();
       
+      for(int kk = 0; kk < nBins; ++kk)
+      	{
+	  if(h_EoP[ii][kk]->GetEntries() < 100 && h_EoC[ii][kk]->GetEntries() < 100) continue;
+      	  h_EoP[ii][kk] -> GetXaxis() -> SetTitle("E/p");
+      	  h_EoP[ii][kk] -> Write();
+	  
+      	  h_EoC[ii][kk] -> GetXaxis() -> SetTitle("E/p");
+      	  h_EoC[ii][kk] -> Write();
+	}
+    }
+
+  o -> cd();
+  o -> mkdir("templates");
+  o -> cd("templates");
+  for(int region=0; region<tRegions; ++region)
+    {      
       int tRegion = 0;
-      if(multiTemplate == 1) tRegion = ii;
+      if(multiTemplate == 1) tRegion = region;
       h_template[tRegion] -> Write();
     }
   
