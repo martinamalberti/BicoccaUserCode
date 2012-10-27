@@ -315,6 +315,8 @@ int main(int argc, char** argv)
     {
       eeRegion = new TEndcapRegions();
       nRegions = 5;
+      if(multiTemplate == 1)
+	tRegions = nRegions;
     }
 
   //------------------------------------
@@ -331,6 +333,7 @@ int main(int argc, char** argv)
   {
     if( (ientry%100000 == 0) ) std::cout << "reading MC entry " << ientry << "\r" << std::flush;
     ntu_MC->GetEntry(ientry);
+
     
     // selections
     if( (strcmp(EBEE,"EB") == 0) && (isEB != 1) ) continue; // barrel
@@ -360,8 +363,11 @@ int main(int argc, char** argv)
 	regionIdIeta = ebRegion->GetRegionIdIeta(regionId, regionType);	
       }
     if( strcmp(EBEE,"EE") == 0 )
-      regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
-
+      {
+	regionId = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
+	regionIdIeta = regionId;
+      }
+	
     // fill the template histogram
     if(multiTemplate == 0) regionIdIeta = 0;
     h_template[regionIdIeta] -> Fill( (scE-ES)/(P-ES) / PUCorr );
@@ -509,19 +515,17 @@ int main(int argc, char** argv)
   //-----------------------
   //loop over sorted enties
   
-  int timeStampOld[nRegions];
   int fillingBin[nRegions];
   for(int iSaved = 0; iSaved < nSavePts; ++iSaved)
     {
       if( iSaved%100000 == 0 ) std::cout << "reading saved entry " << iSaved << "\r" << std::flush;
-      
+
       if( iSaved == 0 )
 	for(int k=0; k<nRegions; ++k)
 	  {
-	    timeStampOld[k] = sortedEntries[iSaved].timeStampHigh;
 	    fillingBin[k] = 0;
 	  }
-      
+
       int reg = sortedEntries[iSaved].region;
       
       if( Entries[reg][fillingBin[reg]] == 0 )
@@ -545,8 +549,6 @@ int main(int argc, char** argv)
 	  AveLT2[reg][fillingBin[reg]] = 0;
       }
       
-      timeStampOld[reg] = sortedEntries[iSaved].timeStampHigh;
-      
       if(h_EoP[reg][fillingBin[reg]]->GetEntries() > evtsPerPoint-1)
 	{
 	  ++fillingBin[reg];
@@ -562,7 +564,6 @@ int main(int argc, char** argv)
 	  AveLT2[reg][fillingBin[reg]] = 0;
 	}
       
-      
       h_EoP[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE / sortedEntries[iSaved].scLaserCorr / sortedEntries[iSaved].P );
       h_EoC[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE/sortedEntries[iSaved].P );
       h_Las[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scLaserCorr );
@@ -577,6 +578,7 @@ int main(int argc, char** argv)
       MaxRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
       AveLT[reg][fillingBin[reg]] += LT;
       AveLT2[reg][fillingBin[reg]] += LT*LT;
+
     }
   std::cout << std::endl;
   
@@ -591,7 +593,6 @@ int main(int argc, char** argv)
 	AveLT[ii][kk] /= Entries[ii][kk];
 	AveLT2[ii][kk] /= Entries[ii][kk];
       }
-  
   
   
   //---------------------
@@ -670,13 +671,11 @@ int main(int argc, char** argv)
       g_LT[region]->GetXaxis()->SetTimeDisplay(1);
       
     }
-  
+
+
   for(int region=0; region<tRegions; ++region)
     h_template[region] -> Rebin(rebin);
 
-  
-  
-  
   
   std::vector<int> nValidBins(nRegions);
   
@@ -693,9 +692,11 @@ int main(int argc, char** argv)
       for(int kk = 0; kk < nBins; ++kk)
 	{
 	  int tRegion = 0;
-	  if(multiTemplate == 1) 
+	  if( strcmp(EBEE,"EB") == 0 && multiTemplate == 1) 
 	    tRegion = ebRegion->GetRegionIdIeta(ii, regionType);
-          
+	  if( strcmp(EBEE,"EE") == 0 && multiTemplate == 1) 
+	    tRegion = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
+
           // sanity check
 	  if(h_EoP[ii][kk]->GetEntries() < 100)
 	    continue;
@@ -728,7 +729,7 @@ int main(int argc, char** argv)
 	    f_EoP[ii][kk] = new TF1(funcName, templateConvolutedHistoFunc, 0.8*(h_Tsp[ii][kk]->GetMean()), 1.4*(h_Tsp[ii][kk]->GetMean()), 3, "histoFunc");
 	  else
 	    f_EoP[ii][kk] = new TF1(funcName, templateConvolutedHistoFunc, 0.75*(h_Tsp[ii][kk]->GetMean()), 1.5*(h_Tsp[ii][kk]->GetMean()), 3, "histoFunc");
-	  
+
 	  f_EoP[ii][kk] -> SetParName(0,"Norm"); 
 	  f_EoP[ii][kk] -> SetParName(1,"Scale factor"); 
 	  f_EoP[ii][kk] -> SetLineWidth(1); 
@@ -808,7 +809,6 @@ int main(int argc, char** argv)
 	  
 	  //----------------
 	  // fill the graphs
-	  
 	  if( (fStatus_EoP == 0) && (eee_EoP > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) &&
 	      (fStatus_EoC == 0) && (eee_EoC > 0.05*h_template[tRegion]->GetRMS()/sqrt(evtsPerPoint)) )
 	    {
@@ -850,6 +850,7 @@ int main(int argc, char** argv)
 	      std::cout << "Fitting   corrected time bin: " << kk << " in region: " << ii << "   Fail status: " << fStatus_EoC << "   sigma: " << eee_EoC << std::endl;
 	    }
 	}
+  
       
       LCInv_scale[ii] /= nValidBins[ii];
       EoP_scale[ii] /= nValidBins[ii];

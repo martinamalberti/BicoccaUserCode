@@ -9,7 +9,7 @@ TEndcapRegions::TEndcapRegions() {
   int ix,iy,iz,ir;
   while(fscanf(fRing,"(%d,%d,%d) %d \n",&ix,&iy,&iz,&ir) !=EOF ) {
     if (iz<0) iz=0;
-    iEndcapRing[ix][iy][iz] = ir;
+    iEndcapRing[ix-1][iy-1][iz] = ir;
   }
   return;
 }
@@ -24,14 +24,14 @@ int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, cons
   if (iSide<0) iSide=0;
   int ringWidth = int(39/nRings);
   
-  return int(iEndcapRing[ix][iy][iSide]/ringWidth);
+  return int(iEndcapRing[ix-1][iy-1][iSide]/ringWidth);
 }
 
 int TEndcapRegions::GetEndcapIeta(const int ix, const int iy, const int iz){
   int iSide = iz;
   if (iSide<0) iSide=0;
   int iEtaOffset = 86*iz;
-  int iEta = iEtaOffset + iz*iEndcapRing[ix][iy][iSide];
+  int iEta = iEtaOffset + iz*iEndcapRing[ix-1][iy-1][iSide];
   return iEta;
 }
 
