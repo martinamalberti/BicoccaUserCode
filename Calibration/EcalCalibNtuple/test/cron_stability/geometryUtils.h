@@ -22,8 +22,8 @@ class TEndcapRegions {
  public:
   TEndcapRegions(); 
   virtual ~TEndcapRegions();
-  int GetEndcapRing(int,int,int, int);
-  int GetEndcapIeta(int,int,int);
+  int GetEndcapRing(const int,const int,const int,const int);
+  int GetEndcapIeta(const int,const int,const int);
 
 };
 

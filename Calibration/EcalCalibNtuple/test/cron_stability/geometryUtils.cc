@@ -19,14 +19,15 @@ TEndcapRegions::~TEndcapRegions() { return;}
 
 
 //methods
-int TEndcapRegions::GetEndcapRing(int ix, int iy, int iz, int nRings=39){
+int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings=39){
   int iSide = iz;
   if (iSide<0) iSide=0;
   int ringWidth = int(39/nRings);
+  
   return int(iEndcapRing[ix][iy][iSide]/ringWidth);
 }
 
-int TEndcapRegions::GetEndcapIeta(int ix, int iy, int iz){
+int TEndcapRegions::GetEndcapIeta(const int ix, const int iy, const int iz){
   int iSide = iz;
   if (iSide<0) iSide=0;
   int iEtaOffset = 86*iz;
