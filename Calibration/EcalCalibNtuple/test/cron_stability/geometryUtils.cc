@@ -29,9 +29,10 @@ TEndcapRegions::~TEndcapRegions() { return;}
 int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings=39){
   int iSide = iz;
   if (iSide<0) iSide=0;
-  int ringWidth = int(39/nRings);
-  
-  return int(iEndcapRing[ix-1][iy-1][iSide]/ringWidth);
+  int ringWidth = int(39/(nRings-1));
+ 
+  if(iEndcapRing[ix-1][iy-1][iSide] == -1) return -1;
+  else return int(iEndcapRing[ix-1][iy-1][iSide]/ringWidth);
 }
 
 int TEndcapRegions::GetEndcapIeta(const int ix, const int iy, const int iz){

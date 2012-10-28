@@ -317,7 +317,8 @@ int main(int argc, char** argv)
       nRegions = ebRegion->GetNRegions(regionType);
       if(multiTemplate == 1)
 	tRegions = ebRegion->GetNRegionsIeta(regionType);
-      templateRegions -> GetZaxis() -> SetRangeUser(0.,tRegions-1);
+      templateRegions -> GetZaxis() -> SetRangeUser(-0.1,tRegions);
+      regions -> GetZaxis() -> SetRangeUser(-0.1,nRegions);
     }
   
   if( strcmp(EBEE,"EE") == 0 )
@@ -329,7 +330,8 @@ int main(int argc, char** argv)
       nRegions = 5;  //HARCODED. FIXME
       if(multiTemplate == 1)
 	tRegions = nRegions;
-      templateRegions -> GetZaxis() -> SetRangeUser(0.,tRegions-1);
+      templateRegions -> GetZaxis() -> SetRangeUser(-0.1,tRegions);
+      regions -> GetZaxis() -> SetRangeUser(-0.1,nRegions);
     }
 
   //------------------------------------
