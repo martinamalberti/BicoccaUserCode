@@ -1,7 +1,7 @@
 // g++ -Wall -o trisCheckStabilityRegion_std `root-config --cflags --glibs` -L/gwteraw/cmssw/slc5_amd64_gcc462/external/gcc/4.6.2/lib64/ setTDRStyle.cc ntupleUtils.cc geometryUtils.cc stabilityUtils.cc ConvoluteTemplate.cc histoFunc.h trisCheckStabilityRegion_std.cpp
 
 //./trisCheckStabilityRegion_std EB 12000 1 SM 0     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
-//./trisCheckStabilityRegion_std EE 6000  1 AA 1     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
+//./trisCheckStabilityRegion_std EE 6000  1 RING 1     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
 
 // ***************************************************
 // Plot EB or EE stability vs time and ancillary plots
@@ -300,23 +300,36 @@ int main(int argc, char** argv)
   //---- define region ----
   TBarrelRegions *ebRegion;
   TEndcapRegions *eeRegion;
+
+  TH2F* templateRegions;
+  TH2F* regions;
+
   int nRegions = 1;
   int tRegions = 1;
   
+
   if( strcmp(EBEE,"EB") == 0 ) 
     {
       ebRegion = new TBarrelRegions();
+      templateRegions = new TH2F("templateRegions", "",171,-85,86,360,1,361);
+      regions = new TH2F("regions", "",171,-85,86,360,1,361);
+
       nRegions = ebRegion->GetNRegions(regionType);
       if(multiTemplate == 1)
 	tRegions = ebRegion->GetNRegionsIeta(regionType);
+      templateRegions -> GetZaxis() -> SetRangeUser(0.,tRegions-1);
     }
   
   if( strcmp(EBEE,"EE") == 0 )
     {
       eeRegion = new TEndcapRegions();
-      nRegions = 5;
+      templateRegions = new TH2F("templateRegions","",100,1.,101.,100,1.,101.);
+      regions = new TH2F("regions","",100,1.,101.,100,1.,101.);
+
+      nRegions = 5;  //HARCODED. FIXME
       if(multiTemplate == 1)
 	tRegions = nRegions;
+      templateRegions -> GetZaxis() -> SetRangeUser(0.,tRegions-1);
     }
 
   //------------------------------------
@@ -328,6 +341,30 @@ int main(int argc, char** argv)
       sprintf(histoName, "template_%d", ii);
       h_template[ii] = new TH1F(histoName, "", 2000, 0., 5.);
     }
+
+  //--------------------------
+  //---- fill region maps ----
+  for(int iBin = 1; iBin <= templateRegions->GetNbinsX(); ++iBin)
+    for(int jBin = 1; jBin <= templateRegions->GetNbinsY(); ++jBin)
+      {
+	int iEta = int( templateRegions->GetXaxis()->GetBinLowEdge(iBin) );
+	int iPhi = int( templateRegions->GetYaxis()->GetBinLowEdge(jBin) );
+
+	int regionId = -1;
+	if( strcmp(EBEE,"EB") == 0 )
+	  {
+	    regionId = ebRegion->GetRegionId(iEta,iPhi,regionType);
+	    templateRegions -> SetBinContent(iBin,jBin,ebRegion->GetRegionIdIeta(regionId,regionType));
+	    regions -> SetBinContent(iBin,jBin,regionId);
+	  }
+	if( strcmp(EBEE,"EE") == 0 )
+	  {
+	    regionId = eeRegion->GetEndcapRing(iEta,iPhi,1,nRegions);
+	    templateRegions -> SetBinContent(iBin,jBin,regionId);
+	    regions -> SetBinContent(iBin,jBin,1,regionId);
+	  }
+      }
+
   
   for(int ientry = 0; ientry < ntu_MC->GetEntries(); ++ientry)
   {
@@ -1334,6 +1371,21 @@ int main(int argc, char** argv)
       if(multiTemplate == 1) tRegion = region;
       h_template[tRegion] -> Write();
     }
+  o -> cd();
+
+  TCanvas* cTemplateRegions = new TCanvas("cTemplateRegions", "template regions",0,0,1000,500);
+  cTemplateRegions -> cd();
+  templateRegions->Draw("colz");
+  cTemplateRegions -> Print((folderName+"/"+folderName+"_templateRegions_"+regionType+".png").c_str(),"png");
+  cTemplateRegions -> Print((folderName+"/"+folderName+"_templateRegions_"+regionType+".pdf").c_str(),"pdf");
+  TCanvas* cRegions = new TCanvas("cRegions", "regions",0,0,1000,500);
+  cRegions -> cd();
+  regions->Draw("colz");
+  cRegions -> Print((folderName+"/"+folderName+"_regions_"+regionType+".png").c_str(),"png");
+  cRegions -> Print((folderName+"/"+folderName+"_regions_"+regionType+".pdf").c_str(),"pdf");
+  
+  templateRegions->Write();
+  regions->Write();
   
   o -> Close();
 }

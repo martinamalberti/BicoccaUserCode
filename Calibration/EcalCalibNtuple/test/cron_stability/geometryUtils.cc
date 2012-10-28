@@ -3,6 +3,13 @@
 // --- EE ---
 // default constructor, reading the map from file                                                                                                                          
 TEndcapRegions::TEndcapRegions() {
+  //initializing the matrix
+  for(int ii=0; ii<100; ++ii)
+    for(int kk=0; kk<100; ++kk)
+      {
+	iEndcapRing[ii][kk][0] = -1;
+	iEndcapRing[ii][kk][1] = -1;
+      }
   FILE *fRing;
   fRing = fopen("eerings.dat","r");
   std::cout << "Inizializing endcap geometry from: eerings.dat" << std::endl;
@@ -133,6 +140,10 @@ int TBarrelRegions::GetRegionIdIeta(const int& regionId, const std::string& type
   if( type == "LMR" )
     {
       return ( LmrEtaMap[regionId] );
+    }
+  if( type == "SM" )
+    {
+      return ( 0 );
     }
   
   return -1;
