@@ -1378,13 +1378,13 @@ int main(int argc, char** argv)
   TCanvas* cTemplateRegions = new TCanvas("cTemplateRegions", "template regions",0,0,1000,500);
   cTemplateRegions -> cd();
   templateRegions->Draw("colz");
-  cTemplateRegions -> Print((folderName+"/"+folderName+"_templateRegions_"+regionType+".png").c_str(),"png");
-  cTemplateRegions -> Print((folderName+"/"+folderName+"_templateRegions_"+regionType+".pdf").c_str(),"pdf");
+  cTemplateRegions -> Print((folderName+"/"+folderName+"_"+regionType+"_templateRegions.png").c_str(),"png");
+  cTemplateRegions -> Print((folderName+"/"+folderName+"_"+regionType+"_templateRegions.pdf").c_str(),"pdf");
   TCanvas* cRegions = new TCanvas("cRegions", "regions",0,0,1000,500);
   cRegions -> cd();
   regions->Draw("colz");
-  cRegions -> Print((folderName+"/"+folderName+"_regions_"+regionType+".png").c_str(),"png");
-  cRegions -> Print((folderName+"/"+folderName+"_regions_"+regionType+".pdf").c_str(),"pdf");
+  cRegions -> Print((folderName+"/"+folderName+"_"+regionType+"_regions.png").c_str(),"png");
+  cRegions -> Print((folderName+"/"+folderName+"_"+regionType+"_regions.pdf").c_str(),"pdf");
   
   templateRegions->Write();
   regions->Write();

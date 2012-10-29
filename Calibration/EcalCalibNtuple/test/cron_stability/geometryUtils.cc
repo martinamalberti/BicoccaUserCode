@@ -29,10 +29,10 @@ TEndcapRegions::~TEndcapRegions() { return;}
 int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings=39){
   int iSide = iz;
   if (iSide<0) iSide=0;
-  int ringWidth = int(39/(nRings-1));
+  float ringWidth = 39./nRings;
  
   if(iEndcapRing[ix-1][iy-1][iSide] == -1) return -1;
-  else return int(iEndcapRing[ix-1][iy-1][iSide]/ringWidth);
+  else return ((float)iEndcapRing[ix-1][iy-1][iSide]/(float)ringWidth);
 }
 
 int TEndcapRegions::GetEndcapIeta(const int ix, const int iy, const int iz){
@@ -48,6 +48,15 @@ int TEndcapRegions::GetEndcapIeta(const int ix, const int iy, const int iz){
 // --- EB ---
 // default constructor (NEEDED FOR INPUT REGIONS FROM EXTERNAL FILE)
 TBarrelRegions::TBarrelRegions() {
+  //initializing the matrix
+  for(int ii=0; ii<171; ++ii)
+    for(int kk=0; kk<360; ++kk)
+      {
+	iLMR[ii][kk] = -1;
+	iSM[ii][kk] = -1;
+	iTT[ii][kk] = -1;
+      }
+
   FILE *fRegion;
   fRegion = fopen("ebregions.dat","r");
   std::cout << "Inizializing barrel geometry from: ebregions.dat" << std::endl;
@@ -137,7 +146,6 @@ int TBarrelRegions::GetNRegionsIeta(const std::string& type)
 
 int TBarrelRegions::GetRegionIdIeta(const int& regionId, const std::string& type)
 {
-  
   if( type == "LMR" )
     {
       return ( LmrEtaMap[regionId] );
