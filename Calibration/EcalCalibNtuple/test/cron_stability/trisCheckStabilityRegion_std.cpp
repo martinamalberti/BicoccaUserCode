@@ -573,11 +573,11 @@ int main(int argc, char** argv)
 	  MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
           MinRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
 	}
-       
+      
       if( (sortedEntries[iSaved].timeStampHigh-MinTime[reg][fillingBin[reg]])/3600. > timeLapse )
 	{
 	  ++fillingBin[reg];
-	  
+
 	  Entries[reg][fillingBin[reg]] = 0;
 	  AveTime[reg][fillingBin[reg]] = 0;
 	  MinTime[reg][fillingBin[reg]] = sortedEntries[iSaved].timeStampHigh;
@@ -587,7 +587,7 @@ int main(int argc, char** argv)
 	  MaxRun[reg][fillingBin[reg]] = 0;
 	  AveLT[reg][fillingBin[reg]] = 0;
 	  AveLT2[reg][fillingBin[reg]] = 0;
-      }
+	}
       
       if(h_EoP[reg][fillingBin[reg]]->GetEntries() > evtsPerPoint-1)
 	{
@@ -738,9 +738,10 @@ int main(int argc, char** argv)
 	    tRegion = ii;
 
           // sanity check
-	  if(h_EoP[ii][kk]->GetEntries() < 100)
+	  //evtsPerPoint*3./4.
+	  if(h_EoP[ii][kk]->GetEntries() < 2500.)
 	    continue;
-	  if(h_EoC[ii][kk]->GetEntries() < 100)
+	  if(h_EoC[ii][kk]->GetEntries() < 2500.)
 	    continue;
 	  
 	  h_EoP[ii][kk] -> Rebin(rebin);
@@ -1356,7 +1357,7 @@ int main(int argc, char** argv)
       
       for(int kk = 0; kk < nBins; ++kk)
       	{
-	  if(h_EoP[ii][kk]->GetEntries() < 100 && h_EoC[ii][kk]->GetEntries() < 100) continue;
+	  if(h_EoP[ii][kk]->GetEntries() < 2500. && h_EoC[ii][kk]->GetEntries() < 2500.) continue;
       	  h_EoP[ii][kk] -> GetXaxis() -> SetTitle("E/p");
       	  h_EoP[ii][kk] -> Write();
 	  
