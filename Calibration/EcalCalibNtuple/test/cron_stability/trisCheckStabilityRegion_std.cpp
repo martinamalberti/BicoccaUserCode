@@ -1,7 +1,7 @@
 // g++ -Wall -o trisCheckStabilityRegion_std `root-config --cflags --glibs` -L/gwteraw/cmssw/slc5_amd64_gcc462/external/gcc/4.6.2/lib64/ setTDRStyle.cc ntupleUtils.cc geometryUtils.cc stabilityUtils.cc ConvoluteTemplate.cc histoFunc.h trisCheckStabilityRegion_std.cpp
 
-//./trisCheckStabilityRegion_std EB 12000 1 SM 0     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
-//./trisCheckStabilityRegion_std EE 6000  1 RING 1     1 1 2012 31 12 2012 0.700 1.100 -1. -1.
+//./trisCheckStabilityRegion_std EB 5000 1 SM 0        1 1 2012    31 12 2012    0.900 1.050   -1. -1.
+//./trisCheckStabilityRegion_std EE 4000 1 RING 1      1 1 2012    31 12 2012    0.700 1.100   -1. -1.
 
 // ***************************************************
 // Plot EB or EE stability vs time and ancillary plots
@@ -304,6 +304,7 @@ int main(int argc, char** argv)
   TH2F* templateRegions;
   TH2F* regions;
 
+
   int nRegions = 1;
   int tRegions = 1;
   
@@ -327,7 +328,7 @@ int main(int argc, char** argv)
       templateRegions = new TH2F("templateRegions","",100,1.,101.,100,1.,101.);
       regions = new TH2F("regions","",100,1.,101.,100,1.,101.);
 
-      nRegions = 5;  //HARCODED. FIXME
+      nRegions = 6;  //HARCODED. FIXME
       if(multiTemplate == 1)
 	tRegions = nRegions;
       templateRegions -> GetZaxis() -> SetRangeUser(-0.1,tRegions);
@@ -734,7 +735,7 @@ int main(int argc, char** argv)
 	  if( strcmp(EBEE,"EB") == 0 && multiTemplate == 1) 
 	    tRegion = ebRegion->GetRegionIdIeta(ii, regionType);
 	  if( strcmp(EBEE,"EE") == 0 && multiTemplate == 1) 
-	    tRegion = eeRegion->GetEndcapRing(seedIx, seedIy, 1, nRegions);
+	    tRegion = ii;
 
           // sanity check
 	  if(h_EoP[ii][kk]->GetEntries() < 100)
