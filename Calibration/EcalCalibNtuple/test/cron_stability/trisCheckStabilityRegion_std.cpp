@@ -1,6 +1,7 @@
 // g++ -Wall -o trisCheckStabilityRegion_std `root-config --cflags --glibs` -L/gwteraw/cmssw/slc5_amd64_gcc462/external/gcc/4.6.2/lib64/ setTDRStyle.cc ntupleUtils.cc geometryUtils.cc stabilityUtils.cc ConvoluteTemplate.cc histoFunc.h trisCheckStabilityRegion_std.cpp
 
 //./trisCheckStabilityRegion_std EB 5000 1 SM 0        1 1 2012    31 12 2012    0.900 1.050   -1. -1.
+//./trisCheckStabilityRegion_std EB 3000 1 LMR 1       1 1 2012    31 12 2012    0.900 1.050   -1. -1.
 //./trisCheckStabilityRegion_std EE 4000 1 RING 1      1 1 2012    31 12 2012    0.700 1.100   -1. -1.
 
 // ***************************************************
@@ -53,7 +54,7 @@ int t2 = 1325289600;   // 31 Dec 2011
 float yMIN = 0.700;
 float yMAX = 1.100;
 
-
+int saveFits = 0;
 
 
 
@@ -493,7 +494,7 @@ int main(int argc, char** argv)
   
   //---------------------
   // Loop and define bins
-  int nBins = (int)(sortedEntries.size()/evtsPerPoint/nRegions*2.)+50; //+5 is needed for the interruptions
+  int nBins = (int)(sortedEntries.size()/evtsPerPoint/nRegions*2.)+200; //+5 is needed for the interruptions
   
   std::cout << "nRegions = " << nRegions << std::endl;
   std::cout << "nBins = " << nBins << std::endl;
@@ -604,6 +605,7 @@ int main(int argc, char** argv)
 	  AveLT2[reg][fillingBin[reg]] = 0;
 	}
       
+
       h_EoP[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE / sortedEntries[iSaved].scLaserCorr / sortedEntries[iSaved].P );
       h_EoC[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scE/sortedEntries[iSaved].P );
       h_Las[reg][fillingBin[reg]] -> Fill( sortedEntries[iSaved].scLaserCorr );
@@ -618,6 +620,7 @@ int main(int argc, char** argv)
       MaxRun[reg][fillingBin[reg]] = sortedEntries[iSaved].runId;
       AveLT[reg][fillingBin[reg]] += LT;
       AveLT2[reg][fillingBin[reg]] += LT*LT;
+
 
     }
   std::cout << std::endl;
@@ -738,10 +741,10 @@ int main(int argc, char** argv)
 	    tRegion = ii;
 
           // sanity check
-	  //evtsPerPoint*3./4.
-	  if(h_EoP[ii][kk]->GetEntries() < 2500.)
+	  //evtsPerPoint*2./3.
+	  if(h_EoP[ii][kk]->GetEntries() < 200)
 	    continue;
-	  if(h_EoC[ii][kk]->GetEntries() < 2500.)
+	  if(h_EoC[ii][kk]->GetEntries() < 200)
 	    continue;
 	  
 	  h_EoP[ii][kk] -> Rebin(rebin);
@@ -1355,15 +1358,16 @@ int main(int argc, char** argv)
       h_EoP_chi2[ii] -> Write();
       h_EoC_chi2[ii] -> Write();
       
-      for(int kk = 0; kk < nBins; ++kk)
-      	{
-	  if(h_EoP[ii][kk]->GetEntries() < 2500. && h_EoC[ii][kk]->GetEntries() < 2500.) continue;
-      	  h_EoP[ii][kk] -> GetXaxis() -> SetTitle("E/p");
-      	  h_EoP[ii][kk] -> Write();
-	  
-      	  h_EoC[ii][kk] -> GetXaxis() -> SetTitle("E/p");
-      	  h_EoC[ii][kk] -> Write();
-	}
+      if(saveFits == 1)
+	for(int kk = 0; kk < nBins; ++kk)
+	  {
+	    if(h_EoP[ii][kk]->GetEntries() < 200 && h_EoC[ii][kk]->GetEntries() < 200) continue;
+	    h_EoP[ii][kk] -> GetXaxis() -> SetTitle("E/p");
+	    h_EoP[ii][kk] -> Write();
+	    
+	    h_EoC[ii][kk] -> GetXaxis() -> SetTitle("E/p");
+	    h_EoC[ii][kk] -> Write();
+	  }
     }
 
   o -> cd();
