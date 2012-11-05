@@ -9,11 +9,11 @@
 
  Implementation:
      [Notes on implementation]
-*/
+ */
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.h,v 1.6 2011/06/20 15:09:02 amassiro Exp $
+// $Id: EcalAlignment.h,v 1.7 2011/08/04 13:26:12 amassiro Exp $
 //
 //
 
@@ -62,7 +62,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 
 //
@@ -70,104 +71,113 @@
 //
 
 class EcalAlignment : public edm::EDAnalyzer {
-   public:
-      explicit EcalAlignment(const edm::ParameterSet&);
-      ~EcalAlignment();
+ public:
+  explicit EcalAlignment(const edm::ParameterSet&);
+  ~EcalAlignment();
 
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+ private:
+  virtual void beginJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
       // ----------member data ---------------------------
       
-       std::vector<std::string> eleId_names_;
-       edm::InputTag recHitCollection_EB_;
-       edm::InputTag recHitCollection_EE_;
-       edm::InputTag EleTag_;
-       edm::InputTag CALOMetTag_;
-       edm::InputTag TrackTag_;
+  std::vector<std::string> eleId_names_;
+  edm::InputTag recHitCollection_EB_;
+  edm::InputTag recHitCollection_EE_;
+  edm::InputTag EleTag_;
+  edm::InputTag CALOMetTag_;
+  edm::InputTag TrackTag_;
+  edm::InputTag vtxTag_;
 
-       bool debug_;
+  bool isMC_;
 
-
-
-       TH1F* m_totalEvents;
-       TH1F* m_passedEvents;
-       TH1F* m_filterEfficiency;
+  bool debug_;
 
 
-       TTree* myTree_;
 
-       int numPUMC_;
+  TH1F* m_totalEvents;
+  TH1F* m_passedEvents;
+  TH1F* m_filterEfficiency;
 
-       int time_ ;
 
-       int BX_;
-       int lumiId_;
-       int runId_;
-       int eventId_;
-       int eventNaiveId_;
+  TTree* myTree_;
 
-       double deltaEtaSuperClusterAtVtx_;
-       double deltaEtaSeedClusterAtCalo_;
-       double deltaEtaEleClusterAtCalo_;
-       double deltaPhiEleClusterAtCalo_;
-       double deltaPhiSuperClusterAtVtx_;
-       double deltaPhiSeedClusterAtCalo_;
-       int mishits_;
-       int nAmbiguousGsfTracks_;
+  int numPUMC_;
 
-       int electrons_classification_;
-       int electrons_basicClustersSize_;
+  int time_ ;
+
+  int BX_;
+  int lumiId_;
+  int runId_;
+  int eventId_;
+  int eventNaiveId_;
+
+  double deltaEtaSuperClusterAtVtx_;
+  double deltaEtaSeedClusterAtCalo_;
+  double deltaEtaEleClusterAtCalo_;
+  double deltaPhiEleClusterAtCalo_;
+  double deltaPhiSuperClusterAtVtx_;
+  double deltaPhiSeedClusterAtCalo_;
+  int mishits_;
+  int nAmbiguousGsfTracks_;
+
+  int electrons_classification_;
+  int electrons_basicClustersSize_;
        
-       double dist_;
-       double dcot_;
+  double dist_;
+  double dcot_;
 
-       double HoE_;
-       double SigmaIEtaIEta_;
-       double eleTrkIso_;
-       double eleEcalIso_;
-       double eleHcalIsoD1_;
-       double eleHcalIsoD2_;
-       unsigned int eleMisHits_;
-       double met_;
-       double sumEt_;
-       double eta_;
-       double phi_;
-       double pT_;
-       double ET_;
-       double MT_;
-       double EoP_;
-       double eleFBrem_;
-       double eleES_;
-       double E2x2_;
-       double E3x3_;
-       double E5x5_;
-       double ESC_;
-       double ETSC_;
-       double Sigma_Phi_;
-       double Sigma_Eta_;
-       double pIn_;
-       double pOut_;
-       double pAtCalo_;
-       double p_;
-       double E9oE25_;
-       double DeltaEtaIn_;
-       double DeltaPhiIn_;
-       double etaSC_;
-       double phiSC_;
-       int nGoodElectrons_;
-       int iSM_;
-       int iSC_;
-       double dphiMETEle_;
-       double eleCharge_;
-       double eleSwissCross_;
-       int seedSeverityLevel_;
-       int* eleId_;
-       int iDetEB_;
-       int iDetEE_;
+  double HoE_;
+  double SigmaIEtaIEta_;
+  double eleTrkIso_;
+  double eleEcalIso_;
+  double eleHcalIsoD1_;
+  double eleHcalIsoD2_;
+  unsigned int eleMisHits_;
+  double met_;
+  double sumEt_;
+  double eta_;
+  double phi_;
+  double pT_;
+  double ET_;
+  double MT_;
+  double EoP_;
+  double eleFBrem_;
+  double eleES_;
+  double E2x2_;
+  double E3x3_;
+  double E5x5_;
+  double ESC_;
+  double ETSC_;
+  double Sigma_Phi_;
+  double Sigma_Eta_;
+  double pIn_;
+  double pOut_;
+  double pAtCalo_;
+  double p_;
+  double E9oE25_;
+  double DeltaEtaIn_;
+  double DeltaPhiIn_;
+  double etaSC_;
+  double phiSC_;
+  int nGoodElectrons_;
+  int iSM_;
+  int iSC_;
+  double dphiMETEle_;
+  double eleCharge_;
+  double eleSwissCross_;
+  int seedSeverityLevel_;
+  int* eleId_;
+  int iDetEB_;
+  int iDetEE_;
+
+  int nvtx_;
+  double xvtx_;
+  double yvtx_;
+  double zvtx_;
+
 };
 
 

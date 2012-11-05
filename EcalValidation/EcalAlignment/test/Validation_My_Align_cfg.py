@@ -7,6 +7,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('EcalAlignment')
 
+
+
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -21,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -34,10 +36,12 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-WElectron-PromptSkim-v4_RAW-RECO/9220C129-B886-E011-AA20-002481E94B4E.root'
+        #'file:/data2/amassiro/CMSSWRoot/SingleElectron_Run2011A-WElectron-PromptSkim-v4_RAW-RECO/9220C129-B886-E011-AA20-002481E94B4E.root'
+        'file:/data2/amassiro/CMSSWRoot/DATA2012/DoubleElectron_Run2012B-ZElectron-13Jul2012-v1_RAW-RECO/FEE043A5-93D4-E111-84DC-0030486790C0.root'  # it works! mica troppo ...
     )
   )
-process.source.inputCommands = cms.untracked.vstring("drop *_*_*_RECO", "drop *_MEtoEDMConverter_*_*", "keep FEDRawDataCollection_*_*_*")
+process.source.inputCommands = cms.untracked.vstring( "drop *_*_*_RECO","drop *_MEtoEDMConverter_*_*", "keep FEDRawDataCollection_*_*_*")
+#process.source.inputCommands = cms.untracked.vstring( "drop *_MEtoEDMConverter_*_*", "keep FEDRawDataCollection_*_*_*")
 
 # Output definition
 
@@ -71,8 +75,10 @@ process.out = cms.OutputModule("PoolOutputModule",
 #process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
 #process.GlobalTag.globaltag = 'GR_P_V20::All'
 #process.GlobalTag.globaltag = 'GR_R_42_V18::All'
-process.GlobalTag.globaltag = 'GR_R_44_V1::All'
-  
+#process.GlobalTag.globaltag = 'GR_R_44_V1::All'
+process.GlobalTag.globaltag = 'GR_P_V42_AN2::All'
+
+
 # http://cms-conddb.cern.ch/gtlist/?GlobalTag=GR_R_39X_V5
   
 process.GlobalTag.toGet = cms.VPSet(
@@ -84,14 +90,14 @@ process.GlobalTag.toGet = cms.VPSet(
              #tag = cms.string("EcalADCToGeVConstant_Bon_V20100803"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
              #),
-    cms.PSet(record = cms.string("EBAlignmentRcd"),
-             tag = cms.string("EBAlignment_measured_v05_offline"),
-             connect = cms.untracked.string("sqlite_file:EBAlign_2011.db")   #### New ####
-             ),
-    cms.PSet(record = cms.string("EEAlignmentRcd"),
-             tag = cms.string("EEAlignment_measured_v05_offline"),
-             connect = cms.untracked.string("sqlite_file:EEAlign_2011.db")  #### New ####
-             )
+    #cms.PSet(record = cms.string("EBAlignmentRcd"),
+             #tag = cms.string("EBAlignment_measured_v05_offline"),
+             #connect = cms.untracked.string("sqlite_file:EBAlign_2011.db")   #### New ####
+             #),
+    #cms.PSet(record = cms.string("EEAlignmentRcd"),
+             #tag = cms.string("EEAlignment_measured_v05_offline"),
+             #connect = cms.untracked.string("sqlite_file:EEAlign_2011.db")  #### New ####
+             #)
    #cms.PSet(record = cms.string("ESAlignmentRcd"),
              #tag = cms.string("ESAlignment_measured_v01_offline"),
              #connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PRESHOWER")
@@ -188,6 +194,9 @@ process.endjob_step = cms.Path(process.endOfProcess)
 # Define PAT sequence
 #--------------------------
 
+# import PAT before, so that RECONSTRUCTION may overwrite it   -> non funziona!
+#process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
 # Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
@@ -205,6 +214,63 @@ removeSpecificPATObjects( process, ['Jets'] )
 process.patDefaultSequence.remove( process.patJetCorrections )
 process.patDefaultSequence.remove( process.patJets )
 # not used (end)
+
+  
+# rimuovo ... chissa' ...
+#process.pfPileUp.PFCandidates = "particleFlow:RECO"
+###process.pfPileUpIso.PFCandidates = 'particleFlow:RECO'
+###process.pfNoPileUpIsoSequence.remove (process.pfPileUpIso)
+###process.pfNoPileUpIsoSequence.remove (process.pfNoPileUpIso)
+
+#  see http://cmslxr.fnal.gov/lxr/source/PhysicsTools/PatAlgos/python/recoLayer0/pfCandidateIsoDepositSelection_cff.py#006
+  #[0] Processing run: 195379 lumi: 1 event: 360967
+   #[1] Running path 'reconstruction_step'
+   #[2] Calling event method for module PdgIdPFCandidateSelector/'pfAllNeutralHadrons'
+#Exception Message:
+#Principal::getByLabel: Found zero products matching all criteria
+#Looking for type: std::vector<reco::PFCandidate>
+#Looking for module label: pfNoPileUpIso
+#Looking for productInstanceName: 
+
+  #http://cmslxr.fnal.gov/lxr/source/RecoParticleFlow/PFProducer/python/electronPFIsolationDeposits_cff.py#008
+###process.electronPFIsolationDepositsSequence.remove ( process.elPFIsoDepositNeutral)
+###process.photonPFIsolationDepositsSequence.remove   ( process.phPFIsoDepositNeutral)
+
+
+###process.patDefaultSequence.remove( process.pfPileUp )
+###process.patDefaultSequence.remove( process.pfNoPileUp )
+
+
+#process.highlevelreco = cms.Sequence(
+                              #process.egammaHighLevelRecoPrePF*
+                              #process.particleFlowReco*
+                              #process.egammaHighLevelRecoPostPF*
+                              #process.regionalCosmicTracksSeq*
+                              #process.muoncosmichighlevelreco*
+                              #process.muonshighlevelreco *
+                              #process.particleFlowLinks*
+                              #process.jetHighLevelReco*
+                              #process.tautagging*
+                              #process.metrecoPlusHCALNoise*
+                              #process.btagging*
+                              #process.recoPFMET*
+                              #process.PFTau*
+                              #process.reducedRecHits
+                              #)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 process.patElectrons.electronSource = cms.InputTag("gsfElectrons::EcalAlignment")
 
@@ -308,6 +374,7 @@ process.highetFilter = cms.EDFilter(
 
 
 
+
 #--------------------------
 # paths
 #--------------------------
@@ -341,10 +408,18 @@ process.schedule = cms.Schedule(
    process.raw2digi_step,        # | -> reconstruction
    process.L1Reco_step,          # | -> reconstruction
    process.reconstruction_step,  # | -> reconstruction
-   process.endjob_step,          # | -> reconstruction
+  process.endjob_step,          # | -> reconstruction
    #process.RECOoutput_step,      # | -> reconstruction
    process.pEcalAlignment        # | -> selections and ntuple
 )
+
+
+#--------------------------------
+# correct dependencies RECO / PAT
+#--------------------------------
+
+process.pfPileUpIso.PFCandidates       = cms.InputTag("particleFlowTmp")
+process.pfNoPileUpIso.bottomCollection = cms.InputTag("particleFlowTmp")
 
 
 

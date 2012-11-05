@@ -9,11 +9,11 @@
 
  Implementation:
      [Notes on implementation]
-*/
+ */
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.11 2011/06/20 15:09:02 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.12 2011/08/04 13:26:01 amassiro Exp $
 //
 //
 
@@ -44,7 +44,10 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag"); 
   CALOMetTag_ = iConfig.getParameter<edm::InputTag>("CALOMetTag");
   TrackTag_ = iConfig.getParameter<edm::InputTag>("TrackTag");
-  
+  vtxTag_ = iConfig.getParameter<edm::InputTag>("vtxTag");
+
+  isMC_ = iConfig.getUntrackedParameter< bool >("isMC",false);
+
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
   
@@ -60,7 +63,7 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
    eleId_ = new int [eleId_names_.size()];
    for( std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++ ){ 
     TString nameBranch = Form("%s/I",iEleId->c_str());
-     myTree_ -> Branch(iEleId->c_str(),&(eleId_[iEleId-eleId_names_.begin()]),nameBranch.Data());
+    myTree_ -> Branch(iEleId->c_str(),&(eleId_[iEleId-eleId_names_.begin()]),nameBranch.Data());
    } 
   }
 
@@ -135,6 +138,11 @@ EcalAlignment::EcalAlignment(const edm::ParameterSet& iConfig){
   myTree_ -> Branch("iDetEB",&iDetEB_,"iDetEB/I");
   myTree_ -> Branch("iDetEE",&iDetEE_,"iDetEE/I");
 
+  myTree_ -> Branch("nvtx",&nvtx_,"nvtx/I");
+  myTree_ -> Branch("xvtx",&xvtx_,"xvtx/D");
+  myTree_ -> Branch("yvtx",&yvtx_,"yvtx/D");
+  myTree_ -> Branch("zvtx",&zvtx_,"zvtx/D");
+
 }
 
 
@@ -143,7 +151,7 @@ EcalAlignment::~EcalAlignment()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
  if (eleId_names_.size() != 0) {
-   delete [] eleId_;
+  delete [] eleId_;
  } 
 }
 
@@ -154,16 +162,16 @@ EcalAlignment::~EcalAlignment()
 
 // ------------ method called to for each event  ------------
 void
-EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+  EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  int nTotalEvents = static_cast<int>(m_totalEvents -> GetBinContent(1));
-  int nPassedEvents = static_cast<int>(m_passedEvents -> GetBinContent(1));
+ int nTotalEvents = static_cast<int>(m_totalEvents -> GetBinContent(1));
+ int nPassedEvents = static_cast<int>(m_passedEvents -> GetBinContent(1));
 
-  if (debug_) std::cout << ">>>  EcalAlignment::analyze: nPassedEvents " << nPassedEvents << " : " << nTotalEvents << std::endl;
+ if (debug_) std::cout << ">>>  EcalAlignment::analyze: nPassedEvents " << nPassedEvents << " : " << nTotalEvents << std::endl;
 
-  m_totalEvents -> Fill(0.5);
-  m_passedEvents -> Fill(0.5);
-  m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents+1)/(nTotalEvents+1));
+ m_totalEvents -> Fill(0.5);
+ m_passedEvents -> Fill(0.5);
+ m_filterEfficiency -> SetBinContent(1, 1.*(nPassedEvents+1)/(nTotalEvents+1));
 
  ///==== save envent INFO ====
  eventNaiveId_++;
@@ -175,22 +183,42 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  time_ = (int)(iEvent.time().value() >> 32);
 
  numPUMC_ = -1;
-/*
+
  ///==== only if MC ====
- edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
- iEvent.getByLabel("addPileupInfo", PupInfo);
- std::vector<PileupSummaryInfo>::const_iterator PVI;
- for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+ if (isMC_) {
+  edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+  iEvent.getByLabel("addPileupInfo", PupInfo);
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
  // in-time pileup
-  if( PVI->getBunchCrossing() == 0 ){
-   numPUMC_ = PVI->getPU_NumInteractions();
+   if( PVI->getBunchCrossing() == 0 ){
+    numPUMC_ = PVI->getPU_NumInteractions();
+   }
   }
  }
- ///==== 
-*/
+ ///====
 
 
 
+
+
+
+ ///==== save VTX ====
+ edm::Handle<reco::VertexCollection> vtxH;
+ iEvent.getByLabel(vtxTag_,vtxH);
+
+ nvtx_ = vtxH -> size();
+ reco::Vertex PV;
+ if(nvtx_!=0){
+  xvtx_ = vtxH->at(0).x();
+  yvtx_ = vtxH->at(0).y();
+  zvtx_ = vtxH->at(0).z();
+ }
+ else {
+  xvtx_ = -999.;
+  yvtx_ = -999.;
+  zvtx_ = -999.;
+ }
 
 
 
@@ -240,144 +268,144 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  // Loop over electrons
  for ( unsigned int i=0; i<electrons.size(); ++i ){
   if (debug_) std::cout << ">>> >>> electron " << i << " : " << electrons.size() << std::endl;
-   pat::Electron electron = electrons.at(i);
-   if (debug_) std::cout << ">>> >>> electron get track" << std::endl;
-   reco::GsfTrackRef eleTrack  = electron.gsfTrack () ; 
-   if (debug_) std::cout << ">>> >>> electron get SC" << std::endl;
-   reco::SuperClusterRef scRef = electron.superCluster();
+  pat::Electron electron = electrons.at(i);
+  if (debug_) std::cout << ">>> >>> electron get track" << std::endl;
+  reco::GsfTrackRef eleTrack  = electron.gsfTrack () ; 
+  if (debug_) std::cout << ">>> >>> electron get SC" << std::endl;
+  reco::SuperClusterRef scRef = electron.superCluster();
 
-   electrons_classification_ = electron.classification();
-   electrons_basicClustersSize_ = electron.basicClustersSize();
+  electrons_classification_ = electron.classification();
+  electrons_basicClustersSize_ = electron.basicClustersSize();
 
-   eta_   = electron.p4().eta();
-   phi_   = electron.p4().phi();
-   p_     = electron.trackMomentumAtVtx().R();
-   pT_    = TMath::Sqrt(electron.trackMomentumAtVtx().Perp2());
-   eleCharge_ = electron.charge();
+  eta_   = electron.p4().eta();
+  phi_   = electron.p4().phi();
+  p_     = electron.trackMomentumAtVtx().R();
+  pT_    = TMath::Sqrt(electron.trackMomentumAtVtx().Perp2());
+  eleCharge_ = electron.charge();
 
-   double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
-   double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
+  double R  = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y() +scRef->z()*scRef->z());
+  double Rt = TMath::Sqrt(scRef->x()*scRef->x() + scRef->y()*scRef->y());
 
-   ETSC_ = scRef->energy() * (Rt/R);   
-   ESC_ = scRef->energy();   
-   ET_ = electron.p4().Et();
-   etaSC_ = scRef->eta();
-   phiSC_ = scRef->phi();   
+  ETSC_ = scRef->energy() * (Rt/R);   
+  ESC_ = scRef->energy();   
+  ET_ = electron.p4().Et();
+  etaSC_ = scRef->eta();
+  phiSC_ = scRef->phi();   
    
-   Sigma_Phi_ = scRef->phiWidth();
-   Sigma_Eta_ = scRef->etaWidth();
+  Sigma_Phi_ = scRef->phiWidth();
+  Sigma_Eta_ = scRef->etaWidth();
    
-   pIn_ = electron.trackMomentumAtVtx().R();
-   pOut_ = electron.trackMomentumOut().R();   
-   pAtCalo_ = electron.trackMomentumAtCalo().R();   
+  pIn_ = electron.trackMomentumAtVtx().R();
+  pOut_ = electron.trackMomentumOut().R();   
+  pAtCalo_ = electron.trackMomentumAtCalo().R();   
    
-   HoE_ = electron.hadronicOverEm();
+  HoE_ = electron.hadronicOverEm();
    
-   SigmaIEtaIEta_ = electron.sigmaIetaIeta();
-   eleTrkIso_ = electron.dr03TkSumPt();
-   eleEcalIso_ = electron.dr03EcalRecHitSumEt();
-   eleHcalIsoD1_ = electron.dr03HcalDepth1TowerSumEt();
-   eleHcalIsoD2_ = electron.dr03HcalDepth2TowerSumEt();
+  SigmaIEtaIEta_ = electron.sigmaIetaIeta();
+  eleTrkIso_ = electron.dr03TkSumPt();
+  eleEcalIso_ = electron.dr03EcalRecHitSumEt();
+  eleHcalIsoD1_ = electron.dr03HcalDepth1TowerSumEt();
+  eleHcalIsoD2_ = electron.dr03HcalDepth2TowerSumEt();
        
-   EoP_ = ESC_ /p_;
-   eleFBrem_ = electron.fbrem();
+  EoP_ = ESC_ /p_;
+  eleFBrem_ = electron.fbrem();
 
-   DeltaEtaIn_ = electron.deltaEtaSuperClusterTrackAtVtx();
-   DeltaPhiIn_ = electron.deltaPhiSuperClusterTrackAtVtx();   
+  DeltaEtaIn_ = electron.deltaEtaSuperClusterTrackAtVtx();
+  DeltaPhiIn_ = electron.deltaPhiSuperClusterTrackAtVtx();   
 
-   deltaEtaSuperClusterAtVtx_ = electron.deltaEtaSuperClusterTrackAtVtx();
-   deltaEtaSeedClusterAtCalo_ = electron.deltaEtaSeedClusterTrackAtCalo();
-   deltaEtaEleClusterAtCalo_ = electron.deltaEtaEleClusterTrackAtCalo();
-   deltaPhiEleClusterAtCalo_ = electron.deltaPhiEleClusterTrackAtCalo();
-   deltaPhiSuperClusterAtVtx_ = electron.deltaPhiSuperClusterTrackAtVtx();
-   deltaPhiSeedClusterAtCalo_ = electron.deltaPhiSeedClusterTrackAtCalo();
-   mishits_ = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-   nAmbiguousGsfTracks_ = electron.ambiguousGsfTracksSize();
-   dist_ = 0;
-   dcot_ = 0;
+  deltaEtaSuperClusterAtVtx_ = electron.deltaEtaSuperClusterTrackAtVtx();
+  deltaEtaSeedClusterAtCalo_ = electron.deltaEtaSeedClusterTrackAtCalo();
+  deltaEtaEleClusterAtCalo_ = electron.deltaEtaEleClusterTrackAtCalo();
+  deltaPhiEleClusterAtCalo_ = electron.deltaPhiEleClusterTrackAtCalo();
+  deltaPhiSuperClusterAtVtx_ = electron.deltaPhiSuperClusterTrackAtVtx();
+  deltaPhiSeedClusterAtCalo_ = electron.deltaPhiSeedClusterTrackAtCalo();
+  mishits_ = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  nAmbiguousGsfTracks_ = electron.ambiguousGsfTracksSize();
+  dist_ = 0;
+  dcot_ = 0;
 
-   float cphi = (electron.p4().x() * metP.p4().Px() 
-     + electron.p4().y() * metP.p4().Py()) 
+  float cphi = (electron.p4().x() * metP.p4().Px() 
+    + electron.p4().y() * metP.p4().Py()) 
      / (met_*electron.p4().Pt());
 
-   MT_   = sqrt(2 * ET_ * met_ * (1-cphi));
+  MT_   = sqrt(2 * ET_ * met_ * (1-cphi));
    
    // cluster shape variables
-   E3x3_ = 0;
-   E2x2_ = 0;
+  E3x3_ = 0;
+  E2x2_ = 0;
    
-   if (debug_) std::cout << ">>> >>> electron EB / EE" << std::endl;
+  if (debug_) std::cout << ">>> >>> electron EB / EE" << std::endl;
 
-   if ( electron.isEB() )
-   {
-     E3x3_ = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
-     E2x2_ = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
-   }
+  if ( electron.isEB() )
+  {
+   E3x3_ = EcalClusterTools::e3x3( *scRef, theBarrelEcalRecHits, topology);
+   E2x2_ = EcalClusterTools::e2x2( *scRef, theBarrelEcalRecHits, topology);
+  }
    
-   if ( electron.isEE() )
-   {
-     E3x3_ = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
-     E2x2_ = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
-   }
+  if ( electron.isEE() )
+  {
+   E3x3_ = EcalClusterTools::e3x3( *scRef, theEndcapEcalRecHits, topology);
+   E2x2_ = EcalClusterTools::e2x2( *scRef, theEndcapEcalRecHits, topology);
+  }
 
-   E5x5_ = electron.e5x5();  
+  E5x5_ = electron.e5x5();  
    
-   eleMisHits_ = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  eleMisHits_ = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
 
    // preshower variables 
-   eleES_ = scRef->preshowerEnergy();
+  eleES_ = scRef->preshowerEnergy();
 
-   E9oE25_ = E3x3_ / E5x5_;
+  E9oE25_ = E3x3_ / E5x5_;
    
-   for(std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++){
-    eleId_[iEleId-eleId_names_.begin()] = electron.electronID(*iEleId);
-   }
+  for(std::vector<std::string>::const_iterator iEleId = eleId_names_.begin(); iEleId != eleId_names_.end(); iEleId++){
+   eleId_[iEleId-eleId_names_.begin()] = electron.electronID(*iEleId);
+  }
      
    // spike removal variables
-   int sev = -1;
-   int flag = -1;
+  int sev = -1;
+  int flag = -1;
    
-   sev = -1; //---- ??
-   seedSeverityLevel_ = sev;
-   double seed_energy_temp = -1;
-   int iSC;
-   int iSM;
-   int numRecHit = 0;
-   const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
+  sev = -1; //---- ??
+  seedSeverityLevel_ = sev;
+  double seed_energy_temp = -1;
+  int iSC;
+  int iSM;
+  int numRecHit = 0;
+  const std::vector<std::pair<DetId,float> > & hits= electron.superCluster()->hitsAndFractions();
 
-   if (debug_) std::cout << ">>> >>> electron get SC" << std::endl;
+  if (debug_) std::cout << ">>> >>> electron get SC" << std::endl;
 //    const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
-   if(electron.isEB())
+  if(electron.isEB())
+  {
+   std::pair<DetId, float> id = EcalClusterTools::getMaximum(hits, theBarrelEcalRecHits);   
+   EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);    
+   eleSwissCross_ = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
+   if( it != theBarrelEcalRecHits->end() )
    {
-    std::pair<DetId, float> id = EcalClusterTools::getMaximum(hits, theBarrelEcalRecHits);   
-     EcalRecHitCollection::const_iterator it = theBarrelEcalRecHits->find(id.first);    
-     eleSwissCross_ = EcalTools::swissCross(id.first,*theBarrelEcalRecHits,0.);
-     if( it != theBarrelEcalRecHits->end() )
-     {
-      EBDetId barrelId (it->id ()); 
-      iSC_ = -1000;
-      iSM_ = barrelId.ism();      
-      iDetEE_  = -1000;
-      iDetEB_  = EcalBarrelGeometry::alignmentTransformIndexLocal(barrelId);
-     }
-    }
-   if (electron.isEE()){
-    std::pair<DetId, float> id = EcalClusterTools::getMaximum(hits, theEndcapEcalRecHits);   
-     EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
-     eleSwissCross_ = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
-     if( it != theEndcapEcalRecHits->end() )
-     {
-      EEDetId endcapId (it->id ()); 
-      iSC_ = endcapId.isc();
-      iSM_ = -1000;
-      iDetEE_  = EcalEndcapGeometry::alignmentTransformIndexLocal(endcapId);
-      iDetEB_  = -1000;
-     }
+    EBDetId barrelId (it->id ()); 
+    iSC_ = -1000;
+    iSM_ = barrelId.ism();      
+    iDetEE_  = -1000;
+    iDetEB_  = EcalBarrelGeometry::alignmentTransformIndexLocal(barrelId);
    }
+  }
+  if (electron.isEE()){
+   std::pair<DetId, float> id = EcalClusterTools::getMaximum(hits, theEndcapEcalRecHits);   
+   EcalRecHitCollection::const_iterator it = theEndcapEcalRecHits->find(id.first);
+   eleSwissCross_ = EcalTools::swissCross(id.first,*theEndcapEcalRecHits,0.);
+   if( it != theEndcapEcalRecHits->end() )
+   {
+    EEDetId endcapId (it->id ()); 
+    iSC_ = endcapId.isc();
+    iSM_ = -1000;
+    iDetEE_  = EcalEndcapGeometry::alignmentTransformIndexLocal(endcapId);
+    iDetEB_  = -1000;
+   }
+  }
 
 
    
-   dphiMETEle_ = deltaPhi(metP.phi(),electron.p4().phi());  
+  dphiMETEle_ = deltaPhi(metP.phi(),electron.p4().phi());  
    
    
    
@@ -385,18 +413,18 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    ///==== if an electron doesn't pass these selections 
    ///==== it's not saved
    
-   float EtaCutEB    = 1.5;
-   float EtaCutEE    = 1.5;
-   float EtaMax      = 3.0;
+  float EtaCutEB    = 1.5;
+  float EtaCutEE    = 1.5;
+  float EtaMax      = 3.0;
   
 //    if ( met_ < 10. ) continue;
-   if ( ETSC_ < 20. ) continue;
+  if ( ETSC_ < 20. ) continue;
 //    if ( fabs(dphiMETEle_) < 0.75) continue;   
    
-   if ( fabs(eta_)> EtaCutEB && fabs(eta_)< EtaCutEE ) continue;
-   if ( fabs(eta_)> EtaMax ) continue;
+  if ( fabs(eta_)> EtaCutEB && fabs(eta_)< EtaCutEE ) continue;
+  if ( fabs(eta_)> EtaMax ) continue;
 
-   if ( electrons_classification_ != 0 ) continue;
+  if ( electrons_classification_ != 0 ) continue;
    
    
 
@@ -426,14 +454,14 @@ EcalAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalAlignment::beginJob()
+  EcalAlignment::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-EcalAlignment::endJob() {
-}
+  EcalAlignment::endJob() {
+  }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(EcalAlignment);
+  DEFINE_FWK_MODULE(EcalAlignment);
