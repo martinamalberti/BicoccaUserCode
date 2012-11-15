@@ -1,16 +1,32 @@
-// g++ -Wall -o studyNoise `root-config --cflags --glibs` avgPUList.cc TEndcapRings.cc studyNoise.cpp
+// g++ -Wall -o studyNoise `root-config --cflags --glibs` avgPUList.cc TEndcapRings.cc -lTMVA studyNoise.cpp
 
 #include "avgPUList.h"
 #include "TEndcapRings.h"
 
-#include <iostream>
-#include <fstream>
+#include <cstdlib>
+#include <iostream> 
 #include <map>
+#include <string>
+
+#include "TChain.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TObjString.h"
+#include "TSystem.h"
+#include "TROOT.h"
+#include "TApplication.h"
+
 #include <cmath>
 
-#include "TFile.h"
-#include "TChain.h"
-#include "TH1F.h"
+#include "TMVA/MsgLogger.h"
+#include "TMVA/Config.h"
+
+#if not defined(__CINT__) || defined(__MAKECINT__)
+#include "TMVA/Tools.h"
+#include "TMVA/Factory.h"
+#endif
+
 
 bool FillChain(TChain& chain, const std::string& inputFileList);
 
@@ -37,31 +53,29 @@ float iRingMax = 40.;
 
 
 
-int main(int argc, char**argv)
-{
+int main(int argc, char**argv){
+
   // open files and fill the tree chain
   std::string inputFileList = argv[1];
-  std::string outFileName = argv[2];
+  std::string outFileName   = argv[2];
+  std::string inputVariable = argv[3];
+  std::string varRange      = argv[4];
+  std::string varType       = argv[5];
 
-  TChain* chain = new TChain("simpleNtupleEoverP/SimpleNtupleEoverP");
+  if(argc !=6) {std::cerr<<" Errors in parsing the parameters "<<std::endl; return 1; }
+  
+
+  TChain* chain = new TChain("SimpleNtupleEoverP");
   FillChain(*chain,inputFileList);
-  
     
-  
   // define list of avg PU
   avgPUList* myAvgPUList = new avgPUList("avgPUList.txt");
-  
-  
-  
+   
   // EE geometry
   TEndcapRings* eRings = new TEndcapRings();
   
-  
-  
   // define outfile
   TFile* outFile = new TFile(outFileName.c_str(),"RECREATE");
-  
-  
   
   // define histograms
   TH1F* h_occupancy_vsNvtx_EB = new TH1F("h_occupancy_vsNvtx_EB","",nBins_nVtx,nVtxMin,nVtxMax);
@@ -97,8 +111,8 @@ int main(int argc, char**argv)
   std::map<float,std::map<float,TH1F*> > map_recHitE_vsNavgPU_vsIring_EE;
   
   // EB
-  for(int bin = 1; bin <= nBins_nVtx; ++bin)
-  {
+  for(int bin = 1; bin <= nBins_nVtx; ++bin){
+
     char histoName[50];
     
     float binCenter  = h_occupancy_vsNvtx_EB -> GetBinCenter(bin);
@@ -113,8 +127,8 @@ int main(int argc, char**argv)
     map_recHitE_nAvgPU20_vsNvtx_EB[binCenter] = new TH1F(histoName,"",2000,-4.,4.);
   }
   
-  for(int bin = 1; bin <= nBins_nAvgPU; ++bin)
-  {
+  for(int bin = 1; bin <= nBins_nAvgPU; ++bin){
+
     char histoName[50];
     
     float binCenter  = h_occupancy_vsNavgPU_EB -> GetBinCenter(bin);
@@ -139,8 +153,8 @@ int main(int argc, char**argv)
   }
   
   // EE
-  for(int bin = 1; bin <= nBins_nVtx; ++bin)
-  {
+  for(int bin = 1; bin <= nBins_nVtx; ++bin){
+
     char histoName[50];
     
     float binCenter  = h_occupancy_vsNvtx_EE -> GetBinCenter(bin);
@@ -155,8 +169,8 @@ int main(int argc, char**argv)
     map_recHitE_nAvgPU20_vsNvtx_EE[binCenter] = new TH1F(histoName,"",2000,-4.,4.);    
   }
   
-  for(int bin = 1; bin <= nBins_nAvgPU; ++bin)
-  {
+  for(int bin = 1; bin <= nBins_nAvgPU; ++bin){
+
     char histoName[50];
     
     float binCenter  = h_occupancy_vsNavgPU_EE -> GetBinCenter(bin);
@@ -200,8 +214,8 @@ int main(int argc, char**argv)
   std::vector<float>* ele2_recHitMatrix_E = new std::vector<float>;
   std::vector<float>* ele1_recHitMatrix_LaserCorr = new std::vector<float>;
   std::vector<float>* ele2_recHitMatrix_LaserCorr = new std::vector<float>;
-  //  std::vector<float>* ele1_recHitMatrix_ICConst = new std::vector<float>;
-  //std::vector<float>* ele2_recHitMatrix_ICConst = new std::vector<float>; 
+  std::vector<float>* ele1_recHitMatrix_ICConst = new std::vector<float>;
+  std::vector<float>* ele2_recHitMatrix_ICConst = new std::vector<float>; 
  
   std::vector<int>* ele1_recHitMatrix_ietaORix = new std::vector<int>;
   std::vector<int>* ele2_recHitMatrix_ietaORix = new std::vector<int>;
@@ -229,28 +243,44 @@ int main(int argc, char**argv)
   chain -> SetBranchStatus("ele2_seedZside",1);          chain -> SetBranchAddress("ele2_seedZside",         &ele2_seedIz);
   chain -> SetBranchStatus("ele1ele2_scM_regression",1); chain -> SetBranchAddress("ele1ele2_scM_regression",&ele1ele2_scM_regression);
   
-  chain -> SetBranchStatus("ele1_recHitMatrix_E",1);        chain -> SetBranchAddress("ele1_recHitMatrix_E",        &ele1_recHitMatrix_E);
-  chain -> SetBranchStatus("ele2_recHitMatrix_E",1);        chain -> SetBranchAddress("ele2_recHitMatrix_E",        &ele2_recHitMatrix_E);
+  chain -> SetBranchStatus("ele1_recHitMatrix_E",1);               chain -> SetBranchAddress("ele1_recHitMatrix_E",        &ele1_recHitMatrix_E);
+  chain -> SetBranchStatus("ele2_recHitMatrix_E",1);               chain -> SetBranchAddress("ele2_recHitMatrix_E",        &ele2_recHitMatrix_E);
   chain -> SetBranchStatus("ele1_recHitMatrix_laserCorrection",1); chain -> SetBranchAddress("ele1_recHitMatrix_laserCorrection", &ele1_recHitMatrix_LaserCorr);
   chain -> SetBranchStatus("ele2_recHitMatrix_laserCorrection",1); chain -> SetBranchAddress("ele2_recHitMatrix_laserCorrection", &ele2_recHitMatrix_LaserCorr);
-  //  chain -> SetBranchStatus("ele1_recHitMatrix_ICConstant",1); chain -> SetBranchAddress("ele1_recHitMatrix_ICConstant", &ele1_recHitMatrix_ICConst);
-  //  chain -> SetBranchStatus("ele2_recHitMatrix_ICConstant",1); chain -> SetBranchAddress("ele2_recHitMatrix_ICConstant", &ele2_recHitMatrix_ICConst);          
-
+  chain -> SetBranchStatus("ele1_recHitMatrix_ICConstant",1);      chain -> SetBranchAddress("ele1_recHitMatrix_ICConstant", &ele1_recHitMatrix_ICConst);
+  chain -> SetBranchStatus("ele2_recHitMatrix_ICConstant",1);      chain -> SetBranchAddress("ele2_recHitMatrix_ICConstant", &ele2_recHitMatrix_ICConst);          
   chain -> SetBranchStatus("ele2_recHitMatrix_E",1);        chain -> SetBranchAddress("ele2_recHitMatrix_E",        &ele2_recHitMatrix_E);
   chain -> SetBranchStatus("ele1_recHitMatrix_ietaORix",1); chain -> SetBranchAddress("ele1_recHitMatrix_ietaORix", &ele1_recHitMatrix_ietaORix);
   chain -> SetBranchStatus("ele2_recHitMatrix_ietaORix",1); chain -> SetBranchAddress("ele2_recHitMatrix_ietaORix", &ele2_recHitMatrix_ietaORix);
   chain -> SetBranchStatus("ele1_recHitMatrix_iphiORiy",1); chain -> SetBranchAddress("ele1_recHitMatrix_iphiORiy", &ele1_recHitMatrix_iphiORiy);
   chain -> SetBranchStatus("ele2_recHitMatrix_iphiORiy",1); chain -> SetBranchAddress("ele2_recHitMatrix_iphiORiy", &ele2_recHitMatrix_iphiORiy);  
+
+  int    Var0;
+  double Var1;
+ 
+  if(varType == "int")    { chain -> SetBranchStatus(inputVariable.c_str(),1);  chain -> SetBranchAddress(inputVariable.c_str(),&Var0);}
+  if(varType == "double") { chain -> SetBranchStatus(inputVariable.c_str(),1);  chain -> SetBranchAddress(inputVariable.c_str(),&Var1);}
+
   
   // loop over events                                                                                                                                             
   int nSelectedEvents = 0;
+
+  std::vector<TString> mlist = TMVA::gTools().SplitString(varRange, '-' ); // min and max in the range
+  
  
   for( int entry = 0; entry <chain->GetEntries() ; entry++ ) {
 
+
     if( entry%10000 == 0 ) std::cout << ">>> reading entry " << entry << " / " << chain->GetEntries() << "\r" << std::flush;
     chain->GetEntry(entry);
-    //    std::cout<<runId<<std::endl;    
-    
+
+    if( varType == "int"){ if( Var0 <= atoi(mlist.at(0).Data()) ) continue;
+                           if( Var0 >= atoi(mlist.at(1).Data())) break;}  // ntuples should be ordered on the inputVariabe 
+  
+    if( varType == "double"){ if( Var1 <= atoi(mlist.at(0).Data()) ) continue;
+                              if( Var1 >= atoi(mlist.at(1).Data())) break;}  // ntuples should be ordered on the inputVariab
+
+    if( entry%10000 == 0 ) std::cout<<"Entry = "<<entry<<"   "<<Var0<<std::endl;
     // selections
     if( isZ == 0 ) continue;
     if( fabs(ele1ele2_scM_regression - 91.19) > 5. ) continue;
