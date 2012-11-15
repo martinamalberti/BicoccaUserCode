@@ -1,4 +1,6 @@
 // g++ -Wall -o studyNoise `root-config --cflags --glibs` avgPUList.cc TEndcapRings.cc -lTMVA studyNoise.cpp
+// To Run ./studyNoise <inputList> <outputFile> <VariableOfCut> <GoodRange> <Type of Var> --> ntupla to be sorted on that variable
+// otherwise change break into continue in the cycle
 
 #include "avgPUList.h"
 #include "TEndcapRings.h"
