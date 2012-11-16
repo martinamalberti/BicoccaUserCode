@@ -2,13 +2,14 @@
 
 // --- EE ---
 // default constructor, reading the map from file                                                                                                                          
-TEndcapRegions::TEndcapRegions() {
+TEndcapRegions::TEndcapRegions()
+{
   //initializing the matrix
   for(int ii=0; ii<100; ++ii)
-    for(int kk=0; kk<100; ++kk)
+    for(int jj=0; jj<100; ++jj)
       {
-	iEndcapRing[ii][kk][0] = -1;
-	iEndcapRing[ii][kk][1] = -1;
+	iEndcapRing[ii][jj][0] = -1;
+	iEndcapRing[ii][jj][1] = -1;
       }
   FILE *fRing;
   fRing = fopen("eerings.dat","r");
@@ -32,7 +33,7 @@ int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, cons
   float ringWidth = 39./nRings;
  
   if(iEndcapRing[ix-1][iy-1][iSide] == -1) return -1;
-  else return ((float)iEndcapRing[ix-1][iy-1][iSide]/(float)ringWidth);
+  else return ((float)iEndcapRing[ix-1][iy-1][iSide]/(float)ringWidth) + nRings*iSide;
 }
 
 int TEndcapRegions::GetEndcapIeta(const int ix, const int iy, const int iz){
