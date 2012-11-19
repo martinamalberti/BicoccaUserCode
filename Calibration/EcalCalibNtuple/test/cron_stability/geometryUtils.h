@@ -19,9 +19,12 @@
 class TEndcapRegions {
  private:
   int iEndcapRing[100][100][2]; 
+  int iLMR[100][100][2]; 
  public:
   TEndcapRegions(); 
   virtual ~TEndcapRegions();
+  int GetNRegions(const std::string& type); 
+  int GetRegionId(const int,const int,const int,const std::string&);
   int GetEndcapRing(const int,const int,const int,const int);
   int GetEndcapIeta(const int,const int,const int);
 

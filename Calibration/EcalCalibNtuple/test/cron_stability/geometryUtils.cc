@@ -10,14 +10,17 @@ TEndcapRegions::TEndcapRegions()
       {
 	iEndcapRing[ii][jj][0] = -1;
 	iEndcapRing[ii][jj][1] = -1;
+	iLMR[ii][jj][0] = -1;
+	iLMR[ii][jj][1] = -1;
       }
   FILE *fRing;
-  fRing = fopen("eerings.dat","r");
+  fRing = fopen("eeregions.dat","r");
   std::cout << "Inizializing endcap geometry from: eerings.dat" << std::endl;
-  int ix,iy,iz,ir;
-  while(fscanf(fRing,"(%d,%d,%d) %d \n",&ix,&iy,&iz,&ir) !=EOF ) {
+  int ix,iy,iz,ir,lmr;
+  while(fscanf(fRing,"(%d,%d,%d) %d %d\n",&ix,&iy,&iz,&lmr,&ir) !=EOF ) {
     if (iz<0) iz=0;
     iEndcapRing[ix-1][iy-1][iz] = ir;
+    iLMR[ix-1][iy-1][iz] = lmr;
   }
   return;
 }
@@ -27,6 +30,28 @@ TEndcapRegions::~TEndcapRegions() { return;}
 
 
 //methods
+int TEndcapRegions::GetNRegions(const std::string& type)
+{
+  if( type == "LMR" ) return 38;
+
+  return -1;
+}
+
+int TEndcapRegions::GetRegionId(const int ix, const int iy, const int iz, const std::string& type)
+{
+  int iSide = iz;
+  if (iSide<0) iSide=0;
+  if( type == "LMR" )
+    {
+      return iLMR[ix-1][iy-1][iSide] + 19*iSide;
+    }
+  return -1;
+}
+
+
+
+
+
 int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings=39){
   int iSide = iz;
   if (iSide<0) iSide=0;
