@@ -58,7 +58,7 @@ int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, cons
   float ringWidth = 39./nRings;
  
   if(iEndcapRing[ix-1][iy-1][iSide] == -1) return -1;
-  else return ((float)iEndcapRing[ix-1][iy-1][iSide]/(float)ringWidth) + nRings*iSide;
+  else return int(((float)iEndcapRing[ix-1][iy-1][iSide]/(float)ringWidth)) + nRings*iSide;
 }
 
 int TEndcapRegions::GetEndcapIeta(const int ix, const int iy, const int iz){
