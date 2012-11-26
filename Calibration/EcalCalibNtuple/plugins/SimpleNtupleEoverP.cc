@@ -164,6 +164,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_recHit_iphiORiy", "std::vector<int>",   &ele1_recHit_iphiORiy);
   outTree_ -> Branch("ele1_recHit_zside", "std::vector<int>",   &ele1_recHit_zside);
   outTree_ -> Branch("ele1_recHit_laserCorrection","std::vector<float>", &ele1_recHit_laserCorrection);
+  outTree_ -> Branch("ele1_recHit_Alpha","std::vector<float>", &ele1_recHit_Alpha);
   outTree_ -> Branch("ele1_recHit_ICConstant",     "std::vector<float>", &ele1_recHit_ICConstant);
 
   if(saveRecHitMatrix_)
@@ -309,6 +310,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_recHit_iphiORiy", "std::vector<int>",   &ele2_recHit_iphiORiy);
   outTree_ -> Branch("ele2_recHit_zside", "std::vector<int>",   &ele2_recHit_zside);
   outTree_ -> Branch("ele2_recHit_laserCorrection","std::vector<float>", &ele2_recHit_laserCorrection);
+  outTree_ -> Branch("ele2_recHit_Alpha","std::vector<float>", &ele2_recHit_Alpha);
   outTree_ -> Branch("ele2_recHit_ICConstant",     "std::vector<float>", &ele2_recHit_ICConstant);
 
   if(saveRecHitMatrix_)
@@ -637,6 +639,7 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele1_recHit_iphiORiy.clear();
   ele1_recHit_zside.clear();
   ele1_recHit_laserCorrection.clear();
+  ele1_recHit_Alpha.clear();
   ele1_recHit_ICConstant.clear();
   ele1_nRecHits = -9999;
 
@@ -775,6 +778,7 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele2_recHit_iphiORiy.clear();
   ele2_recHit_zside.clear();
   ele2_recHit_laserCorrection.clear();
+  ele2_recHit_Alpha.clear();
   ele2_recHit_ICConstant.clear();
   ele2_nRecHits = -9999;
 
@@ -1632,7 +1636,13 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         seedICConstant = *ICMapIt;
       
       // laser alphas
-      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);      if( italpha != theEcalLaserAlphaMap->end() )
+											       seedLaserAlpha = (*italpha);
+     if( italpha != theEcalLaserAlphaMap->end() )
+											       seedLaserAlpha = (*italpha);
+      if( italpha != theEcalLaserAlphaMap->end() )
+											       seedLaserAlpha = (*italpha);
+
       if( italpha != theEcalLaserAlphaMap->end() )
         seedLaserAlpha = (*italpha);
       
@@ -1733,7 +1743,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           // IC correction
           EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
           theICCorrection = *ICMapIt;
-          
+          // Alpha xtal
+  
           std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
           if( TTIdListIt == TTIdList.end() ) continue;
           
@@ -1744,8 +1755,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           ele1_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
           ele1_recHitMatrix_zside.push_back(0);
           ele1_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
-          ele1_recHitMatrix_ICConstant.push_back(theICCorrection);
-        }
+          ele1_recHitMatrix_ICConstant.push_back(theICCorrection);        }
       }
       
       else
@@ -1790,6 +1800,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
       float rhICCorrection = 1.;
       float theLaserCorrection = -1.;
       float theICCorrection = -1.;
+      float theAlpha = -1.;
       
       if ((*rh).first.subdetId()== EcalBarrel)
       {
@@ -1805,7 +1816,12 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
-        
+       
+        // Alpha
+	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
+	if( italpha != theEcalLaserAlphaMap->end() )
+        theAlpha = (*italpha);
+ 
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
@@ -1827,6 +1843,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele1_recHit_zside.push_back(0);
         ele1_recHit_laserCorrection.push_back(theLaserCorrection);
         ele1_recHit_ICConstant.push_back(theICCorrection);
+	ele1_recHit_Alpha.push_back(theAlpha);
+      
         
         if( printOut && itrechit->energy() > 1. )
         {
@@ -1851,7 +1869,12 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
-        
+
+        // Alpha
+	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
+	if( italpha != theEcalLaserAlphaMap->end() )
+	theAlpha = (*italpha);
+
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
@@ -1873,6 +1896,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele1_recHit_zside.push_back(endcapId.zside());
         ele1_recHit_laserCorrection.push_back(theLaserCorrection);
         ele1_recHit_ICConstant.push_back(theICCorrection);
+	ele1_recHit_Alpha.push_back(theAlpha);
         
         if( printOut && itrechit->energy() > 1. )
         {
@@ -2191,7 +2215,9 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         seedICConstant = *ICMapIt;
       
       // laser alphas
-      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);      if( italpha != theEcalLaserAlphaMap->end() )
+											       seedLaserAlpha = (*italpha);
+
       if( italpha != theEcalLaserAlphaMap->end() )
         seedLaserAlpha = (*italpha);
       
@@ -2346,7 +2372,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
       float rhICCorrection = 1.;
       float theLaserCorrection = -1.;
       float theICCorrection = -1.;
-      
+      float theAlpha = -1.;
       if ((*rh).first.subdetId()== EcalBarrel)
       {
         EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
@@ -2361,6 +2387,10 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
+        // Alpha
+       	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
+	if( italpha != theEcalLaserAlphaMap->end() )
+	theAlpha = (*italpha);
         
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
@@ -2383,7 +2413,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele2_recHit_zside.push_back(0);
         ele2_recHit_laserCorrection.push_back(theLaserCorrection);
         ele2_recHit_ICConstant.push_back(theICCorrection);
-        
+        ele2_recHit_Alpha.push_back(theAlpha);
+
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
@@ -2407,6 +2438,9 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
+	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
+	if( italpha != theEcalLaserAlphaMap->end() )
+	 theAlpha = (*italpha);
         
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
@@ -2429,7 +2463,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele2_recHit_zside.push_back(endcapId.zside());
         ele2_recHit_laserCorrection.push_back(theLaserCorrection);
         ele2_recHit_ICConstant.push_back(theICCorrection);
-
+	//  ele2_recHit_Alpha.push_back(theAlpha);
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed

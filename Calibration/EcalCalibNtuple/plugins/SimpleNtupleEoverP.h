@@ -291,6 +291,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele1_recHit_iphiORiy;
   std::vector<int> ele1_recHit_zside;
   std::vector<float> ele1_recHit_laserCorrection;
+  std::vector<float> ele1_recHit_Alpha;
   std::vector<float> ele1_recHit_ICConstant;
   int   ele1_nRecHits;
 
@@ -452,6 +453,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele2_recHit_iphiORiy;
   std::vector<int> ele2_recHit_zside;
   std::vector<float> ele2_recHit_laserCorrection;
+  std::vector<float> ele2_recHit_Alpha;
   std::vector<float> ele2_recHit_ICConstant;
   int   ele2_nRecHits;
 
