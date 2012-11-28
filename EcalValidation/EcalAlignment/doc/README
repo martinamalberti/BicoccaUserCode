@@ -83,6 +83,13 @@ lumiCalc.py -c frontier://LumiProd/CMS_LUMI_PROD -i test/collision11.json record
 ########################################################################################################
 ############################ Calculate alignment coefficients and create DB ############################
 
+
+Copy data from EOS
+    eoscms ls -alrth  /eos/cms/store/caf/user/amassiro/ECALAlignment/08Nov2012/Run2012B/
+    eoscms cp  /eos/cms/store/caf/user/amassiro/ECALAlignment/08Nov2012/Run2012B/E*.root /tmp/amassiro/Run2012B/
+    hadd /tmp/amassiro/Run2012B_OldECAL_NewTrk.root /tmp/amassiro/Run2012B/E*.root
+    
+
 2) Do Alignment:
      EE_Alignment_RotoTraslation AlignEE_cfg.py
      EB_Alignment_RotoTraslation AlignEB_cfg.py

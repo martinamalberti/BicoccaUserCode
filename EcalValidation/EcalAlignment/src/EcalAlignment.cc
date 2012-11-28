@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Mon Oct 25 09:35:13 CEST 2010
-// $Id: EcalAlignment.cc,v 1.12 2011/08/04 13:26:01 amassiro Exp $
+// $Id: EcalAlignment.cc,v 1.13 2012/11/05 13:03:50 amassiro Exp $
 //
 //
 
@@ -208,7 +208,6 @@ void
  iEvent.getByLabel(vtxTag_,vtxH);
 
  nvtx_ = vtxH -> size();
- reco::Vertex PV;
  if(nvtx_!=0){
   xvtx_ = vtxH->at(0).x();
   yvtx_ = vtxH->at(0).y();
