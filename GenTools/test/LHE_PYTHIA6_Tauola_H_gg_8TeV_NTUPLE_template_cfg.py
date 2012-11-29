@@ -28,9 +28,9 @@ process.source = cms.Source("PoolSource",
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('LHE + PYTHIA6 + Tauola - Higgs -> 2gamma at 8TeV'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/GenProduction/python/EightTeV/POWHEG_PYTHIA6_Tauola_H_2gamma_8TeV_cff.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/Bicocca/GenTools/test/LHE_PYTHIA6_Tauola_H_gg_8TeV_NTUPLE_template_cfg.py,v $')
 )
 
 # Output definition
@@ -151,10 +151,10 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
-process.options = cms.untracked.PSet(
-	SkipEvent = cms.untracked.vstring('ProductNotFound')
-	)
-
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
+
+process.options = cms.untracked.PSet(
+	SkipEvent = cms.untracked.vstring('ProductNotFound')
+	)
