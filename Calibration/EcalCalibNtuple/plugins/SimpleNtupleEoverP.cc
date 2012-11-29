@@ -2463,7 +2463,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele2_recHit_zside.push_back(endcapId.zside());
         ele2_recHit_laserCorrection.push_back(theLaserCorrection);
         ele2_recHit_ICConstant.push_back(theICCorrection);
-	//  ele2_recHit_Alpha.push_back(theAlpha);
+	ele2_recHit_Alpha.push_back(theAlpha);
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
