@@ -19,7 +19,7 @@ def makeRecoTags(process):
         cms.PSet(record = cms.string('EcalLaserAlphasRcd'),
                  tag = cms.string('EcalLaserAlphas_EB_sic1_btcp152_EE_sic1_btcp116'),
                  connect = cms.untracked.string('frontier://FrontierInt/CMS_COND_ECAL')
-                 )
+                 ),
         cms.PSet(record = cms.string("EcalADCToGeVConstantRcd"),
                  tag = cms.string("EcalADCToGeVConstant_Bon_V20111129"),
                  connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
