@@ -15,7 +15,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 # simpleNtuple
 makeSimpleNtuple(process,GlobalTag="START53_V11::All",runOverSandbox=False,runOverAlcaReco=False,runOverData=False)
 
-#makeRecoTags(process)  #commented for 05Jul ReReco
+#makeRecoTags(process)
 #makeSqliteTags(process)
 
 # path
@@ -29,7 +29,7 @@ process.simpleNtupleEoverP.saveRecHitMatrix = cms.untracked.bool(False)
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    'file:/tmp/abenagli/Run2012C-PromptReco-v2_AOD.root'
+    'file:/tmp/abenagli/file.root'
     )
 
 process.maxEvents = cms.untracked.PSet(
