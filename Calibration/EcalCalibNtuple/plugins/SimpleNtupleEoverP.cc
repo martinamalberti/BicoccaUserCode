@@ -19,9 +19,11 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   std::cout<< ">>> SimpleNtupleEoverP::SimpleNtupleEoverP begin <<<" << std::endl;
   
   
+  
   // Initialize parameters for cluster corrections
+  std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::read parameters <<<" << std::endl;
   InitializeParams(params);
-
+  
   edm::Service<TFileService> fs ;
   outTree_  =        fs -> make <TTree>("SimpleNtupleEoverP","SimpleNtupleEoverP"); 
 
@@ -62,13 +64,16 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   eventNaiveId_ = 0;
 
   mcAnalysisZW_ = NULL;
-
+  
+  
+  
   //---- Initialize tree branches ----
   
   // event variables
-  outTree_ -> Branch("bxId",       &bxId,                       "bxId/L");
-  outTree_ -> Branch("eventId",       &eventId,                 "eventId/L");
-  outTree_ -> Branch("lumiId",        &lumiId,                 "lumiId/I");
+  std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set event branches <<<" << std::endl;
+  outTree_ -> Branch("bxId",          &bxId,                   "bxId/L");
+  outTree_ -> Branch("eventId",       &eventId,             "eventId/L");
+  outTree_ -> Branch("lumiId",        &lumiId,               "lumiId/I");
   outTree_ -> Branch("runId",         &runId,                 "runId/I");
   outTree_ -> Branch("timeStampHigh", &timeStampHigh, "timeStampHigh/I");
   outTree_ -> Branch("isW", &isW, "isW/I");
@@ -83,7 +88,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
  
   // ele1 variables
-
+  std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set ele1 branches <<<" << std::endl;
   outTree_ -> Branch("ele1_charge",     &ele1_charge,         "ele1_charge/F");
   outTree_ -> Branch("ele1_p",     &ele1_p,         "ele1_p/F");
   outTree_ -> Branch("ele1_pt",     &ele1_pt,         "ele1_pt/F");
@@ -188,49 +193,50 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele1_isEERingGap",       &ele1_isEERingGap,  "ele1_isEERingGap/I");
 
   // Regression V3 variable
-  outTree_ -> Branch("ele1_eRegrInput_rawE",       &ele1_eRegrInput_rawE,  "ele1_eRegrInput_rawE/F");
-  outTree_ -> Branch("ele1_eRegrInput_r9",       &ele1_eRegrInput_r9,  "ele1_eRegrInput_r9/F");
-  outTree_ -> Branch("ele1_eRegrInput_eta",       &ele1_eRegrInput_eta,  "ele1_eRegrInput_eta/F");
-  outTree_ -> Branch("ele1_eRegrInput_phi",       &ele1_eRegrInput_phi,  "ele1_eRegrInput_phi/F");
-  outTree_ -> Branch("ele1_eRegrInput_etaW",       &ele1_eRegrInput_etaW,  "ele1_eRegrInput_etaW/F");
-  outTree_ -> Branch("ele1_eRegrInput_phiW",       &ele1_eRegrInput_phiW,  "ele1_eRegrInput_phiW/F");
-  outTree_ -> Branch("ele1_eRegrInput_rho",       &ele1_eRegrInput_rho,  "ele1_eRegrInput_rho/F");
-  outTree_ -> Branch("ele1_eRegrInput_Deta_bC_sC",       &ele1_eRegrInput_Deta_bC_sC,  "ele1_eRegrInput_Deta_bC_sC/F");
-  outTree_ -> Branch("ele1_eRegrInput_Dphi_bC_sC",       &ele1_eRegrInput_Dphi_bC_sC,  "ele1_eRegrInput_Dphi_bC_sC/F");
-  outTree_ -> Branch("ele1_eRegrInput_bCE_Over_sCE",       &ele1_eRegrInput_bCE_Over_sCE,  "ele1_eRegrInput_bCE_Over_sCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_e3x3_Over_bCE",       &ele1_eRegrInput_e3x3_Over_bCE,  "ele1_eRegrInput_e3x3_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_e5x5_Over_bCE",       &ele1_eRegrInput_e5x5_Over_bCE,  "ele1_eRegrInput_e5x5_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bC1",       &ele1_eRegrInput_sigietaieta_bC1,  "ele1_eRegrInput_sigietaieta_bC1/F");
-  outTree_ -> Branch("ele1_eRegrInput_sigiphiiphi_bC1",       &ele1_eRegrInput_sigiphiiphi_bC1,  "ele1_eRegrInput_sigiphiiphi_bC1/F");
-  outTree_ -> Branch("ele1_eRegrInput_sigietaiphi_bC1",       &ele1_eRegrInput_sigietaiphi_bC1,  "ele1_eRegrInput_sigietaiphi_bC1/F");
+  //std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set ele1 regression branches <<<" << std::endl;
+  //outTree_ -> Branch("ele1_eRegrInput_rawE",       &ele1_eRegrInput_rawE,  "ele1_eRegrInput_rawE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_r9",       &ele1_eRegrInput_r9,  "ele1_eRegrInput_r9/F");
+  //outTree_ -> Branch("ele1_eRegrInput_eta",       &ele1_eRegrInput_eta,  "ele1_eRegrInput_eta/F");
+  //outTree_ -> Branch("ele1_eRegrInput_phi",       &ele1_eRegrInput_phi,  "ele1_eRegrInput_phi/F");
+  //outTree_ -> Branch("ele1_eRegrInput_etaW",       &ele1_eRegrInput_etaW,  "ele1_eRegrInput_etaW/F");
+  //outTree_ -> Branch("ele1_eRegrInput_phiW",       &ele1_eRegrInput_phiW,  "ele1_eRegrInput_phiW/F");
+  //outTree_ -> Branch("ele1_eRegrInput_rho",       &ele1_eRegrInput_rho,  "ele1_eRegrInput_rho/F");
+  //outTree_ -> Branch("ele1_eRegrInput_Deta_bC_sC",       &ele1_eRegrInput_Deta_bC_sC,  "ele1_eRegrInput_Deta_bC_sC/F");
+  //outTree_ -> Branch("ele1_eRegrInput_Dphi_bC_sC",       &ele1_eRegrInput_Dphi_bC_sC,  "ele1_eRegrInput_Dphi_bC_sC/F");
+  //outTree_ -> Branch("ele1_eRegrInput_bCE_Over_sCE",       &ele1_eRegrInput_bCE_Over_sCE,  "ele1_eRegrInput_bCE_Over_sCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_e3x3_Over_bCE",       &ele1_eRegrInput_e3x3_Over_bCE,  "ele1_eRegrInput_e3x3_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_e5x5_Over_bCE",       &ele1_eRegrInput_e5x5_Over_bCE,  "ele1_eRegrInput_e5x5_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_sigietaieta_bC1",       &ele1_eRegrInput_sigietaieta_bC1,  "ele1_eRegrInput_sigietaieta_bC1/F");
+  //outTree_ -> Branch("ele1_eRegrInput_sigiphiiphi_bC1",       &ele1_eRegrInput_sigiphiiphi_bC1,  "ele1_eRegrInput_sigiphiiphi_bC1/F");
+  //outTree_ -> Branch("ele1_eRegrInput_sigietaiphi_bC1",       &ele1_eRegrInput_sigietaiphi_bC1,  "ele1_eRegrInput_sigietaiphi_bC1/F");
  
-  outTree_ -> Branch("ele1_eRegrInput_bEMax_Over_bCE",       &ele1_eRegrInput_bEMax_Over_bCE,  "ele1_eRegrInput_bEMax_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_bE2nd_Over_bCE",       &ele1_eRegrInput_bE2nd_Over_bCE,  "ele1_eRegrInput_bE2nd_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_bEtop_Over_bCE",       &ele1_eRegrInput_bEtop_Over_bCE,  "ele1_eRegrInput_bEtop_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_bEbot_Over_bCE",       &ele1_eRegrInput_bEbot_Over_bCE,  "ele1_eRegrInput_bEbot_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_bEleft_Over_bCE",       &ele1_eRegrInput_bEleft_Over_bCE,  "ele1_eRegrInput_bEleft_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_bEright_Over_bCE",       &ele1_eRegrInput_bEright_Over_bCE,  "ele1_eRegrInput_bEright_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_be2x5max_Over_bCE",       &ele1_eRegrInput_be2x5max_Over_bCE,  "ele1_eRegrInput_be2x5max_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_be2x5top_Over_bCE",       &ele1_eRegrInput_be2x5top_Over_bCE,  "ele1_eRegrInput_be2x5top_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_be2x5bottom_Over_bCE",       &ele1_eRegrInput_be2x5bottom_Over_bCE,  "ele1_eRegrInput_be2x5bottom_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_be2x5left_Over_bCE",       &ele1_eRegrInput_be2x5left_Over_bCE,  "ele1_eRegrInput_be2x5left_Over_bCE/F");
-  outTree_ -> Branch("ele1_eRegrInput_be2x5right_Over_bCE",       &ele1_eRegrInput_be2x5right_Over_bCE,  "ele1_eRegrInput_be2x5right_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_bEMax_Over_bCE",       &ele1_eRegrInput_bEMax_Over_bCE,  "ele1_eRegrInput_bEMax_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_bE2nd_Over_bCE",       &ele1_eRegrInput_bE2nd_Over_bCE,  "ele1_eRegrInput_bE2nd_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_bEtop_Over_bCE",       &ele1_eRegrInput_bEtop_Over_bCE,  "ele1_eRegrInput_bEtop_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_bEbot_Over_bCE",       &ele1_eRegrInput_bEbot_Over_bCE,  "ele1_eRegrInput_bEbot_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_bEleft_Over_bCE",       &ele1_eRegrInput_bEleft_Over_bCE,  "ele1_eRegrInput_bEleft_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_bEright_Over_bCE",       &ele1_eRegrInput_bEright_Over_bCE,  "ele1_eRegrInput_bEright_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_be2x5max_Over_bCE",       &ele1_eRegrInput_be2x5max_Over_bCE,  "ele1_eRegrInput_be2x5max_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_be2x5top_Over_bCE",       &ele1_eRegrInput_be2x5top_Over_bCE,  "ele1_eRegrInput_be2x5top_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_be2x5bottom_Over_bCE",       &ele1_eRegrInput_be2x5bottom_Over_bCE,  "ele1_eRegrInput_be2x5bottom_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_be2x5left_Over_bCE",       &ele1_eRegrInput_be2x5left_Over_bCE,  "ele1_eRegrInput_be2x5left_Over_bCE/F");
+  //outTree_ -> Branch("ele1_eRegrInput_be2x5right_Over_bCE",       &ele1_eRegrInput_be2x5right_Over_bCE,  "ele1_eRegrInput_be2x5right_Over_bCE/F");
 
- outTree_ -> Branch("ele1_eRegrInput_seedbC_eta",       &ele1_eRegrInput_seedbC_eta,  "ele1_eRegrInput_seedbC_eta/F");
- outTree_ -> Branch("ele1_eRegrInput_seedbC_phi",       &ele1_eRegrInput_seedbC_phi,  "ele1_eRegrInput_seedbC_phi/F");
- outTree_ -> Branch("ele1_eRegrInput_seedbC_eta_p5",       &ele1_eRegrInput_seedbC_eta_p5,  "ele1_eRegrInput_seedbC_eta_p5/F");
- outTree_ -> Branch("ele1_eRegrInput_seedbC_phi_p2",       &ele1_eRegrInput_seedbC_phi_p2,  "ele1_eRegrInput_seedbC_phi_p2/F");
- outTree_ -> Branch("ele1_eRegrInput_seedbC_bieta",       &ele1_eRegrInput_seedbC_bieta,  "ele1_eRegrInput_seedbC_bieta/F");
- outTree_ -> Branch("ele1_eRegrInput_seedbC_phi_p20",       &ele1_eRegrInput_seedbC_phi_p20,  "ele1_eRegrInput_seedbC_phi_p20/F");
- outTree_ -> Branch("ele1_eRegrInput_seedbC_etacry",       &ele1_eRegrInput_seedbC_etacry,  "ele1_eRegrInput_seedbC_etacry/F");
- outTree_ -> Branch("ele1_eRegrInput_seedbC_phicry",       &ele1_eRegrInput_seedbC_phicry,  "ele1_eRegrInput_seedbC_phicry/F");
- outTree_ -> Branch("ele1_eRegrInput_ESoSC",       &ele1_eRegrInput_ESoSC,  "ele1_eRegrInput_ESoSC/F");
- outTree_ -> Branch("ele1_eRegrInput_nPV",       &ele1_eRegrInput_nPV,  "ele1_eRegrInput_nPV/F");
- outTree_ -> Branch("ele1_eRegrInput_SCsize",       &ele1_eRegrInput_SCsize,  "ele1_eRegrInput_SCsize/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_eta",       &ele1_eRegrInput_seedbC_eta,  "ele1_eRegrInput_seedbC_eta/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_phi",       &ele1_eRegrInput_seedbC_phi,  "ele1_eRegrInput_seedbC_phi/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_eta_p5",       &ele1_eRegrInput_seedbC_eta_p5,  "ele1_eRegrInput_seedbC_eta_p5/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_phi_p2",       &ele1_eRegrInput_seedbC_phi_p2,  "ele1_eRegrInput_seedbC_phi_p2/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_bieta",       &ele1_eRegrInput_seedbC_bieta,  "ele1_eRegrInput_seedbC_bieta/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_phi_p20",       &ele1_eRegrInput_seedbC_phi_p20,  "ele1_eRegrInput_seedbC_phi_p20/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_etacry",       &ele1_eRegrInput_seedbC_etacry,  "ele1_eRegrInput_seedbC_etacry/F");
+ //outTree_ -> Branch("ele1_eRegrInput_seedbC_phicry",       &ele1_eRegrInput_seedbC_phicry,  "ele1_eRegrInput_seedbC_phicry/F");
+ //outTree_ -> Branch("ele1_eRegrInput_ESoSC",       &ele1_eRegrInput_ESoSC,  "ele1_eRegrInput_ESoSC/F");
+ //outTree_ -> Branch("ele1_eRegrInput_nPV",       &ele1_eRegrInput_nPV,  "ele1_eRegrInput_nPV/F");
+ //outTree_ -> Branch("ele1_eRegrInput_SCsize",       &ele1_eRegrInput_SCsize,  "ele1_eRegrInput_SCsize/F");
  
  
   // ele2 variables
-
+  std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set ele2 branches <<<" << std::endl;
   outTree_ -> Branch("ele2_charge",     &ele2_charge,         "ele2_charge/F");
   outTree_ -> Branch("ele2_p",     &ele2_p,         "ele2_p/F");
   outTree_ -> Branch("ele2_pt",     &ele2_pt,         "ele2_pt/F");
@@ -334,121 +340,129 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("ele2_isEERingGap",       &ele2_isEERingGap,  "ele2_isEERingGap/I");
   
   // met variables
+  std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set met branches <<<" << std::endl;
   outTree_ -> Branch("met_et",       &met_et,  "met_et/F");
   outTree_ -> Branch("met_phi",       &met_phi,  "met_phi/F");
   outTree_ -> Branch("ele1Met_mt",       &ele1Met_mt,  "ele1Met_mt/F");
   outTree_ -> Branch("ele1Met_Dphi",       &ele1Met_Dphi,  "ele1Met_Dphi/F");
   
   // di-electron variables
+  std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set dielectron branches <<<" << std::endl;
   outTree_ -> Branch("ele1ele2_m",       &ele1ele2_m,  "ele1ele2_m/F");
   outTree_ -> Branch("ele1ele2_scM",       &ele1ele2_scM,  "ele1ele2_scM/F");
   outTree_ -> Branch("ele1ele2_scM_regression",       &ele1ele2_scM_regression,  "ele1ele2_scM_regression/F");
 
 
   // Regression V3 variable
-  outTree_ -> Branch("ele2_eRegrInput_rawE",       &ele2_eRegrInput_rawE,  "ele2_eRegrInput_rawE/F");
-  outTree_ -> Branch("ele2_eRegrInput_r9",       &ele2_eRegrInput_r9,  "ele2_eRegrInput_r9/F");
-  outTree_ -> Branch("ele2_eRegrInput_eta",       &ele2_eRegrInput_eta,  "ele2_eRegrInput_eta/F");
-  outTree_ -> Branch("ele2_eRegrInput_phi",       &ele2_eRegrInput_phi,  "ele2_eRegrInput_phi/F");
-  outTree_ -> Branch("ele2_eRegrInput_etaW",       &ele2_eRegrInput_etaW,  "ele2_eRegrInput_etaW/F");
-  outTree_ -> Branch("ele2_eRegrInput_phiW",       &ele2_eRegrInput_phiW,  "ele2_eRegrInput_phiW/F");
-  outTree_ -> Branch("ele2_eRegrInput_rho",       &ele2_eRegrInput_rho,  "ele2_eRegrInput_rho/F");
-  outTree_ -> Branch("ele2_eRegrInput_Deta_bC_sC",       &ele2_eRegrInput_Deta_bC_sC,  "ele2_eRegrInput_Deta_bC_sC/F");
-  outTree_ -> Branch("ele2_eRegrInput_Dphi_bC_sC",       &ele2_eRegrInput_Dphi_bC_sC,  "ele2_eRegrInput_Dphi_bC_sC/F");
-  outTree_ -> Branch("ele2_eRegrInput_bCE_Over_sCE",       &ele2_eRegrInput_bCE_Over_sCE,  "ele2_eRegrInput_bCE_Over_sCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_e3x3_Over_bCE",       &ele2_eRegrInput_e3x3_Over_bCE,  "ele2_eRegrInput_e3x3_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_e5x5_Over_bCE",       &ele2_eRegrInput_e5x5_Over_bCE,  "ele2_eRegrInput_e5x5_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bC1",       &ele2_eRegrInput_sigietaieta_bC1,  "ele2_eRegrInput_sigietaieta_bC1/F");
-  outTree_ -> Branch("ele2_eRegrInput_sigiphiiphi_bC1",       &ele2_eRegrInput_sigiphiiphi_bC1,  "ele2_eRegrInput_sigiphiiphi_bC1/F");
-  outTree_ -> Branch("ele2_eRegrInput_sigietaiphi_bC1",       &ele2_eRegrInput_sigietaiphi_bC1,  "ele2_eRegrInput_sigietaiphi_bC1/F");
+  //std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set ele2 regression branches <<<" << std::endl;
+  //outTree_ -> Branch("ele2_eRegrInput_rawE",       &ele2_eRegrInput_rawE,  "ele2_eRegrInput_rawE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_r9",       &ele2_eRegrInput_r9,  "ele2_eRegrInput_r9/F");
+  //outTree_ -> Branch("ele2_eRegrInput_eta",       &ele2_eRegrInput_eta,  "ele2_eRegrInput_eta/F");
+  //outTree_ -> Branch("ele2_eRegrInput_phi",       &ele2_eRegrInput_phi,  "ele2_eRegrInput_phi/F");
+  //outTree_ -> Branch("ele2_eRegrInput_etaW",       &ele2_eRegrInput_etaW,  "ele2_eRegrInput_etaW/F");
+  //outTree_ -> Branch("ele2_eRegrInput_phiW",       &ele2_eRegrInput_phiW,  "ele2_eRegrInput_phiW/F");
+  //outTree_ -> Branch("ele2_eRegrInput_rho",       &ele2_eRegrInput_rho,  "ele2_eRegrInput_rho/F");
+  //outTree_ -> Branch("ele2_eRegrInput_Deta_bC_sC",       &ele2_eRegrInput_Deta_bC_sC,  "ele2_eRegrInput_Deta_bC_sC/F");
+  //outTree_ -> Branch("ele2_eRegrInput_Dphi_bC_sC",       &ele2_eRegrInput_Dphi_bC_sC,  "ele2_eRegrInput_Dphi_bC_sC/F");
+  //outTree_ -> Branch("ele2_eRegrInput_bCE_Over_sCE",       &ele2_eRegrInput_bCE_Over_sCE,  "ele2_eRegrInput_bCE_Over_sCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_e3x3_Over_bCE",       &ele2_eRegrInput_e3x3_Over_bCE,  "ele2_eRegrInput_e3x3_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_e5x5_Over_bCE",       &ele2_eRegrInput_e5x5_Over_bCE,  "ele2_eRegrInput_e5x5_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_sigietaieta_bC1",       &ele2_eRegrInput_sigietaieta_bC1,  "ele2_eRegrInput_sigietaieta_bC1/F");
+  //outTree_ -> Branch("ele2_eRegrInput_sigiphiiphi_bC1",       &ele2_eRegrInput_sigiphiiphi_bC1,  "ele2_eRegrInput_sigiphiiphi_bC1/F");
+  //outTree_ -> Branch("ele2_eRegrInput_sigietaiphi_bC1",       &ele2_eRegrInput_sigietaiphi_bC1,  "ele2_eRegrInput_sigietaiphi_bC1/F");
  
-  outTree_ -> Branch("ele2_eRegrInput_bEMax_Over_bCE",       &ele2_eRegrInput_bEMax_Over_bCE,  "ele2_eRegrInput_bEMax_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_bE2nd_Over_bCE",       &ele2_eRegrInput_bE2nd_Over_bCE,  "ele2_eRegrInput_bE2nd_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_bEtop_Over_bCE",       &ele2_eRegrInput_bEtop_Over_bCE,  "ele2_eRegrInput_bEtop_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_bEbot_Over_bCE",       &ele2_eRegrInput_bEbot_Over_bCE,  "ele2_eRegrInput_bEbot_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_bEleft_Over_bCE",       &ele2_eRegrInput_bEleft_Over_bCE,  "ele2_eRegrInput_bEleft_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_bEright_Over_bCE",       &ele2_eRegrInput_bEright_Over_bCE,  "ele2_eRegrInput_bEright_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_be2x5max_Over_bCE",       &ele2_eRegrInput_be2x5max_Over_bCE,  "ele2_eRegrInput_be2x5max_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_be2x5top_Over_bCE",       &ele2_eRegrInput_be2x5top_Over_bCE,  "ele2_eRegrInput_be2x5top_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_be2x5bottom_Over_bCE",       &ele2_eRegrInput_be2x5bottom_Over_bCE,  "ele2_eRegrInput_be2x5bottom_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_be2x5left_Over_bCE",       &ele2_eRegrInput_be2x5left_Over_bCE,  "ele2_eRegrInput_be2x5left_Over_bCE/F");
-  outTree_ -> Branch("ele2_eRegrInput_be2x5right_Over_bCE",       &ele2_eRegrInput_be2x5right_Over_bCE,  "ele2_eRegrInput_be2x5right_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_bEMax_Over_bCE",       &ele2_eRegrInput_bEMax_Over_bCE,  "ele2_eRegrInput_bEMax_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_bE2nd_Over_bCE",       &ele2_eRegrInput_bE2nd_Over_bCE,  "ele2_eRegrInput_bE2nd_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_bEtop_Over_bCE",       &ele2_eRegrInput_bEtop_Over_bCE,  "ele2_eRegrInput_bEtop_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_bEbot_Over_bCE",       &ele2_eRegrInput_bEbot_Over_bCE,  "ele2_eRegrInput_bEbot_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_bEleft_Over_bCE",       &ele2_eRegrInput_bEleft_Over_bCE,  "ele2_eRegrInput_bEleft_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_bEright_Over_bCE",       &ele2_eRegrInput_bEright_Over_bCE,  "ele2_eRegrInput_bEright_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_be2x5max_Over_bCE",       &ele2_eRegrInput_be2x5max_Over_bCE,  "ele2_eRegrInput_be2x5max_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_be2x5top_Over_bCE",       &ele2_eRegrInput_be2x5top_Over_bCE,  "ele2_eRegrInput_be2x5top_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_be2x5bottom_Over_bCE",       &ele2_eRegrInput_be2x5bottom_Over_bCE,  "ele2_eRegrInput_be2x5bottom_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_be2x5left_Over_bCE",       &ele2_eRegrInput_be2x5left_Over_bCE,  "ele2_eRegrInput_be2x5left_Over_bCE/F");
+  //outTree_ -> Branch("ele2_eRegrInput_be2x5right_Over_bCE",       &ele2_eRegrInput_be2x5right_Over_bCE,  "ele2_eRegrInput_be2x5right_Over_bCE/F");
 
- outTree_ -> Branch("ele2_eRegrInput_seedbC_eta",       &ele2_eRegrInput_seedbC_eta,  "ele2_eRegrInput_seedbC_eta/F");
- outTree_ -> Branch("ele2_eRegrInput_seedbC_phi",       &ele2_eRegrInput_seedbC_phi,  "ele2_eRegrInput_seedbC_phi/F");
- outTree_ -> Branch("ele2_eRegrInput_seedbC_eta_p5",       &ele2_eRegrInput_seedbC_eta_p5,  "ele2_eRegrInput_seedbC_eta_p5/F");
- outTree_ -> Branch("ele2_eRegrInput_seedbC_phi_p2",       &ele2_eRegrInput_seedbC_phi_p2,  "ele2_eRegrInput_seedbC_phi_p2/F");
- outTree_ -> Branch("ele2_eRegrInput_seedbC_bieta",       &ele2_eRegrInput_seedbC_bieta,  "ele2_eRegrInput_seedbC_bieta/F");
- outTree_ -> Branch("ele2_eRegrInput_seedbC_phi_p20",       &ele2_eRegrInput_seedbC_phi_p20,  "ele2_eRegrInput_seedbC_phi_p20/F");
- outTree_ -> Branch("ele2_eRegrInput_seedbC_etacry",       &ele2_eRegrInput_seedbC_etacry,  "ele2_eRegrInput_seedbC_etacry/F");
- outTree_ -> Branch("ele2_eRegrInput_seedbC_phicry",       &ele2_eRegrInput_seedbC_phicry,  "ele2_eRegrInput_seedbC_phicry/F");
- outTree_ -> Branch("ele2_eRegrInput_ESoSC",       &ele2_eRegrInput_ESoSC,  "ele2_eRegrInput_ESoSC/F");
- outTree_ -> Branch("ele2_eRegrInput_nPV",       &ele2_eRegrInput_nPV,  "ele2_eRegrInput_nPV/F");
- outTree_ -> Branch("ele2_eRegrInput_SCsize",       &ele2_eRegrInput_SCsize,  "ele2_eRegrInput_SCsize/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_eta",       &ele2_eRegrInput_seedbC_eta,  "ele2_eRegrInput_seedbC_eta/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_phi",       &ele2_eRegrInput_seedbC_phi,  "ele2_eRegrInput_seedbC_phi/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_eta_p5",       &ele2_eRegrInput_seedbC_eta_p5,  "ele2_eRegrInput_seedbC_eta_p5/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_phi_p2",       &ele2_eRegrInput_seedbC_phi_p2,  "ele2_eRegrInput_seedbC_phi_p2/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_bieta",       &ele2_eRegrInput_seedbC_bieta,  "ele2_eRegrInput_seedbC_bieta/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_phi_p20",       &ele2_eRegrInput_seedbC_phi_p20,  "ele2_eRegrInput_seedbC_phi_p20/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_etacry",       &ele2_eRegrInput_seedbC_etacry,  "ele2_eRegrInput_seedbC_etacry/F");
+ //outTree_ -> Branch("ele2_eRegrInput_seedbC_phicry",       &ele2_eRegrInput_seedbC_phicry,  "ele2_eRegrInput_seedbC_phicry/F");
+ //outTree_ -> Branch("ele2_eRegrInput_ESoSC",       &ele2_eRegrInput_ESoSC,  "ele2_eRegrInput_ESoSC/F");
+ //outTree_ -> Branch("ele2_eRegrInput_nPV",       &ele2_eRegrInput_nPV,  "ele2_eRegrInput_nPV/F");
+ //outTree_ -> Branch("ele2_eRegrInput_SCsize",       &ele2_eRegrInput_SCsize,  "ele2_eRegrInput_SCsize/F");
 
- if(saveFbrem_){
-   outTree_ -> Branch("ele1_inner_p", &ele1_inner_p, "ele1_inner_p/F");
-   outTree_ -> Branch("ele1_inner_x", &ele1_inner_x, "ele1_inner_x/F");
-   outTree_ -> Branch("ele1_inner_y", &ele1_inner_y, "ele1_inner_y/F");
-   outTree_ -> Branch("ele1_inner_z", &ele1_inner_z, "ele1_inner_z/F");
-   outTree_ -> Branch("ele1_outer_p", &ele1_outer_p, "ele1_outer_p/F");
-   outTree_ -> Branch("ele1_outer_x", &ele1_outer_x, "ele1_outer_x/F");
-   outTree_ -> Branch("ele1_outer_y", &ele1_outer_y, "ele1_outer_y/F");
-   outTree_ -> Branch("ele1_outer_z", &ele1_outer_z, "ele1_outer_z/F");
-   outTree_ -> Branch("ele1_tangent_n", &ele1_tangent_n, "ele1_tangent_n/I");
-   outTree_ -> Branch("ele1_tangent_p", "std::vector<float>", &ele1_tangent_p);
-   outTree_ -> Branch("ele1_tangent_x", "std::vector<float>", &ele1_tangent_x);
-   outTree_ -> Branch("ele1_tangent_y", "std::vector<float>", &ele1_tangent_y);
-   outTree_ -> Branch("ele1_tangent_z", "std::vector<float>", &ele1_tangent_z);
-   outTree_ -> Branch("ele1_tangent_dP", "std::vector<float>", &ele1_tangent_dP);
-   outTree_ -> Branch("ele1_tangent_dPerr", "std::vector<float>", &ele1_tangent_dPerr);
-
-   outTree_ -> Branch("ele2_inner_p", &ele2_inner_p, "ele2_inner_p/F");
-   outTree_ -> Branch("ele2_inner_x", &ele2_inner_x, "ele2_inner_x/F");
-   outTree_ -> Branch("ele2_inner_y", &ele2_inner_y, "ele2_inner_y/F");
-   outTree_ -> Branch("ele2_inner_z", &ele2_inner_z, "ele2_inner_z/F");
-   outTree_ -> Branch("ele2_outer_p", &ele2_outer_p, "ele2_outer_p/F");
-   outTree_ -> Branch("ele2_outer_x", &ele2_outer_x, "ele2_outer_x/F");
-   outTree_ -> Branch("ele2_outer_y", &ele2_outer_y, "ele2_outer_y/F");
-   outTree_ -> Branch("ele2_outer_z", &ele2_outer_z, "ele2_outer_z/F");
-   outTree_ -> Branch("ele2_tangent_n", &ele2_tangent_n, "ele2_tangent_n/I");
-   outTree_ -> Branch("ele2_tangent_p", "std::vector<float>", &ele2_tangent_p);
-   outTree_ -> Branch("ele2_tangent_x", "std::vector<float>", &ele2_tangent_x);
-   outTree_ -> Branch("ele2_tangent_y", "std::vector<float>", &ele2_tangent_y);
-   outTree_ -> Branch("ele2_tangent_z", "std::vector<float>", &ele2_tangent_z);
-   outTree_ -> Branch("ele2_tangent_dP", "std::vector<float>", &ele2_tangent_dP);
-   outTree_ -> Branch("ele2_tangent_dPerr", "std::vector<float>", &ele2_tangent_dPerr);
-
- }
-
-
-  if(saveMCPU_){
-  outTree_ -> Branch("PUit_TrueNumInteractions",       &PUit_TrueNumInteractions,  "PUit_TrueNumInteractions/F");
-  outTree_ -> Branch("PUit_NumInteractions",       &PUit_NumInteractions,  "PUit_NumInteractions/I");
-  outTree_ -> Branch("PUit_zpositions",       &PUit_zpositions,  "PUit_zpositions/F");
-  outTree_ -> Branch("PUit_sumpT_lowpT",       &PUit_sumpT_lowpT,  "PUit_sumpT_lowpT/F");
-  outTree_ -> Branch("PUit_sumpT_highpT",       &PUit_sumpT_highpT,  "PUit_sumpT_highpT/F");
-  outTree_ -> Branch("PUit_ntrks_lowpT",       &PUit_ntrks_lowpT,  "PUit_ntrks_lowpT/F");
-  outTree_ -> Branch("PUit_ntrks_highpT",       &PUit_ntrks_highpT,  "PUit_ntrks_highpT/F");
-
-  outTree_ -> Branch("PUoot_early_TrueNumInteractions",       &PUoot_early_TrueNumInteractions,  "PUoot_early_TrueNumInteractions/F");
-  outTree_ -> Branch("PUoot_early",       &PUoot_early,  "PUoot_early/I");
-  outTree_ -> Branch("PUoot_early_zpositions",       &PUoot_early_zpositions,  "PUoot_early_zpositions/F");
-  outTree_ -> Branch("PUoot_early_sumpT_lowpT",       &PUoot_early_sumpT_lowpT,  "PUoot_early_sumpT_lowpT/F");
-  outTree_ -> Branch("PUoot_early_sumpT_highpT",       &PUoot_early_sumpT_highpT,  "PUoot_early_sumpT_highpT/F");
-  outTree_ -> Branch("PUoot_early_ntrks_lowpT",       &PUoot_early_ntrks_lowpT,  "PUoot_early_ntrks_lowpT/F");
-  outTree_ -> Branch("PUoot_early_ntrks_highpT",       &PUoot_early_ntrks_highpT,  "PUoot_early_ntrks_highpT/F");
-
-  outTree_ -> Branch("PUoot_late_TrueNumInteractions",       &PUoot_late_TrueNumInteractions,  "PUoot_late_TrueNumInteractions/F");
-  outTree_ -> Branch("PUoot_late",       &PUoot_late,  "PUoot_late/I");
-  outTree_ -> Branch("PUoot_late_zpositions",       &PUoot_late_zpositions,  "PUoot_late_zpositions/F");
-  outTree_ -> Branch("PUoot_late_sumpT_lowpT",       &PUoot_late_sumpT_lowpT,  "PUoot_late_sumpT_lowpT/F");
-  outTree_ -> Branch("PUoot_late_sumpT_highpT",       &PUoot_late_sumpT_highpT,  "PUoot_late_sumpT_highpT/F");
-  outTree_ -> Branch("PUoot_late_ntrks_lowpT",       &PUoot_late_ntrks_lowpT,  "PUoot_late_ntrks_lowpT/F");
-  outTree_ -> Branch("PUoot_late_ntrks_highpT",       &PUoot_late_ntrks_highpT,  "PUoot_late_ntrks_highpT/F");
+  if(saveFbrem_)
+  {
+    std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set fBrem branches <<<" << std::endl;
+    outTree_ -> Branch("ele1_inner_p", &ele1_inner_p, "ele1_inner_p/F");
+    outTree_ -> Branch("ele1_inner_x", &ele1_inner_x, "ele1_inner_x/F");
+    outTree_ -> Branch("ele1_inner_y", &ele1_inner_y, "ele1_inner_y/F");
+    outTree_ -> Branch("ele1_inner_z", &ele1_inner_z, "ele1_inner_z/F");
+    outTree_ -> Branch("ele1_outer_p", &ele1_outer_p, "ele1_outer_p/F");
+    outTree_ -> Branch("ele1_outer_x", &ele1_outer_x, "ele1_outer_x/F");
+    outTree_ -> Branch("ele1_outer_y", &ele1_outer_y, "ele1_outer_y/F");
+    outTree_ -> Branch("ele1_outer_z", &ele1_outer_z, "ele1_outer_z/F");
+    outTree_ -> Branch("ele1_tangent_n", &ele1_tangent_n, "ele1_tangent_n/I");
+    outTree_ -> Branch("ele1_tangent_p", "std::vector<float>", &ele1_tangent_p);
+    outTree_ -> Branch("ele1_tangent_x", "std::vector<float>", &ele1_tangent_x);
+    outTree_ -> Branch("ele1_tangent_y", "std::vector<float>", &ele1_tangent_y);
+    outTree_ -> Branch("ele1_tangent_z", "std::vector<float>", &ele1_tangent_z);
+    outTree_ -> Branch("ele1_tangent_dP", "std::vector<float>", &ele1_tangent_dP);
+    outTree_ -> Branch("ele1_tangent_dPerr", "std::vector<float>", &ele1_tangent_dPerr);
+    
+    outTree_ -> Branch("ele2_inner_p", &ele2_inner_p, "ele2_inner_p/F");
+    outTree_ -> Branch("ele2_inner_x", &ele2_inner_x, "ele2_inner_x/F");
+    outTree_ -> Branch("ele2_inner_y", &ele2_inner_y, "ele2_inner_y/F");
+    outTree_ -> Branch("ele2_inner_z", &ele2_inner_z, "ele2_inner_z/F");
+    outTree_ -> Branch("ele2_outer_p", &ele2_outer_p, "ele2_outer_p/F");
+    outTree_ -> Branch("ele2_outer_x", &ele2_outer_x, "ele2_outer_x/F");
+    outTree_ -> Branch("ele2_outer_y", &ele2_outer_y, "ele2_outer_y/F");
+    outTree_ -> Branch("ele2_outer_z", &ele2_outer_z, "ele2_outer_z/F");
+    outTree_ -> Branch("ele2_tangent_n", &ele2_tangent_n, "ele2_tangent_n/I");
+    outTree_ -> Branch("ele2_tangent_p", "std::vector<float>", &ele2_tangent_p);
+    outTree_ -> Branch("ele2_tangent_x", "std::vector<float>", &ele2_tangent_x);
+    outTree_ -> Branch("ele2_tangent_y", "std::vector<float>", &ele2_tangent_y);
+    outTree_ -> Branch("ele2_tangent_z", "std::vector<float>", &ele2_tangent_z);
+    outTree_ -> Branch("ele2_tangent_dP", "std::vector<float>", &ele2_tangent_dP);
+    outTree_ -> Branch("ele2_tangent_dPerr", "std::vector<float>", &ele2_tangent_dPerr);
+  }
+  
+  
+  if(saveMCPU_)
+  {
+    std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set MC PU branches <<<" << std::endl;
+    outTree_ -> Branch("PUit_TrueNumInteractions",       &PUit_TrueNumInteractions,  "PUit_TrueNumInteractions/F");
+    outTree_ -> Branch("PUit_NumInteractions",       &PUit_NumInteractions,  "PUit_NumInteractions/I");
+    outTree_ -> Branch("PUit_zpositions",       &PUit_zpositions,  "PUit_zpositions/F");
+    outTree_ -> Branch("PUit_sumpT_lowpT",       &PUit_sumpT_lowpT,  "PUit_sumpT_lowpT/F");
+    outTree_ -> Branch("PUit_sumpT_highpT",       &PUit_sumpT_highpT,  "PUit_sumpT_highpT/F");
+    outTree_ -> Branch("PUit_ntrks_lowpT",       &PUit_ntrks_lowpT,  "PUit_ntrks_lowpT/F");
+    outTree_ -> Branch("PUit_ntrks_highpT",       &PUit_ntrks_highpT,  "PUit_ntrks_highpT/F");
+    
+    outTree_ -> Branch("PUoot_early_TrueNumInteractions",       &PUoot_early_TrueNumInteractions,  "PUoot_early_TrueNumInteractions/F");
+    outTree_ -> Branch("PUoot_early",       &PUoot_early,  "PUoot_early/I");
+    outTree_ -> Branch("PUoot_early_zpositions",       &PUoot_early_zpositions,  "PUoot_early_zpositions/F");
+    outTree_ -> Branch("PUoot_early_sumpT_lowpT",       &PUoot_early_sumpT_lowpT,  "PUoot_early_sumpT_lowpT/F");
+    outTree_ -> Branch("PUoot_early_sumpT_highpT",       &PUoot_early_sumpT_highpT,  "PUoot_early_sumpT_highpT/F");
+    outTree_ -> Branch("PUoot_early_ntrks_lowpT",       &PUoot_early_ntrks_lowpT,  "PUoot_early_ntrks_lowpT/F");
+    outTree_ -> Branch("PUoot_early_ntrks_highpT",       &PUoot_early_ntrks_highpT,  "PUoot_early_ntrks_highpT/F");
+    
+    outTree_ -> Branch("PUoot_late_TrueNumInteractions",       &PUoot_late_TrueNumInteractions,  "PUoot_late_TrueNumInteractions/F");
+    outTree_ -> Branch("PUoot_late",       &PUoot_late,  "PUoot_late/I");
+    outTree_ -> Branch("PUoot_late_zpositions",       &PUoot_late_zpositions,  "PUoot_late_zpositions/F");
+    outTree_ -> Branch("PUoot_late_sumpT_lowpT",       &PUoot_late_sumpT_lowpT,  "PUoot_late_sumpT_lowpT/F");
+    outTree_ -> Branch("PUoot_late_sumpT_highpT",       &PUoot_late_sumpT_highpT,  "PUoot_late_sumpT_highpT/F");
+    outTree_ -> Branch("PUoot_late_ntrks_lowpT",       &PUoot_late_ntrks_lowpT,  "PUoot_late_ntrks_lowpT/F");
+    outTree_ -> Branch("PUoot_late_ntrks_highpT",       &PUoot_late_ntrks_highpT,  "PUoot_late_ntrks_highpT/F");
   }
 
-  if(saveMCInfo_){
+  if(saveMCInfo_)
+  {
+    std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::set MC branches <<<" << std::endl;
     outTree_ -> Branch("mcV_E", &mcV_E, "mcV_E/F");
     outTree_ -> Branch("mcV_Px", &mcV_Px, "mcV_Px/F");
     outTree_ -> Branch("mcV_Py", &mcV_Py, "mcV_Py/F");
@@ -470,12 +484,17 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
     outTree_ -> Branch("mcF2_fromV_Charge", &mcF2_fromV_Charge, "mcF2_fromV_Charge/I");
     outTree_ -> Branch("mcF2_fromV_PdgId", &mcF2_fromV_PdgId, "mcF2_fromV_PdgId/I");
   }
-
+  
+  std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::get cluster corrections <<<" << std::endl;
   EcalClusterCrackCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
   EcalClusterLocalContCorrection = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection", iConfig);
- 
+  
   // JSON file map 
-  jsonMap_ = readJSONFile(jsonFileName_);
+  if( jsonFlag_ == true )
+  {
+    std::cout<< ">>>>>> SimpleNtupleEoverP::SimpleNtupleEoverP::read json file <<<" << std::endl;
+    jsonMap_ = readJSONFile(jsonFileName_);
+  }
   
   std::cout<< ">>> SimpleNtupleEoverP::SimpleNtupleEoverP end <<<" << std::endl;
 }
@@ -886,10 +905,12 @@ void SimpleNtupleEoverP::analyze(const edm::Event& iEvent, const edm::EventSetup
   ele1ele2_scM_regression=-99.;
 
   // Accept event from json file
-
-  bool skipEvent = false;
-  if(AcceptEventByRunAndLumiSection(runId,lumiId,jsonMap_) == false) skipEvent = true;
-  if( (jsonFlag_ == true) && (skipEvent == true) ) return;
+  if( jsonFlag_ == true )
+  {
+    bool skipEvent = false;
+    if(AcceptEventByRunAndLumiSection(runId,lumiId,jsonMap_) == false) skipEvent = true;
+    if( (jsonFlag_ == true) && (skipEvent == true) ) return;
+  }
   
   //************* VERTEXES
   fillPVInfo (iEvent,iSetup) ;
@@ -1446,12 +1467,12 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
   
   //************* REGRESSION
   if( !ecorr_.IsInitialized() ){
-    //    ecorr_.Initialize(iSetup,"gbrv3ele_52x.root");
-    ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
+    ecorr_.Initialize(iSetup,"gbrv3ele_52x.root");
+    //ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
   }
   if( !ecorrPho_.IsInitialized()){
-    //    ecorrPho_.Initialize(iSetup,"gbrv3ph_52x.root");
-    ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ph_52x.root");
+    ecorrPho_.Initialize(iSetup,"gbrv3ph_52x.root");
+    //ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ph_52x.root");
   } 
   
   //************* CLUSTER PU CLEANING TOOLS
@@ -1636,13 +1657,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         seedICConstant = *ICMapIt;
       
       // laser alphas
-      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);      if( italpha != theEcalLaserAlphaMap->end() )
-											       seedLaserAlpha = (*italpha);
-     if( italpha != theEcalLaserAlphaMap->end() )
-											       seedLaserAlpha = (*italpha);
-      if( italpha != theEcalLaserAlphaMap->end() )
-											       seedLaserAlpha = (*italpha);
-
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
       if( italpha != theEcalLaserAlphaMap->end() )
         seedLaserAlpha = (*italpha);
       
@@ -1743,8 +1758,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           // IC correction
           EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
           theICCorrection = *ICMapIt;
-          // Alpha xtal
-  
+          
           std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
           if( TTIdListIt == TTIdList.end() ) continue;
           
@@ -1755,7 +1769,8 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           ele1_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
           ele1_recHitMatrix_zside.push_back(0);
           ele1_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
-          ele1_recHitMatrix_ICConstant.push_back(theICCorrection);        }
+          ele1_recHitMatrix_ICConstant.push_back(theICCorrection);
+        }
       }
       
       else
@@ -1801,7 +1816,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
       float theLaserCorrection = -1.;
       float theICCorrection = -1.;
       float theAlpha = -1.;
-      
+            
       if ((*rh).first.subdetId()== EcalBarrel)
       {
         EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
@@ -1816,12 +1831,10 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
-       
         // Alpha
 	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
 	if( italpha != theEcalLaserAlphaMap->end() )
-        theAlpha = (*italpha);
- 
+	  theAlpha = (*italpha);
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
@@ -1843,8 +1856,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele1_recHit_zside.push_back(0);
         ele1_recHit_laserCorrection.push_back(theLaserCorrection);
         ele1_recHit_ICConstant.push_back(theICCorrection);
-	ele1_recHit_Alpha.push_back(theAlpha);
-      
+        ele1_recHit_Alpha.push_back(theAlpha);
         
         if( printOut && itrechit->energy() > 1. )
         {
@@ -1869,12 +1881,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
-
-        // Alpha
-	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
-	if( italpha != theEcalLaserAlphaMap->end() )
-	theAlpha = (*italpha);
-
+        
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
@@ -1896,7 +1903,6 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele1_recHit_zside.push_back(endcapId.zside());
         ele1_recHit_laserCorrection.push_back(theLaserCorrection);
         ele1_recHit_ICConstant.push_back(theICCorrection);
-	ele1_recHit_Alpha.push_back(theAlpha);
         
         if( printOut && itrechit->energy() > 1. )
         {
@@ -2215,9 +2221,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         seedICConstant = *ICMapIt;
       
       // laser alphas
-      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);      if( italpha != theEcalLaserAlphaMap->end() )
-											       seedLaserAlpha = (*italpha);
-
+      EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(id.first);
       if( italpha != theEcalLaserAlphaMap->end() )
         seedLaserAlpha = (*italpha);
       
@@ -2373,6 +2377,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
       float theLaserCorrection = -1.;
       float theICCorrection = -1.;
       float theAlpha = -1.;
+            
       if ((*rh).first.subdetId()== EcalBarrel)
       {
         EBRecHitCollection::const_iterator itrechit = theBarrelEcalRecHits->find((*rh).first);
@@ -2388,10 +2393,9 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
         // Alpha
-       	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
+	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
 	if( italpha != theEcalLaserAlphaMap->end() )
-	theAlpha = (*italpha);
-        
+	  theAlpha = (*italpha);
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
         // check if rh is inside the 5x5 matrix
@@ -2414,7 +2418,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele2_recHit_laserCorrection.push_back(theLaserCorrection);
         ele2_recHit_ICConstant.push_back(theICCorrection);
         ele2_recHit_Alpha.push_back(theAlpha);
-
+        
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
@@ -2438,9 +2442,6 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
         theICCorrection = *ICMapIt;
         if ( applyCorrections_ ) rhICCorrection = theICCorrection;
-	EcalLaserAlphaMap::const_iterator italpha = theEcalLaserAlphaMap->find(itrechit->id());
-	if( italpha != theEcalLaserAlphaMap->end() )
-	 theAlpha = (*italpha);
         
         sumRecHitE += itrechit->energy() * rhLaserCorrection * rhICCorrection ;
         sumLaserCorrectionRecHitE += theLaserCorrection * itrechit->energy() * rhLaserCorrection * rhICCorrection;
@@ -2463,7 +2464,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
         ele2_recHit_zside.push_back(endcapId.zside());
         ele2_recHit_laserCorrection.push_back(theLaserCorrection);
         ele2_recHit_ICConstant.push_back(theICCorrection);
-	ele2_recHit_Alpha.push_back(theAlpha);
+
         if( printOut && itrechit->energy() > 1. )
         {
           std::cout << std::fixed
