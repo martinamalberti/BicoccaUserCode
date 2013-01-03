@@ -103,9 +103,13 @@ while(<RUNLIST>)
 print JSON "}\n";
 
 $CMSSW_RELEASE_BASE = $ENV{'CMSSW_RELEASE_BASE'};
+
 system("python ".$CMSSW_RELEASE_BASE."/src/FWCore/PythonUtilities/scripts/compareJSON.py --and tempJson_".$WORZ.".txt /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/DCSOnly/json_DCSONLY.txt json_".$WORZ.".txt");
 
+system("python ".$CMSSW_RELEASE_BASE."/src/FWCore/PythonUtilities/scripts/compareJSON.py --or json_".$WORZ.".txt ~/public/lastStabilityJson.dat ~/public/temp_lastStabilityJson.dat");
+
 system("rm tempJson_".$WORZ.".txt");
+system("mv ~/public/temp_lastStabilityJson.dat ~/public/lastStabilityJson.dat");
 
 
 

@@ -15,13 +15,13 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 # simpleNtuple
 makeSimpleNtuple(process,GlobalTag="GR_P_V42B::All",runOverSandbox=False,runOverAlcaReco=False,runOverData=True)
 
-#makeRecoTags(process)  #commented for 05Jul ReReco
+#makeRecoTags(process)
 #makeSqliteTags(process)
 
 # path
 process.simpleNtuple_step = cms.Path(
-    #process.hltfilter
-    process.ecalDigis *
+    #process.hltfilter *
+    #process.ecalDigis *
     process.simpleNtupleEoverP
     )
 
