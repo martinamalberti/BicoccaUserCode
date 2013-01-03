@@ -68,7 +68,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
+#include "EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
