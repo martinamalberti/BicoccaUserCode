@@ -32,7 +32,9 @@ TEndcapRegions::~TEndcapRegions() { return;}
 //methods
 int TEndcapRegions::GetNRegions(const std::string& type)
 {
-  if( type == "LMR" ) return 38;
+  if( type == "ALL" )  return 1;
+  if( type == "RING" ) return 24;
+  if( type == "LMR" )  return 38;
 
   return -1;
 }
@@ -96,8 +98,8 @@ TBarrelRegions::TBarrelRegions() {
       iTT[ieta+85][iphi-1] = tt;
 
       //inverse map containing the ietaMin in that region
-      if(dummyMap.find(lmr) == dummyMap.end()) dummyMap[lmr] = abs(ieta);
-      else if(abs(ieta) < dummyMap[lmr]) dummyMap[lmr] = abs(ieta);
+      if(dummyMap.find(lmr) == dummyMap.end()) dummyMap[lmr] = ieta;
+      else if(abs(ieta) < dummyMap[lmr]) dummyMap[lmr] = ieta;
     }
 
   int counter=0;
@@ -127,9 +129,9 @@ TBarrelRegions::~TBarrelRegions()
 int TBarrelRegions::GetNRegions(const std::string& type)
 {
   if( type == "ALL" ) return 1;
-  if( type == "SM" ) return 36;
+  if( type == "SM" )  return 36;
   if( type == "LMR" ) return 324;
-  if( type == "TT" ) return 2448;
+  if( type == "TT" )  return 2448;
 
   return -1;
 }
@@ -163,7 +165,7 @@ int TBarrelRegions::GetRegionId(const int iEta, const int iPhi, const std::strin
 int TBarrelRegions::GetNRegionsIeta(const std::string& type)
 {
   if( type == "SM" ) return 1;
-  if( type == "LMR" ) return 5;
+  if( type == "LMR" ) return 10;
   if( type == "TT" ) return 17;
 
   return -1;
