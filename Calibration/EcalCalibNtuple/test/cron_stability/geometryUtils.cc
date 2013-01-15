@@ -54,7 +54,7 @@ int TEndcapRegions::GetRegionId(const int ix, const int iy, const int iz, const 
 
 
 
-int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings=39, const std::string& type)
+int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings, const std::string& type)
 {
   if( type == "ALL" )
     {
