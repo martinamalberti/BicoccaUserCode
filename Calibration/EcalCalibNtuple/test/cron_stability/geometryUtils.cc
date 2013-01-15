@@ -54,7 +54,13 @@ int TEndcapRegions::GetRegionId(const int ix, const int iy, const int iz, const 
 
 
 
-int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings=39){
+int TEndcapRegions::GetEndcapRing(const int ix, const int iy, const int iz, const int nRings=39, const std::string& type)
+{
+  if( type == "ALL" )
+    {
+      return 0;
+    }
+  
   int iSide = iz;
   if (iSide<0) iSide=0;
   float ringWidth = 39./nRings;
