@@ -163,6 +163,8 @@ cat > ${plots_dir}/index.html <<EOF
  <li><A href="#RecHitsRecoFlag"> Rec Hits Reco Flag</A><BR>
  <li><A href="#RedRecHitsRecoFlag"> Reduced Rec Hits Reco Flag</A><BR>
  <li><A href="#ClusRecHitsRecoFlag"> Cluster Rec Hits Reco Flag</A><BR>
+ <li><A href="#EcalDigiPedestalMean"> EcalDigi Pedestal Mean </A><BR>
+ <li><A href="#EcalDigiPedestalRMS"> EcalDigi Pedestal RMS </A><BR>
 </ul>
  <li> Clusters
  <ul>
@@ -304,6 +306,28 @@ cat > ${plots_dir}/index.html <<EOF
 
 <hr>
 
+
+<h3><A name="EcalDigiPedestalMean"> EcalDigi Pedestal Mean </h3>
+
+<A HREF=${httpdir}/${out_dir}/h_digis_EB_ped_mean.png> <img height="300" src="${httpdir}/${out_dir}/h_digis_EB_ped_mean.png"> </A>
+
+<A HREF=${httpdir}/${out_dir}/h_digis_EEP_ped_mean.png> <img height="300" src="${httpdir}/${out_dir}/h_digis_EEP_ped_mean.png"> </A>
+
+<A HREF=${httpdir}/${out_dir}/h_digis_EEM_ped_mean.png> <img height="300" src="${httpdir}/${out_dir}/h_digis_EEM_ped_mean.png"> </A>
+</A>
+
+<hr>
+
+
+<h3><A name="EcalDigiPedestalRMS"> EcalDigi Pedestal RMS </h3>
+
+<A HREF=${httpdir}/${out_dir}/h_digis_EB_ped_rms.png> <img height="300" src="${httpdir}/${out_dir}/h_digis_EB_ped_rms.png"> </A>
+
+<A HREF=${httpdir}/${out_dir}/h_digis_EEP_ped_rms.png> <img height="300" src="${httpdir}/${out_dir}/h_digis_EEP_ped_rms.png"> </A>
+
+<A HREF=${httpdir}/${out_dir}/h_digis_EEM_ped_rms.png> <img height="300" src="${httpdir}/${out_dir}/h_digis_EEM_ped_rms.png"> </A>
+
+<hr>
 
 
 <h3><A name="NumberOfBasicClusters"> Number of BasicClusters </h3>

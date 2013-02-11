@@ -45,7 +45,7 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 
 
   // Define list of object names
-  const int nObj=53;
+  const int nObj=59;
   char *objName[nObj]={"ecalvalidation/h_recHits_EB_size",
 		     "ecalvalidation/h_recHits_EEP_size",
 		     "ecalvalidation/h_recHits_EEM_size",
@@ -101,7 +101,14 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		     "ecalvalidation/h_superClusters_EEM_E1oE4",
 		     "ecalvalidation/h_esClusters_energy_plane1",
 		     "ecalvalidation/h_esClusters_energy_plane2",
-		     "ecalvalidation/h_esClusters_energy_ratio"  };
+		     "ecalvalidation/h_esClusters_energy_ratio",  
+                     //Badder
+                     "ecalvalidation/h_digis_EB_ped_mean",
+                     "ecalvalidation/h_digis_EB_ped_rms",
+                     "ecalvalidation/h_digis_EEP_ped_mean",
+                     "ecalvalidation/h_digis_EEP_ped_rms",
+                     "ecalvalidation/h_digis_EEM_ped_mean",
+                     "ecalvalidation/h_digis_EEM_ped_rms"};
 
  char *objTitle[nObj]={"Number of RecHits (EB)",
 		     "Number of RecHits (EE+)",
@@ -157,7 +164,13 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		     "1-E4/E1",
 		     "ES Clusters Energy - Plane 1",
 		     "ES Clusters Energy - Plane 2",
-		     "ES Clusters Energy - Ratio"};
+		     "ES Clusters Energy - Ratio",
+                     "EcalDigi Pedestal Mean (EB)",
+                     "EcalDigi Pedestal RMS (EB)",
+                     "EcalDigi Pedestal Mean (EE+)",
+                     "EcalDigi Pedestal RMS (EE+)",
+                     "EcalDigi Pedestal Mean (EE-)",
+                     "EcalDigi Pedestal RMS (EE-)" };
 
   char *labelX[nObj]={"Number of RecHits/Event",
 		    "Number of RecHits/Event",
@@ -211,8 +224,15 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		    "1-E4/E1",
 		    "Energy (GeV)",
 		    "Energy (GeV)",
-		    "EnergyPlane1/EnergyPlane1"};
-                    
+		    "EnergyPlane1/EnergyPlane1",
+                    "ADC",
+                    "ADC",
+                    "ADC",
+	            "ADC",
+		    "ADC",
+		    "ADC" };
+    
+                
   char *recoFlagLabels[16]={"kGood",
                     "kPoorReco",
                     "kOutOfTime",
@@ -256,6 +276,8 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		   0,0,0,
 		   -3.,-3.2,-3.2,
 		   0,0,0,
+		   0,0,0,
+                   0,0,0,
 		   0,0,0};
   
   double xMax[nObj]={3000.,1700.,1700.,2200.,  
@@ -275,7 +297,9 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		   100,100,100,
 		   3.,3.2,3.2,
 		   1.2,1.2,1.2,
-		   0.01,0.01,10};
+		   0.01,0.01,10,
+                   200,200,200,
+                   200,200,200 };
 
   int reBin[nObj]  = {2,2,2,2, 
 		    1,1,1,8, 
@@ -294,7 +318,9 @@ void DrawValidationPlots(Char_t* infile1 = 0,
 		    10,10,10,
 		    5,5,5,
 		    1,1,1,
-		    10,10,1};
+		    10,10,1,
+		    1,1,1,
+		    1,1,1 };
 
 
   int optLogY[nObj] = {1,1,1,1,
