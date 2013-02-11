@@ -33,6 +33,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -87,6 +88,8 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   esRecHitCollection_        = ps.getParameter<edm::InputTag>("recHitCollection_ES");
   esClusterCollectionX_      = ps.getParameter<edm::InputTag>("ClusterCollectionX_ES");
   esClusterCollectionY_      = ps.getParameter<edm::InputTag>("ClusterCollectionY_ES");
+  ebDigiCollection_          = ps.getParameter<edm::InputTag>("ebDigiCollection");
+  eeDigiCollection_          = ps.getParameter<edm::InputTag>("eeDigiCollection");
 
   tracks_                    = ps.getParameter<edm::InputTag>("tracks");
   beamSpot_                  = ps.getParameter<edm::InputTag>("beamSpot");
@@ -197,8 +200,12 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   
 
   h_recHits_EB_energy_spike  = fs->make<TH1D>("h_recHits_EB_energy_spike","h_recHitsEB_energy_spike",2000,0,500);
-
-
+  
+  // ... barrel digis
+  
+  h_digis_EB_ped_mean        = fs->make<TH1D>("h_digis_EB_ped_mean","h_digis_EB_ped_mean",20000,0,200);
+  h_digis_EB_ped_rms         = fs->make<TH1D>("h_digis_EB_ped_rms","h_digis_EB_ped_rms",20000,0,200);
+  
   // ... barrel (with spike cleaning)
   h_recHits_EB_size_cleaned          = fs->make<TH1D>("h_recHits_EB_size_cleaned", "h_recHitsEB_size_cleaned", 1000, 0, 10000 );
   h_recHits_EB_energy_cleaned        = fs->make<TH1D>("h_recHits_EB_energy_cleaned","h_recHitsEB_energy_cleaned",11000,-50,500);
@@ -235,6 +242,13 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EEM_iYoccupancy   = fs->make<TH1D>("h_recHits_EEM_iYoccupancy","h_recHits_EEM_iYoccupancy",100,0.,100.);
   h_recHits_EEM_occupancy     = fs->make<TH2D>("h_recHits_EEM_occupancy","h_recHits_EEM_occupancy",100,0.,100.,100,0.,100. );
   h_recHits_EEM_deviation     = fs->make<TH2D>("h_recHits_EEM_deviation","h_recHits_EEM_deviation",100,0.,100.,100,0.,100. );
+   
+  // ... endcap digis
+  
+  h_digis_EEP_ped_mean        = fs->make<TH1D>("h_digis_EEP_ped_mean","h_digis_EEP_ped_mean",20000,0,200);
+  h_digis_EEP_ped_rms         = fs->make<TH1D>("h_digis_EEP_ped_rms","h_digis_EEP_ped_rms",20000,0,200);
+  h_digis_EEM_ped_mean        = fs->make<TH1D>("h_digis_EEM_ped_mean","h_digis_EEM_ped_mean",20000,0,200);
+  h_digis_EEM_ped_rms         = fs->make<TH1D>("h_digis_EEM_ped_rms","h_digis_EEM_ped_rms",20000,0,200);
 
   // eta/phi distributions
   h_recHits_eta          = fs->make<TH1D>("h_recHits_eta","h_recHits_eta",300,-3.,3.);
@@ -605,10 +619,52 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       // max E rec hit - cleaned
       if (itr -> energy() > maxRecHitEnergyEBcleaned ){
 	maxRecHitEnergyEBcleaned = itr -> energy() ;
-      }       
+      }  
+       
+     
+     //... digis barrel
+     
+     edm::Handle<EBDigiCollection> ebDigis;
+     ev.getByLabel (ebDigiCollection_, ebDigis) ;
+     const EBDigiCollection* theEcalBarrelDigis = ebDigis.product () ;  
+     if (! (ebDigis.isValid ()) ) {
+       std::cerr << "EcalValidation::analyze -->  ebDigis not found" << std::endl; 
+     }
+     /*if(ebDigis.product()->size() != 0){
+     std::cout <<"\nTreating barrel-event "<<ev.id()<<" Number of digis "<< ebDigis.product()->size();
+     }*/
+
+     
+     
+     for(EBDigiCollection::const_iterator digiItr = theEcalBarrelDigis->begin();
+          digiItr != theEcalBarrelDigis->end();
+          ++digiItr)
+        {
+          //std::cout << "SONO IN EB" << std::endl;
+          if( digiItr->id() != ebid )continue;
+          EcalDataFrame df = *digiItr;
+          
+          TH1D* h_ped = new TH1D("","",20000,0,200);
+          
+          for (int i=0; i < df.size(); i++ )
+            {
+              //std::cout << "SIZE: " << df.size() << std::endl;
+              std::cout << df.sample(i).adc() << std::endl;
+              
+              h_ped -> Fill(df.sample(i).adc());
+
+              if(i > 2) continue;
+              
+            }
+
+           h_digis_EB_ped_mean ->Fill(h_ped->GetMean());
+           h_digis_EB_ped_rms ->Fill(h_ped->GetRMS());
+           
+           delete h_ped;
+           
+        } 
       
-    }
-  
+    }  
 
   h_recHits_EB_size           -> Fill( recHitsEB->size() );
   if (!hasSpike) h_recHits_EB_size_cleaned -> Fill( recHitsEB->size() );
@@ -730,6 +786,57 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
 	}
 
       }
+
+
+      //... digis endcap
+     
+     edm::Handle<EEDigiCollection> eeDigis;
+     ev.getByLabel (eeDigiCollection_, eeDigis) ;
+     const EEDigiCollection* theEcalEndcapDigis = eeDigis.product () ;  
+     if (! (eeDigis.isValid ()) ) {
+       std::cerr << "EcalValidation::analyze -->  eeDigis not found" << std::endl; 
+     }
+     
+     /*if(eeDigis.product()->size() != 0){
+     std::cout <<"\nTreating event "<<ev.id()<<" Number of digis "<< eeDigis.product()->size();
+     }*/
+
+     for(EEDigiCollection::const_iterator digiItr = theEcalEndcapDigis->begin();
+          digiItr != theEcalEndcapDigis->end();
+          ++digiItr)
+        {
+          //std::cout << "SONO IN EE" << std::endl;
+          if( digiItr->id() != eeid )continue;
+          EcalDataFrame df = *digiItr;
+          
+          TH1D* h_ped = new TH1D("","",20000,0,200);
+          
+          for (int i=0; i < df.size(); i++ )
+            {
+              /*std::cout << "SIZE: " << df.size() << std::endl;
+              std::cout << df.sample(i).adc() << std::endl;*/
+              
+              h_ped -> Fill(df.sample(i).adc());
+
+              if(i > 2) continue;
+              
+            }
+           
+           //EE+
+           if ( eeid.zside() > 0 ){
+           	h_digis_EEP_ped_mean ->Fill(h_ped->GetMean());
+           	h_digis_EEP_ped_rms ->Fill(h_ped->GetRMS());
+              }
+            
+           //EE-
+           if ( eeid.zside() < 0 ){
+           	h_digis_EEM_ped_mean ->Fill(h_ped->GetMean());
+           	h_digis_EEM_ped_rms ->Fill(h_ped->GetRMS());
+              }
+           delete h_ped;
+           
+        } 
+      
     } // end loop over EE rec hits
   
   // size
@@ -782,10 +889,6 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
     h_recHits_eta_MaxEt     -> Fill( maxEtRecHitEtaEEM ) ;
     h_recHits_EE_phi_MaxEt  -> Fill( maxEtRecHitPhiEEM );
   }
-
-
-
-
 
   //--- BASIC CLUSTERS --------------------------------------------------------------
 

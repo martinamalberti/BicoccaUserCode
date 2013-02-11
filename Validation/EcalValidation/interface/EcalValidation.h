@@ -76,6 +76,8 @@ class EcalValidation : public edm::EDAnalyzer {
 	 edm::InputTag esRecHitCollection_;
 	 edm::InputTag esClusterCollectionX_ ;
 	 edm::InputTag esClusterCollectionY_ ;
+         edm::InputTag ebDigiCollection_ ;
+	 edm::InputTag eeDigiCollection_ ;
 
 	 edm::InputTag tracks_ ;
 	 edm::InputTag beamSpot_ ;
@@ -177,7 +179,11 @@ class EcalValidation : public edm::EDAnalyzer {
 	 TH2D *h_recHits_EB_deviation;
 
 	 TH1D *h_recHits_EB_energy_spike;
-	
+         
+         // ... barrel digis
+	 TH1D* h_digis_EB_ped_mean;
+         TH1D* h_digis_EB_ped_rms;
+
 	 //... barrel ( with spike cleaning )
 	 TH1D *h_recHits_EB_size_cleaned; 
 	 TH1D *h_recHits_EB_energy_cleaned;
@@ -215,6 +221,12 @@ class EcalValidation : public edm::EDAnalyzer {
          TH1D *h_recHits_EEM_iYoccupancy;
 	 TH2D *h_recHits_EEM_occupancy;
 	 TH2D *h_recHits_EEM_deviation;
+         
+         // ... endcap digis
+	 TH1D* h_digis_EEP_ped_mean;
+         TH1D* h_digis_EEP_ped_rms;
+         TH1D* h_digis_EEM_ped_mean;
+         TH1D* h_digis_EEM_ped_rms;
 
 	 // ... All
          TH1D *h_recHits_recoFlag;
