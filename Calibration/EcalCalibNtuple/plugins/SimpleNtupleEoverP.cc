@@ -6,7 +6,14 @@
 #include "Calibration/EcalCalibNtuple/plugins/SimpleNtupleEoverP.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 #include "PhysicsTools/NtupleUtils/interface/readJSONFile.h"
-
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/TrackReco/interface/TrackExtraBase.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Math/Vector4D.h"
 #include "Math/Vector3D.h"
 
@@ -2017,37 +2024,56 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
 
     if(saveFbrem_){
       reco::GsfTrackRef eleTrack  = electron.gsfTrack();
+      reco::TrackRef eleNTrack = electron.closestTrack();
       GlobalPoint outPos(eleTrack->extra()->outerPosition().x(), eleTrack->extra()->outerPosition().y(), eleTrack->extra()->outerPosition().z());
       GlobalPoint innPos(eleTrack->extra()->innerPosition().x(), eleTrack->extra()->innerPosition().y(), eleTrack->extra()->innerPosition().z());
-      ele1_inner_p = (sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
-      ele1_inner_x = innPos.x();
-      ele1_inner_y = innPos.y();
-      ele1_inner_z = innPos.z();
-      ele1_outer_p = (sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
-      ele1_outer_x = outPos.x();
-      ele1_outer_y = outPos.y();
-      ele1_outer_z = outPos.z();
-      
       std::vector<reco::GsfTangent> eleTangent = eleTrack->gsfExtra()->tangents();
-      for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
-	GlobalPoint tangPos( eleTangent.at(pp).position().x(),
-			     eleTangent.at(pp).position().y(),
-			     eleTangent.at(pp).position().z() );
-	//     float innR = sqrt(pow(tangPos.x(),2)+pow(tangPos.y(),2));                                                     
-	float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
-	ele1_tangent_p.push_back(tangMom);
-	ele1_tangent_x.push_back(tangPos.x());
-	ele1_tangent_y.push_back(tangPos.y());
-	ele1_tangent_z.push_back(tangPos.z());
-	ele1_tangent_dP.push_back(eleTangent.at(pp).deltaP().value());
-	ele1_tangent_dPerr.push_back(eleTangent.at(pp).deltaP().error());
-      }
-      ele1_tangent_n = eleTangent.size();
+      int numberOfValidHits_Trk = 0;
+      if(!eleNTrack.isNull())
+	for(unsigned int trkNH = 0; trkNH < eleNTrack->extra()->recHitsSize(); ++trkNH){
+	  if(!eleNTrack->extra()->recHit(trkNH)->isValid()) continue;
+	  DetId id = eleNTrack->extra()->recHit(trkNH)->geographicalId();
+	  const GeomDet* det = pDD->idToDet(id);
+
+	  if(eleTrack->extra()->seedRef().isNull()) continue;
+	  edm::RefToBase<TrajectorySeed> seed = eleTrack->extra()->seedRef();
+	  ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+	  TrajectoryStateOnSurface t = trajectoryStateTransform::transientState(elseed->startingState(), &(det->surface()), &(*theMagField));
+	  if(!t.isValid()) continue;
+
+	  GlobalPoint hitPos = t.globalPosition();
+	  if(hitPos.x() == ele1_inner_x && hitPos.y() == ele1_inner_y && hitPos.z() == ele1_inner_z){
+	    ele1_inner_p = (sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
+	    ele1_inner_x = innPos.x();
+	    ele1_inner_y = innPos.y();
+	    ele1_inner_z = innPos.z();
+	  }
+	  if(hitPos.x() == ele1_outer_x && hitPos.y() == ele1_outer_y && hitPos.z() == ele1_outer_z){
+	    ele1_outer_p = (sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
+	    ele1_outer_x = outPos.x();
+	    ele1_outer_y = outPos.y();
+	    ele1_outer_z = outPos.z();
+	  }
+	  for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
+	    GlobalPoint tangPos( eleTangent.at(pp).position().x(),
+				 eleTangent.at(pp).position().y(),
+				 eleTangent.at(pp).position().z() );
+	    if(hitPos.x() != tangPos.x() != hitPos.y() != tangPos.y() != hitPos.z() != tangPos.z()) continue;
+	    float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
+	    ele1_tangent_p.push_back(tangMom);
+	    ele1_tangent_x.push_back(tangPos.x());
+	    ele1_tangent_y.push_back(tangPos.y());
+	    ele1_tangent_z.push_back(tangPos.z());
+	    ele1_tangent_dP.push_back(eleTangent.at(pp).deltaP().value());
+	    ele1_tangent_dPerr.push_back(eleTangent.at(pp).deltaP().error());
+	    ++numberOfValidHits_Trk;
+	  }
+	  //      ele1_tangent_n = eleTangent.size();                                                          
+	}
+      ele1_tangent_n = numberOfValidHits_Trk;
     }
   }
-  
-  
-  
+
   if ( eleName == "ele2" )
   {
     edm::InputTag EleBad = edm::InputTag("gsfElectrons");
@@ -2575,35 +2601,57 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
    }
 
  if(saveFbrem_){
-      reco::GsfTrackRef eleTrack  = electron.gsfTrack();
-      GlobalPoint outPos(eleTrack->extra()->outerPosition().x(), eleTrack->extra()->outerPosition().y(), eleTrack->extra()->outerPosition().z());
-      GlobalPoint innPos(eleTrack->extra()->innerPosition().x(), eleTrack->extra()->innerPosition().y(), eleTrack->extra()->innerPosition().z());
-      ele2_inner_p = (sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
-      ele2_inner_x = innPos.x();
-      ele2_inner_y = innPos.y();
-      ele2_inner_z = innPos.z();
-      ele2_outer_p = (sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
-      ele2_outer_x = outPos.x();
-      ele2_outer_y = outPos.y();
-      ele2_outer_z = outPos.z();
-      
-      std::vector<reco::GsfTangent> eleTangent = eleTrack->gsfExtra()->tangents();
-      for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
-	GlobalPoint tangPos( eleTangent.at(pp).position().x(),
-			     eleTangent.at(pp).position().y(),
-			     eleTangent.at(pp).position().z() );
-	//     float innR = sqrt(pow(tangPos.x(),2)+pow(tangPos.y(),2));                                                     
-	float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
-	ele2_tangent_p.push_back(tangMom);
-	ele2_tangent_x.push_back(tangPos.x());
-	ele2_tangent_y.push_back(tangPos.y());
-	ele2_tangent_z.push_back(tangPos.z());
-	ele2_tangent_dP.push_back(eleTangent.at(pp).deltaP().value());
-	ele2_tangent_dPerr.push_back(eleTangent.at(pp).deltaP().error());
-      }
-      ele2_tangent_n = eleTangent.size();
-    }
+   reco::GsfTrackRef eleTrack  = electron.gsfTrack();
+   reco::TrackRef eleNTrack = electron.closestTrack();
+   GlobalPoint outPos(eleTrack->extra()->outerPosition().x(), eleTrack->extra()->outerPosition().y(), eleTrack->extra()->outerPosition().z());
+   GlobalPoint innPos(eleTrack->extra()->innerPosition().x(), eleTrack->extra()->innerPosition().y(), eleTrack->extra()->innerPosition().z());
+   std::vector<reco::GsfTangent> eleTangent = eleTrack->gsfExtra()->tangents();
+   int numberOfValidHits_Trk = 0;
+   if(!eleNTrack.isNull())
+     for(unsigned int trkNH = 0; trkNH < eleNTrack->extra()->recHitsSize(); ++trkNH){
+       if(!eleNTrack->extra()->recHit(trkNH)->isValid()) continue;
+       DetId id = eleNTrack->extra()->recHit(trkNH)->geographicalId();
+       const GeomDet* det = pDD->idToDet(id);
+       if(eleTrack->extra()->seedRef().isNull()) continue;
+       edm::RefToBase<TrajectorySeed> seed = eleTrack->extra()->seedRef();
+       ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+       TrajectoryStateOnSurface t = trajectoryStateTransform::transientState(elseed->startingState(), &(det->surface()), &(*theMagField));
+       if(!t.isValid()) continue;
 
+       GlobalPoint hitPos = t.globalPosition();
+
+       if(hitPos.x() == ele2_inner_x && hitPos.y() == ele2_inner_y && hitPos.z() == ele2_inner_z){
+	 ele2_inner_p = (sqrt(eleTrack->extra()->innerMomentum().Mag2()) );
+	 ele2_inner_x = innPos.x();
+	 ele2_inner_y = innPos.y();
+	 ele2_inner_z = innPos.z();
+       }
+       if(hitPos.x() == ele2_outer_x && hitPos.y() == ele2_outer_y && hitPos.z() == ele2_outer_z){
+	 ele2_outer_p = (sqrt(eleTrack->extra()->outerMomentum().Mag2()) );
+	 ele2_outer_x = outPos.x();
+	 ele2_outer_y = outPos.y();
+	 ele2_outer_z = outPos.z();
+       }
+
+
+       for(unsigned int pp=0; pp<eleTangent.size(); ++pp ){
+	 GlobalPoint tangPos( eleTangent.at(pp).position().x(),
+			      eleTangent.at(pp).position().y(),
+			      eleTangent.at(pp).position().z() );
+
+	 if(hitPos.x() != tangPos.x() != hitPos.y() != tangPos.y() != hitPos.z() != tangPos.z()) continue;
+	 float tangMom = sqrt(eleTangent.at(pp).momentum().Mag2());
+	 ele2_tangent_p.push_back(tangMom);
+	 ele2_tangent_x.push_back(tangPos.x());
+	 ele2_tangent_y.push_back(tangPos.y());
+	 ele2_tangent_z.push_back(tangPos.z());
+	 ele2_tangent_dP.push_back(eleTangent.at(pp).deltaP().value());
+	 ele2_tangent_dPerr.push_back(eleTangent.at(pp).deltaP().error());
+	 ++numberOfValidHits_Trk;
+       }
+     }
+   ele2_tangent_n = numberOfValidHits_Trk;
+ }
   }
   
   
