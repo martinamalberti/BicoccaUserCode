@@ -1387,6 +1387,13 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
   if( verbosity_ )
     std::cout<< ">>> SimpleNtupleEoverP::fillEleInfo start <<<" << std::endl;
   
+  //*********** TRACKER GEOMETRY                             
+  edm::ESHandle<TrackerGeometry> pDD ;
+  iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
+
+  //*********** MAGNETIC FIELD                               
+  edm::ESHandle<MagneticField> theMagField ;
+  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
   
   //*********** CALO TOPOLOGY
   edm::ESHandle<CaloTopology> pTopology;
