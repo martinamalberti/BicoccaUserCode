@@ -18,7 +18,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),                       
     fileNames = cms.untracked.vstring(
-    "root://eoscms.cern.ch//eos/cms/store/caf/user/amartell/Simulation/MinBias_reDIGItoRECO_300evt_noiseD.root"
+    "root://eoscms.cern.ch//eos/cms/store/caf/user/amartell/Simulation/DIGItoRECO/MinBias_reDIGItoRECO_1000evt_noiseD.root"
     )
 )
 
@@ -59,7 +59,7 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
 process.load("Validation.EcalValidation.ecalvalidation_cfi")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('EcalValidation_MinBias_reDIGItoRECO_300evt_noiseD.root')
+    fileName = cms.string('EcalValidation_MinBias_reDIGItoRECO_1000evt_noiseD.root')
 )
 
 process.p = cms.Path(

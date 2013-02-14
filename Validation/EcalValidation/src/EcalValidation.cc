@@ -202,9 +202,10 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
   h_recHits_EB_energy_spike  = fs->make<TH1D>("h_recHits_EB_energy_spike","h_recHitsEB_energy_spike",2000,0,500);
   
   // ... barrel digis
-  
-  h_digis_EB_ped_mean        = fs->make<TH1D>("h_digis_EB_ped_mean","h_digis_EB_ped_mean",20000,0,200);
-  h_digis_EB_ped_rms         = fs->make<TH1D>("h_digis_EB_ped_rms","h_digis_EB_ped_rms",20000,0,200);
+  h_digis_EB_ped_mean        = fs->make<TH1D>("h_digis_EB_ped_mean","h_digis_EB_ped_mean",45,175,220);
+  h_digis_EB_ped_rms         = fs->make<TH1D>("h_digis_EB_ped_rms","h_digis_EB_ped_rms",60,-1,11);
+  h_digisFromRechit_EB_ped_mean        = fs->make<TH1D>("h_digisFromRechit_EB_ped_mean","h_digisFromRechit_EB_ped_mean",45,175,220);
+  h_digisFromRechit_EB_ped_rms         = fs->make<TH1D>("h_digisFromRechit_EB_ped_rms","h_digisFromRechit_EB_ped_rms",60,-1,11);
   
   // ... barrel (with spike cleaning)
   h_recHits_EB_size_cleaned          = fs->make<TH1D>("h_recHits_EB_size_cleaned", "h_recHitsEB_size_cleaned", 1000, 0, 10000 );
@@ -245,10 +246,12 @@ EcalValidation::EcalValidation(const edm::ParameterSet& ps)
    
   // ... endcap digis
   
-  h_digis_EEP_ped_mean        = fs->make<TH1D>("h_digis_EEP_ped_mean","h_digis_EEP_ped_mean",20000,0,200);
-  h_digis_EEP_ped_rms         = fs->make<TH1D>("h_digis_EEP_ped_rms","h_digis_EEP_ped_rms",20000,0,200);
-  h_digis_EEM_ped_mean        = fs->make<TH1D>("h_digis_EEM_ped_mean","h_digis_EEM_ped_mean",20000,0,200);
-  h_digis_EEM_ped_rms         = fs->make<TH1D>("h_digis_EEM_ped_rms","h_digis_EEM_ped_rms",20000,0,200);
+  h_digis_EE_ped_mean        = fs->make<TH1D>("h_digis_EE_ped_mean","h_digis_EE_ped_mean",45,175,220);
+  h_digis_EE_ped_rms         = fs->make<TH1D>("h_digis_EE_ped_rms","h_digis_EE_ped_rms",60,-1,11);
+  h_digisFromRechit_EEP_ped_mean        = fs->make<TH1D>("h_digisFromRechit_EEP_ped_mean","h_digisFromRechit_EEP_ped_mean",45,175,220);
+  h_digisFromRechit_EEP_ped_rms         = fs->make<TH1D>("h_digisFromRechit_EEP_ped_rms","h_digisFromRechit_EEP_ped_rms",60,-1,11);
+  h_digisFromRechit_EEM_ped_mean        = fs->make<TH1D>("h_digisFromRechit_EEM_ped_mean","h_digisFromRechit_EEM_ped_mean",45,175,220);
+  h_digisFromRechit_EEM_ped_rms         = fs->make<TH1D>("h_digisFromRechit_EEM_ped_rms","h_digisFromRechit_EEM_ped_rms",60,-1,11);
 
   // eta/phi distributions
   h_recHits_eta          = fs->make<TH1D>("h_recHits_eta","h_recHits_eta",300,-3.,3.);
@@ -542,6 +545,15 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   if ( ! recHitsEB.isValid() ) {
     std::cerr << "EcalValidation::analyze --> recHitsEB not found" << std::endl; 
   }
+
+  // ... digis barrel
+  edm::Handle<EBDigiCollection> ebDigis;
+  ev.getByLabel (ebDigiCollection_, ebDigis) ;
+  const EBDigiCollection* theEcalBarrelDigis = ebDigis.product () ;  
+  if (! (ebDigis.isValid ()) ) {
+    std::cerr << "EcalValidation::analyze -->  ebDigis not found" << std::endl; 
+  }
+    
   
   float maxRecHitEnergyEB = -999.;
   float maxRecHitEtaEB    = -999.;
@@ -620,36 +632,57 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       if (itr -> energy() > maxRecHitEnergyEBcleaned ){
 	maxRecHitEnergyEBcleaned = itr -> energy() ;
       }  
-       
      
-     //... digis barrel
+      //... digis barrel from recHit
      
-     edm::Handle<EBDigiCollection> ebDigis;
-     ev.getByLabel (ebDigiCollection_, ebDigis) ;
-     const EBDigiCollection* theEcalBarrelDigis = ebDigis.product () ;  
-     if (! (ebDigis.isValid ()) ) {
-       std::cerr << "EcalValidation::analyze -->  ebDigis not found" << std::endl; 
-     }
-     /*if(ebDigis.product()->size() != 0){
-     std::cout <<"\nTreating barrel-event "<<ev.id()<<" Number of digis "<< ebDigis.product()->size();
-     }*/
-
-     
-     
-     for(EBDigiCollection::const_iterator digiItr = theEcalBarrelDigis->begin();
+      for(EBDigiCollection::const_iterator digiItr = theEcalBarrelDigis->begin();
           digiItr != theEcalBarrelDigis->end();
           ++digiItr)
         {
-          //std::cout << "SONO IN EB" << std::endl;
+          
           if( digiItr->id() != ebid )continue;
           EcalDataFrame df = *digiItr;
           
-          TH1D* h_ped = new TH1D("","",20000,0,200);
+          TH1D* h_ped = new TH1D("","",500,0,500);
           
           for (int i=0; i < df.size(); i++ )
             {
-              //std::cout << "SIZE: " << df.size() << std::endl;
-              std::cout << df.sample(i).adc() << std::endl;
+              
+              h_ped -> Fill(df.sample(i).adc());
+
+              if(i > 2) continue;
+              
+            }
+
+           h_digisFromRechit_EB_ped_mean ->Fill(h_ped->GetMean());
+           h_digisFromRechit_EB_ped_rms ->Fill(h_ped->GetRMS());
+           
+           delete h_ped;
+           
+        } 
+      
+    }  
+
+     
+  h_recHits_EB_size           -> Fill( recHitsEB->size() );
+  if (!hasSpike) h_recHits_EB_size_cleaned -> Fill( recHitsEB->size() );
+  
+  h_recHits_EB_energyMax         -> Fill( maxRecHitEnergyEB );
+  h_recHits_EB_energyMax_cleaned -> Fill( maxRecHitEnergyEBcleaned );
+
+
+  
+  for(EBDigiCollection::const_iterator digiItr = theEcalBarrelDigis->begin();
+          digiItr != theEcalBarrelDigis->end();
+          ++digiItr)
+      {
+          
+          EcalDataFrame df = *digiItr;
+          
+          TH1D* h_ped = new TH1D("","",500,0,500);
+          
+          for (int i=0; i < df.size(); i++ )
+            {
               
               h_ped -> Fill(df.sample(i).adc());
 
@@ -662,17 +695,7 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
            
            delete h_ped;
            
-        } 
-      
-    }  
-
-  h_recHits_EB_size           -> Fill( recHitsEB->size() );
-  if (!hasSpike) h_recHits_EB_size_cleaned -> Fill( recHitsEB->size() );
-  
-  h_recHits_EB_energyMax         -> Fill( maxRecHitEnergyEB );
-  h_recHits_EB_energyMax_cleaned -> Fill( maxRecHitEnergyEBcleaned );
-
- 
+      } 
 
   // ... endcap
   edm::Handle<EcalRecHitCollection> recHitsEE;
@@ -680,6 +703,14 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
   const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
   if ( ! recHitsEE.isValid() ) {
     std::cerr << "EcalValidation::analyze --> recHitsEE not found" << std::endl; 
+  }
+  
+  //... digis endcap
+  edm::Handle<EEDigiCollection> eeDigis;
+  ev.getByLabel (eeDigiCollection_, eeDigis) ;
+  const EEDigiCollection* theEcalEndcapDigis = eeDigis.product () ;  
+  if (! (eeDigis.isValid ()) ) {
+    std::cerr << "EcalValidation::analyze -->  eeDigis not found" << std::endl; 
   }
   
   int nHitsEEP = 0;
@@ -788,33 +819,19 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
       }
 
 
-      //... digis endcap
+      //... digis endcap fron recHit
      
-     edm::Handle<EEDigiCollection> eeDigis;
-     ev.getByLabel (eeDigiCollection_, eeDigis) ;
-     const EEDigiCollection* theEcalEndcapDigis = eeDigis.product () ;  
-     if (! (eeDigis.isValid ()) ) {
-       std::cerr << "EcalValidation::analyze -->  eeDigis not found" << std::endl; 
-     }
-     
-     /*if(eeDigis.product()->size() != 0){
-     std::cout <<"\nTreating event "<<ev.id()<<" Number of digis "<< eeDigis.product()->size();
-     }*/
-
      for(EEDigiCollection::const_iterator digiItr = theEcalEndcapDigis->begin();
           digiItr != theEcalEndcapDigis->end();
           ++digiItr)
         {
-          //std::cout << "SONO IN EE" << std::endl;
           if( digiItr->id() != eeid )continue;
           EcalDataFrame df = *digiItr;
           
-          TH1D* h_ped = new TH1D("","",20000,0,200);
+          TH1D* h_ped = new TH1D("","",45,175,220);
           
           for (int i=0; i < df.size(); i++ )
             {
-              /*std::cout << "SIZE: " << df.size() << std::endl;
-              std::cout << df.sample(i).adc() << std::endl;*/
               
               h_ped -> Fill(df.sample(i).adc());
 
@@ -824,20 +841,44 @@ void EcalValidation::analyze(const edm::Event& ev, const edm::EventSetup& iSetup
            
            //EE+
            if ( eeid.zside() > 0 ){
-           	h_digis_EEP_ped_mean ->Fill(h_ped->GetMean());
-           	h_digis_EEP_ped_rms ->Fill(h_ped->GetRMS());
+           	h_digisFromRechit_EEP_ped_mean ->Fill(h_ped->GetMean());
+           	h_digisFromRechit_EEP_ped_rms ->Fill(h_ped->GetRMS());
               }
             
            //EE-
            if ( eeid.zside() < 0 ){
-           	h_digis_EEM_ped_mean ->Fill(h_ped->GetMean());
-           	h_digis_EEM_ped_rms ->Fill(h_ped->GetRMS());
+           	h_digisFromRechit_EEM_ped_mean ->Fill(h_ped->GetMean());
+           	h_digisFromRechit_EEM_ped_rms ->Fill(h_ped->GetRMS());
               }
            delete h_ped;
            
         } 
       
     } // end loop over EE rec hits
+   
+  for(EEDigiCollection::const_iterator digiItr = theEcalEndcapDigis->begin();
+          digiItr != theEcalEndcapDigis->end();
+          ++digiItr)
+      {
+          EcalDataFrame df = *digiItr;
+          
+          TH1D* h_ped = new TH1D("","",500,0,500);
+          
+          for (int i=0; i < df.size(); i++ )
+            {
+              
+              h_ped -> Fill(df.sample(i).adc());
+
+              if(i > 2) continue;
+              
+            }
+           
+           h_digis_EE_ped_mean ->Fill(h_ped->GetMean());
+           h_digis_EE_ped_rms ->Fill(h_ped->GetRMS());
+           
+           delete h_ped;
+           
+      } 
   
   // size
   h_recHits_EE_size    -> Fill( recHitsEE->size() );
