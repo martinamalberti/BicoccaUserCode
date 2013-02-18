@@ -92,7 +92,6 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h"
-
 // PU MC information
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
@@ -158,6 +157,8 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   edm::InputTag recHitCollection_EE_;
   edm::InputTag SRFlagCollection_EB_;
   edm::InputTag SRFlagCollection_EE_;
+  edm::InputTag digiCollection_EB_;
+  edm::InputTag digiCollection_EE_;
   edm::InputTag conversionsInputTag_;
   edm::InputTag EleTag_;
   edm::InputTag PFMetTag_;
@@ -304,6 +305,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele1_recHitMatrix_zside;
   std::vector<float> ele1_recHitMatrix_laserCorrection;
   std::vector<float> ele1_recHitMatrix_ICConstant;
+  std::vector<float> ele1_recHitMatrix_samples;
  
   int ele1_isEB;
   int ele1_isEBEEGap;
@@ -466,6 +468,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   std::vector<int> ele2_recHitMatrix_zside;
   std::vector<float> ele2_recHitMatrix_laserCorrection;
   std::vector<float> ele2_recHitMatrix_ICConstant;
+  std::vector<float> ele2_recHitMatrix_samples;
 
  
   int ele2_isEB;
