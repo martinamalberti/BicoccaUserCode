@@ -63,19 +63,19 @@ bool MCDecayModeFilterZW::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     // --------------
     // W boson decays
     
-    if( (mcAnalysis.GetVDecayMode() == "e_nue")     && (m_W_e_nue     == false) ) keepEvent = false;
-    if( (mcAnalysis.GetVDecayMode() == "mu_numu")   && (m_W_mu_numu   == false) ) keepEvent = false;
-    if( (mcAnalysis.GetVDecayMode() == "tau_nutau") && (m_W_tau_nutau == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "e_nue")     && (m_W_e_nue     == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "mu_numu")   && (m_W_mu_numu   == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "tau_nutau") && (m_W_tau_nutau == false) ) keepEvent = false;
     
     // --------------
     // Z boson decays
     
-    if( (mcAnalysis.GetVDecayMode() == "e_e")     && (m_Z_e_e     == false) ) keepEvent = false;
-    if( (mcAnalysis.GetVDecayMode() == "mu_mu")   && (m_Z_mu_mu   == false) ) keepEvent = false;
-    if( (mcAnalysis.GetVDecayMode() == "tau_tau") && (m_Z_tau_tau == false) ) keepEvent = false;
-    if( (mcAnalysis.GetVDecayMode() == "nue_nue")     && (m_Z_nue_nue     == false) ) keepEvent = false;
-    if( (mcAnalysis.GetVDecayMode() == "numu_numu")   && (m_Z_numu_numu   == false) ) keepEvent = false;
-    if( (mcAnalysis.GetVDecayMode() == "nutau_nutau") && (m_Z_nutau_nutau == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "e_e")     && (m_Z_e_e     == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "mu_mu")   && (m_Z_mu_mu   == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "tau_tau") && (m_Z_tau_tau == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "nue_nue")     && (m_Z_nue_nue     == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "numu_numu")   && (m_Z_numu_numu   == false) ) keepEvent = false;
+    if( (mcAnalysis.mcVDecayMode() == "nutau_nutau") && (m_Z_nutau_nutau == false) ) keepEvent = false;
   } // if it is signal
   
   
