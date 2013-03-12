@@ -1,6 +1,8 @@
 #ifndef MCDecayModeFilterZW_h
 #define MCDecayModeFilterZW_h
 
+#include "PhysicsTools/MiBiCommonPAT/interface/MCDumperZW.h"
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
