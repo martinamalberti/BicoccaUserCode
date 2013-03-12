@@ -154,8 +154,7 @@ void FindTauDecayParticles(std::vector<const reco::Candidate*>& tauJ,
   
   // decay parameters
   int nProng = 0;
-  bool isLeptonic = false;
-
+  
   std::vector<const reco::Candidate*> pFinal;
   FindDecayParticles(pFinal, pCurrent, verbosity);
   
@@ -168,9 +167,6 @@ void FindTauDecayParticles(std::vector<const reco::Candidate*>& tauJ,
     
     if( (abs(pdgId) == 12) || (abs(pdgId) == 14) || (abs(pdgId) == 16) )
       nu.push_back(pFinal.at(i));
-    
-    if( (abs(pdgId) == 12) || (abs(pdgId) == 14) )
-      isLeptonic = true;
     
     if( (abs(pdgId) != 12) && (abs(pdgId) != 14) && (abs(pdgId) != 16) )
       tauJ.push_back(pFinal.at(i));

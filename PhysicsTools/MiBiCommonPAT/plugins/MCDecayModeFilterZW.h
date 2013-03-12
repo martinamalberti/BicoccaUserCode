@@ -45,6 +45,10 @@ class MCDecayModeFilterZW : public edm::EDFilter
   bool m_verbosity;
   
   
+  bool m_W_e_nue;
+  bool m_W_mu_numu;
+  bool m_W_tau_nutau;
+  
   bool m_Z_e_e;
   bool m_Z_mu_mu;
   bool m_Z_tau_tau;
