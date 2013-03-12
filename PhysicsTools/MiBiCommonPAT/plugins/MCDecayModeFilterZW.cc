@@ -82,3 +82,5 @@ bool MCDecayModeFilterZW::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   
   return keepEvent;  
 }
+
+DEFINE_FWK_MODULE(MCDecayModeFilterZW);
