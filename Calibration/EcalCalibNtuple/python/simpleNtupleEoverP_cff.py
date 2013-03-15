@@ -39,19 +39,15 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverAlcaReco,runOverDat
     if runOverAlcaReco:
         process.simpleNtupleEoverP.recHitCollection_EB =  cms.InputTag("alCaIsolatedElectrons","alcaBarrelHits")
         process.simpleNtupleEoverP.recHitCollection_EE =  cms.InputTag("alCaIsolatedElectrons","alcaEndcapHits")
-        process.simpleNtupleEoverP.EleTag              =  cms.InputTag("gsfElectrons")
         process.simpleNtupleEoverP.rhoTag              =  cms.InputTag("kt6PFJetsForRhoCorrection","rho")
-
+    
     if runOverSandbox:                
         process.simpleNtupleEoverP.recHitCollection_EB =  cms.InputTag("alCaIsolatedElectrons","alCaRecHitsEB","ALCARERECO")
         process.simpleNtupleEoverP.recHitCollection_EE =  cms.InputTag("alCaIsolatedElectrons","alCaRecHitsEE","ALCARERECO")
         process.simpleNtupleEoverP.EleTag              =  cms.InputTag("electronRecalibSCAssociator","","ALCARERECO")
         process.simpleNtupleEoverP.rhoTag              =  cms.InputTag("kt6PFJetsForRhoCorrection","rho")
-
+    
     if not runOverData:
-        process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("reducedEcalRecHitsEB")
-        process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("reducedEcalRecHitsEE")
-        process.simpleNtupleEoverP.rhoTag              =  cms.InputTag("kt6PFJets","rho")
         process.simpleNtupleEoverP.dataFlag            = cms.untracked.bool(False)
         process.simpleNtupleEoverP.saveMCPU            = cms.untracked.bool(True)
         process.simpleNtupleEoverP.saveMCInfo          = cms.untracked.bool(True)
