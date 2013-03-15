@@ -6,10 +6,10 @@ from Calibration.EcalCalibNtuple.recoTags_cff import *
 process = cms.Process("SimpleNtupleEoverP")
 
 # flags
-GlobalTag = "GR_P_V24B::All"
+GlobalTag = "START53_V7A::All"
 runOverSandbox   = False
 runOverAlcaReco  = False
-runOverData      = True
+runOverData      = False
 saveRecHitMatrix = True
 
 # initialize MessageLogger and output report
@@ -38,15 +38,14 @@ if saveRecHitMatrix:
         process.calolocalreco *
         process.simpleNtupleEoverP
         )
-    
-    process.simpleNtupleEoverP.saveFbrem        = cms.untracked.bool(True)
+
     process.simpleNtupleEoverP.saveRecHitMatrix = cms.untracked.bool(True)
     process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB")
     process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    '/store/data/Run2012C/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v3/000/203/002/00000/FE38EA04-AB04-E211-9B88-002618943950.root'
+    LISTOFFILES
     )
 
 process.maxEvents = cms.untracked.PSet(
@@ -55,9 +54,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("simpleNtuple.root")
+    fileName = cms.string("OUTPUTFILENAME.root")
     )
-
 
 process.schedule = cms.Schedule(
     process.simpleNtuple_step

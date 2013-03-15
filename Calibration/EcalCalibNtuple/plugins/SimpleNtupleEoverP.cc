@@ -176,6 +176,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
 
   if(saveRecHitMatrix_)
   {
+    outTree_ -> Branch("ele1_recHitMatrix_E",              "std::vector<float>",&ele1_recHitMatrix_E);
     outTree_ -> Branch("ele1_recHitMatrix_flag",           "std::vector<int>",  &ele1_recHitMatrix_flag);
     outTree_ -> Branch("ele1_recHitMatrix_hashedIndex",    "std::vector<int>",  &ele1_recHitMatrix_hashedIndex);
     outTree_ -> Branch("ele1_recHitMatrix_ietaORix",       "std::vector<int>",  &ele1_recHitMatrix_ietaORix);
@@ -1374,7 +1375,7 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
       TTIdList.push_back(TTId);
       //std::cout << "flag: " << flag << "   TTId: " << TTId << "   iEta: " << TTId.ieta() << "   iPhi: " << TTId.iphi() << std::endl;
     }
-  }        
+  } 
   
   //*********** EE SR FLAGS
   edm::Handle<EESrFlagCollection> SRFlagsEE;
@@ -1406,12 +1407,12 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
   
   //************* REGRESSION
   if( !ecorr_.IsInitialized() ){
-    ecorr_.Initialize(iSetup,"gbrv3ele_52x.root");
-    //ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
+    //ecorr_.Initialize(iSetup,"gbrv3ele_52x.root");
+    ecorr_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ele_52x.root");
   }
   if( !ecorrPho_.IsInitialized()){
-    ecorrPho_.Initialize(iSetup,"gbrv3ph_52x.root");
-    //ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ph_52x.root");
+    //ecorrPho_.Initialize(iSetup,"gbrv3ph_52x.root");
+    ecorrPho_.Initialize(iSetup,"/afs/cern.ch/user/b/bendavid/cmspublic/regweights52xV3/gbrv3ph_52x.root");
   } 
   
   //************* CLUSTER PU CLEANING TOOLS
@@ -1683,9 +1684,11 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
 	//save the matrix in case of eleSeed
 	std::vector<DetId> rectangle =  EcalClusterTools::matrixDetId(topology, seedId, -9, 9, -9, 9);
 	
+	int it = 0;
 	for(std::vector<DetId>::const_iterator itr = rectangle.begin(); itr != rectangle.end(); ++itr)
         {
-          EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
+	  ++it;
+           EcalRecHitCollection::const_iterator itrRecHit = theBarrelEcalRecHits->find(*itr) ;
           if(itrRecHit == theBarrelEcalRecHits->end()) continue;
           
           // fill recHit variables
@@ -1698,25 +1701,29 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
           theICCorrection = *ICMapIt;
           
+          int SRFlag = 3;
           std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
-          if( TTIdListIt == TTIdList.end() ) continue;
+          if( TTIdListIt == TTIdList.end() ) SRFlag = 1;
           
+          bool digiFound = false;
+	  for(EBDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr)
+          {
+            if(digiItr->id() != barrelId )continue;
+            digiFound = true;
+            EcalDataFrame df = *digiItr;
+            for(int iSample = 0; iSample < 10; ++iSample)
+              ele1_recHitMatrix_samples.push_back(df.sample(iSample).adc());
+          }
+          if( digiFound == false ) continue;
+                    
           ele1_recHitMatrix_E.push_back(itrRecHit->energy());
-          ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele1_recHitMatrix_flag.push_back(SRFlag*1000+itrRecHit->recoFlag());
           ele1_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
           ele1_recHitMatrix_ietaORix.push_back(barrelId.ieta());
           ele1_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
           ele1_recHitMatrix_zside.push_back(0);
           ele1_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
           ele1_recHitMatrix_ICConstant.push_back(theICCorrection);
-
-	  for(EBDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr)
-          {
-            if(digiItr->id() != barrelId )continue;
-            EcalDataFrame df = *digiItr;
-            for(int iSample = 0; iSample < 10; ++iSample)
-              ele1_recHitMatrix_samples.push_back(df.sample(iSample).adc());
-          }
         }
       }
       
@@ -1740,26 +1747,30 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           // IC correction
           EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
           theICCorrection = *ICMapIt;
-                    
+          
+          int SRFlag = 3;
           std::vector<EcalScDetId>::iterator SCIdListIt = std::find(SCIdList.begin(),SCIdList.end(),scId);
-          if( SCIdListIt == SCIdList.end() ) continue;
+          if( SCIdListIt == SCIdList.end() ) SRFlag = 1;
+          
+          bool digiFound = false;
+	  for(EEDigiCollection::const_iterator digiItr = eeDigis->begin(); digiItr != eeDigis->end(); ++digiItr)
+          {
+            if(digiItr->id() != endcapId) continue;
+            digiFound = true;
+            EcalDataFrame df = *digiItr;
+            for(int iSample = 0; iSample < 10; ++iSample)            
+              ele1_recHitMatrix_samples.push_back(df.sample(iSample).adc());
+          }
+          if( digiFound == false ) continue;
           
           ele1_recHitMatrix_E.push_back(itrRecHit->energy());
-          ele1_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele1_recHitMatrix_flag.push_back(SRFlag*1000+itrRecHit->recoFlag());
           ele1_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
           ele1_recHitMatrix_ietaORix.push_back(endcapId.ix());
           ele1_recHitMatrix_iphiORiy.push_back(endcapId.iy());
           ele1_recHitMatrix_zside.push_back(0);
           ele1_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
           ele1_recHitMatrix_ICConstant.push_back(theICCorrection);
-
-	  for(EEDigiCollection::const_iterator digiItr = eeDigis->begin(); digiItr != eeDigis->end(); ++digiItr)
-          {
-            if(digiItr->id() != endcapId) continue;
-            EcalDataFrame df = *digiItr;
-            for(int iSample = 0; iSample < 10; ++iSample)            
-              ele1_recHitMatrix_samples.push_back(df.sample(iSample).adc());
-          }
         }
       }
     }
@@ -2294,25 +2305,30 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(barrelId);
           theICCorrection = *ICMapIt;
           
+          int SRFlag = 3;
           std::vector<EcalTrigTowerDetId>::iterator TTIdListIt = std::find(TTIdList.begin(),TTIdList.end(),towerId);
-          if( TTIdListIt == TTIdList.end() ) continue;
+          if( TTIdListIt == TTIdList.end() ) SRFlag = 1;
+          
+          bool digiFound = false;
+	  for(EBDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr)
+          {
+            if(digiItr->id() != barrelId )continue;
+            digiFound = true;
+            EcalDataFrame df = *digiItr;
+            for(int iSample = 0; iSample < 10; ++iSample)
+              ele2_recHitMatrix_samples.push_back(df.sample(iSample).adc());
+          }
+          if( digiFound == false ) continue;
           
           ele2_recHitMatrix_E.push_back(itrRecHit->energy());
-          ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele2_recHitMatrix_flag.push_back(SRFlag*1000+itrRecHit->recoFlag());
           ele2_recHitMatrix_hashedIndex.push_back(barrelId.hashedIndex());
           ele2_recHitMatrix_ietaORix.push_back(barrelId.ieta());
           ele2_recHitMatrix_iphiORiy.push_back(barrelId.iphi());
           ele2_recHitMatrix_zside.push_back(0);
           ele2_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
           ele2_recHitMatrix_ICConstant.push_back(theICCorrection);
-
-	  for(EBDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr)
-          {
-            if(digiItr->id() != barrelId )continue;
-            EcalDataFrame df = *digiItr;
-            for(int iSample = 0; iSample < 10; ++iSample)
-              ele2_recHitMatrix_samples.push_back(df.sample(iSample).adc());
-          }
+          
         }
       }
       
@@ -2337,25 +2353,30 @@ void SimpleNtupleEoverP::fillEleInfo(const edm::Event & iEvent, const edm::Event
           EcalIntercalibConstantMap::const_iterator ICMapIt = ICMap.find(endcapId);
           theICCorrection = *ICMapIt;
           
+          int SRFlag = 3;
           std::vector<EcalScDetId>::iterator SCIdListIt = std::find(SCIdList.begin(),SCIdList.end(),scId);
-          if( SCIdListIt == SCIdList.end() ) continue;
+          if( SCIdListIt == SCIdList.end() ) SRFlag = 1;
+          
+          bool digiFound = false;
+	  for(EEDigiCollection::const_iterator digiItr = eeDigis->begin(); digiItr != eeDigis->end(); ++digiItr)
+          {
+            if(digiItr->id() != endcapId) continue;
+            digiFound = true;
+            EcalDataFrame df = *digiItr;
+            for(int iSample = 0; iSample < 10; ++iSample)
+	      ele2_recHitMatrix_samples.push_back(df.sample(iSample).adc());
+          }
+          if( digiFound == false ) continue;
           
           ele2_recHitMatrix_E.push_back(itrRecHit->energy());
-          ele2_recHitMatrix_flag.push_back(itrRecHit->recoFlag());
+          ele2_recHitMatrix_flag.push_back(SRFlag*1000+itrRecHit->recoFlag());
           ele2_recHitMatrix_hashedIndex.push_back(endcapId.hashedIndex());
           ele2_recHitMatrix_ietaORix.push_back(endcapId.ix());
           ele2_recHitMatrix_iphiORiy.push_back(endcapId.iy());
           ele2_recHitMatrix_zside.push_back(0);
           ele2_recHitMatrix_laserCorrection.push_back(theLaserCorrection);
           ele2_recHitMatrix_ICConstant.push_back(theICCorrection);
-
-	  for(EEDigiCollection::const_iterator digiItr = eeDigis->begin(); digiItr != eeDigis->end(); ++digiItr)
-          {
-            if(digiItr->id() != endcapId) continue;
-            EcalDataFrame df = *digiItr;
-            for(int iSample = 0; iSample < 10; ++iSample)
-	      ele2_recHitMatrix_samples.push_back(df.sample(iSample).adc());
-          }
+          
         }
       }
     }	

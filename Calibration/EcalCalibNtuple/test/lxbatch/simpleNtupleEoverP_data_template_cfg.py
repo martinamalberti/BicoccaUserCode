@@ -5,6 +5,12 @@ from Calibration.EcalCalibNtuple.recoTags_cff import *
 
 process = cms.Process("SimpleNtupleEoverP")
 
+# flags
+GlobalTag = "GR_P_V24B::All"
+runOverSandbox   = False
+runOverAlcaReco  = False
+runOverData      = True
+saveRecHitMatrix = True
 
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -13,19 +19,30 @@ process.MessageLogger.cerr.threshold = cms.untracked.string("DEBUG")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
 # simpleNtuple
-makeSimpleNtuple(process,GlobalTag="GR_P_V42B::All",runOverSandbox=True,runOverAlcaReco=False,runOverData=True)
+makeSimpleNtuple(process,GlobalTag=GlobalTag,runOverSandbox=runOverSandbox,runOverAlcaReco=runOverAlcaReco,runOverData=runOverData)
 
-makeRecoTags(process)
+#makeRecoTags(process)
 #makeSqliteTags(process)
 
 # path
-process.simpleNtuple_step = cms.Path(
-    #process.hltfilter
-    #process.ecalDigis *
-    process.simpleNtupleEoverP
-    )
-
-process.simpleNtupleEoverP.saveRecHitMatrix = cms.untracked.bool(False)
+if not saveRecHitMatrix:
+    process.simpleNtuple_step = cms.Path(
+        process.simpleNtupleEoverP
+        )
+    
+if saveRecHitMatrix:
+    process.simpleNtuple_step = cms.Path(
+        process.ecalDigis *
+        process.ecalPreshowerDigis *
+        process.hcalDigis *
+        process.calolocalreco *
+        process.simpleNtupleEoverP
+        )
+    
+    process.simpleNtupleEoverP.saveFbrem        = cms.untracked.bool(True)
+    process.simpleNtupleEoverP.saveRecHitMatrix = cms.untracked.bool(True)
+    process.simpleNtupleEoverP.recHitCollection_EB = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    process.simpleNtupleEoverP.recHitCollection_EE = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 
 # source
 process.source.fileNames = cms.untracked.vstring(
