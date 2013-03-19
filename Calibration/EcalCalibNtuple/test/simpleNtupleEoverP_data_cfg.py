@@ -6,11 +6,13 @@ from Calibration.EcalCalibNtuple.recoTags_cff import *
 process = cms.Process("SimpleNtupleEoverP")
 
 # flags
-GlobalTag = "GR_P_V24B::All"
+GlobalTag = "FT_R_53_V18::All" #22Jan2013
+#GlobalTag = "FT_R_53_V21::All" #26Feb2013
 runOverSandbox   = False
 runOverAlcaReco  = False
 runOverData      = True
 saveRecHitMatrix = True
+isRecoFormat     = True
 
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -31,13 +33,21 @@ if not saveRecHitMatrix:
         )
 
 if saveRecHitMatrix:
-    process.simpleNtuple_step = cms.Path(
-        process.ecalDigis *
-        process.ecalPreshowerDigis *
-        process.hcalDigis *
-        process.calolocalreco *
-        process.simpleNtupleEoverP
-        )
+
+    if isRecoFormat:
+        process.simpleNtuple_step = cms.Path(
+            process.ecalDigis *
+            process.simpleNtupleEoverP
+            )
+    
+    if not isRecoFormat:
+        process.simpleNtuple_step = cms.Path(
+            process.ecalDigis *
+            process.ecalPreshowerDigis *
+            process.hcalDigis *
+            process.calolocalreco *
+            process.simpleNtupleEoverP
+            )        
     
     process.simpleNtupleEoverP.saveFbrem        = cms.untracked.bool(True)
     process.simpleNtupleEoverP.saveRecHitMatrix = cms.untracked.bool(True)
@@ -46,7 +56,7 @@ if saveRecHitMatrix:
 
 # source
 process.source.fileNames = cms.untracked.vstring(
-    '/store/data/Run2012C/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v3/000/203/002/00000/FE38EA04-AB04-E211-9B88-002618943950.root'
+    '/store/data/Run2012A/DoubleElectron/RAW-RECO/ZElectron-22Jan2013-v1/20000/E20DBB2F-C567-E211-84D7-00259059642A.root'
     )
 
 process.maxEvents = cms.untracked.PSet(
