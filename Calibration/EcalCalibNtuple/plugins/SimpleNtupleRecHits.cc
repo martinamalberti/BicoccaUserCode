@@ -349,7 +349,7 @@ void SimpleNtupleRecHits::fillRecHitsInfo(const edm::Event& iEvent, const edm::E
     EEDetId endcapId = itRecHit -> id();
     
     bool digiFound = false;
-    for(EEDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr)
+    for(EEDigiCollection::const_iterator digiItr = eeDigis->begin(); digiItr != eeDigis->end(); ++digiItr)
     {
       if(digiItr->id() != endcapId ) continue;
       digiFound = true;
