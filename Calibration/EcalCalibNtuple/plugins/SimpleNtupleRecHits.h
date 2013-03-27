@@ -36,6 +36,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -74,6 +75,8 @@ class SimpleNtupleRecHits : public edm::EDAnalyzer
   edm::InputTag PVTag_;
   edm::InputTag rhoTag_;
   edm::InputTag MCPileupTag_;
+  edm::InputTag digiCollection_EB_;
+  edm::InputTag digiCollection_EE_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
   
@@ -113,6 +116,7 @@ class SimpleNtupleRecHits : public edm::EDAnalyzer
   std::vector<int> EBRecHit_zside;
   std::vector<float> EBRecHit_laserCorrection;
   std::vector<float> EBRecHit_ICConstant;
+  std::vector<float> EBRecHit_samples;
   
   std::vector<float> EERecHit_E;
   std::vector<int> EERecHit_flag;
@@ -122,6 +126,7 @@ class SimpleNtupleRecHits : public edm::EDAnalyzer
   std::vector<int> EERecHit_zside;
   std::vector<float> EERecHit_laserCorrection;
   std::vector<float> EERecHit_ICConstant;
+  std::vector<float> EERecHit_samples;
   
   // PU variables
   float PUit_TrueNumInteractions;

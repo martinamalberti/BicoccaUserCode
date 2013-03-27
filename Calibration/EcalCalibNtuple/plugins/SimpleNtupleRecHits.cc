@@ -26,6 +26,8 @@ SimpleNtupleRecHits::SimpleNtupleRecHits(const edm::ParameterSet& iConfig)
   PVTag_               = iConfig.getParameter<edm::InputTag>("PVTag");
   rhoTag_              = iConfig.getParameter<edm::InputTag>("rhoTag");
   MCPileupTag_         = iConfig.getParameter<edm::InputTag>("MCPileupTag");
+  digiCollection_EB_   = iConfig.getParameter<edm::InputTag>("digiCollection_EB");
+  digiCollection_EE_   = iConfig.getParameter<edm::InputTag>("digiCollection_EE");
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
   
