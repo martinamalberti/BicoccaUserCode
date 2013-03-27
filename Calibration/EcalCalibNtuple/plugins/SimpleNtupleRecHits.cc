@@ -61,6 +61,7 @@ SimpleNtupleRecHits::SimpleNtupleRecHits(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("EBRecHit_zside",           "std::vector<int>",   &EBRecHit_zside);
   outTree_ -> Branch("EBRecHit_laserCorrection", "std::vector<float>", &EBRecHit_laserCorrection);
   outTree_ -> Branch("EBRecHit_ICConstant",      "std::vector<float>", &EBRecHit_ICConstant);
+  outTree_ -> Branch("EBRecHit_samples",         "std::vector<float>", &EBRecHit_samples);
   
   outTree_ -> Branch("EERecHit_E",               "std::vector<float>", &EERecHit_E);
   outTree_ -> Branch("EERecHit_flag",            "std::vector<int>",   &EERecHit_flag);
@@ -70,7 +71,8 @@ SimpleNtupleRecHits::SimpleNtupleRecHits(const edm::ParameterSet& iConfig)
   outTree_ -> Branch("EERecHit_zside",           "std::vector<int>",   &EERecHit_zside);
   outTree_ -> Branch("EERecHit_laserCorrection", "std::vector<float>", &EERecHit_laserCorrection);
   outTree_ -> Branch("EERecHit_ICConstant",      "std::vector<float>", &EERecHit_ICConstant);
-  
+  outTree_ -> Branch("EERecHit_samples",         "std::vector<float>", &EERecHit_samples);
+    
   // pileup variables
   if(saveMCPU_)
   {
@@ -170,6 +172,7 @@ void SimpleNtupleRecHits::analyze(const edm::Event& iEvent, const edm::EventSetu
   EBRecHit_zside.clear();
   EBRecHit_laserCorrection.clear();
   EBRecHit_ICConstant.clear();
+  EBRecHit_samples.clear();
   
   EERecHit_E.clear();
   EERecHit_flag.clear();
@@ -179,6 +182,7 @@ void SimpleNtupleRecHits::analyze(const edm::Event& iEvent, const edm::EventSetu
   EERecHit_zside.clear();
   EERecHit_laserCorrection.clear();
   EERecHit_ICConstant.clear();
+  EERecHit_samples.clear();
   
   
   
@@ -279,14 +283,15 @@ void SimpleNtupleRecHits::fillRecHitsInfo(const edm::Event& iEvent, const edm::E
   edm::ESHandle<EcalADCToGeVConstant> theADCToGeV;
   iSetup.get<EcalADCToGeVConstantRcd>().get(theADCToGeV);
   
-  //*********** LASER ALPHAS
-  edm::ESHandle<EcalLaserAlphas> theEcalLaserAlphas;
-  iSetup.get<EcalLaserAlphasRcd>().get(theEcalLaserAlphas);
-  const EcalLaserAlphaMap* theEcalLaserAlphaMap = theEcalLaserAlphas.product();
-  
   //*********** LASER CORRECTION
   edm::ESHandle<EcalLaserDbService> theLaser;
   iSetup.get<EcalLaserDbRecord>().get(theLaser);
+  
+  //*********** EB DIGI HITS
+  edm::Handle<EBDigiCollection> ebDigis;
+  iEvent.getByLabel(digiCollection_EB_,ebDigis);
+  edm::Handle<EEDigiCollection> eeDigis;
+  iEvent.getByLabel(digiCollection_EE_,eeDigis);
   
   //*********** EB REC HITS
   edm::Handle<EcalRecHitCollection> recHitsEB;
@@ -310,6 +315,17 @@ void SimpleNtupleRecHits::fillRecHitsInfo(const edm::Event& iEvent, const edm::E
   {
     EBDetId barrelId = itRecHit -> id();
     
+    bool digiFound = false;
+    for(EBDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr)
+    {
+      if(digiItr->id() != barrelId ) continue;
+      digiFound = true;
+      EcalDataFrame df = *digiItr;
+      for(int iSample = 0; iSample < 10; ++iSample)
+        EBRecHit_samples.push_back(df.sample(iSample).adc());
+      }
+    if( digiFound == false ) continue;
+    
     // laser correction
     theLaserCorrection = theLaser->getLaserCorrection(barrelId, iEvent.time());
     // IC correction
@@ -330,6 +346,17 @@ void SimpleNtupleRecHits::fillRecHitsInfo(const edm::Event& iEvent, const edm::E
   {
     EEDetId endcapId = itRecHit -> id();
     
+    bool digiFound = false;
+    for(EEDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr)
+    {
+      if(digiItr->id() != endcapId ) continue;
+      digiFound = true;
+      EcalDataFrame df = *digiItr;
+      for(int iSample = 0; iSample < 10; ++iSample)
+        EERecHit_samples.push_back(df.sample(iSample).adc());
+      }
+    if( digiFound == false ) continue;
+    
     // laser correction
     theLaserCorrection = theLaser->getLaserCorrection(endcapId, iEvent.time());
     // IC correction
@@ -341,7 +368,7 @@ void SimpleNtupleRecHits::fillRecHitsInfo(const edm::Event& iEvent, const edm::E
     EERecHit_hashedIndex.push_back(endcapId.hashedIndex());
     EERecHit_ietaORix.push_back(endcapId.ix());
     EERecHit_iphiORiy.push_back(endcapId.iy());
-    EERecHit_zside.push_back(0);
+    EERecHit_zside.push_back(endcapId.zside());
     EERecHit_laserCorrection.push_back(theLaserCorrection);
     EERecHit_ICConstant.push_back(theICCorrection);
   }
@@ -358,7 +385,7 @@ void SimpleNtupleRecHits::fillRecHitsInfo(const edm::Event& iEvent, const edm::E
 
 
 
-void SimpleNtupleRecHits::fillMCPUInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
+void SimpleNtupleRecHits::fillMCPUInfo(const edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
   if( verbosity_ )
     std::cout<< ">>> SimpleNtupleRecHits::fillMCPUInfo start <<<" << std::endl;
