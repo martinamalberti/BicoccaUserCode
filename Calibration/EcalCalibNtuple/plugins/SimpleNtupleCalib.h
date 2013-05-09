@@ -191,6 +191,7 @@ class SimpleNtupleCalib : public edm::EDAnalyzer {
   edm::InputTag recHitCollection_EE_;
   edm::InputTag inputCollectionStrip_;
   edm::InputTag inputCollectionPixel_;
+  edm::InputTag BSTag_;
   edm::InputTag EleTag_;
   edm::InputTag PhotonTag_;
   edm::InputTag SCTag_;

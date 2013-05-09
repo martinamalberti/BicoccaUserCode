@@ -346,7 +346,7 @@ int main(int argc, char** argv)
       
       // semi-tight electrons
       if( isTightElectron == true ) continue;
-      bool isMediumElectron = false;
+      //      bool isMediumElectron = false;
       if(
          (pt > 12.) &&
          (fabs(eta) < 2.5) &&
@@ -361,7 +361,7 @@ int main(int argc, char** argv)
          ( ( fabs(dist) > 0.02 ) || ( fabs(dcot) > 0.02 ) )
         )
       {
-        isMediumElectron = true;
+	//        isMediumElectron = true;
         ++nMediumEle;
         eleIts[1./pt] = eleIt;
       }

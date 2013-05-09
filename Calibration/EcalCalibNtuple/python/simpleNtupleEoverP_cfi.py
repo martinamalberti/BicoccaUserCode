@@ -10,6 +10,7 @@ simpleNtupleEoverP = cms.EDAnalyzer(
     SRFlagCollection_EE = cms.InputTag("ecalDigis"),
     digiCollection_EB   = cms.InputTag("ecalDigis","ebDigis"),
     digiCollection_EE   = cms.InputTag("ecalDigis","eeDigis"),
+    theBeamSpotTag      = cms.InputTag("offlineBeamSpot"),
     EleTag              = cms.InputTag("gsfElectrons"),
     PFMetTag            = cms.InputTag("pfMet"),
     MCtruthTag          = cms.InputTag("genParticles"),

@@ -35,6 +35,8 @@ SimpleNtupleCalib::SimpleNtupleCalib(const edm::ParameterSet& iConfig)
 
   inputCollectionStrip_ = iConfig.getParameter<edm::InputTag>("inputCollectionStrip");
   inputCollectionPixel_ = iConfig.getParameter<edm::InputTag>("inputCollectionPixel");
+
+  BSTag_                = iConfig.getParameter<edm::InputTag>("theBeamSpotTag");
   
   EleTag_ = iConfig.getParameter<edm::InputTag>("EleTag");
   PhotonTag_      = iConfig.getParameter<edm::InputTag>("PhotonTag");
@@ -822,8 +824,7 @@ void SimpleNtupleCalib::fillBSInfo(const edm::Event & iEvent, const edm::EventSe
   //std::cout << "SimpleNtupleCalib::fillBSInfo::begin" << std::endl;
   
   edm::Handle<reco::BeamSpot> BSHandle;
-  iEvent.getByType(BSHandle);
-
+  iEvent.getByLabel(BSTag_, BSHandle);
 
   // select the BS
   const reco::BeamSpot BS = *BSHandle;
@@ -1000,7 +1001,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
  
  //************* CLUSTER PU CLEANING TOOLS
  EcalClusterPUCleaningTools cleaningTools(iEvent, iSetup, recHitCollection_EB_, recHitCollection_EE_); 
- float xi = 0.02;   
+ // float xi = 0.02;   
  
  //************* CLUSTER LAZY TOOLS
  if( !ecorrE_.IsInitialized() ){
@@ -1237,7 +1238,8 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    // N.B. localEta, localPhi --> sono riempite con localIx, localIy in EE
    EcalClusterLocal ecalLocalCoord;
    float bcLocalEta, bcLocalPhi, bcThetatilt, bcPhitilt;  
-   int bcIeta, bcIphi, bcIx, bcIy;
+   int bcIeta, bcIphi;
+   //, bcIx, bcIy;
    
    bcLocalEta = 0;
    bcLocalPhi = 0;
@@ -1788,7 +1790,7 @@ void SimpleNtupleCalib::fillEleInfo (const edm::Event & iEvent, const edm::Event
    NtupleFactory_->FillFloat("electrons_dcot", electron.convDcot());
 
    edm::Handle<reco::BeamSpot> BSHandle;
-   iEvent.getByType(BSHandle);
+   iEvent.getByLabel(BSTag_, BSHandle);
    // select the BS
    const reco::BeamSpot BS = *BSHandle;
    
@@ -1849,10 +1851,11 @@ void SimpleNtupleCalib::fillPFIsoInfo (const edm::Event & iEvent, const edm::Eve
 void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
  //std::cout << "SimpleNtupleCalib::fillPhotonInfo" << std::endl;
-  //*********** CALO TOPOLOGY
- edm::ESHandle<CaloTopology> pTopology;
- iSetup.get<CaloTopologyRecord>().get(pTopology);
- const CaloTopology *topology = pTopology.product();
+
+//   //*********** CALO TOPOLOGY
+//  edm::ESHandle<CaloTopology> pTopology;
+//  iSetup.get<CaloTopologyRecord>().get(pTopology);
+//  const CaloTopology *topology = pTopology.product();
  
  //*********** CALO GEOM
  edm::ESHandle<CaloGeometry> theCaloGeom;
@@ -2230,10 +2233,10 @@ void SimpleNtupleCalib::fillPhoInfo (const edm::Event & iEvent, const edm::Event
 void SimpleNtupleCalib::fillSCInfo (const edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
  //std::cout << "SimpleNtupleCalib::fillSCInfo" << std::endl;
-  //*********** CALO TOPOLOGY
- edm::ESHandle<CaloTopology> pTopology;
- iSetup.get<CaloTopologyRecord>().get(pTopology);
- const CaloTopology *topology = pTopology.product();
+//   //*********** CALO TOPOLOGY
+//  edm::ESHandle<CaloTopology> pTopology;
+//  iSetup.get<CaloTopologyRecord>().get(pTopology);
+//  const CaloTopology *topology = pTopology.product();
  
  //*********** CALO GEOM
  edm::ESHandle<CaloGeometry> theCaloGeom;
@@ -2509,10 +2512,10 @@ const EcalRecHitCollection *recHitES =  EShits.product();
  iEvent.getByLabel(EleTag_,electronHandle);
  View<pat::Electron> electrons = *electronHandle;
 
- //*********** CALO GEOM
- edm::ESHandle<CaloGeometry> theCaloGeom;
- iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
- const CaloGeometry *caloGeometry = theCaloGeom.product();
+//  //*********** CALO GEOM
+//  edm::ESHandle<CaloGeometry> theCaloGeom;
+//  iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+//  const CaloGeometry *caloGeometry = theCaloGeom.product();
 
 // Iteration over basic cluster collection
  // Loop over electrons
@@ -2545,7 +2548,7 @@ const EcalRecHitCollection *recHitES =  EShits.product();
         // Iterate on the RecHits collection, matching them with the hits that make up the ES cluster by looking at their DetId: 
         for(EcalRecHitCollection::const_iterator es=recHitES->begin(); es!= recHitES->end(); ++es){
           
-          DetId hitid = DetId(esCells[s].first.rawId());
+	  //          DetId hitid = DetId(esCells[s].first.rawId());
           if(es->id().rawId()==esCells[s].first.rawId()){
           ESDetId id=ESDetId(es->id().rawId());
           

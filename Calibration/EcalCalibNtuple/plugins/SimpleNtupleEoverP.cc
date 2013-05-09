@@ -41,6 +41,7 @@ SimpleNtupleEoverP::SimpleNtupleEoverP(const edm::ParameterSet& iConfig)
   digiCollection_EE_   = iConfig.getParameter<edm::InputTag>("digiCollection_EE");
   recHitCollection_EB_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EB");
   recHitCollection_EE_ = iConfig.getParameter<edm::InputTag>("recHitCollection_EE");
+  BSTag_               = iConfig.getParameter<edm::InputTag>("theBeamSpotTag");
   SRFlagCollection_EB_ = iConfig.getParameter<edm::InputTag>("SRFlagCollection_EB");
   SRFlagCollection_EE_ = iConfig.getParameter<edm::InputTag>("SRFlagCollection_EE");
   MCPileupTag_         = iConfig.getParameter<edm::InputTag>("MCPileupTag");
@@ -985,7 +986,7 @@ bool  SimpleNtupleEoverP::TightEle (const edm::Event & iEvent, const edm::EventS
  float dz            = eleTrack->dz (PVPoint_);
 
  edm::Handle<reco::BeamSpot> BSHandle;
- iEvent.getByType(BSHandle);
+ iEvent.getByLabel(BSTag_, BSHandle);
  const reco::BeamSpot BS = *BSHandle;
 
  
@@ -1071,7 +1072,7 @@ bool  SimpleNtupleEoverP::MediumEle (const edm::Event & iEvent, const edm::Event
  float dz            = eleTrack->dz (PVPoint_);
 
  edm::Handle<reco::BeamSpot> BSHandle;
- iEvent.getByType(BSHandle);
+ iEvent.getByLabel(BSTag_, BSHandle);
  const reco::BeamSpot BS = *BSHandle;
 
  
@@ -1159,7 +1160,7 @@ bool SimpleNtupleEoverP::LooseEle (const edm::Event & iEvent, const edm::EventSe
  float dz            = eleTrack->dz (PVPoint_);
 
  edm::Handle<reco::BeamSpot> BSHandle;
- iEvent.getByType(BSHandle);
+ iEvent.getByLabel(BSTag_, BSHandle);
  const reco::BeamSpot BS = *BSHandle;
 
  

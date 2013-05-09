@@ -155,6 +155,7 @@ class SimpleNtupleEoverP : public edm::EDAnalyzer {
   edm::InputTag rhoTag_;
   edm::InputTag recHitCollection_EB_;
   edm::InputTag recHitCollection_EE_;
+  edm::InputTag BSTag_;
   edm::InputTag SRFlagCollection_EB_;
   edm::InputTag SRFlagCollection_EE_;
   edm::InputTag digiCollection_EB_;

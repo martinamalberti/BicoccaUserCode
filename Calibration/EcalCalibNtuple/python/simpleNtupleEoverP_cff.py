@@ -28,7 +28,14 @@ def makeSimpleNtuple(process,GlobalTag,runOverSandbox,runOverAlcaReco,runOverDat
     # GlobalTag
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = GlobalTag
-    
+
+
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string('EcalLinearCorrectionsRcd'),
+                 tag = cms.string('EcalLinearCorrections_mc'),
+                 connect = cms.untracked.string('frontier://FrontierPrep/CMS_COND_ECAL')
+                 )
+        )
     
     #--------------------------
     # Ntuple
