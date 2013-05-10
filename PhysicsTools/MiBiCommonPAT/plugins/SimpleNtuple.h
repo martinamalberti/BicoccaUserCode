@@ -88,6 +88,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   void fillMuonLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillEleLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
+  void fillLeptonLessPVInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillPhotonInfo (const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
   void fillTrackInfo(const edm::Event & iEvent, const edm::EventSetup & iESetup) ;
 
@@ -118,9 +119,11 @@ class SimpleNtuple : public edm::EDAnalyzer {
   math::XYZPoint PVPoint_;
   math::XYZPoint EleLessPVPoint_;
   math::XYZPoint MuonLessPVPoint_;
+  math::XYZPoint LeptonLessPVPoint_;
 
   std::vector<TransientVertex> EleLessPvs;
   std::vector<TransientVertex> MuonLessPvs;
+  std::vector<TransientVertex> LeptonLessPvs;
   
   ///---- input tag ----
   edm::InputTag EBRechitTag_;
@@ -132,6 +135,10 @@ class SimpleNtuple : public edm::EDAnalyzer {
   edm::InputTag PVTag_;
   edm::InputTag NoMuonPVTag_;
   edm::InputTag NoMuonTracksTag_;
+  edm::InputTag NoElectronPVTag_;
+  edm::InputTag NoElectronTracksTag_;
+  edm::InputTag NoLeptonPVTag_;
+  edm::InputTag NoLeptonTracksTag_;
 
   edm::InputTag EleTag_;
   edm::InputTag TracksTag_;
@@ -171,6 +178,7 @@ class SimpleNtuple : public edm::EDAnalyzer {
   bool saveRho_ ;
   bool saveEleLessPV_;
   bool saveMuonLessPV_;
+  bool saveLeptonLessPV_;
   bool saveTrack_;
   bool saveTau_ ;
   bool saveMu_ ;
