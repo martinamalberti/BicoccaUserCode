@@ -89,6 +89,35 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.offlinePrimaryVerticesNoMu.TrackLabel = cms.InputTag("NoMuonTrackProducer")
 
     process.noMuonVertexReco = cms.Sequence(process.NoMuonTrackProducer*process.offlinePrimaryVerticesNoMu)
+
+    #-------------------------------------
+    # build electron less vertices
+    #add track no electron producer
+    process.load("PhysicsTools.MiBiCommonPAT.NoElectronTrackProducer_cfi")
+
+    # re-do vertices
+    process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+    from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+
+    process.offlinePrimaryVerticesNoEle=offlinePrimaryVertices.clone()
+    process.offlinePrimaryVerticesNoEle.TrackLabel = cms.InputTag("NoElectronTrackProducer")
+
+    process.noElectronVertexReco = cms.Sequence(process.NoElectronTrackProducer*process.offlinePrimaryVerticesNoEle)
+
+    
+    #-------------------------------------
+    # build electron+muon less vertices
+    #add track no lepton producer
+    process.load("PhysicsTools.MiBiCommonPAT.NoLeptonTrackProducer_cfi")
+
+    # re-do vertices
+    process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+    from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+
+    process.offlinePrimaryVerticesNoLep=offlinePrimaryVertices.clone()
+    process.offlinePrimaryVerticesNoLep.TrackLabel = cms.InputTag("NoLeptonTrackProducer")
+
+    process.noLeptonVertexReco = cms.Sequence(process.NoLeptonTrackProducer*process.offlinePrimaryVerticesNoLep)
     
     
     #------------------
@@ -117,7 +146,7 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     #### jets ####    
     process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
     from RecoJets.JetProducers.kt4PFJets_cfi import *
-    
+       
     # compute FastJet rho to correct jets
     process.kt6PFJets = kt4PFJets.clone(
         rParam = cms.double(0.6),
@@ -140,6 +169,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
     
     # compute area for ak5PFJets
+    from RecoJets.JetProducers.ak5PFJets_cfi import *
+    process.ak5PFJets = ak5PFJets.clone()
     process.ak5PFJets.doAreaFastjet = True
         
     
@@ -419,8 +450,9 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     #process.MiBiPathPFlow = cms.Path(process.MiBiCommonPAT*process.OneLeptonTwoJetsPFlowSeq*process.MiBiCommonNTOneLeptonTwoJetsPFlow)    
     
     # GammaGamma paths
-    #process.MiBiPathPhotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
-    process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.MiBiCommonPAT*process.TwoMuonsSeq*process.MiBiCommonNTTwoPhotons)
+    #process.Mibipathphotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
+    #process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.MiBiCommonPAT*process.TwoMuonsSeq*process.MiBiCommonNTTwoPhotons)
+    process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.noElectronVertexReco*process.noLeptonVertexReco*process.MiBiCommonPAT*process.MiBiCommonNTTwoPhotons)
    
   
     # Di-jet paths
