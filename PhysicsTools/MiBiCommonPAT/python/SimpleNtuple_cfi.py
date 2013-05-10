@@ -18,11 +18,15 @@ SimpleNtuple = cms.EDAnalyzer(
     #### primary vertices
     PVTag = cms.InputTag("offlinePrimaryVerticesWithBS"),
     NoMuonPVTag = cms.InputTag("offlinePrimaryVerticesNoMu","WithBS"),
+    NoElectronPVTag = cms.InputTag("offlinePrimaryVerticesNoEle","WithBS"),
+    NoLeptonPVTag = cms.InputTag("offlinePrimaryVerticesNoLep","WithBS"),
 
     #### tracks ####
     TracksTag = cms.InputTag("generalTracks"),
     NoMuonTracksTag = cms.InputTag("NoMuonTrackProducer"),
-
+    NoElectronTracksTag = cms.InputTag("NoElectronTrackProducer"),
+    NoLeptonTracksTag = cms.InputTag("NoLeptonTrackProducer"),
+    
     #### muons ####
     TauTag = cms.InputTag("patTaus"),
     
@@ -75,12 +79,13 @@ SimpleNtuple = cms.EDAnalyzer(
     saveBS         = cms.untracked.bool (True),
     savePV         = cms.untracked.bool (True),
     saveRho        = cms.untracked.bool (True),
-    saveEleLessPV  = cms.untracked.bool (False), # default no revertex
+    saveEleLessPV  = cms.untracked.bool (True), # default no revertex
     saveMuonLessPV = cms.untracked.bool (True), # default no revertex
+    saveLeptonLessPV = cms.untracked.bool (True), # default no revertex
     saveTrack      = cms.untracked.bool (True), # default no tracks
     saveTau        = cms.untracked.bool (False), # default no tau saved
     saveMu         = cms.untracked.bool (True),
-    saveEle        = cms.untracked.bool (False),
+    saveEle        = cms.untracked.bool (True),
     saveMet        = cms.untracked.bool (False),
     saveJet        = cms.untracked.bool (False),
     savePhoton     = cms.untracked.bool (False),
