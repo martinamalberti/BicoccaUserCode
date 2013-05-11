@@ -76,7 +76,7 @@ NoElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::auto_ptr<reco::TrackCollection> EleLess(new reco::TrackCollection);
   
   unsigned int eleIndex = -1;
-  unsigned int counter = 0;
+  //  unsigned int counter = 0;
   for( unsigned int trk = 0; trk < tkH->size(); ++trk )
     {
       for ( unsigned int ele = 0; ele < eleH->size(); ++ele )

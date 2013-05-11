@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuplePATtoNT.cc,v 1.4 2011/08/11 12:50:07 amassiro Exp $
+// $Id: SimpleNtuplePATtoNT.cc,v 1.5 2013/05/11 16:58:26 amartell Exp $
 //
 //
 
@@ -882,7 +882,7 @@ void SimpleNtuplePATtoNT::fillPVInfo(const edm::Event & iEvent, const edm::Event
 
    if(PVfound)
   {
-    VertexHigherPtSquared vertexTool;
+    //    VertexHigherPtSquared vertexTool;
     // sort the primary vertices according to sum of (pt)^2 of tracks (first one -> highest  sum of (pt)^2 )        
     //PrimaryVertexSorter PVSorter;
     //std::vector<reco::Vertex> sortedVertices = PVSorter.sortedList( *(vertexes.product()) );
@@ -1573,7 +1573,7 @@ void SimpleNtuplePATtoNT::fillEleInfo (const edm::Event & iEvent, const edm::Eve
   reco::SuperClusterRef scRef = electron.superCluster();
   reco::GsfTrackRef tkRef = electron.gsfTrack (); 
   
-  const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
+  //  const edm::Ptr<reco::CaloCluster>& seedCluster = scRef->seed();
  
   
   //reco::TransientTrack tt = trackBuilder->build(tkRef);

@@ -82,7 +82,7 @@ NoLeptonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   unsigned int muIndex = -1;
   unsigned int eleIndex = -1;
-  unsigned int counter = 0;
+  //  unsigned int counter = 0;
   for( unsigned int trk = 0; trk < tkH->size(); ++trk )
     {
       reco::TrackRef tkRef_tk(tkH, trk); 
