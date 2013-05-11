@@ -16,6 +16,8 @@ SimpleNtuple_noPAT = cms.EDAnalyzer(
     
     PVTag = cms.InputTag("goodOfflinePrimaryVertices"),
 
+    theBeamSpotTag = cms.InputTag("offlineBeamSpot"),
+
     #### tracks ####
     TracksTag = cms.InputTag("generalTracks"),
 

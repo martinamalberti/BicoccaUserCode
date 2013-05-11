@@ -143,6 +143,8 @@ class SimpleNtuple_noPAT : public edm::EDAnalyzer {
   std::vector<std::string> jetFilterHLT_names_;
   
   edm::InputTag PVTag_;
+
+  edm::InputTag BSTag_;
   
   edm::InputTag EleTag_;
   edm::InputTag TracksTag_;

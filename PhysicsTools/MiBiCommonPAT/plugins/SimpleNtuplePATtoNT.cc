@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuplePATtoNT.cc,v 1.3 2011/07/21 09:51:23 amassiro Exp $
+// $Id: SimpleNtuplePATtoNT.cc,v 1.4 2011/08/11 12:50:07 amassiro Exp $
 //
 //
 
@@ -58,7 +58,9 @@ SimpleNtuplePATtoNT::SimpleNtuplePATtoNT(const edm::ParameterSet& iConfig)
  
  TriggerEventTag_ = iConfig.getParameter<edm::InputTag>("TriggerEventTag");
  TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
-  
+
+ BSTag_              = iConfig.getParameter<edm::InputTag>("theBeamSpotTag");  
+
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
  TracksTag_      = iConfig.getParameter<edm::InputTag>("TracksTag");
 
@@ -838,8 +840,7 @@ void SimpleNtuplePATtoNT::fillBSInfo(const edm::Event & iEvent, const edm::Event
   //std::cout << "SimpleNtuplePATtoNT::fillBSInfo::begin" << std::endl;
   
   edm::Handle<reco::BeamSpot> BSHandle;
-  iEvent.getByType(BSHandle);
-  
+  iEvent.getByLabel(BSTag_, BSHandle);  
   
   // select the BS
   const reco::BeamSpot BS = *BSHandle;

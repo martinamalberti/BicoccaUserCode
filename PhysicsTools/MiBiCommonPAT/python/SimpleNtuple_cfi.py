@@ -21,6 +21,8 @@ SimpleNtuple = cms.EDAnalyzer(
     NoElectronPVTag = cms.InputTag("offlinePrimaryVerticesNoEle","WithBS"),
     NoLeptonPVTag = cms.InputTag("offlinePrimaryVerticesNoLep","WithBS"),
 
+    theBeamSpotTag = cms.InputTag("offlineBeamSpot"),
+
     #### tracks ####
     TracksTag = cms.InputTag("generalTracks"),
     NoMuonTracksTag = cms.InputTag("NoMuonTrackProducer"),

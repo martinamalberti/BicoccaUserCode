@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.54 2012/05/02 15:08:02 malberti Exp $
+// $Id: SimpleNtuple.cc,v 1.55 2013/05/10 09:56:59 malberti Exp $
 //
 //
 
@@ -58,7 +58,9 @@ SimpleNtuple::SimpleNtuple(const edm::ParameterSet& iConfig)
  
  TriggerEventTag_ = iConfig.getParameter<edm::InputTag>("TriggerEventTag");
  TriggerResultsTag_ = iConfig.getParameter<edm::InputTag>("TriggerResultsTag");
-  
+
+ BSTag_ = iConfig.getParameter<edm::InputTag>("theBeamSpotTag");  
+
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
  TracksTag_      = iConfig.getParameter<edm::InputTag>("TracksTag");
 
@@ -809,8 +811,7 @@ void SimpleNtuple::fillBSInfo(const edm::Event & iEvent, const edm::EventSetup &
   //std::cout << "SimpleNtuple::fillBSInfo::begin" << std::endl;
   
   edm::Handle<reco::BeamSpot> BSHandle;
-  iEvent.getByType(BSHandle);
-  
+  iEvent.getByLabel(BSTag_, BSHandle);  
   
   // select the BS
   const reco::BeamSpot BS = *BSHandle;

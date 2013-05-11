@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple_noPAT.cc,v 1.12 2012/01/08 09:35:55 abenagli Exp $
+// $Id: SimpleNtuple_noPAT.cc,v 1.13 2012/02/23 10:06:43 abenagli Exp $
 //
 //
 
@@ -66,6 +66,8 @@ SimpleNtuple_noPAT::SimpleNtuple_noPAT(const edm::ParameterSet& iConfig)
  muFilterHLT_names_  = iConfig.getParameter< std::vector<std::string> >("muFilterHLT_names");
  jetFilterHLT_names_ = iConfig.getParameter< std::vector<std::string> >("jetFilterHLT_names");
  
+ BSTag_              = iConfig.getParameter<edm::InputTag>("theBeamSpotTag");
+
  PVTag_ = iConfig.getParameter<edm::InputTag>("PVTag");
  TracksTag_      = iConfig.getParameter<edm::InputTag>("TracksTag");
  EBSCTag_          = iConfig.getParameter<edm::InputTag>("EBSCTag");
@@ -887,8 +889,7 @@ void SimpleNtuple_noPAT::fillBSInfo(const edm::Event & iEvent, const edm::EventS
   //std::cout << "SimpleNtuple_noPAT::fillBSInfo::begin" << std::endl;
   
   edm::Handle<reco::BeamSpot> BSHandle;
-  iEvent.getByType(BSHandle);
-  
+  iEvent.getByLabel(BSTag_, BSHandle);  
   
   // select the BS
   const reco::BeamSpot BS = *BSHandle;
