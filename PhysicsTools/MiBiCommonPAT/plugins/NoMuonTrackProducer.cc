@@ -75,7 +75,7 @@ NoMuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<reco::TrackCollection> MuonLess(new reco::TrackCollection);
   
   unsigned int muIndex = -1;
-  unsigned int counter = 0;
+  //  unsigned int counter = 0;
   for( unsigned int trk = 0; trk < tkH->size(); ++trk )
     {
       for ( unsigned int mu = 0; mu < muH->size(); ++mu )
