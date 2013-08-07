@@ -303,6 +303,21 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     )
 
     
+
+    # add inv mass cut
+    # build Z-> MuMu candidates
+    process.dimuons = cms.EDProducer("CandViewShallowCloneCombiner",
+                                     checkCharge = cms.bool(False),
+                                     cut = cms.string('mass > 60.'),
+                                     decay = cms.string("selectedPatMuons selectedPatMuons")
+                                     )
+    # Z filter
+    process.dimuonsFilter = cms.EDFilter("CandViewCountFilter",
+                                         src = cms.InputTag("dimuons"),
+                                         minNumber = cms.uint32(1)
+                                         )
+
+    
     
     #------------
     # Jet Filters
@@ -364,6 +379,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
 
     process.TwoMuonsSeq = cms.Sequence(
         process.MuonsFilter*
+        process.dimuons*
+        process.dimuonsFilter*
         process.MuonsFilterEvents
     )
    
@@ -451,8 +468,8 @@ def makeMiBiCommonNT(process, GlobalTag, HLT='HLT', MC=False, MCType='Other'):
     
     # GammaGamma paths
     #process.Mibipathphotons = cms.Path(process.MiBiCommonPAT*process.TwoPhotonsSeq*process.MiBiCommonNTTwoPhotons)
-    #process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.MiBiCommonPAT*process.TwoMuonsSeq*process.MiBiCommonNTTwoPhotons)
-    process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.noElectronVertexReco*process.noLeptonVertexReco*process.MiBiCommonPAT*process.MiBiCommonNTTwoPhotons)
+    process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.MiBiCommonPAT*process.TwoMuonsSeq*process.MiBiCommonNTTwoPhotons)
+    #process.MiBiPathPhotons = cms.Path( process.noMuonVertexReco*process.noElectronVertexReco*process.noLeptonVertexReco*process.MiBiCommonPAT*process.MiBiCommonNTTwoPhotons)
    
   
     # Di-jet paths
