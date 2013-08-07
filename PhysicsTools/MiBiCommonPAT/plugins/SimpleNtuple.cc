@@ -1,3 +1,4 @@
+//
 // -*- C++ -*-
 //
 // Package:    SimpleNtuple
@@ -13,7 +14,7 @@
 //
 // Original Author:  Andrea Massironi
 //         Created:  Fri Jan  5 17:34:31 CEST 2010
-// $Id: SimpleNtuple.cc,v 1.55 2013/05/10 09:56:59 malberti Exp $
+// $Id: SimpleNtuple.cc,v 1.56 2013/05/11 16:58:13 amartell Exp $
 //
 //
 
@@ -1313,104 +1314,107 @@ void SimpleNtuple::fillTrackInfo(const edm::Event & iEvent, const edm::EventSetu
 
   //save tracks associated to PVeleLess and PVmuonLess
   //electrons
-  edm::Handle<reco::VertexCollection> ElectronLessVertexes;
-  iEvent.getByLabel(NoElectronPVTag_, ElectronLessVertexes);
+  if (saveEleLessPV_){
+    edm::Handle<reco::VertexCollection> ElectronLessVertexes;
+    iEvent.getByLabel(NoElectronPVTag_, ElectronLessVertexes);
   
-  // select the primary vertex    
-  reco::Vertex ElectronLessPV;
-  bool ElectronLessPVfound = (ElectronLessVertexes -> size() != 0);
-
-  PrimaryVertexSorter ElectronLessPVSorter;
-  std::vector<reco::Vertex> sortedElectronLessVertices;
-  if(ElectronLessPVfound)
-    sortedElectronLessVertices = ElectronLessPVSorter.sortedList( *(ElectronLessVertexes.product()) );
- 
-  for( unsigned int u = 0 ; u < sortedElectronLessVertices.size(); u++ )
-    {      
-      float myptsum = 0;
-      ElectronLessPV = sortedElectronLessVertices[u];
-      for ( Vertex::trackRef_iterator ElectronLessPVitr = ElectronLessPV.tracks_begin(); ElectronLessPVitr != ElectronLessPV.tracks_end(); ++ElectronLessPVitr)
-	{
-	  float pt = sqrt( (**ElectronLessPVitr).momentum().perp2() );
-	  myptsum  += pt;
+    // select the primary vertex    
+    reco::Vertex ElectronLessPV;
+    bool ElectronLessPVfound = (ElectronLessVertexes -> size() != 0);
+    
+    PrimaryVertexSorter ElectronLessPVSorter;
+    std::vector<reco::Vertex> sortedElectronLessVertices;
+    if(ElectronLessPVfound)
+      sortedElectronLessVertices = ElectronLessPVSorter.sortedList( *(ElectronLessVertexes.product()) );
+    
+    for( unsigned int u = 0 ; u < sortedElectronLessVertices.size(); u++ )
+      {      
+	float myptsum = 0;
+	ElectronLessPV = sortedElectronLessVertices[u];
+	for ( Vertex::trackRef_iterator ElectronLessPVitr = ElectronLessPV.tracks_begin(); ElectronLessPVitr != ElectronLessPV.tracks_end(); ++ElectronLessPVitr)
+	  {
+	    float pt = sqrt( (**ElectronLessPVitr).momentum().perp2() );
+	    myptsum  += pt;
 	    
-	  NtupleFactory_ -> Fill3V("PVEleLessTracks", (**ElectronLessPVitr).momentum());
-	  NtupleFactory_ -> FillInt("PVEleLessTracks_PVindex", u);
-	  NtupleFactory_ -> FillFloat("PVEleLessTracks_normalizedChi2", (**ElectronLessPVitr).normalizedChi2());
-	  NtupleFactory_ -> FillInt("PVEleLessTracks_numberOfValidHits", (**ElectronLessPVitr).numberOfValidHits());
-
-	}
-
-      NtupleFactory_ -> FillFloat("PVEleLessTracks_sumPt", myptsum);
-    }
-
+	    NtupleFactory_ -> Fill3V("PVEleLessTracks", (**ElectronLessPVitr).momentum());
+	    NtupleFactory_ -> FillInt("PVEleLessTracks_PVindex", u);
+	    NtupleFactory_ -> FillFloat("PVEleLessTracks_normalizedChi2", (**ElectronLessPVitr).normalizedChi2());
+	    NtupleFactory_ -> FillInt("PVEleLessTracks_numberOfValidHits", (**ElectronLessPVitr).numberOfValidHits());
+	    
+	  }
+	
+	NtupleFactory_ -> FillFloat("PVEleLessTracks_sumPt", myptsum);
+      }
+  }
 
 
   // //muons
-  edm::Handle<reco::VertexCollection> MuonLessVertexes;
-  iEvent.getByLabel(NoMuonPVTag_, MuonLessVertexes);
-  
-  // select the primary vertex    
-  reco::Vertex MuonLessPV;
-  bool MuonLessPVfound = (MuonLessVertexes -> size() != 0);
-
-  PrimaryVertexSorter MuonLessPVSorter;
-  std::vector<reco::Vertex> sortedMuonLessVertices;
-  if(MuonLessPVfound)
-    sortedMuonLessVertices = MuonLessPVSorter.sortedList( *(MuonLessVertexes.product()) );
- 
-  for( unsigned int u = 0 ; u < sortedMuonLessVertices.size(); u++ )
-    {      
-      float myptsum = 0;
-      MuonLessPV = sortedMuonLessVertices[u];
-      for ( Vertex::trackRef_iterator MuonLessPVitr = MuonLessPV.tracks_begin(); MuonLessPVitr != MuonLessPV.tracks_end(); ++MuonLessPVitr)
-	{
-	  float pt = sqrt( (**MuonLessPVitr).momentum().perp2() );
-	  myptsum  += pt;
+  if (saveMuonLessPV_){
+    edm::Handle<reco::VertexCollection> MuonLessVertexes;
+    iEvent.getByLabel(NoMuonPVTag_, MuonLessVertexes);
+    
+    // select the primary vertex    
+    reco::Vertex MuonLessPV;
+    bool MuonLessPVfound = (MuonLessVertexes -> size() != 0);
+    
+    PrimaryVertexSorter MuonLessPVSorter;
+    std::vector<reco::Vertex> sortedMuonLessVertices;
+    if(MuonLessPVfound)
+      sortedMuonLessVertices = MuonLessPVSorter.sortedList( *(MuonLessVertexes.product()) );
+    
+    for( unsigned int u = 0 ; u < sortedMuonLessVertices.size(); u++ )
+      {      
+	float myptsum = 0;
+	MuonLessPV = sortedMuonLessVertices[u];
+	for ( Vertex::trackRef_iterator MuonLessPVitr = MuonLessPV.tracks_begin(); MuonLessPVitr != MuonLessPV.tracks_end(); ++MuonLessPVitr)
+	  {
+	    float pt = sqrt( (**MuonLessPVitr).momentum().perp2() );
+	    myptsum  += pt;
 	    
-	  NtupleFactory_ -> Fill3V("PVMuonLessTracks", (**MuonLessPVitr).momentum());
-	  NtupleFactory_ -> FillInt("PVMuonLessTracks_PVindex", u);
-	  NtupleFactory_ -> FillFloat("PVMuonLessTracks_normalizedChi2", (**MuonLessPVitr).normalizedChi2());
-	  NtupleFactory_ -> FillInt("PVMuonLessTracks_numberOfValidHits", (**MuonLessPVitr).numberOfValidHits());
-
-	}
-
-      NtupleFactory_ -> FillFloat("PVMuonLessTracks_sumPt", myptsum);
-    }
-
+	    NtupleFactory_ -> Fill3V("PVMuonLessTracks", (**MuonLessPVitr).momentum());
+	    NtupleFactory_ -> FillInt("PVMuonLessTracks_PVindex", u);
+	    NtupleFactory_ -> FillFloat("PVMuonLessTracks_normalizedChi2", (**MuonLessPVitr).normalizedChi2());
+	    NtupleFactory_ -> FillInt("PVMuonLessTracks_numberOfValidHits", (**MuonLessPVitr).numberOfValidHits());
+	    
+	  }
+	
+	NtupleFactory_ -> FillFloat("PVMuonLessTracks_sumPt", myptsum);
+      }
+  }
 
   //Leptons
-  edm::Handle<reco::VertexCollection> LeptonLessVertexes;
-  iEvent.getByLabel(NoLeptonPVTag_, LeptonLessVertexes);
-  
-  // select the primary vertex    
-  reco::Vertex LeptonLessPV;
-  bool LeptonLessPVfound = (LeptonLessVertexes -> size() != 0);
-
-  PrimaryVertexSorter LeptonLessPVSorter;
-  std::vector<reco::Vertex> sortedLeptonLessVertices;
-  if(LeptonLessPVfound)
-    sortedLeptonLessVertices = LeptonLessPVSorter.sortedList( *(LeptonLessVertexes.product()) );
- 
-  for( unsigned int u = 0 ; u < sortedLeptonLessVertices.size(); u++ )
-    {      
-      float myptsum = 0;
-      LeptonLessPV = sortedLeptonLessVertices[u];
-      for ( Vertex::trackRef_iterator LeptonLessPVitr = LeptonLessPV.tracks_begin(); LeptonLessPVitr != LeptonLessPV.tracks_end(); ++LeptonLessPVitr)
-	{
-	  float pt = sqrt( (**LeptonLessPVitr).momentum().perp2() );
-	  myptsum  += pt;
+  if (saveLeptonLessPV_){
+    edm::Handle<reco::VertexCollection> LeptonLessVertexes;
+    iEvent.getByLabel(NoLeptonPVTag_, LeptonLessVertexes);
+    
+    // select the primary vertex    
+    reco::Vertex LeptonLessPV;
+    bool LeptonLessPVfound = (LeptonLessVertexes -> size() != 0);
+    
+    PrimaryVertexSorter LeptonLessPVSorter;
+    std::vector<reco::Vertex> sortedLeptonLessVertices;
+    if(LeptonLessPVfound)
+      sortedLeptonLessVertices = LeptonLessPVSorter.sortedList( *(LeptonLessVertexes.product()) );
+    
+    for( unsigned int u = 0 ; u < sortedLeptonLessVertices.size(); u++ )
+      {      
+	float myptsum = 0;
+	LeptonLessPV = sortedLeptonLessVertices[u];
+	for ( Vertex::trackRef_iterator LeptonLessPVitr = LeptonLessPV.tracks_begin(); LeptonLessPVitr != LeptonLessPV.tracks_end(); ++LeptonLessPVitr)
+	  {
+	    float pt = sqrt( (**LeptonLessPVitr).momentum().perp2() );
+	    myptsum  += pt;
 	    
-	  NtupleFactory_ -> Fill3V("PVLeptonLessTracks", (**LeptonLessPVitr).momentum());
-	  NtupleFactory_ -> FillInt("PVLeptonLessTracks_PVindex", u);
-	  NtupleFactory_ -> FillFloat("PVLeptonLessTracks_normalizedChi2", (**LeptonLessPVitr).normalizedChi2());
-	  NtupleFactory_ -> FillInt("PVLeptonLessTracks_numberOfValidHits", (**LeptonLessPVitr).numberOfValidHits());
-
-	}
-
-      NtupleFactory_ -> FillFloat("PVLeptonLessTracks_sumPt", myptsum);
-    }
-  
+	    NtupleFactory_ -> Fill3V("PVLeptonLessTracks", (**LeptonLessPVitr).momentum());
+	    NtupleFactory_ -> FillInt("PVLeptonLessTracks_PVindex", u);
+	    NtupleFactory_ -> FillFloat("PVLeptonLessTracks_normalizedChi2", (**LeptonLessPVitr).normalizedChi2());
+	    NtupleFactory_ -> FillInt("PVLeptonLessTracks_numberOfValidHits", (**LeptonLessPVitr).numberOfValidHits());
+	    
+	  }
+	
+	NtupleFactory_ -> FillFloat("PVLeptonLessTracks_sumPt", myptsum);
+      }
+  }
 
 }
 
