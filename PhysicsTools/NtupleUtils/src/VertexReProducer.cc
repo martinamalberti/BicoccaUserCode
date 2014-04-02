@@ -11,15 +11,15 @@ VertexReProducer::VertexReProducer(const edm::Handle<reco::VertexCollection> &ha
 {
     const edm::Provenance *prov = handle.provenance();
     if (prov == 0) throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
-    edm::ParameterSetID psid = prov->psetID();
+    edm::ParameterSetID psid = (prov->branchDescription()).parameterSetID();
 
     edm::pset::Registry *psregistry = edm::pset::Registry::instance();
     edm::ParameterSet psetFromProvenance;
     if (!psregistry->getMapped(psid, psetFromProvenance)) 
         throw cms::Exception("CorruptData") << "Vertex handle parameter set ID id = " << psid;
 
-    if (prov->moduleName() != "PrimaryVertexProducer") 
-        throw cms::Exception("Configuration") << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a " << prov->moduleName() <<".\n";
+    if (prov->moduleLabel() != "PrimaryVertexProducer") 
+        throw cms::Exception("Configuration") << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a " << prov->moduleLabel() <<".\n";
 
     configure(psetFromProvenance); 
 
