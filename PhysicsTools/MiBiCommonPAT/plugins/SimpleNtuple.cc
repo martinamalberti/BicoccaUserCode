@@ -905,17 +905,18 @@ void SimpleNtuple::fillRhoInfo(const edm::Event & iEvent, const edm::EventSetup 
 {
   //std::cout << "SimpleNtuple::fillRhoInfo::begin" << std::endl;
   
-  edm::Handle<double> rhoForIsolation;
-  iEvent.getByLabel("kt6PFJetsForIsolation", "rho", rhoForIsolation);
+  // for the moment skip this
+  //edm::Handle<double> rhoForIsolation;
+  //iEvent.getByLabel("kt6PFJetsForIsolation", "rho", rhoForIsolation);
   
-  edm::Handle<double> rhoForJets;
-  iEvent.getByLabel("kt6PFJets", "rho", rhoForJets);
-  edm::Handle<double> rhoForJetsPFlow;
-  iEvent.getByLabel("kt6PFJetsPFlow", "rho", rhoForJetsPFlow);
+  //edm::Handle<double> rhoForJets;
+  //iEvent.getByLabel("kt6PFJets", "rho", rhoForJets);
+  //edm::Handle<double> rhoForJetsPFlow;
+  //iEvent.getByLabel("kt6PFJetsPFlow", "rho", rhoForJetsPFlow);
   
-  NtupleFactory_ -> FillFloat("rho_isolation", *(rhoForIsolation.product()));
-  NtupleFactory_ -> FillFloat("rho_jets", *(rhoForJets.product()));
-  NtupleFactory_ -> FillFloat("rho_jetsPFlow", *(rhoForJetsPFlow.product()));
+  //NtupleFactory_ -> FillFloat("rho_isolation", *(rhoForIsolation.product()));
+  //NtupleFactory_ -> FillFloat("rho_jets", *(rhoForJets.product()));
+  //NtupleFactory_ -> FillFloat("rho_jetsPFlow", *(rhoForJetsPFlow.product()));
   
   //std::cout << "SimpleNtuple::fillRhoInfo::end" << std::endl;
 }
